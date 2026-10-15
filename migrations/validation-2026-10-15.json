@@ -1,14 +1,15 @@
 {
   "schema_version": "1.0.0",
   "scope": "Public cross-component relocation validation only; not release or deployment qualification",
-  "migration_manifest_sha256": "04f76f362b8edcf934da5327f0e2caed3fd6c6722d1dc25c7d0f17b3c1d1ec4d",
+  "migration_manifest_sha256": "4c441fedeaeb108c36ec03fdc9611986b29871e3811b558d0a5b29f609978e1f",
   "source_commits": {
     "cognous-open-control-stack": "0e6ab2435438dd1edcdc5a00789afa6f0f5f4ccf",
     "cognous-execution-runtime": "309e194c1b0a3de23e11e20133e6eaf88875e48a",
     "cognous-replay-bundle": "83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a",
     "cognous-governance-evidence-pack": "1e789c7d67a897097445faef1813fb0cd22d55e5",
     "cognous-governed-exchange": "9de2d438ed03531bb960c896f541a6a2da1b2315",
-    "open-decision-evidence-standard": "25c7ad608c2e6fd9f450e075db6bbf3ee4091a49"
+    "open-decision-evidence-standard": "25c7ad608c2e6fd9f450e075db6bbf3ee4091a49",
+    "cognous-evidence-registry": "650903fd6db1d68810dd377ba09e801a76682935"
   },
   "checked_source_state": "Local migration working trees; final hosted commits require their own CI status. Migrated file byte hashes are committed in the manifest.",
   "native_checks": {
@@ -27,6 +28,9 @@
     },
     "cognous-governed-exchange": {
       "passed": 34
+    },
+    "cognous-evidence-registry": {
+      "passed": 85
     }
   },
   "relocation_tool_checks": {
@@ -36,7 +40,7 @@
       "python tools/validate_catalog.py",
       "python -m unittest discover -s tests -v"
     ],
-    "workflow_yaml_and_shell_syntax_checked": 48
+    "workflow_yaml_and_shell_syntax_checked": 49
   },
   "representative_relocated_checks": {
     "runtime_refusal_capture": 7,
@@ -44,7 +48,15 @@
     "evidence_pack_typed_refusal": 10,
     "odes_typed_refusal": 10,
     "gax_typed_candidate": 8,
-    "openshell_helper_unit_checks": 27
+    "openshell_helper_unit_checks": 27,
+    "bitrep_binding_python": 12,
+    "index_evm_node_report": {
+      "passed_test_nodes": 20,
+      "includes_parent_test_node": true,
+      "actual_local_evm_execution": true,
+      "external_public_rpc_used": false,
+      "native_uws_binary": "Unavailable for local Node ABI; Ganache used its JavaScript fallback."
+    }
   },
   "nonpassing_probe": {
     "scope": "Hub reference environment, full candidate gate and release gate probe without original dependency preparation",
@@ -67,5 +79,11 @@
   },
   "release_authorized": false,
   "production_authorized": false,
-  "operational_trust": "HOLD / NOT ESTABLISHED"
+  "operational_trust": "HOLD / NOT ESTABLISHED",
+  "hosted_initial_target": {
+    "sha": "f99bb7591f52ca5a26d64a50d9ef466b4749ad4e",
+    "migration_integrity": "success",
+    "catalog_validation": "success",
+    "source_job_limitation": "Provenance artifact upload failed because hidden evidence directories were excluded; corrected to visible directory."
+  }
 }

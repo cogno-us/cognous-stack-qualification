@@ -45,7 +45,7 @@ jobs:
     - name: Retain both source identities and assemble test overlay
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
-        ".qualification-evidence/embedded-runtime.json"
+        "qualification-evidence/embedded-runtime.json"
     - name: Exercise actual pinned runtime decisions
       shell: bash
       run: 'set -euo pipefail
@@ -67,5 +67,5 @@ jobs:
       with:
         name: relocation-cognous-execution-runtime-embedded-runtime-${{ strategy.job-index }}-${{ github.run_attempt
           }}
-        path: .qualification-evidence/
+        path: qualification-evidence/
         if-no-files-found: error

@@ -196,7 +196,7 @@ jobs:
     - name: Retain both source identities and assemble test overlay
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
-        "." --evidence ".qualification-evidence/test.json"
+        "." --evidence "qualification-evidence/test.json"
     - name: Verify persistence compatibility pins
       run: 'test "$(git -C upstream/replay-store rev-parse HEAD)" = "043830b56595cecddfa65c064afd1c0b95e64792"
 
@@ -256,5 +256,5 @@ jobs:
       with:
         name: relocation-cognous-governance-evidence-pack-test-${{ strategy.job-index }}-${{ github.run_attempt
           }}
-        path: .qualification-evidence/
+        path: qualification-evidence/
         if-no-files-found: error

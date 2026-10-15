@@ -69,7 +69,7 @@ jobs:
     - name: Retain both source identities and assemble test overlay
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
-        "." --evidence ".qualification-evidence/qualify-linux.json"
+        "." --evidence "qualification-evidence/qualify-linux.json"
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}
@@ -101,5 +101,5 @@ jobs:
       with:
         name: relocation-cognous-governance-evidence-pack-qualify-linux-${{ strategy.job-index }}-${{ github.run_attempt
           }}
-        path: .qualification-evidence/
+        path: qualification-evidence/
         if-no-files-found: error

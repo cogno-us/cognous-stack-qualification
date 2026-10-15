@@ -82,7 +82,7 @@ jobs:
     - name: Retain both source identities and assemble test overlay
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-governed-exchange --source-root "." --evidence
-        ".qualification-evidence/qualify-linux.json"
+        "qualification-evidence/qualify-linux.json"
     - name: Verify exact dependencies
       run: 'test "$(git -C upstream/manifest rev-parse HEAD)" = "46c950bed37fe3812000895430bc0312d29e37ce"
 
@@ -131,5 +131,5 @@ jobs:
       with:
         name: relocation-cognous-governed-exchange-qualify-linux-${{ strategy.job-index }}-${{ github.run_attempt
           }}
-        path: .qualification-evidence/
+        path: qualification-evidence/
         if-no-files-found: error

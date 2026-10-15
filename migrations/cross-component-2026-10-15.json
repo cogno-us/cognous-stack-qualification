@@ -2154,6 +2154,52 @@
           "qualification_workflow": ".github/workflows/open-decision-evidence-standard--typed-refusal.yml"
         }
       ]
+    },
+    "cognous-evidence-registry": {
+      "repository": "cogno-us/cognous-evidence-registry",
+      "source_commit": "650903fd6db1d68810dd377ba09e801a76682935",
+      "source_tree": "bca39db16cf7137d65238075eee644bcd6cd2747",
+      "files": [
+        {
+          "source_path": "chain/python/test_bitrep.py",
+          "destination_path": "suites/cognous-evidence-registry/chain/python/test_bitrep.py",
+          "source_sha256": "081e35fcd586280855707b552400cda4ab7001f1c3847a884af733a7a21fa11c",
+          "destination_sha256": "081e35fcd586280855707b552400cda4ab7001f1c3847a884af733a7a21fa11c",
+          "source_mode": "100644",
+          "license": "Apache-2.0",
+          "action": "move",
+          "source_url": "https://github.com/cogno-us/cognous-evidence-registry/blob/650903fd6db1d68810dd377ba09e801a76682935/chain/python/test_bitrep.py"
+        },
+        {
+          "source_path": "chain/test/protocol.test.mjs",
+          "destination_path": "suites/cognous-evidence-registry/chain/test/protocol.test.mjs",
+          "source_sha256": "ffeda8025c0381b7a9199058de05801be079a2aa6f504ce9fb30078668ee3de5",
+          "destination_sha256": "ffeda8025c0381b7a9199058de05801be079a2aa6f504ce9fb30078668ee3de5",
+          "source_mode": "100644",
+          "license": "Apache-2.0",
+          "action": "move",
+          "source_url": "https://github.com/cogno-us/cognous-evidence-registry/blob/650903fd6db1d68810dd377ba09e801a76682935/chain/test/protocol.test.mjs"
+        }
+      ],
+      "license_notices": [
+        {
+          "source_path": "LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+          "retained_path": "suites/cognous-evidence-registry/LICENSE"
+        },
+        {
+          "source_path": "NOTICE",
+          "sha256": "ed9de3ec7ef94fdb8729ce89312610442faa45f37cf1edc291733de1839a1d72",
+          "retained_path": "suites/cognous-evidence-registry/NOTICE"
+        }
+      ],
+      "workflow_mappings": [
+        {
+          "source_path": ".github/workflows/chain-qualification.yml",
+          "qualification_workflow": ".github/workflows/cognous-evidence-registry--chain-qualification.yml",
+          "created_source_call": true
+        }
+      ]
     }
   },
   "inventory": [
@@ -2186,8 +2232,8 @@
       "source_commit": "650903fd6db1d68810dd377ba09e801a76682935",
       "visibility": "public",
       "tracked_test_candidates": 9,
-      "disposition": "no_owned_cross_component_stack_harness_identified",
-      "scope_note": "Platform/application-internal tests are component-local, including retained upstream Moltbot application tests and oss-scanner infrastructure tests."
+      "disposition": "cross_component_paths_migrated_with_local_regressions_retained",
+      "scope_note": "Cross-component BitRep verification and local EVM test drivers moved; adapter, contract, clients and application unit tests retained."
     },
     {
       "repository": "cogno-us/cognous-execution-runtime",

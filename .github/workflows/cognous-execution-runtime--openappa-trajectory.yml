@@ -45,7 +45,7 @@ jobs:
     - name: Retain both source identities and assemble test overlay
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
-        ".qualification-evidence/trajectory.json"
+        "qualification-evidence/trajectory.json"
     - name: Check actual persistent runtime behavior
       shell: bash
       run: 'set -euo pipefail
@@ -66,5 +66,5 @@ jobs:
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
         name: relocation-cognous-execution-runtime-trajectory-${{ strategy.job-index }}-${{ github.run_attempt }}
-        path: .qualification-evidence/
+        path: qualification-evidence/
         if-no-files-found: error

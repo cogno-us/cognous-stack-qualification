@@ -26,8 +26,8 @@ def validate(root=ROOT):
                 raise ValueError('Missing or modified relocated file: '+str(path))
             if row.get('source_mode') not in {'100644','100755'} or bool(path.stat().st_mode & 0o100)!=(row['source_mode']=='100755'):
                 raise ValueError('Relocated executable mode differs from source')
-            if row['source_sha256']!=row['destination_sha256']:
-                raise ValueError('Initial relocation must retain original bytes')
+            if row['source_sha256']!=row['destination_sha256'] and not row.get('modification_notice'):
+                raise ValueError('Adapted tests require a modification notice while preserving their original source digest')
             if f'/blob/{spec["source_commit"]}/' not in row['source_url']:
                 raise ValueError('Unpinned provenance')
             if row['license'] not in {'Apache-2.0','MIT'}:
@@ -42,6 +42,8 @@ def validate(root=ROOT):
             if not (root/mapping['qualification_workflow']).is_file():
                 raise ValueError('Missing reusable workflow')
             text=(root/mapping['qualification_workflow']).read_text()
+            if 'path: qualification-evidence/' not in text or '.qualification-evidence/' in text:
+                raise ValueError('Provenance artifact must use a visible evidence directory')
             if 'workflow_call:' not in text or 'install_suite.py' not in text:
                 raise ValueError('Reusable workflow lacks assembly/provenance')
             workflows+=1

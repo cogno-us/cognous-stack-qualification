@@ -1,6 +1,6 @@
 # Executable cross component suites
 
-These suites were relocated from six public Cognous repositories. Original file bytes, dependency pins, assertions and per-file licenses are retained. This is a refactor of ownership, not fresh production qualification. The 696 scenario-catalog entries retain their own NOT RUN statuses until explicitly mapped to executed evidence.
+These suites were relocated from seven public Cognous repositories. Original file bytes, dependency pins, assertions and per-file licenses are retained. This is a refactor of ownership, not fresh production qualification. The 696 scenario-catalog entries retain their own NOT RUN statuses until explicitly mapped to executed evidence.
 
 | Owning repository | Moved tests and harness files | Delegated workflows | Source commit |
 |---|---:|---:|---|
@@ -10,6 +10,7 @@ These suites were relocated from six public Cognous repositories. Original file 
 | [cognous-governance-evidence-pack](cognous-governance-evidence-pack/README.md) | 14 | 7 | `1e789c7d67a897097445faef1813fb0cd22d55e5` |
 | [cognous-governed-exchange](cognous-governed-exchange/README.md) | 12 | 3 | `9de2d438ed03531bb960c896f541a6a2da1b2315` |
 | [open-decision-evidence-standard](open-decision-evidence-standard/README.md) | 8 | 3 | `25c7ad608c2e6fd9f450e075db6bbf3ee4091a49` |
+| [cognous-evidence-registry](cognous-evidence-registry/README.md) | 2 | 1 | `650903fd6db1d68810dd377ba09e801a76682935` |
 
 ## Inventory and boundaries
 
@@ -17,7 +18,7 @@ The [migration manifest](../migrations/cross-component-2026-10-15.json) inventor
 
 Three private repositories were inventoried separately. Private orchestrator integration suites were not copied into this public destination: their private source has no public license grant in the reviewed tree. Private methodology and doctrine remain private and retain their ownership. This refactor does not authorize private-to-public publication.
 
-All 183 original files have source commit/path hashes and retained license notices; 135 executable/support files relocate and 48 workflow paths become source-side callers. Some mixed integration files include helper-level regression assertions; those remain with their cohesive suite to avoid changing assertions or fixture behavior. Runtime fixture helpers remain with their migrated integration suites.
+All 185 original files have source commit/path hashes and retained license notices; 137 executable/support files relocate, 48 existing workflow paths become source-side callers, and one new registry workflow delegates its previously manual chain qualification. Some mixed integration files include helper-level regression assertions; those remain with their cohesive suite to avoid changing assertions or fixture behavior. Runtime fixture helpers remain with their migrated integration suites.
 
 ## Reproduction
 

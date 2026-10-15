@@ -88,7 +88,7 @@ jobs:
     - name: Retain both source identities and assemble test overlay
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-replay-bundle --source-root "replay-bundle"
-        --evidence ".qualification-evidence/test.json"
+        --evidence "qualification-evidence/test.json"
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
@@ -165,7 +165,7 @@ jobs:
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
         name: relocation-cognous-replay-bundle-test-${{ strategy.job-index }}-${{ github.run_attempt }}
-        path: .qualification-evidence/
+        path: qualification-evidence/
         if-no-files-found: error
 permissions:
   contents: read

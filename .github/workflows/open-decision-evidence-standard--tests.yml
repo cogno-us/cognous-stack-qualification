@@ -96,7 +96,7 @@ jobs:
     - name: Retain both source identities and assemble test overlay
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite open-decision-evidence-standard --source-root "."
-        --evidence ".qualification-evidence/test.json"
+        --evidence "qualification-evidence/test.json"
     - name: Verify pinned revisions
       run: 'test "$(git -C external/manifest rev-parse HEAD)" = "46c950bed37fe3812000895430bc0312d29e37ce"
 
@@ -193,7 +193,7 @@ jobs:
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
         name: relocation-open-decision-evidence-standard-test-${{ strategy.job-index }}-${{ github.run_attempt }}
-        path: .qualification-evidence/
+        path: qualification-evidence/
         if-no-files-found: error
 permissions:
   contents: read
