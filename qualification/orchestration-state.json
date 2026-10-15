@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0.0",
-  "overall_status": "BOUNDED LOCAL CHECKS PASSED; ACTUAL-AGENT AND EXPORT QUALIFICATION BLOCKED",
+  "overall_status": "BOUNDED LOCAL AND OPENAI PILOT CHECKS PASSED; EXPORT AND OPERATIONAL QUALIFICATION DEFERRED",
   "profile": "native-local-destination-and-approval-fixtures/1",
   "selected": false,
   "human_oversight": "NOT EVALUATED",
-  "verified_at": "2026-10-15T22:05:55.460408+00:00",
-  "verification_method": "PR #12 merged after all exact-head hosted checks passed; merged revision rerun passed 36 native trials and 62 qualification tooling tests",
+  "verified_at": "2026-10-15T23:22:16.801167+00:00",
+  "verification_method": "PR #12 merged after all exact-head hosted checks passed; merged revision rerun passed 36 native trials and 62 qualification tooling tests; completed OpenAI pilot workflow 38821035491 and downloaded artifact/manifest commitments verified without executing paid calls",
   "starting_qualification_sha": "dcedf33e5f53ad4a86c3019c0d16f863a60db1f2",
   "phases": [
     {
@@ -47,16 +47,16 @@
     },
     {
       "id": "T4",
-      "scope": "Actual-agent pilot",
+      "scope": "Bounded OpenAI actual-agent pilot",
       "dependencies": [
         "T3"
       ],
-      "status": "BLOCKED",
-      "next_action": "Run the user-authorized bounded Claude Opus 5.5 campaign on PR 14 merge and review retained results",
+      "status": "INTEGRATED",
+      "next_action": "Completed 25/25 diagnostic trials via [PR #17](https://github.com/cogno-us/cognous-stack-qualification/pull/17) and [run 38821035491](https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491); retain evidence/accounting, no paid reruns; broader agent coverage remains unqualified",
       "owner": "T0",
-      "branch": "testing/t0-serial-qualification",
-      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
-      "merge_sha": null
+      "branch": "testing/openai-pilot-resume",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/17",
+      "merge_sha": "4c817a5eaa53c51e91322f8204864f039ab11d1f"
     },
     {
       "id": "CLOSEOUT",
@@ -109,12 +109,6 @@
   },
   "blockers": [
     {
-      "id": "MODEL-CREDENTIAL",
-      "reason": "Claude Opus 5.5 / USD 20 bounded campaign authorized; Actions secret reported configured; execution pending PR 14 merge",
-      "owner": "Agent runtime owner",
-      "resolution": "Merge PR 14 to execute the one authorized campaign with fixed bounds and persistent accounting; review real results"
-    },
-    {
       "id": "EXPORT-MAPPING",
       "reason": "Native local destination/approval records have no verified Replay or Evidence Pack producer mapping",
       "owner": "Artifact adapter maintainers",
@@ -156,5 +150,69 @@
     "postmerge_tooling_tests": 62,
     "release_authorized": false,
     "production_authorized": false
+  },
+  "resolved_blockers": [
+    {
+      "id": "MODEL-CREDENTIAL",
+      "reason": "Claude Opus 5.5 / USD 20 bounded campaign authorized; Actions secret reported configured; execution pending PR 14 merge",
+      "owner": "Agent runtime owner",
+      "resolution": "Bounded OpenAI pilot completed at run 38821035491; earlier Claude/configuration state retained as history, not a current blocker",
+      "status": "SUPERSEDED"
+    }
+  ],
+  "actual_agent_pilot": {
+    "status": "COMPLETE",
+    "provider": "openai-direct",
+    "model": "gpt-6.1-sol",
+    "scope": "Five bounded nonselected synthetic variants, five repetitions each; not A01–A06 or full selected-stack qualification",
+    "qualification_commit": "4c817a5eaa53c51e91322f8204864f039ab11d1f",
+    "hub_commit": "4bb101ca6dd5ee8f821bc44a7af935b5e389562e",
+    "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/17",
+    "workflow_run": "https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491",
+    "expected_trials": 25,
+    "verdict_counts": {
+      "PASS": 25
+    },
+    "unexecuted_trials": 0,
+    "artifact": {
+      "id": 12013785164,
+      "name": "openai-gpt-6.1-sol-pilot-38821035491",
+      "url": "https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491/artifacts/12013785164",
+      "zip_sha256": "4f9ce2a5f4df1431c669f67f5e25d8564682d9e0d3b70827dbb561ad5c507154",
+      "manifest_member": "openai-results/manifest.json",
+      "manifest_sha256": "187a29385ac2123bd1f4c86421712da5950f8973cfd69bd4ecb540df79deaeb8",
+      "ledger_member": "openai-campaign/ledger.sqlite",
+      "ledger_sha256": "32ce9010a2ab934931f77d5831ebb5dbd0e9a1fe6fb9cb626b7a8862505a6c2c",
+      "prior_attempt_member": "prior-openai-attempt.zip",
+      "prior_attempt_sha256": "c800440c9f3c05f8c27cb689a6adc207d7ce26ac97a60931395b639dd4a59c0a",
+      "expires_at": "2027-01-13T23:01:59Z",
+      "retention_note": "Artifact bytes remain in the retained Actions artifact; hashes and links do not preserve them after expiry. No raw model records, ledger or prior attempt are republished by this update."
+    },
+    "budget": {
+      "calls": [
+        {
+          "count": 1,
+          "microdollars": 70480,
+          "state": "RESERVED"
+        },
+        {
+          "count": 95,
+          "microdollars": 107560,
+          "state": "SETTLED"
+        }
+      ],
+      "cap_usd": "19.908",
+      "charged_or_reserved_usd": "0.17804",
+      "scope": "client campaign accounting at recorded rates; not provider invoice guarantee"
+    },
+    "limitations": [
+      "Remaining USD 19.908 allowance as stated in the conversation. Prior evidence and accounting remain in their existing location. Client accounting is not an invoice guarantee; no provider spending-limit prerequisite.",
+      "Twenty-five synthetic diagnostic trials, at most 150 paid requests; no automatic retries or further campaign authorization.",
+      "Provider model ID is recorded per response; no finer immutable snapshot is advertised for this model.",
+      "Native local profiles remain nonselected and observer shares the trusted host; human oversight NOT EVALUATED.",
+      "Memory/compaction, tenant-memory isolation and multi-agent handoff remain NOT RUN. No full catalog acceptance."
+    ],
+    "paid_reruns_authorized": false,
+    "source_context": "Native deterministic tested_sources above remain their original identities; this pilot has its separate exact sources. No historical record or ledger is rewritten."
   }
 }
