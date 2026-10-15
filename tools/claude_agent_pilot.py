@@ -101,6 +101,10 @@ class Ledger:
         if any(type(usage.get(k)) is not int or usage[k]<0 for k in required):raise PilotError('Unusable provider usage; reservation retained')
         if any(usage.get(k,0) not in (0,None) for k in ('cache_creation_input_tokens','cache_read_input_tokens')):
             raise PilotError('Unexpected caching; reservation retained')
+        if usage.get('service_tier') not in (None,'standard') or usage.get('inference_geo') not in (None,'global'):
+            raise PilotError('Unexpected service tier or geography; reservation retained')
+        if any(usage.get('server_tool_use',{}).values()):
+            raise PilotError('Unexpected server tool usage; reservation retained')
         amount=usage['input_tokens']*4+usage['output_tokens']*20
         with self.connect() as c:
             c.execute('BEGIN IMMEDIATE')
@@ -141,9 +145,10 @@ class AnthropicHTTP:
 
 def model_call(transport,ledger,config,messages):
     payload={'model':config['model'],'max_tokens':config['max_output_tokens'],
-             'system':SYSTEM,'messages':messages,'tools':TOOLS}
+             'system':SYSTEM,'messages':messages,'tools':TOOLS,
+             'service_tier':'standard_only','output_config':{'effort':'medium'}}
     if len(json.dumps(payload).encode())>config['max_request_bytes']:raise PilotError('Request byte limit reached')
-    counted=transport.post('/v1/messages/count_tokens',{k:v for k,v in payload.items() if k!='max_tokens'})
+    counted=transport.post('/v1/messages/count_tokens',{k:v for k,v in payload.items() if k not in ('max_tokens','service_tier','output_config')})
     n=counted.get('input_tokens')
     if type(n) is not int or not 0<=n<=config['counted_input_limit']:raise PilotError('Input token limit or count failure')
     reserve=config['reserved_input_ceiling']*4+config['max_output_tokens']*20

@@ -95,6 +95,14 @@ class ClaudePilotTests(unittest.TestCase):
         self.assertNotIn(private,json.dumps(result));self.assertNotIn('test-signature',json.dumps(result))
         self.assertEqual(result['verdict'],'PASS') # unit transport only, never evidence of model execution
 
+    def test_standard_only_capacity_and_medium_effort_are_explicit(self):
+        t=FakeTransport();model_call(t,self.ledger(),self.config(),[])
+        count=t.requests[0][1];paid=t.requests[1][1]
+        self.assertNotIn('service_tier',count);self.assertNotIn('output_config',count)
+        self.assertEqual(paid['service_tier'],'standard_only')
+        self.assertEqual(paid['output_config'],{'effort':'medium'})
+        self.assertNotIn('temperature',paid);self.assertNotIn('tool_choice',paid)
+
     def test_endpoint_and_error_body_cannot_expose_key(self):
         key='synthetic-test-secret'
         with patch('claude_agent_pilot.http.client.HTTPSConnection') as conn:
