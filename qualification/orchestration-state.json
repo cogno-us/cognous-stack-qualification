@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "BOUNDED LOCAL CHECKS PASSED; ACTUAL-AGENT AND EXPORT QUALIFICATION BLOCKED",
+  "profile": "native-local-destination-and-approval-fixtures/1",
+  "selected": false,
+  "human_oversight": "NOT EVALUATED",
+  "verified_at": "2026-10-15T21:59:44.747074+00:00",
+  "verification_method": "Exact published code 2f0119d: 36 native trials and hosted local-native check passed; native regressions and restore characterizations retained; final evidence-head checks pending",
+  "starting_qualification_sha": "dcedf33e5f53ad4a86c3019c0d16f863a60db1f2",
+  "phases": [
+    {
+      "id": "T1",
+      "scope": "Versioned contracts",
+      "dependencies": [],
+      "status": "ACCEPTED",
+      "next_action": "Review and integrate exact-source passing implementation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": null
+    },
+    {
+      "id": "T2",
+      "scope": "Native deterministic harness",
+      "dependencies": [
+        "T1"
+      ],
+      "status": "ACCEPTED",
+      "next_action": "Review and integrate exact-source passing implementation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": null
+    },
+    {
+      "id": "T3",
+      "scope": "Calibrated evaluation",
+      "dependencies": [
+        "T2"
+      ],
+      "status": "ACCEPTED",
+      "next_action": "Review and integrate exact-source passing implementation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": null
+    },
+    {
+      "id": "T4",
+      "scope": "Actual-agent pilot",
+      "dependencies": [
+        "T3"
+      ],
+      "status": "BLOCKED",
+      "next_action": "Provide supported actual-model adapter, authorized configuration and budget before agent trials",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": null
+    },
+    {
+      "id": "CLOSEOUT",
+      "scope": "Integration and evidence",
+      "dependencies": [
+        "T3"
+      ],
+      "status": "IN REVIEW",
+      "next_action": "Review and integrate exact-source passing implementation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": null
+    }
+  ],
+  "variant_counts": {
+    "PASS": 36
+  },
+  "evidence": {
+    "path": "results/serial/native-20261015/record.json",
+    "sha256": "1829e578f5776620e16c93e0b253fb8b83a8c802daa2d0020c17e2e485169174"
+  },
+  "tested_sources": {
+    "hub": {
+      "commit": "4bb101ca6dd5ee8f821bc44a7af935b5e389562e",
+      "dirty": false,
+      "files": {
+        "component-lock.json": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+        "reference_profiles/assurance_runtime.py": "4ea3285be6265fd2f77bf8aea2a0da359bd360541dea0c4711e8c90b9be47397",
+        "reference_profiles/bounded_json.py": "dbf74babbf7cb19d4e7a70f37f09f6f2a797bfb896fc2912cbc72075bd7552ef",
+        "reference_profiles/protected_destination.py": "5947adbe1a8c75ed20ddea911b42a75ce75bfa6442e3afe97ed1fb7546d62bc9",
+        "reference_profiles/trust_evidence.py": "0e53a022b6c30552996825db102c5cc9ecef5860e8d0103f74289e54a14d503f",
+        "tests/test_integrated_assurance.py": "40270a0a0597c50a5ec9faa8d0ffa69bf4dc93cb6be0ff9320c2f81e3705b326",
+        "tests/test_protected_destination.py": "f8f226551fa98f280ac04ee6d01d084cdd07c1f6d1b55553c5471c7de1a2a579"
+      },
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "qualification": {
+      "commit": "2f0119db8095977899fe86d87ad4b7770d93f3da",
+      "dirty": false,
+      "files": {
+        "qualification/serial/plan.json": "294a74f117e72fb2510f20751564b68f47ff8e802b0d48756fe14fa016c92eea",
+        "scenarios/catalog.json": "242beb8a2196cd29e0778592af645d3c1678daa474cb844c25f47ca13becdad7",
+        "schemas/trajectory-evidence-v2.schema.json": "5ae202f632e524e5da9c4684f529a9b928646ac8091ebe307bffd5f2064fe022",
+        "tools/run_serial_qualification.py": "ed28b17d481ceda9d4988bf3b16ecf4d35be1ccc2e91132425e483ddabdfae75",
+        "tools/trajectory_contract.py": "b33ee5826b1327c28278ef586a70ff40015acb10ceccc063733de23c26b3ae14"
+      },
+      "repository": "cogno-us/cognous-stack-qualification"
+    }
+  },
+  "blockers": [
+    {
+      "id": "MODEL-CONFIG",
+      "reason": "Actual-agent pilot lacks a configured supported model adapter and budget",
+      "owner": "Agent runtime owner",
+      "resolution": "Provide authorized model configuration and supported adapter, then execute declared pilot"
+    },
+    {
+      "id": "EXPORT-MAPPING",
+      "reason": "Native local destination/approval records have no verified Replay or Evidence Pack producer mapping",
+      "owner": "Artifact adapter maintainers",
+      "resolution": "Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output"
+    },
+    {
+      "id": "OPERATIONAL-ASSURANCE",
+      "reason": "Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures",
+      "owner": "Deployment owner",
+      "resolution": "Deployment-specific configuration and independent access evidence before operational claims"
+    }
+  ],
+  "deferred_closeout": [
+    "After current testing and engineering, before final publication: inspect exact package bytes for credentials, PII and proprietary ISS content; verify owner-approved exclusions and notices; reconcile live issues/PRs with evidence. Do not execute during this increment or schedule automation."
+  ],
+  "checks": [
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "result": "62 passed including retained-evidence rejection tests"
+    },
+    {
+      "command": "python -m pytest -q tests/test_protected_destination.py tests/test_destination_ingress.py tests/test_integrated_assurance.py",
+      "result": "117 passed; 16 subtests passed",
+      "evidence": "results/serial/native-20261015/t0-native.xml"
+    },
+    {
+      "command": "PYTHONPATH=<hub>:<hub>/tests python -m pytest -q -p no:cacheprovider suites/cognous-open-control-stack/tests/test_destination_restore_boundary.py -k 'not same_host_c1'",
+      "result": "8 passed; 4 optional component-dependent cases deselected",
+      "evidence": "results/serial/native-20261015/t0-restore.xml"
+    }
+  ]
+}

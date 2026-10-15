@@ -1,5 +1,28 @@
 # Cognous qualification dashboard
 
+## Serial qualification orchestration
+
+**BOUNDED LOCAL CHECKS PASSED; ACTUAL-AGENT AND EXPORT QUALIFICATION BLOCKED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T21:59:44.747074+00:00
+
+Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. Full catalog acceptance remains unchanged.
+
+| Phase | Status | Next action |
+|---|---|---|
+| T1 — Versioned contracts | ACCEPTED | Review and integrate exact-source passing implementation |
+| T2 — Native deterministic harness | ACCEPTED | Review and integrate exact-source passing implementation |
+| T3 — Calibrated evaluation | ACCEPTED | Review and integrate exact-source passing implementation |
+| T4 — Actual-agent pilot | BLOCKED | Provide supported actual-model adapter, authorized configuration and budget before agent trials |
+| CLOSEOUT — Integration and evidence | IN REVIEW | Review and integrate exact-source passing implementation |
+
+Named local variant counts: `{"PASS": 36}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
+
+[Native evidence record](../results/serial/native-20261015/record.json) · [Serial packet and reproduction](serial-qualification.md)
+- MODEL-CONFIG: Actual-agent pilot lacks a configured supported model adapter and budget Owner: Agent runtime owner. Resolution: Provide authorized model configuration and supported adapter, then execute declared pilot
+- EXPORT-MAPPING: Native local destination/approval records have no verified Replay or Evidence Pack producer mapping Owner: Artifact adapter maintainers. Resolution: Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output
+- OPERATIONAL-ASSURANCE: Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures Owner: Deployment owner. Resolution: Deployment-specific configuration and independent access evidence before operational claims
+
+Deferred final-package review and issue reconciliation remain queued until current engineering/testing finishes; this increment does not perform them.
+
 **40 Cognous scenarios: NOT RUN.** Static test associations and GitHub workflow outcomes are separate evidence types.
 
 32 partial mappings · 6 unimplemented · 2 deferred. Wiki specifications remain applicability-unassessed; the linked Wiki index maintains their current count.
