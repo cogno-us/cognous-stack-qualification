@@ -10,14 +10,9 @@ A license change, missing authors, removal of previously credited page authors o
 
 The job needs Actions enabled and GitHub's repository setting **Allow GitHub Actions to create and approve pull requests** enabled for automatic PR creation (the workflow creates PRs; it never approves them). Branch protection remains applicable. If the organization disables that setting, GitHub will reject PR creation; maintainers must enable the supported setting or use a separately approved GitHub App. No personal access token is required by this implementation. An update PR created with GITHUB_TOKEN may not trigger other workflows automatically; this job runs the checks itself and records that limitation in its PR body. If protected checks require a separate PR event, use a GitHub App token or maintainer-initiated dispatch.
 
-## Optional automatic polling
+## Weekly automatic polling
 
-Scheduling is **not enabled** by this change. To check weekly and propose refresh PRs automatically, add the following beside `workflow_dispatch` in `.github/workflows/upstream-wiki-refresh.yml`:
-
-```yaml
-  schedule:
-    - cron: '17 14 * * 1'
-```
+Weekly polling is enabled for **Mondays at 14:17 UTC** in `.github/workflows/upstream-wiki-refresh.yml`. Each run checks upstream main and proposes a review PR when the pinned content changes. Manual dispatch remains available. License changes, attribution removal and case retirement still require explicit review.
 
 GitHub schedules run in UTC, can be delayed and may be disabled for inactive public repositories. For event-driven updates without polling, the upstream maintainer would need to send an authenticated `repository_dispatch` (or use a separately installed GitHub App) when their default branch changes. That requires cooperation or installation; this repository alone cannot subscribe its Actions workflow directly to every upstream push.
 
