@@ -52,7 +52,7 @@ def build(source, previous, accept_revision=False):
     if not re.fullmatch(r'[0-9a-f]{40}', sha):
         raise ValueError('Expected exact SHA')
     if sha != previous['source_commit'] and not accept_revision:
-        raise ValueError('Source revision differs from lock; use --accept-revision to prepare a reviewed update')
+        raise ValueError('Source revision differs from lock; use --accept-revision to prepare a source update')
     dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=source, text=True)
     if dirty:
         raise ValueError('Source checkout must be clean')
@@ -165,7 +165,7 @@ def build(source, previous, accept_revision=False):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source-dir', required=True, type=Path)
-    parser.add_argument('--accept-revision', action='store_true', help='Prepare, but do not accept/merge, an upstream update')
+    parser.add_argument('--accept-revision', action='store_true', help='Prepare generated update files; this command does not itself merge')
     parser.add_argument('--check', action='store_true', help='Verify generated files without writing')
     args = parser.parse_args()
     previous = json.loads((ROOT / LOCK).read_text())
