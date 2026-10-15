@@ -133,13 +133,26 @@ class OpenAIPilotTests(unittest.TestCase):
     def test_paid_job_is_main_only_and_first_attempt_only(self):
         import yaml
         w=yaml.load((ROOT/'.github/workflows/openai-agent-pilot.yml').read_text(),Loader=yaml.BaseLoader)
-        self.assertEqual(w['on']['push'],{'branches':['main'],'paths':['qualification/serial/openai-campaign-20261015.json']})
+        self.assertEqual(w['on']['push'],{'branches':['main'],'paths':['qualification/serial/openai-campaign-20261015.json','qualification/serial/openai-retry-20261015.json']})
         self.assertEqual(w['jobs']['actual-agent']['if'],"github.event_name == 'push' && github.ref == 'refs/heads/main'")
         guard=next(s for s in w['jobs']['actual-agent']['steps'] if s.get('name')=='Refuse repeated campaign runs')['run']
         self.assertIn('test "$GITHUB_RUN_ATTEMPT" = 1',guard)
         script=guard.split("python - <<'PY'\n")[-1].split('\nPY')[0]
         with tempfile.TemporaryDirectory() as folder,patch.dict(os.environ,{'RUNNER_TEMP':folder,'GITHUB_RUN_ID':'123'}):
             p=Path(folder)/'openai-campaign-runs.json'
-            p.write_text(json.dumps({'total_count':1,'workflow_runs':[{'id':123,'head_branch':'main','event':'push'}]}));exec(compile(script,'guard','exec'),{})
+            p.write_text(json.dumps({'total_count':2,'workflow_runs':[{'id':123,'head_branch':'main','event':'push'},{'id':38819912442,'head_branch':'main','event':'push'}]}));exec(compile(script,'guard','exec'),{})
             p.write_text(json.dumps({'total_count':2,'workflow_runs':[{'id':122,'head_branch':'main','event':'push'}]}))
             with self.assertRaises(SystemExit):exec(compile(script,'guard','exec'),{})
+
+    def test_paid_request_bound_survives_restart(self):
+        ledger=self.ledger()
+        for _ in range(150):ledger.reserve(1)
+        reopened=pilot.OpenAILedger(ledger.path,self.config())
+        with self.assertRaisesRegex(pilot.PilotError,'request budget'):reopened.reserve(1)
+
+    def test_documented_error_code_is_preserved_without_error_message(self):
+        with patch('openai_agent_pilot.http.client.HTTPSConnection') as connection:
+            r=connection.return_value.getresponse.return_value;r.status=429
+            r.read.return_value=json.dumps({'error':{'code':'credit_balance_exhausted','message':'SYNTHETIC_SECRET'}}).encode()
+            with self.assertRaises(pilot.PilotError) as error:pilot.OpenAIHTTP('SYNTHETIC_SECRET',1).post('/v1/responses',{})
+            self.assertIn('credit_balance_exhausted',str(error.exception));self.assertNotIn('SYNTHETIC_SECRET',str(error.exception))

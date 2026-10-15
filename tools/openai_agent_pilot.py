@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import uuid
 from claude_agent_pilot import NativeCase, Ledger, PilotError, SYSTEM, TOOLS, micros
 from trajectory_contract import ROOT, digest
 from run_serial_qualification import git, source
@@ -48,6 +49,16 @@ def validate_config(c):
 
 
 class OpenAILedger(Ledger):
+    def reserve(self,amount):
+        with self.connect() as db:
+            db.execute('BEGIN IMMEDIATE')
+            if db.execute('SELECT halted FROM campaign WHERE id=1').fetchone()[0]:raise PilotError('Campaign accounting halted')
+            if db.execute('SELECT count(*) FROM calls').fetchone()[0]>=150:raise PilotError('Campaign request budget exhausted')
+            if db.execute('SELECT coalesce(sum(charged),0) FROM calls').fetchone()[0]+amount>self.cap:raise PilotError('Campaign budget exhausted')
+            identity=uuid.uuid4().hex
+            db.execute('INSERT INTO calls VALUES(?,?,?,?)',(identity,amount,amount,'RESERVED'))
+            return identity
+
     def settle(self,identity,usage):
         # Round up to the next microdollar; output_tokens already includes reasoning.
         for k in ('input_tokens','output_tokens'):
@@ -81,7 +92,15 @@ class OpenAIHTTP:
                                headers={'Authorization':'Bearer '+self.key,'Content-Type':'application/json'})
             response=connection.getresponse();raw=response.read(2000001)
             if len(raw)>2000000:raise PilotError('Provider response exceeds local limit')
-            if response.status!=200:raise PilotError('Provider HTTP status '+str(response.status)+'; no automatic retry')
+            if response.status!=200:
+                # Persist only documented error codes; never the raw error message/body.
+                code=None
+                try:
+                    error=json.loads(raw).get('error',{})
+                    candidate=error.get('code') if isinstance(error,dict) else None
+                    if candidate in {'credit_balance_exhausted','slow_down','organization_spend_limit_exceeded','project_spend_limit_exceeded','organization_usage_limit_exceeded','insufficient_quota','rate_limit_exceeded','model_not_found'}:code=candidate
+                except (ValueError,AttributeError):pass
+                raise PilotError('Provider HTTP status '+str(response.status)+(('; code='+code) if code else '')+'; no automatic retry')
             data=json.loads(raw)
             if not isinstance(data,dict):raise PilotError('Provider response is not an object')
             return data

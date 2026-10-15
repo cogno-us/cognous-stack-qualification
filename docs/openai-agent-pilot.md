@@ -29,3 +29,9 @@ Refusal, incomplete output and provider errors cannot dispatch tool calls. Trial
 - https://developers.openai.com/api/reference/resources/responses/methods/create
 
 These diagnostic trials do not change component selection, full-catalog acceptance, publication or production decisions.
+
+## Authorized continuation after credits were added
+
+The user reported adding credits and explicitly requested another attempt. The retry marker permits one continuation of the existing campaign. The workflow restores the previous attempt's ledger from its retained GitHub Actions artifact at execution time, checks its digest, configuration and database integrity, and retains the original evidence. It refuses restoration if the prior trial contains any model response, tool action or destination effect. No previous evidence payload is committed to the repository.
+
+The retry preserves reservations and the remaining allowance; it does not reset accounting. A persistent count in the same ledger enforces at most 150 paid requests across the initial attempt and continuation. Automatic retries remain disabled. Further provider errors stop the campaign and retain evidence. Only documented error codes are retained for diagnosis; provider error messages and response bodies are excluded from logs.
