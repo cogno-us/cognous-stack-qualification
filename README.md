@@ -6,6 +6,7 @@ Cross-component test scenarios and qualification evidence for [Cognous Open Cont
 
 ## Start here
 
+- [Testing process: configuration checkpoint, D01/D03 comparison and separate D04 recovery](process/testing/README.md)
 - [Qualification dashboard: scenario mappings, workflow outcomes and gaps](docs/qualification-dashboard.md)
 - [Capture and dashboard operating guide](docs/qualification-dashboard-guide.md)
 
