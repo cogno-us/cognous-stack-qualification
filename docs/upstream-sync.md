@@ -4,19 +4,25 @@ A fork or submodule alone does not adapt updated tests, preserve verdicts or rer
 
 ## Available now
 
-From **Actions → Upstream Wiki refresh → Run workflow**, a maintainer can fetch current upstream main, run only this repository's importer, validate regenerated files and create a review PR. No offline file editing is required. The importer reads Markdown as data and does not execute upstream code or attack payloads. This workflow does not execute tests against Cognous, merge the PR, change component selection or rewrite earlier results.
+From **Actions → Upstream Wiki refresh → Run workflow**, a maintainer can fetch current upstream main, run only this repository's importer, validate regenerated files and automatically merge the generated update through a PR after validation. No offline file editing is required. The importer reads Markdown as data and does not execute upstream code or attack payloads. The weekly workflow follows the same process. It does not execute qualification scenarios, change component selection or rewrite earlier results.
 
-A license change, missing authors, removal of previously credited page authors or removed case IDs stops the refresh for explicit review. New IDs and changed procedures appear as a normal diff. A merge is the adoption decision. Past results remain bound to their previous source commits and scenario bytes; an updated specification needs fresh execution evidence.
+A license change, missing authors, removal of previously credited page authors or removed case IDs stops the refresh for explicit review. New IDs and changed procedures appear in the generated diff and are eligible for automatic merging under the owner's standing instruction. Past results remain bound to their previous source commits and scenario bytes; an updated specification needs fresh execution evidence.
 
 The job needs Actions enabled and GitHub's repository setting **Allow GitHub Actions to create and approve pull requests** enabled for automatic PR creation (the workflow creates PRs; it never approves them). Branch protection remains applicable. If the organization disables that setting, GitHub will reject PR creation; maintainers must enable the supported setting or use a separately approved GitHub App. No personal access token is required by this implementation. An update PR created with GITHUB_TOKEN may not trigger other workflows automatically; this job runs the checks itself and records that limitation in its PR body. If protected checks require a separate PR event, use a GitHub App token or maintainer-initiated dispatch.
 
 ## Weekly automatic polling
 
-Weekly polling is enabled for **Mondays at 14:17 UTC** in `.github/workflows/upstream-wiki-refresh.yml`. Each run checks upstream main and proposes a review PR when the pinned content changes. Manual dispatch remains available. License changes, attribution removal and case retirement still require explicit review.
+Weekly polling is enabled for **Mondays at 14:17 UTC** in `.github/workflows/upstream-wiki-refresh.yml`. Each run checks upstream main and automatically merges generated refresh PRs when validation succeeds and GitHub permits the merge. Manual dispatch remains available. License changes, attribution removal and case retirement still require explicit review.
 
 GitHub schedules run in UTC, can be delayed and may be disabled for inactive public repositories. For event-driven updates without polling, the upstream maintainer would need to send an authenticated `repository_dispatch` (or use a separately installed GitHub App) when their default branch changes. That requires cooperation or installation; this repository alone cannot subscribe its Actions workflow directly to every upstream push.
 
-Automatic refresh should mean **proposed changes in a review PR**, with exact provenance and license checks. Keep accepted cases and past qualification evidence pinned until review. Do not auto-merge upstream text or run new payloads unattended.
+## Automatic merge boundary
+
+The owner authorized automatic merging of Wiki refreshes. Only generated files under `scenarios/ai-security-wiki/` and `sources/ai-security-wiki.lock.json` are staged. The workflow validates provenance, license/attribution retention and importer rejection behavior first, records the resulting head SHA, creates an audit PR and submits a normal GitHub merge request bound to that SHA. It checks that the default branch is unchanged immediately before requesting the merge. GitHub branch rules still apply; no administrator bypass or self-approval is used. A moved head/base or rejected merge leaves the PR unmerged and the run failed.
+
+This performs a normal merge immediately after successful in-job validation; it does not require enabling GitHub's separate auto-merge feature. Required external reviews/checks can still prevent completion. No merge has been exercised by this configuration change itself.
+
+Old results retain their original source identities. Imported text remains reference specifications with unassessed profile applicability and NOT RUN status; merging a specification does not qualify Cognous or run upstream attack payloads.
 
 ## Maintainer reproduction
 
