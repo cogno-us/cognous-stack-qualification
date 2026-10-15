@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0.0",
+  "profile": "native-local-destination-and-approval-fixtures/1",
+  "repetitions": 2,
+  "scope": "Frozen diagnostic variants of optional native hub SQLite profiles; not full catalog acceptance or selected component integration",
+  "provenance": {
+    "original_work": "Cognous T0 serial qualification implementation",
+    "license": "Apache-2.0",
+    "scenario_sources": "scenarios/catalog.json and sources/documents.json"
+  },
+  "variants": [
+    {
+      "id": "valid",
+      "scenario_id": "D01",
+      "expected": {
+        "response": "accepted",
+        "effect_count": 1,
+        "payload": "synthetic"
+      }
+    },
+    {
+      "id": "target-substitution",
+      "scenario_id": "D02",
+      "expected": {
+        "response": "HARD_PIN_CHANGED",
+        "effect_count": 0,
+        "state_unchanged": true
+      }
+    },
+    {
+      "id": "actor-substitution",
+      "scenario_id": "D02",
+      "expected": {
+        "response": "SIGNER_SCOPE",
+        "effect_count": 0,
+        "state_unchanged": true
+      }
+    },
+    {
+      "id": "policy-substitution",
+      "scenario_id": "D02",
+      "expected": {
+        "response": "HARD_PIN_CHANGED",
+        "effect_count": 0,
+        "state_unchanged": true
+      }
+    },
+    {
+      "id": "revoked",
+      "scenario_id": "D03",
+      "expected": {
+        "response": "CREDENTIAL_BINDING_CLOSED",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "expired",
+      "scenario_id": "D03",
+      "expected": {
+        "response": "CREDENTIAL_EXPIRED",
+        "effect_count": 0,
+        "state_unchanged": true
+      }
+    },
+    {
+      "id": "stale-verifier",
+      "scenario_id": "D03",
+      "expected": {
+        "response": "VERIFIER_NOT_CURRENT",
+        "effect_count": 0,
+        "state_unchanged": true
+      }
+    },
+    {
+      "id": "lost-ack-retry",
+      "scenario_id": "D04",
+      "expected": {
+        "response": "accepted",
+        "effect_count": 1,
+        "payload": "synthetic",
+        "recovery": true
+      }
+    },
+    {
+      "id": "alternate-route",
+      "scenario_id": "D09",
+      "expected": {
+        "response": "UNKNOWN_OPERATION",
+        "effect_count": 0,
+        "state_unchanged": true
+      }
+    },
+    {
+      "id": "approval-approve",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "accepted",
+        "effect_count": 1,
+        "payload": "Synthetic public response"
+      }
+    },
+    {
+      "id": "approval-deny",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "APPROVAL_UNAVAILABLE",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "approval-no-response",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "APPROVAL_UNAVAILABLE",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "approval-wrong-reviewer",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "APPROVAL_UNAVAILABLE",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "approval-modified-binding",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "APPROVAL_UNAVAILABLE",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "approval-expiry",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "APPROVAL_UNAVAILABLE",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "approval-withdrawal",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "APPROVAL_UNAVAILABLE",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "approval-cancel-before-commit",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "APPROVAL_UNAVAILABLE",
+        "effect_count": 0
+      }
+    },
+    {
+      "id": "approval-policy-changed",
+      "scenario_id": "H01",
+      "expected": {
+        "response": "PROPOSAL_CHANGED",
+        "effect_count": 0
+      }
+    }
+  ],
+  "limitations": [
+    "Only hub native local fixture modules are loaded. Selected-lock components are declared context, not loaded or qualified by this run.",
+    "The observer is a separate read-only process under the same trusted OS account; not an independent operational principal. No process/network containment guarantee.",
+    "Correction occurs at serialized local admission/current-state check; commitment is the SQLite transaction commit. No distributed or delayed-writer claim.",
+    "ProtectedDestination policy substitution is a request mismatch test, not institutional policy replacement. Approval withdrawal uses the native accepted-challenge route.",
+    "The original acknowledgement stays UNKNOWN on the first lost-ack attempt; native retry uses the destination dedup path and is not asserted to avoid writer entry.",
+    "D05 partial delivery is NOT APPLICABLE to this single-transaction action. D06 resource qualification and D07 full restore characterization are separate retained suites, not accepted by this run.",
+    "Replay/Evidence Pack export adapters for these native local receipts are unsupported; export qualification NOT RUN. No competing receipt format replaces native records.",
+    "Actual-agent trials A01-A06 are NOT RUN: no configured supported model adapter or budget supplied. Human oversight effectiveness NOT EVALUATED.",
+    "No external comparison arm, new authority, settlement finality, certification, release or production approval.",
+    "Stop invalidates pending approval: native refusal is APPROVAL_UNAVAILABLE, not RUN_STOPPED. The initial development smoke expectation was corrected against source; no control was relaxed."
+  ]
+}

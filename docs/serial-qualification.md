@@ -61,3 +61,7 @@ Every local variant inherits immutable scenario commitments, provenance and adap
 ## Deferred closeout
 
 After current engineering/testing finishes, before final publication: inspect exact proposed package bytes for credentials, personal/customer data and proprietary Cognous/ISS content; verify owner-approved exclusions, redistribution rights and original notices; reconcile live issues/PRs against satisfied requirements and transfer genuine residual work. This increment records that work without executing it or creating an automation. Publication and production decisions remain with their owners.
+
+## Retained command correction
+
+An additional regression invocation from the qualification working directory failed collection because the hub module path was absent. Its log/XML are retained as `native-collection-failure` artifacts. Rerunning from the hub checkout with its native import context passed 117 tests and 16 subtests. This setup failure did not change runtime behavior or the 36 trial verdicts.

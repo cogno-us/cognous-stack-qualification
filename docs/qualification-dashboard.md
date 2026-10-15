@@ -2,20 +2,21 @@
 
 ## Serial qualification orchestration
 
-**IN PROGRESS** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T21:50:51.554562+00:00
+**BOUNDED LOCAL CHECKS PASSED; ACTUAL-AGENT AND EXPORT QUALIFICATION BLOCKED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T21:59:44.747074+00:00
 
 Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. Full catalog acceptance remains unchanged.
 
 | Phase | Status | Next action |
 |---|---|---|
-| T1 — Versioned contracts | IN PROGRESS | Complete serial implementation and exact-source validation |
-| T2 — Native deterministic harness | PLANNED | Complete serial implementation and exact-source validation |
-| T3 — Calibrated evaluation | PLANNED | Complete serial implementation and exact-source validation |
-| T4 — Actual-agent pilot | PLANNED | Complete serial implementation and exact-source validation |
-| CLOSEOUT — Integration and evidence | PLANNED | Complete serial implementation and exact-source validation |
+| T1 — Versioned contracts | ACCEPTED | Review and integrate exact-source passing implementation |
+| T2 — Native deterministic harness | ACCEPTED | Review and integrate exact-source passing implementation |
+| T3 — Calibrated evaluation | ACCEPTED | Review and integrate exact-source passing implementation |
+| T4 — Actual-agent pilot | BLOCKED | Provide supported actual-model adapter, authorized configuration and budget before agent trials |
+| CLOSEOUT — Integration and evidence | IN REVIEW | Review and integrate exact-source passing implementation |
 
-Named local variant counts: `{}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
+Named local variant counts: `{"PASS": 36}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
 
+[Native evidence record](../results/serial/native-20261015/record.json) · [Serial packet and reproduction](serial-qualification.md)
 - MODEL-CONFIG: Actual-agent pilot lacks a configured supported model adapter and budget Owner: Agent runtime owner. Resolution: Provide authorized model configuration and supported adapter, then execute declared pilot
 - EXPORT-MAPPING: Native local destination/approval records have no verified Replay or Evidence Pack producer mapping Owner: Artifact adapter maintainers. Resolution: Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output
 - OPERATIONAL-ASSURANCE: Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures Owner: Deployment owner. Resolution: Deployment-specific configuration and independent access evidence before operational claims
