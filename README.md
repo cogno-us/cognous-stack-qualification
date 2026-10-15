@@ -6,6 +6,9 @@ Cross-component test scenarios and qualification evidence for [Cognous Open Cont
 
 ## Start here
 
+- [Qualification dashboard: scenario mappings, workflow outcomes and gaps](docs/qualification-dashboard.md)
+- [Capture and dashboard operating guide](docs/qualification-dashboard-guide.md)
+
 - [Executable cross-component suites and source maps](suites/README.md)
 - [Browse the scenario catalog](scenarios/README.md)
 - [Machine-readable Cognous scenarios](scenarios/catalog.json)
@@ -30,7 +33,7 @@ This repository does not select component revisions, grant authority, clear publ
 
 Read and change scenarios through GitHub files and pull requests. The Catalog validation workflow checks catalog consistency and provenance/license records on pushes and pull requests. The Upstream Wiki refresh workflow runs weekly on Mondays at 14:17 UTC and automatically merges generated update PRs after provenance, license and importer checks pass, subject to GitHub rules; manual dispatch also remains available. It does not execute D, A, H or C scenarios. No offline file collection is required to browse or maintain the catalog.
 
-Future execution workflows should capture exact source identities, perform containment and reset checks, run supported scenarios, and retain result manifests plus evidence through GitHub. Migrated reusable workflows execute their original test commands against pinned components. A unified dashboard and automatic result publication are not implemented. Workflow artifacts expire; accepted release evidence needs durable retained references and hashes before it can support a release decision.
+Future execution workflows should capture exact source identities, perform containment and reset checks, run supported scenarios, and retain result manifests plus evidence through GitHub. Migrated reusable workflows execute their original test commands against pinned components. The generated [qualification dashboard](docs/qualification-dashboard.md) links proposed scenario mappings and append-only workflow metadata. Captures are initiated from GitHub Actions and open review PRs; merging them refreshes the dashboard. The static HTML build is available as a workflow artifact, with optional Pages publishing after administrator enablement. Workflow artifacts expire; accepted release evidence needs durable retained references and hashes before it can support a release decision.
 
 ## Qualification rules
 
