@@ -19,7 +19,7 @@ set and remaining closeout order are recorded in
 
 ## Verification
 
-Local Python 3.12 component outcomes: Control Plane 297 passed and one optional
+Local Python 3.12 component outcomes: Control Plane 298 passed and one optional
 AGT SDK test skipped; runtime 138 passed; Replay 183 passed; Evidence Pack 127
 tracked native tests passed. PRP 25 deterministic tests passed; package validation
 passed seven JSON files, three YAML files and 120 local Markdown links/anchors.
@@ -45,6 +45,9 @@ execution. Its JSON receipt records versions, trees, command, return code and
 artifact digests. The workflow performs pinned checkouts on Python 3.11 and 3.12.
 Passing a candidate does not select it. After merges, their different merge SHAs
 need an explicitly requalified compatibility mapping; do not relabel these pins.
+
+The final control-plane check also prevents a later resolver outage from using a
+cached positive after a recorded revocation/suspension of the same grant revision.
 
 Runtime's first hosted packaged-worker test exposed an unconditional optional
 module import in the legacy minimal image. PR 89 now loads the module only for an
