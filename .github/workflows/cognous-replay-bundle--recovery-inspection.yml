@@ -30,11 +30,6 @@ jobs:
         repository: cogno-us/cognous-replay-bundle
         ref: ${{ inputs.source_revision || '83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a' }}
         persist-credentials: false
-    - uses: actions/checkout@v4
-      with:
-        repository: cogno-us/cognous-execution-runtime
-        ref: 8e7d634cf0a22b6f3c1fc6d93afe92c7414fa243
-        path: runtime
     - name: Checkout canonical qualification suite
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
@@ -46,6 +41,11 @@ jobs:
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-replay-bundle --source-root "replay" --evidence
         "qualification-evidence/inspect.json"
+    - uses: actions/checkout@v4
+      with:
+        repository: cogno-us/cognous-execution-runtime
+        ref: 8e7d634cf0a22b6f3c1fc6d93afe92c7414fa243
+        path: runtime
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'

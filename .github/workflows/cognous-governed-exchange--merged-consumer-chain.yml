@@ -42,6 +42,17 @@ jobs:
         repository: cogno-us/cognous-governed-exchange
         ref: ${{ inputs.source_revision || '9de2d438ed03531bb960c896f541a6a2da1b2315' }}
         persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-governed-exchange --source-root "." --evidence
+        "qualification-evidence/qualify-linux.json"
     - uses: actions/checkout@v4
       with:
         repository: cogno-us/cognous-action-manifest
@@ -72,17 +83,6 @@ jobs:
         repository: cogno-us/open-decision-evidence-standard
         ref: c5e9a0f3695ae836b803be06c46d2c669642ee03
         path: upstream/odes
-    - name: Checkout canonical qualification suite
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        repository: cogno-us/cognous-stack-qualification
-        ref: ${{ inputs.qualification_revision || github.sha }}
-        path: _qualification
-        persist-credentials: false
-    - name: Retain both source identities and assemble test overlay
-      shell: bash
-      run: python3 _qualification/tools/install_suite.py --suite cognous-governed-exchange --source-root "." --evidence
-        "qualification-evidence/qualify-linux.json"
     - name: Verify exact dependencies
       run: 'test "$(git -C upstream/manifest rev-parse HEAD)" = "46c950bed37fe3812000895430bc0312d29e37ce"
 

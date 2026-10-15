@@ -39,6 +39,17 @@ jobs:
         repository: cogno-us/open-decision-evidence-standard
         ref: ${{ inputs.source_revision || '25c7ad608c2e6fd9f450e075db6bbf3ee4091a49' }}
         persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite open-decision-evidence-standard --source-root "."
+        --evidence "qualification-evidence/qualify-linux.json"
     - uses: actions/checkout@v4
       with:
         repository: cogno-us/cognous-action-manifest
@@ -59,17 +70,6 @@ jobs:
         repository: cogno-us/cognous-execution-runtime
         ref: c3c3ee7188b9367cf70b08074b9c40a5c70c94ac
         path: upstream/executor
-    - name: Checkout canonical qualification suite
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        repository: cogno-us/cognous-stack-qualification
-        ref: ${{ inputs.qualification_revision || github.sha }}
-        path: _qualification
-        persist-credentials: false
-    - name: Retain both source identities and assemble test overlay
-      shell: bash
-      run: python3 _qualification/tools/install_suite.py --suite open-decision-evidence-standard --source-root "."
-        --evidence "qualification-evidence/qualify-linux.json"
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python }}

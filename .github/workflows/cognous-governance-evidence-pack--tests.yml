@@ -34,6 +34,17 @@ jobs:
         repository: cogno-us/cognous-governance-evidence-pack
         ref: ${{ inputs.source_revision || '1e789c7d67a897097445faef1813fb0cd22d55e5' }}
         persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
+        "." --evidence "qualification-evidence/test.json"
     - name: Checkout pinned Manifest
       uses: actions/checkout@v4
       with:
@@ -186,17 +197,6 @@ jobs:
         repository: cogno-us/cognous-control-plane
         ref: 248d899634d9db3518e831bc7ab568a48733f825
         path: upstream/cp-v2-store
-    - name: Checkout canonical qualification suite
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        repository: cogno-us/cognous-stack-qualification
-        ref: ${{ inputs.qualification_revision || github.sha }}
-        path: _qualification
-        persist-credentials: false
-    - name: Retain both source identities and assemble test overlay
-      shell: bash
-      run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
-        "." --evidence "qualification-evidence/test.json"
     - name: Verify persistence compatibility pins
       run: 'test "$(git -C upstream/replay-store rev-parse HEAD)" = "043830b56595cecddfa65c064afd1c0b95e64792"
 

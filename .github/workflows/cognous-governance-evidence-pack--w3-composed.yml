@@ -34,6 +34,17 @@ jobs:
         repository: cogno-us/cognous-governance-evidence-pack
         ref: ${{ inputs.source_revision || '1e789c7d67a897097445faef1813fb0cd22d55e5' }}
         persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
+        "." --evidence "qualification-evidence/composed.json"
     - uses: actions/checkout@v4
       with:
         repository: cogno-us/cognous-replay-bundle
@@ -54,17 +65,6 @@ jobs:
         repository: cogno-us/cognous-action-manifest
         ref: 8d1572d4f926c968a8704cb912a6e9d49166f74a
         path: upstream/w1-manifest
-    - name: Checkout canonical qualification suite
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        repository: cogno-us/cognous-stack-qualification
-        ref: ${{ inputs.qualification_revision || github.sha }}
-        path: _qualification
-        persist-credentials: false
-    - name: Retain both source identities and assemble test overlay
-      shell: bash
-      run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
-        "." --evidence "qualification-evidence/composed.json"
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}

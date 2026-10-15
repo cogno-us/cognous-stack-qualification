@@ -36,6 +36,17 @@ jobs:
         repository: cogno-us/cognous-replay-bundle
         ref: ${{ inputs.source_revision || '83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a' }}
         persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-replay-bundle --source-root "replay-bundle"
+        --evidence "qualification-evidence/test.json"
     - name: Checkout pinned Control Plane
       uses: actions/checkout@v4
       with:
@@ -78,17 +89,6 @@ jobs:
         repository: cogno-us/cognous-institutional-governance
         ref: fb3d97938969a89e149e8ff8db2756091d1233fc
         path: pinned/alvorada
-    - name: Checkout canonical qualification suite
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        repository: cogno-us/cognous-stack-qualification
-        ref: ${{ inputs.qualification_revision || github.sha }}
-        path: _qualification
-        persist-credentials: false
-    - name: Retain both source identities and assemble test overlay
-      shell: bash
-      run: python3 _qualification/tools/install_suite.py --suite cognous-replay-bundle --source-root "replay-bundle"
-        --evidence "qualification-evidence/test.json"
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
