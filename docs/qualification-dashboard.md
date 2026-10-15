@@ -2,17 +2,17 @@
 
 ## Serial qualification orchestration
 
-**BOUNDED LOCAL CHECKS PASSED; ACTUAL-AGENT AND EXPORT QUALIFICATION BLOCKED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T21:59:44.747074+00:00
+**BOUNDED LOCAL CHECKS PASSED; ACTUAL-AGENT AND EXPORT QUALIFICATION BLOCKED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T22:05:55.460408+00:00
 
 Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. Full catalog acceptance remains unchanged.
 
 | Phase | Status | Next action |
 |---|---|---|
-| T1 — Versioned contracts | ACCEPTED | Review and integrate exact-source passing implementation |
-| T2 — Native deterministic harness | ACCEPTED | Review and integrate exact-source passing implementation |
-| T3 — Calibrated evaluation | ACCEPTED | Review and integrate exact-source passing implementation |
+| T1 — Versioned contracts | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
+| T2 — Native deterministic harness | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
+| T3 — Calibrated evaluation | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
 | T4 — Actual-agent pilot | BLOCKED | Provide supported actual-model adapter, authorized configuration and budget before agent trials |
-| CLOSEOUT — Integration and evidence | IN REVIEW | Review and integrate exact-source passing implementation |
+| CLOSEOUT — Integration and evidence | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
 
 Named local variant counts: `{"PASS": 36}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
 
