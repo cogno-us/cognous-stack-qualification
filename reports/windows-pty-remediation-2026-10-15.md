@@ -10,6 +10,10 @@ The focused workflow runs the input tests, PTY output test, PTY fallback test, a
 
 [Focused repair run 38786367321](https://github.com/cogno-us/cognous-execution-runtime/actions/runs/38786367321) passed at commit `4bf25deae013c3f334b8ba6109f5be7545cc6f93`: four test files and nine tests passed in each of five repetitions on each platform (45 passing Windows executions and 45 passing Linux executions). Formatting and lint passed on both hosted platforms and locally. Workflow YAML and shell syntax checks also passed locally.
 
-[Full repair CI](https://github.com/cogno-us/cognous-execution-runtime/actions/runs/38786366915) remains separate evidence; PR #88 is open pending its broader checks at this checkpoint. Follow its live status rather than inferring completion from the focused result.
+[Full repair CI](https://github.com/cogno-us/cognous-execution-runtime/actions/runs/38786366915) passed at the same tested head: 32 jobs succeeded and one existing conditional job was skipped. All seven Windows jobs passed, including test shard 4. At merge time, the PR head had 43 successful checks and one existing skip, with no failed or pending checks.
+
+[Runtime PR #88](https://github.com/cogno-us/cognous-execution-runtime/pull/88) was merged as `cb437f86ba26248d6f5b887f4e09d00737bf4453`. The separate [main-branch full CI run](https://github.com/cogno-us/cognous-execution-runtime/actions/runs/38797355190) and [main-branch PTY regression run](https://github.com/cogno-us/cognous-execution-runtime/actions/runs/38797355117) both passed at that merge commit. Their manifests are recorded alongside the passing PR run; they do not reuse the earlier source identity.
+
+The repository owner reported deleting the obsolete failed GitHub run after the repair merged. Its committed failure snapshots and this report preserve the observations; the original external log link may no longer resolve. The historical failure remains a failure and is not rewritten as a pass.
 
 The committed workflow manifests preserve exact workflow heads, job conclusions, observation times, and evidence limitations. These execution results do not accept any catalog scenario, select a component profile, or authorize release or production use.
