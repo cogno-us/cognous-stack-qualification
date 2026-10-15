@@ -1,6 +1,8 @@
 name: Upstream Wiki refresh
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 14 * * 1' # Mondays at 14:17 UTC
 permissions:
   contents: write
   pull-requests: write
