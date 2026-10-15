@@ -6,6 +6,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   qualify-linux:
+    name: remediation-qualify-linux (${{ matrix.batch }})
     runs-on: ubuntu-latest
     timeout-minutes: 18
     strategy:
@@ -59,6 +60,7 @@ jobs:
         path: qualification-evidence/
         if-no-files-found: error
   aggregate:
+    name: remediation-aggregate
     needs: qualify-linux
     if: always()
     runs-on: ubuntu-latest
