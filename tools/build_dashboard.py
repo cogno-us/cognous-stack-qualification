@@ -93,7 +93,8 @@ def load_data(root=ROOT):
             latest[key] = record
     wiki = json.loads((root/'scenarios/ai-security-wiki/catalog.json').read_text())
     wiki_count = len(wiki['scenarios'])
-    return {'schema_version': '1.0.0', 'scenarios': rows,
+    from serial_orchestration import load_serial
+    return {'orchestration':load_serial(root), 'schema_version': '1.0.0', 'scenarios': rows,
             'mapping_counts': dict(Counter(m['mapping_status'] for m in rows)),
             'runs': sorted(latest.values(), key=lambda r: r.get('observed_at', ''), reverse=True),
             'snapshots': records, 'wiki_specifications': wiki_count,
@@ -144,6 +145,9 @@ def markdown(data):
               'Use **Actions → Capture qualification run metadata → Run workflow**, choose an inventoried public repository and enter its run ID. The workflow validates metadata and opens a results PR; merging it refreshes this dashboard. No offline file maintenance is needed.', '',
               'The Dashboard build workflow also produces a searchable static HTML artifact. The optional Pages workflow can publish it after a repository administrator enables GitHub Pages with Actions as its source. Pages activation is not performed by this repository code.', '',
               'See [the detailed operating guide](qualification-dashboard-guide.md). Existing selection and publication/production HOLD decisions remain with their owners.', '']
+    from serial_orchestration import markdown as serial_markdown
+    if data.get('orchestration'):
+        lines.insert(2,serial_markdown(data['orchestration']))
     return '\n'.join(lines)
 
 

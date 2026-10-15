@@ -1,0 +1,56 @@
+name: Serial local trajectory qualification
+on:
+  pull_request:
+    paths:
+      - 'qualification/**'
+      - 'schemas/trajectory-evidence-v2.schema.json'
+      - 'tools/*serial*'
+      - 'tools/trajectory_contract.py'
+      - 'tests/test_trajectory_contract.py'
+      - '.github/workflows/serial-qualification.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: qualification
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: qualification
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-open-control-stack
+          ref: 4bb101ca6dd5ee8f821bc44a7af935b5e389562e
+          path: hub-native
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r tools/requirements-serial.txt
+      - name: Execute native diagnostic variants with independent read-only process
+        run: python tools/run_serial_qualification.py --hub ../hub-native --output "$RUNNER_TEMP/serial-native"
+      - name: Validate contracts and retained evidence
+        run: |
+          python -m unittest discover -s tests -v
+          python tools/validate_catalog.py
+          python tools/build_dashboard.py --check-markdown
+          python tools/serial_orchestration.py --check
+      - name: Retain native evidence with explicit expiration
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: serial-native-${{ github.sha }}
+          path: ${{ runner.temp }}/serial-native/
+          retention-days: 14
+          if-no-files-found: error

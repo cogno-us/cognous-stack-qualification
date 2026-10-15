@@ -46,7 +46,7 @@ jobs:
         run: python tools/capture_workflow_run.py --repository "$SOURCE_REPOSITORY" --run-id "$SOURCE_RUN_ID"
       - name: Regenerate and validate the dashboard
         run: |
-          python -m pip install PyYAML==6.0.2
+          python -m pip install PyYAML==6.0.2 jsonschema==4.26.0
           python tools/build_dashboard.py --write-markdown
           python -m unittest discover -s tests -v
           python tools/validate_catalog.py

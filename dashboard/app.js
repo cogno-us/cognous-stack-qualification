@@ -31,3 +31,16 @@ $('case-count').textContent=data.scenarios.length;$('partial-count').textContent
 $('migration-summary').textContent=`${data.migration.moved_files} migrated files · ${data.migration.workflows} delegated workflows · ${data.migration.public_repositories} public repositories inventoried`;
 $('search').addEventListener('input',cases);$('mapping-filter').addEventListener('change',cases);$('suite-filter').addEventListener('change',cases);$('outcome-filter').addEventListener('change',runs);$('close-dialog').addEventListener('click',()=>$('case-dialog').close());
 cases();runs();
+
+// Render orchestration from the same canonical state used by the Markdown view.
+if (data.orchestration) {
+  const s=data.orchestration, panel=$('serial-orchestration'); panel.hidden=false;
+  panel.append(el('h2','Serial qualification orchestration'),el('p',s.overall_status),el('p','Human oversight: '+s.human_oversight+' · Nonselected local variants · Full catalog acceptance unchanged'));
+  const table=el('table'), head=el('thead'), header=el('tr'), body=el('tbody');
+  for(const title of ['Phase','Status','Next action'])header.append(el('th',title));
+  head.append(header);table.append(head,body);
+  for(const phase of s.phases){const row=el('tr');row.append(el('td',phase.id+' / '+phase.scope),el('td',phase.status),el('td',phase.next_action));body.append(row);}
+  panel.append(table,el('p','Named local variant results: '+JSON.stringify(s.variant_counts)));
+  for(const blocker of s.blockers)panel.append(el('p',blocker.id+': '+blocker.reason+' · '+blocker.owner));
+  panel.append(link('Native evidence and reproduction',repo+'/blob/main/docs/serial-qualification.md'));
+}

@@ -42,7 +42,7 @@ Every run must pin the harness and component commits, profile, fixtures and eval
 
 Keep deterministic, actual-agent, human-review and operational evidence separate. A separate repository does not establish reviewer independence. Historical passes do not qualify changed configurations. No model or fleet capability is required merely because it appears in the catalog.
 
-Implement the deterministic bounded workflow first; add agent and human pilots only with actual supported configurations and reviewers. Preserve all failures, missing trials and residual limits. See the execution contract for gates and metrics.
+The serial T0 program implements named deterministic variants, then gates actual-agent runs on a supported configuration. Human participation is excluded and human oversight effectiveness is NOT EVALUATED. See [the serial packet](docs/serial-qualification.md). Preserve all failures, missing trials and residual limits. See the execution contract for gates and metrics.
 
 ## License
 

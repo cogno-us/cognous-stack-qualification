@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "IN PROGRESS",
+  "profile": "native-local-destination-and-approval-fixtures/1",
+  "selected": false,
+  "human_oversight": "NOT EVALUATED",
+  "verified_at": "2026-10-15T21:50:51.554562+00:00",
+  "verification_method": "Local source inspection and native fixture execution; hosted checks pending",
+  "starting_qualification_sha": "dcedf33e5f53ad4a86c3019c0d16f863a60db1f2",
+  "phases": [
+    {
+      "id": "T1",
+      "scope": "Versioned contracts",
+      "dependencies": [],
+      "status": "IN PROGRESS",
+      "next_action": "Complete serial implementation and exact-source validation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": null,
+      "merge_sha": null
+    },
+    {
+      "id": "T2",
+      "scope": "Native deterministic harness",
+      "dependencies": [
+        "T1"
+      ],
+      "status": "PLANNED",
+      "next_action": "Complete serial implementation and exact-source validation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": null,
+      "merge_sha": null
+    },
+    {
+      "id": "T3",
+      "scope": "Calibrated evaluation",
+      "dependencies": [
+        "T2"
+      ],
+      "status": "PLANNED",
+      "next_action": "Complete serial implementation and exact-source validation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": null,
+      "merge_sha": null
+    },
+    {
+      "id": "T4",
+      "scope": "Actual-agent pilot",
+      "dependencies": [
+        "T3"
+      ],
+      "status": "PLANNED",
+      "next_action": "Complete serial implementation and exact-source validation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": null,
+      "merge_sha": null
+    },
+    {
+      "id": "CLOSEOUT",
+      "scope": "Integration and evidence",
+      "dependencies": [
+        "T3"
+      ],
+      "status": "PLANNED",
+      "next_action": "Complete serial implementation and exact-source validation",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": null,
+      "merge_sha": null
+    }
+  ],
+  "variant_counts": {},
+  "evidence": null,
+  "tested_sources": {},
+  "blockers": [
+    {
+      "id": "MODEL-CONFIG",
+      "reason": "Actual-agent pilot lacks a configured supported model adapter and budget",
+      "owner": "Agent runtime owner",
+      "resolution": "Provide authorized model configuration and supported adapter, then execute declared pilot"
+    },
+    {
+      "id": "EXPORT-MAPPING",
+      "reason": "Native local destination/approval records have no verified Replay or Evidence Pack producer mapping",
+      "owner": "Artifact adapter maintainers",
+      "resolution": "Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output"
+    },
+    {
+      "id": "OPERATIONAL-ASSURANCE",
+      "reason": "Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures",
+      "owner": "Deployment owner",
+      "resolution": "Deployment-specific configuration and independent access evidence before operational claims"
+    }
+  ],
+  "deferred_closeout": [
+    "After current testing and engineering, before final publication: inspect exact package bytes for credentials, PII and proprietary ISS content; verify owner-approved exclusions and notices; reconcile live issues/PRs with evidence. Do not execute during this increment or schedule automation."
+  ]
+}

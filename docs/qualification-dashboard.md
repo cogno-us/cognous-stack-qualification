@@ -1,5 +1,27 @@
 # Cognous qualification dashboard
 
+## Serial qualification orchestration
+
+**IN PROGRESS** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T21:50:51.554562+00:00
+
+Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. Full catalog acceptance remains unchanged.
+
+| Phase | Status | Next action |
+|---|---|---|
+| T1 — Versioned contracts | IN PROGRESS | Complete serial implementation and exact-source validation |
+| T2 — Native deterministic harness | PLANNED | Complete serial implementation and exact-source validation |
+| T3 — Calibrated evaluation | PLANNED | Complete serial implementation and exact-source validation |
+| T4 — Actual-agent pilot | PLANNED | Complete serial implementation and exact-source validation |
+| CLOSEOUT — Integration and evidence | PLANNED | Complete serial implementation and exact-source validation |
+
+Named local variant counts: `{}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
+
+- MODEL-CONFIG: Actual-agent pilot lacks a configured supported model adapter and budget Owner: Agent runtime owner. Resolution: Provide authorized model configuration and supported adapter, then execute declared pilot
+- EXPORT-MAPPING: Native local destination/approval records have no verified Replay or Evidence Pack producer mapping Owner: Artifact adapter maintainers. Resolution: Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output
+- OPERATIONAL-ASSURANCE: Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures Owner: Deployment owner. Resolution: Deployment-specific configuration and independent access evidence before operational claims
+
+Deferred final-package review and issue reconciliation remain queued until current engineering/testing finishes; this increment does not perform them.
+
 **40 Cognous scenarios: NOT RUN.** Static test associations and GitHub workflow outcomes are separate evidence types.
 
 32 partial mappings · 6 unimplemented · 2 deferred. Wiki specifications remain applicability-unassessed; the linked Wiki index maintains their current count.
