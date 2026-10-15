@@ -10,7 +10,7 @@ concurrency:
   group: upstream-wiki-refresh
   cancel-in-progress: false
 jobs:
-  propose-update:
+  refresh-and-merge:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -27,7 +27,7 @@ jobs:
           python3 tools/validate_catalog.py
           python3 -m unittest discover -s tests -v
           git diff --check
-      - name: Propose reviewed update when source changed
+      - name: Publish and merge the validated generated update
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -37,24 +37,51 @@ jobs:
             echo "No upstream specification changes. No qualification scenarios executed."
             exit 0
           fi
+          base_sha=$(git rev-parse HEAD)
           upstream_sha=$(python3 -c 'import json; print(json.load(open("sources/ai-security-wiki.lock.json"))["source_commit"])')
-          branch="sync/ai-security-wiki-$upstream_sha"
-          existing=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
-          if [ -n "$existing" ]; then
-            echo "Existing review PR: $existing"
-            exit 0
-          fi
+          branch="sync/ai-security-wiki-$upstream_sha-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
           git switch -c "$branch"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add scenarios/ai-security-wiki sources/ai-security-wiki.lock.json
+          while IFS= read -r path; do
+            case "$path" in
+              scenarios/ai-security-wiki/*|sources/ai-security-wiki.lock.json) ;;
+              *) echo "Refusing automatic merge outside generated paths: $path"; exit 1 ;;
+            esac
+          done < <(git diff --cached --name-only)
           git commit -m "Refresh AI Security Wiki specifications at $upstream_sha"
+          tested_sha=$(git rev-parse HEAD)
           git push origin "$branch"
           cat > "$RUNNER_TEMP/wiki-pr-body.md" <<'BODY'
-          Refresh the pinned AI Security Wiki reference cases and source metadata. The importer retained CC BY-SA 4.0, author credits, source identities and change notices. Review additions, changed procedures, applicability and suggested thresholds before merging.
+          Automatically refresh the pinned AI Security Wiki reference cases and source metadata under the repository owner's standing instruction. The importer retained CC BY-SA 4.0, author credits, source identities and change notices. License changes, attribution removal and deleted source case IDs stop the workflow for explicit review.
 
-          This workflow ran catalog/provenance validation and importer rejection tests. It did not run qualification scenarios or modify selected component pins, production permissions or historical run results. All imported cases remain NOT RUN.
+          The originating workflow ran catalog/provenance validation and importer rejection tests before creating this commit. Only generated Wiki content and its source lock are eligible for automatic merge. The merge request is bound to this exact validated head and requires the base to remain unchanged at the pre-merge check. GitHub branch protections remain applicable.
 
-          A PR created with GITHUB_TOKEN may not trigger another workflow automatically. Use the originating refresh run as evidence of these checks; run any required protected checks through a supported maintainer dispatch or GitHub App integration.
+          No qualification scenarios were executed. This update changes no selected component pins, production permissions or historical results. Imported specifications remain NOT RUN and profile applicability remains unassessed.
+
+          A PR created with GITHUB_TOKEN may not trigger other workflows. This workflow runs its checks before the merge request. Required checks or reviews imposed by repository rules may block merging; the workflow does not bypass them.
           BODY
-          gh pr create --base "$BASE_BRANCH" --head "$branch" --title "Refresh AI Security Wiki specifications" --body-file "$RUNNER_TEMP/wiki-pr-body.md"
+          pr_url=$(gh pr create --base "$BASE_BRANCH" --head "$branch" --title "Refresh AI Security Wiki specifications" --body-file "$RUNNER_TEMP/wiki-pr-body.md")
+          pr_number=$(gh pr view "$pr_url" --json number --jq '.number')
+          current_head=$(gh api "repos/$GH_REPO/pulls/$pr_number" --jq '.head.sha')
+          if [ "$current_head" != "$tested_sha" ]; then
+            echo "PR head changed after validation; leaving PR unmerged."
+            exit 1
+          fi
+          current_base=$(gh api "repos/$GH_REPO/git/ref/heads/$BASE_BRANCH" --jq '.object.sha')
+          if [ "$current_base" != "$base_sha" ]; then
+            echo "Base changed after validation; leaving PR unmerged for requalification."
+            exit 1
+          fi
+          method=$(gh api "repos/$GH_REPO" --jq 'if .allow_squash_merge then "squash" elif .allow_merge_commit then "merge" elif .allow_rebase_merge then "rebase" else "none" end')
+          if [ "$method" = none ]; then
+            echo "Repository allows no supported merge method."
+            exit 1
+          fi
+          merged=$(gh api --method PUT "repos/$GH_REPO/pulls/$pr_number/merge" -f sha="$tested_sha" -f merge_method="$method" --jq '.merged')
+          if [ "$merged" != true ]; then
+            echo "GitHub did not merge the PR; inspect repository rules and workflow permissions."
+            exit 1
+          fi
+          echo "Automatically merged validated Wiki refresh: $pr_url"
