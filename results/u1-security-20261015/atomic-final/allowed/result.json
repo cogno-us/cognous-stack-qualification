@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "profile": "atomic-authority-effect",
+  "scenario": "allowed",
+  "synthetic": true,
+  "qualified": true,
+  "effect_ids": [
+    "sha256:bedf4c1bb2ad103e88a8dd03e165ccaa65288d8451124dbeeee4a1dadeae1630"
+  ],
+  "outcomes": [
+    {
+      "status": "executed",
+      "decision_id": "1cacde92-edf3-4ef2-bd22-41eb54de0830",
+      "effect_id": "sha256:bedf4c1bb2ad103e88a8dd03e165ccaa65288d8451124dbeeee4a1dadeae1630",
+      "attempt_id": "e2a7ff80-1454-4bdf-8148-b26f13ab2248",
+      "attempted": true,
+      "acknowledged": true,
+      "observed_state": "applied",
+      "newly_executed": true,
+      "observation": {
+        "effect_id": "sha256:bedf4c1bb2ad103e88a8dd03e165ccaa65288d8451124dbeeee4a1dadeae1630",
+        "state": "applied",
+        "destination_state": {
+          "effect_id": "sha256:bedf4c1bb2ad103e88a8dd03e165ccaa65288d8451124dbeeee4a1dadeae1630",
+          "state": "applied",
+          "grant_id": "urn:cognous:grant:routine-1",
+          "target": "urn:cognous:synthetic-account:customer-001",
+          "amount": 50.0,
+          "unit": "USD",
+          "payload": {
+            "customer_id": "customer-001",
+            "refund_reason": "duplicate"
+          },
+          "operation_digest": "sha256:3c95ea88a6da4bacb115f42dbdc9f6a2fdd1228bd4306c05e28701d13f81abb8"
+        }
+      },
+      "error": null,
+      "control_plane_evidence": {
+        "local_authority_effect_profile": "urn:cognous:profiles:local-authority-effect:0.1.0-proposed",
+        "claim_id": "ef66872b-b5c0-48f5-b6c0-2d99de2cc84e",
+        "linearized_at": "2026-08-08T01:00:00+00:00"
+      }
+    }
+  ],
+  "profile_evidence": {
+    "claim_state": "consumed",
+    "reconciliation": {
+      "status": "observed",
+      "decision_id": "1cacde92-edf3-4ef2-bd22-41eb54de0830",
+      "effect_id": "sha256:bedf4c1bb2ad103e88a8dd03e165ccaa65288d8451124dbeeee4a1dadeae1630",
+      "attempt_id": null,
+      "attempted": false,
+      "acknowledged": false,
+      "observed_state": "applied",
+      "newly_executed": false,
+      "observation": {
+        "status": "applied",
+        "claim_state": "consumed",
+        "retry_eligible": false,
+        "effect_id": "sha256:bedf4c1bb2ad103e88a8dd03e165ccaa65288d8451124dbeeee4a1dadeae1630",
+        "operation_digest": "sha256:3c95ea88a6da4bacb115f42dbdc9f6a2fdd1228bd4306c05e28701d13f81abb8"
+      },
+      "error": null,
+      "control_plane_evidence": {}
+    }
+  },
+  "consumer_chain_qualified": false,
+  "production_ready": false
+}

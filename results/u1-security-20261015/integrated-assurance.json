@@ -1,0 +1,117 @@
+{
+  "contract": "integrated-assurance-qualification/1",
+  "coverage": {
+    "EGA01": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_unregistered_route_and_arbitrary_effect_surface_are_blocked",
+        "test_environment_drift_and_expired_lease_block_effect"
+      ]
+    },
+    "EGA02": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_allowed_public_sink_does_not_allow_secret_payload",
+        "test_untrusted_labels_and_derived_label_drop_are_rejected",
+        "test_explicit_exact_declassification_and_scope",
+        "test_payload_cannot_be_replaced_after_review"
+      ]
+    },
+    "EGA03": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_attenuated_child_uses_parent_budget",
+        "test_parent_revocation_refuses_child_and_names_revision",
+        "test_two_processes_cannot_spend_last_ancestor_budget_twice",
+        "test_revoke_before_effect_and_effect_before_revoke_have_distinct_results"
+      ]
+    },
+    "EGA04": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_independent_current_oracle_change_admission_and_activation",
+        "test_unsafe_regression_and_evaluation_budget_are_enforced",
+        "test_new_oracle_invalidates_old_admission_and_change_invalidates_approval",
+        "test_new_routes_without_oracle_coverage_cannot_be_admitted",
+        "test_rollback_uses_current_oracle_and_never_revives_grants_or_approvals"
+      ]
+    },
+    "EGA05": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_forged_signed_execution_cannot_create_effect",
+        "test_key_rotation_persists_and_old_key_cannot_act",
+        "test_same_model_instances_cannot_exchange_authority"
+      ]
+    },
+    "EGA06": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_missing_or_stale_custody_blocks_effect",
+        "test_event_lag_gate_resumes_only_after_checkpoint",
+        "test_witness_rejects_gap_fork_and_truncation_across_reopen",
+        "test_crash_before_commit_rolls_back_effect_and_budget",
+        "test_crash_after_commit_is_observed_without_reexecution"
+      ]
+    },
+    "EGA07": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_review_capacity_unavailable_and_deadline",
+        "test_same_principal_cannot_review_own_request_even_with_both_roles",
+        "test_challenge_blocks_approval_and_late_challenge_blocks_execution"
+      ]
+    },
+    "EGA08": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_stop_covers_children_blocks_new_runs_and_preserves_prior_effect",
+        "test_stop_holds_writer_boundary_before_waiting_execution",
+        "test_stop_remains_available_during_observer_outage",
+        "test_restart_requires_review_and_does_not_restore_grants",
+        "test_old_restart_review_cannot_override_newer_same_time_stop",
+        "test_stall_and_step_budget_produce_safe_refusal"
+      ]
+    },
+    "EGA09": {
+      "all_passed": true,
+      "control_removal_detected": true,
+      "required_cases": [
+        "test_recourse_distinguishes_compliant_violated_unevaluable_and_evidence_failure",
+        "test_remedy_packet_cannot_create_effect_or_restore_authority",
+        "test_appeal_preserves_history_and_blocks_existing_corrective_grant"
+      ]
+    }
+  },
+  "independent_custody_verified": false,
+  "local_qualified": true,
+  "mutation_exit_code": 0,
+  "operational_trust": "HOLD / NOT ESTABLISHED",
+  "passing_testcase_elements": 51,
+  "platform": "Linux",
+  "production_deployment_authorized": false,
+  "python": "3.12.14",
+  "reference_release_authorized": false,
+  "scenario_sha256": "238eda87f45a9dd64ed0c28a3ef934ae059d36aaa1b2f4f9fd41e579163a2247",
+  "source_changes": [],
+  "source_revision": "c3b919d1053442e992d499b1766ee0bf8acc768b",
+  "source_sha256": {
+    ".github/workflows/integrated-assurance.yml": "be16c93113f586fa747459670ba0ac3a32465e85ba8d3379e7b53993c1b5e9b8",
+    "component-lock.json": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+    "docs/workstreams/integrated-assurance-contract.md": "f132b79e71d1a25c8b751b196b92cc0c366b98a5a10191150b160616d20846fc",
+    "reference_profiles/assurance_runtime.py": "4ea3285be6265fd2f77bf8aea2a0da359bd360541dea0c4711e8c90b9be47397",
+    "reference_profiles/bounded_json.py": "dbf74babbf7cb19d4e7a70f37f09f6f2a797bfb896fc2912cbc72075bd7552ef",
+    "tests/test_integrated_assurance.py": "40270a0a0597c50a5ec9faa8d0ffa69bf4dc93cb6be0ff9320c2f81e3705b326",
+    "tools/integrated_assurance_mutations.py": "fcabaf7c6ef8bfb377f44777416fc14f97df89ba2ee489acf5c3ab6ec831d367",
+    "tools/integrated_assurance_qualification.py": "a4bfb00671092de17ff78c567eaaa724593196ad60a97732f2b97a4d23f2a329"
+  },
+  "testcase_elements": 51
+}
