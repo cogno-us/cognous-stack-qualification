@@ -11,13 +11,13 @@ Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. 
 | T1 — Versioned contracts | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
 | T2 — Native deterministic harness | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
 | T3 — Calibrated evaluation | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
-| T4 — Actual-agent pilot | BLOCKED | Provide supported actual-model adapter, authorized configuration and budget before agent trials |
+| T4 — Actual-agent pilot | BLOCKED | Run the user-authorized bounded Claude Opus 5.5 campaign on PR 14 merge and review retained results |
 | CLOSEOUT — Integration and evidence | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
 
 Named local variant counts: `{"PASS": 36}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
 
 [Native evidence record](../results/serial/native-20261015/record.json) · [Serial packet and reproduction](serial-qualification.md)
-- MODEL-CONFIG: Actual-agent pilot lacks a configured supported model adapter and budget Owner: Agent runtime owner. Resolution: Provide authorized model configuration and supported adapter, then execute declared pilot
+- MODEL-CREDENTIAL: Claude Opus 5.5 / USD 20 bounded campaign authorized; Actions secret reported configured; execution pending PR 14 merge Owner: Agent runtime owner. Resolution: Merge PR 14 to execute the one authorized campaign with fixed bounds and persistent accounting; review real results
 - EXPORT-MAPPING: Native local destination/approval records have no verified Replay or Evidence Pack producer mapping Owner: Artifact adapter maintainers. Resolution: Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output
 - OPERATIONAL-ASSURANCE: Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures Owner: Deployment owner. Resolution: Deployment-specific configuration and independent access evidence before operational claims
 
