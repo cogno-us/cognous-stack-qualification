@@ -10,6 +10,9 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.optional_execution_profile import validate_checkout, qualification_environment, separate_output
+
 PROFILE = ROOT / "profiles/merged-consumer-chain.json"
 
 
@@ -53,13 +56,9 @@ def main():
     profile = json.loads(PROFILE.read_text())
     actual = {}
     for name, spec in profile["components"].items():
-        actual[name] = subprocess.check_output(["git", "-C", str(work / name), "rev-parse", "HEAD"], text=True, timeout=10).strip()
-        if actual[name] != spec["sha"]:
-            raise SystemExit(f"{name}: expected {spec['sha']}, got {actual[name]}")
-        dirty = subprocess.check_output(["git", "-C", str(work / name), "diff", "--name-only", "HEAD", "--", "*.py", "*.json"], text=True, timeout=10).strip()
-        if dirty:
-            raise SystemExit(f"{name}: modified tracked source inputs: {dirty}")
-    env = os.environ.copy()
+        actual[name] = validate_checkout(work / name, spec['sha'])
+    separate_output(out, work)
+    env = qualification_environment()
     manifest = str(work / "action_manifest/examples/refund_integration_v1_1.manifest.json")
     replay = str(work / "replay_bundle/examples/bounded_success_reconstruction_v0_2.json")
     env.update({

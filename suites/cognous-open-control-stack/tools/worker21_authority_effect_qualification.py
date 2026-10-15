@@ -6,6 +6,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.optional_execution_profile import validate_checkout, qualification_environment
 WORK=ROOT/".worker21-work"
 CP_SHA="73e3c65acc47dc43593dcb0420d14032ed410b14"
 MB_SHA="b1525a7982e52ebb530457f94d5517de032ca4c4"
@@ -42,7 +44,7 @@ def checkout(name,repo,sha):
     r=run(["git","checkout","-q","--detach",sha],cwd=dest,timeout=300)
     if r["returncode"]: raise RuntimeError(r["output"])
     got=run(["git","rev-parse","HEAD"],cwd=dest)["output"].strip()
-    if got!=sha: raise RuntimeError(f"{name}: {got} != {sha}")
+    validate_checkout(dest, sha)
     return dest
 
 def counts(path):
@@ -70,8 +72,8 @@ def main():
     for name,(repo,sha) in OTHER.items(): roots[name]=checkout(name,repo,sha)
     dep=run([sys.executable,"-m","pip","install","-q","pytest>=8","pydantic>=2"],timeout=300)
     if dep["returncode"]: raise RuntimeError(dep["output"])
-    env=os.environ.copy()
-    env["PYTHONPATH"]=os.pathsep.join([str(ROOT),str(roots["control_plane"]/ "src"),str(roots["moltbot_safe"]),str(roots["gax_imx_transport"]),env.get("PYTHONPATH","")])
+    env=qualification_environment()
+    env["PYTHONPATH"]=os.pathsep.join([str(ROOT),str(roots["control_plane"]/ "src"),str(roots["moltbot_safe"]),str(roots["gax_imx_transport"])])
     env["MOLTBOT_SAFE_CONTROL_PLANE_ROOT"]=str(roots["control_plane"])
     env["MOLTBOT_SAFE_ROOT"]=str(roots["moltbot_safe"])
     results=[]; overall=0
