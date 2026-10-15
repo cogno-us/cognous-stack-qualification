@@ -2,6 +2,10 @@
 
 This is a proposed test contract, not a new component runtime schema. Resolve actual producer interfaces and report missing mappings before implementing adapters. Use a versioned test sidecar for unsupported fields; never manufacture absent source evidence.
 
+## Bounded comparison process
+
+The [15 October bounded-comparison engineering addendum](../process/testing/bounded-comparison.md) scopes the next implementation sequence: configuration/native-evidence checkpoint, minimum missing instrumentation and calibration, D01 then D03, optional C07, separate D04 recovery, then exports and independently completed findings. It requires two diagnostic repetitions per included variant. Its conventional-control arm is optional later work; human participation and oversight-effectiveness studies are excluded. The broader catalog and future actual-agent pilot below retain their separate scope. Existing assertions and retained native artifacts must be checked before extending them. Publication of this process does not execute or accept a scenario.
+
 ## Scenario preparation
 
 Each executable variant must declare scenario ID and version, risk, capability, trust boundary, consequence, action profile, user turns, attack or fault placement, expected checkpoints, forbidden effects, final-state oracle, initial-state digest, cleanup, applicability and required evidence. The catalog is an initial specification; profile-specific fixtures, numerical thresholds and fault hooks remain to be implemented.
