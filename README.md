@@ -2,7 +2,7 @@
 
 Cross-component test scenarios and qualification evidence for [Cognous Open Control Stack](https://github.com/cogno-us/cognous-open-control-stack). This repository records what an assembled, pinned system must demonstrate and, when execution is implemented, what actually happened.
 
-**Current status:** scenario specifications only. The catalog contains **696 NOT RUN specifications**: 40 Cognous cases (9 deterministic, 6 agent-behavior, 2 human-oversight and 23 supplemental) plus 656 AI Security Wiki reference cases. Wiki applicability is unassessed until mapped to a supported profile. No stack qualification, agent evaluation or human study has been executed here. Catalog validation is not system qualification.
+**Current status:** scenario specifications only. The initial 15 October 2026 snapshot contains **696 NOT RUN specifications**: 40 Cognous cases (9 deterministic, 6 agent-behavior, 2 human-oversight and 23 supplemental) plus 656 AI Security Wiki reference cases. See the generated Wiki index for the current upstream case count after refreshes. Wiki applicability is unassessed until mapped to a supported profile. No stack qualification, agent evaluation or human study has been executed here. Catalog validation is not system qualification.
 
 ## Start here
 
@@ -27,7 +27,7 @@ This repository does not select component revisions, grant authority, clear publ
 
 ## GitHub workflow
 
-Read and change scenarios through GitHub files and pull requests. The Catalog validation workflow checks catalog consistency and provenance/license records on pushes and pull requests. The Upstream Wiki refresh workflow runs weekly on Mondays at 14:17 UTC and prepares reviewed update PRs when upstream changes; manual dispatch also remains available. It does not execute D, A, H or C scenarios. No offline file collection is required to browse or maintain the catalog.
+Read and change scenarios through GitHub files and pull requests. The Catalog validation workflow checks catalog consistency and provenance/license records on pushes and pull requests. The Upstream Wiki refresh workflow runs weekly on Mondays at 14:17 UTC and automatically merges generated update PRs after provenance, license and importer checks pass, subject to GitHub rules; manual dispatch also remains available. It does not execute D, A, H or C scenarios. No offline file collection is required to browse or maintain the catalog.
 
 Future execution workflows should capture exact source identities, perform containment and reset checks, run supported scenarios, and retain result manifests plus evidence through GitHub. Scenario execution automation, dashboards and automatic result publication are not implemented. Workflow artifacts expire; accepted release evidence needs durable retained references and hashes before it can support a release decision.
 
