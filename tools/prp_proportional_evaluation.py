@@ -13,8 +13,8 @@ import uuid
 from openai_agent_pilot import OpenAIHTTP,OpenAILedger,MODEL
 from claude_agent_pilot import PilotError
 from trajectory_contract import ROOT,digest
-CONFIG=ROOT/'qualification/serial/prp-proportional-20261015.json'
-CASES=ROOT/'qualification/serial/prp-proportional-cases-20261015.json'
+CONFIG=ROOT/'qualification/serial/prp-proportional-repair-20261015.json'
+CASES=ROOT/'qualification/serial/prp-proportional-repair-cases-20261015.json'
 FILES=['SKILL.md','references/reasoning-effort.md','references/runtime-control.md']
 ARMS=['fixed_low','fixed_medium','fixed_high','prp_routed']
 COMMON='Complete the supplied task accurately using only its supplied facts and policies. Submit the requested factual result through the tool. Do not provide private chain of thought.'
@@ -33,7 +33,7 @@ class Budget(OpenAILedger):
 
 def config():
     c=json.loads(CONFIG.read_text())
-    expected={'campaign_id':'prp-proportional-20261015','model':MODEL,'max_trial_spend_usd':'7.82','repetitions':2,'max_answer_calls':80,'max_router_calls':20,'max_paid_calls':100,'answer_output_cap':2048,'router_output_cap':512,'counted_input_limit':15000,'reserved_input_ceiling':16000,'automatic_retries':0,'seed':20261015,'prp_commit':'b3ffa8559db05188f3471c5b0bfe5d936a4bcb29'}
+    expected={'campaign_id':'prp-proportional-repair-20261015','model':MODEL,'max_trial_spend_usd':'7.27','repetitions':2,'max_answer_calls':80,'max_router_calls':20,'max_paid_calls':100,'answer_output_cap':2048,'router_output_cap':512,'counted_input_limit':15000,'reserved_input_ceiling':16000,'automatic_retries':0,'seed':20261015,'prp_commit':'b3ffa8559db05188f3471c5b0bfe5d936a4bcb29'}
     if any(c.get(k)!=v for k,v in expected.items()):raise ValueError('Frozen campaign bound mismatch')
     if c['pricing']!=json.loads((ROOT/'qualification/serial/openai-gpt-6.1-sol.json').read_text())['pricing']:raise ValueError('Pricing changed')
     return c
@@ -52,7 +52,7 @@ def protocol(prp):return '\n\n'.join('FILE '+f+'\n'+(prp/f).read_text() for f in
 def tool(case):return {'type':'function','name':'submit_result','description':'Submit the factual result requested by the task.','strict':True,'parameters':case['answer_schema']}
 
 def call(transport,budget,instructions,task,tools,effort,output_cap):
-    payload={'model':MODEL,'instructions':instructions,'input':[{'role':'user','content':json.dumps(task)}],'tools':tools,'reasoning':{'effort':effort},'max_output_tokens':output_cap,'store':False,'service_tier':'default','parallel_tool_calls':False,'prompt_cache_options':{'mode':'explicit'},'truncation':'disabled'}
+    payload={'model':MODEL,'instructions':instructions,'input':[{'role':'user','content':json.dumps(task)}],'tools':tools,'reasoning':{'effort':effort},'max_output_tokens':output_cap,'store':False,'service_tier':'default','parallel_tool_calls':False,'tool_choice':'required','prompt_cache_options':{'mode':'explicit'},'truncation':'disabled'}
     record={'requested_effort':effort,'requested_output_cap':output_cap,'instructions_sha256':digest(instructions),'input_sha256':digest(task),'tools_sha256':digest(tools),'started_at':datetime.now(timezone.utc).isoformat(),'visible_messages':[],'tool_proposals':[],'stop_reason':None,'result':None}
     try:
         if len(json.dumps(payload).encode())>100000:raise PilotError('Request byte bound')
@@ -140,7 +140,7 @@ def main():
     if out.exists() or out.is_relative_to(ROOT) or out.is_relative_to(prp):p.error('Use a new evidence directory outside checkouts')
     if subprocess.check_output(['git','-C',str(prp),'rev-parse','HEAD'],text=True).strip()!=c['prp_commit']:p.error('PRP pin mismatch')
     cases=json.loads(CASES.read_text())['cases'];index={x['id']:x for x in cases};order=plan(cases);text=protocol(prp)
-    out.mkdir(parents=True);sourcefiles=['tools/prp_proportional_evaluation.py','tools/prp_proportional_cases.py','tools/openai_agent_pilot.py','tools/claude_agent_pilot.py','tools/trajectory_contract.py','qualification/serial/prp-proportional-20261015.json','qualification/serial/prp-proportional-cases-20261015.json']
+    out.mkdir(parents=True);sourcefiles=['tools/prp_proportional_evaluation.py','tools/prp_proportional_cases.py','tools/openai_agent_pilot.py','tools/claude_agent_pilot.py','tools/trajectory_contract.py','qualification/serial/prp-proportional-repair-20261015.json','qualification/serial/prp-proportional-repair-cases-20261015.json']
     sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
     m={'schema':'prp-proportional-run/1.0','status':'NOT RUN','campaign':c,'trials':[],'schedule':order,'source_hashes':{'qualification':{f:sha(ROOT/f) for f in sourcefiles},'prp':{f:sha(prp/f) for f in FILES}},'common_instructions':COMMON,'router_instructions':ROUTER,'host_mapping':MAP,'model_snapshot':'Provider ID; finer immutable snapshot unavailable','sampling_settings':'Temperature/seed unavailable; host ordering seed frozen','scoring':'Frozen predicates plus proportionality 0-4; no free-text rationale scoring'}
     (out/'cases.json').write_text(json.dumps(cases,indent=2));(out/'protocol.txt').write_text(text);(out/'config.json').write_text(json.dumps(c,indent=2))

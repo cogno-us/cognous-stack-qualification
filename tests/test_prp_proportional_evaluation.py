@@ -34,7 +34,7 @@ class Proportional(unittest.TestCase):
   c=self.cases[0];f=Fake(c['expected'])
   with tempfile.TemporaryDirectory() as d:
    b=e.Budget(Path(d)/'l',self.c);r=e.call(f,b,e.COMMON,e.public_input(c),[e.tool(c)],'low',2048)
-   self.assertIsNone(r['stop_reason']);self.assertEqual(r['reasoning_token_measurement']['value'],25);self.assertEqual(e.metrics([r,r])['input_tokens'],200)
+   self.assertEqual(f.requests[-1][1]['tool_choice'],'required');self.assertIsNone(r['stop_reason']);self.assertEqual(r['reasoning_token_measurement']['value'],25);self.assertEqual(e.metrics([r,r])['input_tokens'],200)
    self.assertNotIn('encrypted_content',json.dumps(r));self.assertNotIn('expected',json.dumps(f.requests));self.assertNotIn('acceptable_levels',json.dumps(f.requests));self.assertNotIn('C1',json.dumps(f.requests))
  def test_zero_reasoning_and_unavailable_are_not_invented(self):
   c=self.cases[0]
@@ -43,9 +43,13 @@ class Proportional(unittest.TestCase):
     r=e.call(Fake(c['expected'],value),e.Budget(Path(d)/'l',self.c),e.COMMON,e.public_input(c),[e.tool(c)],'low',2048)
     self.assertEqual(r['reasoning_token_measurement']['value'],value)
     if value is None:self.assertEqual(r['reasoning_token_measurement']['estimated_bounds'],[0,100])
+ def test_identifier_contract_excludes_explanatory_prose(self):
+  from jsonschema import Draft202012Validator,ValidationError
+  c=self.cases[5];v=Draft202012Validator(c['answer_schema']);v.validate(c['expected'])
+  with self.assertRaises(ValidationError):v.validate(c['expected']|{'decisive_record':'S2: unknown reading'})
  def test_plan_and_budget_bounds(self):
   p=e.plan(self.cases);self.assertEqual(len(p),80);self.assertEqual(len({(x['case_id'],x['arm'],x['repetition']) for x in p}),80);self.assertEqual(sum(x['arm']=='prp_routed' for x in p),20)
-  self.assertLess(80*60480+20*45120,7820000)
+  self.assertLess(80*60480+20*45120,7270000)
   with tempfile.TemporaryDirectory() as d:
    b=e.Budget(Path(d)/'l',self.c)
    for i in range(100):b.reserve(60480)
