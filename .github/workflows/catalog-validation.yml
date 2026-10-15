@@ -14,4 +14,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate scenario specifications only
-        run: python3 tools/validate_catalog.py
+        run: |
+          python3 tools/validate_catalog.py
+          python3 -m unittest discover -s tests -v

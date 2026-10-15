@@ -1,0 +1,58 @@
+name: Upstream Wiki refresh
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: upstream-wiki-refresh
+  cancel-in-progress: false
+jobs:
+  propose-update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out maintained importer
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - name: Read upstream data without executing upstream code
+        run: git clone --depth 1 https://github.com/nachi065/AI-Security-Wiki.git "$RUNNER_TEMP/ai-security-wiki"
+      - name: Prepare pinned source update with license and attribution checks
+        run: python3 tools/sync_ai_security_wiki.py --source-dir "$RUNNER_TEMP/ai-security-wiki" --accept-revision
+      - name: Check provenance and importer rejection behavior
+        run: |
+          python3 tools/validate_catalog.py
+          python3 -m unittest discover -s tests -v
+          git diff --check
+      - name: Propose reviewed update when source changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          if git diff --quiet -- scenarios/ai-security-wiki sources/ai-security-wiki.lock.json; then
+            echo "No upstream specification changes. No qualification scenarios executed."
+            exit 0
+          fi
+          upstream_sha=$(python3 -c 'import json; print(json.load(open("sources/ai-security-wiki.lock.json"))["source_commit"])')
+          branch="sync/ai-security-wiki-$upstream_sha"
+          existing=$(gh pr list --head "$branch" --state open --json url --jq '.[0].url // empty')
+          if [ -n "$existing" ]; then
+            echo "Existing review PR: $existing"
+            exit 0
+          fi
+          git switch -c "$branch"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add scenarios/ai-security-wiki sources/ai-security-wiki.lock.json
+          git commit -m "Refresh AI Security Wiki specifications at $upstream_sha"
+          git push origin "$branch"
+          cat > "$RUNNER_TEMP/wiki-pr-body.md" <<'BODY'
+          Refresh the pinned AI Security Wiki reference cases and source metadata. The importer retained CC BY-SA 4.0, author credits, source identities and change notices. Review additions, changed procedures, applicability and suggested thresholds before merging.
+
+          This workflow ran catalog/provenance validation and importer rejection tests. It did not run qualification scenarios or modify selected component pins, production permissions or historical run results. All imported cases remain NOT RUN.
+
+          A PR created with GITHUB_TOKEN may not trigger another workflow automatically. Use the originating refresh run as evidence of these checks; run any required protected checks through a supported maintainer dispatch or GitHub App integration.
+          BODY
+          gh pr create --base "$BASE_BRANCH" --head "$branch" --title "Refresh AI Security Wiki specifications" --body-file "$RUNNER_TEMP/wiki-pr-body.md"

@@ -1,6 +1,8 @@
-# Scenario catalog
+# Cognous scenario catalog
 
-All cases are **NOT RUN**. These are specifications derived from the supplied documents, not implemented tests or historical result imports. Variants within a case must receive separate trial identities.
+The 40 Cognous cases below are **NOT RUN**. A further [656 AI Security Wiki reference cases](ai-security-wiki/README.md) retain separate CC BY-SA licensing. These are specifications derived from the supplied documents, not implemented tests or historical result imports. Variants within a case must receive separate trial identities.
+
+Every entry has a document digest, section and reuse basis in [the machine-readable catalog](catalog.json) and [source register](../sources/documents.json). Original Cognous adaptations are Apache-2.0; no source-document license is invented.
 
 A = Agentic Testing Engineering Addendum, 15 October 2026. B = Consolidated Engineering Recommendations, 5 October 2026. See [source provenance](../docs/sources.md) and the [execution contract](../docs/execution-contract.md).
 

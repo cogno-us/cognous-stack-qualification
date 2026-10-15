@@ -14,3 +14,9 @@ D01–D09, A01–A06 and H01–H02 preserve A's case identifiers, stimuli and re
 A references a third-party starter kit. That PDF was not supplied in this task, independently reviewed here, or copied into this repository. Its authors' case-study results are not Cognous evidence.
 
 Private methodology, proprietary mechanisms and optional reasoning protocols are excluded. The original DOCX files are not redistributed. The existing repository license is retained; no upstream license or third-party rights are changed.
+
+## Machine-readable source and license records
+
+Every Cognous scenario resolves to [the document source register](../sources/documents.json), including its supplied filename, digest, section, attribution and reuse basis. The source DOCX files do not state a separate license. Publication here follows the user’s explicit instruction to adapt their supplied documents into this repository; this does not declare the source files or separately cited works open licensed.
+
+The additional [AI Security Wiki collection](../scenarios/ai-security-wiki/README.md) has per-case source URLs, original IDs, authors, exact commit and page/block hashes. Its [source lock](../sources/ai-security-wiki.lock.json) records the actual CC BY-SA 4.0 license digest. It is not covered by the repository’s Apache default.
