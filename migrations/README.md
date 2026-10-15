@@ -1,6 +1,6 @@
 # Cross component relocation validation
 
-The public migration inventories 19 repositories and relocates 137 test/harness/support files from seven owners, with 50 source workflow entrypoints delegated to the testing repository. File bytes, original paths/commits, executable modes, pins and license notices are retained in the [manifest](cross-component-2026-10-15.json). The [suite index](../suites/README.md) is the entry point.
+The public migration inventories 19 repositories and relocates 145 test/harness/support files from seven owners, with 50 source workflow entrypoints delegated to the testing repository. File bytes, original paths/commits, executable modes, pins and license notices are retained in the [manifest](cross-component-2026-10-15.json). The [suite index](../suites/README.md) is the entry point.
 
 Local checks passed for 999 remaining component-local tests and 122 hub subtests, 16 relocation/importer tests, 53 actual producer/consumer refusal tests and 27 OpenShell helper tests and 12 BitRep binding tests in assembled source checkouts. The local EVM trajectory also passed all 20 Node-reported test nodes (including its parent node). Both original and suite file identities are retained by the assembly tooling. These counts describe different scopes and are not combined into an overall safety score.
 
