@@ -4,20 +4,20 @@
   "profile": "native-local-destination-and-approval-fixtures/1",
   "selected": false,
   "human_oversight": "NOT EVALUATED",
-  "verified_at": "2026-10-15T21:59:44.747074+00:00",
-  "verification_method": "Exact published code 2f0119d: 36 native trials and hosted local-native check passed; native regressions and restore characterizations retained; final evidence-head checks pending",
+  "verified_at": "2026-10-15T22:05:55.460408+00:00",
+  "verification_method": "PR #12 merged after all exact-head hosted checks passed; merged revision rerun passed 36 native trials and 62 qualification tooling tests",
   "starting_qualification_sha": "dcedf33e5f53ad4a86c3019c0d16f863a60db1f2",
   "phases": [
     {
       "id": "T1",
       "scope": "Versioned contracts",
       "dependencies": [],
-      "status": "ACCEPTED",
-      "next_action": "Review and integrate exact-source passing implementation",
+      "status": "INTEGRATED",
+      "next_action": "No further action within the bounded local implementation scope; residual qualification gaps remain listed",
       "owner": "T0",
       "branch": "testing/t0-serial-qualification",
       "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
-      "merge_sha": null
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
     },
     {
       "id": "T2",
@@ -25,12 +25,12 @@
       "dependencies": [
         "T1"
       ],
-      "status": "ACCEPTED",
-      "next_action": "Review and integrate exact-source passing implementation",
+      "status": "INTEGRATED",
+      "next_action": "No further action within the bounded local implementation scope; residual qualification gaps remain listed",
       "owner": "T0",
       "branch": "testing/t0-serial-qualification",
       "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
-      "merge_sha": null
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
     },
     {
       "id": "T3",
@@ -38,12 +38,12 @@
       "dependencies": [
         "T2"
       ],
-      "status": "ACCEPTED",
-      "next_action": "Review and integrate exact-source passing implementation",
+      "status": "INTEGRATED",
+      "next_action": "No further action within the bounded local implementation scope; residual qualification gaps remain listed",
       "owner": "T0",
       "branch": "testing/t0-serial-qualification",
       "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
-      "merge_sha": null
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
     },
     {
       "id": "T4",
@@ -64,12 +64,12 @@
       "dependencies": [
         "T3"
       ],
-      "status": "IN REVIEW",
-      "next_action": "Review and integrate exact-source passing implementation",
+      "status": "INTEGRATED",
+      "next_action": "No further action within the bounded local implementation scope; residual qualification gaps remain listed",
       "owner": "T0",
       "branch": "testing/t0-serial-qualification",
       "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
-      "merge_sha": null
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
     }
   ],
   "variant_counts": {
@@ -145,5 +145,16 @@
       "result": "8 passed; 4 optional component-dependent cases deselected",
       "evidence": "results/serial/native-20261015/t0-restore.xml"
     }
-  ]
+  ],
+  "integration": {
+    "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+    "tested_pr_head": "6f8ce9672a35accd3bcc08fba4a764d7b2bbe667",
+    "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5",
+    "postmerge_local_trials": {
+      "PASS": 36
+    },
+    "postmerge_tooling_tests": 62,
+    "release_authorized": false,
+    "production_authorized": false
+  }
 }
