@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cogno-us/cognous-stack-qualification/schemas/run-manifest-v1.schema.json",
+  "title": "Cognous execution telemetry manifest v1",
+  "description": "Execution metadata only. No scenario-acceptance evaluator is implemented by this schema.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "record_kind",
+    "run_id",
+    "observed_at",
+    "source",
+    "qualification",
+    "profile",
+    "component_set",
+    "environment",
+    "execution",
+    "evidence",
+    "scenario_results",
+    "expected_state",
+    "observed_state",
+    "verdict_dimensions",
+    "assurance",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "record_kind": {
+      "enum": [
+        "workflow",
+        "command"
+      ]
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,159}$"
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "repository",
+        "commit"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string"
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        }
+      }
+    },
+    "qualification": {
+      "type": "object",
+      "required": [
+        "repository",
+        "commits"
+      ],
+      "properties": {
+        "repository": {
+          "const": "cogno-us/cognous-stack-qualification"
+        },
+        "commits": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          }
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "label",
+        "sha256"
+      ],
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "component_set": {
+      "type": "object",
+      "required": [
+        "completeness",
+        "components"
+      ],
+      "properties": {
+        "completeness": {
+          "const": "UNVERIFIED"
+        },
+        "components": {
+          "type": "array"
+        }
+      }
+    },
+    "environment": {
+      "type": "object"
+    },
+    "execution": {
+      "type": "object",
+      "required": [
+        "outcome"
+      ],
+      "properties": {
+        "outcome": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "RUNNING",
+            "CANCELLED",
+            "INCONCLUSIVE",
+            "NOT RUN"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "retention",
+          "sha256"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "retention": {
+            "enum": [
+              "GIT_MANIFEST",
+              "EXPIRING_ARTIFACT",
+              "EXTERNAL_LINK",
+              "LOCAL_ONLY"
+            ]
+          },
+          "sha256": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    },
+    "scenario_results": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "expected_state": {
+      "type": "null"
+    },
+    "observed_state": {
+      "type": "null"
+    },
+    "verdict_dimensions": {
+      "type": "object",
+      "required": [
+        "evidence_integrity",
+        "business_correctness",
+        "authority_acceptance"
+      ],
+      "additionalProperties": {
+        "const": "NOT ASSESSED"
+      }
+    },
+    "assurance": {
+      "type": "object",
+      "required": [
+        "release_authorized",
+        "production_authorized"
+      ],
+      "properties": {
+        "release_authorized": {
+          "const": false
+        },
+        "production_authorized": {
+          "const": false
+        }
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
