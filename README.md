@@ -27,7 +27,7 @@ This repository does not select component revisions, grant authority, clear publ
 
 ## GitHub workflow
 
-Read and change scenarios through GitHub files and pull requests. The Catalog validation workflow checks catalog consistency and provenance/license records on pushes and pull requests. A manual Upstream Wiki refresh workflow prepares reviewed update PRs; scheduling is documented but not enabled. It does not execute D, A, H or C scenarios. No offline file collection is required to browse or maintain the catalog.
+Read and change scenarios through GitHub files and pull requests. The Catalog validation workflow checks catalog consistency and provenance/license records on pushes and pull requests. The Upstream Wiki refresh workflow runs weekly on Mondays at 14:17 UTC and prepares reviewed update PRs when upstream changes; manual dispatch also remains available. It does not execute D, A, H or C scenarios. No offline file collection is required to browse or maintain the catalog.
 
 Future execution workflows should capture exact source identities, perform containment and reset checks, run supported scenarios, and retain result manifests plus evidence through GitHub. Scenario execution automation, dashboards and automatic result publication are not implemented. Workflow artifacts expire; accepted release evidence needs durable retained references and hashes before it can support a release decision.
 
