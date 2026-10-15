@@ -3,6 +3,37 @@
 from __future__ import annotations
 import argparse, hashlib, json, os, platform, shutil, signal, subprocess, sys, time, tempfile
 import xml.etree.ElementTree as ET
+from contextlib import contextmanager
+from datetime import datetime, timezone
+from unittest.mock import patch
+
+
+@contextmanager
+def synthetic_service_clock():
+    """Explicit synthetic time only; no source edit or freshness-policy change."""
+    raw=os.environ.get("COGNOUS_SYNTHETIC_SERVICE_TIME")
+    if raw is None:
+        yield
+        return
+    value=datetime.fromisoformat(raw.replace("Z","+00:00"))
+    if value.tzinfo is None:
+        raise ValueError("Synthetic service clock must be timezone-aware")
+    import agent_control_plane.bounded as bounded
+    with patch.object(bounded,"_now",lambda:value.astimezone(timezone.utc)):
+        yield
+
+
+def pytest_configure(config):
+    # Activated only by an explicit pytest -p tools.reference_release invocation.
+    config._cognous_clock_context=synthetic_service_clock()
+    config._cognous_clock_context.__enter__()
+
+
+def pytest_unconfigure(config):
+    context=getattr(config,"_cognous_clock_context",None)
+    if context is not None:
+        context.__exit__(None,None,None)
+
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -15,6 +46,21 @@ BATCHES = {
     "consumers": {"replay", "evidence_pack", "evidence_pack_v2", "evidence_pack_persistence", "odes", "replay_merged", "evidence_pack_merged", "odes_merged"},
     "registry": {"bitrep_verification", "index_bitrep_binding"},
 }
+
+
+CANDIDATE_PROFILE = "typed-refusal-candidate-20261015"
+CANDIDATE_SUITES = {
+    "authority": {"executor_refusal"},
+    "exchange": {"gax_refusal", "gax_historical_artifacts"},
+    "consumers": {"replay_refusal", "odes_refusal", "evidence_pack_refusal"},
+    "registry": set(),
+}
+
+
+def required_batches(profile):
+    candidate = profile.get("runtime_profile") == CANDIDATE_PROFILE
+    return {name: suites | (CANDIDATE_SUITES[name] if candidate else set())
+            for name, suites in BATCHES.items()}
 
 
 def run(cmd, *, cwd=None, env=None, check=False):
@@ -47,7 +93,12 @@ def checkout(name,spec,sha_key="sha"):
             raise RuntimeError(f"{name}: reusable checkout must be clean at exact pin {sha}; got {actual}, dirty={bool(dirty)}")
         return dest
     if dest.exists(): shutil.rmtree(dest)
-    run(["git","clone","-q",f"https://github.com/{repo}.git",str(dest)],check=True)
+    # Reuse public object history for additional exact test generations without
+    # making a moving branch or a shared dirty worktree a test dependency.
+    origin = next((p for p in WORK.iterdir() if p != dest and (p/".git").exists()
+                   and run(["git","remote","get-url","origin"],cwd=p)["output"].strip()
+                   == f"https://github.com/{repo}.git"), None)
+    run(["git","clone","-q",str(origin) if origin else f"https://github.com/{repo}.git",str(dest)],check=True)
     run(["git","checkout","-q","--detach",sha],cwd=dest,check=True)
     actual=run(["git","rev-parse","HEAD"],cwd=dest,check=True)["output"].strip()
     if actual!=sha: raise RuntimeError(f"{name}: expected {sha}, got {actual}")
@@ -75,6 +126,7 @@ def main():
     ap.add_argument("--results-dir",default="results/reference")
     ap.add_argument("--reuse-checkouts",action="store_true",help="Reuse existing tracked-clean checkouts only at exact lock SHAs")
     ap.add_argument("--profile",help="Explicit candidate lock; default remains component-lock.json")
+    ap.add_argument("--qualification-root",type=Path,help="Exact canonical suite checkout; required by the typed-refusal candidate")
     ap.add_argument("--batch",choices=sorted(BATCHES))
     args=ap.parse_args()
     global LOCK, WORK
@@ -108,6 +160,24 @@ def main():
     setup.append({k:v for k,v in dep.items() if k!="output"})
     if dep["returncode"]: raise RuntimeError(dep["output"])
 
+    candidate = LOCK.get("runtime_profile") == CANDIDATE_PROFILE
+    qualification_root=args.qualification_root.resolve() if args.qualification_root else None
+    if candidate and qualification_root is None:
+        raise RuntimeError("Typed-refusal qualification requires --qualification-root with canonical test provenance")
+    def canonical_test(suite,relative):
+        path=qualification_root/"suites"/suite/relative
+        inventory=json.loads((qualification_root/"migrations/cross-component-2026-10-15.json").read_text())
+        matches=[r for r in inventory["repositories"][suite]["files"] if r["destination_path"]==str(path.relative_to(qualification_root))]
+        if len(matches)!=1 or sha256(path)!=matches[0]["destination_sha256"]:
+            raise RuntimeError("Unrecorded canonical test adaptation: "+str(path))
+        return path
+    selected_regression = {}
+    if candidate:
+        selected = json.loads((ROOT/"component-lock.json").read_text())
+        for name in ("control_plane", "moltbot_safe", "replay_bundle", "odes", "governance_evidence_pack"):
+            selected_regression[name] = checkout("selected_regression_"+name,
+                selected["components"][name], "core_interop_sha" if name=="moltbot_safe" else "sha")
+
     cp=components["control_plane"]; replay=components["replay_bundle"]; agep=components["governance_evidence_pack"]
     odes=components["odes"]; gax=components["gax_imx_transport"]; molt=components["moltbot_safe"]
     manifest=components["action_manifest"]; bitrep=components["bitrep"]; index=components["the_index"]
@@ -126,6 +196,9 @@ def main():
     env["PYTHONDONTWRITEBYTECODE"]="1"
     if LOCK.get("runtime_profile"):
         env["GAX_RUNTIME_COMPATIBILITY_PROFILE"]=LOCK["runtime_profile"]
+    if candidate:
+        env["COGNOUS_SYNTHETIC_SERVICE_TIME"]="2026-08-08T01:00:00Z"
+    env["PATH"]=os.pathsep.join([str(Path(sys.executable).parent),env.get("PATH","")])
     env["COGNOUS_QUALIFICATION_LOCK"]=str(profile_path)
     env["COGNOUS_QUALIFICATION_WORK"]=str(WORK)
     env["BITREP_ROOT"]=str(bitrep)
@@ -239,6 +312,40 @@ def main():
         agep_persistence_env["AGEP_ACCEPTED_EXECUTOR_ROOT"]=str(old_molt)
         merged_env.update({"AGEP_ACCEPTED_REPLAY_ROOT":str(replay),"AGEP_PERSISTENCE_CONTROL_PLANE_ROOT":str(cp),"AGEP_ACCEPTED_EXECUTOR_ROOT":str(molt),"AGEP_MANIFEST_FIXTURE":env["MOLTBOT_SAFE_MANIFEST_FIXTURE"]})
 
+    historical_merged_env = merged_env.copy()
+    historical_gax_env = env.copy()
+    if candidate:
+        selected_cp=selected_regression["control_plane"]
+        selected_molt=selected_regression["moltbot_safe"]
+        selected_replay=selected_regression["replay_bundle"]
+        selected_odes=selected_regression["odes"]
+        selected_agep=selected_regression["governance_evidence_pack"]
+        historical_merged_env.update({
+            "ARB_V2_CONTROL_PLANE_ROOT":str(selected_cp),
+            "ARB_V2_PERSISTENCE_CONTROL_PLANE_ROOT":str(selected_cp),
+            "ARB_V2_MOLTBOT_ROOT":str(selected_molt),
+            "ODES_V2_REPLAY_ROOT":str(selected_replay),
+            "AGEP_V2_ODES_ROOT":str(selected_odes),
+            "AGEP_ACCEPTED_REPLAY_ROOT":str(selected_replay),
+            "AGEP_PERSISTENCE_CONTROL_PLANE_ROOT":str(selected_cp),
+            "AGEP_ACCEPTED_EXECUTOR_ROOT":str(selected_molt),
+        })
+        historical_merged_env.pop("COGNOUS_SYNTHETIC_SERVICE_TIME",None)
+        historical_gax_env.update({
+            "GAX_RUNTIME_COMPATIBILITY_PROFILE":"merged-producers-v1",
+            "MOLTBOT_SAFE_CONTROL_PLANE_ROOT":str(selected_cp),
+            "MOLTBOT_SAFE_ROOT":str(selected_molt),
+            "PYTHONPATH":os.pathsep.join([str(ROOT),str(selected_cp/"src"),
+                str(selected_molt),str(selected_replay/"src"),str(selected_odes/"src"),
+                str(selected_agep/"src"),str(gax)]),
+        })
+        historical_gax_env.pop("COGNOUS_SYNTHETIC_SERVICE_TIME",None)
+
+    refusal_env=env.copy()
+    refusal_env.update({"ARB_REFUSAL_CP_ROOT":str(cp),
+                        "ARB_REFUSAL_EXECUTOR_ROOT":str(molt)})
+    refusal_env.pop("COGNOUS_SYNTHETIC_SERVICE_TIME",None)
+
     if args.batch in (None,"registry"):
         npm=run(["npm","ci","--ignore-scripts"],cwd=index/"chain")
         setup.append({k:v for k,v in npm.items() if k!="output"})
@@ -248,11 +355,11 @@ def main():
       ("gax_observation_repair",[sys.executable,"-m","pytest","-q",str(gax/"tests/test_observation_repair.py")],ROOT),
       ("gax_reference",[sys.executable,"-m","pytest","-q",str(gax/"tests/test_gax_imx_reference.py"),str(gax/"tests/test_gax_imx_redelivery.py")],ROOT),
       ("governed_transport",[sys.executable,"-m","pytest","-q",str(gax/"tests/test_governed_message_transport.py")],ROOT),
-      ("governed_transport_integration",[sys.executable,"-m","pytest","-q",str(gax/"tests/test_governed_message_transport_integration.py")],ROOT),
-      ("gax_public_runtime_artifacts",[sys.executable,"-m","pytest","-q",str(gax/("qualification/test_merged_artifacts.py" if previous_accepted else "tests/test_gax_public_runtime_artifacts.py"))],ROOT),
+      ("governed_transport_integration",[sys.executable,"-m","pytest","-q",str(canonical_test("cognous-governed-exchange","tests/test_governed_message_transport_integration.py") if candidate else gax/"tests/test_governed_message_transport_integration.py")],ROOT),
+      ("gax_public_runtime_artifacts",[sys.executable,"-m","pytest","-q",str(canonical_test("cognous-governed-exchange","qualification/test_merged_artifacts.py") if candidate else gax/("qualification/test_merged_artifacts.py" if previous_accepted else "tests/test_gax_public_runtime_artifacts.py"))],ROOT),
       ("control_plane",[sys.executable,"-m","pytest","-q",str(cp/"tests/test_bounded_authorization.py")],ROOT),
       ("control_plane_store",[sys.executable,"-m","pytest","-q",str(cp/"tests/test_record_store_concurrency.py")],cp),
-      ("replay",[sys.executable,"-m","pytest","-q",str(replay/"tests")],replay),
+      ("replay",[sys.executable,"-m","pytest","-q",str(replay/"tests"), *(["--ignore="+str(replay/"tests/test_refusal_evidence.py")] if candidate else [])],replay),
       ("evidence_pack",[sys.executable,"-m","pytest","-q",str(agep/"tests"),"--ignore="+str(agep/"tests/test_producer_v2.py"),"--ignore="+str(agep/"tests/test_control_plane_store_compatibility.py")],agep),
       ("evidence_pack_v2",[sys.executable,"-m","pytest","-q",str(agep/"tests/test_producer_v2.py")],agep),
       ("evidence_pack_persistence",[sys.executable,"-m","pytest","-q",str(agep/"tests/test_control_plane_store_compatibility.py")],agep),
@@ -269,8 +376,17 @@ def main():
             ("evidence_pack_merged",[sys.executable,"-m","pytest","-q",str(agep/"qualification/test_merged_producer.py")],agep),
             ("odes_merged",[sys.executable,"-m","pytest","-q",str(odes/"qualification/test_merged_producer.py")],odes),
         ])
+    if candidate:
+        suites.extend([
+            ("gax_historical_artifacts",[sys.executable,"-m","pytest","-q",str(gax/"qualification/test_merged_artifacts.py")],gax),
+            ("executor_refusal",[sys.executable,"-m","pytest","-q",str(molt/"tests/test_refusal_capture.py")],molt),
+            ("replay_refusal",[sys.executable,"-m","pytest","-q",str(replay/"tests/test_refusal_evidence.py")],replay),
+            ("odes_refusal",[sys.executable,"-m","pytest","-q",str(odes/"qualification/test_refusal_profile.py")],odes),
+            ("evidence_pack_refusal",[sys.executable,"-m","pytest","-q",str(agep/"qualification/test_refusal_profile.py")],agep),
+            ("gax_refusal",[sys.executable,"-m","pytest","-q",str(gax/"candidate_qualification/test_typed_refusal_profile.py")],gax),
+        ])
     if args.batch:
-        suites=[entry for entry in suites if entry[0] in BATCHES[args.batch]]
+        suites=[entry for entry in suites if entry[0] in required_batches(LOCK)[args.batch]]
 
     runs=[]; representative_runs=[]; normalized=[]
 
@@ -322,8 +438,10 @@ def main():
             actual=list(cmd)
             junit=rdir/f"{name}.xml"
             actual.extend(["--junitxml",str(junit)])
-            suite_env=(merged_env if name.endswith("_merged") else agep_historical_env if name=="evidence_pack" else agep_v2_env if name=="evidence_pack_v2" else agep_persistence_env if name=="evidence_pack_persistence" else replay_env if name=="replay" else odes_env if name=="odes" else env)
+            suite_env=(refusal_env if name.endswith("_refusal") else historical_gax_env if candidate and name=="gax_historical_artifacts" else historical_merged_env if name.endswith("_merged") else agep_historical_env if name=="evidence_pack" else agep_v2_env if name=="evidence_pack_v2" else agep_persistence_env if name=="evidence_pack_persistence" else replay_env if name=="replay" else odes_env if name=="odes" else env)
             suite_env={**suite_env,"BATCH4C_RESULTS_DIR":env["BATCH4C_RESULTS_DIR"],"GAX_QUALIFICATION_RESULTS":env["GAX_QUALIFICATION_RESULTS"],"STORE_CONCURRENCY_EVIDENCE":env["STORE_CONCURRENCY_EVIDENCE"]}
+            if candidate and (name in {"hub_release_gate","research_qualification","gax_observation_repair","gax_reference","gax_public_runtime_artifacts","governed_transport","governed_transport_integration"}):
+                actual.extend(["-p","tools.reference_release"])
             rec=run(actual,cwd=cwd,env=suite_env)
             (rdir/f"{name}.log").write_text(rec["output"],encoding="utf-8")
             rec.update({"suite":name,"repetition":repetition,"log":str((rdir/f"{name}.log").relative_to(out)),"junit":str(junit.relative_to(out))})
@@ -346,11 +464,13 @@ def main():
     if args.batch:
         extra=[]
         if args.batch=="authority":
-            extra.append(run([sys.executable,"-m","pytest","-q",str(molt/"tests/test_openshell_environment.py"),"--junitxml",str(out/"openshell-mock.xml")],env=env))
+            mock_env=env.copy()
+            if candidate:mock_env["COGNOUS_SYNTHETIC_SERVICE_TIME"]="2026-10-05T19:00:00Z"
+            extra.append(run([sys.executable,"-m","pytest","-q",*(["-p","tools.reference_release"] if candidate else []),str(molt/"tests/test_openshell_environment.py"),"--junitxml",str(out/"openshell-mock.xml")],env=mock_env))
         if args.batch=="registry":
             for name in ("prp","research_intelligence","tfa"):
                 extra.append({"returncode":int(bool(static_json_check(components[name]))),"scope":"static JSON only"})
-        report={"release_dependency_lock_sha256":sha256(ROOT/"tools/requirements-release.lock"),"batch":args.batch,"profile_sha256":sha256(profile_path),"profile":LOCK,"suite_runs":runs,"representative_runs":representative_runs,"representative_repeatable":representative_repeatable,"extra":extra,"passed":bool(runs) and all(r["returncode"]==0 for r in runs+extra) and (args.batch!="exchange" or representative_repeatable),"release_qualified":False}
+        report={"release_dependency_lock_sha256":sha256(ROOT/"tools/requirements-release.lock"),"batch":args.batch,"profile_sha256":sha256(profile_path),"profile":LOCK,"selected_regression_pins":{name:run(["git","rev-parse","HEAD"],cwd=path,check=True)["output"].strip() for name,path in selected_regression.items()},"synthetic_service_clock":env.get("COGNOUS_SYNTHETIC_SERVICE_TIME"),"qualification_commit":run(["git","rev-parse","HEAD"],cwd=qualification_root,check=True)["output"].strip() if qualification_root else None,"qualification_manifest_sha256":sha256(qualification_root/"migrations/cross-component-2026-10-15.json") if qualification_root else None,"suite_runs":runs,"representative_runs":representative_runs,"representative_repeatable":representative_repeatable,"extra":extra,"passed":bool(runs) and all(r["returncode"]==0 for r in runs+extra) and (args.batch!="exchange" or representative_repeatable),"release_qualified":False}
         (out/(args.batch+"-summary.json")).write_text(json.dumps(report,indent=2)+"\n")
         print(json.dumps({"batch":args.batch,"passed":report["passed"]}))
         return 0 if report["passed"] else 1

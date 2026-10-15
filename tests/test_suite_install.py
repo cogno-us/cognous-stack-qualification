@@ -47,6 +47,15 @@ class SuiteInstall(unittest.TestCase):
         target=self.source/'tests/test_fixture.py';target.parent.mkdir();target.write_text('assert False\n')
         with self.assertRaisesRegex(ValueError,'advanced after inventory'):self.run_install()
         self.assertEqual(target.read_text(),'assert False\n')
+    def test_accepts_only_explicitly_reconciled_source_bytes(self):
+        target=self.source/'tests/test_fixture.py';target.parent.mkdir()
+        target.write_text('def test_fixture():\n    assert 2 == 2\n')
+        self.data['repositories']['fixture']['files'][0]['reconciled_sources']=[{
+            'sha256':hashlib.sha256(target.read_bytes()).hexdigest()}]
+        self.save()
+        self.run_install()
+        self.assertEqual(target.read_bytes(),self.canonical.read_bytes())
+
     def test_refuses_symlink_escape(self):
         outside=self.root/'outside';outside.mkdir();(self.source/'tests').symlink_to(outside,target_is_directory=True)
         with self.assertRaisesRegex(ValueError,'Symlink'):self.run_install()

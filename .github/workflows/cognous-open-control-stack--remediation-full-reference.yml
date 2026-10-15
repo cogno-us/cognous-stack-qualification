@@ -42,7 +42,7 @@ jobs:
     - name: Run bounded candidate batch twice
       env:
         BATCH: ${{ matrix.batch }}
-      run: python tools/reference_release.py run --profile profiles/remediation-full-reference-20261015.json --batch
+      run: python tools/reference_release.py run --qualification-root _qualification --profile profiles/remediation-full-reference-20261015.json --batch
         "$BATCH" --results-dir "results/remediation-full-$BATCH"
     - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()

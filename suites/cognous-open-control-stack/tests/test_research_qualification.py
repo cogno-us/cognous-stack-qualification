@@ -102,7 +102,10 @@ def authorize(runtime, proposal, resolver, workflow):
         "requested_permissions": tuple(proposal.requested_permissions),
     })
     operation = runtime["ExecutionOperation"](**{
+        # New optional constructor fields keep their declared defaults. Missing
+        # required fields still fail in the real constructor; invent no values.
         f.name: values[f.name] for f in dataclasses.fields(runtime["ExecutionOperation"])
+        if f.name in values
     })
     envelope = runtime["ExecutionEnvelope"](
         version="0.2.0", decision_id=decision.decision_id,
@@ -406,6 +409,62 @@ def test_original_late_commit_never_permits_replacement(tmp_path, pins, monkeypa
             worker.join(timeout=10)
 
 
+def denied_recovery_audit_is_bound(before, after, result, *, effect_id, decision_id,
+                                   reasons, evaluated_at):
+    """Candidate denial may append audit evidence, never a decision or effect."""
+    if set(before) != set(after) or len(before) != 1:
+        return False
+    old=json.loads(next(iter(before.values())))
+    new=json.loads(next(iter(after.values())))
+    audit={"refusals","resolution_checks","input_time_floors"}
+    if {k:v for k,v in old.items() if k not in audit} != {k:v for k,v in new.items() if k not in audit}:
+        return False
+    for key in ("refusals","resolution_checks"):
+        prior=old.get(key,[]);current=new.get(key,[])
+        if len(current)!=len(prior)+1 or current[:-1]!=prior:
+            return False
+    refusal=new["refusals"][-1];check=new["resolution_checks"][-1]
+    evidence=result.get("control_plane_evidence") or {}
+    if evidence!={"refusal":refusal}:
+        return False
+    if (refusal.get("decision_id"),refusal.get("effect_id"),refusal.get("reasons")) != (decision_id,effect_id,reasons):
+        return False
+    if refusal.get("stage")!="effect_time_revalidation" or check.get("stage")!="effect":
+        return False
+    if check.get("inputs")!=refusal.get("resolution_inputs") or check.get("reasons")!=reasons:
+        return False
+    if datetime.fromisoformat(refusal["recorded_at"].replace("Z","+00:00"))!=evaluated_at or check["evaluated_at"]!=refusal["recorded_at"]:
+        return False
+    floors=old.get("input_time_floors",{});updated=new.get("input_time_floors",{})
+    if set(floors)!=set(updated):
+        return False
+    return all(datetime.fromisoformat(floors[k]) <= datetime.fromisoformat(updated[k]) <= evaluated_at for k in floors)
+
+
+@pytest.mark.parametrize("mutation",[None,"decision","attempt","refusal","export","floor"])
+def test_candidate_refusal_audit_does_not_hide_execution_mutations(mutation):
+    stamp=NOW.isoformat()
+    original={"run_id":"fixture","decisions":[{"decision_id":"decision"}],
+              "attempts":[{"attempt_id":"original"}],"refusals":[],
+              "resolution_checks":[],"input_time_floors":{"key":stamp}}
+    current=copy.deepcopy(original)
+    refusal={"decision_id":"decision","effect_id":"effect","reasons":["grant_not_active"],
+             "stage":"effect_time_revalidation","recorded_at":stamp,"resolution_inputs":[]}
+    current["refusals"]=[refusal]
+    current["resolution_checks"]=[{"stage":"effect","inputs":[],
+        "reasons":["grant_not_active"],"evaluated_at":stamp}]
+    result={"control_plane_evidence":{"refusal":copy.deepcopy(refusal)}}
+    if mutation=="decision":current["decisions"].append({"decision_id":"replacement"})
+    elif mutation=="attempt":current["attempts"].append({"attempt_id":"new"})
+    elif mutation=="refusal":current["refusals"]=[]
+    elif mutation=="export":result["control_plane_evidence"]["refusal"]["effect_id"]="substituted"
+    elif mutation=="floor":current["input_time_floors"]["key"]="2000-01-01T00:00:00+00:00"
+    valid=denied_recovery_audit_is_bound({"store":json.dumps(original)},
+        {"store":json.dumps(current)},result,effect_id="effect",decision_id="decision",
+        reasons=["grant_not_active"],evaluated_at=NOW)
+    assert valid is (mutation is None)
+
+
 @pytest.mark.parametrize("authority_change", ["revocation", "expiry", "policy", "evidence", "approval"])
 @pytest.mark.parametrize("effect_state", ["applied", "absent"])
 def test_recovery_authority(tmp_path, pins, monkeypatch, authority_change, effect_state):
@@ -427,6 +486,9 @@ def test_recovery_authority(tmp_path, pins, monkeypatch, authority_change, effec
     proposal = runtime_proposal_model(seed)
     resolver = build_synthetic_resolver(proposal, now=NOW)
     clock = [NOW]
+    current_generation=pins["lock"].get("runtime_profile")=="typed-refusal-candidate-20261015"
+    if current_generation:
+        monkeypatch.setattr(cp,"_now",lambda:clock[0])
     destination = runtime["DurableRefundDestination"](tmp_path / "destination")
     handler = AcceptedGaxRecipientAdapter(bundle=seed,
         registry=LocalRegistry({"refund-sender"}, {"refund-recipient"}, "refund-recipient"),
@@ -486,6 +548,8 @@ def test_recovery_authority(tmp_path, pins, monkeypatch, authority_change, effec
     expected_reason = {"revocation": "grant_not_active", "expiry": "grant_outside_validity",
         "policy": "policy_stale_or_changed", "evidence": "required_evidence_stale_or_future",
         "approval": "approval_not_active"}[authority_change]
+    expected_decision_reasons=sorted(set([expected_reason]+(
+        ["policy_version_changed"] if current_generation and authority_change=="policy" else [])))
     # A separate public assessment proves the intended check is reached, with no dispatch.
     assessment_workflow = cp.BoundedAuthorizationWorkflow(manifest=manifest, resolver=resolver,
         destination=cp.LocalRefundDestination(tmp_path / "assessment-destination.json"),
@@ -520,7 +584,7 @@ def test_recovery_authority(tmp_path, pins, monkeypatch, authority_change, effec
     if recovery_error is not None:
         checks = {
             "recovery_returns_preserving_original_effect": (False, True),
-            "intended_authority_check_only": (sorted(current_decision.reasons), [expected_reason]),
+            "intended_authority_check_only": (sorted(current_decision.reasons), expected_decision_reasons),
             "one_original_dispatch": (len(dispatches), 1),
             "destination_unchanged": (before == after == rows(destination), True),
             "applied_original_still_exists": ([r["effect_id"] for r in after], [effect_id]),
@@ -558,7 +622,7 @@ def test_recovery_authority(tmp_path, pins, monkeypatch, authority_change, effec
             "odes": digest(export["odes"]["odes_package"]),
             "successor": digest({k: v for k, v in export["successor_packet"].items() if k != "packet_digest"})}
     checks = {
-        "intended_authority_check_only": (sorted(current_decision.reasons), [expected_reason]),
+        "intended_authority_check_only": (sorted(current_decision.reasons), expected_decision_reasons),
         "original_attempt_count": (len(dispatches), 1),
         "destination_count": (len(after), 1 if effect_state == "applied" else 0),
         "destination_unchanged": (before == after == rows(destination), True),
@@ -600,6 +664,16 @@ def test_recovery_authority(tmp_path, pins, monkeypatch, authority_change, effec
         "no_new_cp_evidence": (bool(current["control_plane_evidence"]), False),
         "owning_cp_records_exist": (bool(cp_before), True),
     })
+    if current_generation:
+        # Current CP intentionally retains the denied effect-time read and refusal.
+        # Preserve the old no-append/no-evidence assertions for historical inputs.
+        del checks["recovery_no_cp_append_when_authority_denied"]
+        del checks["no_new_cp_evidence"]
+        refusal_reasons=sorted(set(expected_decision_reasons+(["input_observation_time_regressed"] if authority_change=="evidence" else [])))
+        checks["candidate_denial_appends_only_bound_audit"]=(denied_recovery_audit_is_bound(
+            cp_before,cp_after,current,effect_id=effect_id,
+            decision_id=original["producer_refs"]["decision_id"],
+            reasons=refusal_reasons,evaluated_at=clock[0]),True)
     for key in ("destination_observation_performed", "replacement_dispatch_performed",
                 "renewed_authorization", "effect_reexecution"):
         checks["lineage_" + key] = (lineage[key], False)

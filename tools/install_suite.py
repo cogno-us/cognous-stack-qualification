@@ -56,7 +56,8 @@ def install(suite, source_root, *, evidence, historical_only=False, manifest=MAN
         if historical_only:
             continue
         target = checked_path(source_root, row['source_path'])
-        if target.exists() and digest(target) != row['source_sha256']:
+        accepted_sources={row['source_sha256'],*(entry['sha256'] for entry in row.get('reconciled_sources',[]))}
+        if target.exists() and digest(target) not in accepted_sources:
             # Source CI stubs deliberately replace original workflows, never test implementations.
             wrapper = (row['action'] == 'delegate' and target.read_text().startswith('# Cross-component suite delegated to its canonical testing repository.\n'))
             if not wrapper:

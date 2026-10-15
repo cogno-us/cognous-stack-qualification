@@ -461,4 +461,7 @@ def main():
     print(json.dumps(result,sort_keys=True))
 
 if __name__=="__main__":
-    main()
+    # CLI fixture clock is explicit and limited to this synthetic qualification.
+    from tools.reference_release import synthetic_service_clock
+    with synthetic_service_clock():
+        main()
