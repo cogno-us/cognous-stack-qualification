@@ -30,6 +30,17 @@ jobs:
         repository: cogno-us/cognous-execution-runtime
         ref: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
         persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
+        "qualification-evidence/conjunction.json"
     - uses: actions/checkout@v4
       with:
         repository: archestra-ai/OpenAPPA
@@ -45,17 +56,6 @@ jobs:
         repository: cogno-us/cognous-action-manifest
         ref: 46c950bed37fe3812000895430bc0312d29e37ce
         path: pinned/action-manifest
-    - name: Checkout canonical qualification suite
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        repository: cogno-us/cognous-stack-qualification
-        ref: ${{ inputs.qualification_revision || github.sha }}
-        path: _qualification
-        persist-credentials: false
-    - name: Retain both source identities and assemble test overlay
-      shell: bash
-      run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
-        "qualification-evidence/conjunction.json"
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'

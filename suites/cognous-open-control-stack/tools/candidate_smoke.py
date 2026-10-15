@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Run bounded synthetic tests from an extracted candidate, without Git or network."""
+import argparse
 from pathlib import Path
 import sys
 import unittest
 
-ROOT = Path(__file__).resolve().parents[1]
+parser = argparse.ArgumentParser()
+parser.add_argument("--source-root", type=Path, required=True)
+ROOT = parser.parse_args().source_root.resolve()
 sys.path.insert(0, str(ROOT))
 from tools.check_contract_surfaces import check
 

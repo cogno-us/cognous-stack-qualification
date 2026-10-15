@@ -31,11 +31,6 @@ jobs:
         repository: cogno-us/cognous-execution-runtime
         ref: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
         persist-credentials: false
-    - uses: actions/checkout@v4
-      with:
-        repository: archestra-ai/OpenAPPA
-        ref: 10aa0e09e32d8c6704bdb030dc3c66140bf81915
-        path: pinned/openappa
     - name: Checkout canonical qualification suite
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
@@ -47,6 +42,11 @@ jobs:
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
         "qualification-evidence/actual-admission.json"
+    - uses: actions/checkout@v4
+      with:
+        repository: archestra-ai/OpenAPPA
+        ref: 10aa0e09e32d8c6704bdb030dc3c66140bf81915
+        path: pinned/openappa
     - uses: actions/setup-node@v4
       with:
         node-version: 22.x

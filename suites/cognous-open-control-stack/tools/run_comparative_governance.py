@@ -156,6 +156,7 @@ def main():
     parser.add_argument('--opa',type=Path,required=True);parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--plan',type=Path,default=PLAN)
     parser.add_argument('--observe-conformance',action='store_true',help='Report mismatches without making them CI infrastructure failures; mutations must still be detected')
+    parser.add_argument('--relocation-evidence',type=Path)
     parser.add_argument('--seed',type=int,choices=[1701,1702],required=True)
     args=parser.parse_args();opa=str(args.opa.resolve());output=args.output.resolve()
     output.mkdir(parents=True,exist_ok=False)
@@ -168,7 +169,24 @@ def main():
     tracked=['benchmarks/governance','tools/run_comparative_governance.py','reference_profiles',
              '.github/workflows/comparative-governance.yml','tests/test_comparative_governance.py','tools/destination_admission_mutations.py','tests/test_protected_destination.py']
     dirty=subprocess.check_output(['git','status','--porcelain','--',*tracked],cwd=ROOT,text=True)
-    if dirty: raise ValueError('commit benchmark and runtime source before qualification')
+    relocation=None
+    if args.relocation_evidence:
+        relocation=json.loads(args.relocation_evidence.read_text())
+        if relocation['owning_source_commit']!=revision or relocation['qualification_worktree_dirty']:
+            raise ValueError('relocation identities do not match clean committed inputs')
+        # Validate every assembled file, and reject pre-existing edits in the measured surface.
+        allowed={r['path']:r['sha256'] for r in relocation['overlay']}
+        for path,sha in allowed.items():
+            if hashlib.sha256((ROOT/path).read_bytes()).hexdigest()!=sha:
+                raise ValueError('assembled file changed: '+path)
+        for line in relocation['source_status_before_assembly'].splitlines():
+            path=line[3:]
+            if any(path==p or path.startswith(p+'/') for p in tracked):
+                raise ValueError('measurement source was dirty before assembly')
+        changed=subprocess.check_output(['git','status','--porcelain','--untracked-files=all','--',*tracked],cwd=ROOT,text=True)
+        if any(line[3:] not in allowed for line in changed.splitlines()):
+            raise ValueError('uncommitted measurement changes outside relocation')
+    elif dirty: raise ValueError('commit benchmark and runtime source before qualification')
     schedule=[(rep,case,profile) for rep in range(plan['repetitions']) for case in plan['cases'] for profile in ADAPTERS]
     random.Random(args.seed).shuffle(schedule);rows=[]
     for rep,case,profile in schedule:
@@ -185,7 +203,7 @@ def main():
     cognous_mutations=[line for line in control.stdout.splitlines() if line.startswith('DETECTED: J')]
     if len(set(cognous_mutations))!=13:raise RuntimeError('Cognous mutation count drift')
     summary=summarize(rows)
-    report=dict(observation_mode=args.observe_conformance, schema='cognous.comparative-governance-results/1',source_revision=revision,
+    report=dict(relocation=relocation, observation_mode=args.observe_conformance, schema='cognous.comparative-governance-results/1',source_revision=revision,
         plan_sha256=hashlib.sha256(plan_path.read_bytes()).hexdigest(),seed=args.seed,python=platform.python_version(),
         platform=platform.platform(),sqlite=sqlite3.sqlite_version,
         dependencies=subprocess.check_output([sys.executable,'-m','pip','freeze'],text=True).splitlines(),

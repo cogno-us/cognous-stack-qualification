@@ -28,7 +28,7 @@ def validate(root=ROOT):
                 raise ValueError('Relocated executable mode differs from source')
             if row['source_sha256']!=row['destination_sha256'] and not row.get('modification_notice'):
                 raise ValueError('Adapted tests require a modification notice while preserving their original source digest')
-            if f'/blob/{spec["source_commit"]}/' not in row['source_url']:
+            if f'/blob/{row.get("source_commit",spec["source_commit"])}/' not in row['source_url']:
                 raise ValueError('Unpinned provenance')
             if row['license'] not in {'Apache-2.0','MIT'}:
                 raise ValueError('Unsupported/unreviewed inbound license')

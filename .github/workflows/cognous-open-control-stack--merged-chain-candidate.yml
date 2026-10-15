@@ -42,6 +42,17 @@ jobs:
         repository: cogno-us/cognous-open-control-stack
         ref: ${{ inputs.source_revision || '0e6ab2435438dd1edcdc5a00789afa6f0f5f4ccf' }}
         persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-open-control-stack --source-root "." --evidence
+        "qualification-evidence/qualify-linux.json"
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
         repository: cogno-us/cognous-action-manifest
@@ -77,17 +88,6 @@ jobs:
         repository: cogno-us/cognous-governed-exchange
         ref: a1cbc7b28f702283b0e4f3192bb43e4a9e618ebf
         path: .merged-chain-work/gax_imx_transport
-    - name: Checkout canonical qualification suite
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        repository: cogno-us/cognous-stack-qualification
-        ref: ${{ inputs.qualification_revision || github.sha }}
-        path: _qualification
-        persist-credentials: false
-    - name: Retain both source identities and assemble test overlay
-      shell: bash
-      run: python3 _qualification/tools/install_suite.py --suite cognous-open-control-stack --source-root "." --evidence
-        "qualification-evidence/qualify-linux.json"
     - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
       with:
         python-version: ${{ matrix.python }}
