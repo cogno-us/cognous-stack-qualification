@@ -1,6 +1,6 @@
 # Executable cross component suites
 
-These suites were relocated from seven public Cognous repositories. Original file bytes, dependency pins, assertions and per-file licenses are retained. This is a refactor of ownership, not fresh production qualification. The 696 scenario-catalog entries retain their own NOT RUN statuses until explicitly mapped to executed evidence.
+These suites were relocated from seven public Cognous repositories. Original source hashes, dependency pins, assertions and per-file licenses are retained; execution-location and provenance adaptations are explicitly marked in the manifest. This is a refactor of ownership, not fresh production qualification. The 696 scenario-catalog entries retain their own NOT RUN statuses until explicitly mapped to executed evidence.
 
 | Owning repository | Moved tests and harness files | Delegated workflows | Source commit |
 |---|---:|---:|---|
