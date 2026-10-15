@@ -1,0 +1,41 @@
+# Cognous Stack Qualification
+
+Cross-component test scenarios and qualification evidence for [Cognous Open Control Stack](https://github.com/cogno-us/cognous-open-control-stack). This repository records what an assembled, pinned system must demonstrate and, when execution is implemented, what actually happened.
+
+**Current status:** scenario specifications only. The initial catalog contains 40 NOT RUN cases: 9 deterministic, 6 agent-behavior, 2 human-oversight and 23 supplemental cases. No stack qualification, agent evaluation or human study has been executed here. Catalog validation is not system qualification.
+
+## Start here
+
+- [Browse the scenario catalog](scenarios/README.md)
+- [Machine-readable scenarios](scenarios/catalog.json)
+- [Execution and evidence contract](docs/execution-contract.md)
+- [Source provenance and scope](docs/sources.md)
+- [Results and retention rules](results/README.md)
+
+## Responsibilities
+
+| Location | Responsibility |
+|---|---|
+| Component repositories | Implementations, component contracts and local regression tests |
+| Open Control Stack hub | Canonical architecture, selected component pins, release decisions and evidence links |
+| This repository | Cross-component scenario definitions, future execution adapters and configuration-specific qualification records |
+
+This repository does not select component revisions, grant authority, clear publication gates or authorize production. Existing selection and HOLD decisions remain with their owners. A future run must distinguish selected and nonselected candidate profiles.
+
+## GitHub workflow
+
+Read and change scenarios through GitHub files and pull requests. The Catalog validation workflow checks catalog consistency on pushes and pull requests. It does not execute D, A, H or C scenarios. No offline file collection is required to browse or maintain the catalog.
+
+Future execution workflows should capture exact source identities, perform containment and reset checks, run supported scenarios, and retain result manifests plus evidence through GitHub. Execution automation, dashboards and automatic result publication are not implemented by this initial commit. Workflow artifacts expire; accepted release evidence needs durable retained references and hashes before it can support a release decision.
+
+## Qualification rules
+
+Every run must pin the harness and component commits, profile, fixtures and evaluator configuration. Cases may be PASS, FAIL, INCONCLUSIVE, NOT RUN or NOT APPLICABLE with reasons. Missing authoritative observations cannot support a passing completion claim. Unsupported capabilities are explicitly out of scope rather than simulated and counted as coverage.
+
+Keep deterministic, actual-agent, human-review and operational evidence separate. A separate repository does not establish reviewer independence. Historical passes do not qualify changed configurations. No model or fleet capability is required merely because it appears in the catalog.
+
+Implement the deterministic bounded workflow first; add agent and human pilots only with actual supported configurations and reviewers. Preserve all failures, missing trials and residual limits. See the execution contract for gates and metrics.
+
+## License
+
+The existing [Apache License 2.0](LICENSE) is retained. Source document provenance is recorded separately; no third-party material is relicensed by inclusion of a citation.
