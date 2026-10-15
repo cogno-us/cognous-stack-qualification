@@ -4,7 +4,7 @@ These suites were relocated from seven public Cognous repositories. Original sou
 
 | Owning repository | Moved tests and harness files | Delegated workflows | Source commit |
 |---|---:|---:|---|
-| [cognous-open-control-stack](cognous-open-control-stack/README.md) | 47 | 21 | `0e6ab2435438dd1edcdc5a00789afa6f0f5f4ccf` |
+| [cognous-open-control-stack](cognous-open-control-stack/README.md) | 55 | 21 | `0e6ab2435438dd1edcdc5a00789afa6f0f5f4ccf` |
 | [cognous-execution-runtime](cognous-execution-runtime/README.md) | 46 | 11 | `309e194c1b0a3de23e11e20133e6eaf88875e48a` |
 | [cognous-replay-bundle](cognous-replay-bundle/README.md) | 8 | 4 | `83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a` |
 | [cognous-governance-evidence-pack](cognous-governance-evidence-pack/README.md) | 14 | 7 | `1e789c7d67a897097445faef1813fb0cd22d55e5` |
@@ -18,7 +18,7 @@ The [migration manifest](../migrations/cross-component-2026-10-15.json) inventor
 
 Three private repositories were inventoried separately. Private orchestrator integration suites were not copied into this public destination: their private source has no public license grant in the reviewed tree. Private methodology and doctrine remain private and retain their ownership. This refactor does not authorize private-to-public publication.
 
-All 186 original files have source commit/path hashes and retained license notices; 137 executable/support files relocate, 49 existing workflow paths become source-side callers, and one new registry workflow delegates its previously manual chain qualification. Some mixed integration files include helper-level regression assertions; those remain with their cohesive suite to avoid changing assertions or fixture behavior. Runtime fixture helpers remain with their migrated integration suites.
+All 194 original files have source commit/path hashes and retained license notices; 145 executable/support files relocate, 49 existing workflow paths become source-side callers, and one new registry workflow delegates its previously manual chain qualification. Some mixed integration files include helper-level regression assertions; those remain with their cohesive suite to avoid changing assertions or fixture behavior. Runtime fixture helpers remain with their migrated integration suites.
 
 ## Reproduction
 
@@ -38,3 +38,5 @@ Source-only cold assemblies use the owning Git commit plus the recorded overlay 
 The new migration integrity workflow validates structure, byte commitments, licenses and the relocation tooling. It does not execute every historical suite. Existing publication, operational-trust and production HOLD decisions are unchanged.
 
 The follow-up from hub main `9d45ab4389f9ac7b7cd0e3b8823fa2fde56d8503` also delegates the new remediation full-reference workflow and preserves its profile-aware aggregator repair. Location/provenance adaptations are explicitly marked in the manifest; original digests remain recorded.
+
+Comparator application adapters, frozen plans, OPA policy and dependency declarations are canonical test assets here. Component-owned contract fixtures and selected acceptance/profile definitions remain with their owning source, referenced by exact source identity.
