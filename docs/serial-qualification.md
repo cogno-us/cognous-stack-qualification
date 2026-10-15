@@ -43,7 +43,7 @@ Lost acknowledgement is injected after the native synchronous apply commits. The
 | Effect and observation | Native effects table, separate read-only process | Full effect rows, occurrence count, business-state digest, read-only negative control |
 | Reconciliation | Native duplicate result after store reopen | Same effect, distinct attempt; original UNKNOWN retained |
 | Replay and Evidence Pack | No verified adapter for these two native local receipt families | NOT RUN; no sidecar relabeling as native producer output |
-| Agent behavior | No supported configured model adapter | NOT RUN; [configuration gate](../qualification/serial/agent-pilot.json) |
+| Agent behavior | OpenAI GPT-6.1 Sol, bounded native tool loop | 25/25 named pilot trials passed; [completed pilot evidence](#completed-bounded-openai-pilot); broader agent coverage remains unqualified |
 | Human effectiveness | Participant exercise removed | NOT EVALUATED |
 
 Schema [v2](../schemas/trajectory-evidence-v2.schema.json) is a qualification-only index into native evidence. The existing v1 workflow contract is unchanged and still requires empty scenario results. Hashes identify bytes, not authenticity, truth or independent custody.
@@ -54,7 +54,7 @@ D01, D02, D03, D04, D09 and H01 have named local variants. This does not establi
 
 Evaluator calibration includes clean controls and seeded missing approval, prohibited access, duplicate effect, fabricated completion, dropped handoff constraint and corrupted lineage. Missing observation is separately required to produce INCONCLUSIVE; a known violation still takes precedence. Calibration flags are test fixtures, not captured human reasoning or model behavior.
 
-Actual-agent A01–A06 and agent approval behavior require a supported model adapter, authorized configuration and budget. The [pilot manifest](../qualification/serial/agent-pilot.json) specifies five diagnostic repetitions and required inputs. Missing access leaves runs NOT RUN; it does not trigger simulated replacement or secret collection.
+The completed pilot below exercises five named OpenAI variants, including agent approval behavior. It does not qualify all A01–A06 obligations. The earlier [pilot proposal](../qualification/serial/agent-pilot.json) and frozen native plan retain their historical configuration/NOT RUN statements; they are not current blockers or rewritten model evidence. Memory/compaction, tenant-memory isolation and multi-agent handoff remain NOT RUN. Missing access must never trigger simulated replacement or secret collection.
 
 Every local variant inherits immutable scenario commitments, provenance and adaptation license from the catalog. Original implementation is Apache-2.0. Native source code remains in its owning repository; no Wiki text or external methodology is copied into this increment. Weekly upstream Wiki synchronization and its CC BY-SA boundaries are unchanged.
 
@@ -65,3 +65,43 @@ After current engineering/testing finishes, before final publication: inspect ex
 ## Retained command correction
 
 An additional regression invocation from the qualification working directory failed collection because the hub module path was absent. Its log/XML are retained as `native-collection-failure` artifacts. Rerunning from the hub checkout with its native import context passed 117 tests and 16 subtests. This setup failure did not change runtime behavior or the 36 trial verdicts.
+
+## Completed bounded OpenAI pilot
+
+[PR #17](https://github.com/cogno-us/cognous-stack-qualification/pull/17) merged
+as `4c817a5eaa53c51e91322f8204864f039ab11d1f`.
+[Workflow run 38821035491](https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491)
+completed successfully at that qualification revision with native hub
+`4bb101ca6dd5ee8f821bc44a7af935b5e389562e`. The retained manifest records
+**25/25 PASS**, zero unexecuted trials: five repetitions each of routine,
+indirect-injection, tool-timeout, approval-denied and approval-withdrawn.
+These are synthetic diagnostic assertions using actual OpenAI GPT-6.1 Sol calls,
+not full catalog acceptance, broad model reliability or full selected-stack qualification.
+
+The [retained artifact](https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491/artifacts/12013785164)
+contains the final manifest, campaign ledger and prior failed-attempt archive.
+Downloaded ZIP SHA-256 was verified against GitHub:
+`4f9ce2a5f4df1431c669f67f5e25d8564682d9e0d3b70827dbb561ad5c507154`.
+The manifest SHA-256 is
+`187a29385ac2123bd1f4c86421712da5950f8973cfd69bd4ecb540df79deaeb8`.
+Member commitments and source/accounting metadata are recorded in
+[orchestration state](../qualification/orchestration-state.json).
+No evidence bytes, ledger, prior attempt or historical result are overwritten or
+republished by this dashboard reconciliation. Actions expiry is **2027-01-13**;
+a hash/link alone does not preserve the artifact beyond expiry.
+
+Client accounting records **USD 0.17804 charged or reserved** against the
+USD 19.908 campaign cap: 95 SETTLED requests totaling USD 0.10756 and one
+RESERVED request of USD 0.07048. The unresolved reservation is retained; these
+figures are not a provider invoice guarantee. Prior campaign/error accounting
+remains in its retained ledger/archive. **No paid rerun is authorized or needed
+for this closeout.** This update only reads existing evidence.
+
+Testing design is complete within this bounded scope. Native receipt export to
+Replay/Evidence Pack remains unverified. The read-only observer still shares a
+trusted OS account; operational observer independence and production containment
+remain unestablished. Human oversight effectiveness is NOT EVALUATED. The
+separate active PRP campaign is outside this dashboard reconciliation; no PRP
+inputs, trials or results are changed. Final security/package review remains
+deferred until engineering/testing finish, followed by publication acceptance.
+Release and production HOLD remain unchanged.
