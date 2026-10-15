@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'tools/openai_agent_pilot.py'
+      - 'tools/restore_openai_pilot.py'
+      - 'tests/test_restore_openai_pilot.py'
       - 'tools/claude_agent_pilot.py'
       - 'tests/test_openai_agent_pilot.py'
       - 'tests/native/test_claude_native_tools.py'
@@ -10,9 +12,10 @@ on:
       - 'qualification/serial/openai-gpt-6.1-sol.json'
       - '.github/workflows/openai-agent-pilot.yml'
       - 'qualification/serial/openai-campaign-20261015.json'
+      - 'qualification/serial/openai-retry-20261015.json'
   push:
     branches: [main]
-    paths: ['qualification/serial/openai-campaign-20261015.json']
+    paths: ['qualification/serial/openai-campaign-20261015.json', 'qualification/serial/openai-retry-20261015.json']
 permissions:
   contents: read
 concurrency:
@@ -33,6 +36,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r tools/requirements-serial.txt
       - run: python -m unittest discover -s tests -p test_openai_agent_pilot.py -v
+      - run: python -m unittest discover -s tests -p test_restore_openai_pilot.py -v
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-open-control-stack
@@ -81,6 +85,8 @@ jobs:
           from pathlib import Path
           c=json.loads(Path('qualification/serial/openai-campaign-20261015.json').read_text())
           assert c == {'campaign_id':'openai-gpt-6.1-sol-pilot-20261015','authorized':True,'max_spend_usd':'19.908','provider_spend_limit_required':False}
+          retry=json.loads(Path('qualification/serial/openai-retry-20261015.json').read_text())
+          assert retry == {'authorized':True,'resume_run_id':38819912442,'reset_budget':False}
           PY
           gh api "repos/$GH_REPO/actions/workflows/openai-agent-pilot.yml/runs?per_page=100" > "$RUNNER_TEMP/openai-campaign-runs.json"
           python - <<'PY'
@@ -88,10 +94,30 @@ jobs:
           from pathlib import Path
           runs=json.loads((Path(os.environ['RUNNER_TEMP'])/'openai-campaign-runs.json').read_text())
           prior=[r for r in runs['workflow_runs'] if r['id']!=int(os.environ['GITHUB_RUN_ID']) and r['head_branch']=='main' and r['event'] in ('push','workflow_dispatch')]
-          if prior or runs.get('total_count',0)>100:
+          if {r['id'] for r in prior}!={38819912442} or runs.get('total_count',0)>100:
               raise SystemExit('Campaign already dispatched. Preserve/download the existing ledger; do not reset the remaining USD 19.908 authorization. Preserve accounting and obtain authorization for a reviewed continuation.')
           PY
       - run: python -m pip install -r tools/requirements-serial.txt
+      - name: Restore the existing campaign ledger and preserve the failed attempt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/$GH_REPO/actions/runs/38819912442/artifacts" > "$RUNNER_TEMP/prior-artifacts.json"
+          artifact_id=$(python - <<'PY'
+          import json,os
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,'tools')
+          from restore_openai_pilot import RUN_ID,ARTIFACT_NAME
+          data=json.loads((Path(os.environ['RUNNER_TEMP'])/'prior-artifacts.json').read_text())
+          found=[a for a in data['artifacts'] if a['name']==ARTIFACT_NAME and a['workflow_run']['id']==RUN_ID and not a['expired']]
+          assert len(found)==1 and type(found[0]['id']) is int
+          print(found[0]['id'])
+          PY
+          )
+          gh api "repos/$GH_REPO/actions/artifacts/$artifact_id/zip" > "$RUNNER_TEMP/prior-openai-attempt.zip"
+          python tools/restore_openai_pilot.py --metadata "$RUNNER_TEMP/prior-artifacts.json" --archive "$RUNNER_TEMP/prior-openai-attempt.zip" --ledger "$RUNNER_TEMP/openai-campaign/ledger.sqlite"
       - name: Run the one authorized synthetic campaign
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -108,5 +134,6 @@ jobs:
           path: |
             ${{ runner.temp }}/openai-results/
             ${{ runner.temp }}/openai-campaign/
+            ${{ runner.temp }}/prior-openai-attempt.zip
           retention-days: 90
           if-no-files-found: warn
