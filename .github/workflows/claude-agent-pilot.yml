@@ -7,10 +7,14 @@ on:
       - 'tests/native/test_claude_native_tools.py'
       - 'qualification/serial/claude-opus-5-5.json'
       - '.github/workflows/claude-agent-pilot.yml'
+      - 'qualification/serial/claude-campaign-20261015.json'
+  push:
+    branches: [main]
+    paths: ['qualification/serial/claude-campaign-20261015.json']
   workflow_dispatch:
     inputs:
-      provider_spend_limit_confirmed:
-        description: Dedicated provider budget control and remaining USD 20 campaign authorization confirmed
+      campaign_authorized:
+        description: Run the remaining authorized USD 20 campaign; repeat campaigns are blocked
         type: boolean
         required: true
         default: false
@@ -45,7 +49,7 @@ jobs:
           NATIVE_HUB_ROOT: ${{ github.workspace }}/_native-hub
         run: python -m unittest discover -s tests/native -v
   actual-agent:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.provider_spend_limit_confirmed
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.campaign_authorized))
     needs: offline-controls
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -77,13 +81,19 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           test "$GITHUB_RUN_ATTEMPT" = 1
-          gh api "repos/$GH_REPO/actions/workflows/claude-agent-pilot.yml/runs?event=workflow_dispatch&per_page=100" > "$RUNNER_TEMP/campaign-runs.json"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.loads(Path('qualification/serial/claude-campaign-20261015.json').read_text())
+          assert c == {'campaign_id':'claude-opus-5-5-pilot-20261015','authorized':True,'max_spend_usd':'20.00','provider_spend_limit_required':False,'trigger':'merge-pr-14-once'}
+          PY
+          gh api "repos/$GH_REPO/actions/workflows/claude-agent-pilot.yml/runs?per_page=100" > "$RUNNER_TEMP/campaign-runs.json"
           python - <<'PY'
           import json,os
           from pathlib import Path
           runs=json.loads((Path(os.environ['RUNNER_TEMP'])/'campaign-runs.json').read_text())
-          prior=[r for r in runs['workflow_runs'] if r['id']!=int(os.environ['GITHUB_RUN_ID']) and r['head_branch']=='main']
-          if prior or runs.get('total_count',0)>1:
+          prior=[r for r in runs['workflow_runs'] if r['id']!=int(os.environ['GITHUB_RUN_ID']) and r['head_branch']=='main' and r['event'] in ('push','workflow_dispatch')]
+          if prior or runs.get('total_count',0)>100:
               raise SystemExit('Campaign already dispatched. Preserve/download the existing ledger; do not reset the USD 20 authorization. Use reviewed local resume instructions.')
           PY
       - run: python -m pip install -r tools/requirements-serial.txt
@@ -94,7 +104,7 @@ jobs:
           python tools/claude_agent_pilot.py --hub ../hub-native
           --output "$RUNNER_TEMP/claude-results"
           --ledger "$RUNNER_TEMP/claude-campaign/ledger.sqlite"
-          --execute --provider-spend-limit-confirmed
+          --execute
       - name: Retain trial evidence and campaign accounting even on failure
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

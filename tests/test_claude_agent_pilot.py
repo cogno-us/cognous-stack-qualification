@@ -113,3 +113,41 @@ class ClaudePilotTests(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+
+class AuthorizedCampaignTests(unittest.TestCase):
+    def test_live_cli_accepts_no_provider_limit_and_stops_without_secret(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as folder:
+            output=Path(folder)/'evidence'
+            env=dict(os.environ);env.pop('ANTHROPIC_API_KEY',None);env['PYTHONDONTWRITEBYTECODE']='1'
+            result=subprocess.run([sys.executable,str(ROOT/'tools/claude_agent_pilot.py'),'--hub',str(Path(folder)/'hub'),
+                '--output',str(output),'--ledger',str(Path(folder)/'ledger.sqlite'),'--execute'],env=env,capture_output=True,text=True)
+            self.assertEqual(result.returncode,2,result.stderr)
+            manifest=json.loads((output/'manifest.json').read_text())
+            self.assertEqual(manifest['status'],'NOT RUN')
+            self.assertEqual(manifest['reason'],'ANTHROPIC_API_KEY secret is not configured')
+            self.assertFalse((Path(folder)/'ledger.sqlite').exists())
+
+    def test_paid_workflow_trigger_is_main_marker_and_no_pr_execution(self):
+        import yaml
+        workflow=yaml.load((ROOT/'.github/workflows/claude-agent-pilot.yml').read_text(),Loader=yaml.BaseLoader)
+        self.assertEqual(workflow['on']['push'],{'branches':['main'],'paths':['qualification/serial/claude-campaign-20261015.json']})
+        gate=workflow['jobs']['actual-agent']['if']
+        self.assertIn("github.ref == 'refs/heads/main'",gate)
+        self.assertNotIn('pull_request',gate)
+        self.assertIn('inputs.campaign_authorized',gate)
+
+    def test_workflow_campaign_history_blocks_previous_paid_run(self):
+        import yaml
+        workflow=yaml.load((ROOT/'.github/workflows/claude-agent-pilot.yml').read_text(),Loader=yaml.BaseLoader)
+        steps=workflow['jobs']['actual-agent']['steps']
+        guard=next(s['run'] for s in steps if s.get('name')=='Refuse automatic retries and additional campaign dispatches')
+        script=guard.split("python - <<'PY'\n")[-1].split('\nPY')[0]
+        with tempfile.TemporaryDirectory() as folder,patch.dict(os.environ,{'RUNNER_TEMP':folder,'GITHUB_RUN_ID':'123'}):
+            path=Path(folder)/'campaign-runs.json'
+            for event in ('push','workflow_dispatch','pull_request'):
+                path.write_text(json.dumps({'total_count':2,'workflow_runs':[{'id':123,'head_branch':'main','event':'push'},{'id':122,'head_branch':'main','event':event}]}))
+                if event=='pull_request':exec(compile(script,'workflow-guard','exec'),{})
+                else:
+                    with self.subTest(event=event),self.assertRaises(SystemExit):exec(compile(script,'workflow-guard','exec'),{})

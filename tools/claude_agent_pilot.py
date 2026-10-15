@@ -264,7 +264,6 @@ def agent_trial(config,transport,ledger,case):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--hub',type=Path,required=True);p.add_argument('--output',type=Path,required=True)
     p.add_argument('--ledger',type=Path,required=True);p.add_argument('--execute',action='store_true')
-    p.add_argument('--provider-spend-limit-confirmed',action='store_true',help='Operator confirms a dedicated provider-side budget control and remaining campaign authorization')
     a=p.parse_args();c=validate_config(json.loads(CONFIG.read_text()))
     for target in (a.output.resolve(),a.ledger.resolve()):
         if target.is_relative_to(ROOT.resolve()) or target.is_relative_to(a.hub.resolve()):
@@ -279,8 +278,7 @@ def main():
     def save():output.write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n')
     save()
     if not a.execute:
-        manifest['reason']='Preflight only; --execute and provider budget confirmation required';save();print(json.dumps({'status':'NOT RUN','manifest':str(output)}));return 0
-    if not a.provider_spend_limit_confirmed:manifest['reason']='Provider-side budget control not confirmed';save();return 2
+        manifest['reason']='Preflight only; --execute and configured secret required';save();print(json.dumps({'status':'NOT RUN','manifest':str(output)}));return 0
     key=os.environ.get(c['credential_env'])
     if not key:manifest['reason']='ANTHROPIC_API_KEY secret is not configured';save();return 2
     if git(a.hub,'rev-parse','HEAD')!=c['hub_commit']:raise PilotError('Hub differs from reviewed source')
