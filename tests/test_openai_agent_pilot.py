@@ -58,6 +58,7 @@ class OpenAIPilotTests(unittest.TestCase):
         self.assertEqual(payload['prompt_cache_options'],{'mode':'explicit'})
         self.assertTrue(all(t['type']=='function' and t['strict'] for t in payload['tools']))
         self.assertNotIn('previous_response_id',payload)
+        self.assertEqual(next(t for t in payload['tools'] if t['name']=='report_result')['parameters']['properties']['status']['type'],'string')
 
     def test_cache_and_reasoning_usage_are_priced_once(self):
         ledger=self.ledger();identity=ledger.reserve(70480)

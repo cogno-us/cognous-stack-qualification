@@ -20,8 +20,16 @@ from run_serial_qualification import git, source
 MODEL='gpt-6.1-sol'
 HOST='api.openai.com'
 CONFIG=ROOT/'qualification/serial/openai-gpt-6.1-sol.json'
-OPENAI_TOOLS=[{'type':'function','name':t['name'],'description':t['description'],
-               'parameters':dict(t['input_schema'],required=list(t['input_schema']['properties'])),'strict':True} for t in TOOLS]
+def openai_tool(tool):
+    parameters=json.loads(json.dumps(tool['input_schema']))
+    parameters['required']=list(parameters['properties'])
+    for field in parameters['properties'].values():
+        if 'enum' in field and 'type' not in field:field['type']='string'
+    return {'type':'function','name':tool['name'],'description':tool['description'],
+            'parameters':parameters,'strict':True}
+
+
+OPENAI_TOOLS=[openai_tool(t) for t in TOOLS]
 
 
 def validate_config(c):
