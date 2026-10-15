@@ -1,0 +1,19 @@
+name: Nonselected reference compatibility
+on:
+  pull_request:
+    paths:
+      - 'suites/cognous-open-control-stack/**'
+      - 'suites/cognous-governed-exchange/**'
+      - 'migrations/**'
+      - 'tools/install_suite.py'
+      - '.github/workflows/remediation-compatibility-pr.yml'
+      - '.github/workflows/cognous-open-control-stack--remediation-full-reference.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reference:
+    uses: ./.github/workflows/cognous-open-control-stack--remediation-full-reference.yml
+    with:
+      source_revision: 9d45ab4389f9ac7b7cd0e3b8823fa2fde56d8503
+      qualification_revision: ${{ github.event.pull_request.head.sha || github.sha }}

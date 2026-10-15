@@ -168,7 +168,7 @@ def _transport_for_accepted(tmp_path: Path, handler, *, attempt_id: str, ack_id:
     )
 
 
-def test_delivery_time_not_constructor_time_blocks_expired_grant(tmp_path):
+def test_delivery_time_not_constructor_time_blocks_expired_grant(tmp_path, monkeypatch):
     bundle, handler, destination = _accepted_fixture(tmp_path)
     t = _transport_for_accepted(
         tmp_path,
@@ -188,6 +188,11 @@ def test_delivery_time_not_constructor_time_blocks_expired_grant(tmp_path):
         now=EVAL,
     )
 
+    if os.environ.get("GAX_RUNTIME_COMPATIBILITY_PROFILE")=="typed-refusal-candidate-20261015":
+        # Advance the independently declared service clock, not a trusted request
+        # timestamp: the current CP intentionally ignores caller-supplied time.
+        monkeypatch.setattr(load_executor_runtime()["cp"],"_now",
+                            lambda:parse_time("2026-08-09T01:00:00Z"))
     result = t.deliver(
         governed["message_id"],
         now="2026-08-09T01:00:00Z",

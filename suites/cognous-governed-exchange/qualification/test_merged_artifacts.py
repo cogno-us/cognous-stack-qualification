@@ -562,15 +562,24 @@ def test_retained_replay_passes_evidence_pack_and_odes_integrity_without_assuran
     rendered = render_traceable_markdown(pack)
     trace = pack.metadata["traceable_import"]
 
-    assert trace["selected_revisions"]["replay"] == "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa"
-    assert trace["selected_revisions"]["control_plane"] == "d3dadee70bd319812b207389ab1e0f6efe511916"
-    assert trace["supported_revisions"]["replay"] == "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa"
-    assert trace["supported_revisions"]["control_plane"] == "d3dadee70bd319812b207389ab1e0f6efe511916"
-    assert trace["supported_revisions"]["moltbot_safe"] == "c3c3ee7188b9367cf70b08074b9c40a5c70c94ac"
-    assert "274543f1cd7171784a923a8e37015017a0d8bc9d" in trace["supported_revision_sets"]["replay"]
-    assert "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa" in trace["supported_revision_sets"]["replay"]
-    assert "2ea9528eeb87e14ff10f05de06473122b9df540f" in trace["supported_revision_sets"]["control_plane"]
-    assert "d3dadee70bd319812b207389ab1e0f6efe511916" in trace["supported_revision_sets"]["control_plane"]
+    if os.environ.get("GAX_RUNTIME_COMPATIBILITY_PROFILE")=="typed-refusal-candidate-20261015":
+        expected={"replay":"83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a",
+                  "control_plane":"c7f122ba3a6e39f9268a7163c99be3ee514cd97e",
+                  "moltbot_safe":"309e194c1b0a3de23e11e20133e6eaf88875e48a"}
+        for key,value in expected.items():
+            assert trace["selected_revisions"][key]==value
+            assert trace["supported_revisions"][key]==value
+            assert trace["supported_revision_sets"][key]==[value]
+    else:
+        assert trace["selected_revisions"]["replay"] == "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa"
+        assert trace["selected_revisions"]["control_plane"] == "d3dadee70bd319812b207389ab1e0f6efe511916"
+        assert trace["supported_revisions"]["replay"] == "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa"
+        assert trace["supported_revisions"]["control_plane"] == "d3dadee70bd319812b207389ab1e0f6efe511916"
+        assert trace["supported_revisions"]["moltbot_safe"] == "c3c3ee7188b9367cf70b08074b9c40a5c70c94ac"
+        assert "274543f1cd7171784a923a8e37015017a0d8bc9d" in trace["supported_revision_sets"]["replay"]
+        assert "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa" in trace["supported_revision_sets"]["replay"]
+        assert "2ea9528eeb87e14ff10f05de06473122b9df540f" in trace["supported_revision_sets"]["control_plane"]
+        assert "d3dadee70bd319812b207389ab1e0f6efe511916" in trace["supported_revision_sets"]["control_plane"]
     assert trace["lifecycle_summary"]["independent_verification"] == "unavailable"
     assert trace["lifecycle_summary"]["current_permission"] == "not_evaluated_from_historical_records"
     assert "does not authenticate the producer" in rendered

@@ -5,13 +5,14 @@ import json
 from pathlib import Path
 import shutil
 import sys
-from tools.reference_release import BATCHES
+from tools.reference_release import BATCHES, required_batches
 from tools.release_gate import parse_junit, resolve_matrix
 
 ROOT=Path(__file__).resolve().parents[1]
 
 
-def validate_reports(reports, digest):
+def validate_reports(reports, digest, profile=None):
+    required_by_batch = required_batches(profile or {})
     if len(reports)!=len(BATCHES) or {r.get('batch') for r in reports}!=set(BATCHES):
         raise ValueError('missing or duplicated qualification batch')
     for report in reports:
@@ -19,7 +20,7 @@ def validate_reports(reports, digest):
         if report.get('profile_sha256')!=digest or report.get('passed') is not True:
             raise ValueError('failed batch or contradictory candidate profile')
         observed={(run['suite'],run['repetition']) for run in report['suite_runs'] if run['returncode']==0}
-        required={(name,rep) for name in BATCHES[batch] for rep in (1,2)}
+        required={(name,rep) for name in required_by_batch[batch] for rep in (1,2)}
         if not required.issubset(observed):
             raise ValueError('missing suite repetition')
         if batch=='exchange' and (report.get('representative_repeatable') is not True or len(report.get('representative_runs',[]))!=2 or any(r['returncode'] for r in report['representative_runs'])):
@@ -44,7 +45,7 @@ def main():
     digest=hashlib.sha256(profile.read_bytes()).hexdigest()
     paths=list(source.rglob('*-summary.json'))
     reports=[json.loads(path.read_text()) for path in paths]
-    validate_reports(reports,digest)
+    validate_reports(reports,digest,json.loads(profile.read_text()))
     cases=[]
     for path,report in zip(paths,reports):
         for run in report['suite_runs']:
@@ -52,7 +53,7 @@ def main():
             xml=path.parent/run['junit']
             parsed=parse_junit(xml,run['suite'],run['repetition'])
             if not parsed:raise ValueError('empty suite evidence')
-            if run['suite'].endswith('_merged') and any(c['status']!='passed' for c in parsed):raise ValueError('merged compatibility skipped or failed')
+            if run['suite'].endswith(('_merged','_refusal')) and any(c['status']!='passed' for c in parsed):raise ValueError('merged compatibility skipped or failed')
             cases.extend(parsed)
     passed,resolved=resolve_matrix(json.loads((ROOT/'scenarios/acceptance-matrix.json').read_text()),cases)
     result={'profile_sha256':digest,'candidate_qualification_passed':passed,'accepted_lock_advanced':False,'release_qualified':False,'scenario_results':resolved,'batches':reports}
