@@ -1,0 +1,128 @@
+name: cognous-execution-runtime / OpenShell worker image qualification
+'on':
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        description: Owning source commit (blank uses recorded baseline)
+        required: false
+        type: string
+      qualification_revision:
+        description: Suite commit (blank uses workflow event commit)
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      source_revision:
+        required: true
+        type: string
+      qualification_revision:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  worker-image:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
+      QUALIFICATION_SOURCE_SHA: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
+    steps:
+    - name: Checkout submitted PR head
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
+        repository: cogno-us/cognous-execution-runtime
+        persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
+        ".qualification-evidence/worker-image.json"
+    - name: Verify exact submitted source
+      shell: bash
+      run: 'set -euo pipefail
+
+        ACTUAL_SHA="$(git rev-parse HEAD)"
+
+        test "$ACTUAL_SHA" = "$QUALIFICATION_SOURCE_SHA"
+
+        printf ''%s\n'' "$ACTUAL_SHA" > openshell-source-sha.txt
+
+        '
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install focused test dependencies
+      run: python -m pip install pytest==8.3.5 pydantic==2.11.9
+    - name: Host source contract checks
+      run: pytest -q tests/test_openshell_worker_contract.py
+    - name: Resolve immutable base image identity
+      id: base
+      shell: bash
+      run: 'set -euo pipefail
+
+        docker pull python:3.12-slim
+
+        BASE_DIGEST="$(docker image inspect python:3.12-slim --format ''{{index .RepoDigests 0}}'')"
+
+        test -n "$BASE_DIGEST"
+
+        echo "digest=$BASE_DIGEST" >> "$GITHUB_OUTPUT"
+
+        printf ''%s\n'' "$BASE_DIGEST" > openshell-base-image.txt
+
+        '
+    - name: Build worker image from exact source
+      id: build
+      shell: bash
+      run: "set -euo pipefail\ndocker build \\\n  --build-arg BASE_IMAGE=\"${{ steps.base.outputs.digest }}\" \\\
+        \n  --label org.opencontainers.image.revision=\"${QUALIFICATION_SOURCE_SHA}\" \\\n  -f examples/openshell/Dockerfile\
+        \ \\\n  -t cognous-refund:worker17-qualification .\nIMAGE_ID=\"$(docker image inspect cognous-refund:worker17-qualification\
+        \ --format '{{.Id}}')\"\ntest -n \"$IMAGE_ID\"\necho \"image_id=$IMAGE_ID\" >> \"$GITHUB_OUTPUT\"\nprintf\
+        \ '%s\\n' \"$IMAGE_ID\" > openshell-worker-image-id.txt\n"
+    - name: Execute packaged worker qualification
+      run: "set -euo pipefail\npython tools/openshell_image_qualification.py \\\n  --image cognous-refund:worker17-qualification\
+        \ \\\n  --output openshell-image-qualification.json\n"
+    - name: Record build evidence
+      shell: bash
+      run: "set -euo pipefail\npython - <<'PY'\nimport json, os\nfrom pathlib import Path\n\npath = Path(\"openshell-image-qualification.json\"\
+        )\ndata = json.loads(path.read_text())\ndata[\"submitted_head_sha\"] = os.environ[\"QUALIFICATION_SOURCE_SHA\"\
+        ]\ndata[\"checkout_sha\"] = Path(\"openshell-source-sha.txt\").read_text().strip()\nif data[\"checkout_sha\"\
+        ] != data[\"submitted_head_sha\"]:\n    raise SystemExit(\"qualification checkout does not match submitted\
+        \ head\")\ndata[\"base_image\"] = Path(\"openshell-base-image.txt\").read_text().strip()\ndata[\"image_id\"\
+        ] = Path(\"openshell-worker-image-id.txt\").read_text().strip()\ndata[\"build_inputs\"] = {\n    \"dockerfile\"\
+        : \"examples/openshell/Dockerfile\",\n    \"worker\": \"engine/openshell_worker.py\",\n    \"executor\"\
+        : \"engine/safe_executor.py\",\n    \"probe\": \"examples/openshell/probe.py\",\n    \"base_reference\"\
+        : \"python:3.12-slim\",\n    \"base_identity_status\": \"resolved-at-qualification; not a repository-pinned\
+        \ reviewed digest\",\n}\ndata[\"boundaries\"] = {\n    \"host_source_contract_tests\": \"executed\",\n \
+        \   \"container_image_worker\": \"executed\",\n    \"mocked_openshell_transport\": \"not part of this workflow\"\
+        ,\n    \"live_openshell_execution\": \"unexecuted\",\n    \"live_confinement_enforcement\": \"unexecuted\"\
+        ,\n}\npath.write_text(json.dumps(data, indent=2, sort_keys=True) + \"\\n\")\nPY\n"
+    - name: Upload bounded qualification evidence
+      uses: actions/upload-artifact@v4
+      with:
+        name: openshell-worker-image-qualification
+        path: 'openshell-image-qualification.json
+
+          openshell-source-sha.txt
+
+          openshell-base-image.txt
+
+          openshell-worker-image-id.txt
+
+          '
+        if-no-files-found: error
+    - name: Retain relocation source identity
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: relocation-cognous-execution-runtime-worker-image-${{ strategy.job-index }}-${{ github.run_attempt
+          }}
+        path: .qualification-evidence/
+        if-no-files-found: error

@@ -1,0 +1,62 @@
+name: cognous-open-control-stack / Worker21 atomic authority-effect qualification
+'on':
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        description: Owning source commit (blank uses recorded baseline)
+        required: false
+        type: string
+      qualification_revision:
+        description: Suite commit (blank uses workflow event commit)
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      source_revision:
+        required: true
+        type: string
+      qualification_revision:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      with:
+        repository: cogno-us/cognous-open-control-stack
+        ref: ${{ inputs.source_revision || '0e6ab2435438dd1edcdc5a00789afa6f0f5f4ccf' }}
+        persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-open-control-stack --source-root "." --evidence
+        ".qualification-evidence/qualify.json"
+    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+      with:
+        python-version: '3.12'
+    - name: Qualify exact proposed Worker21 revisions
+      run: python tools/worker21_authority_effect_qualification.py run --results-dir results/worker21-authority-effect
+    - name: Upload retained evidence
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: worker21-authority-effect-qualification
+        path: results/worker21-authority-effect
+        if-no-files-found: error
+    - name: Retain relocation source identity
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: relocation-cognous-open-control-stack-qualify-${{ strategy.job-index }}-${{ github.run_attempt }}
+        path: .qualification-evidence/
+        if-no-files-found: error

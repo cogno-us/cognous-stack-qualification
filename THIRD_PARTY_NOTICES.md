@@ -20,3 +20,9 @@ Changes: extracted case metadata into JSON and an index; added attribution, appl
 The live README and LICENSE at the pinned revision use CC BY-SA 4.0. Earlier versions used CC BY 4.0; that historical fact is not a basis to relicense the imported current revision. Changed license terms or removed author credits block automated refresh.
 
 References to OWASP, MITRE, NIST, laws or other third-party works are upstream references, not an assertion that those works are covered by the Wiki license or current/accurate. Do not import linked payloads, tools or external documents without checking their own terms. This import does not provide legal or compliance clearance.
+
+## Relocated Cognous integration suites
+
+The files under `suites/` retain their original source commits, paths, byte commitments and license notices in `migrations/cross-component-2026-10-15.json`. The hub, Replay, Evidence Pack, ODES and Governed Exchange source repositories use Apache-2.0 for the imported material. The executor’s corresponding Python safety tests use its Apache-2.0 grant; `tools/openappa/` uses the retained source MIT default where no narrower grant was identified. Its original MIT LICENSE, Apache license and NOTICE are preserved together. No retained upstream Moltbot application code is imported.
+
+The initial move is byte-preserving. Workflow adaptations add explicit source/suite checkouts and source-identity artifacts, while retaining source pins and assertions; original workflow bytes remain in each suite. This does not relicense dependencies fetched at test time. OpenAPPA, OpenShell and any other external checkout retain their own terms; the migration does not copy those repositories into this one. Private source content is excluded.

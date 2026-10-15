@@ -1,0 +1,95 @@
+name: cognous-execution-runtime / Live OpenShell readiness
+'on':
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        description: Owning source commit (blank uses recorded baseline)
+        required: false
+        type: string
+      qualification_revision:
+        description: Suite commit (blank uses workflow event commit)
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      source_revision:
+        required: true
+        type: string
+      qualification_revision:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: .
+      QUALIFICATION_SOURCE_SHA: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
+    steps:
+    - name: Checkout submitted source
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
+        repository: cogno-us/cognous-execution-runtime
+        persist-credentials: false
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
+        ".qualification-evidence/readiness.json"
+    - name: Verify source
+      run: test "$(git rev-parse HEAD)" = "$QUALIFICATION_SOURCE_SHA"
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Install focused test dependency
+      run: python -m pip install pytest==8.3.5
+    - name: Run focused readiness tests
+      run: pytest -q tests/test_live_openshell_readiness.py
+    - name: Execute non-mutating readiness gate
+      shell: bash
+      run: 'set +e
+
+        python tools/live_openshell_readiness.py --output live-openshell-ci-readiness.json
+
+        status=$?
+
+        set -e
+
+        test "$status" -eq 2
+
+        python - <<''PY''
+
+        import json
+
+        value = json.load(open("live-openshell-ci-readiness.json"))
+
+        assert value["classification"] == "blocked"
+
+        assert value["live_qualification_executed"] is False
+
+        assert value["safety"]["mutated_sandbox"] is False
+
+        PY
+
+        '
+    - name: Upload readiness evidence
+      uses: actions/upload-artifact@v4
+      with:
+        name: live-openshell-readiness
+        path: live-openshell-ci-readiness.json
+        if-no-files-found: error
+    - name: Retain relocation source identity
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: relocation-cognous-execution-runtime-readiness-${{ strategy.job-index }}-${{ github.run_attempt }}
+        path: .qualification-evidence/
+        if-no-files-found: error

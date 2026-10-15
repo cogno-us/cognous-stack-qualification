@@ -1,0 +1,79 @@
+name: cognous-execution-runtime / OpenAPPA pinned wire fixtures
+'on':
+  workflow_dispatch:
+    inputs:
+      source_revision:
+        description: Owning source commit (blank uses recorded baseline)
+        required: false
+        type: string
+      qualification_revision:
+        description: Suite commit (blank uses workflow event commit)
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      source_revision:
+        required: true
+        type: string
+      qualification_revision:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  codec:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        repository: cogno-us/cognous-execution-runtime
+        ref: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
+        persist-credentials: false
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - name: Native identity fixture checks
+      run: python -m unittest discover -s tests -p test_openappa_fixture_contract.py -v
+    - uses: actions/checkout@v4
+      with:
+        repository: archestra-ai/OpenAPPA
+        ref: 10aa0e09e32d8c6704bdb030dc3c66140bf81915
+        path: upstream-openappa
+    - name: Checkout canonical qualification suite
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-stack-qualification
+        ref: ${{ inputs.qualification_revision || github.sha }}
+        path: _qualification
+        persist-credentials: false
+    - name: Retain both source identities and assemble test overlay
+      shell: bash
+      run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
+        ".qualification-evidence/codec.json"
+    - name: Validate fixtures with actual pinned upstream codec
+      shell: bash
+      run: 'set -euo pipefail
+
+        test "$(git -C upstream-openappa rev-parse HEAD)" = 10aa0e09e32d8c6704bdb030dc3c66140bf81915
+
+        rustup toolchain install stable --profile minimal
+
+        mkdir -p upstream-openappa/appa-runtime-api/tests
+
+        cp tools/openappa/cognous_wire_contract.rs upstream-openappa/appa-runtime-api/tests/
+
+        export COGNOUS_OPENAPPA_FIXTURE="$GITHUB_WORKSPACE/tests/fixtures/openappa/protocol1.json"
+
+        cd upstream-openappa
+
+        cargo +stable test --locked -p appa-runtime-api --test cognous_wire_contract
+
+        '
+    - name: Retain relocation source identity
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: relocation-cognous-execution-runtime-codec-${{ strategy.job-index }}-${{ github.run_attempt }}
+        path: .qualification-evidence/
+        if-no-files-found: error
