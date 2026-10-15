@@ -37,6 +37,8 @@ def pytest_unconfigure(config):
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.optional_execution_profile import validate_checkout, qualification_environment
 LOCK=json.loads((ROOT/"component-lock.json").read_text())
 WORK=ROOT/".reference-work"
 REUSE_CHECKOUTS=False
@@ -87,12 +89,9 @@ def checkout(name,spec,sha_key="sha"):
     repo=spec["repository"]; sha=spec[sha_key]
     dest=WORK/name
     if REUSE_CHECKOUTS and dest.exists():
-        actual=run(["git","rev-parse","HEAD"],cwd=dest,check=True)["output"].strip()
-        dirty=run(["git","status","--porcelain","--untracked-files=no"],cwd=dest,check=True)["output"].strip()
-        if actual != sha or dirty:
-            raise RuntimeError(f"{name}: reusable checkout must be clean at exact pin {sha}; got {actual}, dirty={bool(dirty)}")
+        validate_checkout(dest, sha)
         return dest
-    if dest.exists(): shutil.rmtree(dest)
+    if dest.exists(): raise RuntimeError('Choose a fresh work directory; existing source is never deleted')
     # Reuse public object history for additional exact test generations without
     # making a moving branch or a shared dirty worktree a test dependency.
     origin = next((p for p in WORK.iterdir() if p != dest and (p/".git").exists()
@@ -101,7 +100,7 @@ def checkout(name,spec,sha_key="sha"):
     run(["git","clone","-q",str(origin) if origin else f"https://github.com/{repo}.git",str(dest)],check=True)
     run(["git","checkout","-q","--detach",sha],cwd=dest,check=True)
     actual=run(["git","rev-parse","HEAD"],cwd=dest,check=True)["output"].strip()
-    if actual!=sha: raise RuntimeError(f"{name}: expected {sha}, got {actual}")
+    validate_checkout(dest, sha)
     return dest
 
 def static_json_check(path):
@@ -191,7 +190,7 @@ def main():
     if agep_install["returncode"]: raise RuntimeError(agep_install["output"])
 
     py=[str(ROOT),str(cp/"src"),str(replay/"src"),str(agep/"src"),str(odes/"src"),str(gax),str(molt),str(bitrep),str(index/"chain/python")]
-    env=os.environ.copy()
+    env=qualification_environment()
     env["PYTHONPATH"]=os.pathsep.join(py+[env.get("PYTHONPATH","")])
     env["PYTHONDONTWRITEBYTECODE"]="1"
     if LOCK.get("runtime_profile"):

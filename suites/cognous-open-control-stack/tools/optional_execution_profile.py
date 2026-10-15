@@ -13,6 +13,40 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPONENTS = ("control_plane", "moltbot_safe", "action_manifest", "gax_imx_transport", "replay_bundle")
 
 
+def validate_checkout(path, sha):
+    """Reject all extra files, including ignored imports; never delete caller data.
+
+    The operator must exclude concurrent writers for the duration of execution.
+    Git identity and this preflight do not authenticate a compromised host.
+    """
+    actual = subprocess.check_output(['git', '-C', str(path), 'rev-parse', 'HEAD'], text=True, timeout=10).strip()
+    dirty = subprocess.check_output(['git', '-C', str(path), 'status', '--porcelain',
+                                    '--untracked-files=all', '--ignored=matching'], text=True, timeout=10)
+    if actual != sha or dirty:
+        raise RuntimeError(f'{path.name}: checkout must be pristine including ignored files and match {sha}; use a fresh private work directory')
+    # Tracked escaping symlinks can import bytes outside the pinned tree.
+    for row in subprocess.check_output(['git', '-C', str(path), 'ls-files', '--stage', '-z'], timeout=10).split(b'\0'):
+        if row.startswith(b'120000 '):
+            target = path / os.fsdecode(row.split(b'\t', 1)[1])
+            if not target.resolve().is_relative_to(path.resolve()):
+                raise RuntimeError(f'{path.name}: escaping tracked symlink')
+    return actual
+
+
+def qualification_environment():
+    env = os.environ.copy()
+    for key in tuple(env):
+        if key.startswith('PYTHON'):
+            del env[key]
+    env.update(PYTHONNOUSERSITE='1', PYTHONDONTWRITEBYTECODE='1')
+    return env
+
+
+def separate_output(out, work):
+    if out.resolve().is_relative_to(work.resolve()):
+        raise RuntimeError('Qualification output must be outside component work trees')
+
+
 def prepare(work):
     lock_bytes = (ROOT / "component-lock.json").read_bytes()
     lock = json.loads(lock_bytes)
@@ -24,12 +58,9 @@ def prepare(work):
         if not dest.exists():
             subprocess.run(["git", "clone", "--quiet", "--no-checkout", "https://github.com/" + spec["repository"] + ".git", str(dest)], check=True, timeout=180)
             subprocess.run(["git", "checkout", "--quiet", "--detach", sha], cwd=dest, check=True, timeout=60)
-        actual = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=dest, text=True).strip()
-        dirty = subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], cwd=dest, text=True)
-        if actual != sha or dirty:
-            raise RuntimeError(f"{name}: checkout must be clean and match {sha}; use a fresh work directory")
+        validate_checkout(dest, sha)
         pins[name] = sha
-    env = os.environ.copy()
+    env = qualification_environment()
     env.update(PYTHONPATH=os.pathsep.join([str(ROOT), str(work / "control_plane/src"), str(work / "moltbot_safe"), str(work / "gax_imx_transport")]),
                PYTHONDONTWRITEBYTECODE="1", MOLTBOT_SAFE_CONTROL_PLANE_ROOT=str(work / "control_plane"),
                MOLTBOT_SAFE_ROOT=str(work / "moltbot_safe"), GAX_RUNTIME_COMPATIBILITY_PROFILE="merged-producers-v1")
@@ -45,6 +76,7 @@ def main():
     ap.add_argument("--execute", action="store_true", help=argparse.SUPPRESS)
     args = ap.parse_args()
     out, work = args.results_dir.resolve(), args.work_dir.resolve()
+    separate_output(out, work)
     if args.execute:
         from tools.optional_execution import run_case
         value = run_case(args.profile, args.scenario, out, work)

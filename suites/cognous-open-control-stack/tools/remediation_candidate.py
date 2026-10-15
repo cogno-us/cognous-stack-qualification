@@ -12,6 +12,9 @@ import sys
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.optional_execution_profile import validate_checkout, qualification_environment
+
 PROFILE = ROOT / 'profiles/remediation-candidate-20261015.json'
 
 
@@ -28,11 +31,10 @@ def verify(work, profile):
     actual = {}
     for name, spec in profile['components'].items():
         path = work / name
-        head = subprocess.check_output(['git', '-C', str(path), 'rev-parse', 'HEAD'], text=True).strip()
-        dirty = subprocess.check_output(['git', '-C', str(path), 'status', '--porcelain', '--untracked-files=all'], text=True).strip()
-        if head != spec['sha'] or dirty:
-            raise ValueError(f'{name}: exact clean pin required; head={head}, dirty={bool(dirty)}')
-        actual[name] = head
+        try:
+            actual[name] = validate_checkout(path, spec['sha'])
+        except RuntimeError as exc:
+            raise ValueError(str(exc)) from exc
     if profile['selected'] is not False or any(profile[k] is not False for k in (
             'reference_release_authorized', 'production_deployment_authorized')):
         raise ValueError('candidate must remain nonselected and non-authorizing')
@@ -40,7 +42,7 @@ def verify(work, profile):
 
 
 def environment(work, out, profile):
-    env = os.environ.copy()
+    env = qualification_environment()
     env.update({
         'PYTHONDONTWRITEBYTECODE': '1', 'PYTEST_DISABLE_PLUGIN_AUTOLOAD': '1',
         'PYTHONPATH': os.pathsep.join(map(str, [ROOT, work/'control_plane/src', work/'moltbot_safe',

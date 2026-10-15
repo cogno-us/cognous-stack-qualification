@@ -21,6 +21,9 @@ import tempfile
 import threading
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from tools.optional_execution_profile import validate_checkout
+
 PROFILE = 'protected-local-worker/0.1.0'
 NAMES = ('action_manifest', 'control_plane', 'gax_imx_transport', 'moltbot_safe', 'replay_bundle')
 SCENARIOS = ('authorized_control', 'payload_substitution', 'target_substitution',
@@ -50,11 +53,7 @@ def checkouts(work, *, clone=False):
         if not path.exists() and clone:
             subprocess.run(['git', 'clone', '-q', 'https://github.com/' + spec['repository'] + '.git', str(path)], check=True)
             subprocess.run(['git', '-C', str(path), 'checkout', '-q', '--detach', sha], check=True)
-        if git(path, 'rev-parse', 'HEAD') != sha:
-            raise RuntimeError(name + ': pin mismatch')
-        # Untracked Python source could shadow the accepted imports too.
-        if git(path, 'status', '--porcelain', '--untracked-files=all'):
-            raise RuntimeError(name + ': checkout not clean')
+        validate_checkout(path, sha)
         pins[name] = sha
     return pins
 
