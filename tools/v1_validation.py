@@ -485,6 +485,7 @@ def cmd_aggregate(args):
                "selected_v1_verdict": "INCOMPLETE" if not requirements else verdict(requirements),
                "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix",
                "requirement_status_counts": {st: sum(1 for r in requirements if r["status"] == st) for st in STATUSES},
+               "requirement_status_by_source_class": {sc: {st: sum(1 for r in requirements if r.get("source_class", "docx-or-catalog") == sc and r["status"] == st) for st in STATUSES} for sc in sorted({r.get("source_class", "docx-or-catalog") for r in requirements})},
                "mandatory_requirement_status_counts": {st: sum(1 for r in requirements if r["status"] == st and r["mandatory"]) for st in STATUSES}}
     if freeze is None or freeze.get("status") != "PASS":
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
