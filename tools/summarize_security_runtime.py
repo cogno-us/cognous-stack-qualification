@@ -28,8 +28,22 @@ def canonical(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
+SIDECARS = ('-wal', '-shm', '-journal')
+
+
+def require_no_sidecars(db):
+    """Fail closed: immutable reads would silently ignore committed rows in a -wal."""
+    db = Path(db)
+    present = [db.name + suffix for suffix in SIDECARS if Path(str(db) + suffix).exists()]
+    if present:
+        raise ValueError(f'{db}: SQLite sidecar files present ({", ".join(present)}); refusing an immutable read that could miss committed rows')
+    return []
+
+
 def rows(db, query):
-    # immutable=1 opens without locking or creating -wal/-shm side files.
+    require_no_sidecars(db)
+    # Safe only because no sidecar exists: the main file is then the complete
+    # committed state, and immutable=1 neither locks nor creates side files.
     con = sqlite3.connect(f'file:{db}?mode=ro&immutable=1', uri=True)
     try:
         con.row_factory = sqlite3.Row
@@ -62,7 +76,8 @@ def audit(run):
         if case in {'lost_ack', 'crash', 'ownership'}:
             ok = ok and second is not None and not second.get('attempted') and not second.get('newly_executed', False) \
                 and second.get('effect_id') == first.get('effect_id')
-        out.append({'case': case, 'db_sha256': sha(db), 'effects': effects, 'attempts': attempts,
+        out.append({'case': case, 'db_sha256': sha(db), 'sqlite_sidecars': require_no_sidecars(db),
+            'read_mode': 'immutable main file; no -wal/-shm/-journal present', 'effects': effects, 'attempts': attempts,
             'failure_records': failures, 'first_attempted': first.get('attempted'),
             'first_attempt_status': first.get('attempt_status'),
             'second_attempted': None if second is None else second.get('attempted'),

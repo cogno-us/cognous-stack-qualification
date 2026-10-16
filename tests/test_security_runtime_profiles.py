@@ -75,5 +75,31 @@ class SecurityRuntimeProfiles(unittest.TestCase):
             self.assertEqual(db.read_bytes(), digest)
 
 
+    def test_native_audit_fails_closed_on_unclosed_wal_database(self):
+        import sqlite3, sys, tempfile
+        sys.path.insert(0, str(ROOT/'tools'))
+        from summarize_security_runtime import rows
+        with tempfile.TemporaryDirectory() as temp:
+            db = Path(temp)/'refunds.sqlite3'
+            writer = sqlite3.connect(db); writer.execute('pragma journal_mode=wal')
+            writer.execute('pragma wal_autocheckpoint=0')
+            writer.execute('create table effects (effect_id text)'); writer.commit()
+            writer.execute("insert into effects values ('e')"); writer.commit()
+            try:
+                # Committed rows live only in the -wal while the writer stays open.
+                self.assertTrue(Path(str(db)+'-wal').exists())
+                stale = sqlite3.connect(f'file:{db}?mode=ro&immutable=1', uri=True)
+                try:
+                    self.assertEqual(stale.execute('select count(*) from effects').fetchone()[0], 0)
+                except sqlite3.DatabaseError:
+                    pass  # an uncheckpointed schema may also be invisible
+                finally:
+                    stale.close()
+                with self.assertRaisesRegex(ValueError, 'sidecar'):
+                    rows(db, 'select effect_id from effects')
+            finally:
+                writer.close()
+
+
 if __name__ == '__main__':
     unittest.main()
