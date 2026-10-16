@@ -118,7 +118,7 @@ def run(runtime,control,fixture_path,output):
                 def _transaction_stage(self,stage):trace.append({'sequence':len(trace)+1,'native_transaction_stage':stage})
             payload=dict(common['params'])
             op=dataclasses.replace(helpers.operation(),target=common['account']['resource'],payload=payload,
-                  payload_commitment=commitment(payload),amount=10.0,unit='USD',action_id='synthetic.refund',adapter_id='cognous:matched-sqlite-refund')
+                  payload_commitment=commitment(payload),proposal_commitment=commitment(common),amount=10.0,unit='USD',action_id='synthetic.refund',adapter_id='cognous:matched-sqlite-refund')
             env=ExecutionEnvelope('0.2.0','decision:matched-refund',common['params']['effect_id'],op,'attempt:d04:001')
             dest=CapturedDestination(state,clock=clock)
             claim=helpers.make_claim(env,claim_id='claim:matched-refund',budget_id='budget:matched-refund')
@@ -144,7 +144,9 @@ def run(runtime,control,fixture_path,output):
                 write(trial/'after-intervention.json',observe(dest.path))
             clock.value=datetime.fromisoformat(common['simulation_clock']['committed'].replace('Z','+00:00'))
             lost=variant in ('lost-ack-reconcile','observer-unavailable')
+            first_env=env
             first=executor.execute(envelope=env,claim_id=claim.claim_id,attempt_id='attempt:d04:001',simulate='lost_ack' if lost else None)
+            clock.value=datetime.fromisoformat(common['simulation_clock']['observed'].replace('Z','+00:00'))
             outcomes=[dataclasses.asdict(first)];post=observe(dest.path)
             transport={'first_acknowledgement':'ACK_UNKNOWN' if lost else ('ACK_RECEIVED' if first.acknowledged else 'NOT_DISPATCHED'),
                        'first_attempt_id':first.attempt_id,'second_attempt_id':None,'reconciliation':None,
@@ -160,6 +162,8 @@ def run(runtime,control,fixture_path,output):
                 transport['second_attempt_id']=attempt
                 if variant=='observer-unavailable':
                     # Fault injected at the independent-observation route. No redispatch fallback.
+                    try:raise TimeoutError('injected independent read-only observer route unavailable')
+                    except TimeoutError as exc:write(trial/'observer-fault.json',{'fault':type(exc).__name__,'detail':str(exc),'phase':'recovery observation','later_validation_readback':'restored after injected fault; not available to reconciliation attempt'})
                     reopened.transition_attempt(attempt,'unknown','independent_observer_unavailable')
                     transport['reconciliation']='INCONCLUSIVE';transport['writer_invoked_on_second_attempt']=False
                 else:
@@ -188,7 +192,7 @@ def run(runtime,control,fixture_path,output):
             check(consumed==(0 if denied else 1),'Authorization consumption count')
             write(trial/'initial.json',initial);write(trial/'observation.json',final);write(trial/'transport.json',transport)
             write(trial/'execution-results.json',outcomes);write(trial/'transaction-trace.json',trace)
-            try:write(trial/'native-executor-export.json',export_execution_artifacts(env,first,dest,repository_revision=sources['runtime']['commit']))
+            try:write(trial/'native-executor-export.json',export_execution_artifacts(first_env,first,dest,repository_revision=sources['runtime']['commit']))
             except (ValueError,PermissionError) as exc:write(trial/'native-export-gap.json',{'status':'UNSUPPORTED','reason':str(exc)})
             case={'variant':variant,'repetition':repetition,'verdict':'PASS','scenario_id':'D01' if variant=='valid' else 'D03' if variant in ('revoked','approval-withdrawn','policy-changed','evidence-stale') else 'D04',
                   'effect_count':len(final['effects']),'balance_cents':final['account']['balance_cents'],'state_version':final['account']['version'],
