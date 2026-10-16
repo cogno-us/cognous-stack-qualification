@@ -2,6 +2,8 @@
 
 Start with the [bounded comparison process](bounded-comparison.md), adapted from the 15 October 2026 engineering addendum. Complete its configuration and native-evidence checkpoint before finalizing comparison extensions or making prevention claims.
 
+For the next applicable test export, produce the [reciprocal evidence package for Jerry](return-evidence-format.md): native Cognous records, destination snapshot/readback, test results, crosswalk, complete hash manifest and a portable verifier. This is a required future deliverable, not a result already generated or permission to send it.
+
 Execution order:
 
 1. Identify the loaded runtime, native receipts, correction/commitment boundaries and observation route.

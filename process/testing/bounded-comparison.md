@@ -90,6 +90,8 @@ D04 is a subsequent recovery trajectory. It cannot erase a D03 unauthorized effe
 
 D08 and C12 validate the retained native Replay and Evidence Pack records with actual pinned consumers, schemas, commands and field-loss reports. They are export checks on the same underlying trials, not additional consequence demonstrations. Optional ODES needs an explicit separate consumer check.
 
+Generate and recipient-verify the [reciprocal evidence package for Jerry](return-evidence-format.md) from the actual Cognous trial records before marking the export ready for return. Preserve native records and scoped verdicts; the comparable file layout does not require an identical receipt schema or outcome. Record package readiness separately from any later transmission.
+
 Freeze the Cognous and SCQOS arms independently against the same bounded request, fault and destination oracle, with separate destination instances and matching initial-state digests. Do not use one arm's outputs as the other's authorization inputs. Preserve architecture-specific mechanisms and report capability/configuration asymmetry. An unavailable arm remains NOT RUN.
 
 Each architecture completes its engineering findings before comparison. REACHABLE™ assesses proposal-to-decision, intervention-to-consumption, consumption-to-enforcement and enforcement-to-consequence transitions separately using the actual evidence. Record actual reviewer access/role separation. Correspondence transfers neither authority nor proof. A conventional-control arm is optional later work and must be independently frozen and labeled.
