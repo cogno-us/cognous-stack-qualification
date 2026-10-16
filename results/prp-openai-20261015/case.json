@@ -1,0 +1,68 @@
+{
+  "case_id": "prp-pair-synthetic-001",
+  "version": "paired-evaluation/0.1",
+  "execution_status": "unexecuted",
+  "reference_model": "frozen_author_model",
+  "hypotheses": [
+    "H0",
+    "H1"
+  ],
+  "prior": [
+    0.5,
+    0.5
+  ],
+  "likelihoods": {
+    "null": [
+      0.5,
+      0.5
+    ],
+    "discriminating": [
+      0.9,
+      0.1
+    ],
+    "perturbed_weaker_signal": [
+      0.8,
+      0.2
+    ]
+  },
+  "preregistered_perturbations": [
+    "perturbed_weaker_signal"
+  ],
+  "posterior_tolerance": 0.01,
+  "stop_expected_loss": 1.2,
+  "actions": {
+    "act_h0": {
+      "kind": "act",
+      "loss": [
+        0,
+        10
+      ]
+    },
+    "act_h1": {
+      "kind": "act",
+      "loss": [
+        10,
+        0
+      ]
+    },
+    "defer": {
+      "kind": "defer",
+      "loss": [
+        3,
+        3
+      ],
+      "delay_cost": 0.2
+    },
+    "gather": {
+      "kind": "gather",
+      "loss": [
+        1.5,
+        1.5
+      ],
+      "gather_cost": 0.5,
+      "delay_cost": 0.2
+    }
+  },
+  "provenance": "Original synthetic arithmetic fixture derived from supplied Cognous Moltbook 101526_A K6 dated 2026-10-15",
+  "license": "Apache-2.0"
+}

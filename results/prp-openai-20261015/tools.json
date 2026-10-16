@@ -1,0 +1,51 @@
+[
+  {
+    "type": "function",
+    "name": "get_case",
+    "description": "Read the current synthetic decision case.",
+    "strict": true,
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": [],
+      "additionalProperties": false
+    }
+  },
+  {
+    "type": "function",
+    "name": "report_decision",
+    "description": "Submit the decision and concise rationale after reading the case.",
+    "strict": true,
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "posterior": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "action": {
+          "type": "string",
+          "enum": [
+            "act_h0",
+            "act_h1",
+            "defer",
+            "gather"
+          ]
+        },
+        "rationale": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "posterior",
+        "action",
+        "rationale"
+      ],
+      "additionalProperties": false
+    }
+  }
+]
