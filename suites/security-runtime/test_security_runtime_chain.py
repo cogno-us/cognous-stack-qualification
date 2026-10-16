@@ -177,3 +177,31 @@ def test_failure_reference_type_confusion_rejected(tmp_path, monkeypatch):
     with pytest.raises(ImportContractError, match='failure reference'):
         import_bounded_workflow(f.records.load().model_dump(mode='json'),proposal=p.model_dump(mode='json'),
             moltbot_export=export,control_plane_revision=CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION)
+
+
+@pytest.mark.parametrize('case',['valid','lost_ack','revoked','unreadable','purpose_closed','race'])
+def test_odes_preserves_repaired_runtime_semantics(tmp_path,monkeypatch,case):
+    from odes import export_cognous_stack_package,evaluate_recipient_package
+    from odes.common import SECURITY_REVISIONS,SECURITY_PROFILE_VERSION
+    p,r,f,d,dest,result,export,bundle=produce(tmp_path,monkeypatch,case)
+    package=export_cognous_stack_package(f.manifest,bundle.model_dump(mode='json'))
+    assert package['provenance']['pinned_revisions']==SECURITY_REVISIONS
+    assert package['profile']['implementation_profile_version']==SECURITY_PROFILE_VERSION
+    assert package['provenance']['retained_sources']['reconstruction_bundle']==bundle.model_dump(mode='json')
+    events=package['provenance']['execution_facts']['resolution_check_event']
+    assert events==[x.model_dump(mode='json') for x in f.records.load().check_events]
+    from odes.recipient_validator import _evaluate_replay_semantics
+    assert _evaluate_replay_semantics(package)['status']=='pass'
+    # Semantic replay success cannot supply missing issuer/status/use authority.
+    recipient=evaluate_recipient_package(package,{})
+    assert recipient['recipient_reliance_decision']['status']=='fail'
+    (tmp_path/'odes-package.json').write_text(json.dumps(package,indent=2)+'\n')
+
+
+def test_odes_rejects_relabelled_replay_pin(tmp_path,monkeypatch):
+    from odes import export_cognous_stack_package
+    from odes.recipient_validator import _evaluate_replay_semantics
+    p,r,f,d,dest,result,export,bundle=produce(tmp_path,monkeypatch,'valid')
+    package=export_cognous_stack_package(f.manifest,bundle.model_dump(mode='json'))
+    package['provenance']['pinned_revisions']['replay']='83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a'
+    assert _evaluate_replay_semantics(package)['status']=='fail'
