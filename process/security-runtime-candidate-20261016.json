@@ -1,0 +1,44 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "fd6b76fa0e85feb5b67324114bf790d3a12fdaf1"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "3601fb218d5c02f5d86e55d2cf33983e5e130ac3"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "8aba5a106ad119330950ccff97c55fa8492bc287"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "dd2dc7e8f3fe74263917a0c67a40875daf3b0ce0"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "94a0db18d7e172aa7423e80f68c575e82816d7e1"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "e385f8c19b4444817a8b84b72ed6edbc37deb807"
+    }
+  },
+  "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+  "limitations": [
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Final package, independent security/IP and operational/deployment acceptance remain pending",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement"
+  ]
+}
