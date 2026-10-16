@@ -72,6 +72,9 @@ def cmd_plan(args):
                                 "timeout": int(spec.get("test_timeout_seconds", 300))})
     out = {"include": include}
     text = json.dumps(out, separators=(",", ":"))
+    if args.out_file:
+        Path(args.out_file).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out_file).write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as fh:
             fh.write(f"matrix={text}\n")
@@ -240,7 +243,14 @@ def cmd_component_suite(args):
     tests_dirs = [str(p.relative_to(repo)).replace("\\", "/") for p in repo.rglob("test*") if p.is_dir() and ".git" not in p.parts and "node_modules" not in p.parts][:50]
     test_files = sorted(str(p.relative_to(repo)).replace("\\", "/") for p in repo.rglob("test_*.py") if ".git" not in p.parts and "node_modules" not in p.parts)
     wfs = sorted(p.name for p in (repo / ".github" / "workflows").glob("*.y*ml")) if (repo / ".github" / "workflows").exists() else []
-    result["inventory"] = {"test_dirs": tests_dirs, "test_files": test_files, "test_file_count": len(test_files), "ci_workflows": wfs,
+    runs_on = {}
+    wf_dir = repo / ".github" / "workflows"
+    for wf in (wf_dir.glob("*.y*ml") if wf_dir.exists() else []):
+        txt = wf.read_text(encoding="utf-8", errors="replace")
+        found = sorted(set(re.findall(r"runs-on:\s*([^\n#]+)", txt)) | set(re.findall(r"^\s*os:\s*\[([^\]]+)\]", txt, re.M)))
+        if found:
+            runs_on[wf.name] = [x.strip() for x in found]
+    result["inventory"] = {"ci_runs_on": runs_on, "test_dirs": tests_dirs, "test_files": test_files, "test_file_count": len(test_files), "ci_workflows": wfs,
                            "has_pyproject": (repo / "pyproject.toml").exists(), "has_requirements": sorted(p.name for p in repo.glob("requirements*.txt"))}
     py = sys.executable
     log = out / "job.log"
@@ -339,12 +349,23 @@ def cmd_aggregate(args):
         rows.append({"job": r["_dir"], "component": r.get("component"), "os": r.get("os"), "python": r.get("python"),
                      "status": r.get("status"), "reason": r.get("reason"), "counts": att.get("counts"),
                      "attempts": len(r.get("attempts", []))})
+    expected = []
+    for p in inputs.rglob("plan.json"):
+        expected = json.loads(p.read_text(encoding="utf-8")).get("include", [])
+    seen = {(r.get("component"), r.get("os"), str(r.get("python"))[:4]) for r in results}
+    missing = []
+    for e in expected:
+        if (e["component"], e["os"], e["python"][:4]) not in seen:
+            missing.append({"component": e["component"], "os": e["os"], "python": e["python"], "status": "INCONCLUSIVE",
+                            "reason": "expected job produced no result (setup failure, cancelled or unavailable runner)"})
+            counts["INCONCLUSIVE"] += 1
+    rows.extend({"job": "(missing)", **m, "counts": None, "attempts": 0} for m in missing)
     requirements = []
     if args.requirements and Path(args.requirements).exists():
         requirements = json.loads(Path(args.requirements).read_text(encoding="utf-8")).get("requirements", [])
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
                "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": (freeze or {}).get("status", "NOT RUN"),
-               "job_status_counts": counts, "jobs": rows,
+               "job_status_counts": counts, "expected_jobs": len(expected), "missing_jobs": len(missing), "jobs": rows,
                "selected_v1_verdict": "INCOMPLETE" if not requirements else verdict(requirements),
                "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix"}
     if freeze is None or freeze.get("status") != "PASS":
@@ -368,7 +389,7 @@ def cmd_aggregate(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("plan"); p.add_argument("--manifest", required=True); p.add_argument("--github-output")
+    p = sub.add_parser("plan"); p.add_argument("--manifest", required=True); p.add_argument("--github-output"); p.add_argument("--out-file")
     p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("freeze-verify")
     for a in ("--manifest", "--hub-dir", "--qual-dir", "--work", "--out"):
