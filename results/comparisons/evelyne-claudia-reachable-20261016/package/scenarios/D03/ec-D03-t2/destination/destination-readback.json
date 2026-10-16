@@ -1,0 +1,104 @@
+{
+  "snapshot_path": "destination-snapshot.sqlite3",
+  "integrity_check": [
+    "ok"
+  ],
+  "readback": {
+    "effects": {
+      "columns": [
+        "effect_id",
+        "operation_digest",
+        "grant_id",
+        "target",
+        "amount",
+        "unit",
+        "payload_json",
+        "state"
+      ],
+      "rows": []
+    },
+    "attempts": {
+      "columns": [
+        "attempt_id",
+        "effect_id",
+        "decision_id",
+        "operation_digest",
+        "created_at"
+      ],
+      "rows": []
+    },
+    "attempt_events": {
+      "columns": [
+        "event_id",
+        "attempt_id",
+        "status",
+        "error",
+        "created_at"
+      ],
+      "rows": []
+    },
+    "sqlite_sequence": {
+      "columns": [
+        "name",
+        "seq"
+      ],
+      "rows": []
+    },
+    "failure_records_v1": {
+      "columns": [
+        "failure_id",
+        "decision_id",
+        "effect_id",
+        "attempt_id",
+        "proposal_commitment",
+        "manifest_version",
+        "manifest_digest",
+        "grant_id",
+        "grant_revision",
+        "failure_class",
+        "reason_code",
+        "stage",
+        "detail",
+        "created_at"
+      ],
+      "rows": [
+        [
+          "426ef61f-5851-4a1d-bc20-6f3fa160f387",
+          "dd50b1ca-7235-4fd1-b83c-f7548e3f6f38",
+          "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+          null,
+          "sha256:133c4baa21d85e41ae7f75af45a96810aa1a175ee3e693913585568630aea96b",
+          "1.1",
+          "sha256:4d1ad6c96bc242c63998231b4df3ad7c86dc2e5e59cdae63afe7bff86e60f6ac",
+          "urn:cognous:grant:routine-1",
+          "1",
+          "authority_hold",
+          "admission_rejected",
+          "pre_dispatch",
+          "authorization-critical inputs changed before effect",
+          1792177041.5860877
+        ]
+      ]
+    },
+    "effective_grants_v1": {
+      "columns": [
+        "grant_id",
+        "principal",
+        "digest",
+        "derivation",
+        "status"
+      ],
+      "rows": [
+        [
+          "urn:cognous:grant:routine-1",
+          "urn:cognous:principal:refund-service",
+          "sha256:4b43b997e7a5dc9b70f51ffa8917eaeb79f7df04f108f81a90e0997de3602b31",
+          "effective-grant/0.1",
+          "active"
+        ]
+      ]
+    }
+  },
+  "snapshot_method": "sqlite3 backup API from executor-written refunds.sqlite3",
+  "trust_boundary": "local synthetic oracle \u2014 same OS user as writer during execution; snapshot taken after writer exit"
+}

@@ -1,0 +1,51 @@
+{
+  "verifiers": {
+    "verify_export.py": {
+      "source_sha256": "ec7a9e7ef703a20153d21257a9c722fd64af0dc08617dc93d963465c5d380d74",
+      "ran_from": "clean recipient-style copy",
+      "python_flags": [
+        "-I"
+      ],
+      "exit_code": 0,
+      "stdout": "tamper control OK: hash of scenarios/C07/ec-C07-t1/destination/destination-readback.json changed as expected\ncontradiction control OK: altered observation detected under the invariant check\nVERIFY OK\n",
+      "controls": {
+        "tamper_control_passed": true,
+        "contradiction_control_passed": true
+      }
+    },
+    "verify_f5b_enforcement.py": {
+      "source_sha256": "e903a0ceb7ec35ec9e4020cab20c58bfb1b6d7b7a15e18cab9e99a87a73b955b",
+      "ran_from": "clean recipient-style copy",
+      "python_flags": [
+        "-I"
+      ],
+      "exit_code": 0,
+      "stdout": "ec-C07-t1: accept=True reject=True enforced=True\nec-C07-t2: accept=True reject=True enforced=True\nec-D01-t1: accept=True reject=True enforced=True\nec-D01-t2: accept=True reject=True enforced=True\nec-D03-t1: accept=True reject=True enforced=True\nec-D03-t2: accept=True reject=True enforced=True\nF5B VERIFY OK (all trials)\n",
+      "vendored_source_hashes": {
+        "vendored/odes_common.py": "55366161f58709630a5b1925551ca013d60eade601228eaa76947b633d66a96a",
+        "vendored/ep_importer.py": "f62f6307988dc9edac722b4667e3e7440d1b09b2663e115f6eaae925e0dcd0f6",
+        "vendored/replay_importers.py": "9e02c9275594ee25e5139b758021fb943b2abdf67283e02ff352796937f35d1f"
+      }
+    }
+  },
+  "tamper_and_contradiction_controls_recorded": {
+    "auto_tamper_inside_verify_export.py": {
+      "result": "DETECTED (byte flip of destination-readback.json caught by sha mismatch; and by JSON-unparseable; clean VERIFY FAILED summary)"
+    },
+    "auto_contradiction_inside_verify_export.py": {
+      "result": "DETECTED (altered effect_occurrence_count caught by invariant check with clean VERIFY FAILED summary)"
+    },
+    "external_sqlite_byte_flip": {
+      "result": "DETECTED (sha mismatch of destination-snapshot.sqlite3; clean VERIFY FAILED summary; no traceback)"
+    }
+  },
+  "checks_this_verifier_cannot_perform": [
+    "re-executing the effect (writer not invoked)",
+    "contacting production or acquiring credentials",
+    "writing to the supplied destination",
+    "independently witnessing the original execution; only reverifies frozen bytes and self-consistency",
+    "assigning REACHABLE DEMONSTRATED/CONTRADICTED/UNRESOLVED verdicts",
+    "verifying issuer-side authority authenticity (F5b profile does not sign revocations)"
+  ],
+  "disposition": "package_byte_integrity_PASS; self_consistency_PASS; f5b_consumer_pairing_enforcement_PASS (via vendored real consumer constants); interoperability_acceptance_and_REACHABLE_verdict_NOT_ASSERTED"
+}

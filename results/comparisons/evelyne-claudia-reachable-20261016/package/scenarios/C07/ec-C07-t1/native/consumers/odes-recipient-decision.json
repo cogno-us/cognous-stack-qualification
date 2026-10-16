@@ -1,0 +1,98 @@
+{
+  "schema_validity": {
+    "status": "pass",
+    "reasons": [],
+    "evidence": {}
+  },
+  "replay_semantic_consistency": {
+    "status": "pass",
+    "reasons": [
+      "retained content matches accepted Replay validation; no source authentication or authority renewal"
+    ],
+    "evidence": {}
+  },
+  "declared_profile_conformance": {
+    "status": "unsupported",
+    "reasons": [
+      "unsupported declared profile 'odes_cognous_stack_export_0_2'"
+    ],
+    "evidence": {
+      "declared_profile": "odes_cognous_stack_export_0_2",
+      "supported_profiles": [
+        "odes_cognous_stack_export_0_1"
+      ]
+    }
+  },
+  "package_content_integrity": {
+    "status": "pass",
+    "reasons": [
+      "complete material package content is bound by digest; this does not authenticate an issuer"
+    ],
+    "evidence": {
+      "record_profile_digest": "sha256:48f96c2d2bfc19692e8006de26ea29d7739affe0eb8d8b81b1c0d36b89088a4d",
+      "package_digest": "sha256:b05bf1450fff30136009f5f1121eedbee4b617d70f88cfc7c7a1c8c74fae9f3e",
+      "configured_trusted_digests": []
+    }
+  },
+  "integrity_authentication_checks": {
+    "status": "unavailable",
+    "reasons": [
+      "content digest is not issuer authentication; no supported public authentication evidence supplied"
+    ],
+    "evidence": {
+      "package_digest": "sha256:b05bf1450fff30136009f5f1121eedbee4b617d70f88cfc7c7a1c8c74fae9f3e"
+    }
+  },
+  "historical_authority_assertions": {
+    "status": "unavailable",
+    "reasons": [
+      "no external authority/status evidence supplied; record self-assertion is not authority verification"
+    ],
+    "evidence": {
+      "record_assertion_authority_valid_at_decision": true
+    }
+  },
+  "authority_status_and_freshness": {
+    "status": "unavailable",
+    "reasons": [
+      "recipient evaluation time is unavailable",
+      "external status evidence is required for present authority/freshness acceptance"
+    ],
+    "evidence": {
+      "recipient_evaluation_time": null,
+      "record_reported_freshness": "unknown"
+    }
+  },
+  "consumption_conditions": {
+    "status": "fail",
+    "reasons": [
+      "recipient relying party is decision-critical but unavailable",
+      "recipient purpose is decision-critical but unavailable",
+      "prohibited or unavailable use restriction",
+      "restricted use has no implemented recipient authorization profile",
+      "recipient jurisdiction is unavailable or differs from the record"
+    ],
+    "evidence": {
+      "permitted_relying_parties": [
+        "recipient.example.org"
+      ],
+      "permitted_purposes": [
+        "audit"
+      ]
+    }
+  },
+  "recipient_reliance_decision": {
+    "status": "fail",
+    "reasons": [
+      "recipient policy does not permit reliance because layer did not pass: declared_profile_conformance, integrity_authentication_checks, historical_authority_assertions, authority_status_and_freshness, consumption_conditions"
+    ],
+    "evidence": {}
+  },
+  "boundary_notes": [
+    "Schema validity is structural only.",
+    "Package content digests bind material content but do not establish public issuer identity.",
+    "Authentication, historical authority, present authority, and recipient reliance are separate evaluations.",
+    "BitRep signature verification and Index inclusion, if supplied separately, do not create institutional authority.",
+    "The recipient validator does not access producer databases or execute workflows."
+  ]
+}

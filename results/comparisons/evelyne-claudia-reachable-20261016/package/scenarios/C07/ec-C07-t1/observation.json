@@ -1,0 +1,23 @@
+{
+  "scenario_id": "C07",
+  "trial_id": "ec-C07-t1",
+  "raw_destination_readback": {
+    "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+    "state": "absent",
+    "destination_state": {}
+  },
+  "effect_occurrence_count": 0,
+  "destination_state_version": null,
+  "observer_route": "EffectiveGrantDestination.observe() \u2192 same in-process SQLite file as writer",
+  "access_separation": "none \u2014 same OS user, same Python process, same destination object",
+  "trust_boundary_label": "local synthetic oracle (NOT an independent external witness)",
+  "consistency": "read-after-close: destination.observe called after executor.execute returns",
+  "horizon": "bounded by test teardown; delayed commits after teardown cannot be detected by this observer",
+  "blind_spots": [
+    "out-of-process writer that bypasses the executor path entirely",
+    "commits landing after teardown",
+    "storage-layer corruption not exposed to PRAGMA integrity_check during execution (checked only on exported snapshot in destination/)",
+    "external principals observing side-channels this observer does not see"
+  ],
+  "snapshot_integrity_check_on_export": "see destination/destination-readback.json#integrity_check"
+}
