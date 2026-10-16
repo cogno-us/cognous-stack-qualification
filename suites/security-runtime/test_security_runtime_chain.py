@@ -15,7 +15,21 @@ from engine.effective_grant import EffectiveGrantDestination,DERIVATION
 from engine.safe_executor import ExecutionOperation,ExecutionEnvelope,EXECUTION_ENVELOPE_VERSION,LocalExecutionPolicy
 from engine.control_plane_adapter import PinnedControlPlaneExecutor
 from engine.producer_contract import export_execution_artifacts
-from agent_replay_bundle.importers import import_bounded_workflow,CONTROL_PLANE_SECURITY_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_SECURITY_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
+from agent_replay_bundle.importers import import_bounded_workflow
+# The runner selects the pinned generation; absent, the historical F3 generation is used.
+GENERATION=os.environ.get('COGNOUS_SECURITY_RUNTIME_GENERATION','security')
+if GENERATION=='security':
+    from agent_replay_bundle.importers import CONTROL_PLANE_SECURITY_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_SECURITY_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
+elif GENERATION=='f5b':
+    from agent_replay_bundle.importers import CONTROL_PLANE_F5B_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_F5B_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
+else:
+    raise RuntimeError('unsupported security runtime generation')
+
+
+def odes_generation():
+    import odes.common as common
+    if GENERATION=='f5b':return common.F5B_REVISIONS,common.F5B_PROFILE_VERSION
+    return common.SECURITY_REVISIONS,common.SECURITY_PROFILE_VERSION
 
 
 def integrated(tmp_path,monkeypatch,*,purpose=False):
@@ -182,7 +196,7 @@ def test_failure_reference_type_confusion_rejected(tmp_path, monkeypatch):
 @pytest.mark.parametrize('case',['valid','lost_ack','revoked','unreadable','purpose_closed','race'])
 def test_odes_preserves_repaired_runtime_semantics(tmp_path,monkeypatch,case):
     from odes import export_cognous_stack_package,evaluate_recipient_package
-    from odes.common import SECURITY_REVISIONS,SECURITY_PROFILE_VERSION
+    SECURITY_REVISIONS,SECURITY_PROFILE_VERSION=odes_generation()
     p,r,f,d,dest,result,export,bundle=produce(tmp_path,monkeypatch,case)
     package=export_cognous_stack_package(f.manifest,bundle.model_dump(mode='json'))
     assert package['provenance']['pinned_revisions']==SECURITY_REVISIONS
