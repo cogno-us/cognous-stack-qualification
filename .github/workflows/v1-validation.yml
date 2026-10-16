@@ -289,7 +289,13 @@ jobs:
           PYTHONDONTWRITEBYTECODE: '1'
         run: |
           mkdir -p out
-          python q/tools/run_matched_refund.py --runtime runtime --control control --fixture q/results/comparisons/matched-refund-20261016/fixture.json --output "$RUNNER_TEMP/matched" 2>&1 | tee out/run.log
+          python - <<'PY'
+          import json,os
+          # The supplied external fixture is not republished; rebuild the runner's input shape from the retained common stimulus (values the runner asserts exactly).
+          c=json.load(open('q/results/comparisons/matched-refund-20261016/fixture.json'))['common_stimulus']
+          json.dump({'initial_state':{'account':c['account']},'params':c['params'],'simulation_clock':c['simulation_clock']},open(os.path.join(os.environ['RUNNER_TEMP'],'fixture.json'),'w'))
+          PY
+          python q/tools/run_matched_refund.py --runtime runtime --control control --fixture "$RUNNER_TEMP/fixture.json" --output "$RUNNER_TEMP/matched" 2>&1 | tee out/run.log
       - name: Compare with the retained PR 29 reference result
         if: always()
         run: |
@@ -359,7 +365,7 @@ jobs:
           for d in ../collected/*; do n="$(basename "$d")"; n="${n#v1v-}"; [ "$n" = "native-f5b" ] && n="native"; cp -r "$d" "$dest/jobs/$n"; done
           # Zero-byte transient .lock files have names that break Windows checkouts; omit them but list each with size and sha256.
           if [ "$RETAIN_NATIVE" = "true" ]; then python3 tools/omit_locks.py "$dest"; else python3 tools/omit_locks.py "$dest" --slim-native; fi
-          cp ../agg/summary.json ../agg/summary.md "$dest/"
+          cp ../agg/summary.json ../agg/summary.md ../agg/requirements-matrix.json ../agg/requirements-matrix.md "$dest/"
           printf '{"workflow_run":"%s","attempt":"%s","harness_revision":"%s","run_url":"%s/%s/actions/runs/%s"}\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$GITHUB_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > "$dest/run-identity.json"
           find "$dest" -type f -size +50M -print | sed 's/^/OVERSIZE: /' || true
           git add "$dest"
