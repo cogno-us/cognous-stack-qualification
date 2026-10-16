@@ -320,12 +320,39 @@ def cmd_component_suite(args):
     sys.exit(0)  # the aggregate decides; a failing suite is evidence, not a workflow error
 
 
+def pinned_sources(manifest):
+    """Every pinned public source of the freeze: subject and lock-remainder components, the hub and the qualification closeout."""
+    pins = {}
+    for group in ("components_subject", "components_lock_remainder"):
+        for key, spec in manifest[group].items():
+            pins[key] = (spec["repository"], spec["sha"])
+    ident = manifest["identities"]
+    pins["hub"] = (ident["hub"]["repository"], ident["hub"]["head"])
+    pins["qualification"] = (ident["qualification"]["repository"], ident["qualification"]["closeout"])
+    return pins
+
+
 def cmd_probe_suite(args):
-    """Run the validation probes (suites/v1-probes) against one exactly pinned component. A failing probe is a finding, not a harness error."""
+    """Run the validation probes (suites/v1-probes) against one exactly pinned component. A failing probe is a finding, not a harness error.
+
+    With --pins-manifest, --repo-dir becomes a directory of exact checkouts of ALL pinned public sources (one subdirectory per
+    freeze-manifest key) for multi-repository probes such as the SR-3 provenance scan; --repository/--sha are then not used.
+    With --full-history the single pinned checkout is unshallowed (for probes that read git history)."""
     repo = Path(args.repo_dir).resolve()
-    fetch_exact(repo, args.repository, args.sha)
+    pins = None
+    if args.pins_manifest:
+        manifest = load_manifest(args.pins_manifest)
+        pins = pinned_sources(manifest)
+        actuals = {k: fetch_exact(repo / k, r, sha) for k, (r, sha) in pins.items()}
+        args.repository = "multiple:" + ",".join(sorted(pins))
+        args.sha = hashlib.sha256(json.dumps(sorted(pins.items())).encode()).hexdigest()
+        actual = args.sha if all(actuals[k] == pins[k][1] for k in pins) else "mismatch:" + json.dumps(
+            {k: actuals[k] for k in pins if actuals[k] != pins[k][1]})
+    else:
+        actual = fetch_exact(repo, args.repository, args.sha)
+        if args.full_history and git(repo, "rev-parse", "--is-shallow-repository") == "true":
+            git(repo, "fetch", "-q", "--unshallow", "origin", timeout=900)
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
-    actual = git(repo, "rev-parse", "HEAD")
     result = {"schema": "cognous.v1-validation-job/1", "component": args.component, "repository": args.repository, "pinned_sha": args.sha,
               "actual_sha": actual, "os": args.os_name, "python": platform.python_version(), "workflow_run": os.environ.get("GITHUB_RUN_ID"),
               "kind": "probe-suite", "attempts": []}
@@ -336,10 +363,10 @@ def cmd_probe_suite(args):
     junit = out.resolve() / "junit.xml"
     with open(out / "job.log", "w", encoding="utf-8") as fh:
         run([py, "-m", "pip", "install", "-q", "pytest", "httpx"], repo, 600, fh)
-        reqs = [r for r in sorted(repo.glob("requirements*.txt")) if "dev" not in r.name]
+        reqs = [] if pins else [r for r in sorted(repo.glob("requirements*.txt")) if "dev" not in r.name]
         for req in reqs:
             run([py, "-m", "pip", "install", "-q", "-r", req.name], repo, 900, fh)
-        if not reqs and (repo / "pyproject.toml").exists():
+        if not reqs and not pins and (repo / "pyproject.toml").exists():
             # pyproject-only component: install its declared runtime dependencies, never the project itself
             # (the probes import the pinned source tree directly, so the checkout stays unmodified).
             import tomllib
@@ -349,6 +376,9 @@ def cmd_probe_suite(args):
         if args.npm_dir:
             run(["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"], repo / args.npm_dir, 900, fh)
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", **{args.env_var: str(repo)})
+        env["PROBE_REPORT_DIR"] = str(out.resolve())  # probes that produce a structured report (SR-3 scan) write it next to junit.xml
+        if args.pins_manifest:
+            env["PROBE_FREEZE_MANIFEST"] = str(Path(args.pins_manifest).resolve())
         suite = Path(args.suite).resolve()
         start = time.monotonic()
         proc = subprocess.run([py, "-m", "pytest", "-q", "-p", "no:cacheprovider", f"--junitxml={junit}", str(suite)], cwd=suite, env=env,
@@ -535,8 +565,11 @@ def main():
     p.add_argument("--fetch", action="store_true", help="fetch the exact pinned commit into --repo-dir first")
     p.set_defaults(fn=cmd_component_suite)
     p = sub.add_parser("probe-suite")
-    for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name", "--suite"):
+    for a in ("--component", "--repo-dir", "--out", "--os-name", "--suite"):
         p.add_argument(a, required=True)
+    p.add_argument("--repository", default=None); p.add_argument("--sha", default=None)
+    p.add_argument("--pins-manifest", default=None, help="fetch every pinned public source of this freeze manifest under --repo-dir/<key> (multi-repository probes)")
+    p.add_argument("--full-history", action="store_true", help="unshallow the pinned checkout so probes can read git history")
     p.add_argument("--timeout", type=int, default=300)
     p.add_argument("--env-var", default="PROBE_INDEX_DIR", help="env var that points the probes at the pinned checkout (one per component)")
     p.add_argument("--npm-dir", default=None, help="run `npm ci` in this directory of the pinned checkout before the probes")

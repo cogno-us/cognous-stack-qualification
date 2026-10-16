@@ -242,6 +242,7 @@ jobs:
           - {name: probes-evidence-pack, repo: cogno-us/cognous-governance-evidence-pack, sha: 893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3, env: PROBE_EVIDENCE_PACK_DIR, extra: ''}
           - {name: probes-odes, repo: cogno-us/open-decision-evidence-standard, sha: eb83220c82f942e429a5e3ef5f677fdd5057ef84, env: PROBE_ODES_DIR, extra: ''}
           - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5, env: PROBE_CONTROL_PLANE_DIR, extra: ''}
+          - {name: probes-action-manifest, repo: cogno-us/cognous-action-manifest, sha: 2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e, env: PROBE_ACTION_MANIFEST_DIR, extra: '--full-history'}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -258,6 +259,29 @@ jobs:
         if: always()
         with:
           name: v1v-${{ matrix.name }}
+          path: out
+          if-no-files-found: error
+
+  provenance-scan:
+    needs: [freeze]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: q
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: ''
+      - name: SR-3 provenance scan of every pinned public source (hub, qualification closeout and all lock/subject components)
+        run: |
+          python q/tools/v1_validation.py probe-suite --component provenance-scan --pins-manifest "q/${{ env.MANIFEST }}" --repo-dir "$RUNNER_TEMP/pins" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var PROBE_PINS_DIR
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v1v-provenance-scan
           path: out
           if-no-files-found: error
 
@@ -339,7 +363,7 @@ jobs:
           if-no-files-found: error
 
   results:
-    needs: [freeze, components, native-f5b, harness-and-hub-tests, probes, matched-refund]
+    needs: [freeze, components, native-f5b, harness-and-hub-tests, probes, provenance-scan, matched-refund]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 20
