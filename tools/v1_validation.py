@@ -272,6 +272,12 @@ def cmd_component_suite(args):
                 rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-r", req.name], repo, 900, fh)
                 installs.append({"target": req.name, "rc": rc})
                 setup_ok = setup_ok and rc == 0
+            # dedicated harness requirements that the component's own tests tell us to install (they skip otherwise)
+            for req in sorted((repo / "testing" / "harness").glob("requirements*.txt")) if (repo / "testing" / "harness").is_dir() else []:
+                rel = str(req.relative_to(repo)).replace("\\", "/")
+                rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-r", rel], repo, 900, fh)
+                installs.append({"target": rel, "rc": rc})
+                setup_ok = setup_ok and rc == 0
             rec["installs"] = installs
             rc, freeze, _, _ = run([py, "-m", "pip", "freeze"], repo, 120, fh)
             if attempt == 1:
