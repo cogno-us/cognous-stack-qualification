@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0.0",
-  "overall_status": "BOUNDED LOCAL AND OPENAI PILOT CHECKS PASSED; EXPORT AND OPERATIONAL QUALIFICATION DEFERRED",
+  "overall_status": "BOUNDED LOCAL RERUN PASSED; RECIPROCAL SNAPSHOT EXPORT VERIFIED; NATIVE PRODUCER MAPPING AND OPERATIONAL QUALIFICATION DEFERRED",
   "profile": "native-local-destination-and-approval-fixtures/1",
   "selected": false,
   "human_oversight": "NOT EVALUATED",
-  "verified_at": "2026-10-15T23:22:16.801167+00:00",
-  "verification_method": "PR #12 merged after all exact-head hosted checks passed; merged revision rerun passed 36 native trials and 62 qualification tooling tests; completed OpenAI pilot workflow 38821035491 and downloaded artifact/manifest commitments verified without executing paid calls",
+  "verified_at": "2026-10-16T17:56:58.163718+00:00",
+  "verification_method": "36 exact-source native local trials, standalone SQLite snapshots and portable cross-checks; 92 native fixture tests and 16 subtests. Prior OpenAI pilot and its accounting preserved without rerunning paid calls.",
   "starting_qualification_sha": "dcedf33e5f53ad4a86c3019c0d16f863a60db1f2",
   "phases": [
     {
@@ -76,12 +76,12 @@
     "PASS": 36
   },
   "evidence": {
-    "path": "results/serial/native-20261015/record.json",
-    "sha256": "1829e578f5776620e16c93e0b253fb8b83a8c802daa2d0020c17e2e485169174"
+    "path": "results/serial/native-exchange-20261016/record.json",
+    "sha256": "1cdd5c2fd08d82d42eea390dd8fd923fd9b94207c44b7eca996e6904e7a57cf5"
   },
   "tested_sources": {
     "hub": {
-      "commit": "4bb101ca6dd5ee8f821bc44a7af935b5e389562e",
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
       "dirty": false,
       "files": {
         "component-lock.json": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
@@ -95,13 +95,13 @@
       "repository": "cogno-us/cognous-open-control-stack"
     },
     "qualification": {
-      "commit": "2f0119db8095977899fe86d87ad4b7770d93f3da",
+      "commit": "347df5d833eb6888a1ad3bb716bfc96072f46f6b",
       "dirty": false,
       "files": {
         "qualification/serial/plan.json": "294a74f117e72fb2510f20751564b68f47ff8e802b0d48756fe14fa016c92eea",
         "scenarios/catalog.json": "242beb8a2196cd29e0778592af645d3c1678daa474cb844c25f47ca13becdad7",
         "schemas/trajectory-evidence-v2.schema.json": "5ae202f632e524e5da9c4684f529a9b928646ac8091ebe307bffd5f2064fe022",
-        "tools/run_serial_qualification.py": "ed28b17d481ceda9d4988bf3b16ecf4d35be1ccc2e91132425e483ddabdfae75",
+        "tools/run_serial_qualification.py": "a7a6efcc87f0b5a7bd5fb3e069b9bb349f29ea506b18987636dcc519911fca56",
         "tools/trajectory_contract.py": "b33ee5826b1327c28278ef586a70ff40015acb10ceccc063733de23c26b3ae14"
       },
       "repository": "cogno-us/cognous-stack-qualification"
@@ -164,7 +164,7 @@
     "status": "COMPLETE",
     "provider": "openai-direct",
     "model": "gpt-6.1-sol",
-    "scope": "Five bounded nonselected synthetic variants, five repetitions each; not A01–A06 or full selected-stack qualification",
+    "scope": "Five bounded nonselected synthetic variants, five repetitions each; not A01\u2013A06 or full selected-stack qualification",
     "qualification_commit": "4c817a5eaa53c51e91322f8204864f039ab11d1f",
     "hub_commit": "4bb101ca6dd5ee8f821bc44a7af935b5e389562e",
     "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/17",
@@ -214,5 +214,13 @@
     ],
     "paid_reruns_authorized": false,
     "source_context": "Native deterministic tested_sources above remain their original identities; this pilot has its separate exact sources. No historical record or ledger is rewritten."
+  },
+  "reciprocal_exchange": {
+    "status": "PORTABLE LOCAL EVIDENCE VERIFIED; NOT MATCHED-REQUEST COMPARISON ACCEPTANCE",
+    "test_source": "347df5d833eb6888a1ad3bb716bfc96072f46f6b",
+    "native_exports": "Replay/Evidence Pack mapping NOT RUN for this family",
+    "writer_entry": "NOT INSTRUMENTED; native duplicate admission exercised",
+    "monetary_refund": "NOT RUN; synthetic insertion fixture only",
+    "transmitted": false
   }
 }

@@ -1,6 +1,6 @@
 # Reciprocal evidence package for Jerry
 
-Status: **REQUIRED AT THE NEXT APPLICABLE BOUNDED COMPARISON EXPORT; NOT YET GENERATED**.
+Status: **GENERATED AND VERIFIED FOR SCOPED NATIVE-LOCAL REVIEW** on 16 October 2026; see the [execution report](../../reports/bounded-exchange-2026-10-16.md) and [archive identity](../../reports/bounded-exchange-2026-10-16.archive.json). Matched-request comparison acceptance and native Replay/Evidence Pack mapping remain unestablished. No transmission performed.
 
 ## Native local export tooling
 

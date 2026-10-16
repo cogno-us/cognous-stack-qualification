@@ -2,7 +2,7 @@
 
 ## Serial qualification orchestration
 
-**BOUNDED LOCAL AND OPENAI PILOT CHECKS PASSED; EXPORT AND OPERATIONAL QUALIFICATION DEFERRED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T23:22:16.801167+00:00
+**BOUNDED LOCAL RERUN PASSED; RECIPROCAL SNAPSHOT EXPORT VERIFIED; NATIVE PRODUCER MAPPING AND OPERATIONAL QUALIFICATION DEFERRED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-16T17:56:58.163718+00:00
 
 Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. Full catalog acceptance remains unchanged.
 
@@ -16,7 +16,7 @@ Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. 
 
 Named local variant counts: `{"PASS": 36}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
 
-[Native evidence record](../results/serial/native-20261015/record.json) · [Serial packet and reproduction](serial-qualification.md)
+[Native evidence record](../results/serial/native-exchange-20261016/record.json) · [Serial packet and reproduction](serial-qualification.md)
 - EXPORT-MAPPING: Native local destination/approval records have no verified Replay or Evidence Pack producer mapping Owner: Artifact adapter maintainers. Resolution: Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output
 - OPERATIONAL-ASSURANCE: Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures Owner: Deployment owner. Resolution: Deployment-specific configuration and independent access evidence before operational claims
 
