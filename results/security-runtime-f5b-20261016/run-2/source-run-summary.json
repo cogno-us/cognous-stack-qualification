@@ -1,0 +1,135 @@
+{
+  "profile": {
+    "schema": "cognous.security-runtime-candidate/1",
+    "phase": "full",
+    "qualification_input_status": "merged_only",
+    "selected": false,
+    "reference_release_authorized": false,
+    "production_deployment_authorized": false,
+    "predecessor_profile": "process/security-runtime-candidate-20261016.json",
+    "suite_generation": "f5b",
+    "exchange_compatibility_profile": "security-runtime-f5b-20261016",
+    "additional_source_hashes": [
+      ".github/workflows/security-runtime-f5b-qualification.yml",
+      "tools/summarize_security_runtime.py"
+    ],
+    "components": {
+      "control_plane": {
+        "repository": "cogno-us/cognous-control-plane",
+        "revision": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5"
+      },
+      "runtime": {
+        "repository": "cogno-us/cognous-execution-runtime",
+        "revision": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+      },
+      "replay": {
+        "repository": "cogno-us/cognous-replay-bundle",
+        "revision": "79ba16d48b9be1e059b3045989c7df960c3df1c2"
+      },
+      "evidence_pack": {
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "revision": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3"
+      },
+      "odes": {
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "revision": "eb83220c82f942e429a5e3ef5f677fdd5057ef84"
+      },
+      "exchange": {
+        "repository": "cogno-us/cognous-governed-exchange",
+        "revision": "8be6c6b80da8c5038d66419f84c10cc529f78137"
+      },
+      "manifest": {
+        "repository": "cogno-us/cognous-action-manifest",
+        "revision": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e"
+      }
+    },
+    "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+    "limitations": [
+      "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+      "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+      "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+      "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+      "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+      "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement"
+    ]
+  },
+  "profile_file": "process/security-runtime-f5b-20261016.json",
+  "suite_generation": "f5b",
+  "exchange_compatibility_profile": "security-runtime-f5b-20261016",
+  "source_revisions": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+    }
+  },
+  "command": [
+    "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/suites/security-runtime",
+    "--junitxml=/home/runner/work/_temp/security-runtime-f5b/run-2/junit.xml",
+    "--basetemp=/home/runner/work/_temp/security-runtime-f5b/run-2/native"
+  ],
+  "returncode": 0,
+  "qualification_head": "8205469dd73d4c15e636749a84fa789822370785",
+  "raw_junit_counts": {
+    "testcase_elements": 36,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "expected_testcase_elements": 36,
+  "bounded_cases_passed": true,
+  "candidate_integration_passed": true,
+  "qualification_worktree_dirty": false,
+  "source_hashes": {
+    "process/security-runtime-f5b-20261016.json": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+    "tools/run_security_runtime.py": "cb10fbad80afd90adb180b4814f4f63ea1adc408581cdff304be0a33f2722d7c",
+    "suites/security-runtime/test_security_runtime_chain.py": "921296476480ae99e65cbb157b5fe4032fa4ffabb7a7624ea9c964a8301f4354",
+    ".github/workflows/security-runtime-f5b-qualification.yml": "67edbfbd1248a78b4596c93aebf27501ad6d0872966d8897bee28d5ad6ba723b",
+    "tools/summarize_security_runtime.py": "f669a0bf266e8cd1fad1c2e7e8b72ae0a5e1b66d3191726cf5160181e7a61d58"
+  },
+  "python": "3.12.15 (main, Oct  1 2026, 02:35:59) [GCC 13.3.0]",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "qualification_scope": "Actual components; synthetic fixtures; PR heads remain diagnostic until merged-source rerun",
+  "original_run_json_sha256": "b5a1c644efe17650a1d90951065ba04f45f4a467278193594fa6bab55ee28165",
+  "verified_original_member_count": 668,
+  "original_member_manifest_sha256": "4d0962990a602e575e7d90aa6fe8fe95147fb09c09e748559faf3ee679a8a35f",
+  "original_member_manifest_sha256_method": "SHA-256 of canonical JSON (sorted keys, compact separators) of run.json evidence map",
+  "members_reverified_in_job": true,
+  "retention_note": "Complete original member manifest and native files are in the workflow archive (not downloaded here); this is a source/run summary transmitted via job annotations, not a replacement raw manifest."
+}
