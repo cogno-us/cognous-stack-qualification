@@ -28,7 +28,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install --require-hashes -r _hub/tools/requirements-release.lock
-      - run: python tools/run_security_runtime.py --prepare-work --components _components --out results/security-runtime
+      - name: Repeat exact merged-source cases twice with fresh stores
+        run: |
+          python tools/run_security_runtime.py --prepare-work --components _components --out results/security-runtime/run-1
+          python tools/run_security_runtime.py --components _components --out results/security-runtime/run-2
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
