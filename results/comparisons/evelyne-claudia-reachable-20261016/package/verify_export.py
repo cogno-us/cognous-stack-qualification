@@ -98,33 +98,39 @@ def verify(root: Path, controls: bool):
 
     # (3) per-trial observation effect_count matches the per-scenario invariant,
     #     and destination-readback is internally consistent with observation.
+    # Byte-level failures (sha mismatch above) are reported first; here we only
+    # continue to semantic checks for files that still parse. If a byte flip
+    # survives (3) but corrupts JSON, we report it as "unparseable or unreadable"
+    # against this file alone and keep going — the script finishes with a clean
+    # VERIFY FAILED summary rather than a traceback.
+    def _safe_load(p, label):
+        try:
+            return _load_json(p)
+        except (json.JSONDecodeError, OSError) as e:
+            fail(f'{label}: unparseable or unreadable ({e.__class__.__name__})')
+            return None
     for trial in manifest.get('trials', []):
         scen = trial['scenario_id']; tid = trial['trial_id']
         base = root / 'scenarios' / scen / tid
-        obs = _load_json(base / 'observation.json')
+        obs = _safe_load(base / 'observation.json', f'{tid}/observation.json')
         exp = EXPECTED_OCCURRENCE[scen]
-        if obs['effect_occurrence_count'] != exp:
-            fail(f'{tid}: observation.effect_occurrence_count={obs["effect_occurrence_count"]} != {exp}')
+        if obs is not None and obs.get('effect_occurrence_count') != exp:
+            fail(f'{tid}: observation.effect_occurrence_count={obs.get("effect_occurrence_count")} != {exp}')
         # Contradiction control: destination readback must agree
-        drb = _load_json(base / 'destination' / 'destination-readback.json')
-        rows_in_state = 0
-        for t, info in drb.get('readback', {}).items():
-            if 'rows' in info:
-                rows_in_state += len(info['rows'])
-        # Executions table / effects table: at least one row for applied, zero for absent — rough but strict
-        # Rather than second-guess the schema, assert state consistency against the native observation.
-        dest_obs = _load_json(base / 'native' / 'destination-observation.json')
-        state_absent_or_applied = dest_obs.get('state')
-        if scen == 'D01' and state_absent_or_applied != 'applied':
-            fail(f'{tid}: D01 destination state should be applied, got {state_absent_or_applied}')
-        if scen in ('D03', 'C07') and state_absent_or_applied != 'absent':
-            fail(f'{tid}: {scen} destination state should be absent, got {state_absent_or_applied}')
+        drb = _safe_load(base / 'destination' / 'destination-readback.json', f'{tid}/destination-readback.json')
+        dest_obs = _safe_load(base / 'native' / 'destination-observation.json', f'{tid}/destination-observation.json')
+        if dest_obs is not None:
+            state_absent_or_applied = dest_obs.get('state')
+            if scen == 'D01' and state_absent_or_applied != 'applied':
+                fail(f'{tid}: D01 destination state should be applied, got {state_absent_or_applied}')
+            if scen in ('D03', 'C07') and state_absent_or_applied != 'absent':
+                fail(f'{tid}: {scen} destination state should be absent, got {state_absent_or_applied}')
         # Integrity check on exported snapshot
-        if drb.get('integrity_check') != ['ok']:
+        if drb is not None and drb.get('integrity_check') != ['ok']:
             fail(f'{tid}: PRAGMA integrity_check reports {drb.get("integrity_check")}')
         # F5b enforcement proof
-        enf = _load_json(base / 'native' / 'consumers' / 'f5b-enforcement.json')
-        if not enf.get('enforcement_demonstrated'):
+        enf = _safe_load(base / 'native' / 'consumers' / 'f5b-enforcement.json', f'{tid}/f5b-enforcement.json')
+        if enf is not None and not enf.get('enforcement_demonstrated'):
             fail(f'{tid}: f5b-enforcement.enforcement_demonstrated != true')
 
     # (4) tamper + contradiction controls (optional, default on)

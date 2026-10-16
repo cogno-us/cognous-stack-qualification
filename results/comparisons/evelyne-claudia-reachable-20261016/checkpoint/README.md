@@ -2,7 +2,7 @@
 
 Comparison id: `evelyne-claudia-reachable-20261016`
 Scope: Cognous Open Control Stack V1 frozen reference examined independently against
-the discipline Evelyne-Claudia Yantony proposed in her LinkedIn exchange:
+the discipline Evelyne-Claudia Yantony proposed in the public thread she posted:
 
 > Freeze independently. Execute independently. Observe independently. Find independently. Compare afterward.
 > Correspondence permits comparison; it does not transfer proof.
@@ -10,7 +10,9 @@ the discipline Evelyne-Claudia Yantony proposed in her LinkedIn exchange:
 This checkpoint is Cognous's independent examination at the configuration level. It is
 **not** REACHABLE™'s assessment, does **not** advance any Cognous scenario verdict for
 her, and does **not** import REACHABLE labels (DEMONSTRATED / CONTRADICTED / UNRESOLVED
-are REACHABLE's to assign; Cognous does not produce them).
+are REACHABLE's to assign; Cognous does not produce them). It is also independent of
+any parallel independently-run comparison or external-model-driven run proceeding
+elsewhere.
 
 ## Reference pins (frozen)
 

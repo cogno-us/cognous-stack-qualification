@@ -72,7 +72,7 @@ each category needs. The crosswalk file names field locations exactly.
 
 ## What Cognous established (as the executor of its own examination)
 
-1. **D01 (`valid`), six-of-six trial halves on the baseline**: a single intended
+1. **D01 (`valid`), two of two trials on the baseline**: a single intended
    effect was committed; destination state=`applied`; effect-count=1; executor
    reached writer entry; result status=`authorized`. Observed via local
    in-process oracle plus post-run read-only SQLite snapshot.

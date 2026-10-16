@@ -58,7 +58,7 @@
 - The package will not be sent anywhere. "Ready to share" is distinct from "sent";
   transmission requires separate explicit instruction identifying recipient and
   channel.
-- The package will not import Jerry's bundle or any ChatGPT output.
+- The package will not import a parallel independently-run comparison or any external-model-driven run.
 - The package will not claim interoperability acceptance or any REACHABLE verdict.
 
 ## Phase 0 verdict
