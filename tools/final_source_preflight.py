@@ -14,6 +14,9 @@ from pathlib import Path
 import subprocess
 import sys
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from pristine_checkout import require_pristine
+
 
 def git(path, *args):
     return subprocess.check_output(['git', '-C', str(path), *args], text=True).strip()
@@ -40,10 +43,7 @@ def main():
     pins = {}
     for name, spec in profile['components'].items():
         path = work/name
-        actual = git(path, 'rev-parse', 'HEAD')
-        dirty = git(path, 'status', '--porcelain', '--untracked-files=all')
-        if actual != spec['sha'] or dirty:
-            raise ValueError(f'Unclean or mismatched source: {name}')
+        actual = require_pristine(path, spec['sha'], f'Unclean or mismatched source: {name}')
         pins[name] = {'repository': spec['repository'], 'sha': actual,
                       'tree': git(path, 'rev-parse', 'HEAD^{tree}')}
     for relative in ('control_plane/src', 'moltbot_safe', 'replay_bundle/src',

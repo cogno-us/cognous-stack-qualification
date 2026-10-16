@@ -13,6 +13,7 @@ import time
 from openai_agent_pilot import OpenAIHTTP, OpenAILedger, MODEL
 from claude_agent_pilot import PilotError
 from trajectory_contract import ROOT, digest
+from pristine_checkout import require_pristine
 
 CONFIG=ROOT/'qualification/serial/prp-openai-20261015.json'
 FILES=['SKILL.md','references/prp-core.md','references/runtime-control.md','references/source-lineage.md']
@@ -98,7 +99,9 @@ def main():
     ap=argparse.ArgumentParser();ap.add_argument('--prp',type=Path,required=True);ap.add_argument('--output',type=Path,required=True);ap.add_argument('--execute',action='store_true');a=ap.parse_args()
     c=validate(json.loads(CONFIG.read_text()));prp=a.prp.resolve();out=a.output.resolve()
     if out.exists() or out.is_relative_to(ROOT) or out.is_relative_to(prp):ap.error('Use a new output directory outside checkouts')
-    if subprocess.check_output(['git','-C',str(prp),'rev-parse','HEAD'],text=True).strip()!=c['prp_commit']:ap.error('PRP pin mismatch')
+    # The scorer below is executed in this process; HEAD alone does not bind its bytes.
+    try:require_pristine(prp,c['prp_commit'],'PRP')
+    except ValueError as exc:ap.error(str(exc))
     out.mkdir(parents=True)
     paths=FILES+['evaluations/paired-case.json','tools/paired_evaluation.py']
     sources={p:hashlib.sha256((prp/p).read_bytes()).hexdigest() for p in paths}
