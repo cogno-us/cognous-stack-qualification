@@ -266,7 +266,7 @@ def cmd_component_suite(args):
             rc, freeze, _, _ = run([py, "-m", "pip", "freeze"], repo, 120, fh)
             if attempt == 1:
                 (out / "pip-freeze.txt").write_text(freeze, encoding="utf-8")
-            junit = out / f"junit-attempt{attempt}.xml"
+            junit = out.resolve() / f"junit-attempt{attempt}.xml"
             if not test_files:
                 rec.update(outcome="NOT RUN", reason="no test_*.py discovered in this component at the pinned commit")
                 result["attempts"].append(rec)
