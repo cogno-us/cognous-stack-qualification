@@ -332,8 +332,10 @@ def test_replay_findings_and_redaction_derivation_are_preserved():
     bundle["derivation"] = {"relationship": "redacted_derivative", "source_bundle_id": "source-1", "derived_at": "2026-10-05T00:00:00Z"}
     pack = import_manifest_reconstruction(_manifest(), bundle)
     trace = pack.metadata["traceable_import"]
-    assert trace["redaction_state"]["redacted"] is True
-    assert trace["redaction_state"]["source"] in {"source_status_redacted", "source_derivation_redacted_derivative"}
+    assert trace["redaction_state"]["redacted"] is False
+    assert trace["redaction_state"]["derivation"] == bundle["derivation"]
+    assert pack.replay_bundles[0].redacted is False
+    assert trace["redaction_state"]["source"] == "unverified_source_claim"
     assert trace["replay_import_reports"]
     assert any(item["code"].startswith("REPLAY_") for item in trace["import_findings"])
 

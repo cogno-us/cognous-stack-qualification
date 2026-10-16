@@ -27,10 +27,10 @@ jobs:
         - '3.11'
         - '3.12'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/open-decision-evidence-standard
-        ref: ${{ inputs.source_revision || '25c7ad608c2e6fd9f450e075db6bbf3ee4091a49' }}
+        ref: ${{ inputs.source_revision || 'cb1898f2514d02e5a824607db3e0b941774cdd39' }}
         persist-credentials: false
     - name: Checkout canonical qualification suite
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -44,55 +44,55 @@ jobs:
       run: python3 _qualification/tools/install_suite.py --suite open-decision-evidence-standard --source-root "."
         --evidence "qualification-evidence/test.json"
     - name: Checkout pinned Manifest
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-action-manifest
         ref: 46c950bed37fe3812000895430bc0312d29e37ce
         path: external/manifest
     - name: Checkout pinned Authority Context
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-institutional-governance
         ref: fb3d97938969a89e149e8ff8db2756091d1233fc
         path: external/alvorada
     - name: Checkout pinned Control Plane
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-control-plane
         ref: 283500652d47a692fb0b99a1172a6d5faffbd9a7
         path: external/control-plane
     - name: Checkout pinned Moltbot Safe
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-execution-runtime
         ref: 1d308faf664c504b6e310db3c7a310153ef7b067
         path: external/moltbot-safe
     - name: Checkout pinned Replay
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-replay-bundle
         ref: f63ce914504dd06813c4ccd199b0570dbd8dd427
         path: external/replay
     - name: Checkout accepted Replay persistence mapping
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-replay-bundle
         ref: 043830b56595cecddfa65c064afd1c0b95e64792
         path: external/replay-v2
     - name: Checkout accepted Control Plane persistence repair
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-control-plane
         ref: 248d899634d9db3518e831bc7ab568a48733f825
         path: external/control-plane-v2
     - name: Checkout accepted executor producer 2.0.0
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-execution-runtime
         ref: 177354e959cc78c59c1a776f018cfbfbf28c927b
         path: external/moltbot-v2
     - name: Checkout pinned Governance Evidence Pack
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-governance-evidence-pack
         ref: c699c1fb7c4f8057631c4e5909d11a721c2c958d
@@ -118,7 +118,7 @@ jobs:
 
         '
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install package and pinned Replay validator
@@ -164,18 +164,20 @@ jobs:
         \ /tmp/odes-package.json\npython - <<'PY'\nimport json\npackage = json.load(open('/tmp/odes-package.json'))\n\
         policy = {\n    'supported_profiles': ['odes_cognous_stack_export_0_1'],\n    'relying_party': 'recipient.example.org',\n\
         \    'purpose': 'audit',\n    'evaluation_scope': 'recipient_reliance',\n    'status_max_age_seconds': 300,\n\
-        \    'now': '2026-10-06T00:00:00Z',\n    'trusted_digests': [package['package_digest']],\n    'trusted_key_refs':\
-        \ [],\n    'allow_unauthenticated_informational_inspection': True,\n    'status_inputs': {\n        'record_id':\
-        \ package['record']['decision_id'],\n        'authority_basis': package['record']['authority']['authority_basis'],\n\
-        \        'evaluation_scope': 'recipient_reliance',\n        'evaluated_at': '2026-10-06T00:00:00Z',\n  \
-        \      'evidence_freshness': 'current',\n        'freshness': 'current',\n        'revoked': False,\n  \
-        \      'superseded': False,\n        'authority_valid_at_decision_verified': True,\n    },\n}\njson.dump(policy,\
-        \ open('/tmp/recipient-policy.json', 'w'), sort_keys=True)\nPY\nodes recipient-validate /tmp/odes-package.json\
-        \ --policy /tmp/recipient-policy.json --out /tmp/odes-recipient-result.json\npython - <<'PY'\nimport json\n\
-        result = json.load(open('/tmp/odes-recipient-result.json'))\nassert result['schema_validity']['status']\
+        \    'now': '2026-10-06T00:00:00Z',\n    'trusted_issuer': dict(package['record']['issuer']),\n    'jurisdiction':\
+        \ package['record']['risk_coordinates']['jurisdiction'],\n    'trusted_digests': [package['package_digest']],\n\
+        \    'trusted_key_refs': [],\n    'allow_unauthenticated_informational_inspection': True,\n    'status_inputs':\
+        \ {\n        'issuer': dict(package['record']['issuer']),\n        'record_id': package['record']['decision_id'],\n\
+        \        'authority_basis': package['record']['authority']['authority_basis'],\n        'evaluation_scope':\
+        \ 'recipient_reliance',\n        'evaluated_at': '2026-10-06T00:00:00Z',\n        'evidence_freshness':\
+        \ 'current',\n        'freshness': 'current',\n        'revoked': False,\n        'superseded': False,\n\
+        \        'authority_valid_at_decision_verified': True,\n    },\n}\njson.dump(policy, open('/tmp/recipient-policy.json',\
+        \ 'w'), sort_keys=True)\nPY\nset +e\nodes recipient-validate /tmp/odes-package.json --policy /tmp/recipient-policy.json\
+        \ --out /tmp/odes-recipient-result.json\nrecipient_exit=$?\nset -e\ntest \"$recipient_exit\" = 1\npython\
+        \ - <<'PY'\nimport json\nresult = json.load(open('/tmp/odes-recipient-result.json'))\nassert result['schema_validity']['status']\
         \ == 'pass'\nassert result['package_content_integrity']['status'] == 'pass'\nassert result['integrity_authentication_checks']['status']\
-        \ == 'unavailable'\nassert result['authority_status_and_freshness']['status'] == 'pass'\nassert result['recipient_reliance_decision']['status']\
-        \ == 'informational_only'\nPY\n"
+        \ == 'unavailable'\nassert result['authority_status_and_freshness']['status'] == 'pass'\nassert result['consumption_conditions']['status']\
+        \ == 'fail'\nassert result['recipient_reliance_decision']['status'] == 'fail'\nPY\n"
     - name: Generate actual producer 2.0.0 qualification artifacts
       env:
         ODES_V2_REPLAY_ROOT: external/replay-v2
@@ -183,7 +185,7 @@ jobs:
         ARB_V2_MOLTBOT_ROOT: external/moltbot-v2
         ARB_PINNED_MANIFEST_FIXTURE: external/manifest/examples/refund_integration_v1_1.manifest.json
       run: python scripts/qualify_producer_v2.py generated-producer-v2
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
         name: odes-producer-v2-${{ github.sha }}-py${{ matrix.python-version }}
         path: generated-producer-v2/*.json

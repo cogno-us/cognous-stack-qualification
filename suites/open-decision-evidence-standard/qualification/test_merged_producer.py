@@ -158,8 +158,8 @@ def test_public_cli_roundtrip(produced,tmp_path):
     assert main(['validate-record',str(out)]) == 0
     p=tmp_path/'policy.json'; result=tmp_path/'recipient.json'
     p.write_text(json.dumps(policy(json.loads(out.read_text()))))
-    assert main(['recipient-validate',str(out),'--policy',str(p),'--out',str(result)]) == 0
-    assert json.loads(result.read_text())['recipient_reliance_decision']['status'] == 'informational_only'
+    assert main(['recipient-validate',str(out),'--policy',str(p),'--out',str(result)]) == 1
+    assert json.loads(result.read_text())['recipient_reliance_decision']['status'] == 'fail'
 
 
 def test_repaired_package_cannot_be_relabeled_historical(produced):
@@ -182,8 +182,14 @@ def test_generated_lifecycle_packages():
         validate_record(package['record'])
         result = evaluate_recipient_package(package, policy(package))
         assert result['package_content_integrity']['status'] == 'pass'
-        assert result['replay_semantic_consistency']['status'] == 'pass'
-        assert result['recipient_reliance_decision']['status'] == 'informational_only'
+        assert result['replay_semantic_consistency']['status'] == 'fail'
+        assert result['recipient_reliance_decision']['status'] == 'fail'
+        sources = package['provenance']['retained_sources']
+        refreshed = export_cognous_stack_package(sources['manifest'], sources['reconstruction_bundle'])
+        checked = evaluate_recipient_package(refreshed, policy(refreshed))
+        assert checked['replay_semantic_consistency']['status'] == 'pass'
+        assert checked['consumption_conditions']['status'] == 'fail'
+        assert checked['recipient_reliance_decision']['status'] == 'fail'
         replay = package['provenance']['retained_sources']['reconstruction_bundle']
         assert package['provenance']['source_artifacts']['reconstruction_bundle_digest'] == sha256(replay)
 

@@ -34,10 +34,10 @@ jobs:
         - '3.11'
         - '3.12'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/open-decision-evidence-standard
-        ref: ${{ inputs.source_revision || '25c7ad608c2e6fd9f450e075db6bbf3ee4091a49' }}
+        ref: ${{ inputs.source_revision || 'cb1898f2514d02e5a824607db3e0b941774cdd39' }}
         persist-credentials: false
     - name: Checkout canonical qualification suite
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -50,27 +50,27 @@ jobs:
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite open-decision-evidence-standard --source-root "."
         --evidence "qualification-evidence/qualify-linux.json"
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-action-manifest
         ref: 46c950bed37fe3812000895430bc0312d29e37ce
         path: upstream/manifest
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-replay-bundle
         ref: 459e4ba62fca49364aebb0050cd5fb2dd5a71bfa
         path: upstream/replay
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-control-plane
         ref: d3dadee70bd319812b207389ab1e0f6efe511916
         path: upstream/control-plane
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-execution-runtime
         ref: c3c3ee7188b9367cf70b08074b9c40a5c70c94ac
         path: upstream/executor
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
       with:
         python-version: ${{ matrix.python }}
     - name: Install bounded qualification dependencies
@@ -89,7 +89,7 @@ jobs:
         --junitxml=artifacts/junit.xml
 
         '
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       if: always()
       with:
         name: merged-producers-${{ github.sha }}-py${{ matrix.python }}

@@ -95,6 +95,7 @@ def _accepted_success(tmp_path):
 
 def _trusted_status(package: dict, **overrides) -> dict:
     value = {
+        "issuer": copy.deepcopy(package["record"]["issuer"]),
         "record_id": package["record"]["decision_id"],
         "authority_basis": package["record"]["authority"]["authority_basis"],
         "evaluation_scope": "recipient_reliance",
@@ -115,6 +116,8 @@ def _policy(package: dict, **overrides) -> dict:
         "relying_party": "recipient.example.org",
         "purpose": "audit",
         "now": "2026-10-06T00:00:00Z",
+        "trusted_issuer": copy.deepcopy(package["record"]["issuer"]),
+        "jurisdiction": package["record"]["risk_coordinates"]["jurisdiction"],
         "trusted_digests": [package["package_digest"]],
         "trusted_key_refs": [],
         "status_inputs": _trusted_status(package),
@@ -149,7 +152,8 @@ def test_accepted_profile_success_exports_without_promoting_provenance(tmp_path)
     result = evaluate_recipient_package(package, _policy(package))
     assert result["package_content_integrity"]["status"] == "pass"
     assert result["integrity_authentication_checks"]["status"] == "unavailable"
-    assert result["recipient_reliance_decision"]["status"] == "informational_only"
+    assert result["recipient_reliance_decision"]["status"] == "fail"
+    assert result["consumption_conditions"]["status"] == "fail"
 
 
 def test_accepted_profile_reconciliation_preserves_attempt_namespaces(tmp_path):

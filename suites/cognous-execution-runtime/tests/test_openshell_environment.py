@@ -186,13 +186,14 @@ def test_cli_contract_uses_constant_argv_and_stdin(monkeypatch, tmp_path):
     calls = []
     def run(argv, **kwargs):
         calls.append((argv, kwargs))
-        return subprocess.CompletedProcess(argv, 0, stdout='{}')
-    monkeypatch.setattr(subprocess, 'run', run)
+        return '{}'
+    monkeypatch.setattr('engine.openshell_environment._bounded_cli_output', run)
     cli.invoke(config(), {'payload': '$(touch /tmp/no); ; malicious'})
     argv, kw = calls[0]
     assert argv[-len(COMMAND):] == list(COMMAND)
     assert '--no-login-shell' in argv and 'BASH_ENV=/dev/null' in argv
-    assert kw['shell'] is False and 'malicious' in kw['input']
+    assert 'malicious' in kw['stdin']
+    assert kw['timeout'] == config().timeout_seconds + 15
     assert not any('malicious' in a for a in argv)
     assert set(kw['env']) == {'HOME','PATH','XDG_CONFIG_HOME'}
 

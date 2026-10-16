@@ -29,10 +29,10 @@ jobs:
         - '3.11'
         - '3.12'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-governance-evidence-pack
-        ref: ${{ inputs.source_revision || '1e789c7d67a897097445faef1813fb0cd22d55e5' }}
+        ref: ${{ inputs.source_revision || '201e5b5c0e173b0645622ef294f7b41dc40e87e4' }}
         persist-credentials: false
     - name: Checkout canonical qualification suite
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -46,37 +46,37 @@ jobs:
       run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
         "." --evidence "qualification-evidence/test.json"
     - name: Checkout pinned Manifest
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-action-manifest
         ref: 46c950bed37fe3812000895430bc0312d29e37ce
         path: upstream/manifest
     - name: Checkout pinned Replay
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-replay-bundle
         ref: f63ce914504dd06813c4ccd199b0570dbd8dd427
         path: upstream/replay
     - name: Checkout pinned Control Plane
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-control-plane
         ref: 283500652d47a692fb0b99a1172a6d5faffbd9a7
         path: upstream/control-plane
     - name: Checkout pinned Moltbot Safe
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-execution-runtime
         ref: 1d308faf664c504b6e310db3c7a310153ef7b067
         path: upstream/moltbot-safe
     - name: Checkout pinned ODES
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/open-decision-evidence-standard
         ref: cba83a1c06f718a8afd76178f36e5cc15896347d
         path: upstream/odes
     - name: Checkout accepted GAX IMX reference
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-governed-exchange
         ref: 6bcde026a804c7377f5e39f57ca6dd00b3c3292d
@@ -96,7 +96,7 @@ jobs:
 
         '
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install pinned Replay validator and package with dev extras
@@ -140,25 +140,25 @@ jobs:
 
         '
     - name: Checkout accepted Replay
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-replay-bundle
         ref: 274543f1cd7171784a923a8e37015017a0d8bc9d
         path: upstream/replay-v2
     - name: Checkout accepted ODES
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/open-decision-evidence-standard
         ref: 226adb0e3cde5377ac9db6f7e5857bfa7e65e30a
         path: upstream/odes-v2
     - name: Checkout accepted Control Plane
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-control-plane
         ref: 2ea9528eeb87e14ff10f05de06473122b9df540f
         path: upstream/cp-v2
     - name: Checkout accepted executor
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-execution-runtime
         ref: 177354e959cc78c59c1a776f018cfbfbf28c927b
@@ -181,18 +181,18 @@ jobs:
         agep check-examples
 
         '
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
         name: agep-producer-v2-${{ github.sha }}-py${{ matrix.python-version }}
         path: /tmp/agep-producer-v2/*
     - name: Checkout accepted Replay persistence compatibility
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-replay-bundle
         ref: 043830b56595cecddfa65c064afd1c0b95e64792
         path: upstream/replay-store
     - name: Checkout accepted Control Plane persistence repair
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-control-plane
         ref: 248d899634d9db3518e831bc7ab568a48733f825

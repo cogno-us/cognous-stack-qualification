@@ -20,8 +20,10 @@ def policy(package):
         'purpose': 'audit', 'now': '2026-10-06T00:00:00Z',
         'status_max_age_seconds': 300, 'evaluation_scope': 'recipient_reliance',
         'allow_unauthenticated_informational_inspection': True,
+        'trusted_issuer': dict(package['record']['issuer']),
+        'jurisdiction': package['record']['risk_coordinates']['jurisdiction'],
         'trusted_digests': [package['package_digest']], 'trusted_key_refs': [],
-        'status_inputs': {'record_id': package['record']['decision_id'],
+        'status_inputs': {'issuer': dict(package['record']['issuer']), 'record_id': package['record']['decision_id'],
             'authority_basis': package['record']['authority']['authority_basis'],
             'evaluation_scope': 'recipient_reliance', 'evaluated_at': '2026-10-06T00:00:00Z',
             'evidence_freshness': 'current', 'freshness': 'current', 'revoked': False,
@@ -50,10 +52,10 @@ def main(output):
         assert recipient['replay_semantic_consistency']['status'] == 'pass', recipient
         assert recipient['package_content_integrity']['status'] == 'pass'
         assert recipient['integrity_authentication_checks']['status'] == 'unavailable'
-        if package['record']['authority']['authority_valid_at_decision']:
-            assert recipient['recipient_reliance_decision']['status'] == 'informational_only'
-        else:
-            assert recipient['recipient_reliance_decision']['status'] != 'pass'
+        # These actual historical producers retain no explicit use restrictions.
+        # Keep their exact source bytes; missing evidence must not become permission.
+        assert recipient['consumption_conditions']['status'] == 'fail'
+        assert recipient['recipient_reliance_decision']['status'] == 'fail'
         assert package['provenance']['source_artifacts']['reconstruction_bundle_id'] == bundle.bundle_id
         assert package['provenance']['source_artifacts']['reconstruction_bundle_digest'] == sha256(source)
         assert package['provenance']['retained_sources']['reconstruction_bundle'] == source
