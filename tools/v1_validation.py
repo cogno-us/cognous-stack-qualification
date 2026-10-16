@@ -222,6 +222,8 @@ def retain_log(text: str, dest: Path):
 
 def cmd_component_suite(args):
     repo = Path(args.repo_dir).resolve()
+    if args.fetch:
+        fetch_exact(repo, args.repository, args.sha)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     actual = git(repo, "rev-parse", "HEAD")
@@ -376,6 +378,7 @@ def main():
     for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name"):
         p.add_argument(a, required=True)
     p.add_argument("--timeout", type=int, default=300)
+    p.add_argument("--fetch", action="store_true", help="fetch the exact pinned commit into --repo-dir first")
     p.set_defaults(fn=cmd_component_suite)
     p = sub.add_parser("aggregate")
     p.add_argument("--inputs", required=True); p.add_argument("--out", required=True)

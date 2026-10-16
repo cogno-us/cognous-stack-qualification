@@ -81,17 +81,15 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           cache: ''
-      # Untrusted pinned component code is fetched last, after every cache-capable
-      # step, and no cache is ever restored or saved in this job.
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-        with:
-          repository: ${{ matrix.repository }}
-          ref: ${{ matrix.sha }}
-          path: c
-          persist-credentials: false
-      - name: Discover and run the component's own tests at its pinned commit
+      - name: Fetch the exact pinned commit, then discover and run the component's own tests
         shell: bash
-        run: python q/tools/v1_validation.py component-suite --component "${{ matrix.component }}" --repository "${{ matrix.repository }}" --sha "${{ matrix.sha }}" --repo-dir c --out out --os-name "${{ matrix.os }}" --timeout "${{ matrix.timeout }}"
+        env:
+          COMPONENT: ${{ matrix.component }}
+          REPOSITORY: ${{ matrix.repository }}
+          PIN_SHA: ${{ matrix.sha }}
+          RUNNER_OS_NAME: ${{ matrix.os }}
+          SUITE_TIMEOUT: ${{ matrix.timeout }}
+        run: python q/tools/v1_validation.py component-suite --fetch --component "$COMPONENT" --repository "$REPOSITORY" --sha "$PIN_SHA" --repo-dir c --out out --os-name "$RUNNER_OS_NAME" --timeout "$SUITE_TIMEOUT"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
