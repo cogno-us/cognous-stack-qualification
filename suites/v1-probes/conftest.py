@@ -18,11 +18,17 @@ MODULE_ENV = {
     "test_evidence_pack_probes.py": "PROBE_EVIDENCE_PACK_DIR",
     "test_odes_probes.py": "PROBE_ODES_DIR",
     "test_control_plane_probes.py": "PROBE_CONTROL_PLANE_DIR",
+    "test_action_manifest_probes.py": "PROBE_ACTION_MANIFEST_DIR",
+    "test_odes_extension_probes.py": "PROBE_ODES_DIR",
+    "test_provenance_probes.py": "PROBE_PINS_DIR",
 }
+# Env vars whose directory must NOT be put on sys.path: documentation/provenance probes read files only, and PROBE_PINS_DIR is
+# a directory of several checkouts, not a package root.
+NO_SYSPATH = {"PROBE_ACTION_MANIFEST_DIR", "PROBE_PINS_DIR"}
 collect_ignore = [m for m, v in MODULE_ENV.items() if not os.environ.get(v)]
 
 INDEX_DIR = os.environ.get("PROBE_INDEX_DIR")
-for _var in sorted(set(MODULE_ENV.values())):
+for _var in sorted(set(MODULE_ENV.values()) - NO_SYSPATH):
     _d = os.environ.get(_var)
     if _d:
         # src-layout packages expose their code under src/; flat repos under the root.

@@ -292,12 +292,18 @@
    "id": "ER-04-4",
    "source": "docx §04 Agent Action Manifest",
    "text": "Any schema change has migration notes",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no executed check of migration notes; tools/validate_migrations.py scope not mapped to this component",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "probes-action-manifest",
+     "re": "probe_er044",
+     "min": 3
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "process check over the few schema-changing PRs in history; two had notes only outside the same PR (recorded as timing gaps)"
   },
   {
    "id": "ER-05-1",
@@ -670,12 +676,17 @@
    "id": "ER-09-3",
    "source": "docx §09 Open Decision Evidence Standard",
    "text": "Effect/attempt extensions are clearly proposed and separately versioned",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "document-review item; no executed check",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "probes-odes",
+     "re": "probe_er093",
+     "min": 5
+    }
+   ],
+   "adequacy": "adequate"
   },
   {
    "id": "ER-11",
@@ -796,12 +807,18 @@
    "id": "SR-3",
    "source": "docx Shared implementation requirements",
    "text": "Public repositories do not acquire proprietary ISS or private IGPG logic",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no executed provenance scan of the pinned public sources for proprietary logic",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "provenance-scan",
+     "re": "probe_sr3",
+     "min": 4
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "lexical screen of 12 pinned public repos only; optional components not scanned; not a semantic review of logic"
   },
   {
    "id": "SC-MATCHED",
