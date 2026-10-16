@@ -1,0 +1,27 @@
+{
+  "scenario_id": "C07",
+  "trial_id": "ec-C07-t2",
+  "attempt_id": "7ad253df-d41c-4a42-b0c5-1d05b03c4017",
+  "decision_id": "c8346690-1bf1-4ad3-8f80-377613ff5302",
+  "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+  "writer_entry": {
+    "attempted": true,
+    "invoked_destination_commit": true,
+    "ack_shape": {},
+    "ack_classification": "writer attempted; destination refused effective-grant change at commit; no durable row"
+  },
+  "dispatch_event": {
+    "invoked": true,
+    "control_plane_evidence_present": true
+  },
+  "retry_or_reconciliation": {
+    "reconciliation_result": "observed_absent",
+    "retry_eligible": false
+  },
+  "current_authority_check_at_effect_time": {
+    "performed": true,
+    "outcome": "current authority present at check; mutated between check and commit (C0 residual race)"
+  },
+  "historical_acknowledgement_preserved_as_unknown": false,
+  "notes": "UNKNOWN acknowledgement is a D04 recovery concern; not exercised in this bounded comparison (D04 excluded by Evelyne-Claudia for this round)."
+}

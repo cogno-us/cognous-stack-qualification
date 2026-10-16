@@ -1,0 +1,35 @@
+{
+  "scenario_id": "D01",
+  "trial_id": "ec-D01-t1",
+  "raw_destination_readback": {
+    "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+    "state": "applied",
+    "destination_state": {
+      "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+      "state": "applied",
+      "grant_id": "urn:cognous:grant:routine-1",
+      "target": "urn:cognous:synthetic-account:customer-001",
+      "amount": 50.0,
+      "unit": "USD",
+      "payload": {
+        "customer_id": "customer-001",
+        "refund_reason": "duplicate"
+      },
+      "operation_digest": "sha256:ffcad4c587ea3a81df49e9b2c5d3ee817a929d07356d8704db82c1b9c70af175"
+    }
+  },
+  "effect_occurrence_count": 1,
+  "destination_state_version": null,
+  "observer_route": "EffectiveGrantDestination.observe() \u2192 same in-process SQLite file as writer",
+  "access_separation": "none \u2014 same OS user, same Python process, same destination object",
+  "trust_boundary_label": "local synthetic oracle (NOT an independent external witness)",
+  "consistency": "read-after-close: destination.observe called after executor.execute returns",
+  "horizon": "bounded by test teardown; delayed commits after teardown cannot be detected by this observer",
+  "blind_spots": [
+    "out-of-process writer that bypasses the executor path entirely",
+    "commits landing after teardown",
+    "storage-layer corruption not exposed to PRAGMA integrity_check during execution (checked only on exported snapshot in destination/)",
+    "external principals observing side-channels this observer does not see"
+  ],
+  "snapshot_integrity_check_on_export": "see destination/destination-readback.json#integrity_check"
+}

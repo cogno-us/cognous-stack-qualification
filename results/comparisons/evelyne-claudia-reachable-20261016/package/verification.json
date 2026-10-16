@@ -1,0 +1,22 @@
+{
+  "verifier": "verify_export.py",
+  "verifier_source_sha256": "4c91abb43cc5fb610ff9242f332fee43eda570b4d44f28299a1f928a0a247e10",
+  "ran_from": "clean recipient-style copy at /tmp/.../recipient-copy",
+  "python": "3.13.16",
+  "python_flags": ["-I (isolated mode: ignore PYTHON* envs and user site-packages)"],
+  "exit_code": 0,
+  "stdout": "tamper control OK: hash of scenarios/C07/ec-C07-t1/destination/destination-readback.json changed as expected\ncontradiction control OK: altered observation detected under the invariant check\nVERIFY OK\n",
+  "controls": {
+    "tamper_control_passed": true,
+    "contradiction_control_passed": true
+  },
+  "checks_this_verifier_cannot_perform": [
+    "re-executing the effect (writer not invoked)",
+    "contacting production or acquiring credentials",
+    "writing to the supplied destination",
+    "independently witnessing the original execution — only reverifies frozen bytes and self-consistency",
+    "assigning REACHABLE DEMONSTRATED/CONTRADICTED/UNRESOLVED verdicts — those are REACHABLE's",
+    "verifying issuer-side authority authenticity (F5b profile does not sign revocations)"
+  ],
+  "disposition": "package_byte_integrity_PASS self_consistency_PASS; interoperability_acceptance_and_REACHABLE_verdict_NOT_ASSERTED"
+}

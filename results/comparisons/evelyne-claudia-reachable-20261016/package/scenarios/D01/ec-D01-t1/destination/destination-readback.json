@@ -1,0 +1,126 @@
+{
+  "snapshot_path": "destination-snapshot.sqlite3",
+  "integrity_check": [
+    "ok"
+  ],
+  "readback": {
+    "effects": {
+      "columns": [
+        "effect_id",
+        "operation_digest",
+        "grant_id",
+        "target",
+        "amount",
+        "unit",
+        "payload_json",
+        "state"
+      ],
+      "rows": [
+        [
+          "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+          "sha256:ffcad4c587ea3a81df49e9b2c5d3ee817a929d07356d8704db82c1b9c70af175",
+          "urn:cognous:grant:routine-1",
+          "urn:cognous:synthetic-account:customer-001",
+          50.0,
+          "USD",
+          "{\"customer_id\":\"customer-001\",\"refund_reason\":\"duplicate\"}",
+          "applied"
+        ]
+      ]
+    },
+    "attempts": {
+      "columns": [
+        "attempt_id",
+        "effect_id",
+        "decision_id",
+        "operation_digest",
+        "created_at"
+      ],
+      "rows": [
+        [
+          "e37032a0-d941-4b35-8255-52f170079df5",
+          "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+          "86228188-e7aa-4f77-ba56-ea06a996cb56",
+          "sha256:ffcad4c587ea3a81df49e9b2c5d3ee817a929d07356d8704db82c1b9c70af175",
+          1792177030.5794098
+        ]
+      ]
+    },
+    "attempt_events": {
+      "columns": [
+        "event_id",
+        "attempt_id",
+        "status",
+        "error",
+        "created_at"
+      ],
+      "rows": [
+        [
+          1,
+          "e37032a0-d941-4b35-8255-52f170079df5",
+          "attempted",
+          null,
+          1792177030.5806167
+        ],
+        [
+          2,
+          "e37032a0-d941-4b35-8255-52f170079df5",
+          "executed",
+          null,
+          1792177030.5829856
+        ]
+      ]
+    },
+    "sqlite_sequence": {
+      "columns": [
+        "name",
+        "seq"
+      ],
+      "rows": [
+        [
+          "attempt_events",
+          2
+        ]
+      ]
+    },
+    "failure_records_v1": {
+      "columns": [
+        "failure_id",
+        "decision_id",
+        "effect_id",
+        "attempt_id",
+        "proposal_commitment",
+        "manifest_version",
+        "manifest_digest",
+        "grant_id",
+        "grant_revision",
+        "failure_class",
+        "reason_code",
+        "stage",
+        "detail",
+        "created_at"
+      ],
+      "rows": []
+    },
+    "effective_grants_v1": {
+      "columns": [
+        "grant_id",
+        "principal",
+        "digest",
+        "derivation",
+        "status"
+      ],
+      "rows": [
+        [
+          "urn:cognous:grant:routine-1",
+          "urn:cognous:principal:refund-service",
+          "sha256:4b43b997e7a5dc9b70f51ffa8917eaeb79f7df04f108f81a90e0997de3602b31",
+          "effective-grant/0.1",
+          "active"
+        ]
+      ]
+    }
+  },
+  "snapshot_method": "sqlite3 backup API from executor-written refunds.sqlite3",
+  "trust_boundary": "local synthetic oracle \u2014 same OS user as writer during execution; snapshot taken after writer exit"
+}
