@@ -1,0 +1,53 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "predecessor_profile": "process/security-runtime-candidate-20261016.json",
+  "suite_generation": "f5b",
+  "exchange_compatibility_profile": "security-runtime-f5b-20261016",
+  "additional_source_hashes": [
+    ".github/workflows/security-runtime-f5b-qualification.yml"
+  ],
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "79ba16d48b9be1e059b3045989c7df960c3df1c2"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "eb83220c82f942e429a5e3ef5f677fdd5057ef84"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "8be6c6b80da8c5038d66419f84c10cc529f78137"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e"
+    }
+  },
+  "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+  "limitations": [
+    "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+    "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+    "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement"
+  ]
+}

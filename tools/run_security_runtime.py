@@ -2,6 +2,8 @@
 
 SPDX-License-Identifier: Apache-2.0
 Candidate execution never selects or authorizes a release.
+The default profile is the historical F3 candidate; later generations are
+selected with --profile so earlier retained evidence stays reproducible.
 """
 from __future__ import annotations
 import argparse
@@ -15,6 +17,10 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE = ROOT/'process/security-runtime-candidate-20261016.json'
+# Defaults reproduce the historical F3 run when a profile omits these fields.
+DEFAULT_EXCHANGE_PROFILE = 'security-runtime-candidate-20261016'
+DEFAULT_SUITE_GENERATION = 'security'
+SUITE_GENERATIONS = frozenset({'security', 'f5b'})
 
 
 def git(path, *args):
@@ -26,8 +32,19 @@ def main():
     parser.add_argument('--components', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--prepare-work', action='store_true')
+    parser.add_argument('--profile', type=Path, default=PROFILE,
+        help='candidate profile inside this repository (default: historical F3 candidate)')
     args = parser.parse_args()
-    profile = json.loads(PROFILE.read_text())
+    profile_path = (args.profile if args.profile.is_absolute() else ROOT/args.profile).resolve()
+    profile_path.relative_to(ROOT)  # only committed profiles in this checkout
+    profile = json.loads(profile_path.read_text())
+    exchange_profile = profile.get('exchange_compatibility_profile', DEFAULT_EXCHANGE_PROFILE)
+    generation = profile.get('suite_generation', DEFAULT_SUITE_GENERATION)
+    if generation not in SUITE_GENERATIONS:
+        raise ValueError('Unsupported suite generation')
+    extra_hashed = [ROOT/name for name in profile.get('additional_source_hashes', [])]
+    for path in extra_hashed:
+        path.resolve().relative_to(ROOT)
     if any(profile[key] is not False for key in ('selected', 'reference_release_authorized', 'production_deployment_authorized')):
         raise ValueError('Candidate must remain nonselected and nonauthorizing')
     if args.out.exists():
@@ -51,12 +68,14 @@ def main():
         raise ValueError('Unsupported qualification phase')
     args.out.mkdir(parents=True)
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
+    # The suite imports the revision constants of the generation this profile pins.
+    env['COGNOUS_SECURITY_RUNTIME_GENERATION'] = generation
     env['PYTHONPATH'] = os.pathsep.join(map(str, [paths['control_plane'], paths['control_plane']/'src',
         paths['runtime'], paths['replay']/'src', paths['evidence_pack']/'src',
         *([paths['odes']/'src'] if 'odes' in paths else []),
         *([paths['exchange']] if 'exchange' in paths else [])]))
     if 'exchange' in paths:
-        env['GAX_RUNTIME_COMPATIBILITY_PROFILE'] = 'security-runtime-candidate-20261016'
+        env['GAX_RUNTIME_COMPATIBILITY_PROFILE'] = exchange_profile
         env['MOLTBOT_SAFE_CONTROL_PLANE_ROOT'] = str(paths['control_plane'])
         env['MOLTBOT_SAFE_ROOT'] = str(paths['runtime'])
         env['UPSTREAM_MANIFEST_EXAMPLE'] = str(paths['manifest']/'examples/refund_integration_v1_1.manifest.json')
@@ -77,13 +96,15 @@ def main():
     expected = {'replay':16, 'consumers':30, 'full':36}[phase]
     passed = result.returncode == 0 and len(cases) == expected and not any(counts[k] for k in ('failure','error','skipped'))
     digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
-    report = {'profile':profile,'source_revisions':pins,'command':command,'returncode':result.returncode,
+    report = {'profile':profile,'profile_file':profile_path.relative_to(ROOT).as_posix(),
+        'suite_generation':generation,'exchange_compatibility_profile':exchange_profile if 'exchange' in paths else None,
+        'source_revisions':pins,'command':command,'returncode':result.returncode,
         'qualification_head':git(ROOT,'rev-parse','HEAD'),
         'raw_junit_counts':counts,'expected_testcase_elements':expected,
         'bounded_cases_passed':passed,
         'candidate_integration_passed':passed and phase=='full' and profile['qualification_input_status']=='merged_only',
         'qualification_worktree_dirty':bool(git(ROOT,'status','--porcelain','--untracked-files=all')),
-        'source_hashes':{str(p.relative_to(ROOT)):digest(p) for p in [PROFILE,Path(__file__),*sorted((ROOT/'suites/security-runtime').glob('*.py'))]},
+        'source_hashes':{str(p.relative_to(ROOT)):digest(p) for p in [profile_path,Path(__file__),*sorted((ROOT/'suites/security-runtime').glob('*.py')),*extra_hashed]},
         'python':sys.version,'evidence':{p.relative_to(args.out).as_posix():digest(p) for p in sorted(args.out.rglob('*')) if p.is_file()},
         'selected':False,'reference_release_authorized':False,'production_deployment_authorized':False,
         'qualification_scope':'Actual components; synthetic fixtures; PR heads remain diagnostic until merged-source rerun'}
