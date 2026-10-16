@@ -47,3 +47,7 @@ The serial T0 program implements named deterministic variants, then gates actual
 ## License
 
 The existing [Apache License 2.0](LICENSE) covers original repository code and Cognous scenario adaptations. Relocated suites preserve their original per-file Apache-2.0/MIT scope and source NOTICE files; see [the migration manifest](migrations/cross-component-2026-10-15.json). **AI Security Wiki content and adaptations under `scenarios/ai-security-wiki/` remain CC BY-SA 4.0**, with a nested license and author attribution. Source-document terms and reuse basis are explicit in [the source register](sources/documents.json). See [third-party notices](THIRD_PARTY_NOTICES.md); cited external works are not automatically licensed by their citation.
+
+## Centralized component test commentary
+
+[README result-commentary index](results/readme-commentary/index.md) preserves relocated component reporting with exact source references. Publish new test-result commentary in this repository; keep component READMEs focused on usage, contracts and limitations. Historical evidence does not qualify changed configurations.

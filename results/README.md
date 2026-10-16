@@ -9,3 +9,7 @@ Use append-only run directories such as `results/<run-id>/manifest.json` for rea
 Keep compact redacted manifests and reports in Git. Retain larger logs as GitHub artifacts with explicit expiry. Preserve release-accepted evidence in durable GitHub release assets or another approved controlled store, recording immutable identity and hashes; do not rely on expired Actions links. Sensitive data belongs in access-controlled storage, with redacted references here. Do not commit credentials, customer content or private methodology.
 
 Use the Capture qualification run metadata workflow to fetch allowlisted public run metadata and open a results PR. The Dashboard build workflow checks mappings and renders the GitHub and static HTML views. No manual offline report collection is required. See [the operating guide](../docs/qualification-dashboard-guide.md).
+
+## Centralized component test commentary
+
+[README result-commentary index](readme-commentary/index.md) preserves relocated component reporting with exact source references. Publish new test-result commentary in this repository; keep component READMEs focused on usage, contracts and limitations. Historical evidence does not qualify changed configurations.
