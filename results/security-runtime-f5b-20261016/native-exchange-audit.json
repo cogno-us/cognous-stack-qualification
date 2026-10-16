@@ -1,0 +1,276 @@
+[
+  {
+    "repetition": "run-1",
+    "source_db": "run-1/native/test_exchange_repaired_chain_a0/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "b49e7fa3-2a4f-45b8-a4c3-d787cbfa5eb8",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "valid",
+    "db_sha256": "0e73964d5bbd32e32537c12657267c347c28592d68498ac0c9c0b8e1c4b17dc8",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "executed",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": null,
+    "second_attempt_status": null,
+    "second_attempted": null,
+    "second_newly_executed": null,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-1",
+    "source_db": "run-1/native/test_exchange_repaired_chain_a1/target/sqlite/refunds.sqlite3",
+    "attempts": [],
+    "case": "revoked",
+    "db_sha256": "c35b2751577c6bef8f771669d9f92a73ba44d5843bf03de162380f6544d2efca",
+    "effects": [],
+    "failure_records": [
+      {
+        "attempt_id": null,
+        "failure_class": "authority_hold",
+        "reason_code": "admission_rejected",
+        "stage": "pre_dispatch"
+      }
+    ],
+    "first_attempt_status": "denied",
+    "first_attempted": false,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": null,
+    "second_attempt_status": null,
+    "second_attempted": null,
+    "second_newly_executed": null,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-1",
+    "source_db": "run-1/native/test_exchange_repaired_chain_a2/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "2c2acc37-3fff-44fd-b8eb-a86b996ea3f5",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "lost_ack",
+    "db_sha256": "7397cbe049e8d9adcf440d53e9cc4e3b95b44a79a2088cb40e3fa9a31d6fddcc",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "unknown",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": true,
+    "second_attempt_status": "unknown",
+    "second_attempted": false,
+    "second_newly_executed": false,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-1",
+    "source_db": "run-1/native/test_exchange_repaired_chain_a3/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "e773eeb2-bb82-4667-9652-b7ba86f7cd43",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "crash",
+    "db_sha256": "f3960dd27fc26592350afc429cf9a5bda891921bb8352fb822bb315eadebf21b",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "interrupted_after_dispatch",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": true,
+    "second_attempt_status": "reconciled",
+    "second_attempted": false,
+    "second_newly_executed": false,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-1",
+    "source_db": "run-1/native/test_exchange_repaired_chain_a4/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "d77455ca-928a-40ad-8425-3cb82a1f2769",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "ownership",
+    "db_sha256": "e21d18f7267497b6d4404ba6c32a117b61eb37f1ca5895ef7694bb0cd14719a8",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "unknown",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": true,
+    "second_attempt_status": "hold",
+    "second_attempted": false,
+    "second_newly_executed": false,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-2",
+    "source_db": "run-2/native/test_exchange_repaired_chain_a0/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "3c435045-0fc0-4bb0-bb51-48282015231a",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "valid",
+    "db_sha256": "1899474aa8ba648455e83115b64b3f8d468b02d53c859a81d578e9dce6f47710",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "executed",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": null,
+    "second_attempt_status": null,
+    "second_attempted": null,
+    "second_newly_executed": null,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-2",
+    "source_db": "run-2/native/test_exchange_repaired_chain_a1/target/sqlite/refunds.sqlite3",
+    "attempts": [],
+    "case": "revoked",
+    "db_sha256": "a99794998dca8b1ae75fbd868dbf955118b4b2761c5ea4037e8e99441c68a576",
+    "effects": [],
+    "failure_records": [
+      {
+        "attempt_id": null,
+        "failure_class": "authority_hold",
+        "reason_code": "admission_rejected",
+        "stage": "pre_dispatch"
+      }
+    ],
+    "first_attempt_status": "denied",
+    "first_attempted": false,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": null,
+    "second_attempt_status": null,
+    "second_attempted": null,
+    "second_newly_executed": null,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-2",
+    "source_db": "run-2/native/test_exchange_repaired_chain_a2/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "fdd10f2b-d19a-4617-9978-bcdecc4439f2",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "lost_ack",
+    "db_sha256": "94ecdd86f375e7c751cb7aff4dcdc6d315305bf4e828457c7f2d5a45508cf545",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "unknown",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": true,
+    "second_attempt_status": "unknown",
+    "second_attempted": false,
+    "second_newly_executed": false,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-2",
+    "source_db": "run-2/native/test_exchange_repaired_chain_a3/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "25c8c763-0bfd-4da9-ba4a-50d2ee3bc0ba",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "crash",
+    "db_sha256": "c977a66da9e5b5b9addb436c6a83af2e7618badbcfd70f8f28b56cb5a0ecaa7f",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "interrupted_after_dispatch",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": true,
+    "second_attempt_status": "reconciled",
+    "second_attempted": false,
+    "second_newly_executed": false,
+    "sqlite_sidecars": []
+  },
+  {
+    "repetition": "run-2",
+    "source_db": "run-2/native/test_exchange_repaired_chain_a4/target/sqlite/refunds.sqlite3",
+    "attempts": [
+      {
+        "attempt_id": "06d5f64a-dcb5-4041-be5a-ee94ba44c29f",
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829"
+      }
+    ],
+    "case": "ownership",
+    "db_sha256": "3a4ec69014c6eba83e7b2d9b518b8b01cd015de314a126f13527f38aef46f6ed",
+    "effects": [
+      {
+        "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+        "state": "applied"
+      }
+    ],
+    "failure_records": [],
+    "first_attempt_status": "unknown",
+    "first_attempted": true,
+    "ok": true,
+    "read_mode": "immutable main file; no -wal/-shm/-journal present",
+    "redelivery_same_effect": true,
+    "second_attempt_status": "hold",
+    "second_attempted": false,
+    "second_newly_executed": false,
+    "sqlite_sidecars": []
+  }
+]
