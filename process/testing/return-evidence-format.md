@@ -54,3 +54,7 @@ Keep these findings separate: package byte integrity, native schema/semantic val
 Before the package is marked ready for return, confirm rights to each included byte, preserve original notices and exclude secrets, customer data, proprietary mechanisms and unauthorized third-party source. The supplied external bundle is review input; it is not imported into the public repository or automatically licensed by this process. Implement the Cognous verifier and export tooling independently unless reuse permission is established.
 
 At phase 4, record the package identity, digest, verification outcome, retained location, missing checks and **READY TO SHARE** or **NOT READY** with reasons. Generation/readiness is distinct from sending: obtain an explicit instruction identifying the recipient/channel before transmission. Do not infer release, production or institutional authority from package acceptance.
+
+## Matched refund package, 16 October 2026
+
+READY TO SHARE for bounded technical review: [matched results](../../reports/matched-refund-2026-10-16.md), 20/20 trials, native producer exports and monetary account snapshots. [Archive identity](../../reports/matched-refund-2026-10-16.archive.json) binds the complete portable package. This supersedes the insertion-only profile for the requested matched stimulus; it does not rewrite historical results, rerun SCQOS, establish independent observer custody or authorize sending.
