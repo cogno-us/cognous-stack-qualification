@@ -28,9 +28,12 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
-      - run: python -m pip install --require-hashes -r _hub/tools/requirements-release.lock
-      # Components and outputs live outside the checkout so the recorded
-      # qualification_worktree_dirty reflects tracked sources only.
+      # The hub checkout is only the lock source; removing it, and writing
+      # components and outputs under RUNNER_TEMP, keeps the qualification
+      # checkout clean so qualification_worktree_dirty is meaningful.
+      - run: |
+          python -m pip install --require-hashes -r _hub/tools/requirements-release.lock
+          rm -rf _hub
       - name: Repeat exact F5b merged-source cases twice with fresh stores
         run: |
           python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016.json --prepare-work --components "$RUNNER_TEMP/_components" --out "$RUNNER_TEMP/security-runtime-f5b/run-1"
