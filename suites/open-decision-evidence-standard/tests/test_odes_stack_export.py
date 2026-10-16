@@ -51,6 +51,7 @@ def _records(bundle: dict, kind: str) -> list[dict]:
 
 def _trusted_status(package: dict, **overrides) -> dict:
     status = {
+        "issuer": copy.deepcopy(package["record"]["issuer"]),
         "record_id": package["record"]["decision_id"],
         "authority_basis": package["record"]["authority"]["authority_basis"],
         "evaluation_scope": "recipient_reliance",
@@ -78,6 +79,8 @@ def _policy(package: dict | None = None, **overrides):
         "status_max_age_seconds": 300,
     }
     if package is not None:
+        policy["trusted_issuer"] = copy.deepcopy(package["record"]["issuer"])
+        policy["jurisdiction"] = package["record"]["risk_coordinates"]["jurisdiction"]
         policy["trusted_digests"] = [package["package_digest"]]
         policy["status_inputs"] = _trusted_status(package)
     policy.update(overrides)
@@ -106,7 +109,7 @@ def _recompute_digests(package: dict) -> None:
     package["package_digest"] = sha256({"record": package["record"], "profile": package["profile"], "integrity": package["integrity"], "provenance": package["provenance"]})
 
 
-def test_authorized_success_exports_and_recipient_gets_informational_only_without_authentication():
+def test_authorized_export_cannot_override_unknown_source_restrictions():
     package = export_cognous_stack_package(_manifest(), _current_success())
     validate_record(package["record"])
     assert package["record"]["schema_version"] == "0.1"
@@ -122,7 +125,8 @@ def test_authorized_success_exports_and_recipient_gets_informational_only_withou
     assert result["integrity_authentication_checks"]["status"] == "unavailable"
     assert result["historical_authority_assertions"]["status"] == "pass"
     assert result["authority_status_and_freshness"]["status"] == "pass"
-    assert result["recipient_reliance_decision"]["status"] == "informational_only"
+    assert result["recipient_reliance_decision"]["status"] == "fail"
+    assert result["consumption_conditions"]["status"] == "fail"
 
 
 def test_record_self_assertions_do_not_pass_authority_without_external_status_inputs():
@@ -316,9 +320,8 @@ def test_redacted_derivative_and_source_findings_survive_export():
     bundle = copy.deepcopy(_current_success())
     bundle["derivation"] = {"relationship": "redacted_derivative", "source_bundle_id": "source-bundle", "derived_at": "2026-10-06T00:00:00Z"}
     bundle.setdefault("metadata", {})["redacted_fields"] = ["payload.customer_id"]
-    package = export_cognous_stack_package(_manifest(), bundle)
-    assert package["provenance"]["redaction"]["status"] == "redacted_derivative"
-    assert package["provenance"]["replay_validation"]["findings"] is not None
+    with pytest.raises(ExportError, match="derivation"):
+        export_cognous_stack_package(_manifest(), bundle)
 
 
 def test_consumer_evaluation_does_not_change_exported_package():
@@ -368,7 +371,7 @@ def test_recipient_requires_exact_status_scope(scope):
 
 
 @pytest.mark.parametrize("age_seconds", [0, 299, 300])
-def test_recipient_accepts_fresh_matching_status_only_for_inspection(age_seconds):
+def test_fresh_matching_status_does_not_override_unknown_restrictions(age_seconds):
     from datetime import datetime, timedelta, timezone
     package = export_cognous_stack_package(_manifest(), _current_success())
     policy = _policy(package, allow_unauthenticated_informational_inspection=True)
@@ -379,7 +382,8 @@ def test_recipient_accepts_fresh_matching_status_only_for_inspection(age_seconds
     assert result["historical_authority_assertions"]["status"] == "pass"
     assert result["authority_status_and_freshness"]["status"] == "pass"
     assert result["integrity_authentication_checks"]["status"] == "unavailable"
-    assert result["recipient_reliance_decision"]["status"] == "informational_only"
+    assert result["recipient_reliance_decision"]["status"] == "fail"
+    assert result["consumption_conditions"]["status"] == "fail"
 
 
 def test_old_status_does_not_erase_historical_assertion_but_blocks_current_acceptance():
