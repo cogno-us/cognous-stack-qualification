@@ -10,8 +10,8 @@
   "artifact_bytes_reported": 4890962,
   "artifact_zip_sha256_reported": "a089f9b33edff6521ceb78885b866f9a87280dc4d5584b3be471b15d309f672d",
   "artifact_expires_at": "2027-01-14T15:36:24Z",
-  "artifact_zip_downloaded": false,
-  "artifact_download_blocker": "REST zip redirect to productionresultssa*.blob.core.windows.net refused by session egress proxy (HTTP 403 on CONNECT); ZIP bytes, CRC and member count not checked locally",
+  "artifact_zip_downloaded_in_job": false,
+  "artifact_download_blocker_in_job": "REST zip redirect to productionresultssa*.blob.core.windows.net refused by session egress proxy (HTTP 403 on CONNECT); ZIP bytes, CRC and member count not checked locally in-job",
   "in_job_member_reverification": true,
   "verified_original_members_per_repetition": 668,
   "in_job_verification_channel": "tools/summarize_security_runtime.py notice annotations on check run 117055196162, read via REST; decoded junit.xml/stdout.log SHA-256 equal the in-job hashes",
@@ -33,5 +33,16 @@
   "scenario_independence": "Two repetitions of 36 cases, not 72 independent scenarios",
   "qualification_scope": "Exact nonselected seven-component F5b synthetic runtime-authority generation only; no full-reference or production transfer",
   "supersedes": "Evidence from run 38923503029 at 8205469d (withdrawn in this PR; summarizer bytes changed)",
-  "remaining_retention_gate": "Full native archive retention (download, hash, durable storage) remains a separate F4 owner-authorized step before artifact expiry; this directory retains raw JUnit/stdout, source/run summaries and audited destination rows, not every native file."
+  "native_archive_retention": {
+    "location": "results/security-runtime-f5b-20261016/native-archive-run.zip",
+    "size_bytes": 4890962,
+    "sha256": "a089f9b33edff6521ceb78885b866f9a87280dc4d5584b3be471b15d309f672d",
+    "member_count": 1862,
+    "crc_verified": true,
+    "source_artifact_id": 12056860537,
+    "source_workflow_run": 38925303886,
+    "source_artifact_expires_at": "2027-01-14T15:36:24Z",
+    "retrieved_by": "owner download",
+    "verifies": "byte-identical to the hosted artifact ZIP produced by the F3R hosted run; this retention adds no new claims and is not independent assurance, release or production authorization"
+  }
 }

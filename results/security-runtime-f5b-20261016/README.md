@@ -16,9 +16,9 @@ Tested qualification source: `7022881e0958543a8b7685031c63132891b5f47c`, profile
 
 In both summaries, `source_revisions` equal these profile pins. `source_hashes` equal the committed bytes of the profile, runner, suite, workflow and summarizer at the tested head.
 
-**Artifact and how it was verified.** Workflow artifact `12056860537` (`f5b-requalification-7022881e…`) is 4,890,962 bytes as reported by GitHub. Its GitHub-reported ZIP digest is SHA-256 `a089f9b33edff6521ceb78885b866f9a87280dc4d5584b3be471b15d309f672d`. It expires on **14 January 2027 (2027-01-14T15:36:24Z)**.
+**Artifact and how it was verified.** Workflow artifact `12056860537` (`f5b-requalification-7022881e…`) is 4,890,962 bytes as reported by GitHub. Its GitHub-reported ZIP digest is SHA-256 `a089f9b33edff6521ceb78885b866f9a87280dc4d5584b3be471b15d309f672d`. It expires on **14 January 2027 (2027-01-14T15:36:24Z)**; the expiry is kept for reference against the hosted copy.
 
-The ZIP was **not** downloaded. The REST zip redirect to Azure blob storage was refused by this session's egress proxy, so the ZIP bytes, CRC integrity and archive member count were not checked locally.
+In the hosted job the REST zip redirect to Azure blob storage was refused by that session's egress proxy, so the ZIP bytes, CRC integrity and archive member count were not checked at that time.
 
 Verification was done in the job instead. `tools/summarize_security_runtime.py` re-hashed all 668 original members per repetition against `run.json`. It then emitted these as check-run annotations, which were read through the REST API:
 - the counts;
@@ -35,7 +35,7 @@ The decoded `junit.xml` and `stdout.log` match their in-job SHA-256 values.
 
 Producer acknowledgements remain distinct from actual archived destination state. The missing-configuration case fails before opening Exchange state.
 
-**Retention.** This directory keeps raw JUnit/stdout, source/run summaries, verification commitments and audited destination rows. It does not keep the full native archive or the native basetemp trees. Retaining the full native archive (download, hash and durable storage before expiry) remains a **separate F4 owner-authorized step**: artifact ID `12056860537`, expiry 2027-01-14. These summaries do not substitute for every archived native file.
+**Retention.** This directory keeps raw JUnit/stdout, source/run summaries, verification commitments and audited destination rows. The full native archive is now **retained in this repository** at `results/security-runtime-f5b-20261016/native-archive-run.zip` (sourced from workflow artifact `12056860537`, 4,890,962 bytes, SHA-256 `a089f9b33edff6521ceb78885b866f9a87280dc4d5584b3be471b15d309f672d`, 1,862 members, `ZipFile.testzip()` returns no error so every member's stored CRC matches). The committed bytes are byte-identical to the hosted artifact ZIP produced by the F3R hosted run; the hosted copy's 2027-01-14T15:36:24Z expiry is kept as a reference. This retention is the same bytes the F3R hosted run produced; it adds no new claims and is not independent assurance, release or production authorization.
 
 **Supersedes** the evidence from run 38923503029 at `8205469d`, which was withdrawn in this PR because the summarizer bytes changed.
 
