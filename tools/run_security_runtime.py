@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILE = ROOT/'process/security-runtime-candidate-20261016.json'
@@ -63,14 +64,24 @@ def main():
         '--junitxml='+str(args.out.resolve()/'junit.xml'),'--basetemp='+str(args.out.resolve()/'native')]
     if phase == 'replay':
         command += ['-k','not evidence_pack and not odes and not exchange']
+    elif phase == 'consumers':
+        command += ['-k','not exchange']
     with (args.out/'stdout.log').open('w') as stream:
         result = subprocess.run(command, cwd=ROOT, env=env, stdout=stream, stderr=subprocess.STDOUT, timeout=240)
     for name, spec in profile['components'].items():
         if git(paths[name],'rev-parse','HEAD') != spec['revision'] or git(paths[name],'status','--porcelain','--untracked-files=all'):
             raise ValueError('Source changed during execution: '+name)
+    cases = list(ET.parse(args.out/'junit.xml').getroot().iter('testcase'))
+    counts = {'testcase_elements': len(cases), **{kind: sum(c.find(kind) is not None for c in cases)
+        for kind in ('failure', 'error', 'skipped')}}
+    expected = {'replay':16, 'consumers':30, 'full':36}[phase]
+    passed = result.returncode == 0 and len(cases) == expected and not any(counts[k] for k in ('failure','error','skipped'))
     digest = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     report = {'profile':profile,'source_revisions':pins,'command':command,'returncode':result.returncode,
         'qualification_head':git(ROOT,'rev-parse','HEAD'),
+        'raw_junit_counts':counts,'expected_testcase_elements':expected,
+        'bounded_cases_passed':passed,
+        'candidate_integration_passed':passed and phase=='full' and profile['qualification_input_status']=='merged_only',
         'qualification_worktree_dirty':bool(git(ROOT,'status','--porcelain','--untracked-files=all')),
         'source_hashes':{str(p.relative_to(ROOT)):digest(p) for p in [PROFILE,Path(__file__),*sorted((ROOT/'suites/security-runtime').glob('*.py'))]},
         'python':sys.version,'evidence':{p.relative_to(args.out).as_posix():digest(p) for p in sorted(args.out.rglob('*')) if p.is_file()},
@@ -78,7 +89,7 @@ def main():
         'qualification_scope':'Actual components; synthetic fixtures; PR heads remain diagnostic until merged-source rerun'}
     (args.out/'run.json').write_text(json.dumps(report,indent=2)+'\n')
     print((args.out/'stdout.log').read_text())
-    return result.returncode
+    return 0 if passed else 1
 
 
 if __name__ == '__main__':
