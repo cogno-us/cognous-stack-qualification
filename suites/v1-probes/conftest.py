@@ -1,11 +1,41 @@
-"""Probe harness: runs against the pinned Index checkout named by PROBE_INDEX_DIR (never modified)."""
+"""Probe harness: runs against ONE pinned checkout per job, named by an env var (never modified).
+
+One env var per component. Test modules whose env var is unset are not collected (so the existing
+Index job is unchanged and a missing job yields no results, which the aggregator reports as
+INCONCLUSIVE rather than as a pass).
+"""
 import os
 import sys
 import pytest
 
+# module file -> env var naming the pinned checkout it needs
+MODULE_ENV = {
+    "test_index_probes.py": "PROBE_INDEX_DIR",
+    "test_index_supersession_probes.py": "PROBE_INDEX_DIR",
+    "test_bitrep_probes.py": "PROBE_BITREP_DIR",
+    "test_runtime_probes.py": "PROBE_RUNTIME_DIR",
+    "test_replay_probes.py": "PROBE_REPLAY_DIR",
+    "test_evidence_pack_probes.py": "PROBE_EVIDENCE_PACK_DIR",
+    "test_odes_probes.py": "PROBE_ODES_DIR",
+    "test_control_plane_probes.py": "PROBE_CONTROL_PLANE_DIR",
+}
+collect_ignore = [m for m, v in MODULE_ENV.items() if not os.environ.get(v)]
+
 INDEX_DIR = os.environ.get("PROBE_INDEX_DIR")
-if INDEX_DIR:
-    sys.path.insert(0, INDEX_DIR)
+for _var in sorted(set(MODULE_ENV.values())):
+    _d = os.environ.get(_var)
+    if _d:
+        # src-layout packages expose their code under src/; flat repos under the root.
+        for _p in (os.path.join(_d, "src"), _d):
+            if os.path.isdir(_p):
+                sys.path.insert(0, _p)
+
+
+def pin_dir(var):
+    d = os.environ.get(var)
+    if not d:
+        pytest.fail(f"{var} is not set; probe cannot run against the pinned component")
+    return d
 
 
 @pytest.fixture
