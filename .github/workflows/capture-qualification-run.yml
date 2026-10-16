@@ -39,6 +39,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ github.event.repository.default_branch }}
+          # Credentials persist because the final step pushes the evidence branch with the checkout token.
+          persist-credentials: true
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.12'
@@ -46,7 +48,7 @@ jobs:
         run: python tools/capture_workflow_run.py --repository "$SOURCE_REPOSITORY" --run-id "$SOURCE_RUN_ID"
       - name: Regenerate and validate the dashboard
         run: |
-          python -m pip install PyYAML==6.0.2 jsonschema==4.26.0
+          python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-ci.lock
           python tools/build_dashboard.py --write-markdown
           python -m unittest discover -s tests -v
           python tools/validate_catalog.py
