@@ -182,7 +182,8 @@ def test_generated_lifecycle_packages():
         validate_record(package['record'])
         result = evaluate_recipient_package(package, policy(package))
         assert result['package_content_integrity']['status'] == 'pass'
-        assert result['replay_semantic_consistency']['status'] == 'fail'
+        assert result['replay_semantic_consistency']['status'] == 'pass'
+        assert result['consumption_conditions']['status'] == 'fail'
         assert result['recipient_reliance_decision']['status'] == 'fail'
         sources = package['provenance']['retained_sources']
         refreshed = export_cognous_stack_package(sources['manifest'], sources['reconstruction_bundle'])
@@ -235,3 +236,16 @@ def test_historical_export_preserves_selected_revision_and_source():
         assert package['provenance']['retained_sources'] == sources
         assert evaluate_recipient_package(package, policy(package))['replay_semantic_consistency']['status'] == 'pass'
         assert original == before
+
+
+@pytest.mark.parametrize('field', ['restricted_use_flag', 'prohibited_use_flag'])
+def test_rehash_cannot_promote_missing_source_restrictions(produced, field):
+    package = copy.deepcopy(produced['cases']['success']['package'])
+    assert package['record']['risk_coordinates'][field] is True
+    package['record']['risk_coordinates'][field] = False
+    package['integrity']['value'] = sha256({k: package[k] for k in ('record', 'profile')})
+    package['package_digest'] = sha256({k: package[k] for k in ('record', 'profile', 'integrity', 'provenance')})
+    result = evaluate_recipient_package(package, policy(package))
+    assert result['package_content_integrity']['status'] == 'pass'
+    assert result['replay_semantic_consistency']['status'] == 'fail'
+    assert result['recipient_reliance_decision']['status'] == 'fail'
