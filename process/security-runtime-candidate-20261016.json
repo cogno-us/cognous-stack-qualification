@@ -1,6 +1,6 @@
 {
   "schema": "cognous.security-runtime-candidate/1",
-  "phase": "consumers",
+  "phase": "full",
   "qualification_input_status": "draft_pr_heads_diagnostic",
   "selected": false,
   "reference_release_authorized": false,
@@ -20,17 +20,25 @@
     },
     "evidence_pack": {
       "repository": "cogno-us/cognous-governance-evidence-pack",
-      "revision": "023d54d80ee15ffe075706d96fcc06e50e881232"
+      "revision": "8aba5a106ad119330950ccff97c55fa8492bc287"
     },
     "odes": {
       "repository": "cogno-us/open-decision-evidence-standard",
-      "revision": "7be14f914ffb269e5ba21b7045bf3289df26bf43"
+      "revision": "dd2dc7e8f3fe74263917a0c67a40875daf3b0ce0"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "f9fcbbdb109b7891172bd4e74cd7ee9e901eafae"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "e385f8c19b4444817a8b84b72ed6edbc37deb807"
     }
   },
   "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
   "limitations": [
-    "PR heads are diagnostic until replaced by actual merged revisions",
-    "Evidence Pack/ODES/Exchange migration and full reference qualification remain pending",
+    "Exchange PR head remains diagnostic until replaced by actual merge",
+    "Affected complete-reference regressions and final package/security acceptance remain pending",
     "No independent deployment, custody, or publication acceptance"
   ]
 }

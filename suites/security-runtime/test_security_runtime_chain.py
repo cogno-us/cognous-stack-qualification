@@ -205,3 +205,50 @@ def test_odes_rejects_relabelled_replay_pin(tmp_path,monkeypatch):
     package=export_cognous_stack_package(f.manifest,bundle.model_dump(mode='json'))
     package['provenance']['pinned_revisions']['replay']='83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a'
     assert _evaluate_replay_semantics(package)['status']=='fail'
+
+
+def exchange_setup(tmp_path,monkeypatch):
+    from datetime import timedelta
+    from experiments.odex_gax_imx_reference import gax_ref_runtime as gax
+    # A retained prior bundle informs the proposal; the target requires fresh authority.
+    *_,source=produce(tmp_path/'input',monkeypatch,'valid')
+    p,r,f,c,d,dest,executor,env=integrated(tmp_path/'target',monkeypatch)
+    bundle=source.model_dump(mode='json')
+    message=gax.make_message(bundle,created_at=NOW.isoformat(),expires_at=(NOW+timedelta(hours=1)).isoformat())
+    registry=gax.LocalRegistry({'refund-sender'},{'refund-recipient'},'refund-recipient')
+    kwargs=dict(evaluation_time=NOW.isoformat(),manifest=f.manifest,store_path=tmp_path/'exchange.sqlite3',
+        resolver=r,execution_policy_factory=lambda op:executor.policy,observation_policy=f.observation_policy,
+        observation_clock=lambda:NOW,runtime_authority_profile=c,allow_test_time=True)
+    return gax,p,r,f,d,dest,bundle,message,registry,kwargs
+
+
+@pytest.mark.parametrize('case',['valid','revoked','lost_ack','crash','ownership'])
+def test_exchange_repaired_chain_and_original_effect_identity(tmp_path,monkeypatch,case):
+    gax,p,r,f,d,dest,bundle,message,registry,kwargs=exchange_setup(tmp_path,monkeypatch)
+    if case=='revoked':kwargs['mutate_resolver_after_decision']=lambda resolver:setattr(next(iter(resolver.statuses.values())),'status','revoked')
+    if case in {'lost_ack','ownership'}:kwargs['lose_ack']=True
+    if case=='crash':kwargs['fault_after_dispatch']=True
+    first=gax.run_exchange(message,bundle,registry,dest,**kwargs)
+    assert first['assessment']['permitted_handling']=='ACCEPT_FOR_ASSESSMENT',first
+    assert dest.effect_count(d.binding.grant_id)==(0 if case=='revoked' else 1)
+    if case in {'lost_ack','crash','ownership'}:
+        second_message=gax.make_message(bundle,message_id='second-owner') if case=='ownership' else message
+        if case=='ownership':
+            from datetime import timedelta
+            second_message=gax.make_message(bundle,message_id='second-owner',created_at=NOW.isoformat(),expires_at=(NOW+timedelta(hours=1)).isoformat())
+        second=gax.run_exchange(second_message,bundle,registry,dest,**kwargs)
+        assert not second['execution']['attempted'],second
+        assert not second['execution'].get('newly_executed',False),second
+        assert second['execution']['effect_id']==first['execution']['effect_id']
+        assert dest.effect_count(d.binding.grant_id)==1
+        (tmp_path/'exchange-second.json').write_text(json.dumps(second,indent=2)+'\n')
+    (tmp_path/'exchange-first.json').write_text(json.dumps(first,indent=2)+'\n')
+
+
+def test_exchange_requires_explicit_trusted_configuration(tmp_path,monkeypatch):
+    gax,p,r,f,d,dest,bundle,message,registry,kwargs=exchange_setup(tmp_path,monkeypatch)
+    del kwargs['runtime_authority_profile']
+    with pytest.raises(ValueError,match='requires trusted'):
+        gax.run_exchange(message,bundle,registry,dest,**kwargs)
+    assert dest.effect_count(d.binding.grant_id)==0
+    assert not (tmp_path/'exchange.sqlite3').exists()

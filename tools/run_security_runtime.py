@@ -52,7 +52,13 @@ def main():
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1', PYTEST_DISABLE_PLUGIN_AUTOLOAD='1')
     env['PYTHONPATH'] = os.pathsep.join(map(str, [paths['control_plane'], paths['control_plane']/'src',
         paths['runtime'], paths['replay']/'src', paths['evidence_pack']/'src',
-        *([paths['odes']/'src'] if 'odes' in paths else [])]))
+        *([paths['odes']/'src'] if 'odes' in paths else []),
+        *([paths['exchange']] if 'exchange' in paths else [])]))
+    if 'exchange' in paths:
+        env['GAX_RUNTIME_COMPATIBILITY_PROFILE'] = 'security-runtime-candidate-20261016'
+        env['MOLTBOT_SAFE_CONTROL_PLANE_ROOT'] = str(paths['control_plane'])
+        env['MOLTBOT_SAFE_ROOT'] = str(paths['runtime'])
+        env['UPSTREAM_MANIFEST_EXAMPLE'] = str(paths['manifest']/'examples/refund_integration_v1_1.manifest.json')
     command = [sys.executable,'-m','pytest','-q',str(ROOT/'suites/security-runtime'),
         '--junitxml='+str(args.out.resolve()/'junit.xml'),'--basetemp='+str(args.out.resolve()/'native')]
     if phase == 'replay':
