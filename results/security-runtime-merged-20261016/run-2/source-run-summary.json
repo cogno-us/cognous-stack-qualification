@@ -1,0 +1,118 @@
+{
+  "profile": {
+    "schema": "cognous.security-runtime-candidate/1",
+    "phase": "full",
+    "qualification_input_status": "merged_only",
+    "selected": false,
+    "reference_release_authorized": false,
+    "production_deployment_authorized": false,
+    "components": {
+      "control_plane": {
+        "repository": "cogno-us/cognous-control-plane",
+        "revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b"
+      },
+      "runtime": {
+        "repository": "cogno-us/cognous-execution-runtime",
+        "revision": "fd6b76fa0e85feb5b67324114bf790d3a12fdaf1"
+      },
+      "replay": {
+        "repository": "cogno-us/cognous-replay-bundle",
+        "revision": "3601fb218d5c02f5d86e55d2cf33983e5e130ac3"
+      },
+      "evidence_pack": {
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "revision": "8aba5a106ad119330950ccff97c55fa8492bc287"
+      },
+      "odes": {
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "revision": "dd2dc7e8f3fe74263917a0c67a40875daf3b0ce0"
+      },
+      "exchange": {
+        "repository": "cogno-us/cognous-governed-exchange",
+        "revision": "94a0db18d7e172aa7423e80f68c575e82816d7e1"
+      },
+      "manifest": {
+        "repository": "cogno-us/cognous-action-manifest",
+        "revision": "e385f8c19b4444817a8b84b72ed6edbc37deb807"
+      }
+    },
+    "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+    "limitations": [
+      "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+      "Final package, independent security/IP and operational/deployment acceptance remain pending",
+      "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement"
+    ]
+  },
+  "source_revisions": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b",
+      "tree": "971b954e77fb8429fa8a76074e0a6be0ac238cfa"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "fd6b76fa0e85feb5b67324114bf790d3a12fdaf1",
+      "tree": "25141b96a33506c409a1078a15f5a19e6b5d8f14"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "3601fb218d5c02f5d86e55d2cf33983e5e130ac3",
+      "tree": "53e7110a084ed25b44bbb32c7c28e0f46ff642c1"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "8aba5a106ad119330950ccff97c55fa8492bc287",
+      "tree": "f74a31959fa3818c45ecff1e619191d7413bf7d8"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "dd2dc7e8f3fe74263917a0c67a40875daf3b0ce0",
+      "tree": "811ac4e8b516b364df1c4fe5f63079191e2abdd1"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "94a0db18d7e172aa7423e80f68c575e82816d7e1",
+      "tree": "63fd5d662f42ad7d8579439bafc4464923155a41"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "e385f8c19b4444817a8b84b72ed6edbc37deb807",
+      "tree": "fc718989e7f15422e18af2b2f45107569fa4abac"
+    }
+  },
+  "command": [
+    "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/suites/security-runtime",
+    "--junitxml=/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/results/security-runtime/run-2/junit.xml",
+    "--basetemp=/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/results/security-runtime/run-2/native"
+  ],
+  "returncode": 0,
+  "qualification_head": "5edcc08e0179a4107a44bc5246195426d6975a01",
+  "raw_junit_counts": {
+    "testcase_elements": 36,
+    "failure": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "expected_testcase_elements": 36,
+  "bounded_cases_passed": true,
+  "candidate_integration_passed": true,
+  "qualification_worktree_dirty": true,
+  "source_hashes": {
+    "process/security-runtime-candidate-20261016.json": "e8d21e12a4975de48fbc8684e2616c13f25e5c41284304ef7c3b0e95dd812dde",
+    "tools/run_security_runtime.py": "0f0e12b36ff28c5ab1355ad6b07edd809cff989392ecb2f1488f8b08121d2c9a",
+    "suites/security-runtime/test_security_runtime_chain.py": "375737ffd87a935c1e7f05916052f9d1d35a314c3a183678535796ddd0e905ba"
+  },
+  "python": "3.12.15 (main, Oct  1 2026, 02:35:59) [GCC 13.3.0]",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "qualification_scope": "Actual components; synthetic fixtures; PR heads remain diagnostic until merged-source rerun",
+  "original_run_json_sha256": "4f6760d7d6e5100c24be13ba4c1b096e0e9613ff6d65d2494f8d3d517bfc15e5",
+  "verified_original_member_count": 668,
+  "original_member_manifest_sha256": "f36a8e19efc41778d22e9727c84dbc6647b4cdd195ddb7c290ecf23503981ee9",
+  "retention_note": "Complete original member manifest and native files are in the checksum-verified workflow archive; this is a source/run summary, not a replacement raw manifest."
+}
