@@ -336,11 +336,19 @@ def cmd_probe_suite(args):
     junit = out.resolve() / "junit.xml"
     with open(out / "job.log", "w", encoding="utf-8") as fh:
         run([py, "-m", "pip", "install", "-q", "pytest", "httpx"], repo, 600, fh)
-        for req in sorted(repo.glob("requirements*.txt")):
-            if "dev" in req.name:
-                continue
+        reqs = [r for r in sorted(repo.glob("requirements*.txt")) if "dev" not in r.name]
+        for req in reqs:
             run([py, "-m", "pip", "install", "-q", "-r", req.name], repo, 900, fh)
-        env = dict(os.environ, PROBE_INDEX_DIR=str(repo), PYTHONDONTWRITEBYTECODE="1")
+        if not reqs and (repo / "pyproject.toml").exists():
+            # pyproject-only component: install its declared runtime dependencies, never the project itself
+            # (the probes import the pinned source tree directly, so the checkout stays unmodified).
+            import tomllib
+            deps = tomllib.loads((repo / "pyproject.toml").read_text(encoding="utf-8")).get("project", {}).get("dependencies", [])
+            if deps:
+                run([py, "-m", "pip", "install", "-q", *deps], repo, 900, fh)
+        if args.npm_dir:
+            run(["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"], repo / args.npm_dir, 900, fh)
+        env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", **{args.env_var: str(repo)})
         suite = Path(args.suite).resolve()
         start = time.monotonic()
         proc = subprocess.run([py, "-m", "pytest", "-q", "-p", "no:cacheprovider", f"--junitxml={junit}", str(suite)], cwd=suite, env=env,
@@ -530,6 +538,8 @@ def main():
     for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name", "--suite"):
         p.add_argument(a, required=True)
     p.add_argument("--timeout", type=int, default=300)
+    p.add_argument("--env-var", default="PROBE_INDEX_DIR", help="env var that points the probes at the pinned checkout (one per component)")
+    p.add_argument("--npm-dir", default=None, help="run `npm ci` in this directory of the pinned checkout before the probes")
     p.set_defaults(fn=cmd_probe_suite)
     p = sub.add_parser("aggregate")
     p.add_argument("--inputs", required=True); p.add_argument("--out", required=True)
