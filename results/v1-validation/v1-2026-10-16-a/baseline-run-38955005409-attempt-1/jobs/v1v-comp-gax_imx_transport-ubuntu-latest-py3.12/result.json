@@ -1,0 +1,77 @@
+{
+  "schema": "cognous.v1-validation-job/1",
+  "component": "gax_imx_transport",
+  "repository": "cogno-us/cognous-governed-exchange",
+  "pinned_sha": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+  "actual_sha": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+  "os": "ubuntu-latest",
+  "python": "3.12.15",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "workflow_run": "38955005409",
+  "run_attempt": "1",
+  "job": "components",
+  "attempts": [
+    {
+      "attempt": 1,
+      "installs": [
+        {
+          "target": ".[dev,test]",
+          "rc": 0
+        }
+      ],
+      "returncode": 0,
+      "execution_seconds": 12.04,
+      "timed_out": false,
+      "counts": null,
+      "setup_ok": true,
+      "outcome": "INCONCLUSIVE",
+      "reason": "pytest produced no usable JUnit (collection/setup error)"
+    },
+    {
+      "attempt": 2,
+      "installs": [
+        {
+          "target": ".[dev,test]",
+          "rc": 0
+        }
+      ],
+      "returncode": 0,
+      "execution_seconds": 7.34,
+      "timed_out": false,
+      "counts": null,
+      "setup_ok": true,
+      "outcome": "INCONCLUSIVE",
+      "reason": "pytest produced no usable JUnit (collection/setup error)"
+    }
+  ],
+  "timeout_seconds": 300,
+  "inventory": {
+    "test_dirs": [
+      "tests"
+    ],
+    "test_files": [
+      "tests/test_effect_ownership.py",
+      "tests/test_exchange_input_and_source_repairs.py",
+      "tests/test_generation_fence.py",
+      "tests/test_governed_message_transport.py"
+    ],
+    "test_file_count": 4,
+    "ci_workflows": [
+      "generation-fence.yml",
+      "merged-consumer-chain.yml",
+      "tests.yml",
+      "typed-refusal.yml"
+    ],
+    "has_pyproject": true,
+    "has_requirements": []
+  },
+  "status": "INCONCLUSIVE",
+  "reason": "pytest produced no usable JUnit (collection/setup error)",
+  "retry_note": "one automatic retry after a plausible setup/transient cause; both attempts preserved",
+  "log": {
+    "sha256_uncompressed": "da8fec044b6be615c65c1eb87686dcb1c1f57f730fbf706d5c33b0ccf4d639ba",
+    "bytes_uncompressed": 1763,
+    "retained": true,
+    "file": "job.log.gz"
+  }
+}
