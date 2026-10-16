@@ -173,6 +173,7 @@ jobs:
           repository: cogno-us/cognous-open-control-stack
           ref: 8517818fbf817897aacfb6fe7898c22aea46fd95
           path: hub
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
@@ -183,7 +184,8 @@ jobs:
           python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-ci.lock
           python -m pip install pytest
           mkdir -p ../out/qual-tooling
-          python -m pytest -q -p no:cacheprovider --junitxml=../out/qual-tooling/junit.xml tests || echo "pytest exit $?" > ../out/qual-tooling/exit.txt
+          echo 'tests/native excluded: needs NATIVE_HUB_ROOT (native hub checkout) supplied only by the serial workflow; covered separately' > ../out/qual-tooling/scope-note.txt
+          python -m pytest -q -p no:cacheprovider --ignore=tests/native --junitxml=../out/qual-tooling/junit.xml tests || echo "pytest exit $?" > ../out/qual-tooling/exit.txt
       - name: Hub-side tests at the frozen hub head
         working-directory: hub
         run: |
