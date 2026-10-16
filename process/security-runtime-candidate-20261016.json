@@ -1,0 +1,32 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "replay",
+  "qualification_input_status": "draft_pr_heads_diagnostic",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "fd6b76fa0e85feb5b67324114bf790d3a12fdaf1"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "b5b91a919a9db0939c1517375fe4f54b53ee2f8d"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "3090ef7b715bf109e786632e2be4b2a2008a5a7f"
+    }
+  },
+  "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+  "limitations": [
+    "PR heads are diagnostic until replaced by actual merged revisions",
+    "Evidence Pack/ODES/Exchange migration and full reference qualification remain pending",
+    "No independent deployment, custody, or publication acceptance"
+  ]
+}
