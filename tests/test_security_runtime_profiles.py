@@ -60,5 +60,20 @@ class SecurityRuntimeProfiles(unittest.TestCase):
         self.assertEqual(len(re.findall(r'--profile process/security-runtime-f5b-20261016\.json', f5b)), 2)
 
 
+    def test_native_audit_open_leaves_wal_database_untouched(self):
+        import sqlite3, sys, tempfile
+        sys.path.insert(0, str(ROOT/'tools'))
+        from summarize_security_runtime import rows
+        with tempfile.TemporaryDirectory() as temp:
+            db = Path(temp)/'refunds.sqlite3'
+            con = sqlite3.connect(db); con.execute('pragma journal_mode=wal')
+            con.execute('create table effects (effect_id text)'); con.execute("insert into effects values ('e')")
+            con.commit(); con.close()
+            before = sorted(p.name for p in Path(temp).iterdir()); digest = db.read_bytes()
+            self.assertEqual(rows(db, 'select effect_id from effects'), [{'effect_id': 'e'}])
+            self.assertEqual(sorted(p.name for p in Path(temp).iterdir()), before)
+            self.assertEqual(db.read_bytes(), digest)
+
+
 if __name__ == '__main__':
     unittest.main()

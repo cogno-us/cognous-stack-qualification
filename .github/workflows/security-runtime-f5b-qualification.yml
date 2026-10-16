@@ -5,6 +5,7 @@ on:
       - process/security-runtime-f5b-20261016.json
       - suites/security-runtime/**
       - tools/run_security_runtime.py
+      - tools/summarize_security_runtime.py
       - .github/workflows/security-runtime-f5b-qualification.yml
   workflow_dispatch:
 permissions:
@@ -34,6 +35,11 @@ jobs:
         run: |
           python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016.json --prepare-work --components "$RUNNER_TEMP/_components" --out "$RUNNER_TEMP/security-runtime-f5b/run-1"
           python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016.json --components "$RUNNER_TEMP/_components" --out "$RUNNER_TEMP/security-runtime-f5b/run-2"
+      # Read-only re-verification; annotations stay readable via the REST API.
+      - name: Re-verify run-1 and audit native rows
+        run: python -I tools/summarize_security_runtime.py "$RUNNER_TEMP/security-runtime-f5b/run-1"
+      - name: Re-verify run-2 and audit native rows
+        run: python -I tools/summarize_security_runtime.py "$RUNNER_TEMP/security-runtime-f5b/run-2"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
