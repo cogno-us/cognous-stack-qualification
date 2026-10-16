@@ -6,6 +6,7 @@ No production effects, arbitrary callback tools or model requests are performed.
 from __future__ import annotations
 import argparse
 from collections import Counter
+from contextlib import closing
 from datetime import datetime, timezone
 import importlib.util
 import json
@@ -55,6 +56,16 @@ def native_events(path):
                 for r in c.execute('SELECT seq,body,previous,head FROM events ORDER BY seq')]
 
 
+def retain_snapshot(path, destination):
+    """SQLite backup incorporates committed WAL state without copying signing keys."""
+    with closing(sqlite3.connect(path.resolve().as_uri()+'?mode=ro',uri=True)) as source:
+        with closing(sqlite3.connect(destination)) as target:
+            source.backup(target)
+            target.execute('PRAGMA journal_mode=DELETE')
+            if target.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
+                raise ValueError('Retained destination failed integrity_check')
+
+
 def load_fixture(root, relative, name):
     sys.path[:0]=[str(root),str(root/'tests')]
     spec=importlib.util.spec_from_file_location(name,root/relative)
@@ -76,10 +87,14 @@ def trial(variant, number, protected, integrated, out):
     fixture=integrated.IntegratedAssuranceTests() if approval else protected.DestinationTests()
     fixture.setUp()
     try:
+        retained=out/'trials'/f"{variant['id']}-{number}"
+        retained.mkdir(parents=True,exist_ok=False)
+        retain_snapshot(fixture.path,retained/'initial.db')
         initial=readback(fixture.path)
         if initial['effect_count'] != 0: raise ValueError('Reset leaked prior effect')
-        responses=[];attempts=[]
+        responses=[];attempts=[];requests=[];post_commit=None
         def dispatch(request, effect='effect', ack='RECEIVED'):
+            requests.append(request)
             identity=request.get('body',{}).get('id',request.get('body',{}).get('nonce','unknown'))
             result=fixture.runtime.apply(request);responses.append(result)
             attempts.append({'attempt_id':identity,'effect_id':effect,'acknowledgement':ack,'request_digest':digest(request)})
@@ -119,6 +134,8 @@ def trial(variant, number, protected, integrated, out):
                 # Native synchronous apply returned: commit completed before deliberate ACK discard.
                 committed=readback(fixture.path)
                 if committed['effect_count']!=1: raise ValueError('Fault was not after commit')
+                post_commit=committed
+                retain_snapshot(fixture.path,retained/'post_commit.db')
                 fixture.runtime=protected.ProtectedDestination(fixture.path,clock=lambda:fixture.now,**fixture.config)
                 request=fixture.request('execute',fixture.args())
             dispatch(request)
@@ -132,6 +149,17 @@ def trial(variant, number, protected, integrated, out):
               'observation':observed,
               'verdict_scope':'named local variant only; catalog acceptance unchanged'}
         case['result']=evaluate(case,variant['expected'])
+        retain_snapshot(fixture.path,retained/'destination.db')
+        export={'variant':variant,'case':case,'requests':requests,
+                'post_commit_readback':post_commit,
+                'public_registry':getattr(fixture,'registry',None),
+                'clock':{'kind':'synthetic fixture clock','value':fixture.now,'unit':'seconds'},
+                'boundaries':{'correction':'current authority check inside local serialized admission transaction',
+                    'commitment':'SQLite commit before synchronous apply returns',
+                    'writer_entry':'NOT INSTRUMENTED; duplicate admission is not writer-free reconciliation',
+                    'observer':'separate read-only process, shared trusted OS account',
+                    'ack_loss':'client acknowledgement discarded after committed readback; no network transport exercised' if post_commit else None}}
+        (retained/'trial.json').write_text(json.dumps(export,indent=2,sort_keys=True)+'\n')
         return case
     finally: fixture.doCleanups()
 
@@ -161,6 +189,9 @@ def run(hub, output, repetitions=None):
             initial_digests[family]=c['initial_business_digest']
             scenario=next(s for s in catalog['scenarios'] if s['id']==variant['scenario_id'])
             c.update(scenario_sha256=digest(scenario),provenance=scenario['provenance'],license=scenario['license'])
+            retained=output/'trials'/f"{variant['id']}-{i}"/'trial.json'
+            exported=json.loads(retained.read_text());exported['case']=c
+            retained.write_text(json.dumps(exported,indent=2,sort_keys=True)+'\n')
             cases.append(c)
     calibration=calibrate()
     record={'schema_version':'2.0.0','record_kind':'bounded-local-trajectory',

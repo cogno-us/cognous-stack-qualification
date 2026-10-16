@@ -2,6 +2,18 @@
 
 Status: **REQUIRED AT THE NEXT APPLICABLE BOUNDED COMPARISON EXPORT; NOT YET GENERATED**.
 
+## Native local export tooling
+
+`tools/run_serial_qualification.py` now retains consistent standalone SQLite snapshots and native requests/readbacks for each diagnostic trial. On pristine exact-source checkouts, execute the frozen local battery, then package it with:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python tools/run_serial_qualification.py --hub /path/to/hub --output /path/to/new-native-run > /path/to/serial-command.log 2>&1
+PYTHONDONTWRITEBYTECODE=1 python tools/export_exchange.py --run /path/to/new-native-run --hub /path/to/hub --log /path/to/serial-command.log --output /path/to/new-exchange-package
+python /path/to/new-exchange-package/verify_export.py /path/to/new-exchange-package
+```
+
+Output and logs must be outside the pristine source checkouts. The exporter preserves native records; it does not implement missing Replay/Evidence Pack adapters or convert duplicate admission into writer-free reconciliation. This fixture inserts a synthetic payload rather than executing the external sample's monetary refund. The package discloses that asymmetry and does not claim matched-request interoperability. Generating a local review package does not transmit it.
+
 The owner requested that Cognous return results in a portable format comparable to Jerry's supplied local synthetic D04 sample. Generate and verify this package when the Cognous test is ready to execute and its actual records are available. Do not manufacture a matching outcome, relabel prior trials or rerun paid agent campaigns to populate it. This requirement does not start a test, send a message or assert interoperability acceptance.
 
 ## Package layout
