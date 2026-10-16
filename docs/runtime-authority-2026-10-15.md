@@ -40,8 +40,9 @@ Use the supported exact checkouts as `components/control_plane`,
 python tools/run_runtime_authority.py --components components --out results/runtime-authority
 ```
 
-The runner verifies actual Git heads and tracked source cleanliness before
-execution. Its JSON receipt records versions, trees, command, return code and
+The runner verifies actual Git heads and refuses modified, untracked or ignored
+files and hidden index flags before execution, so use fresh runner-owned clones
+(see [security residuals](security-residuals-20261016.md)). Its JSON receipt records versions, trees, command, return code and
 artifact digests. The workflow performs pinned checkouts on Python 3.11 and 3.12.
 Passing a candidate does not select it. After merges, their different merge SHAs
 need an explicitly requalified compatibility mapping; do not relabel these pins.

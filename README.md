@@ -18,6 +18,7 @@ Cross-component test scenarios and qualification evidence for [Cognous Open Cont
 - [Upstream refresh through GitHub](docs/upstream-sync.md)
 - [Execution and evidence contract](docs/execution-contract.md)
 - [Source provenance and scope](docs/sources.md)
+- [Security repairs and residual limits (16 October)](docs/security-residuals-20261016.md)
 - [Results and retention rules](results/README.md)
 
 ## Responsibilities

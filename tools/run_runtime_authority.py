@@ -11,6 +11,9 @@ from pathlib import Path
 import subprocess
 import sys
 
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from pristine_checkout import require_pristine
+
 ROOT=Path(__file__).resolve().parents[1]
 
 
@@ -22,12 +25,9 @@ def main():
     locations={};pins={}
     for name,spec in manifest['components'].items():
         path=(args.components/name).resolve()
-        head=subprocess.check_output(['git','-C',str(path),'rev-parse','HEAD'],text=True).strip()
-        if head!=spec['revision']:raise SystemExit('source revision mismatch: '+name)
-        changed=subprocess.check_output(['git','-C',str(path),'diff','HEAD','--name-only'],text=True).splitlines()
-        # Bytecode is not a source change. Any other tracked change invalidates an exact-head claim.
-        if any('__pycache__/' not in p and not p.endswith('.pyc') for p in changed):
-            raise SystemExit('source checkout modified: '+name)
+        # Untracked or ignored files would be importable through PYTHONPATH; require a fresh clone.
+        try:require_pristine(path,spec['revision'],name)
+        except ValueError as exc:raise SystemExit(str(exc))
         locations[name]=path;pins[name]={**spec,'tree':subprocess.check_output(['git','-C',str(path),'rev-parse','HEAD^{tree}'],text=True).strip()}
     args.out.mkdir(parents=True,exist_ok=True)
     env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
