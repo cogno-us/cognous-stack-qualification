@@ -227,8 +227,102 @@ jobs:
           path: out
           if-no-files-found: error
 
+  probes:
+    needs: [freeze]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: q
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: ''
+      - name: Index probes at the exact pin (calibrated controls included)
+        run: |
+          python q/tools/v1_validation.py probe-suite --component probes-index --repository cogno-us/cognous-evidence-registry --sha d5e45d275cb301d9684b543e93b05997991d1cf2 --repo-dir "$RUNNER_TEMP/index" --out out --os-name ubuntu-latest --suite q/suites/v1-probes
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v1v-probes-index
+          path: out
+          if-no-files-found: error
+
+  matched-refund:
+    needs: [freeze]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          path: q
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-execution-runtime
+          ref: e20f92e104aba2ba6ad06120d8549c6170eaf63f
+          path: runtime
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5
+          path: control
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-open-control-stack
+          ref: 8517818fbf817897aacfb6fe7898c22aea46fd95
+          path: _hub
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+          cache: ''
+      - run: |
+          python -m pip install --require-hashes -r _hub/tools/requirements-release.lock
+          rm -rf _hub
+      - name: Re-execute the matched refund battery (20 trials) from pinned sources
+        env:
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          mkdir -p out
+          python q/tools/run_matched_refund.py --runtime runtime --control control --fixture q/results/comparisons/matched-refund-20261016/fixture.json --output "$RUNNER_TEMP/matched" 2>&1 | tee out/run.log
+      - name: Compare with the retained PR 29 reference result
+        if: always()
+        run: |
+          python - <<'EOF'
+          import json,os,xml.etree.ElementTree as ET
+          ref=json.load(open('q/results/comparisons/matched-refund-20261016/summary.json'))
+          new_path=os.path.join(os.environ['RUNNER_TEMP'],'matched','summary.json')
+          res={'schema':'cognous.v1-validation-job/1','component':'matched-refund-rerun','os':'ubuntu-latest','python':'3.12','workflow_run':os.environ['GITHUB_RUN_ID']}
+          key=lambda c:(c['scenario_id'],c['variant'],c['repetition'])
+          if os.path.exists(new_path):
+              new=json.load(open(new_path)); a={key(c):(c['verdict'],c['balance_cents'],c['state_version'],c['effect_count'],c['observation_verdict']) for c in new['cases']}
+              b={key(c):(c['verdict'],c['balance_cents'],c['state_version'],c['effect_count'],c['observation_verdict']) for c in ref['cases']}
+              same=a==b and new['counts']=={'PASS':20} and len(a)==20
+              res.update(status='PASS' if same else 'FAIL',reference_trials=len(b),new_trials=len(a),new_counts=new['counts'],identical_to_reference=a==b,
+                         sources=new['sources'],reason=None if same else 'new execution differs from retained reference')
+              os.makedirs('out',exist_ok=True)
+              for f in ('summary.json','test-results.xml','comparison.json'):
+                  src=os.path.join(os.environ['RUNNER_TEMP'],'matched',f)
+                  if os.path.exists(src): open('out/'+f,'wb').write(open(src,'rb').read())
+          else:
+              res.update(status='INCONCLUSIVE',reason='matched refund runner produced no summary (see run.log)')
+          res['attempts']=[{'outcome':res['status'],'counts':{'testcases':res.get('new_trials',0),'failures':0 if res['status']=='PASS' else 1,'errors':0,'skipped':0}}]
+          json.dump(res,open('out/result.json','w'),indent=2)
+          EOF
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v1v-matched-refund
+          path: out
+          if-no-files-found: error
+
   results:
-    needs: [freeze, components, native-f5b, harness-and-hub-tests]
+    needs: [freeze, components, native-f5b, harness-and-hub-tests, probes, matched-refund]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 20

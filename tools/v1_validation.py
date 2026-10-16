@@ -314,6 +314,44 @@ def cmd_component_suite(args):
     sys.exit(0)  # the aggregate decides; a failing suite is evidence, not a workflow error
 
 
+def cmd_probe_suite(args):
+    """Run the validation probes (suites/v1-probes) against one exactly pinned component. A failing probe is a finding, not a harness error."""
+    repo = Path(args.repo_dir).resolve()
+    fetch_exact(repo, args.repository, args.sha)
+    out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
+    actual = git(repo, "rev-parse", "HEAD")
+    result = {"schema": "cognous.v1-validation-job/1", "component": args.component, "repository": args.repository, "pinned_sha": args.sha,
+              "actual_sha": actual, "os": args.os_name, "python": platform.python_version(), "workflow_run": os.environ.get("GITHUB_RUN_ID"),
+              "kind": "probe-suite", "attempts": []}
+    if actual != args.sha:
+        result.update(status="FAIL", classification="setup/harness defect", reason="checked-out commit differs from pin")
+        (out / "result.json").write_text(json.dumps(result, indent=2) + "\n"); sys.exit(1)
+    py = sys.executable
+    junit = out.resolve() / "junit.xml"
+    with open(out / "job.log", "w", encoding="utf-8") as fh:
+        run([py, "-m", "pip", "install", "-q", "pytest", "httpx"], repo, 600, fh)
+        for req in sorted(repo.glob("requirements*.txt")):
+            if "dev" in req.name:
+                continue
+            run([py, "-m", "pip", "install", "-q", "-r", req.name], repo, 900, fh)
+        env = dict(os.environ, PROBE_INDEX_DIR=str(repo), PYTHONDONTWRITEBYTECODE="1")
+        suite = Path(args.suite).resolve()
+        start = time.monotonic()
+        proc = subprocess.run([py, "-m", "pytest", "-q", "-p", "no:cacheprovider", f"--junitxml={junit}", str(suite)], cwd=suite, env=env,
+                              capture_output=True, text=True, timeout=args.timeout, errors="replace")
+        fh.write(proc.stdout + proc.stderr + f"[exit {proc.returncode}]\n")
+    counts = junit_counts(junit)
+    ran = bool(counts and counts["testcases"] > 0)
+    result["attempts"].append({"attempt": 1, "returncode": proc.returncode, "counts": counts, "execution_seconds": round(time.monotonic() - start, 2),
+                               "outcome": "PASS" if ran else "INCONCLUSIVE"})
+    result["status"] = "PASS" if ran else "INCONCLUSIVE"
+    result["reason"] = "probe harness executed; individual probe outcomes are in junit.xml" if ran else "no probe results produced"
+    result["log"] = retain_log((out / "job.log").read_text(encoding="utf-8", errors="replace"), out / "job.log.gz")
+    (out / "job.log").unlink()
+    (out / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps({k: result[k] for k in ("component", "status", "reason")}))
+
+
 # -------------------------------------------------------------- aggregate
 def verdict(requirements):
     """Selected-V1 verdict. Never promotes missing, failed or skipped mandatory coverage."""
@@ -327,6 +365,80 @@ def verdict(requirements):
         elif r["status"] != "PASS":
             return "INCOMPLETE"
     return "PASS" if mandatory else "INCOMPLETE"
+
+
+def load_junit_index(inputs: Path, results):
+    """component -> list of (classname, name, outcome). Only Linux/3.12 component runs plus single-instance jobs count as selector evidence."""
+    index = {}
+    for r in results:
+        comp = r.get("component")
+        if not comp or (r.get("os") not in (None, "ubuntu-latest")) or str(r.get("python", "3.12"))[:4] not in ("3.12", ""):
+            continue
+        d = inputs / r["_dir"]
+        files = sorted(d.glob("junit-attempt*.xml"))[-1:] or sorted(d.rglob("junit.xml"))
+        for f in files:
+            try:
+                root = ET.parse(f).getroot()
+            except ET.ParseError:
+                continue
+            for tc in root.iter("testcase"):
+                out = "failed" if (tc.find("failure") is not None or tc.find("error") is not None) else "skipped" if tc.find("skipped") is not None else "passed"
+                index.setdefault(comp, []).append((tc.get("classname", ""), tc.get("name", ""), out))
+    return index
+
+
+def evaluate_requirements(doc, index, job_status):
+    """Compute each requirement's status from executed evidence. A requirement is PASS only when adequate evidence executed and passed."""
+    evaluated = []
+    for r in doc.get("requirements", []):
+        r = dict(r)
+        kind = r.get("kind", "tests")
+        r.setdefault("mandatory", True)
+        if kind == "tests":
+            hits, fails, skips, detail = 0, 0, 0, []
+            for sel in r.get("selectors", []):
+                rx = re.compile(sel["re"], re.I)
+                m = [t for t in index.get(sel["component"], []) if rx.search(f"{t[0]}::{t[1]}")]
+                f = [t for t in m if t[2] == "failed"]
+                k = [t for t in m if t[2] == "skipped"]
+                hits += len(m); fails += len(f); skips += len(k)
+                detail.append({"component": sel["component"], "re": sel["re"], "matched": len(m), "failed": len(f), "skipped": len(k), "min": sel.get("min", 1),
+                               "failed_tests": [f"{t[0]}::{t[1]}" for t in f][:10]})
+            short = any(d["matched"] < d["min"] for d in detail)
+            r["selector_results"] = detail
+            r["executed_cases"] = hits
+            if fails:
+                r["status"] = "FAIL"; r.setdefault("classification", "product defect")
+            elif short:
+                r["status"] = "INCONCLUSIVE"; r["reason"] = "selector matched fewer executed cases than required (job missing or selector defective)"
+            elif skips:
+                r["status"] = "INCONCLUSIVE"; r["reason"] = "matched cases were skipped"
+            elif r.get("adequacy", "adequate") == "adequate":
+                r["status"] = "PASS"; r["provenance"] = r.get("provenance", "NEW EXECUTION")
+            else:
+                r["status"] = "INCONCLUSIVE"
+                r["reason"] = "matched cases passed but are declared inadequate for the full requirement: " + r.get("adequacy_note", "partial coverage")
+        elif kind == "job":
+            st = job_status.get(r["component"])
+            r["status"] = st if st in ("PASS", "FAIL") else "INCONCLUSIVE"
+            if r["status"] != "PASS":
+                r.setdefault("reason", f"job status {st}")
+        elif kind == "not_applicable":
+            r["status"] = "NOT APPLICABLE"
+        else:  # gap / manual: status declared with reason; never promoted
+            r["status"] = r.get("declared_status", "NOT RUN")
+            if r["status"] == "PASS":
+                r["status"] = "INCONCLUSIVE"; r["reason"] = "declared PASS without executed evidence is refused"
+        evaluated.append(r)
+    return evaluated
+
+
+def requirements_markdown(reqs):
+    lines = ["| ID | Source | Status | Mandatory | Provenance | Cases | Note |", "|---|---|---|---|---|---|---|"]
+    for r in reqs:
+        note = (r.get("reason") or r.get("not_applicable_reason") or r.get("classification") or "")[:160].replace("|", "/")
+        lines.append(f"| {r['id']} | {r.get('source','')} | {r['status']} | {'yes' if r['mandatory'] else 'no'} | {r.get('provenance','')} | {r.get('executed_cases','')} | {note} |")
+    return "\n".join(lines) + "\n"
 
 
 def cmd_aggregate(args):
@@ -362,12 +474,18 @@ def cmd_aggregate(args):
     rows.extend({"job": "(missing)", **m, "counts": None, "attempts": 0} for m in missing)
     requirements = []
     if args.requirements and Path(args.requirements).exists():
-        requirements = json.loads(Path(args.requirements).read_text(encoding="utf-8")).get("requirements", [])
+        req_doc = json.loads(Path(args.requirements).read_text(encoding="utf-8"))
+        job_status = {r.get("component"): r.get("status") for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
+        requirements = evaluate_requirements(req_doc, load_junit_index(inputs, results), job_status)
+        (out / "requirements-matrix.json").write_text(json.dumps({"schema": "cognous.v1-validation-matrix/1", "validation_id": args.validation_id, "requirements": requirements}, indent=2) + "\n", encoding="utf-8")
+        (out / "requirements-matrix.md").write_text(requirements_markdown(requirements), encoding="utf-8")
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
                "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": (freeze or {}).get("status", "NOT RUN"),
                "job_status_counts": counts, "expected_jobs": len(expected), "missing_jobs": len(missing), "jobs": rows,
                "selected_v1_verdict": "INCOMPLETE" if not requirements else verdict(requirements),
-               "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix"}
+               "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix",
+               "requirement_status_counts": {st: sum(1 for r in requirements if r["status"] == st) for st in STATUSES},
+               "mandatory_requirement_status_counts": {st: sum(1 for r in requirements if r["status"] == st and r["mandatory"]) for st in STATUSES}}
     if freeze is None or freeze.get("status") != "PASS":
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
         summary["verdict_note"] = "freeze verification did not pass; no result may be promoted"
@@ -401,6 +519,11 @@ def main():
     p.add_argument("--timeout", type=int, default=300)
     p.add_argument("--fetch", action="store_true", help="fetch the exact pinned commit into --repo-dir first")
     p.set_defaults(fn=cmd_component_suite)
+    p = sub.add_parser("probe-suite")
+    for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name", "--suite"):
+        p.add_argument(a, required=True)
+    p.add_argument("--timeout", type=int, default=300)
+    p.set_defaults(fn=cmd_probe_suite)
     p = sub.add_parser("aggregate")
     p.add_argument("--inputs", required=True); p.add_argument("--out", required=True)
     p.add_argument("--validation-id", required=True); p.add_argument("--requirements")
