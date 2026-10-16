@@ -2,7 +2,7 @@
 
 ## Serial qualification orchestration
 
-**BOUNDED LOCAL AND OPENAI PILOT CHECKS PASSED; EXPORT AND OPERATIONAL QUALIFICATION DEFERRED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-15T23:22:16.801167+00:00
+**MATCHED REFUND 20/20 PASSED; PORTABLE EVIDENCE VERIFIED; OPERATIONAL QUALIFICATION DEFERRED** · Profile `native-local-destination-and-approval-fixtures/1` · nonselected synthetic fixture · updated 2026-10-16T17:56:58.163718+00:00
 
 Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. Full catalog acceptance remains unchanged.
 
@@ -12,11 +12,11 @@ Human participation excluded. Human oversight effectiveness: **NOT EVALUATED**. 
 | T2 — Native deterministic harness | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
 | T3 — Calibrated evaluation | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
 | T4 — Bounded OpenAI actual-agent pilot | INTEGRATED | Completed 25/25 diagnostic trials via [PR #17](https://github.com/cogno-us/cognous-stack-qualification/pull/17) and [run 38821035491](https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491); retain evidence/accounting, no paid reruns; broader agent coverage remains unqualified |
-| CLOSEOUT — Integration and evidence | INTEGRATED | No further action within the bounded local implementation scope; residual qualification gaps remain listed |
+| CLOSEOUT — Integration and evidence | INTEGRATED | Matched refund completed: [20/20 trials and reciprocal package](../reports/matched-refund-2026-10-16.md). Ready for bounded review; not transmitted. Operational qualification and downstream consumer interoperability remain unestablished. |
 
 Named local variant counts: `{"PASS": 36}`. These are diagnostic assertions, not whole-scenario or selected-stack acceptance.
 
-[Native evidence record](../results/serial/native-20261015/record.json) · [Serial packet and reproduction](serial-qualification.md)
+[Native evidence record](../results/serial/native-exchange-20261016/record.json) · [Serial packet and reproduction](serial-qualification.md)
 - EXPORT-MAPPING: Native local destination/approval records have no verified Replay or Evidence Pack producer mapping Owner: Artifact adapter maintainers. Resolution: Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output
 - OPERATIONAL-ASSURANCE: Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures Owner: Deployment owner. Resolution: Deployment-specific configuration and independent access evidence before operational claims
 

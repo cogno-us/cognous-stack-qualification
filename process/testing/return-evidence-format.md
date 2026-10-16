@@ -1,6 +1,18 @@
 # Reciprocal evidence package for Jerry
 
-Status: **REQUIRED AT THE NEXT APPLICABLE BOUNDED COMPARISON EXPORT; NOT YET GENERATED**.
+Status: **GENERATED AND VERIFIED FOR SCOPED NATIVE-LOCAL REVIEW** on 16 October 2026; see the [execution report](../../reports/bounded-exchange-2026-10-16.md) and [archive identity](../../reports/bounded-exchange-2026-10-16.archive.json). Matched-request comparison acceptance and native Replay/Evidence Pack mapping remain unestablished. No transmission performed.
+
+## Native local export tooling
+
+`tools/run_serial_qualification.py` now retains consistent standalone SQLite snapshots and native requests/readbacks for each diagnostic trial. On pristine exact-source checkouts, execute the frozen local battery, then package it with:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python tools/run_serial_qualification.py --hub /path/to/hub --output /path/to/new-native-run > /path/to/serial-command.log 2>&1
+PYTHONDONTWRITEBYTECODE=1 python tools/export_exchange.py --run /path/to/new-native-run --hub /path/to/hub --log /path/to/serial-command.log --output /path/to/new-exchange-package
+python /path/to/new-exchange-package/verify_export.py /path/to/new-exchange-package
+```
+
+Output and logs must be outside the pristine source checkouts. The exporter preserves native records; it does not implement missing Replay/Evidence Pack adapters or convert duplicate admission into writer-free reconciliation. This fixture inserts a synthetic payload rather than executing the external sample's monetary refund. The package discloses that asymmetry and does not claim matched-request interoperability. Generating a local review package does not transmit it.
 
 The owner requested that Cognous return results in a portable format comparable to Jerry's supplied local synthetic D04 sample. Generate and verify this package when the Cognous test is ready to execute and its actual records are available. Do not manufacture a matching outcome, relabel prior trials or rerun paid agent campaigns to populate it. This requirement does not start a test, send a message or assert interoperability acceptance.
 
@@ -42,3 +54,7 @@ Keep these findings separate: package byte integrity, native schema/semantic val
 Before the package is marked ready for return, confirm rights to each included byte, preserve original notices and exclude secrets, customer data, proprietary mechanisms and unauthorized third-party source. The supplied external bundle is review input; it is not imported into the public repository or automatically licensed by this process. Implement the Cognous verifier and export tooling independently unless reuse permission is established.
 
 At phase 4, record the package identity, digest, verification outcome, retained location, missing checks and **READY TO SHARE** or **NOT READY** with reasons. Generation/readiness is distinct from sending: obtain an explicit instruction identifying the recipient/channel before transmission. Do not infer release, production or institutional authority from package acceptance.
+
+## Matched refund package, 16 October 2026
+
+READY TO SHARE for bounded technical review: [matched results](../../reports/matched-refund-2026-10-16.md), 20/20 trials, native producer exports and monetary account snapshots. [Archive identity](../../reports/matched-refund-2026-10-16.archive.json) binds the complete portable package. This supersedes the insertion-only profile for the requested matched stimulus; it does not rewrite historical results, rerun SCQOS, establish independent observer custody or authorize sending.
