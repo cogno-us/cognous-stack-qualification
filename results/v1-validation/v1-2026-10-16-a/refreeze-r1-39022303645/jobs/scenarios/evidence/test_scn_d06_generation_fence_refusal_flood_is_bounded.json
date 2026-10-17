@@ -1,0 +1,205 @@
+{
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "metrics": {
+      "concurrency": {
+        "max_in_flight_requests": 8,
+        "peak_python_threads": 9
+      },
+      "context_switches": {
+        "involuntary": 0,
+        "voluntary": 1929
+      },
+      "cpu_seconds_process_all_threads": 0.1637,
+      "cpu_utilisation_of_one_core": 0.378,
+      "label": "generation_fence_refusal_flood",
+      "latency": {
+        "all": {
+          "max_ms": 430.594,
+          "mean_ms": 8.811,
+          "n": 300,
+          "p50_ms": 0.946,
+          "p95_ms": 34.908,
+          "p99_ms": 330.157
+        },
+        "stale": {
+          "max_ms": 430.594,
+          "mean_ms": 8.811,
+          "n": 300,
+          "p50_ms": 0.946,
+          "p95_ms": 34.908,
+          "p99_ms": 330.157
+        }
+      },
+      "memory_kb": {
+        "peak_counter_reset_at_start": true,
+        "peak_rss_during_block": 226156,
+        "rss_after": 226116,
+        "rss_before": 223044
+      },
+      "report_only": true,
+      "request_rate_per_second": 692.73,
+      "requests": 300,
+      "storage_bytes": {
+        "after": 45056,
+        "before": 32768,
+        "growth": 12288,
+        "growth_per_request": 41.0
+      },
+      "thresholds_applied": null,
+      "wall_seconds": 0.4331
+    },
+    "outcome": {
+      "current_claim": {
+        "status": "applied"
+      },
+      "effects_final": [
+        "good"
+      ],
+      "persisted_counter": 64,
+      "persisted_rows": 64,
+      "results": [
+        "refused:superseded_lineage_generation"
+      ],
+      "stale_effects": 0,
+      "suppressed": 236,
+      "total": 300
+    }
+  },
+  "run2": {
+    "metrics": {
+      "concurrency": {
+        "max_in_flight_requests": 8,
+        "peak_python_threads": 9
+      },
+      "context_switches": {
+        "involuntary": 1,
+        "voluntary": 1900
+      },
+      "cpu_seconds_process_all_threads": 0.1634,
+      "cpu_utilisation_of_one_core": 0.377,
+      "label": "generation_fence_refusal_flood",
+      "latency": {
+        "all": {
+          "max_ms": 430.555,
+          "mean_ms": 8.868,
+          "n": 300,
+          "p50_ms": 0.953,
+          "p95_ms": 19.369,
+          "p99_ms": 330.567
+        },
+        "stale": {
+          "max_ms": 430.555,
+          "mean_ms": 8.868,
+          "n": 300,
+          "p50_ms": 0.953,
+          "p95_ms": 19.369,
+          "p99_ms": 330.567
+        }
+      },
+      "memory_kb": {
+        "peak_counter_reset_at_start": true,
+        "peak_rss_during_block": 229100,
+        "rss_after": 228928,
+        "rss_before": 226116
+      },
+      "report_only": true,
+      "request_rate_per_second": 692.82,
+      "requests": 300,
+      "storage_bytes": {
+        "after": 45056,
+        "before": 32768,
+        "growth": 12288,
+        "growth_per_request": 41.0
+      },
+      "thresholds_applied": null,
+      "wall_seconds": 0.433
+    },
+    "outcome": {
+      "current_claim": {
+        "status": "applied"
+      },
+      "effects_final": [
+        "good"
+      ],
+      "persisted_counter": 64,
+      "persisted_rows": 64,
+      "results": [
+        "refused:superseded_lineage_generation"
+      ],
+      "stale_effects": 0,
+      "suppressed": 236,
+      "total": 300
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:c442e3a76063ba4c607a376cc356ed4b8641835a9c7a04c6a340ea56924c7731",
+    "run2_outcome_digest": "sha256:c442e3a76063ba4c607a376cc356ed4b8641835a9c7a04c6a340ea56924c7731",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "LineageGenerationFence stale-claim flood (typed refusal, bounded evidence)",
+  "test": "test_scn_d06_generation_fence_refusal_flood_is_bounded",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}

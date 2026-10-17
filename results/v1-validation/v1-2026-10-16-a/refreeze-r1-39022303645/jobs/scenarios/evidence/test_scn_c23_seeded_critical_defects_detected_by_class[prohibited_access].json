@@ -1,0 +1,651 @@
+{
+  "class": "prohibited_access",
+  "detection_means": "typed rejection or flag with a stated reason; an evaluator that completes without flagging is a miss",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "evaluators": {
+    "E1": "Replay -> Evidence Pack -> ODES consumers (D08 chain)"
+  },
+  "not_applicable_nothing_to_plant": [
+    "producer/lost_ack/c23.prohibited_access.effect_recorded_under_refused_authority",
+    "producer/revoked/c23.prohibited_access.decision_binds_other_target_than_effect",
+    "producer/revoked/c23.prohibited_access.effect_on_unauthorised_target",
+    "producer/revoked/c23.prohibited_access.effect_under_other_grant",
+    "producer/revoked/c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+    "producer/revoked/export.effects.corrupt_amount",
+    "producer/unreadable/c23.prohibited_access.decision_binds_other_target_than_effect",
+    "producer/unreadable/c23.prohibited_access.effect_on_unauthorised_target",
+    "producer/unreadable/c23.prohibited_access.effect_under_other_grant",
+    "producer/unreadable/c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+    "producer/unreadable/export.effects.corrupt_amount",
+    "producer/valid/c23.prohibited_access.effect_recorded_under_refused_authority"
+  ],
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:57fa91148079c4dbf4346e445860be0b6dd963f1204bd019228da740177be570",
+    "run2_outcome_digest": "sha256:57fa91148079c4dbf4346e445860be0b6dd963f1204bd019228da740177be570",
+    "verdict": "MATCH"
+  },
+  "scenario": "C23",
+  "summary_run1": {
+    "by_family": {
+      "bundle": {
+        "detected": 0,
+        "planted": 0
+      },
+      "odes": {
+        "detected": 0,
+        "planted": 0
+      },
+      "odes_rehashed": {
+        "detected": 0,
+        "planted": 0
+      },
+      "pack": {
+        "detected": 0,
+        "planted": 0
+      },
+      "producer": {
+        "detected": 12,
+        "planted": 12
+      }
+    },
+    "detected": 12,
+    "detection_rate": 1.0,
+    "missed": 0,
+    "missed_seeds": [],
+    "planted": 12
+  },
+  "summary_run2": {
+    "by_family": {
+      "bundle": {
+        "detected": 0,
+        "planted": 0
+      },
+      "odes": {
+        "detected": 0,
+        "planted": 0
+      },
+      "odes_rehashed": {
+        "detected": 0,
+        "planted": 0
+      },
+      "pack": {
+        "detected": 0,
+        "planted": 0
+      },
+      "producer": {
+        "detected": 12,
+        "planted": 12
+      }
+    },
+    "detected": 12,
+    "detection_rate": 1.0,
+    "missed": 0,
+    "missed_seeds": [],
+    "planted": 12
+  },
+  "table_run1": [
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].amount conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].target conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: execution_envelope.operation.target conflicts with committed operation"
+    },
+    {
+      "applicable": false,
+      "case": "valid",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].grant_id conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: decisions[0].binding.target conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].amount conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].target conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: execution_envelope.operation.target conflicts with committed operation"
+    },
+    {
+      "applicable": false,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].grant_id conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: decisions[0].binding.target conflicts with committed operation"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot envelope has dangling decision_id <uuid>"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot envelope has dangling decision_id <uuid>"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new"
+    }
+  ],
+  "table_run2": [
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].amount conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].target conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: execution_envelope.operation.target conflicts with committed operation"
+    },
+    {
+      "applicable": false,
+      "case": "valid",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].grant_id conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: decisions[0].binding.target conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].amount conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].target conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: execution_envelope.operation.target conflicts with committed operation"
+    },
+    {
+      "applicable": false,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.effects[0].grant_id conflicts with committed operation"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: decisions[0].binding.target conflicts with committed operation"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot envelope has dangling decision_id <uuid>"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "export.effects.corrupt_amount",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.envelope_and_effect_on_unauthorised_target",
+      "source": "C23-new"
+    },
+    {
+      "applicable": true,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.prohibited_access.effect_recorded_under_refused_authority",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot envelope has dangling decision_id <uuid>"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.effect_under_other_grant",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "prohibited_access",
+      "family": "producer",
+      "seed": "c23.prohibited_access.decision_binds_other_target_than_effect",
+      "source": "C23-new"
+    }
+  ],
+  "test": "test_scn_c23_seeded_critical_defects_detected_by_class[prohibited_access]"
+}
