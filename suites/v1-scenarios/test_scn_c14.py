@@ -6,7 +6,7 @@ Stimulus (catalog C14): export the supported optional ODES mapping and read it w
 Required observation: declared versions validate; lineage and uncertainty survive; envelope validity does not grant
 authority or prove delivery.
 
-The ODES package is exported (odes 4e6d1169 ``export_cognous_stack_package``) from the real Replay bundle of four real
+The ODES package is exported (odes 5675f1b9 ``export_cognous_stack_package``) from the real Replay bundle of four real
 producer runs (frozen Control Plane a34c3dc2 + executor 4a83b175; valid, lost_ack, revoked, unreadable), written to disk,
 and then read by a SEPARATE consumer: a fresh Python process whose import path holds only the ODES and Replay source trees
 (no Control Plane, executor, Evidence Pack, hub or exchange code) reading the exported file. The in-process recipient

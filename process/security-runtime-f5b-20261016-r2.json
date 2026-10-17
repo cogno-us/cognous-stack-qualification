@@ -1,0 +1,69 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "profile_id": "security-runtime-f5b-20261016-r2",
+  "supersedes_profile": "process/security-runtime-f5b-20261016-r1.json",
+  "refreeze_ids": [
+    "RF-2",
+    "RF-3",
+    "RF-4",
+    "RF-5",
+    "RF-6",
+    "RF-7",
+    "RF-8",
+    "RF-9",
+    "RF-10"
+  ],
+  "note": "Owner-authorised re-freeze (process/v1-validation/v1-2026-10-16-a/refreeze-log.json RF-2..RF-10) of the runtime, replay, odes, evidence_pack and exchange pins to the remediation main commits; r2 supersedes r1 by moving replay (RF-7, replay #36), odes (RF-8, ODES #49), evidence_pack (RF-9, pack #35) and exchange (RF-10, exchange #34) again; runtime, control_plane and manifest are unchanged from r1. The original profile, the r1 profile and freeze-manifest.json are retained unedited. exchange_compatibility_profile keeps the name security-runtime-f5b-20261016 because the remediated exchange (ec6ba5bd) resolves that name to these component revisions. A verdict applies to this profile only after a full controller run at these pins.",
+  "predecessor_profile": "process/security-runtime-candidate-20261016.json",
+  "suite_generation": "f5b",
+  "exchange_compatibility_profile": "security-runtime-f5b-20261016",
+  "additional_source_hashes": [
+    ".github/workflows/security-runtime-f5b-qualification.yml",
+    "tools/summarize_security_runtime.py"
+  ],
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "def0ee0f3af713283ea3cd13f0caf79e1607b651"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "505a3590114705b7ebf736b92dd189f338134635"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "5675f1b96d95ba69510656bf73b1006110ef5b57"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e"
+    }
+  },
+  "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+  "limitations": [
+    "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+    "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+    "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement",
+    "r2 re-freezes four further component pins (replay, odes, evidence_pack, exchange) relative to r1; evidence retained at the original F5b pins or at the r1 pins is historical and is not transferred to r2"
+  ]
+}
