@@ -9,7 +9,7 @@ The addenda carried four claims taken from public replies or code reading and ma
   A-E2-verify / I4-gap (GR-1679, GR-1540) "denied path writes nothing"
   H5-gap     (GR-1500, GR-1517) "effect path does not carry lineage generation"
 
-Each is probed by executing the frozen F5b reference (Control Plane a34c3dc2, runtime 4a83b175, exchange da953782); nothing is
+Each is probed by executing the frozen F5b reference (Control Plane a34c3dc2, runtime 4a83b175, exchange ec6ba5bd); nothing is
 read from replies. Results are asserted exactly as observed. Where the observed behaviour contradicts the addendum's requirement
 (not merely its claim) the test FAILS and says why. No product code, pin, profile or default is changed; probes use test-time
 object mutation only. Every case runs twice and is compared (D3).

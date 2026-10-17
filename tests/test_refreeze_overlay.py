@@ -121,10 +121,14 @@ class Overlay(unittest.TestCase):
             _pins.classify_generation([{k: v for k, v in orig.items() if k != 'runtime'}], gens)
 
 
-NEW = {'runtime': '4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f', 'replay': '0cfe7a6319930bccad3e9027a1dfbe3d6e29d657',
-       'odes': '4e6d11691b9dea56a70026b6519159cf0e0ffd8b', 'evidence_pack': '683246e05d291308211778ec48045df65466461f',
-       'exchange': 'da95378228b8f3205af49a86e68ba722961f6af0'}
+NEW = {'runtime': '4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f', 'replay': 'def0ee0f3af713283ea3cd13f0caf79e1607b651',
+       'odes': '5675f1b96d95ba69510656bf73b1006110ef5b57', 'evidence_pack': '505a3590114705b7ebf736b92dd189f338134635',
+       'exchange': 'ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4'}
+R1_PINS = {'runtime': '4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f', 'replay': '0cfe7a6319930bccad3e9027a1dfbe3d6e29d657',
+           'odes': '4e6d11691b9dea56a70026b6519159cf0e0ffd8b', 'evidence_pack': '683246e05d291308211778ec48045df65466461f',
+           'exchange': 'da95378228b8f3205af49a86e68ba722961f6af0'}
 R1 = 'process/security-runtime-f5b-20261016-r1.json'
+R2 = 'process/security-runtime-f5b-20261016-r2.json'
 
 
 class CurrentPins(unittest.TestCase):
@@ -144,10 +148,10 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.REFROZEN_INDEX_PIN, 'd17b8ac2b8445d385fbf51185a35914b2d8b835c')
         self.assertEqual(_pins.C14_PINS, {'control_plane': 'a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5',
                                           'moltbot_safe': NEW['runtime'], 'replay': NEW['replay']})
-        self.assertEqual(_pins.PROFILE_RELPATH, R1)  # the profile follows the overlay once profile components are re-frozen
+        self.assertEqual(_pins.PROFILE_RELPATH, R2)  # the newest profile whose refreeze_ids are all applied
 
-    def test_profile_pins_equal_the_r1_qualification_profile(self):
-        prof = json.loads((ROOT / R1).read_text())
+    def test_profile_pins_equal_the_r2_qualification_profile(self):
+        prof = json.loads((ROOT / R2).read_text())
         self.assertEqual(_pins.PROFILE_PINS, {k: v['revision'] for k, v in prof['components'].items()})
 
     def test_r1_profile_is_the_original_with_only_the_five_revisions_changed(self):
@@ -159,10 +163,36 @@ class CurrentPins(unittest.TestCase):
             self.assertIs(r1[key], False)
         for key in ('profile_id', 'supersedes_profile', 'refreeze_ids', 'note', 'limitations'):
             r1.pop(key); orig.pop(key, None)
-        for name, rev in NEW.items():
+        for name, rev in R1_PINS.items():
             self.assertNotEqual(orig['components'][name]['revision'], rev)
             r1['components'][name]['revision'] = orig['components'][name]['revision']
         self.assertEqual(r1, orig)  # includes the exchange compatibility profile name and additional_source_hashes
+
+    def test_r2_profile_is_r1_with_only_replay_odes_pack_exchange_changed(self):
+        r1 = json.loads((ROOT / R1).read_text())
+        r2 = json.loads((ROOT / R2).read_text())
+        self.assertEqual(r2['profile_id'], 'security-runtime-f5b-20261016-r2')
+        self.assertEqual(r2['supersedes_profile'], R1)
+        self.assertEqual(r2['refreeze_ids'], ['RF-%d' % i for i in range(2, 11)])
+        for key in ('selected', 'reference_release_authorized', 'production_deployment_authorized'):
+            self.assertIs(r2[key], False)
+        for key in ('profile_id', 'supersedes_profile', 'refreeze_ids', 'note', 'limitations'):
+            r1.pop(key); r2.pop(key)
+        for name in ('replay', 'odes', 'evidence_pack', 'exchange'):
+            self.assertNotEqual(r1['components'][name]['revision'], r2['components'][name]['revision'])
+            r2['components'][name]['revision'] = r1['components'][name]['revision']
+        self.assertEqual(r2, r1)  # runtime/control_plane/manifest and the exchange compatibility profile name unchanged
+
+    def test_select_profile_picks_newest_fully_applied_profile(self):
+        done = 'APPLIED-IN-WORKFLOW (pending full controller run)'
+        ids = lambda n: log(*[entry('odes', A, B, status=done, eid='RF-%d' % i) for i in range(2, n + 1)])
+        self.assertEqual(_pins.select_profile(None), _pins.ORIGINAL_PROFILE)
+        self.assertEqual(_pins.select_profile(ids(1)), _pins.ORIGINAL_PROFILE)
+        self.assertEqual(_pins.select_profile(ids(6)), R1)          # r2 needs RF-7..RF-10 too
+        self.assertEqual(_pins.select_profile(ids(9)), R1)
+        self.assertEqual(_pins.select_profile(ids(10)), R2)
+        partial = ids(10); partial['entries'][-1]['status'] = 'PROPOSED'
+        self.assertEqual(_pins.select_profile(partial), R1)
 
     def test_original_profile_and_freeze_manifest_are_unedited(self):
         import hashlib
@@ -173,13 +203,13 @@ class CurrentPins(unittest.TestCase):
     def test_repo_log_applies_cleanly_and_changes_the_index_and_the_five_components(self):
         m = manifest()
         r, applied = _pins.apply_overlay(m, _pins.load_refreeze_log())
-        self.assertEqual([a[0] for a in applied], ['RF-1', 'RF-2', 'RF-3', 'RF-4', 'RF-5', 'RF-6'])
+        self.assertEqual([a[0] for a in applied], ['RF-%d' % i for i in range(1, 11)])
         changed = {(g, k) for g in _pins.GROUPS for k in m.get(g, {}) if m[g][k]['sha'] != r[g][k]['sha']}
         self.assertEqual(changed, {('components_lock_remainder', 'the_index'), ('components_subject', 'moltbot_safe'),
                                    ('components_subject', 'replay_bundle'), ('components_subject', 'odes'),
                                    ('components_subject', 'governance_evidence_pack'), ('components_subject', 'gax_imx_transport')})
-        self.assertEqual(len(_pins.GENERATIONS), 6)  # original + RF-2..RF-6; RF-1 (Index) is not a profile generation
-        self.assertEqual([g[0] for g in _pins.GENERATIONS], ["original-freeze", "RF-2", "RF-3", "RF-4", "RF-5", "RF-6"])
+        self.assertEqual(len(_pins.GENERATIONS), 10)  # original + RF-2..RF-10; RF-1 (Index) is not a profile generation
+        self.assertEqual([g[0] for g in _pins.GENERATIONS], ["original-freeze"] + ["RF-%d" % i for i in range(2, 11)])
 
     def test_no_pin_literal_left_in_helpers(self):
         pinned = {s['sha'] for g in _pins.GROUPS for s in manifest().get(g, {}).values()} | {manifest()['identities']['hub']['head'],

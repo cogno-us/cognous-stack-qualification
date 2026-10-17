@@ -6,9 +6,9 @@ Stimulus (catalog C13): tamper with an export and exercise the declared redactio
 observation: integrity failures are detected; absent, unknown and redacted states remain distinct; HMAC is not treated as
 public independent attestation.
 
-Surfaces exercised (Replay 0cfe7a63 ``sign_reconstruction_bundle`` / ``verify_reconstruction_hmac`` /
-``redact_reconstruction_bundle`` / ``content_digest``; Evidence Pack importer + validator 683246e0; ODES exporter +
-recipient evaluator 4e6d1169) over bundles produced by the frozen Control Plane + executor. Every variant is planted in a
+Surfaces exercised (Replay def0ee0f ``sign_reconstruction_bundle`` / ``verify_reconstruction_hmac`` /
+``redact_reconstruction_bundle`` / ``content_digest``; Evidence Pack importer + validator 505a3590; ODES exporter +
+recipient evaluator 5675f1b9) over bundles produced by the frozen Control Plane + executor. Every variant is planted in a
 deep copy; the exported originals are verified byte-unchanged. Each case runs twice (two independent producer runs, D3).
 Honest outcomes: where a consumer cannot carry a state (e.g. no downstream consumer accepts a redacted derivative) the
 test records the explicit refusal and the limit; nothing is faked as a pass. The replay package ships no content-digest

@@ -24,6 +24,7 @@ ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ("components_subject", "components_lock_remainder", "components_optional")
 ORIGINAL_PROFILE = "process/security-runtime-f5b-20261016.json"
 R1_PROFILE = "process/security-runtime-f5b-20261016-r1.json"  # the qualification profile of RF-2..RF-6 (profile components re-frozen)
+R2_PROFILE = "process/security-runtime-f5b-20261016-r2.json"  # the qualification profile of RF-2..RF-10 (supersedes r1)
 STATUS_APPLIED_PREFIX = "APPLIED"
 
 # Explicit mapping of a refreeze-log "component" to the freeze-manifest (section, key).  The log uses the manifest key
@@ -179,6 +180,25 @@ def classify_generation(evidence_pin_sets, gens):
     return gens[i][0], i
 
 
+def select_profile(log, root=None):
+    """Newest ``process/security-runtime-f5b-20261016-r<N>.json`` whose ``refreeze_ids`` are all APPLIED in ``log``.
+
+    Falls back to the original profile when no revision profile qualifies (nothing re-frozen yet)."""
+    import re
+    base = Path(root) if root else ROOT
+    applied = {e.get("id") for e in applied_entries(log)}
+    cands = []
+    for f in (base / "process").glob("security-runtime-f5b-20261016-r*.json"):
+        m = re.fullmatch(r"security-runtime-f5b-20261016-r(\d+)\.json", f.name)
+        if m:
+            cands.append((int(m.group(1)), f))
+    for _, f in sorted(cands, key=lambda c: c[0], reverse=True):
+        ids = load_json(f).get("refreeze_ids") or []
+        if ids and set(ids) <= applied:
+            return f.relative_to(base).as_posix()
+    return ORIGINAL_PROFILE
+
+
 # ---------------------------------------------------------------- resolved constants (manifest + overlay)
 _MANIFEST = load_manifest()
 _ORIGINAL_MANIFEST = copy.deepcopy(_MANIFEST)
@@ -189,9 +209,9 @@ _O = _ORIGINAL_MANIFEST
 RESOLVED_MANIFEST = _RESOLVED
 ORIGINAL_MANIFEST = _ORIGINAL_MANIFEST
 GENERATIONS = generations(_ORIGINAL_MANIFEST, load_refreeze_log())
-# The profile follows the overlay: the original while no profile component is re-frozen, the r1 profile once one is
+# The profile follows the overlay: the newest r<N> profile whose refreeze_ids are all applied, else the original
 # (V1_PROFILE still overrides, and the controller workflow sets it explicitly).
-PROFILE_RELPATH = os.environ.get("V1_PROFILE", R1_PROFILE if len(GENERATIONS) > 1 else ORIGINAL_PROFILE)
+PROFILE_RELPATH = os.environ.get("V1_PROFILE") or select_profile(load_refreeze_log())
 PROFILE_PATH = ROOT / PROFILE_RELPATH
 
 FROZEN_HUB = _RESOLVED["identities"]["hub"]["head"]

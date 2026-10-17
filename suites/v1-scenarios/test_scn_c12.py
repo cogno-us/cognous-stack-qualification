@@ -8,8 +8,8 @@ preserve identifiers and outcomes; invalid references and unsupported versions f
 
 Producers: the frozen F5b Control Plane (a34c3dc2) journal + the executor producer export (runtime 4a83b175) for nine real
 runs (valid, lost_ack, race, unreadable, revoked, purpose_closed, purpose_reopened, tampered_evidence, input_dropped), written
-to disk and re-read. Consumers: Replay ``import_bounded_workflow`` (0cfe7a63), Evidence Pack importer/validator (683246e0)
-and the ODES exporter/recipient evaluator (4e6d1169). Defects are planted ONLY in deep copies re-read from the exported files;
+to disk and re-read. Consumers: Replay ``import_bounded_workflow`` (def0ee0f), Evidence Pack importer/validator (505a3590)
+and the ODES exporter/recipient evaluator (5675f1b9). Defects are planted ONLY in deep copies re-read from the exported files;
 the pinned checkouts and the exported originals are verified byte-unchanged. Each case runs twice (two independent producer
 runs, D3) and the normalised observations are compared.
 
