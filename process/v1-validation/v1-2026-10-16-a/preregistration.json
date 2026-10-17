@@ -68,6 +68,11 @@
    "decision": "F-19 / SCN-C04: the Index counts copied evidence as additional supporting weight (no independence mechanism); known limit, already stated in BITREP_LINK_ATTESTATION.md",
    "effect": "SCN-C04 / ER-02-4b statuses are not changed. No requirement status, selector or verdict rule changes.",
    "decided": "2026-10-17 (after the refreeze-r1b result; disclosed, not pre-registered)"
+  },
+  "D15": {
+   "decision": "Owner direction (André de Lima, 2026-10-17, after seeing final-linux-1): reduce scope coverage so that what is claimed passes, and move failed and inconclusive rows to known limitations to be addressed after the ODES contract re-engineering. The V1 mandatory claim is narrowed to the 39 requirement rows that PASSED in final-linux-1 (run 39032930011). The 36 mandatory rows that were FAIL (2: ER-03-1, SCN-C04), INCONCLUSIVE (29) or NOT RUN (5) in that run are set mandatory:false in requirements.json, each carrying a scope_reduction record (decision, final_status, category), and are documented in docs/v1-known-limits.md. ODES contract re-engineering: cogno-us/open-decision-evidence-standard, docs/engineering/ODES-INTERCOMPONENT-CONTRACTS.md (in progress; not yet merged at the time of this decision).",
+   "effect": "This is a scope reduction, not a relabelling. No requirement status, selector, adequacy declaration or result is changed or deleted. Scope-reduced rows keep their real status and are never counted as PASS. The verdict rule is unchanged (computed over mandatory rows); the harness additionally reports a full-catalog status block and a scope-reduction block. V1 as validated = the 39 passing rows. Not a release decision.",
+   "decided": "2026-10-17 after the final-linux-1 result; disclosed, not pre-registered"
   }
  }
 }

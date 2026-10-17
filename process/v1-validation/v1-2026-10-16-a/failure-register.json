@@ -19,9 +19,11 @@
    "component": "the_index",
    "summary": "Link route accepts unverifiable attestations",
    "issue": "cogno-us/cognous-evidence-registry#23",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "note": "Fix merged to registry main (PR #25) ahead of the testing-complete rule, before it was set; frozen pin d5e45d27 still fails; re-verification needs a re-freeze decision",
-   "evidence": "final-38962759690"
+   "evidence": "final-38962759690",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "ER-02-2 row PASS (probes-index calibrated forged-attestation probe, 1 case) and SCN-C03 87/87 cases pass with 0 failures in final-linux-1 at re-frozen Index d17b8ac2; SCN-C03 row INCONCLUSIVE by declared partial coverage (D13/D15)"
   },
   {
    "id": "F-02",
@@ -33,7 +35,7 @@
    "summary": "Duplicated evidence counted as independent",
    "issue": "cogno-us/cognous-evidence-registry#24",
    "status": "REMEDIATION-PR",
-   "note": "Same PR #25; same re-freeze caveat | independence_score fixed; copied evidence still inflates supporting_weight (F-19)",
+   "note": "Same PR #25; same re-freeze caveat | independence_score fixed; copied evidence still inflates supporting_weight (F-19) | final-linux-1: ER-02-4b row PASS (independence_score probe) but SCN-C04 FAIL (4 of 10 cases: copied evidence still inflates supporting_weight, F-19); only partly fixed, kept REMEDIATION-PR. D15 moves SCN-C04 out of the mandatory claim as a design limit; status unchanged",
    "evidence": "final-38962759690"
   },
   {
@@ -44,9 +46,11 @@
    "component": "odes",
    "summary": "Stack-export profiles 0.2.1 and 0.2.2-refusal-candidate not labelled proposed / not documented",
    "issue": "cogno-us/open-decision-evidence-standard#41",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "step2b-38983273247",
-   "remediation": "cogno-us/open-decision-evidence-standard#44 (merged 3f5166fa); verification pending controller run"
+   "remediation": "cogno-us/open-decision-evidence-standard#44 (merged 3f5166fa); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "ER-09-3 row PASS in final-linux-1 (probes-odes, 5/5 cases)"
   },
   {
    "id": "F-04",
@@ -56,9 +60,11 @@
    "component": "moltbot_safe (runtime route A)",
    "summary": "tenant_id not compared; tenant-substituted request commits an effect (3 cases, 1 unauthorized effect each)",
    "issue": "cogno-us/cognous-execution-runtime#95",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn1-38998931247",
-   "remediation": "cogno-us/cognous-execution-runtime#100 (merged d76b803c); verification pending controller run"
+   "remediation": "cogno-us/cognous-execution-runtime#100 (merged d76b803c); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-D02 58/58 pass, 0 failures; ASW I-series 27/27); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-05",
@@ -68,9 +74,11 @@
    "component": "odes / replay export",
    "summary": "One unauthorized hold blocks export of the valid flow",
    "issue": "cogno-us/open-decision-evidence-standard#42",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn1-38998931247",
-   "remediation": "cogno-us/open-decision-evidence-standard#45 (merged 402cc10c); verification pending controller run"
+   "remediation": "cogno-us/open-decision-evidence-standard#45 (merged 402cc10c); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-D06 8/8 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-06",
@@ -80,9 +88,11 @@
    "component": "producer and replay bundle evaluators",
    "summary": "8 planted-defect cases undetected (attempt_events drop/corrupt, resolution_checks reorder, bundle import_reports drop)",
    "issue": "cogno-us/cognous-stack-qualification#53",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn1-38998931247",
-   "remediation": "cogno-us/cognous-replay-bundle#33 (merged c63ef880) + cogno-us/cognous-governance-evidence-pack#34 (merged 683246e0) + cogno-us/open-decision-evidence-standard#47 (merged 98b0fba3); verification pending controller run"
+   "remediation": "cogno-us/cognous-replay-bundle#33 (merged c63ef880) + cogno-us/cognous-governance-evidence-pack#34 (merged 683246e0) + cogno-us/open-decision-evidence-standard#47 (merged 98b0fba3); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-D08 32/32 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-07",
@@ -93,7 +103,7 @@
    "summary": "Fails on macOS and Windows (Linux-only by design)",
    "issue": "cogno-us/cognous-open-control-stack#157",
    "status": "WONTFIX-OWNER-DECISION",
-   "note": "D2 Linux only; documented in hub PR #159",
+   "note": "D2 Linux only; documented in hub PR #159 | Not exercised in final-linux-1 (Linux-only run); status unchanged",
    "evidence": "final-38962759690"
   },
   {
@@ -104,9 +114,11 @@
    "component": "moltbot_safe route B",
    "summary": "Post-commit observation failure reported as denied/attempted=false instead of unresolved",
    "issue": "cogno-us/cognous-execution-runtime#96",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn2b-39003572138",
-   "remediation": "cogno-us/cognous-execution-runtime#101 (merged 55973d53); verification pending controller run"
+   "remediation": "cogno-us/cognous-execution-runtime#101 (merged 55973d53); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-C06 7/7 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-09",
@@ -116,9 +128,11 @@
    "component": "moltbot_safe route A",
    "summary": "Narrowed local grant does not stop direct destination commit; 1 unauthorized effect",
    "issue": "cogno-us/cognous-execution-runtime#97",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn2b-39003572138",
-   "remediation": "cogno-us/cognous-execution-runtime#102 (merged 0c1d8110); verification pending controller run"
+   "remediation": "cogno-us/cognous-execution-runtime#102 (merged 0c1d8110); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-C11 55/55 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-10",
@@ -128,9 +142,11 @@
    "component": "executor export",
    "summary": "Injected unknown members silently dropped (top-level, producer-profile, repository)",
    "issue": "cogno-us/cognous-execution-runtime#98",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn2b-39003572138",
-   "remediation": "cogno-us/cognous-replay-bundle#34 (merged 6076fade); verification pending controller run"
+   "remediation": "cogno-us/cognous-replay-bundle#34 (merged 6076fade); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-C12 57/57 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-11",
@@ -140,9 +156,11 @@
    "component": "odes",
    "summary": "Changed ODES bundle version not flagged",
    "issue": "cogno-us/open-decision-evidence-standard#43",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn2b-39003572138",
-   "remediation": "cogno-us/open-decision-evidence-standard#46 (merged 74934fbd); verification pending controller run"
+   "remediation": "cogno-us/open-decision-evidence-standard#46 (merged 74934fbd); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-C12 57/57 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-12",
@@ -153,9 +171,11 @@
    "component": "evaluators",
    "summary": "Seeded-defect misses: duplicate_effect 16/30, fabricated_completion 12/71, omitted_observation 8/128 (same root as F-06)",
    "issue": "cogno-us/cognous-stack-qualification#53 (comment)",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "scn2b-39003572138",
-   "remediation": "cogno-us/cognous-replay-bundle#33 (merged c63ef880) + cogno-us/cognous-governance-evidence-pack#34 (merged 683246e0) + cogno-us/open-decision-evidence-standard#47 (merged 98b0fba3); verification pending controller run"
+   "remediation": "cogno-us/cognous-replay-bundle#33 (merged c63ef880) + cogno-us/cognous-governance-evidence-pack#34 (merged 683246e0) + cogno-us/open-decision-evidence-standard#47 (merged 98b0fba3); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-C23 12/12 and SCN-D08 32/32 pass, 0 failures; E2 effect-gate oracle detected all 5 seeded defects, missed=[]); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-13",
@@ -165,9 +185,11 @@
    "component": "governed exchange",
    "summary": "Substituted replay bundle accepted and executed; evidence_refs digest never compared (S02)",
    "issue": "cogno-us/cognous-governed-exchange#30",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "full1-39005768983",
-   "remediation": "cogno-us/cognous-governed-exchange#31 (merged d61e8c82); verification pending controller run"
+   "remediation": "cogno-us/cognous-governed-exchange#31 (merged d61e8c82); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (ADD-ASW12 231 matched scenario cases pass, 0 failures (ASW S-series 90/90)); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-14",
@@ -178,9 +200,11 @@
    "component": "moltbot_safe route A",
    "summary": "Tenant substitution also reproduced by ASW I01 (same defect as F-04)",
    "issue": "cogno-us/cognous-execution-runtime#95",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "worker run v1-w3",
-   "remediation": "cogno-us/cognous-execution-runtime#100 (merged d76b803c); verification pending controller run"
+   "remediation": "cogno-us/cognous-execution-runtime#100 (merged d76b803c); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-D02 58/58 and ASW I-series 27/27 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-15",
@@ -193,7 +217,7 @@
    "issue": "https://github.com/cogno-us/cognous-institutional-governance/issues/50",
    "status": "REMEDIATION-PR",
    "evidence": "full1-39005768983",
-   "note": "fix PR cogno-us/cognous-institutional-governance#51 open pending owner confirmation of proposed limits; qualification follow-up: ER-03-1 probe hardcodes 44 fixtures (branch has 51) and baseline-scope probes need revision at re-pin | Update 2026-10-17: fix #51 is merged on institutional-governance main (cbc39e79) but is NOT in the pinned tuple; the pin stays at fb3d9793 by owner decision, so ER-03-1 remains unverified in the final run",
+   "note": "fix PR cogno-us/cognous-institutional-governance#51 open pending owner confirmation of proposed limits; qualification follow-up: ER-03-1 probe hardcodes 44 fixtures (branch has 51) and baseline-scope probes need revision at re-pin | Update 2026-10-17: fix #51 is merged on institutional-governance main (cbc39e79) but is NOT in the pinned tuple; the pin stays at fb3d9793 by owner decision, so ER-03-1 remains unverified in the final run | final-linux-1: ER-03-1 still FAIL (probes-authority 1 failure: no delay limit linked to any consequence tier), because the fix is not in the pinned tuple. D15 moves ER-03-1 out of the mandatory claim (category fix-merged-outside-pinned-tuple); status unchanged",
    "decision": "D11",
    "remediation": "cogno-us/cognous-institutional-governance#51 (merged cbc39e79); verification pending controller run"
   },
@@ -209,7 +233,7 @@
    "status": "WONTFIX-OWNER-DECISION",
    "evidence": "full1-39005768983",
    "decision": "D10",
-   "note": "Owner decision D10 (2026-10-17, preregistration.json): accepted as a known limit of V1; requirement status unchanged"
+   "note": "Owner decision D10 (2026-10-17, preregistration.json): accepted as a known limit of V1; requirement status unchanged | final-linux-1: ADD-AUTH-RA still FAIL (probes-control-plane 6 failures); row already non-mandatory under D10; unchanged by D15"
   },
   {
    "id": "F-17",
@@ -219,10 +243,12 @@
    "component": "moltbot_safe",
    "summary": "Generation fence on F5b path fails every commit (unexpected kwarg expected_effective_grant_digest)",
    "issue": "https://github.com/cogno-us/cognous-execution-runtime/issues/99",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "full1-39005768983",
    "remediation": "cogno-us/cognous-governed-exchange#32 (merged a42e6a85); verification pending controller run",
-   "note": "Runtime #103 (merged 4a83b175) is docs only; the code fix is in governed-exchange #32"
+   "note": "Runtime #103 (merged 4a83b175) is docs only; the code fix is in governed-exchange #32",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "ADD-MOLT-VERIFY row PASS in final-linux-1 (13/13 scenario cases)"
   },
   {
    "id": "F-18",
@@ -235,7 +261,7 @@
    "status": "WONTFIX-OWNER-DECISION",
    "evidence": "full1-39005768983",
    "decision": "D12",
-   "note": "Owner decision D12 (2026-10-17, preregistration.json): accepted as a known limit of V1; requirement status unchanged"
+   "note": "Owner decision D12 (2026-10-17, preregistration.json): accepted as a known limit of V1; requirement status unchanged | final-linux-1: ADD-C2C-BI row PASS (7/7: the unsupported combination is exercised and fails closed as documented); status unchanged"
   },
   {
    "id": "F-19",
@@ -249,7 +275,7 @@
    "status": "WONTFIX-OWNER-DECISION",
    "evidence": "worker run v1-ix (local); CI confirmation pending",
    "decision": "D14",
-   "note": "Owner decision D14 (2026-10-17, preregistration.json): accepted as a known limit of V1; requirement status unchanged"
+   "note": "Owner decision D14 (2026-10-17, preregistration.json): accepted as a known limit of V1; requirement status unchanged | final-linux-1 (CI) confirms: SCN-C04 4 failures at Index d17b8ac2 (supporting_weight 0.8 -> 4.0 for five copies). D15 category design-limit; status unchanged"
   },
   {
    "id": "F-20",
@@ -259,9 +285,11 @@
    "component": "cognous-replay-bundle (0cfe7a63)",
    "summary": "Route C: replay #33 _validate_v2_executor_rows rejects result 'unknown' with terminal 'executed', which the runtime legitimately emits when the Control Plane observation is unavailable",
    "issue": "to be filed in cogno-us/cognous-replay-bundle",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "results/v1-validation/v1-2026-10-16-a/refreeze-r1b-39025887085",
-   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run"
+   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-C06 7/7 pass, 0 failures; refreeze-r1b rejection no longer reproduced at replay def0ee0f); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-21",
@@ -273,9 +301,11 @@
    "component": "cognous-replay-bundle (0cfe7a63)",
    "summary": "Route C: replay #33 _validate_repaired_run requires an 'attempted' start row, but control plane bounded.py ~1020-1043 mints single-row acknowledged/partial 'reconciled_existing' attempts that have none; legitimate runs are rejected",
    "issue": "to be filed in cogno-us/cognous-replay-bundle (cross-reference cogno-us/cognous-control-plane bounded.py ~1020-1043)",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "results/v1-validation/v1-2026-10-16-a/refreeze-r1b-39025887085",
-   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run"
+   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-C09 12/12, SCN-D05 12/12, SCN-D06 8/8 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-22",
@@ -285,9 +315,11 @@
    "component": "cognous-replay-bundle (0cfe7a63)",
    "summary": "replay #33 refusal_evidence.py journal-order rule fails under concurrent resolution checks (race)",
    "issue": "to be filed in cogno-us/cognous-replay-bundle",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "results/v1-validation/v1-2026-10-16-a/refreeze-r1b-39025887085",
-   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run"
+   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "test-level confirmation in final-linux-1 scenarios JUnit (SCN-D06 8/8 pass, 0 failures); the matched row is capped at INCONCLUSIVE by declared partial coverage (D13/D15), so this verifies the defect, not the row"
   },
   {
    "id": "F-23",
@@ -298,16 +330,19 @@
    "component": "cognous-replay-bundle (0cfe7a63)",
    "summary": "replay #34 added 2 pytest.skip cases which make the matched rows INCONCLUSIVE (test-only; no product defect)",
    "issue": "to be filed in cogno-us/cognous-replay-bundle",
-   "status": "REMEDIATION-PR",
+   "status": "VERIFIED",
    "evidence": "results/v1-validation/v1-2026-10-16-a/refreeze-r1b-39025887085",
    "classification": "test-only",
-   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run"
+   "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run",
+   "verified_in": "final-linux-1-39032930011",
+   "verification_scope": "ER-07-1 (73 cases) and ER-07-2 (59 cases) rows PASS in final-linux-1 with 0 skips"
   }
  ],
  "notes": [
   "F-20..F-23 (refreeze-r1b-39025887085): SCN-C08 and SCN-D05 route A determinism mismatches were secondary effects of F-21 (a random attempt UUID inside the F-21 error string made the two normalised runs differ), not a separate product defect. The harness now normalises recorded exception strings (suites/v1-scenarios/_reason_norm.py), so a real rejection reports as a clean FAIL.",
   "ER-03-1, ADD-AUTH-RA and SCN-C04 remain failing from earlier entries (F-15, F-16 and F-19 respectively; F-02 for SCN-C04 is only partly fixed); no new entries needed.",
-  "Re-freeze stopped by owner 2026-10-17; the final run final-linux-1 is the single run at the pins in force (RF-1..RF-10; constitutional_authority stays at fb3d9793)."
+  "Re-freeze stopped by owner 2026-10-17; the final run final-linux-1 is the single run at the pins in force (RF-1..RF-10; constitutional_authority stays at fb3d9793).",
+  "D15 (2026-10-17, after final-linux-1): 17 entries re-statused VERIFIED on evidence checked in final-linux-1 (JUnit/matrix); F-02, F-15, F-19 still failing (kept); F-07, F-16, F-18 unchanged. Verification is at defect/test level; rows capped by declared partial coverage stay INCONCLUSIVE and are scope-reduced, not passed."
  ],
  "limits_not_failures": [
   "SCN-D06 reference limits (no ingress limiter, unbounded rejection rows) - report-only per D5, tracked in #53",
