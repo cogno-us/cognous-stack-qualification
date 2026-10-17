@@ -443,6 +443,30 @@ def verdict(requirements):
     return "PASS" if mandatory else "INCOMPLETE"
 
 
+def full_catalog_status(requirements):
+    """Reporting only. Real status of EVERY row (scope-reduced rows included); a scope-reduced row is never counted as PASS.
+
+    unreduced_mandatory_verdict is the verdict rule applied to the rows that were mandatory before any scope reduction
+    (currently mandatory rows plus rows carrying a scope_reduction record). It does not feed the selected verdict.
+    """
+    unreduced = [r for r in requirements if r.get("mandatory", True) or r.get("scope_reduction")]
+    return {"note": "computed over ALL rows with their real statuses, including scope-reduced rows; scope reduction never converts a row to PASS",
+            "rows": len(requirements),
+            "status_counts": {st: sum(1 for r in requirements if r["status"] == st) for st in STATUSES},
+            "unreduced_mandatory_rows": len(unreduced),
+            "unreduced_mandatory_status_counts": {st: sum(1 for r in unreduced if r["status"] == st) for st in STATUSES},
+            "unreduced_mandatory_verdict": verdict([dict(r, mandatory=True) for r in unreduced])}
+
+
+def scope_reduction_block(requirements):
+    """Reporting only. Every row moved out of the mandatory claim by a scope-reduction decision, with its real status."""
+    moved = [r for r in requirements if r.get("scope_reduction")]
+    return {"note": "rows moved out of the V1 mandatory claim into documented known limitations; their statuses, selectors and results are unchanged",
+            "count": len(moved),
+            "rows": [{"id": r["id"], "decision": r["scope_reduction"].get("decision"), "category": r["scope_reduction"].get("category"),
+                      "final_status": r["status"], "declared_final_status": r["scope_reduction"].get("final_status"), "mandatory": bool(r.get("mandatory", True))} for r in moved]}
+
+
 def load_junit_index(inputs: Path, results):
     """component -> list of (classname, name, outcome). Only Linux/3.12 component runs plus single-instance jobs count as selector evidence."""
     index = {}
@@ -563,6 +587,9 @@ def cmd_aggregate(args):
                "requirement_status_counts": {st: sum(1 for r in requirements if r["status"] == st) for st in STATUSES},
                "requirement_status_by_source_class": {sc: {st: sum(1 for r in requirements if r.get("source_class", "docx-or-catalog") == sc and r["status"] == st) for st in STATUSES} for sc in sorted({r.get("source_class", "docx-or-catalog") for r in requirements})},
                "mandatory_requirement_status_counts": {st: sum(1 for r in requirements if r["status"] == st and r["mandatory"]) for st in STATUSES}}
+    if requirements:
+        summary["full_catalog_status"] = full_catalog_status(requirements)
+        summary["scope_reduction"] = scope_reduction_block(requirements)
     if freeze is None or freeze.get("status") != "PASS":
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
         summary["verdict_note"] = "freeze verification did not pass; no result may be promoted"
@@ -573,6 +600,18 @@ def cmd_aggregate(args):
     for row in rows:
         c = row["counts"] or {}
         lines.append(f"| {row['component']} | {row['os']} | {row['python']} | {row['status']} | {c.get('testcases','-')}/{c.get('failures','-')}/{c.get('errors','-')}/{c.get('skipped','-')} | {row['reason'] or ''} |")
+    if requirements:
+        fc, sr = summary["full_catalog_status"], summary["scope_reduction"]
+        lines += ["", "### Full-catalog status (all rows, real statuses; reporting only, not the verdict basis)", "",
+                  "| Status | All rows | Pre-reduction mandatory rows |", "|---|---|---|"]
+        lines += [f"| {st} | {fc['status_counts'][st]} | {fc['unreduced_mandatory_status_counts'][st]} |" for st in STATUSES]
+        lines += ["", f"Pre-reduction mandatory verdict (verdict rule applied to the rows that were mandatory before scope reduction): **{fc['unreduced_mandatory_verdict']}**"]
+        lines += ["", f"### Scope reduction ({sr['count']} rows moved out of the mandatory claim; statuses unchanged, none counted as PASS)", ""]
+        if sr["rows"]:
+            lines += ["| ID | Decision | Category | Final status |", "|---|---|---|---|"]
+            lines += [f"| {x['id']} | {x['decision']} | {x['category']} | {x['final_status']} |" for x in sr["rows"]]
+        else:
+            lines += ["No rows are scope-reduced."]
     md = "\n".join(lines) + "\n"
     (out / "summary.md").write_text(md, encoding="utf-8")
     if os.environ.get("GITHUB_STEP_SUMMARY"):

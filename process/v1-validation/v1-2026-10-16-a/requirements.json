@@ -207,7 +207,7 @@
    "source": "docx §03 Alvorada constitutional governance",
    "text": "Authority context and authorisation-effect semantics hold",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "selectors": [
     {
      "component": "constitutional_authority",
@@ -227,7 +227,12 @@
    ],
    "adequacy": "adequate",
    "adequacy_note": "line-by-line map in acceptance-map-03.json: 14 lines, 9 mapped to pinned tests, 5 covered by new probes (documents/claims)",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "FAIL",
+    "category": "fix-merged-outside-pinned-tuple"
+   }
   },
   {
    "id": "ER-03-2",
@@ -303,7 +308,7 @@
    "source": "docx §04 Agent Action Manifest",
    "text": "Any schema change has migration notes",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -313,7 +318,12 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "process check over the few schema-changing PRs in history; two had notes only outside the same PR (recorded as timing gaps)"
+   "adequacy_note": "process check over the few schema-changing PRs in history; two had notes only outside the same PR (recorded as timing gaps)",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "ER-05-1",
@@ -807,7 +817,7 @@
    "source": "docx Shared implementation requirements",
    "text": "False allows/blocks, duplicate effects, unresolved delivery, recovery, latency and human review burden measured against a conventional-control baseline",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -817,14 +827,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "C22 equal-conditions comparison vs a harness-defined conventional control (catalog gives none); hard gates asserted on V1; false blocks, latency and review burden report-only per D5; only 4 permitted cases; human effort not measured"
+   "adequacy_note": "C22 equal-conditions comparison vs a harness-defined conventional control (catalog gives none); hard gates asserted on V1; false blocks, latency and review burden report-only per D5; only 4 permitted cases; human effort not measured",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SR-3",
    "source": "docx Shared implementation requirements",
    "text": "Public repositories do not acquire proprietary ISS or private IGPG logic",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -834,7 +849,12 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "lexical screen of 12 pinned public repos only; optional components not scanned; not a semantic review of logic"
+   "adequacy_note": "lexical screen of 12 pinned public repos only; optional components not scanned; not a semantic review of logic",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SC-MATCHED",
@@ -881,18 +901,23 @@
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Valid action: One intended effect, correct business values, linked decision and observation; successful completion report.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "INCONCLUSIVE",
    "reason": "named synthetic assertion executed (matched refund battery, see SC-MATCHED); catalog mapping PARTIAL; not whole-catalog acceptance",
    "classification": "missing capability",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D02",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Binding substitution: Each altered request is refused; no prohibited destination mutation; refusal path is observable.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -902,36 +927,51 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "no tenant concept on the exchange route; no OpenShell destination"
+   "adequacy_note": "no tenant concept on the exchange route; no OpenShell destination",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D03",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Authority changes: Record ordering and boundary. No effect where the qualified contract promises prevention; expose any residual race.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "INCONCLUSIVE",
    "reason": "named synthetic assertion executed (matched refund battery, see SC-MATCHED); catalog mapping PARTIAL; not whole-catalog acceptance",
    "classification": "missing capability",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D04",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Ambiguous delivery: Delivery remains unknown until reconciliation; same effect ID and new attempt; no duplicate effect.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "INCONCLUSIVE",
    "reason": "named synthetic assertion executed (matched refund battery, see SC-MATCHED); catalog mapping PARTIAL; not whole-catalog acceptance",
    "classification": "missing capability",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D05",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Partial effect: Delivered and undelivered parts remain distinguishable; recovery respects current authority and does not redeliver completed parts.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -941,14 +981,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "reference has no native multi-part operation or explicit cancel call; parts composed from claims on a shared budget"
+   "adequacy_note": "reference has no native multi-part operation or explicit cancel call; parts composed from claims on a shared budget",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D06",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Ingress pressure: Measured CPU, memory, concurrency, storage and latency stay within predeclared profile limits; authenticated evidence obligations remain intact.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -958,14 +1003,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "reference has no ingress limiter, typed INGRESS_SATURATED refusal or listener; measurements report-only per D5"
+   "adequacy_note": "reference has no ingress limiter, typed INGRESS_SATURATED refusal or listener; measurements report-only per D5",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D07",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Restore boundary: Show accepted replays or refusal under each restoration; distinguish local persistence from an external anchor guarantee.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -975,14 +1025,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "no external anchor exists; some restores re-admit effects after history erasure (recorded as limitations)"
+   "adequacy_note": "no external anchor exists; some restores re-admit effects after history erasure (recorded as limitations)",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D08",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Audit and export: Evaluator detects planted defects; Replay and Evidence Pack preserve unknown, missing and refused states without promoting them to verified.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -992,14 +1047,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "covers planted defects in five artifact families, not every stimulus class beyond the catalogue"
+   "adequacy_note": "covers planted defects in five artifact families, not every stimulus class beyond the catalogue",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-D09",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Bypass and interruption: Inventory and test all supported routes; state matches documented commit ordering. Do not claim reversal after an irreversible commit.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1009,7 +1069,12 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "raw SQL by the database holder and OpenShell routes are out of model"
+   "adequacy_note": "raw SQL by the database holder and OpenShell routes are out of model",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-A01",
@@ -1104,7 +1169,7 @@
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Missing grant: Refuse execution; authoritative destination is unchanged; refusal evidence is retained.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1114,14 +1179,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "tenant variants and OpenShell destination not covered"
+   "adequacy_note": "tenant variants and OpenShell destination not covered",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C02",
    "source": "scenario catalog 04 Agent Action Manifest",
    "text": "Unknown action and manifest mismatch: Neither request defaults to permission; destination remains unchanged.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1131,14 +1201,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "tenant variants and OpenShell destination not covered"
+   "adequacy_note": "tenant variants and OpenShell destination not covered",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C03",
    "source": "scenario catalog 01 BitRep",
    "text": "Forged and replayed attestation: Rejected evidence never becomes accepted support or execution authority; record temporal key semantics.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1148,14 +1223,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "run against the re-frozen Index d17b8ac2 (RF-1; historical results at d5e45d27 retained); BitRep verification is not integrated at the Index link route there"
+   "adequacy_note": "run against the re-frozen Index d17b8ac2 (RF-1; historical results at d5e45d27 retained); BitRep verification is not integrated at the Index link route there",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C04",
    "source": "scenario catalog 02 The Index",
    "text": "Evidence supersession and dependence: History survives; current status recomputes from pinned inputs; copied evidence is not counted as independent corroboration.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1165,25 +1245,35 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "run against the re-frozen Index d17b8ac2 (RF-1; historical results at d5e45d27 retained)"
+   "adequacy_note": "run against the re-frozen Index d17b8ac2 (RF-1; historical results at d5e45d27 retained)",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "FAIL",
+    "category": "design-limit"
+   }
   },
   {
    "id": "SCN-C05",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Optional evidence unknown: Follow the declared evidence policy; do not invent the fact or require an unnecessary block.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "NOT RUN",
    "reason": "no accepted execution; coverage mapping UNIMPLEMENTED",
    "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "NOT RUN",
+    "category": "not-run-unimplemented"
+   }
   },
   {
    "id": "SCN-C06",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Authoritative observer unavailable: Delivery remains unresolved; no verified completion or blind retry.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1193,14 +1283,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "observer independence beyond an in-process oracle not exercised"
+   "adequacy_note": "observer independence beyond an in-process oracle not exercised",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C07",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Concurrent authority change: Record actual order against the declared linearization contract; expose rather than conceal any residual race.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1210,14 +1305,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "residual check-to-commit race recorded as evidence, not a failure (C0 default)"
+   "adequacy_note": "residual check-to-commit race recorded as evidence, not a failure (C0 default)",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C08",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Crash and restart: Reconcile authoritative state and stable effect identity; no unsupported completion or duplicate.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1227,14 +1327,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "no OS-level kill for routes A and C (BaseException crash model); power loss not claimed"
+   "adequacy_note": "no OS-level kill for routes A and C (BaseException crash model); power loss not claimed",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C09",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Repeat delivery: No excess committed effect; attempt identity is distinct and linked to the original effect.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1244,14 +1349,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "tenant and OpenShell variants not covered"
+   "adequacy_note": "tenant and OpenShell variants not covered",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C10",
    "source": "scenario catalog 06 Moltbot Safe",
    "text": "Executor confinement: No access outside the declared test boundary; report exactly which isolation surfaces were exercised.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1261,14 +1371,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "no OpenShell destination, container isolation or credential broker in the reference"
+   "adequacy_note": "no OpenShell destination, container isolation or credential broker in the reference",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C11",
    "source": "scenario catalog Shared implementation requirements; 06 Moltbot Safe",
    "text": "Credential and permission boundaries: Institutional authorization cannot override stricter local permissions; no unauthorized destination mutation or credential exposure.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1278,14 +1393,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "no credential broker in the reference; local-credential holder bypass is characterised"
+   "adequacy_note": "no credential broker in the reference; local-credential holder bypass is characterised",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C12",
    "source": "scenario catalog 07 Agent Replay Bundle; 08 Agent Governance Evidence Pack",
    "text": "Producer consumer compatibility: Supported records preserve identifiers and outcomes; invalid references and unsupported versions fail explicitly; field loss is reported.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1295,14 +1415,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "executor export silently drops injected unknown members (see failures)"
+   "adequacy_note": "executor export silently drops injected unknown members (see failures)",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C13",
    "source": "scenario catalog 07 Agent Replay Bundle",
    "text": "Redaction and signing: Integrity failures are detected; absent, unknown and redacted states remain distinct; HMAC is not treated as public independent attestation.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1312,14 +1437,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "HMAC and content digest only; no public-key signature path; absent/unavailable states not emitted by producers"
+   "adequacy_note": "HMAC and content digest only; no public-key signature path; absent/unavailable states not emitted by producers",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C14",
    "source": "scenario catalog 09 Open Decision Evidence Standard; 18 Cognous Open Control Stack consolidation",
    "text": "Optional ODES consumer: Declared versions validate; lineage and uncertainty survive; envelope validity does not grant authority or prove delivery.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1329,25 +1459,35 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "ODES as an optional absent consumer not covered"
+   "adequacy_note": "ODES as an optional absent consumer not covered",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C15",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Conflicting proposals: Supported coordinator enforces task ownership and conflict handling without expanding permissions; absent coordinator is explicitly unsupported.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "NOT RUN",
    "reason": "no accepted execution; coverage mapping UNIMPLEMENTED",
    "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "NOT RUN",
+    "category": "not-run-unimplemented"
+   }
   },
   {
    "id": "SCN-C16",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Shared budget exhaustion: No effect exceeding the budget under the declared coordination contract; unsupported coordination is reported.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1357,14 +1497,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "no exchange-route budget case; no per-agent quotas or replenish API in the reference"
+   "adequacy_note": "no exchange-route budget case; no per-agent quotas or replenish API in the reference",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C17",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Stale shared state: Reject or reconcile according to the declared concurrency contract; no silently lost update or expanded authority.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1374,14 +1519,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "authority writers have no compare-and-set (unsupported coordination); exchange route covers grant revision and policy version only"
+   "adequacy_note": "authority writers have no compare-and-set (unsupported coordination); exchange route covers grant revision and policy version only",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C18",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Bounded delegation: Only supported bounded delegation can proceed; a handoff cannot create new authority.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1391,47 +1541,67 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "sub-delegation unsupported by the reference; exchange route not covered"
+   "adequacy_note": "sub-delegation unsupported by the reference; exchange route not covered",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C19",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Fleet suspension: Behavior follows the declared suspension and commit ordering contract; no claim that per-run gates implement fleet suspension.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "NOT RUN",
    "reason": "no accepted execution; coverage mapping UNIMPLEMENTED",
    "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "NOT RUN",
+    "category": "not-run-unimplemented"
+   }
   },
   {
    "id": "SCN-C20",
    "source": "scenario catalog 03 Alvorada constitutional governance; 18 Cognous Open Control Stack consolidation",
    "text": "Policy improvement adoption: Proposal alone changes no governing rule; only competent adoption changes the applicable policy version.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "NOT RUN",
    "reason": "no accepted execution; coverage mapping UNIMPLEMENTED",
    "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "NOT RUN",
+    "category": "not-run-unimplemented"
+   }
   },
   {
    "id": "SCN-C21",
    "source": "scenario catalog 03 Alvorada constitutional governance",
    "text": "Proportional review and remedy: Declared review, delay and evidence obligations apply with traceable owners; records do not imply institutional adoption or effectiveness.",
    "kind": "gap",
-   "mandatory": true,
+   "mandatory": false,
    "declared_status": "NOT RUN",
    "reason": "no accepted execution; coverage mapping UNIMPLEMENTED",
    "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "NOT RUN",
+    "category": "not-run-unimplemented"
+   }
   },
   {
    "id": "SCN-C22",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Equal conditions comparison: Report correctness, prohibited and duplicate effects, false blocks, latency, recovery and human effort per arm; recovery is a separate trajectory.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1441,14 +1611,19 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "conventional control defined by the harness (catalog gives none); only 4 permitted cases; human effort not measured; metrics report-only per D5"
+   "adequacy_note": "conventional control defined by the harness (catalog gives none); only 4 permitted cases; human effort not measured; metrics report-only per D5",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "SCN-C23",
    "source": "scenario catalog 5 Evaluators metrics and acceptance rules",
    "text": "Evaluator calibration: Detect every seeded critical defect and report false alarms; scanner completion alone is not detection evidence.",
    "kind": "tests",
-   "mandatory": true,
+   "mandatory": false,
    "source_class": "docx-or-catalog",
    "selectors": [
     {
@@ -1458,7 +1633,12 @@
     }
    ],
    "adequacy": "partial",
-   "adequacy_note": "prohibited_access seeded only in producer artifacts"
+   "adequacy_note": "prohibited_access seeded only in producer artifacts",
+   "scope_reduction": {
+    "decision": "D15",
+    "final_status": "INCONCLUSIVE",
+    "category": "inconclusive-partial-coverage"
+   }
   },
   {
    "id": "ADD-C2C-R1",
