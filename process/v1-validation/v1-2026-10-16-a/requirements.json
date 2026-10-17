@@ -213,10 +213,20 @@
      "component": "constitutional_authority",
      "re": "AuthorizationEffectTests|AuthorityContextTests|ReviewedArtifactDigestTests",
      "min": 10
+    },
+    {
+     "component": "probes-authority",
+     "re": "probe_er031_",
+     "min": 23
+    },
+    {
+     "component": "constitutional_authority",
+     "re": "test_schema_and_semantic_fixture_oracles",
+     "min": 1
     }
    ],
-   "adequacy": "partial",
-   "adequacy_note": "component test suite passes; docx §03 acceptance text was only summarised, not mapped line by line",
+   "adequacy": "adequate",
+   "adequacy_note": "line-by-line map in acceptance-map-03.json: 14 lines, 9 mapped to pinned tests, 5 covered by new probes (documents/claims)",
    "source_class": "docx-or-catalog"
   },
   {
@@ -1687,12 +1697,73 @@
    "id": "ADD-ASW12",
    "source": "ASW addendum B2/P0",
    "text": "ASW core 12 attack cases A01-A04, I01-I03, P01, S01-S02, R01-R02",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": false,
    "source_class": "addenda",
-   "declared_status": "NOT RUN",
-   "reason": "adversarial qualification program; cases not implemented in this run",
-   "classification": "missing capability"
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_asw_a01_",
+     "min": 9
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_a02_",
+     "min": 20
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_a03_",
+     "min": 42
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_a04_",
+     "min": 20
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_i01_",
+     "min": 11
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_i02_",
+     "min": 9
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_i03_",
+     "min": 7
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_p01_",
+     "min": 13
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_s01_",
+     "min": 61
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_s02_",
+     "min": 29
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_r01_",
+     "min": 5
+    },
+    {
+     "component": "scenarios",
+     "re": "test_asw_r02_",
+     "min": 5
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "deterministic boundary only; live-agent parts of A01/P01, MCP registry (A02), exchange tenant, package resolution (S01), SOC/operator handling (R01/R02) not covered; case definitions mapped from register items GR-0550..0577 (wiki has no A01/I01 IDs)"
   },
   {
    "id": "ADD-MOLT-VERIFY",
@@ -1717,10 +1788,15 @@
      "component": "control_plane",
      "re": "test_runtime_authority",
      "min": 20
+    },
+    {
+     "component": "probes-control-plane",
+     "re": "probe_addauthra_",
+     "min": 45
     }
    ],
-   "adequacy": "partial",
-   "adequacy_note": "36-case module passes; addendum K-series acceptance not mapped line by line"
+   "adequacy": "adequate",
+   "adequacy_note": "39 behaviour lines mapped (18 pinned tests, 21 new probes); K-ids inferred from probe sections; K6 out of scope"
   },
   {
    "id": "ADD-OPS",

@@ -373,6 +373,17 @@ def cmd_probe_suite(args):
             deps = tomllib.loads((repo / "pyproject.toml").read_text(encoding="utf-8")).get("project", {}).get("dependencies", [])
             if deps:
                 run([py, "-m", "pip", "install", "-q", *deps], repo, 900, fh)
+        if args.harness_requirements and not pins:
+            # dedicated harness requirements that the component's own checks tell us to install (they skip or fail without them)
+            hdir = repo / "testing" / "harness"
+            for req in sorted(hdir.glob("requirements*.txt")) if hdir.is_dir() else []:
+                run([py, "-m", "pip", "install", "-q", "-r", str(req.relative_to(repo)).replace("\\", "/")], repo, 900, fh)
+        if args.extras and not pins and (repo / "pyproject.toml").exists():
+            import tomllib
+            optional = tomllib.loads((repo / "pyproject.toml").read_text(encoding="utf-8")).get("project", {}).get("optional-dependencies", {})
+            extra_deps = [d for name in args.extras.split(",") for d in optional.get(name.strip(), [])]
+            if extra_deps:
+                run([py, "-m", "pip", "install", "-q", *extra_deps], repo, 900, fh)
         if args.npm_dir:
             run(["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"], repo / args.npm_dir, 900, fh)
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", **{args.env_var: str(repo)})
@@ -573,6 +584,8 @@ def main():
     p.add_argument("--timeout", type=int, default=300)
     p.add_argument("--env-var", default="PROBE_INDEX_DIR", help="env var that points the probes at the pinned checkout (one per component)")
     p.add_argument("--npm-dir", default=None, help="run `npm ci` in this directory of the pinned checkout before the probes")
+    p.add_argument("--extras", default=None, help="comma-separated [project.optional-dependencies] groups of the pinned pyproject to install (dependencies only; the project itself is never installed)")
+    p.add_argument("--harness-requirements", action="store_true", help="install the pinned checkout's testing/harness/requirements*.txt before the probes")
     p.set_defaults(fn=cmd_probe_suite)
     p = sub.add_parser("aggregate")
     p.add_argument("--inputs", required=True); p.add_argument("--out", required=True)

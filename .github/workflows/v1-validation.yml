@@ -241,7 +241,8 @@ jobs:
           - {name: probes-replay-bundle, repo: cogno-us/cognous-replay-bundle, sha: 79ba16d48b9be1e059b3045989c7df960c3df1c2, env: PROBE_REPLAY_DIR, extra: ''}
           - {name: probes-evidence-pack, repo: cogno-us/cognous-governance-evidence-pack, sha: 893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3, env: PROBE_EVIDENCE_PACK_DIR, extra: ''}
           - {name: probes-odes, repo: cogno-us/open-decision-evidence-standard, sha: eb83220c82f942e429a5e3ef5f677fdd5057ef84, env: PROBE_ODES_DIR, extra: ''}
-          - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5, env: PROBE_CONTROL_PLANE_DIR, extra: ''}
+          - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5, env: PROBE_CONTROL_PLANE_DIR, extra: '--extras runtime-authority'}
+          - {name: probes-authority, repo: cogno-us/cognous-institutional-governance, sha: fb3d97938969a89e149e8ff8db2756091d1233fc, env: PROBE_AUTHORITY_DIR, extra: '--full-history --harness-requirements'}
           - {name: probes-action-manifest, repo: cogno-us/cognous-action-manifest, sha: 2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e, env: PROBE_ACTION_MANIFEST_DIR, extra: '--full-history'}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
