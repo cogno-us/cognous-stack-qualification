@@ -22,13 +22,22 @@ if GENERATION=='security':
     from agent_replay_bundle.importers import CONTROL_PLANE_SECURITY_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_SECURITY_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
 elif GENERATION=='f5b':
     from agent_replay_bundle.importers import CONTROL_PLANE_F5B_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_F5B_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
+elif GENERATION=='p4':
+    from agent_replay_bundle.importers import CONTROL_PLANE_P4_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_P4_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
 else:
     raise RuntimeError('unsupported security runtime generation')
+
+
+def _declares_lifecycle():
+    # N-1 rule: a runtime that vendors a conformance declaration for the execution-attempt lifecycle contract reports a lost
+    # acknowledgement that is then observed applied as 'reconciled'; an older runtime reports 'unknown'. One strict value per row.
+    return (Path(os.environ['MOLTBOT_SAFE_ROOT'])/'tests/contracts/execution-attempt-lifecycle/CONTRACT.json').is_file()
 
 
 def odes_generation():
     import odes.common as common
     if GENERATION=='f5b':return common.F5B_REVISIONS,common.F5B_PROFILE_VERSION
+    if GENERATION=='p4':return common.P4_REVISIONS,common.P4_PROFILE_VERSION
     return common.SECURITY_REVISIONS,common.SECURITY_PROFILE_VERSION
 
 
@@ -107,7 +116,7 @@ def test_effect_and_commit_boundary(tmp_path,monkeypatch,case):
         assert count==0 and 'effective_grant_changed_at_commit' in result.error
     else:
         assert count==1 and dest.observe(d.effect_id)['state']=='applied'
-        if case=='lost_ack':assert result.status=='unknown' and not result.acknowledged
+        if case=='lost_ack':assert result.status==('reconciled' if _declares_lifecycle() else 'unknown') and not result.acknowledged
     assert all(x.complete for x in bundle.import_reports)
 
 

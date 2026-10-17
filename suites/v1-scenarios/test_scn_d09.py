@@ -428,7 +428,7 @@ def test_scn_d09_route_a_cancellation_ordering(request, record_property, tmp_pat
             checks.equal(post['re_execution'].get('newly_executed'), False, 'nothing re-executed')
             checks.equal(post['historical']['observed_state'], 'applied', 'historical observation still reports the committed effect')
         if point == 'after-durable-commit-lost-ack':
-            checks.equal(view.get('status'), 'unknown', 'a lost acknowledgement is reported as unknown, not as success or failure')
+            checks.equal(view.get('status'), H.lost_ack_status(), 'a lost acknowledgement is reported as unknown, not as success or failure')
             checks.equal(post['reconcile']['result'], 'applied', 'reconciliation establishes the committed effect')
         claims = scan_for_reversal({'view': view, 'post': post, 'journal': H.journal_view(flow), 'states': [e['state'] for e in final['effects']]})
         checks.equal(claims, [], 'no result, journal or state claims a reversal/rollback/cancellation outcome')
@@ -518,7 +518,7 @@ def test_scn_d09_route_c_exchange_cancellation_ordering(request, record_property
         else:
             checks.equal(len(final['effects']), 1, 'the committed effect is neither removed nor duplicated by later cancellation')
             checks.equal(final['effects'][0]['state'], 'applied', 'the committed effect stays applied (no reversal)')
-            checks.equal(view['attempt_status'], 'unknown' if point == 'after-durable-commit-lost-ack' else 'executed', 'first-run outcome')
+            checks.equal(view['attempt_status'], H.lost_ack_status() if point == 'after-durable-commit-lost-ack' else 'executed', 'first-run outcome')
             checks.equal(post['redelivery']['attempted'], False, 'redelivery after cancellation dispatches nothing')
             checks.equal(post['recovery']['newly_executed'], False, 'recovery after cancellation executes nothing')
         claims = scan_for_reversal({'view': view, 'post': post, 'states': [e['state'] for e in final['effects']]})

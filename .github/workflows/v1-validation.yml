@@ -29,7 +29,7 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
   MANIFEST: process/v1-validation/${{ inputs.validation_id }}/freeze-manifest.json
   REFREEZE_LOG: process/v1-validation/${{ inputs.validation_id }}/refreeze-log.json
-  V1_PROFILE: process/security-runtime-f5b-20261016-r2.json
+  V1_PROFILE: process/security-runtime-f5b-20261016-r3.json
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -242,11 +242,11 @@ jobs:
         include:
           - {name: probes-index, repo: cogno-us/cognous-evidence-registry, sha: d17b8ac2b8445d385fbf51185a35914b2d8b835c, env: PROBE_INDEX_DIR, extra: '--npm-dir chain'}
           - {name: probes-bitrep, repo: cogno-us/cognous-evidence-attestation, sha: 5b5077dafde232a7801cb425c4efddcffb468723, env: PROBE_BITREP_DIR, extra: ''}
-          - {name: probes-moltbot-safe, repo: cogno-us/cognous-execution-runtime, sha: 4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f, env: PROBE_RUNTIME_DIR, extra: ''}
-          - {name: probes-replay-bundle, repo: cogno-us/cognous-replay-bundle, sha: def0ee0f3af713283ea3cd13f0caf79e1607b651, env: PROBE_REPLAY_DIR, extra: ''}
-          - {name: probes-evidence-pack, repo: cogno-us/cognous-governance-evidence-pack, sha: 505a3590114705b7ebf736b92dd189f338134635, env: PROBE_EVIDENCE_PACK_DIR, extra: ''}
-          - {name: probes-odes, repo: cogno-us/open-decision-evidence-standard, sha: 5675f1b96d95ba69510656bf73b1006110ef5b57, env: PROBE_ODES_DIR, extra: ''}
-          - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5, env: PROBE_CONTROL_PLANE_DIR, extra: '--extras runtime-authority'}
+          - {name: probes-moltbot-safe, repo: cogno-us/cognous-execution-runtime, sha: 3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9, env: PROBE_RUNTIME_DIR, extra: ''}
+          - {name: probes-replay-bundle, repo: cogno-us/cognous-replay-bundle, sha: 9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a, env: PROBE_REPLAY_DIR, extra: ''}
+          - {name: probes-evidence-pack, repo: cogno-us/cognous-governance-evidence-pack, sha: 54df6984dd418e2e0a09f89e54f281493475831c, env: PROBE_EVIDENCE_PACK_DIR, extra: ''}
+          - {name: probes-odes, repo: cogno-us/open-decision-evidence-standard, sha: c5f4e2d0015ccdc94127a4025a6b605fc7fbdcbd, env: PROBE_ODES_DIR, extra: ''}
+          - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: 26a7e6594eb535827ccc248cbca36a7d119d613b, env: PROBE_CONTROL_PLANE_DIR, extra: '--extras runtime-authority'}
           - {name: probes-authority, repo: cogno-us/cognous-institutional-governance, sha: fb3d97938969a89e149e8ff8db2756091d1233fc, env: PROBE_AUTHORITY_DIR, extra: '--full-history --harness-requirements'}
           - {name: probes-action-manifest, repo: cogno-us/cognous-action-manifest, sha: 2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e, env: PROBE_ACTION_MANIFEST_DIR, extra: '--full-history'}
     steps:
@@ -388,13 +388,13 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-execution-runtime
-          ref: 4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f
+          ref: 3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9
           path: runtime
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-control-plane
-          ref: a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5
+          ref: 26a7e6594eb535827ccc248cbca36a7d119d613b
           path: control
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683

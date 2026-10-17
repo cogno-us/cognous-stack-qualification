@@ -1,0 +1,57 @@
+{
+ "schema": "cognous.contract-matrix/1",
+ "validation_id": "v1-2026-10-16-a",
+ "status": "alpha; the execution-attempt-lifecycle contract is a draft (0.1.0-draft) and is not frozen; no release is declared",
+ "policy": "The matrix is the compatibility gate for every component that sits on a boundary below. A component conforms when its vendored CONTRACT.json declares the boundary's contract at a version the matrix knows, in the boundary's role, at or above the boundary's minimum conformance level, with the exact reference content digests of that version (a draft version string alone is not enough) and a vendored copy free of drift. Producer and consumer versions must be compatible (drafts: identical). Component shas in the freeze manifest, the refreeze log and the profile are the recorded tested revision, not the gate, for matrix-governed components. A matrix row proves the paper trail only; behaviour is shown by the producer and consumer conformance suites in the component repositories and by the scenarios. Removing pins at end-of-alpha (P5) is described in docs/contract-matrix.md.",
+ "declaration_path": "tests/contracts/{contract}/CONTRACT.json",
+ "levels": {
+  "S": "structure only",
+  "L": "structure and lifecycle rules",
+  "P": "structure, rules and a real producer run"
+ },
+ "contracts": {
+  "execution-attempt-lifecycle": {
+   "versions": {
+    "0.1.0-draft": {
+     "stability": "draft",
+     "odes_repository": "cogno-us/open-decision-evidence-standard",
+     "reference_odes_commit": "a9db024c6f346f741a9963552e559476fdfc4189",
+     "files": {
+      "README.md": "18c25f22aa29da8d72aa74f22e5478d7de829e13191abd6152b0fdadca2d6673",
+      "schema.json": "30e153871b6b6dc84a2a90688a70b1fb9dbad70218c80035b5a604eb5380caa0",
+      "validate.py": "4c6c64ae9b09ef6b2ca0a44f07159f07c74d254e224720ba36a6be3ffcd495cd"
+     }
+    }
+   }
+  }
+ },
+ "boundaries": [
+  {
+   "id": "lifecycle-runtime-replay",
+   "name": "runtime executor export to Replay import",
+   "contract": "execution-attempt-lifecycle",
+   "producer": "runtime",
+   "consumer": "replay",
+   "producer_min_level": "P",
+   "consumer_min_level": "L"
+  },
+  {
+   "id": "lifecycle-control-plane-replay",
+   "name": "Control Plane bounded workflow journal to Replay import",
+   "contract": "execution-attempt-lifecycle",
+   "producer": "control_plane",
+   "consumer": "replay",
+   "producer_min_level": "P",
+   "consumer_min_level": "L"
+  }
+ ],
+ "sha_pin_gate": {
+  "components": [
+   "evidence_pack",
+   "odes",
+   "exchange",
+   "manifest"
+  ],
+  "reason": "no contract is declared for their boundaries yet (P1/P2 covered the execution-attempt lifecycle boundary only); their gate stays the sha pin until a contract and a declaration exist"
+ }
+}

@@ -39,6 +39,7 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 sys.path.insert(0, str(ROOT / 'suites'))
 import _pins  # noqa: E402  (the one source of pinned identities: freeze manifest + refreeze overlay)
+import _contract_matrix as _matrix  # noqa: E402  (compatibility gate for contract-governed boundaries; the pins stay the tested revisions)
 PROFILE_PATH = _pins.PROFILE_PATH
 from pristine_checkout import require_pristine  # noqa: E402
 
@@ -61,6 +62,17 @@ def _git(path, *args):
     return subprocess.check_output(['git', '-C', str(path), *args], text=True, timeout=60).strip()
 
 
+
+def lost_ack_status():
+    """Strict, per-runtime-row expectation of the first-delivery status after a lost acknowledgement.
+
+    A runtime that declares ``execution-attempt-lifecycle`` conformance (the N-1 rule) reports ``reconciled`` once the destination
+    is observed applied; an undeclared (older) runtime reports ``unknown``. One value per row, never "either".
+    """
+    declared = _matrix.declares(reference().paths['runtime'], 'execution-attempt-lifecycle')
+    return 'reconciled' if declared else 'unknown'
+
+
 def reference() -> _Reference:
     """Verify pins and put the reference on sys.path (idempotent)."""
     global _REF
@@ -74,20 +86,25 @@ def reference() -> _Reference:
     profile = json.loads(PROFILE_PATH.read_text())
     assert profile['components']['runtime']['revision'] == FROZEN_RUNTIME
     assert profile['components']['control_plane']['revision'] == FROZEN_CONTROL_PLANE
+    # Compatibility gate: the contract-version matrix for components on a declared-contract boundary (their sha pin is the
+    # recorded *tested revision*), the sha pin for every other component. Every checkout must be pristine either way.
+    gates, matrix_rows = _matrix.admit_components(base, profile['components'], COMPONENT_NAMES, require_pristine,
+                                                  lambda p: _git(p, 'rev-parse', 'HEAD'))
     paths, pins = {}, {}
     for name in COMPONENT_NAMES:
         spec = profile['components'][name]
         path = base / name
-        require_pristine(path, spec['revision'], name)
         paths[name] = path
-        pins[name] = {'repository': spec['repository'], 'commit': spec['revision'], 'tree': _git(path, 'rev-parse', 'HEAD^{tree}')}
+        pins[name] = {'repository': spec['repository'], 'commit': gates[name]['revision'], 'tree': _git(path, 'rev-parse', 'HEAD^{tree}'),
+                      'gate': gates[name]['gate'], 'tested_revision': gates[name]['tested_revision'],
+                      'tested_revision_match': gates[name]['tested_revision_match']}
     hub = os.environ.get('SCN_HUB_DIR')
     hub_identity = None
     if hub:
         require_pristine(hub, FROZEN_HUB, 'hub')
         hub_identity = {'repository': 'cogno-us/cognous-open-control-stack', 'commit': FROZEN_HUB}
     env = os.environ
-    env['COGNOUS_SECURITY_RUNTIME_GENERATION'] = 'f5b'
+    env['COGNOUS_SECURITY_RUNTIME_GENERATION'] = profile.get('suite_generation', 'f5b')  # the profile selects the generation (f5b through r2, p4 from r3)
     env['GAX_RUNTIME_COMPATIBILITY_PROFILE'] = profile['exchange_compatibility_profile']
     env['MOLTBOT_SAFE_CONTROL_PLANE_ROOT'] = str(paths['control_plane'])
     env['MOLTBOT_SAFE_ROOT'] = str(paths['runtime'])
@@ -107,6 +124,7 @@ def reference() -> _Reference:
     chain_spec.loader.exec_module(chain)  # the frozen harness: integrated(), produce(), exchange_setup()
     ref = _Reference()
     ref.paths, ref.pins, ref.hub = paths, pins, hub_identity
+    ref.matrix_rows = matrix_rows
     ref.profile = profile
     ref.chain = chain
     ref.base = base
@@ -165,7 +183,7 @@ def compare_runs(run1, run2):
 def environment_identity():
     ref = reference()
     return {'scenario_version': SCENARIO_VERSION, 'python': sys.version.split()[0], 'platform': platform.platform(),
-            'sqlite': sqlite3.sqlite_version, 'cpu_count': os.cpu_count(), 'components': ref.pins,
+            'sqlite': sqlite3.sqlite_version, 'cpu_count': os.cpu_count(), 'components': ref.pins, 'contract_matrix': ref.matrix_rows,
             'hub': ref.hub or {'repository': 'cogno-us/cognous-open-control-stack', 'commit': FROZEN_HUB, 'verified_in_this_run': False},
             'frozen_pins_asserted': {'hub': FROZEN_HUB, 'runtime': FROZEN_RUNTIME, 'control_plane': FROZEN_CONTROL_PLANE},
             'network': 'none', 'paid_model_calls': 0, 'live_effects': 0}

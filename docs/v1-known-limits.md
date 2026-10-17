@@ -99,11 +99,11 @@ D4: no extension families in V1, all eight deferred. D6: governed memory is out 
 
 ## Route B export is not accepted by Replay (F-24, found 2026-10-17)
 
-The runtime's atomic local executor (route B) returns status `unknown` with a recovery observation after a post-commit failure. Replay at the validated pin rejects that export on its public import path. The fix for F-20 to F-22 covered route C only. Qualification scenario SCN-C06 route B passes because it never exports into Replay, so that pass does not show Replay can consume route B. This is outside the reduced V1 claim. Update 2026-10-17: fixed in Replay (cognous-replay-bundle #37, main 287a2b6b) and covered by ODES contract fixtures (open-decision-evidence-standard #52). It is not re-pinned, so the validated pin still rejects route B, and the SCN-C06 route-B round-trip scenario will be added with the end-of-alpha pin refresh. Status FIXED-UNVERIFIED.
+The runtime's atomic local executor (route B) returns status `unknown` with a recovery observation after a post-commit failure. Replay at the validated pin rejects that export on its public import path. The fix for F-20 to F-22 covered route C only. Qualification scenario SCN-C06 route B passes because it never exports into Replay, so that pass does not show Replay can consume route B. This is outside the reduced V1 claim. Update 2026-10-17: fixed in Replay (cognous-replay-bundle #37, main 287a2b6b) and covered by ODES contract fixtures (open-decision-evidence-standard #52). The P4 pin advance moved the pins to Replay 9aab3f6c and the SCN-C06 route-B round-trip scenario was added (see Update P4 below). Status FIXED-UNVERIFIED.
 
 ## Evidence pack cannot re-validate route-B bundles (F-25, found 2026-10-17)
 
-Replay now imports the real route-B post-commit exports (F-24) and retains the recovery report as `executor_recovery_report`. The evidence pack at its pinned revision does not map that record type back when it re-validates a retained Replay bundle, so it rejects all three captured route-B bundles. Outside the reduced V1 claim. Status OPEN; proposed for the decoupling plan's P3 phase.
+Replay now imports the real route-B post-commit exports (F-24) and retains the recovery report as `executor_recovery_report`. The evidence pack at its pinned revision does not map that record type back when it re-validates a retained Replay bundle, so it rejects all three captured route-B bundles. Outside the reduced V1 claim. Status FIXED-UNVERIFIED (fixed in evidence pack #36, route-B tests run since P4).
 
 ## Lifecycle contract conformance divergences (F-26 runtime, F-27 Replay, found 2026-10-17)
 
@@ -113,3 +113,13 @@ The P2 conformance suites for the execution-attempt lifecycle contract (0.1.0-dr
 ### Update 2026-10-17 (P3)
 
 F-25, F-26 and F-27 are fixed at component level and unverified at row level (pins unchanged): evidence pack #36, runtime #106, Replay #40. Remaining: Replay step B (legacy layout refusal and RP-6), the route C contract gap, and the pin refresh, all later in the decoupling plan. No verdict changed.
+
+### Update 2026-10-17 (P4)
+
+The pins moved to the P4 generation (refreeze entries RF-11..RF-16, profile `process/security-runtime-f5b-20261016-r3.json`): Control Plane 26a7e659, runtime 3024ef6e, Replay 9aab3f6c, evidence pack 54df6984, ODES c5f4e2d0, exchange 914db78d. For the boundaries governed by the execution-attempt lifecycle contract (runtime to Replay, Control Plane to Replay) compatibility is now gated by a contract-version matrix instead of sha equality: each component declares the contract it conforms to and the sha stays as the recorded tested revision (`docs/contract-matrix.md`). The other components keep the sha pin until a contract covers their boundary. The matrix proves the paper trail only; behaviour is shown by the component conformance suites and the scenarios.
+
+- F-24, F-25, F-26, F-27 and the new F-28 are fixed and carry P4 verification evidence but stay FIXED-UNVERIFIED: no controller run has executed at the r3 pins (P4 does not run it); the P5 full run is what can verify them. No requirement verdict changed.
+- F-28: Replay refused a normal executed route-B export (control_plane_evidence carried the local authority receipt). Fixed in Replay step B (cognous-replay-bundle #43) with identity binding checks.
+- SCN-C06 now includes a route-B round trip (real AtomicLocalControlPlaneExecutor export, Replay import, evidence pack re-validation) for the executed case and the three recovery variants. The row stays partial (INCONCLUSIVE): the round trip is a named synthetic assertion, not whole-scenario acceptance.
+- Replay step B refuses the legacy recovery layout, `observation: {}` and unknown with a validated applied/partial observation. Historical executors that predate the lifecycle contract still export those shapes; the Replay cross-component suites assert the refusal per row (stack-qualification #87, #88), and the typed-refusal suite normalises `{}` to null only after asserting the refusal. The validated-unknown Replay fixture still waits for a Control Plane that emits an unknown observation.
+- Remaining for P5: remove the hard peer pins (component tables and the pin-only gates), vendor contracts for the pack, ODES and exchange boundaries, and run the full qualification at the r3 pins. The route C contract gap and the choice of unknown with a null observation after a timeout still await owner decisions.
