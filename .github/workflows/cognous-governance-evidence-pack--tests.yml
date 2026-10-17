@@ -250,6 +250,23 @@ jobs:
         agep render /tmp/agep-store.json --traceable >/tmp/agep-store-trace.md
 
         '
+    - name: Checkout Replay step B (P4 generation, final export layout)
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        repository: cogno-us/cognous-replay-bundle
+        ref: 9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a
+        path: upstream/replay-p4
+        persist-credentials: false
+    - name: Verify Replay step B pin
+      run: test "$(git -C upstream/replay-p4 rev-parse HEAD)" = "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a"
+    - name: Install Replay step B for the P4 and route-B tests
+      run: pip install -e upstream/replay-p4
+    - name: P4 generation and route-B round-trip tests (must run, not skip)
+      shell: bash
+      run: |
+        set -o pipefail
+        pytest -q -rs tests/test_p4_generation.py tests/test_replay_recovery_report_revalidation.py | tee /tmp/p4-route-b.log
+        if grep -q SKIPPED /tmp/p4-route-b.log; then echo "route-B / P4 tests were skipped; the Replay step B install is not effective"; exit 1; fi
     - name: Retain relocation source identity
       if: always()
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
