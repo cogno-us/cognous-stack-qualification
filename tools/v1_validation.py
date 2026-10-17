@@ -28,6 +28,8 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "suites"))
+import _pins  # noqa: E402  (the one source of pins: freeze manifest + refreeze overlay)
 STATUSES = ("PASS", "FAIL", "INCONCLUSIVE", "NOT RUN", "NOT APPLICABLE")
 MAX_RETAINED_LOG = 5 * 1024 * 1024  # bytes of gzip retained per log
 
@@ -51,6 +53,18 @@ def load_manifest(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def load_resolved(manifest_path, refreeze_log=None):
+    """(manifest, applied): the freeze manifest overridden by the APPLIED entries of ``refreeze_log`` (None: no overlay).
+    An inconsistent log (from_sha not the pin in force, unknown component) exits with a clear message."""
+    manifest = load_manifest(manifest_path)
+    if not refreeze_log:
+        return manifest, []
+    try:
+        return _pins.apply_overlay(manifest, _pins.load_json(refreeze_log))
+    except _pins.RefreezeError as exc:
+        sys.exit(f"refreeze overlay error ({refreeze_log}): {exc}")
+
+
 def all_components(manifest):
     """Yield (group, key, spec) for every pinned component."""
     for group in ("components_subject", "components_lock_remainder", "components_optional"):
@@ -60,7 +74,7 @@ def all_components(manifest):
 
 # ----------------------------------------------------------------- plan
 def cmd_plan(args):
-    manifest = load_manifest(args.manifest)
+    manifest, _ = load_resolved(args.manifest, args.refreeze_log)
     include = []
     for group, key, spec in all_components(manifest):
         oses = ["ubuntu-latest", "windows-latest", "macos-latest"] if group != "components_optional" else ["ubuntu-latest"]
@@ -107,7 +121,8 @@ def ls_remote_tag(repository: str, tag: str):
 
 
 def cmd_freeze_verify(args):
-    m = load_manifest(args.manifest)
+    m = load_manifest(args.manifest)  # ORIGINAL freeze: hub/profile/lock/tag identities are checked against what was frozen
+    resolved, applied = load_resolved(args.manifest, args.refreeze_log)  # components that are fetched and qualified
     checks = []
 
     def check(name, ok, expected=None, actual=None, detail=None):
@@ -148,16 +163,23 @@ def cmd_freeze_verify(args):
     byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(m)}
     for name, spec in prof["components"].items():
         check(f"hub profile pin {name} equals manifest", byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], byrepo.get(spec["repository"]))
-    qprof = json.loads((qual / m["profile"]["qualification_profile"]).read_text())
+    for eid, group, key, frm, to in applied:
+        check(f"refreeze {eid}: {key} from_sha equals the freeze-manifest pin and to_sha is a distinct 40-hex commit",
+              m[group][key]["sha"] == frm and re.fullmatch(r"[0-9a-f]{40}", to) is not None and to != frm, frm, to)
+    # the qualification profile (the original, or the r1 profile via --qual-profile) must equal manifest + overlay
+    resolved_byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(resolved)}
+    qprof_path = qual / (args.qual_profile or m["profile"]["qualification_profile"])
+    qprof = json.loads(qprof_path.read_text())
     for name, spec in qprof["components"].items():
-        check(f"qualification profile pin {name} equals manifest", byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], byrepo.get(spec["repository"]))
+        check(f"qualification profile pin {name} equals manifest" + (" + refreeze overlay" if applied else ""),
+              resolved_byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], resolved_byrepo.get(spec["repository"]))
     lock = json.loads((hub / "component-lock.json").read_text())
-    for key, spec in {**m["components_lock_remainder"], **m["components_optional"]}.items():
+    for key, spec in {**m["components_lock_remainder"], **m["components_optional"]}.items():  # hub lock is frozen: original pins
         check(f"hub lock pin {key} equals manifest", lock["components"][key]["sha"] == spec["sha"], spec["sha"], lock["components"][key]["sha"])
     # fetch every pinned component exactly
     work = Path(args.work)
     resolved = {}
-    for group, key, spec in all_components(m):
+    for group, key, spec in all_components(resolved):
         try:
             got = fetch_exact(work / key, spec["repository"], spec["sha"])
             tree = git(work / key, "rev-parse", "HEAD^{tree}")
@@ -166,6 +188,7 @@ def cmd_freeze_verify(args):
         except Exception as exc:  # noqa: BLE001 - record, never hide
             check(f"component {key} resolves to pinned commit", False, spec["sha"], None, str(exc)[:500])
     out = {"schema": "cognous.v1-validation-freeze-verification/1", "validation_id": m["validation_id"],
+           "refreeze_applied": [{"id": e, "component": k, "from_sha": f, "to_sha": t} for e, _, k, f, t in applied],
            "harness_revision": os.environ.get("GITHUB_SHA") or git(qual, "rev-parse", "HEAD"),
            "workflow_run": os.environ.get("GITHUB_RUN_ID"), "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
            "python": sys.version, "platform": platform.platform(), "components": resolved, "checks": checks,
@@ -322,14 +345,7 @@ def cmd_component_suite(args):
 
 def pinned_sources(manifest):
     """Every pinned public source of the freeze: subject and lock-remainder components, the hub and the qualification closeout."""
-    pins = {}
-    for group in ("components_subject", "components_lock_remainder"):
-        for key, spec in manifest[group].items():
-            pins[key] = (spec["repository"], spec["sha"])
-    ident = manifest["identities"]
-    pins["hub"] = (ident["hub"]["repository"], ident["hub"]["head"])
-    pins["qualification"] = (ident["qualification"]["repository"], ident["qualification"]["closeout"])
-    return pins
+    return _pins.pinned_sources(manifest)
 
 
 def cmd_probe_suite(args):
@@ -341,7 +357,7 @@ def cmd_probe_suite(args):
     repo = Path(args.repo_dir).resolve()
     pins = None
     if args.pins_manifest:
-        manifest = load_manifest(args.pins_manifest)
+        manifest, _ = load_resolved(args.pins_manifest, args.refreeze_log)
         pins = pinned_sources(manifest)
         actuals = {k: fetch_exact(repo / k, r, sha) for k, (r, sha) in pins.items()}
         args.repository = "multiple:" + ",".join(sorted(pins))
@@ -390,6 +406,8 @@ def cmd_probe_suite(args):
         env["PROBE_REPORT_DIR"] = str(out.resolve())  # probes that produce a structured report (SR-3 scan) write it next to junit.xml
         if args.pins_manifest:
             env["PROBE_FREEZE_MANIFEST"] = str(Path(args.pins_manifest).resolve())
+            if args.refreeze_log:
+                env["PROBE_REFREEZE_LOG"] = str(Path(args.refreeze_log).resolve())  # the probe applies the same overlay
         suite = Path(args.suite).resolve()
         start = time.monotonic()
         proc = subprocess.run([py, "-m", "pytest", "-q", "-p", "no:cacheprovider", f"--junitxml={junit}", str(suite)], cwd=suite, env=env,
@@ -563,11 +581,13 @@ def cmd_aggregate(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("plan"); p.add_argument("--manifest", required=True); p.add_argument("--github-output"); p.add_argument("--out-file")
+    p = sub.add_parser("plan"); p.add_argument("--manifest", required=True); p.add_argument("--refreeze-log", default=None, help="overlay: APPLIED entries override the manifest pins"); p.add_argument("--github-output"); p.add_argument("--out-file")
     p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("freeze-verify")
     for a in ("--manifest", "--hub-dir", "--qual-dir", "--work", "--out"):
         p.add_argument(a, required=True)
+    p.add_argument("--refreeze-log", default=None, help="overlay: APPLIED entries override the manifest pins of the components that are fetched")
+    p.add_argument("--qual-profile", default=None, help="qualification profile path (repo-relative) to check against manifest + overlay; default the manifest's")
     p.set_defaults(fn=cmd_freeze_verify)
     p = sub.add_parser("component-suite")
     for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name"):
@@ -579,6 +599,7 @@ def main():
     for a in ("--component", "--repo-dir", "--out", "--os-name", "--suite"):
         p.add_argument(a, required=True)
     p.add_argument("--repository", default=None); p.add_argument("--sha", default=None)
+    p.add_argument("--refreeze-log", default=None, help="with --pins-manifest: overlay APPLIED refreeze-log entries onto the manifest pins")
     p.add_argument("--pins-manifest", default=None, help="fetch every pinned public source of this freeze manifest under --repo-dir/<key> (multi-repository probes)")
     p.add_argument("--full-history", action="store_true", help="unshallow the pinned checkout so probes can read git history")
     p.add_argument("--timeout", type=int, default=300)

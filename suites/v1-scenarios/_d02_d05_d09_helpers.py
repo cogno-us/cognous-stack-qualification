@@ -40,13 +40,15 @@ sys.dont_write_bytecode = True  # a bytecode file inside a pinned checkout would
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
-PROFILE_PATH = ROOT / 'process/security-runtime-f5b-20261016.json'
 sys.path.insert(0, str(ROOT / 'tools'))
+sys.path.insert(0, str(ROOT / 'suites'))
+import _pins  # noqa: E402  (the one source of pinned identities: freeze manifest + refreeze overlay)
+PROFILE_PATH = _pins.PROFILE_PATH
 from pristine_checkout import require_pristine  # noqa: E402
 
-FROZEN_HUB = '8517818fbf817897aacfb6fe7898c22aea46fd95'
-FROZEN_RUNTIME = 'e20f92e104aba2ba6ad06120d8549c6170eaf63f'
-FROZEN_CONTROL_PLANE = 'a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5'
+FROZEN_HUB = _pins.FROZEN_HUB
+FROZEN_RUNTIME = _pins.FROZEN_RUNTIME
+FROZEN_CONTROL_PLANE = _pins.FROZEN_CONTROL_PLANE
 COMPONENT_NAMES = ('control_plane', 'runtime', 'replay', 'evidence_pack', 'odes', 'exchange', 'manifest')
 SCENARIO_VERSION = '1.0.0'
 _REF = None
@@ -178,7 +180,7 @@ def environment_identity():
             'sqlite': sqlite3.sqlite_version, 'components': ref.pins,
             'hub': ref.hub or {'repository': 'cogno-us/cognous-open-control-stack', 'commit': FROZEN_HUB, 'verified_in_this_run': False},
             'frozen_pins_asserted': {'hub': FROZEN_HUB, 'runtime': FROZEN_RUNTIME, 'control_plane': FROZEN_CONTROL_PLANE},
-            'profile': 'process/security-runtime-f5b-20261016.json', 'network': 'none', 'paid_model_calls': 0, 'live_effects': 0}
+            'profile': _pins.PROFILE_RELPATH, 'network': 'none', 'paid_model_calls': 0, 'live_effects': 0}
 
 
 def run_case(request, record_property, tmp_path, scenario, trial, *, expect_effects_gate=True):
