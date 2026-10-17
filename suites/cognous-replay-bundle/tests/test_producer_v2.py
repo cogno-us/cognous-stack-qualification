@@ -12,13 +12,26 @@ from agent_replay_bundle import ReconstructionBundle, import_bounded_workflow
 from agent_replay_bundle.importers import ImportContractError, CONTROL_PLANE_V2_REVISION
 
 
+REFUSALS: dict[str, str] = {}  # scenario -> contract refusal code, for executors that predate the lifecycle contract
+
+
 @pytest.fixture(scope='module')
 def cases(tmp_path_factory):
     if not os.environ.get('ARB_V2_MOLTBOT_ROOT') or not os.environ.get('ARB_V2_CONTROL_PLANE_ROOT'):
         pytest.skip('accepted v2 producer checkouts not configured')
     output = tmp_path_factory.mktemp('producer-v2')
     subprocess.run([sys.executable, 'scripts/generate_producer_v2_examples.py', '--output-dir', str(output)], check=True)
+    scenarios = json.loads((output / 'producer_v2_results.json').read_text())['scenarios']
+    REFUSALS.clear()
+    REFUSALS.update({n: v['refusal_code'] for n, v in scenarios.items() if v.get('refusal_code')})
     return json.loads((output / 'producer_v2_sources.json').read_text())
+
+
+def _expect_refused(source, code):
+    # Contract-version matrix row for a pre-lifecycle executor: the old shape is refused with exactly this code.
+    with pytest.raises(ImportContractError) as info:
+        import_bounded_workflow(**source)
+    assert info.value.code == code
 
 
 @pytest.mark.parametrize('name', ['success', 'rejected_wrong_effect', 'rejected_stale',
@@ -27,6 +40,10 @@ def cases(tmp_path_factory):
 def test_real_producer_import(cases, name):
     source = cases[name]
     before = copy.deepcopy(source)
+    if name in REFUSALS:
+        _expect_refused(source, REFUSALS[name])
+        assert source == before
+        return
     bundle = import_bounded_workflow(**source)
     assert source == before
     restored = ReconstructionBundle.model_validate_json(bundle.model_dump_json())
@@ -141,6 +158,9 @@ def test_published_v2_examples_preserve_profiles_and_content():
 ])
 def test_completeness_is_separate_from_delivery_history(cases, name, latest, rejected):
     source = copy.deepcopy(cases[name])
+    if name in REFUSALS:
+        _expect_refused(source, REFUSALS[name])
+        return
     bundle = import_bounded_workflow(**source)
     assert bundle.status == 'reconstruction_complete'
     assert all(report.complete for report in bundle.import_reports)
