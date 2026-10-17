@@ -44,3 +44,14 @@ if (data.orchestration) {
   for(const blocker of s.blockers)panel.append(el('p',blocker.id+': '+blocker.reason+' · '+blocker.owner));
   panel.append(link('Native evidence and reproduction',repo+'/blob/main/docs/serial-qualification.md'));
 }
+
+// Recorded test outcomes, one row per scenario and per principal (reporting only; not scenario acceptance).
+if (data.recorded_outcomes) {
+  const o=data.recorded_outcomes, panel=$('recorded-outcomes'); panel.hidden=false;
+  const t=o.totals;
+  panel.append(el('h2','Recorded test outcomes by scenario and principal'),el('p',`${t.cases} cases · ${t.passed} passed · ${t.failed} failed · ${t.skipped} skipped. Not scenario acceptance: catalog scenarios stay NOT RUN.`));
+  const grid=(rows,labelKey,labelHead,extra)=>{const table=el('table'),head=el('tr'),body=el('tbody');for(const h of [labelHead,'Cases','Passed','Failed','Skipped',extra])head.append(el('th',h));table.append(el('thead'),body);table.firstChild.append(head);for(const r of rows){const tr=el('tr');tr.append(el('td',r[labelKey]),el('td',String(r.cases)),el('td',String(r.passed)),el('td',String(r.failed)),el('td',String(r.skipped)),el('td',extra==='Failing cases'?(r.failed_tests||[]).join('; ')||'-':''));body.append(tr);}return table;};
+  panel.append(grid(o.per_scenario,'scenario','Scenario','Failing cases'));
+  panel.append(el('p',`Principal attribution: ${o.principal_attribution.recorded} cases recorded a principal, ${o.principal_attribution.unrecorded} did not. No principal is derived from a test name.`));
+  panel.append(grid(o.per_principal,'principal','Principal','Failing cases'));
+}

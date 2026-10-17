@@ -47,6 +47,7 @@ def test_n4_example_revoked_grant_refusal_through_the_template(tmp_path, record_
     assert [h['holder_id'] for h in report['witnessed_refusals']] == [GRANT]
     assert [h['holder_id'] for h in report['unenumerated_authority_needing_containment']] == ['urn:cognous:issuance:1', 'urn:cognous:identity:refund-agent-1']
     assert {h['classification'] for h in report['unenumerated_authority_needing_containment']} == {T.CLASSIFICATION_UNKNOWN}
+    record_property('principal', 'urn:cognous:principal:refund-service')  # per-principal reporting (tools/scenario_report.py) reads this property
     record_property('n4_refusal_template', T.report_json(result, report))
 
 
