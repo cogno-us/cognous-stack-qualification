@@ -163,9 +163,12 @@ def cmd_freeze_verify(args):
     byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(m)}
     for name, spec in prof["components"].items():
         check(f"hub profile pin {name} equals manifest", byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], byrepo.get(spec["repository"]))
+    in_force = {}  # pin in force before each entry: the manifest pin, then the previous entry's to_sha (chained re-freezes)
     for eid, group, key, frm, to in applied:
-        check(f"refreeze {eid}: {key} from_sha equals the freeze-manifest pin and to_sha is a distinct 40-hex commit",
-              m[group][key]["sha"] == frm and re.fullmatch(r"[0-9a-f]{40}", to) is not None and to != frm, frm, to)
+        before = in_force.get((group, key), m[group][key]["sha"])
+        check(f"refreeze {eid}: {key} from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+              before == frm and re.fullmatch(r"[0-9a-f]{40}", to) is not None and to != frm, before, to)
+        in_force[(group, key)] = to
     # the qualification profile (the original, or the r1 profile via --qual-profile) must equal manifest + overlay
     resolved_byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(resolved)}
     qprof_path = qual / (args.qual_profile or m["profile"]["qualification_profile"])
