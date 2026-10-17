@@ -1,0 +1,1255 @@
+{
+  "class": "duplicate_effect",
+  "detection_means": "typed rejection or flag with a stated reason; an evaluator that completes without flagging is a miss",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "evaluators": {
+    "E1": "Replay -> Evidence Pack -> ODES consumers (D08 chain)"
+  },
+  "not_applicable_nothing_to_plant": [
+    "producer/revoked/c23.duplicate_effect.redelivery_second_executed_attempt",
+    "producer/revoked/c23.duplicate_effect.second_effect_new_id_same_operation",
+    "producer/revoked/export.attempt_events.duplicate_first",
+    "producer/revoked/export.attempt_events.duplicate_last_appended",
+    "producer/revoked/export.attempts.duplicate_first",
+    "producer/revoked/export.attempts.duplicate_last_appended",
+    "producer/revoked/export.effects.duplicate_first",
+    "producer/revoked/export.effects.duplicate_last_appended",
+    "producer/revoked/journal.attempts.duplicate_first",
+    "producer/revoked/journal.attempts.duplicate_last_appended",
+    "producer/unreadable/c23.duplicate_effect.redelivery_second_executed_attempt",
+    "producer/unreadable/c23.duplicate_effect.second_effect_new_id_same_operation",
+    "producer/unreadable/export.attempt_events.duplicate_first",
+    "producer/unreadable/export.attempt_events.duplicate_last_appended",
+    "producer/unreadable/export.attempts.duplicate_first",
+    "producer/unreadable/export.attempts.duplicate_last_appended",
+    "producer/unreadable/export.effects.duplicate_first",
+    "producer/unreadable/export.effects.duplicate_last_appended",
+    "producer/unreadable/journal.attempts.duplicate_first",
+    "producer/unreadable/journal.attempts.duplicate_last_appended"
+  ],
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:1dd50dbfbb24449d0087017c4bb151b3ed1146ada7c3ff2f70dab1c9dc425591",
+    "run2_outcome_digest": "sha256:1dd50dbfbb24449d0087017c4bb151b3ed1146ada7c3ff2f70dab1c9dc425591",
+    "verdict": "MATCH"
+  },
+  "scenario": "C23",
+  "summary_run1": {
+    "by_family": {
+      "bundle": {
+        "detected": 6,
+        "planted": 6
+      },
+      "odes": {
+        "detected": 2,
+        "planted": 2
+      },
+      "odes_rehashed": {
+        "detected": 2,
+        "planted": 2
+      },
+      "pack": {
+        "detected": 0,
+        "planted": 0
+      },
+      "producer": {
+        "detected": 20,
+        "planted": 20
+      }
+    },
+    "detected": 30,
+    "detection_rate": 1.0,
+    "missed": 0,
+    "missed_seeds": [],
+    "planted": 30
+  },
+  "summary_run2": {
+    "by_family": {
+      "bundle": {
+        "detected": 6,
+        "planted": 6
+      },
+      "odes": {
+        "detected": 2,
+        "planted": 2
+      },
+      "odes_rehashed": {
+        "detected": 2,
+        "planted": 2
+      },
+      "pack": {
+        "detected": 0,
+        "planted": 0
+      },
+      "producer": {
+        "detected": 20,
+        "planted": 20
+      }
+    },
+    "detected": 30,
+    "detection_rate": 1.0,
+    "missed": 0,
+    "missed_seeds": [],
+    "planted": 30
+  },
+  "table_run1": [
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[1] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt_event].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_effect].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes_rehashed",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot effect_id does not match execution envelope"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[1] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt_event].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_effect].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes_rehashed",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot effect_id does not match execution envelope"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new"
+    }
+  ],
+  "table_run2": [
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[1] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt_event].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_effect].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes_rehashed",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot effect_id does not match execution envelope"
+    },
+    {
+      "applicable": true,
+      "case": "valid",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: Control Plane attempt <uuid> lifecycle repeats a record"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate destination effect row for <hex>"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: duplicate executor attempt row"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[1] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_attempt_event].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "bundle",
+      "how": "rejected",
+      "seed": "bundle.record[destination_effect].duplicate",
+      "source": "D08-machinery",
+      "stage": "evidence_pack_import",
+      "why": "ImportContractError: duplicate or invalid retained record identity"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "odes_rehashed",
+      "how": "flagged",
+      "seed": "odes.execution_facts.destination_effects.duplicate_first",
+      "source": "D08-machinery",
+      "stage": "odes_recipient",
+      "why": "replay_semantic=fail,fail:replay_semantic_consistency"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: Moltbot effect_id does not match execution envelope"
+    },
+    {
+      "applicable": true,
+      "case": "lost_ack",
+      "class": "duplicate_effect",
+      "completed_without_detection": false,
+      "detected": true,
+      "family": "producer",
+      "how": "rejected",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new",
+      "stage": "replay_import",
+      "why": "ImportContractError: moltbot.attempt_events[2] event_id is repeated or out of order"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "revoked",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "journal.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.effects.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempts.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_first",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "export.attempt_events.duplicate_last_appended",
+      "source": "D08-machinery"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.second_effect_new_id_same_operation",
+      "source": "C23-new"
+    },
+    {
+      "applicable": false,
+      "case": "unreadable",
+      "class": "duplicate_effect",
+      "family": "producer",
+      "seed": "c23.duplicate_effect.redelivery_second_executed_attempt",
+      "source": "C23-new"
+    }
+  ],
+  "test": "test_scn_c23_seeded_critical_defects_detected_by_class[duplicate_effect]"
+}

@@ -1,0 +1,283 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:669f7a3a45929d6c55d2724c52d01bbfc37cd4b577d8d57d3dbb109510be5f39",
+    "run2_digest": "sha256:669f7a3a45929d6c55d2724c52d01bbfc37cd4b577d8d57d3dbb109510be5f39",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r1.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "budget": 3,
+      "budgets": [
+        [
+          "budget-main",
+          3,
+          3
+        ]
+      ],
+      "claims": [
+        [
+          "claim-1",
+          "consumed"
+        ],
+        [
+          "claim-2",
+          "consumed"
+        ],
+        [
+          "claim-3",
+          "consumed"
+        ],
+        [
+          "claim-4",
+          "issued"
+        ],
+        [
+          "claim-5",
+          "issued"
+        ]
+      ],
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "effect-1",
+          "operation_digest": "sha256:dd89fd15588f0c022c897f1884d08566765dc8051fea6e1a5c17f44ffaec69ff",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:1"
+        },
+        {
+          "amount": 50.0,
+          "effect_id": "effect-2",
+          "operation_digest": "sha256:099aa885bb0231444c7cf328bf254284ea390b7b45354c3dbbf38f8d12822966",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:2"
+        },
+        {
+          "amount": 50.0,
+          "effect_id": "effect-3",
+          "operation_digest": "sha256:f6b30461e112b29108da412a80360d2fb24a6d8698c5fec314b56c2e2147ba10",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:3"
+        }
+      ],
+      "excess_duplicate_effects": 0,
+      "failures": [
+        "authority_hold/current_authority_rejected/pre_dispatch",
+        "authority_hold/current_authority_rejected/pre_dispatch"
+      ],
+      "unauthorized_effects": 0,
+      "views": {
+        "1": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "status": "executed"
+        },
+        "2": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "status": "executed"
+        },
+        "3": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "status": "executed"
+        },
+        "4": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "authoritative effect budget exhausted",
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "status": "denied"
+        },
+        "5": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "authoritative effect budget exhausted",
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "status": "denied"
+        }
+      }
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "budget": 3,
+      "budgets": [
+        [
+          "budget-main",
+          3,
+          3
+        ]
+      ],
+      "claims": [
+        [
+          "claim-1",
+          "consumed"
+        ],
+        [
+          "claim-2",
+          "consumed"
+        ],
+        [
+          "claim-3",
+          "consumed"
+        ],
+        [
+          "claim-4",
+          "issued"
+        ],
+        [
+          "claim-5",
+          "issued"
+        ]
+      ],
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "effect-1",
+          "operation_digest": "sha256:dd89fd15588f0c022c897f1884d08566765dc8051fea6e1a5c17f44ffaec69ff",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:1"
+        },
+        {
+          "amount": 50.0,
+          "effect_id": "effect-2",
+          "operation_digest": "sha256:099aa885bb0231444c7cf328bf254284ea390b7b45354c3dbbf38f8d12822966",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:2"
+        },
+        {
+          "amount": 50.0,
+          "effect_id": "effect-3",
+          "operation_digest": "sha256:f6b30461e112b29108da412a80360d2fb24a6d8698c5fec314b56c2e2147ba10",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:3"
+        }
+      ],
+      "excess_duplicate_effects": 0,
+      "failures": [
+        "authority_hold/current_authority_rejected/pre_dispatch",
+        "authority_hold/current_authority_rejected/pre_dispatch"
+      ],
+      "unauthorized_effects": 0,
+      "views": {
+        "1": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "status": "executed"
+        },
+        "2": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "status": "executed"
+        },
+        "3": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "status": "executed"
+        },
+        "4": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "authoritative effect budget exhausted",
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "status": "denied"
+        },
+        "5": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "authoritative effect budget exhausted",
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "status": "denied"
+        }
+      }
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "C16",
+  "test": "test_scn_c16_route_b_exhausted_budget_blocks_every_later_agent[3]",
+  "verdict": "PASS"
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "cognous.v1-validation-job/1",
+  "component": "governance_evidence_pack",
+  "repository": "cogno-us/cognous-governance-evidence-pack",
+  "pinned_sha": "683246e05d291308211778ec48045df65466461f",
+  "actual_sha": "683246e05d291308211778ec48045df65466461f",
+  "os": "windows-latest",
+  "python": "3.12.10",
+  "platform": "Windows-2025Server-10.0.26100-SP0",
+  "workflow_run": "39025887085",
+  "run_attempt": "1",
+  "job": "components",
+  "attempts": [
+    {
+      "attempt": 1,
+      "installs": [
+        {
+          "target": ".[dev,test]",
+          "rc": 0
+        }
+      ],
+      "returncode": 0,
+      "execution_seconds": 5.45,
+      "timed_out": false,
+      "counts": {
+        "testcases": 155,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "setup_ok": true,
+      "outcome": "PASS"
+    }
+  ],
+  "timeout_seconds": 300,
+  "inventory": {
+    "ci_runs_on": {
+      "tests.yml": [
+        "ubuntu-latest"
+      ]
+    },
+    "test_dirs": [
+      "tests"
+    ],
+    "test_files": [
+      "tests/test_cli.py",
+      "tests/test_examples.py",
+      "tests/test_f5b_generation.py",
+      "tests/test_loader.py",
+      "tests/test_models.py",
+      "tests/test_renderer.py",
+      "tests/test_replay_semantic_comparison.py",
+      "tests/test_security_cloud_regressions.py",
+      "tests/test_summary.py",
+      "tests/test_validator.py",
+      "tests/test_w3_atomic_evidence.py",
+      "tests/test_w3_c8_lineage.py"
+    ],
+    "test_file_count": 12,
+    "ci_workflows": [
+      "merged-producers.yml",
+      "recovery-inspection.yml",
+      "tests.yml",
+      "typed-refusal.yml",
+      "w3-actual-producer.yml",
+      "w3-c8-actual.yml",
+      "w3-composed.yml"
+    ],
+    "has_pyproject": true,
+    "has_requirements": []
+  },
+  "status": "PASS",
+  "reason": null,
+  "log": {
+    "sha256_uncompressed": "82f44d49dd4045e5332b2227f0414b7f4828c2e9a03b357ad7d393306f1cb5c8",
+    "bytes_uncompressed": 1325,
+    "retained": true,
+    "file": "job.log.gz"
+  }
+}
