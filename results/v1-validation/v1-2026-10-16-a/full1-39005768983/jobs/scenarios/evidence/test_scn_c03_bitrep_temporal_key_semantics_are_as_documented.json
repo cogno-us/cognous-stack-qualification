@@ -1,0 +1,460 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:20a40c672016ec724dcddb8d1cb8f24b7abc896d2761c20cd2ad438f6cce37e4",
+    "run2_digest": "sha256:20a40c672016ec724dcddb8d1cb8f24b7abc896d2761c20cd2ad438f6cce37e4",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+      },
+      "exchange": {
+        "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+      },
+      "replay": {
+        "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+      },
+      "runtime": {
+        "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+      }
+    },
+    "external_pins": {
+      "SCN_BITREP_DIR": {
+        "commit": "5b5077dafde232a7801cb425c4efddcffb468723",
+        "repository": "cogno-us/cognous-evidence-attestation",
+        "verified_pristine_in_this_run": true
+      },
+      "SCN_INDEX_CHAIN_DIR": {
+        "derived_from": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+        "tracked_files_verified_identical_to_pin": true
+      },
+      "SCN_INDEX_DIR": {
+        "commit": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+        "repository": "cogno-us/cognous-evidence-registry",
+        "verified_pristine_in_this_run": true
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "extra": {
+    "pin": "5b5077dafde232a7801cb425c4efddcffb468723",
+    "surface": "BitRep temporal key semantics"
+  },
+  "hard_gate_applied": false,
+  "run1": {
+    "observed": {
+      "declared": {
+        "historical_as_of_verification": "not supported (acceptance record is unsigned history, not a signing-time proof)",
+        "key_interval": "[valid_from, valid_until) at both issuance and evaluation",
+        "revocation": "now >= revoked_at rejects every signature of the key, including earlier statements",
+        "snapshot": "[published_at, valid_until) else fail closed",
+        "statement": "issued_at/not_before <= now < expires_at, no skew"
+      },
+      "temporal_key_semantics": [
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "key revoked one second in the future (not yet in force)",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_revoked"
+          ],
+          "label": "revoked_at == now (inclusive)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_revoked"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_revoked"
+          ],
+          "label": "revoked_at in the past, statement issued earlier (no grandfathering, not backdatable)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_revoked"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_expired"
+          ],
+          "label": "key valid_until == now (half-open: expired)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_expired"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "key valid_until == now+1 (still valid)",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_not_yet_valid"
+          ],
+          "label": "key valid_from == now+1 (not yet valid)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_not_yet_valid"
+        },
+        {
+          "expected": [
+            "rejected",
+            "issuance_outside_key_validity"
+          ],
+          "label": "key valid_from == now (inclusive start; issuance precedes it)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "issuance_outside_key_validity"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "statement expires_at - 1 (still valid; no skew allowance)",
+          "now_offset": 99,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "attestation_expired"
+          ],
+          "label": "statement expires_at == now (half-open: expired)",
+          "now_offset": 100,
+          "outcome": "rejected",
+          "reason": "attestation_expired"
+        },
+        {
+          "expected": [
+            "rejected",
+            "not_yet_valid"
+          ],
+          "label": "issued one second after now (no clock-skew allowance)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "not_yet_valid"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_expired"
+          ],
+          "label": "rotation: statement valid at issuance, old key retired at evaluation",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_expired"
+        },
+        {
+          "expected": [
+            "rejected",
+            "issuance_outside_key_validity"
+          ],
+          "label": "rotation: new key signs for a time before its validity",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "issuance_outside_key_validity"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "rotation: new key, current statement",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "invalid_signature"
+          ],
+          "label": "rotation: retired key signature presented under the new key id",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "invalid_signature"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "trust snapshot published_at == now (inclusive)",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "unavailable",
+            "trust_unavailable"
+          ],
+          "label": "trust snapshot published in the future (fails closed)",
+          "now_offset": 0,
+          "outcome": "unavailable",
+          "reason": "trust_unavailable"
+        },
+        {
+          "expected": [
+            "unavailable",
+            "trust_unavailable"
+          ],
+          "label": "trust snapshot valid_until == now (exclusive; fails closed)",
+          "now_offset": 0,
+          "outcome": "unavailable",
+          "reason": "trust_unavailable"
+        }
+      ]
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "declared": {
+        "historical_as_of_verification": "not supported (acceptance record is unsigned history, not a signing-time proof)",
+        "key_interval": "[valid_from, valid_until) at both issuance and evaluation",
+        "revocation": "now >= revoked_at rejects every signature of the key, including earlier statements",
+        "snapshot": "[published_at, valid_until) else fail closed",
+        "statement": "issued_at/not_before <= now < expires_at, no skew"
+      },
+      "temporal_key_semantics": [
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "key revoked one second in the future (not yet in force)",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_revoked"
+          ],
+          "label": "revoked_at == now (inclusive)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_revoked"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_revoked"
+          ],
+          "label": "revoked_at in the past, statement issued earlier (no grandfathering, not backdatable)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_revoked"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_expired"
+          ],
+          "label": "key valid_until == now (half-open: expired)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_expired"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "key valid_until == now+1 (still valid)",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_not_yet_valid"
+          ],
+          "label": "key valid_from == now+1 (not yet valid)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_not_yet_valid"
+        },
+        {
+          "expected": [
+            "rejected",
+            "issuance_outside_key_validity"
+          ],
+          "label": "key valid_from == now (inclusive start; issuance precedes it)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "issuance_outside_key_validity"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "statement expires_at - 1 (still valid; no skew allowance)",
+          "now_offset": 99,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "attestation_expired"
+          ],
+          "label": "statement expires_at == now (half-open: expired)",
+          "now_offset": 100,
+          "outcome": "rejected",
+          "reason": "attestation_expired"
+        },
+        {
+          "expected": [
+            "rejected",
+            "not_yet_valid"
+          ],
+          "label": "issued one second after now (no clock-skew allowance)",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "not_yet_valid"
+        },
+        {
+          "expected": [
+            "rejected",
+            "key_expired"
+          ],
+          "label": "rotation: statement valid at issuance, old key retired at evaluation",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "key_expired"
+        },
+        {
+          "expected": [
+            "rejected",
+            "issuance_outside_key_validity"
+          ],
+          "label": "rotation: new key signs for a time before its validity",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "issuance_outside_key_validity"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "rotation: new key, current statement",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "rejected",
+            "invalid_signature"
+          ],
+          "label": "rotation: retired key signature presented under the new key id",
+          "now_offset": 0,
+          "outcome": "rejected",
+          "reason": "invalid_signature"
+        },
+        {
+          "expected": [
+            "verified",
+            "ok"
+          ],
+          "label": "trust snapshot published_at == now (inclusive)",
+          "now_offset": 0,
+          "outcome": "verified",
+          "reason": "ok"
+        },
+        {
+          "expected": [
+            "unavailable",
+            "trust_unavailable"
+          ],
+          "label": "trust snapshot published in the future (fails closed)",
+          "now_offset": 0,
+          "outcome": "unavailable",
+          "reason": "trust_unavailable"
+        },
+        {
+          "expected": [
+            "unavailable",
+            "trust_unavailable"
+          ],
+          "label": "trust snapshot valid_until == now (exclusive; fails closed)",
+          "now_offset": 0,
+          "outcome": "unavailable",
+          "reason": "trust_unavailable"
+        }
+      ]
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "C03",
+  "test": "test_scn_c03_bitrep_temporal_key_semantics_are_as_documented",
+  "verdict": "PASS"
+}
