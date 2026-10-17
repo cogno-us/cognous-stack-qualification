@@ -1,0 +1,147 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:0fc1bf4626adffa1880ba87cf0ce16640769cf474fc698f929e49622597a0c5d",
+    "run2_digest": "sha256:0fc1bf4626adffa1880ba87cf0ce16640769cf474fc698f929e49622597a0c5d",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r1.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "assessment": {
+        "errors": [
+          "GAX-EVIDENCE-DIGEST-MISMATCH"
+        ],
+        "message_received": true,
+        "message_understood": true,
+        "permitted_handling": "REFUSE",
+        "stages": {
+          "evidence_digest": "failed",
+          "freshness": "passed",
+          "identity_binding": "passed",
+          "profile": "passed",
+          "structure": "passed"
+        }
+      },
+      "component": "cognous-governed-exchange experiments/odex_gax_imx_reference/gax_ref.py assess_message (evidence_refs[].digest not compared to the supplied bundle)",
+      "effects": [],
+      "excess_duplicate_effects": 0,
+      "execution": {
+        "attempt_status": null,
+        "attempted": false,
+        "newly_executed": null
+      },
+      "nonverification_disclosed": false,
+      "rejected": true,
+      "unauthorized_effects": 0,
+      "variant": "identifier_changed"
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "assessment": {
+        "errors": [
+          "GAX-EVIDENCE-DIGEST-MISMATCH"
+        ],
+        "message_received": true,
+        "message_understood": true,
+        "permitted_handling": "REFUSE",
+        "stages": {
+          "evidence_digest": "failed",
+          "freshness": "passed",
+          "identity_binding": "passed",
+          "profile": "passed",
+          "structure": "passed"
+        }
+      },
+      "component": "cognous-governed-exchange experiments/odex_gax_imx_reference/gax_ref.py assess_message (evidence_refs[].digest not compared to the supplied bundle)",
+      "effects": [],
+      "excess_duplicate_effects": 0,
+      "execution": {
+        "attempt_status": null,
+        "attempted": false,
+        "newly_executed": null
+      },
+      "nonverification_disclosed": false,
+      "rejected": true,
+      "unauthorized_effects": 0,
+      "variant": "identifier_changed"
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": {
+    "asw_case": "S02",
+    "attack_condition": "Artifact digest mismatch",
+    "expected_secure_outcome": "Reject substituted artifact or disclose nonverification.",
+    "family": "L16 supply",
+    "live_agent_or_human_part_not_covered": "Signature/provenance of release artifacts and registries (OCI, PyPI); the reference binds only content digests/commitments.",
+    "mapping_note": "proposal only; no 1:1 or compliance claim",
+    "nearest_wiki_cases": {
+      "TC-L16-004": "Malicious or Typosquatted Model and Package Detection",
+      "TC-L16-015": "Agent Framework and SDK Supply Chain Integrity"
+    },
+    "register_item": "GR-0571"
+  },
+  "test": "test_asw_s02_route_c_substituted_replay_bundle_is_rejected_or_nonverification_disclosed[identifier_changed]",
+  "verdict": "PASS"
+}

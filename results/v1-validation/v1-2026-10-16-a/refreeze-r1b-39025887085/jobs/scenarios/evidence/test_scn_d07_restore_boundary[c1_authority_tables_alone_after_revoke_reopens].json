@@ -1,0 +1,168 @@
+{
+  "boundary": {
+    "external_anchor_guarantee": "NOT PROVIDED",
+    "local_persistence": "outcome depends on which local records survive the restore; the reference has no external restore anchor",
+    "witness": "test observer outside the restore set; never an admission input; not an anchor"
+  },
+  "case": "c1_authority_tables_alone_after_revoke_reopens",
+  "classification": "ACCEPTED_REPLAY (LIMITATION: authority re-opened by restore)",
+  "effect_admitted_after_restore": true,
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "note": "ACCEPTED_REPLAY rows are observed limitations of local-only persistence, not rollback-safety acceptance",
+  "profile": "c1",
+  "restore_scope": {
+    "remaining_not_restored": "effects, attempts, receipts tables (none yet)",
+    "restored": "authority tables from pre-revocation snapshot"
+  },
+  "run1_steps": [
+    {
+      "result": {
+        "error": "authoritative grant state invalid",
+        "newly_executed": false,
+        "status": "denied"
+      },
+      "state": {
+        "attempts": 0,
+        "budget": {
+          "max_effects": 1,
+          "used_effects": 0
+        },
+        "claim": "issued",
+        "effects": 0,
+        "failure_records": 1,
+        "grant_status": "revoked",
+        "receipts": 0
+      },
+      "step": "baseline_after_revocation",
+      "witness_commits": 0
+    },
+    {
+      "result": {
+        "error": null,
+        "newly_executed": true,
+        "status": "executed"
+      },
+      "state": {
+        "attempts": 1,
+        "budget": {
+          "max_effects": 1,
+          "used_effects": 1
+        },
+        "claim": "consumed",
+        "effects": 1,
+        "failure_records": 1,
+        "grant_status": "active",
+        "receipts": 1
+      },
+      "step": "replay_after_authority_tables_restore",
+      "witness_commits": 1
+    }
+  ],
+  "run2_steps": [
+    {
+      "result": {
+        "error": "authoritative grant state invalid",
+        "newly_executed": false,
+        "status": "denied"
+      },
+      "state": {
+        "attempts": 0,
+        "budget": {
+          "max_effects": 1,
+          "used_effects": 0
+        },
+        "claim": "issued",
+        "effects": 0,
+        "failure_records": 1,
+        "grant_status": "revoked",
+        "receipts": 0
+      },
+      "step": "baseline_after_revocation",
+      "witness_commits": 0
+    },
+    {
+      "result": {
+        "error": null,
+        "newly_executed": true,
+        "status": "executed"
+      },
+      "state": {
+        "attempts": 1,
+        "budget": {
+          "max_effects": 1,
+          "used_effects": 1
+        },
+        "claim": "consumed",
+        "effects": 1,
+        "failure_records": 1,
+        "grant_status": "active",
+        "receipts": 1
+      },
+      "step": "replay_after_authority_tables_restore",
+      "witness_commits": 1
+    }
+  ],
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:c57cd3971afc85ff8839d97f63f30be0e6139d9c62864dc87cfdb017060c21ee",
+    "run2_outcome_digest": "sha256:c57cd3971afc85ff8839d97f63f30be0e6139d9c62864dc87cfdb017060c21ee",
+    "verdict": "MATCH"
+  },
+  "scenario": "D07",
+  "test": "test_scn_d07_restore_boundary[c1_authority_tables_alone_after_revoke_reopens]"
+}
