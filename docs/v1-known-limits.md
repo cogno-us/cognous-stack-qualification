@@ -109,3 +109,7 @@ Replay now imports the real route-B post-commit exports (F-24) and retains the r
 
 The P2 conformance suites for the execution-attempt lifecycle contract (0.1.0-draft) found five runtime divergences (F-26, including the OpenShell `unknown`-with-validated-observation path, N-1) and twelve Replay divergences (F-27). The control plane conforms in every case it exercised. Each divergence is pinned as a strict expected failure in the component's own test, none is fixed, and none is part of the reduced V1 claim. They are handled in the decoupling plan (cogno-us/cognous-control-plane#38), P3.
 
+
+### Update 2026-10-17 (P3)
+
+F-25, F-26 and F-27 are fixed at component level and unverified at row level (pins unchanged): evidence pack #36, runtime #106, Replay #40. Remaining: Replay step B (legacy layout refusal and RP-6), the route C contract gap, and the pin refresh, all later in the decoupling plan. No verdict changed.
