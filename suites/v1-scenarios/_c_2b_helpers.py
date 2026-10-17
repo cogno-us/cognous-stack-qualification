@@ -44,7 +44,7 @@ from _d02_d05_d09_helpers import Checks, canonical, digest, no_network  # noqa: 
 from pristine_checkout import require_pristine  # noqa: E402  (tools/ is on sys.path via the batch-1 helpers)
 
 HERE = Path(__file__).resolve().parent
-FROZEN_INDEX = 'd5e45d275cb301d9684b543e93b05997991d1cf2'
+FROZEN_INDEX = 'd17b8ac2b8445d385fbf51185a35914b2d8b835c'
 FROZEN_BITREP = '5b5077dafde232a7801cb425c4efddcffb468723'
 SCENARIO_VERSION = '1.0.0'
 H = H1  # convenience alias for the route helpers (flow_a, flow_b, execute_a, db_summary, ...)

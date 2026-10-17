@@ -1,4 +1,4 @@
-"""SCN-C04 Evidence supersession and dependence (executed against The Index @ d5e45d27, the FROZEN pin).
+"""SCN-C04 Evidence supersession and dependence (executed against The Index @ d5e45d27 (old pin) or the re-frozen d17b8ac2).
 
 SPDX-License-Identifier: Apache-2.0
 
@@ -8,9 +8,11 @@ history survives; current status recomputes from pinned inputs; copied evidence 
 Two Index surfaces exist at the pin and are exercised separately:
 
   Python API (app/)  - claims are immutable once accepted (no supersession route exists); evidence links are scored by
-        EvidenceService.compute_epistemic_status. The copied-evidence cases are EXPECTED TO FAIL at the frozen pin
-        (defect #24: it counts duplicated evidence as independent). A FAIL there is the correct honest result;
-        the unfrozen fix on main is deliberately NOT tested.
+        EvidenceService.compute_epistemic_status. The copied-evidence cases are EXPECTED TO FAIL at the old pin
+        (defect #24: it counts duplicated evidence as independent). A FAIL there is the correct honest result.
+        Links are posted through _index_signing.LinkSigner: unsigned at a service that does not require attestation (old pin),
+        validly signed (test-time Ed25519 issuers in a trust snapshot, profile index.link.v1) at the re-frozen Index, so the
+        links are genuinely STORED and the scores genuinely computed; a link that is not stored fails the case (no skip).
   Chain profile      - the Solidity lifecycle contract on a disposable loopback Ganache chain: supersession, history,
         reconstruction from logs and the treatment of copied evidence (copies stay visible; the contract computes no score).
 
@@ -26,6 +28,7 @@ from pathlib import Path
 import pytest
 
 import _c_2b_helpers as C
+import _index_signing as S
 from _c_2b_helpers import no_network  # noqa: F401  (autouse fixture)
 
 HERE = Path(__file__).resolve().parent
@@ -35,9 +38,9 @@ FIELDS = ('status', 'supporting_weight', 'contradicting_weight', 'independence_s
 
 @pytest.fixture(scope='module')
 def index_pin():
-    pin = C.external_pin('SCN_INDEX_DIR', C.FROZEN_INDEX, 'The Index')
+    pin, sha = S.resolve_index_pin(C)
     yield pin
-    C.require_pristine(pin, C.FROZEN_INDEX, 'The Index')
+    C.require_pristine(pin, sha, 'The Index')
 
 
 @pytest.fixture(scope='module')
@@ -56,8 +59,10 @@ def evidence(source='doi:10.1234/same-source', **meta):
             'metadata': {'methodology': 'double-blind RCT', 'sample_size': 1000, 'uncertainty': 0.05, **meta}, 'submitted_by': 'c04_user'}
 
 
-def link(claim_id, evidence_id, attestor='c04_attestor', relation='supports'):
-    return {'claim_id': claim_id, 'evidence_id': evidence_id, 'relation_type': relation, 'strength': 1.0, 'attested_by': attestor}
+def fresh(pin, work, mp):
+    """A fresh Index client (fresh in-memory services) and its link signer (services are process-global: use before building the next)."""
+    client = C.index_client(pin)
+    return client, S.LinkSigner(client, work, mp.setenv)
 
 
 def status(client, claim_id):
@@ -65,13 +70,13 @@ def status(client, claim_id):
     return {k: s[k] for k in FIELDS}
 
 
-def build(client, items):
-    """Create a claim and link each (evidence body, attestor) item; returns (claim id, status)."""
+def build(client, signer, items):
+    """Create a claim and link each (evidence body, attestor, reused evidence id) item; every link must be STORED (200/201)."""
     claim = client.post('/api/v1/claims/', json=CLAIM).json()
     for body, attestor, reuse in items:
         ev = reuse if reuse else client.post('/api/v1/evidence/', json=body).json()['id']
-        r = client.post('/api/v1/evidence/links', json=link(claim['id'], ev, attestor))
-        assert r.status_code == 201, r.text
+        signer.store_link(claim['id'], ev, attestor)
+    assert len(signer.stored_links(claim['id'])) == len(items), 'every link must be stored for the status to be a real measurement'
     return claim['id'], status(client, claim['id'])
 
 
@@ -82,27 +87,28 @@ COPY_VARIANTS = ['five_copies_of_one_source_distinct_metadata', 'five_exact_dupl
                  'one_evidence_record_linked_five_times']
 
 
-def _copies(client, variant):
+def _copies(client, signer, variant):
     n = 5
     if variant == 'five_copies_of_one_source_distinct_metadata':
-        return build(client, [(evidence(copy=i), 'c04_attestor', None) for i in range(n)])
+        return build(client, signer, [(evidence(copy=i), 'c04_attestor', None) for i in range(n)])
     if variant == 'five_exact_duplicate_submissions':
-        return build(client, [(evidence(), 'c04_attestor', None) for _ in range(n)])
+        return build(client, signer, [(evidence(), 'c04_attestor', None) for _ in range(n)])
     if variant == 'five_copies_attested_by_five_attestors':
-        return build(client, [(evidence(copy=i), f'attestor_{i}', None) for i in range(n)])
+        return build(client, signer, [(evidence(copy=i), f'attestor_{i}', None) for i in range(n)])
     claim = client.post('/api/v1/claims/', json=CLAIM).json()
     ev = client.post('/api/v1/evidence/', json=evidence()).json()['id']
     for i in range(n):
-        client.post('/api/v1/evidence/links', json=link(claim['id'], ev, f'attestor_{i}'))
+        signer.store_link(claim['id'], ev, f'attestor_{i}')
+    assert len(signer.stored_links(claim['id'])) == n
     return claim['id'], status(client, claim['id'])
 
 
 @pytest.mark.parametrize('variant', COPY_VARIANTS)
 def test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration(request, record_property, tmp_path, index_pin, variant):
-    """EXPECTED TO FAIL at the frozen pin (defect #24)."""
+    """EXPECTED TO FAIL at the old pin (defect #24). Links are stored (signed where required), so the scores are real measurements."""
     def trial(work, mp, checks):
-        one_id, one = build(C.index_client(index_pin), [(evidence(), 'c04_attestor', None)])
-        many_id, many = _copies(C.index_client(index_pin), variant)
+        one_id, one = build(*fresh(index_pin, work, mp), [(evidence(), 'c04_attestor', None)])
+        many_id, many = _copies(*fresh(index_pin, work, mp), variant)
         checks.expect(many['independence_score'] <= one['independence_score'],
                       f'{variant}: independence_score for 5 copies of ONE source is {many["independence_score"]} > {one["independence_score"]} for a single copy')
         checks.expect(many['supporting_weight'] <= one['supporting_weight'],
@@ -110,7 +116,7 @@ def test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corrobo
         checks.equal(many['status'], one['status'], f'{variant}: copies alone must not change the claim status')
         return {'variant': variant, 'single_copy': one, 'five_copies': many, 'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
     C.run_c_case(request, record_property, tmp_path, 'C04', trial, gate=False,
-                 extra={'surface': 'The Index API EvidenceService.compute_epistemic_status', 'pin': C.FROZEN_INDEX, 'known_defect': '#24',
+                 extra={'surface': 'The Index API EvidenceService.compute_epistemic_status', 'pin': S.env_pin_sha(), 'known_defect': '#24',
                         'expected_at_frozen_pin': 'FAIL (a FAIL is the correct honest result)',
                         'formula_observed': 'independence_score = min(distinct evidence ids / 5, 1); supporting_weight sums quality*strength per LINK; the service has no source-identity or copy detection'})
 
@@ -118,8 +124,8 @@ def test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corrobo
 def test_scn_c04_index_api_independent_sources_control(request, record_property, tmp_path, index_pin):
     """Detector control: five genuinely different sources do raise the metrics (so the copy cases above are not vacuous)."""
     def trial(work, mp, checks):
-        _, one = build(C.index_client(index_pin), [(evidence('doi:10.1/source-0'), 'c04_attestor', None)])
-        _, five = build(C.index_client(index_pin), [(evidence(f'doi:10.1/source-{i}'), 'c04_attestor', None) for i in range(5)])
+        _, one = build(*fresh(index_pin, work, mp), [(evidence('doi:10.1/source-0'), 'c04_attestor', None)])
+        _, five = build(*fresh(index_pin, work, mp), [(evidence(f'doi:10.1/source-{i}'), 'c04_attestor', None) for i in range(5)])
         checks.expect(five['independence_score'] > one['independence_score'], 'independent sources raise independence_score')
         checks.expect(five['supporting_weight'] > one['supporting_weight'], 'independent sources raise supporting_weight')
         return {'one_source': one, 'five_sources': five}
@@ -133,19 +139,19 @@ def test_scn_c04_index_api_independent_sources_control(request, record_property,
 def test_scn_c04_index_api_status_recomputes_deterministically_from_pinned_inputs(request, record_property, tmp_path, index_pin):
     def trial(work, mp, checks):
         def run(order, extend=False):
-            client = C.index_client(index_pin)  # services are process-global: each run gets a fresh set, used before the next is built
+            client, signer = fresh(index_pin, work, mp)  # services are process-global: each run gets a fresh set, used before the next is built
             claim = client.post('/api/v1/claims/', json=CLAIM).json()
             cid = claim['id']
             evs = [client.post('/api/v1/evidence/', json=evidence(f'doi:10.1/s{i}', copy=i)).json()['id'] for i in range(3)]
             rel = ['supports', 'supports', 'contradicts']
             for i in order:
-                client.post('/api/v1/evidence/links', json=link(cid, evs[i], f'a{i}', rel[i]))
+                signer.store_link(cid, evs[i], f'a{i}', rel[i])
             first, second = status(client, cid), status(client, cid)
             out = {'first': first, 'second': second}
             if extend:
                 before = [l['id'] for l in client.get(f'/api/v1/evidence/links/claim/{cid}').json()]
                 extra_ev = client.post('/api/v1/evidence/', json=evidence('doi:10.1/s9')).json()['id']
-                client.post('/api/v1/evidence/links', json=link(cid, extra_ev, 'a9', 'contradicts'))
+                signer.store_link(cid, extra_ev, 'a9', 'contradicts')
                 out.update(after=status(client, cid), links_before=before,
                            links_after=[l['id'] for l in client.get(f'/api/v1/evidence/links/claim/{cid}').json()])
             return out
@@ -163,11 +169,11 @@ def test_scn_c04_index_api_status_recomputes_deterministically_from_pinned_input
 
 def test_scn_c04_index_api_accepted_claim_history_survives_rewrite_and_delete(request, record_property, tmp_path, index_pin):
     def trial(work, mp, checks):
-        client = C.index_client(index_pin)
+        client, signer = fresh(index_pin, work, mp)
         claim = client.post('/api/v1/claims/', json=CLAIM).json()
         cid = claim['id']
         ev = client.post('/api/v1/evidence/', json=evidence()).json()['id']
-        client.post('/api/v1/evidence/links', json=link(cid, ev, 'a0'))
+        signer.store_link(cid, ev, 'a0')
         put = client.put(f'/api/v1/claims/{cid}', json={'canonical_text': 'rewritten as a "supersession"'})
         delete = client.delete(f'/api/v1/claims/{cid}')
         kept = client.get(f'/api/v1/claims/{cid}').json()
@@ -200,7 +206,7 @@ def test_scn_c04_index_chain_supersession_preserves_history_and_is_author_only_a
         checks.equal(s['revision'], {'content_preserved': True, 'lifecycle': 1, 'parent_is_original': True}, 'revision linked to the original')
         return {'supersession': s}
     C.run_c_case(request, record_property, tmp_path, 'C04', trial, gate=False,
-                 extra={'surface': 'Index chain contract (loopback Ganache)', 'pin': C.FROZEN_INDEX})
+                 extra={'surface': 'Index chain contract (loopback Ganache)', 'pin': S.env_pin_sha()})
 
 
 def test_scn_c04_index_chain_status_recomputes_from_logs_and_history_is_ordered(request, record_property, tmp_path, chain_dir):
@@ -214,7 +220,7 @@ def test_scn_c04_index_chain_status_recomputes_from_logs_and_history_is_ordered(
         checks.equal(r['reconstructed_lifecycles']['v1']['lifecycle'], 3, 'lifecycle reconstructed as superseded')
         return {'reconstruction': r}
     C.run_c_case(request, record_property, tmp_path, 'C04', trial, gate=False,
-                 extra={'surface': 'Index chain reconstruct.mjs', 'pin': C.FROZEN_INDEX,
+                 extra={'surface': 'Index chain reconstruct.mjs', 'pin': S.env_pin_sha(),
                         'finality_note': 'provisional on a single development node; not consensus finality'})
 
 
@@ -228,5 +234,5 @@ def test_scn_c04_index_chain_copied_evidence_is_visible_and_never_merged_or_scor
         checks.equal(cp['contract_computes_no_corroboration_or_independence_value'], True, 'the contract computes no corroboration/independence value that copies could inflate')
         return {'copied_evidence': cp, 'harness_derived_view': 'distinct content commitments counted by the harness from reconstructed records; the product defines no such view'}
     C.run_c_case(request, record_property, tmp_path, 'C04', trial, gate=False,
-                 extra={'surface': 'Index chain contract', 'pin': C.FROZEN_INDEX,
+                 extra={'surface': 'Index chain contract', 'pin': S.env_pin_sha(),
                         'limit': 'the chain slice does not itself decide independence; a consumer must derive it from the exposed commitments'})

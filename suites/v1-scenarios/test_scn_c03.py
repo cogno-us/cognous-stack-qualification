@@ -1,4 +1,4 @@
-"""SCN-C03 Forged and replayed attestation (executed against BitRep @ 5b5077da, The Index @ d5e45d27 and the frozen F5b reference).
+"""SCN-C03 Forged and replayed attestation (executed against BitRep @ 5b5077da, The Index @ d5e45d27 or the re-frozen d17b8ac2, and the frozen F5b reference).
 
 SPDX-License-Identifier: Apache-2.0
 
@@ -10,9 +10,13 @@ Surfaces (each variant is exercised independently, each case executes twice and 
 
   BitRep verifier (library and the pinned /verify + /attest admission router)  - variants rejected, never stored;
   BitRep temporal key semantics (boundary matrix)                              - recorded and asserted;
-  The Index Python API link route                                              - the pinned component accepts a link whose
-        attestor identity is unverifiable (defect #23). These cases are EXPECTED TO FAIL at the frozen pin: a FAIL is the
-        correct honest result and is never converted to a pass or skipped;
+  The Index Python API link route                                              - at the OLD pin (d5e45d27) the component accepts a
+        link whose attestor identity is unverifiable (defect #23): the original four cases are EXPECTED TO FAIL there, a FAIL is
+        the correct honest result and is never converted to a pass or skipped. At the re-frozen Index (d17b8ac2, which requires a
+        signed BitRep v1 link attestation) the same cases send real forgeries (unsigned, unknown issuer, attacker key, unknown key
+        id, revoked key, expired, wrong audience, tampered signature) and replays, assert the documented rejection (status +
+        reason), nothing stored, supporting weight 0, and that a validly signed link IS accepted in the same run (positive
+        control, test-time Ed25519 keys in a trust snapshot; see _index_signing.py);
   The Index chain-side adapter (chain/python/bitrep_adapter.py)                - the profile route that does verify;
   The Index chain contract                                                     - stores a statement commitment only;
   Control Plane runtime evidence (route A, hard gate)                          - forged/replayed producer evidence never
@@ -29,6 +33,7 @@ from pathlib import Path
 import pytest
 
 import _c_2b_helpers as C
+import _index_signing as S
 from _c_2b_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
 
 HERE = Path(__file__).resolve().parent
@@ -43,9 +48,9 @@ def br():
 
 @pytest.fixture(scope='module')
 def index_pin():
-    pin = C.external_pin('SCN_INDEX_DIR', C.FROZEN_INDEX, 'The Index')
+    pin, sha = S.resolve_index_pin(C)
     yield pin
-    C.require_pristine(pin, C.FROZEN_INDEX, 'The Index')
+    C.require_pristine(pin, sha, 'The Index')
 
 
 @pytest.fixture(scope='module')
@@ -335,38 +340,125 @@ def test_scn_c03_bitrep_temporal_key_semantics_are_as_documented(request, record
 CLAIM = {'canonical_text': 'C03 claim alpha', 'semantic_representation': {'subject': 'a', 'predicate': 'b'}, 'domains': ['c03'], 'created_by': 'c03_user'}
 EVIDENCE = {'type': 'experiment', 'source_identifier': 'doi:10.1234/c03-source',
             'metadata': {'methodology': 'double-blind RCT', 'sample_size': 1000, 'uncertainty': 0.05}, 'submitted_by': 'c03_user'}
+# variant name -> forgery kind (see _index_signing.FORGERY_KINDS). The first four are the original cases and run against both Index
+# versions (at the old pin the forgery is the bare unverifiable attested_by string). The rest need a service that verifies attestations.
 FORGED_IDENTITIES = {
-    'unregistered_forged_identity': 'forged-attestor-absent-from-every-registry',
-    'substituted_issuer_identity': 'issuer:mallory',
-    'identity_of_unknown_key': 'issuer:alice#key:unknown',
-    'identity_of_revoked_key': 'issuer:alice#key:1(revoked)',
+    'unregistered_forged_identity': 'unsigned_forged_identity',
+    'substituted_issuer_identity': 'unregistered_issuer_own_key',
+    'identity_of_unknown_key': 'unknown_key_id',
+    'identity_of_revoked_key': 'revoked_key',
+    'registered_issuer_signed_by_attacker_key': 'registered_issuer_attacker_key',
+    'expired_attestation': 'expired_attestation',
+    'wrong_audience_attestation': 'wrong_audience',
+    'tampered_signature_attestation': 'tampered_signature',
+    'issuer_differs_from_attested_by': 'issuer_not_matching_attested_by',
+    'wrong_statement_type': 'wrong_statement_type',
 }
+LEGACY_VARIANTS = ('unregistered_forged_identity', 'substituted_issuer_identity', 'identity_of_unknown_key', 'identity_of_revoked_key')
 
 
-def _link_attempt(client, attested_by):
+def _prepare(client, work, mp, requires=None):
+    return S.LinkSigner(client, work, mp.setenv, requires=requires)
+
+
+def _link_attempt(client, signer, kind):
     claim = client.post('/api/v1/claims/', json=CLAIM).json()
     ev = client.post('/api/v1/evidence/', json=EVIDENCE).json()
-    r = client.post('/api/v1/evidence/links', json={'claim_id': claim['id'], 'evidence_id': ev['id'], 'relation_type': 'supports',
-                                                    'strength': 1.0, 'attested_by': attested_by})
+    r = client.post('/api/v1/evidence/links', json=signer.forged_body(kind, claim['id'], ev['id']))
     status = client.get(f'/api/v1/evidence/epistemic-status/{claim["id"]}').json()
-    return r.status_code, status
+    return r.status_code, status, S.reason(r), claim['id'], ev['id']
 
 
 @pytest.mark.parametrize('variant', sorted(FORGED_IDENTITIES))
 def test_scn_c03_index_api_unverifiable_attestation_never_becomes_accepted_support(request, record_property, tmp_path, index_pin, variant):
-    """EXPECTED TO FAIL at the frozen pin (defect #23): the link route stores any non-empty attested_by string."""
+    """At the old pin EXPECTED TO FAIL (defect #23: the link route stores any non-empty attested_by string). At the re-frozen Index the
+    forgery must be rejected with the documented status/reason and never stored."""
     def trial(work, mp, checks):
         client = C.index_client(index_pin)
-        code, status = _link_attempt(client, FORGED_IDENTITIES[variant])
+        signer = _prepare(client, work, mp)
+        if not signer.requires and variant not in LEGACY_VARIANTS:
+            pytest.skip('service does not verify attestations (old pin): this variant needs a signed-attestation service')
+        kind = FORGED_IDENTITIES[variant]
+        code, status, why, cid, eid = _link_attempt(client, signer, kind)
         stored = 200 <= code < 300
         checks.expect(not stored, f'link with unverifiable attestor {variant!r} was ACCEPTED (HTTP {code}); rejected evidence became accepted support')
         checks.equal(status.get('supporting_weight'), 0, f'supporting weight after the forged link: {status.get("supporting_weight")}')
-        return {'variant': variant, 'link_http_status': code, 'link_stored': stored, 'supporting_weight': status.get('supporting_weight'),
+        control = None
+        if signer.requires:
+            checks.equal((code, why), S.FORGERY_KINDS[kind], f'{variant}: rejection status and reason')
+            checks.equal(signer.stored_links(cid), [], f'{variant}: no link stored')
+            c2 = signer.post_link(cid, eid)  # positive control: the same setup accepts a validly signed link (the rejection is not vacuous)
+            control = c2.status_code
+            checks.equal(control, 201, 'positive control: a validly signed link is accepted')
+            checks.expect(client.get(f'/api/v1/evidence/epistemic-status/{cid}').json().get('supporting_weight', 0) > 0, 'positive control raises supporting weight')
+        return {'variant': variant, 'forgery_kind': kind, 'attestation_required': signer.requires, 'link_http_status': code, 'reason': why,
+                'link_stored': stored, 'supporting_weight': status.get('supporting_weight'), 'positive_control_http': control,
                 'status': status.get('status'), 'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
+    sha = S.pin_sha(index_pin)
     C.run_c_case(request, record_property, tmp_path, 'C03', trial, gate=False,
-                 extra={'surface': 'The Index API POST /api/v1/evidence/links', 'pin': C.FROZEN_INDEX, 'known_defect': '#23',
-                        'expected_at_frozen_pin': 'FAIL (a FAIL is the correct honest result)',
-                        'note': 'the link model has no field for a BitRep envelope; the route performs no verification'})
+                 extra={'surface': 'The Index API POST /api/v1/evidence/links', 'pin': sha, 'known_defect': '#23 (old pin only)',
+                        'expected_at_old_pin': 'FAIL for the four original variants (a FAIL is the correct honest result); other variants skipped there',
+                        'expected_at_refrozen_index': 'PASS: rejected with the documented status and reason'})
+
+
+REPLAYS = ('attestation_replayed_for_other_strength', 'attestation_replayed_for_other_relation', 'attestation_replayed_for_other_claim',
+           'attestation_id_reused_for_other_statement', 'exact_resubmission_is_idempotent')
+
+
+@pytest.mark.parametrize('variant', REPLAYS)
+def test_scn_c03_index_api_replayed_attestation_never_adds_support(request, record_property, tmp_path, index_pin, variant):
+    """Needs a service that verifies attestations (skipped with the reason at the old pin, which has no attestations to replay)."""
+    def trial(work, mp, checks):
+        client = C.index_client(index_pin)
+        signer = _prepare(client, work, mp)
+        if not signer.requires:
+            pytest.skip('service does not verify attestations (old pin): nothing to replay against')
+        claim = client.post('/api/v1/claims/', json=CLAIM).json()
+        other = client.post('/api/v1/claims/', json={**CLAIM, 'canonical_text': 'C03 claim beta'}).json()
+        ev = client.post('/api/v1/evidence/', json=EVIDENCE).json()
+        first = signer.valid_body(claim['id'], ev['id'], 'issuer:alice', attestation_id='att-replay')
+        r1 = client.post('/api/v1/evidence/links', json=first)
+        checks.equal(r1.status_code, 201, 'the genuine link is accepted')
+        weight = client.get(f'/api/v1/evidence/epistemic-status/{claim["id"]}').json()['supporting_weight']
+        checks.expect(weight > 0, 'the genuine link raised supporting weight (control)')
+        tamper = {'attestation_replayed_for_other_strength': {'strength': 0.1}, 'attestation_replayed_for_other_relation': {'relation_type': 'contradicts'},
+                  'attestation_replayed_for_other_claim': {'claim_id': other['id']}}.get(variant)
+        if tamper:
+            r = client.post('/api/v1/evidence/links', json={**first, **tamper})
+            checks.equal((r.status_code, S.reason(r)), (422, 'attestation_binding_mismatch'), f'{variant}: replay rejected')
+            checks.equal(signer.stored_links(other['id']), [], 'nothing stored for the other claim')
+        elif variant == 'attestation_id_reused_for_other_statement':
+            r = client.post('/api/v1/evidence/links', json=signer.valid_body(claim['id'], ev['id'], 'issuer:alice', strength=0.5, attestation_id='att-replay'))
+            checks.equal((r.status_code, S.reason(r)), (409, 'attestation_id_conflict'), f'{variant}: id reuse conflicts')
+        else:
+            r = client.post('/api/v1/evidence/links', json=first)
+            checks.equal(r.status_code, 200, 'exact resubmission is idempotent (200)')
+            checks.equal(r.json().get('id'), r1.json().get('id'), 'same link returned')
+        checks.equal(len(signer.stored_links(claim['id'])), 1, f'{variant}: exactly one link stored')
+        after = client.get(f'/api/v1/evidence/epistemic-status/{claim["id"]}').json()['supporting_weight']
+        checks.equal(after, weight, f'{variant}: supporting weight unchanged by the replay')
+        return {'variant': variant, 'replay_http_status': r.status_code, 'reason': S.reason(r), 'links_stored': 1, 'supporting_weight_unchanged': after == weight,
+                'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
+    C.run_c_case(request, record_property, tmp_path, 'C03', trial, gate=False,
+                 extra={'surface': 'The Index API POST /api/v1/evidence/links (replay)', 'pin': S.pin_sha(index_pin)})
+
+
+def test_scn_c03_index_api_no_trust_snapshot_fails_closed(request, record_property, tmp_path, index_pin):
+    """Needs a service that verifies attestations (skipped with the reason at the old pin)."""
+    def trial(work, mp, checks):
+        client = C.index_client(index_pin)
+        signer = _prepare(client, work, mp)
+        if not signer.requires:
+            pytest.skip('service does not verify attestations (old pin): no trust snapshot concept')
+        claim = client.post('/api/v1/claims/', json=CLAIM).json()
+        ev = client.post('/api/v1/evidence/', json=EVIDENCE).json()
+        body = signer.valid_body(claim['id'], ev['id'])
+        signer.unavailable_registry()
+        r = client.post('/api/v1/evidence/links', json=body)
+        checks.equal((r.status_code, S.reason(r)), (503, 'trust_unavailable'), 'a validly signed link is refused when no trust snapshot is usable')
+        checks.equal(signer.stored_links(claim['id']), [], 'nothing stored')
+        return {'http_status': r.status_code, 'reason': S.reason(r), 'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
+    C.run_c_case(request, record_property, tmp_path, 'C03', trial, gate=False, extra={'surface': 'The Index API trust snapshot', 'pin': S.pin_sha(index_pin)})
 
 
 def test_scn_c03_index_api_detector_calibration_controls(request, record_property, tmp_path):
@@ -396,11 +488,23 @@ def test_scn_c03_index_api_detector_calibration_controls(request, record_propert
             def status(cid: str):
                 return {'supporting_weight': 1.0 if accept else 0, 'status': 'x'}
             return TestClient(app)
-        a, _ = _link_attempt(stub(True), 'forged')
-        b, _ = _link_attempt(stub(False), 'forged')
+        a = _link_attempt(stub(True), _prepare(stub(True), work, mp, requires=False), 'unsigned_forged_identity')[0]
+        b = _link_attempt(stub(False), _prepare(stub(False), work, mp, requires=False), 'unsigned_forged_identity')[0]
         checks.expect(200 <= a < 300, 'accept-all stub is flagged as accepting')
         checks.expect(not 200 <= b < 300, 'reject-all stub is cleared')
-        return {'accept_all_http': a, 'reject_all_http': b}
+        out = {'accept_all_http': a, 'reject_all_http': b}
+        try:
+            import app.bitrep_verify  # noqa: F401  (the signed-forgery bodies need the verifier of a service that requires attestations)
+            has_verifier = True
+        except ImportError:
+            has_verifier = False
+        if has_verifier:  # every signed forgery kind goes through the same detector: accept-all flagged, reject-all cleared
+            for kind in sorted(S.FORGERY_KINDS):
+                fa = _link_attempt(stub(True), _prepare(stub(True), work, mp, requires=True), kind)[0]
+                fb = _link_attempt(stub(False), _prepare(stub(False), work, mp, requires=True), kind)[0]
+                checks.expect(200 <= fa < 300 and not 200 <= fb < 300, f'signed forgery kind {kind}: accept-all flagged, reject-all cleared')
+            out['signed_forgery_kinds_calibrated'] = sorted(S.FORGERY_KINDS)
+        return out
     C.run_c_case(request, record_property, tmp_path, 'C03', trial, gate=False, extra={'surface': 'detector calibration'})
 
 
@@ -478,7 +582,7 @@ def test_scn_c03_index_chain_adapter_never_verifies_forged_or_replayed_attestati
         got = _adapter_case(br, ad, variant)
         checks.expect(not got['verified'], f'{variant}: forged/replayed attestation was VERIFIED by the Index adapter: {got}')
         return {'variant': variant, 'result': {'outcome': got['outcome'], 'reason': C.H2.normalise_reason(got['reason'])}}
-    C.run_c_case(request, record_property, tmp_path, 'C03', trial, gate=False, extra={'surface': 'Index chain adapter (BitRep delegated)', 'pin': C.FROZEN_INDEX})
+    C.run_c_case(request, record_property, tmp_path, 'C03', trial, gate=False, extra={'surface': 'Index chain adapter (BitRep delegated)', 'pin': S.env_pin_sha()})
 
 
 # ------------------------------------------------------------------------------------------------
@@ -498,7 +602,7 @@ def test_scn_c03_index_chain_statement_commitment_carries_no_verification(reques
         checks.equal(s['reconstructed_statement_equals_commitment'], True, 'the stored value is exactly the commitment')
         return {'statement_commitment': s}
     C.run_c_case(request, record_property, tmp_path, 'C03', trial, gate=False,
-                 extra={'surface': 'Index chain contract (disposable loopback Ganache chain)', 'pin': C.FROZEN_INDEX,
+                 extra={'surface': 'Index chain contract (disposable loopback Ganache chain)', 'pin': S.env_pin_sha(),
                         'interpretation': 'chain inclusion is not BitRep verification; a verifier must use the adapter above'})
 
 

@@ -69,3 +69,31 @@ def test_probe_supersession_claims_service_refuses_rewrite_and_delete_of_accepte
         svc.delete_claim(c.id)
     kept = svc.get_claim(c.id)
     assert kept is not None and kept.canonical_text == "Probe claim"
+
+
+@pytest.fixture
+def signer(index_client, tmp_path, monkeypatch):
+    from _index_signing import LinkSigner
+    return LinkSigner(index_client, tmp_path, monkeypatch.setenv)
+
+
+def test_probe_supersession_api_links_survive_refused_rewrite_and_delete(index_client, signer):
+    """ER-02-3 (API surface): evidence links stored for an accepted claim (validly signed where the service requires it) are still
+    there, unchanged, after the refused rewrite/delete, and status keeps counting them. The API has no supersession route, so
+    this is the part of 'history is preserved' that the API itself can be held to."""
+    claim = {"canonical_text": "Probe claim alpha", "semantic_representation": {"subject": "a", "predicate": "b"},
+             "domains": ["probe"], "created_by": "probe_user"}
+    ev = {"type": "experiment", "source_identifier": "doi:10.1234/api-history",
+          "metadata": {"methodology": "double-blind RCT", "sample_size": 1000, "uncertainty": 0.05}, "submitted_by": "probe_user"}
+    c = index_client.post("/api/v1/claims/", json=claim).json()
+    e = index_client.post("/api/v1/evidence/", json=ev).json()
+    signer.store_link(c["id"], e["id"], "probe_attestor")
+    before_links = index_client.get(f"/api/v1/evidence/links/claim/{c['id']}").json()
+    before = index_client.get(f"/api/v1/evidence/epistemic-status/{c['id']}").json()
+    assert len(before_links) == 1 and before["supporting_weight"] > 0, "the link must be stored for this probe to mean anything"
+    assert index_client.put(f"/api/v1/claims/{c['id']}", json={"canonical_text": "rewritten"}).status_code == 409
+    assert index_client.delete(f"/api/v1/claims/{c['id']}").status_code == 409
+    assert index_client.get(f"/api/v1/evidence/links/claim/{c['id']}").json() == before_links
+    after = index_client.get(f"/api/v1/evidence/epistemic-status/{c['id']}").json()
+    for k in ("status", "supporting_weight", "contradicting_weight", "independence_score", "robustness_score"):
+        assert after[k] == before[k]

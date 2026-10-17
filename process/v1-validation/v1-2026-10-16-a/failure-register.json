@@ -33,7 +33,7 @@
    "summary": "Duplicated evidence counted as independent",
    "issue": "cogno-us/cognous-evidence-registry#24",
    "status": "REMEDIATION-PR",
-   "note": "Same PR #25; same re-freeze caveat",
+   "note": "Same PR #25; same re-freeze caveat | independence_score fixed; copied evidence still inflates supporting_weight (F-19)",
    "evidence": "final-38962759690"
   },
   {
@@ -216,6 +216,18 @@
    "issue": "https://github.com/cogno-us/cognous-execution-runtime/issues/99",
    "status": "OPEN",
    "evidence": "full1-39005768983"
+  },
+  {
+   "id": "F-19",
+   "requirements": [
+    "SCN-C04",
+    "ER-02-4b"
+   ],
+   "component": "the_index (re-frozen d17b8ac2)",
+   "summary": "Copied evidence still inflates supporting_weight (0.8 -> 4.0) and flips status proposed -> supported although independence_score is 0.2; known limit in BITREP_LINK_ATTESTATION.md. F-02 is only partly fixed.",
+   "issue": "to be filed in cogno-us/cognous-evidence-registry",
+   "status": "OPEN",
+   "evidence": "worker run v1-ix (local); CI confirmation pending"
   }
  ],
  "limits_not_failures": [
