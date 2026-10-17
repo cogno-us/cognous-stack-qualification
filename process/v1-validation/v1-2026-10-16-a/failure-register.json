@@ -362,6 +362,103 @@
    "status": "OPEN",
    "decision": "Not yet decided by the owner. Proposed: fix in the P3 phase of the decoupling plan together with the other evidence-pack changes (cogno-us/cognous-control-plane#38). Outside the reduced V1 claim; no V1 row depends on it.",
    "evidence": "docs/engineering/ODES-P0-INVENTORY.md finding N-2 in cogno-us/open-decision-evidence-standard; probe over the three route_b_post_commit fixtures in cogno-us/cognous-replay-bundle tests/fixtures. Suggested fix: map executor_recovery_report back to the retained export's observations in the pack's _retained_replay_inputs."
+  },
+  {
+   "requirements": [],
+   "classification": "contract conformance divergence (found by P2 lifecycle conformance suites, not by a V1 row)",
+   "status": "OPEN",
+   "decision": "Not individually decided by the owner. Handled in the decoupling plan (cogno-us/cognous-control-plane#38): fix in P3, one component per PR, after the contract is reviewed. Each item is pinned as a strict expected failure in the component's own conformance test, so a fix flips it visibly. Outside the reduced V1 claim.",
+   "id": "F-26",
+   "component": "cognous-execution-runtime (4a83b175, conformance suite merged in runtime #104)",
+   "summary": "Runtime producer diverges from the execution-attempt lifecycle contract (0.1.0-draft) in five places; control plane producer diverges in none (control plane #39).",
+   "items": [
+    {
+     "id": "N-1",
+     "evidence": "engine/safe_executor.py:892-909; trigger engine/openshell_environment.py:375-386",
+     "summary": "Result 'unknown' returned together with a validated observation when the follow-up observation succeeds after a timeout. Owner decided (2026-10-17) the runtime changes to report reconciled/partial."
+    },
+    {
+     "id": "F-P2-RT-1",
+     "evidence": "engine/safe_executor.py:893-897",
+     "summary": "If the follow-up observe_bound fails, the handler fabricates a validated observation {state:'unknown'} instead of null, so 'unknown' still violates the contract; the N-1 fix does not cover this."
+    },
+    {
+     "id": "F-P2-RT-2",
+     "evidence": "engine/safe_executor.py:399 (and :910-922, atomic_local_control_plane_executor.py:104-137)",
+     "summary": "Failed and denied results carry {} as observation; the contract allows null, validated or recovery only."
+    },
+    {
+     "id": "F-P2-RT-3",
+     "evidence": "engine/safe_executor.py:827, 843",
+     "summary": "Route A writes attempt event status 'denied', outside the contract's closed attempt_event enum."
+    },
+    {
+     "id": "F-P2-RT-4",
+     "evidence": "engine/producer_contract.py:247-249, 286",
+     "summary": "Export uses the legacy layout (recovery report in observations, no recovery_observations); the P3 layout move."
+    }
+   ],
+   "evidence": "cogno-us/cognous-execution-runtime tests/test_contract_lifecycle_conformance.py and docs/contract-conformance-execution-attempt-lifecycle.md (strict xfail cases). Caveat: route B cases use a test-only subclass of the real destination; route C and recovery 'hold' are not exercised."
+  },
+  {
+   "requirements": [],
+   "classification": "contract conformance divergence (found by P2 lifecycle conformance suites, not by a V1 row)",
+   "status": "OPEN",
+   "decision": "Not individually decided by the owner. Handled in the decoupling plan (cogno-us/cognous-control-plane#38): fix in P3, one component per PR, after the contract is reviewed. Each item is pinned as a strict expected failure in the component's own conformance test, so a fix flips it visibly. Outside the reduced V1 claim.",
+   "id": "F-27",
+   "component": "cognous-replay-bundle (8eaf3a42, conformance suite merged in replay #39)",
+   "summary": "Replay consumer diverges from the execution-attempt lifecycle contract (0.1.0-draft): 12 findings across 8 strict-xfail fixtures and extra probes (33 fixtures: 11 accepted, 13 refused as expected, 8 diverge, 1 not exercised).",
+   "items": [
+    {
+     "id": "F-P2-RP-1",
+     "summary": "Result 'observed' with attempted true is refused (importers.py:1459-1468)."
+    },
+    {
+     "id": "F-P2-RP-2",
+     "summary": "started_at treated as an immutable attempt invariant (importers.py:663-664, 112-118); the contract does not say so."
+    },
+    {
+     "id": "F-P2-RP-3",
+     "summary": "recovery_observations is an unsupported export member (importers.py:346-351, 812); no mismatch rule."
+    },
+    {
+     "id": "F-P2-RP-4",
+     "summary": "Replay requires the recovery report to be mirrored in observations (importers.py:1371-1373); the new layout is refused."
+    },
+    {
+     "id": "F-P2-RP-5",
+     "summary": "Legacy layout (report inside observations) is accepted and retained as executor_recovery_report; contract draft refuses it. Owner decision needed on alpha tolerance."
+    },
+    {
+     "id": "F-P2-RP-6",
+     "summary": "unknown_with_validated_observation has no Replay rule; refused only incidentally by the terminal-event rule (importers.py:1345-1351)."
+    },
+    {
+     "id": "F-P2-RP-7",
+     "summary": "Closed enumerations not enforced (result status, event status, attempt status, time_source accept unknown values, retained verbatim, not coerced); only recovery status is checked."
+    },
+    {
+     "id": "F-P2-RP-8",
+     "summary": "Closed member sets and x- key checks apply only at the export root, execution_result, recovery report, producer_profile and repository; attempt rows, event rows and control plane attempt rows accept undeclared members."
+    },
+    {
+     "id": "F-P2-RP-9",
+     "summary": "reconciled_existing marker accepted on a lone row of any non-start status (importers.py:1297-1298); contract allows acknowledged or partial only."
+    },
+    {
+     "id": "F-P2-RP-10",
+     "summary": "Replay is stricter than the contract: result 'executed' with null observation is refused (importers.py:1384-1385)."
+    },
+    {
+     "id": "F-P2-RP-11",
+     "summary": "Replay requires observations, control_plane_evidence, rejected_observations (and attempt_identity, control_plane_attempts for a versioned export) that the contract leaves optional."
+    },
+    {
+     "id": "F-P2-RP-12",
+     "summary": "Export-level extensions is validated then dropped; the contract requires consumers to preserve it."
+    }
+   ],
+   "evidence": "cogno-us/cognous-replay-bundle tests/test_contract_lifecycle_conformance.py and docs/contract-conformance-execution-attempt-lifecycle.md. The doc's error-pattern mapping has five 'proposed' patterns that need the owner's agreement."
   }
  ],
  "notes": [

@@ -104,3 +104,8 @@ The runtime's atomic local executor (route B) returns status `unknown` with a re
 ## Evidence pack cannot re-validate route-B bundles (F-25, found 2026-10-17)
 
 Replay now imports the real route-B post-commit exports (F-24) and retains the recovery report as `executor_recovery_report`. The evidence pack at its pinned revision does not map that record type back when it re-validates a retained Replay bundle, so it rejects all three captured route-B bundles. Outside the reduced V1 claim. Status OPEN; proposed for the decoupling plan's P3 phase.
+
+## Lifecycle contract conformance divergences (F-26 runtime, F-27 Replay, found 2026-10-17)
+
+The P2 conformance suites for the execution-attempt lifecycle contract (0.1.0-draft) found five runtime divergences (F-26, including the OpenShell `unknown`-with-validated-observation path, N-1) and twelve Replay divergences (F-27). The control plane conforms in every case it exercised. Each divergence is pinned as a strict expected failure in the component's own test, none is fixed, and none is part of the reduced V1 claim. They are handled in the decoupling plan (cogno-us/cognous-control-plane#38), P3.
+
