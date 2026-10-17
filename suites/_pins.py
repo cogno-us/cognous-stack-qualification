@@ -23,6 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 GROUPS = ("components_subject", "components_lock_remainder", "components_optional")
 ORIGINAL_PROFILE = "process/security-runtime-f5b-20261016.json"
+R1_PROFILE = "process/security-runtime-f5b-20261016-r1.json"  # the qualification profile of RF-2..RF-6 (profile components re-frozen)
 STATUS_APPLIED_PREFIX = "APPLIED"
 
 # Explicit mapping of a refreeze-log "component" to the freeze-manifest (section, key).  The log uses the manifest key
@@ -185,11 +186,13 @@ _RESOLVED, APPLIED_REFREEZES = apply_overlay(_MANIFEST, load_refreeze_log())
 _P = _RESOLVED["components_subject"]
 _O = _ORIGINAL_MANIFEST
 
-PROFILE_RELPATH = os.environ.get("V1_PROFILE", ORIGINAL_PROFILE)
-PROFILE_PATH = ROOT / PROFILE_RELPATH
 RESOLVED_MANIFEST = _RESOLVED
 ORIGINAL_MANIFEST = _ORIGINAL_MANIFEST
 GENERATIONS = generations(_ORIGINAL_MANIFEST, load_refreeze_log())
+# The profile follows the overlay: the original while no profile component is re-frozen, the r1 profile once one is
+# (V1_PROFILE still overrides, and the controller workflow sets it explicitly).
+PROFILE_RELPATH = os.environ.get("V1_PROFILE", R1_PROFILE if len(GENERATIONS) > 1 else ORIGINAL_PROFILE)
+PROFILE_PATH = ROOT / PROFILE_RELPATH
 
 FROZEN_HUB = _RESOLVED["identities"]["hub"]["head"]
 FROZEN_RUNTIME = _P["moltbot_safe"]["sha"]
