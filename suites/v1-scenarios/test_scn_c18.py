@@ -31,6 +31,7 @@ import pytest
 
 import _c_2c_helpers as C
 import _d02_d05_d09_helpers as H
+from _reason_norm import exc_summary  # noqa: E402
 from _d02_d05_d09_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
@@ -359,7 +360,7 @@ def test_scn_c18_route_a_exceeding_a_grant_limit_is_held_and_cannot_execute(requ
             d2 = flow.f.decide(p2, now=now)
             outcome = {'result': d2.result, 'reasons': sorted(d2.reasons)}
         except Exception as exc:
-            d2, outcome = None, {'raised': f'{type(exc).__name__}: {str(exc)[:160]}'}
+            d2, outcome = None, {'raised': exc_summary(exc)}
         checks.expect(d2 is not None and d2.result != 'authorized', f'{case}: the delegated limit exceeded must not be authorised; observed {outcome}')
         checks.expect(d2 is not None and reason in d2.reasons, f'{case}: the held decision names {reason}; observed {outcome}')
         # presenting the held decision with a consistent envelope (and a policy that admits the values) must still not execute

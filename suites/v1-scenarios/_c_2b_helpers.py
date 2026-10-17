@@ -40,6 +40,7 @@ sys.dont_write_bytecode = True  # a bytecode file inside a pinned checkout would
 
 import _d02_d05_d09_helpers as H1  # noqa: E402  (batch-1 helpers, imported, never modified)
 import _d06_d07_d08_helpers as H2  # noqa: E402
+from _reason_norm import exc_summary  # noqa: E402
 from _d02_d05_d09_helpers import Checks, canonical, digest, no_network  # noqa: E402,F401  (fixtures/utilities re-exported)
 from pristine_checkout import require_pristine  # noqa: E402  (tools/ is on sys.path via the batch-1 helpers)
 
@@ -456,4 +457,4 @@ def tree_snapshot(path):
 
 
 def exc_text(exc):
-    return f'{type(exc).__name__}: {str(exc)[:200]}'
+    return exc_summary(exc)

@@ -28,6 +28,7 @@ import pytest
 
 import _c_2a_helpers as C
 import _d02_d05_d09_helpers as H
+from _reason_norm import exc_summary  # noqa: E402
 from _c_2a_helpers import CrashSignal, no_network, pinned_reference  # noqa: F401  (fixtures)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
@@ -260,7 +261,7 @@ def test_scn_c08_route_c_exchange_crash_then_restart_never_redispatches(request,
             r = H.exchange_resume(flow)
             resume = {'returned': H.exchange_view(r)}
         except Exception as exc:
-            resume = {'raised': f'{type(exc).__name__}: {str(exc)[:160]}'}
+            resume = {'raised': exc_summary(exc)}
         final = H.db_summary(dest2.path)
         checks.equal((v['attempted'], bool(v['newly_executed'])), (False, False), 'redelivery after the crash dispatches nothing')
         checks.equal(final['effects'], at_crash['effects'], 'effect rows byte-identical across the restart and every recovery attempt (no duplicate)')

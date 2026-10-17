@@ -27,6 +27,7 @@ import pytest
 
 import _c_2a_helpers as C
 import _d02_d05_d09_helpers as H
+from _reason_norm import exc_summary  # noqa: E402
 from _c_2a_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
@@ -246,7 +247,7 @@ def test_scn_c06_route_c_exchange_observer_outage_keeps_delivery_unresolved_unti
             down_resume = {'returned': r}
             checks.expect(r['attempt_status'] not in ('executed', 'reconciled') and r['newly_executed'] is False, f'resume under outage must not claim completion; observed {r}')
         except Exception as exc:
-            down_resume = {'raised': f'{type(exc).__name__}: {str(exc)[:160]}'}
+            down_resume = {'raised': exc_summary(exc)}
         s2 = H.db_summary(flow.dest.path)
         checks.equal(s2['effects'], s1['effects'], 'effect rows unchanged under outage')
         observer.restore()

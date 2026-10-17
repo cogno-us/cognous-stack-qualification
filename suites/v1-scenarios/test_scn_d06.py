@@ -356,7 +356,7 @@ def _fence(root):
             fence.wrap_destination(dest, GenerationFenceClaim('conv-1', f'e{i}', 3)).commit(Snap(f'e{i}'))
             return 'committed'
         except GenerationFenceRefusal as exc:
-            return 'refused:' + str(exc)
+            return 'refused:' + H.normalise_reason(exc)
     with _meter('generation_fence_refusal_flood', root) as m:
         out = H.run_pool([('stale', (lambda i=i: stale(i))) for i in range(STALE)], WORKERS, m)
     counters = fence.counters('conv-1')
