@@ -165,11 +165,19 @@ def test_lost_ack_restart_preserves_attempt_history(tmp_path):
         snapshot_envelope(envelope(op, attempt_id="lost")),
         simulate="crash_after_commit",
     )
-    assert result.status == "unknown"
+    # P3 version tolerance (runtime PR #105, lifecycle conformance): the currently pinned runtime reports
+    # 'unknown' for a lost/malformed acknowledgement that is then observed applied; the P3 runtime reports
+    # 'reconciled' (observed partial: 'partial'). Both are accepted until the P4 contract-version matrix
+    # switch, when this returns to a single strict assertion.
+    assert result.status in {"unknown", "reconciled"}
     assert destination.observe("effect-1")["state"] == "applied"
+    if result.status == "reconciled":
+        assert result.acknowledged is False
+        assert result.newly_executed is False
+        assert result.observation is not None
     assert [x["status"] for x in destination.attempt_history("lost")] == [
         "attempted",
-        "unknown",
+        result.status,
     ]
 
     restarted = DurableRefundDestination(state)

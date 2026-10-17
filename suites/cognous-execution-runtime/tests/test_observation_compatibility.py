@@ -141,11 +141,23 @@ def test_absence_after_attempt_never_resubmits(tmp_path, monkeypatch):
 def test_lost_ack_and_partial_export(tmp_path, simulate, state, status):
     h,p,_,_,decision,destination,executor,request = _integrated(tmp_path)
     result = executor.execute(envelope=request, proposal=p, decision=decision, now=h.NOW, simulate=simulate)
-    assert result.status == status
+    if simulate == 'lost_ack':
+        # P3 version tolerance: the pinned runtime reports 'unknown' for a lost acknowledgement that is then
+        # observed applied; the P3 lifecycle change (runtime PR #105) reports 'reconciled'. Both are accepted
+        # until the P4 contract-version matrix switch, when this returns to a single strict expectation.
+        assert result.status in {'unknown', 'reconciled'}
+        if result.status == 'reconciled':
+            assert result.newly_executed is False
+            assert result.observation is not None
+    else:
+        assert result.status == status
     assert result.acknowledged == (simulate == 'partial')
     assert result.observed_state == state
     _assert_effect(destination, request, state)
     exported = export_execution_artifacts(request, result, destination)
+    if simulate == 'lost_ack' and result.status == 'reconciled':
+        # P3 behaviour: the terminal attempt event equals the result status.
+        assert exported['attempt_events'][-1]['status'] == result.status
     assert exported['observations'][0]['state'] == state
     assert exported['rejected_observations'] == []
     recovered = executor.execute(envelope=request, proposal=p, decision=decision, now=h.NOW)

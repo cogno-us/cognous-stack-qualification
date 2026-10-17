@@ -90,7 +90,18 @@ def test_unknown_delivery_never_blindly_retries(tmp_path, failure):
     c, cli, d, snap, executor = setup(tmp_path)
     cli.failure = failure
     first = executor.execute_snapshot(snap)
-    assert first.status == 'unknown' and not first.newly_executed
+    # P3 version tolerance (runtime PR #105, lifecycle conformance): the currently pinned runtime reports
+    # 'unknown' for a lost/malformed acknowledgement that is then observed applied; the P3 runtime reports
+    # 'reconciled' (observed partial: 'partial'). Both are accepted until the P4 contract-version matrix
+    # switch, when this returns to a single strict assertion.
+    if failure == 'lost_ack':
+        assert first.status in {'unknown', 'reconciled'}
+        if first.status == 'reconciled':
+            assert first.acknowledged is False
+            assert first.observation is not None
+    else:
+        assert first.status == 'unknown'
+    assert not first.newly_executed
     cli.failure = None
     restarted = OpenShellRefundDestination(tmp_path/'host', c, cli)
     result = LocalDestinationExecutor(restarted, executor.policy).execute_snapshot(snap)
