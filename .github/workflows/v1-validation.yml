@@ -348,6 +348,21 @@ jobs:
           st='PASS' if c['testcases'] and not (c['failures'] or c['errors']) else 'FAIL' if c['testcases'] else 'INCONCLUSIVE'
           json.dump({'schema':'cognous.v1-validation-job/1','component':'scenarios','kind':'scenario-suite','status':st,'counts':c,'os':'ubuntu-latest','python':'3.12','workflow_run':os.environ.get('GITHUB_RUN_ID')},open('out/result.json','w'),indent=2)
           EOF
+      - name: Make evidence file names portable (colons etc. are invalid in artifacts and Windows checkouts); keep a name map
+        if: always()
+        run: |
+          python - <<'EOF'
+          import os,re,json
+          root='out/evidence'; m={}
+          if os.path.isdir(root):
+              for d,_,fs in os.walk(root):
+                  for f in fs:
+                      n=re.sub(r'[<>:"|?*\\\\]','_',f)
+                      if n!=f:
+                          if os.path.exists(os.path.join(d,n)): n=n[:-5]+'__'+str(len(m))+'.json'
+                          os.rename(os.path.join(d,f),os.path.join(d,n)); m[os.path.relpath(os.path.join(d,n),root)]=f
+              json.dump(m,open('out/evidence-name-map.json','w'),indent=1)
+          EOF
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
