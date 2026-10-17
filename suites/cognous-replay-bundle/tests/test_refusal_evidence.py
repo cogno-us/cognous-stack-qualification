@@ -28,6 +28,23 @@ def actual(tmp_path, monkeypatch):
     return h,p,r,w,d,dest,ex,env
 
 
+def _pre_lifecycle_row_adapter(exported, cp, proposal):
+    """Contract-version matrix row for executors that predate the execution-attempt-lifecycle contract (no vendored
+    CONTRACT.json). Those executors export a denied result with ``observation: {}``, which Replay refuses since step B
+    (schema_violation; the contract allows null only). The refusal is asserted strictly, then the one known wire
+    difference is normalised ({} -> null, the same meaning: no observation was established) so the typed-refusal evidence
+    this suite is about can still be exercised. A declaring executor exports null and takes no adapter."""
+    declared = (Path(os.environ['ARB_REFUSAL_EXECUTOR_ROOT']) / 'tests/contracts/execution-attempt-lifecycle/CONTRACT.json').is_file()
+    result = exported['execution_result']
+    if declared or result.get('observation') != {}:
+        return
+    with pytest.raises(ImportContractError) as info:
+        import_bounded_workflow(cp, proposal=proposal, moltbot_export=deepcopy(exported),
+                                control_plane_revision=CONTROL_PLANE_REFUSAL_REVISION)
+    assert info.value.code == 'schema_violation'
+    result['observation'] = None
+
+
 def bundle(actual, change='grant'):
     from engine.producer_contract import export_execution_artifacts
     h,p,r,w,d,dest,ex,env=actual
@@ -41,6 +58,7 @@ def bundle(actual, change='grant'):
     cp=w.records.load().model_dump(mode='json',exclude_none=False)
     exported=export_execution_artifacts(env,result,dest,repository_revision=MOLTBOT_REFUSAL_REVISION)
     proposal=p.model_dump(mode='json',exclude_none=False)
+    _pre_lifecycle_row_adapter(exported,cp,proposal)
     replay=import_bounded_workflow(cp,proposal=proposal,moltbot_export=exported,control_plane_revision=CONTROL_PLANE_REFUSAL_REVISION)
     return cp,proposal,exported,replay.model_dump(mode='json'),w.manifest
 
