@@ -404,7 +404,7 @@
    "requirements": [],
    "classification": "contract conformance divergence (found by P2 lifecycle conformance suites, not by a V1 row)",
    "status": "OPEN",
-   "decision": "Not individually decided by the owner. Handled in the decoupling plan (cogno-us/cognous-control-plane#38): fix in P3, one component per PR, after the contract is reviewed. Each item is pinned as a strict expected failure in the component's own conformance test, so a fix flips it visibly. Outside the reduced V1 claim.",
+   "decision": "Owner decisions 2026-10-17 (asked one at a time): (1) legacy recovery layout: NEW LAYOUT ONLY, Replay refuses the report inside observations (recommendation was to accept both during alpha); sequencing: runtime moves to the new layout before Replay tightens. (2) Replay's extra checks: write F-P2-RP-1, 2 and 10 into the contract; align F-P2-RP-11 (Replay stops requiring members the contract leaves optional, contract requires those always present) and F-P2-RP-9 (Replay tightens the reconciled_existing marker). (3) Error mapping: REPLAY EMITS CONTRACT CODES (recommendation was to approve test-only patterns for now); a code field on Replay's import errors. All fixes in P3 of cogno-us/cognous-control-plane#38, one component per PR; none done yet. Outside the reduced V1 claim.",
    "id": "F-27",
    "component": "cognous-replay-bundle (8eaf3a42, conformance suite merged in replay #39)",
    "summary": "Replay consumer diverges from the execution-attempt lifecycle contract (0.1.0-draft): 12 findings across 8 strict-xfail fixtures and extra probes (33 fixtures: 11 accepted, 13 refused as expected, 8 diverge, 1 not exercised).",
