@@ -202,8 +202,13 @@ class LinkSigner:
 
 
 # ---- scenario pin resolution (used by suites/v1-scenarios only; harmless here)
-OLD_INDEX_PIN = "d5e45d275cb301d9684b543e93b05997991d1cf2"
-REFROZEN_INDEX_PIN = "d17b8ac2b8445d385fbf51185a35914b2d8b835c"
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))  # suites/
+import _pins  # noqa: E402
+
+OLD_INDEX_PIN = _pins.OLD_INDEX_PIN
+REFROZEN_INDEX_PIN = _pins.REFROZEN_INDEX_PIN
 
 
 def pin_sha(path):

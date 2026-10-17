@@ -27,6 +27,7 @@ import pytest
 
 import _c_2b_helpers as C
 from _c_2b_helpers import pinned_reference  # noqa: F401
+import _pins  # noqa: E402  (suites/ is on sys.path via the shared helpers)
 
 H2 = C.H2
 CASES = ('valid', 'lost_ack', 'revoked', 'unreadable')
@@ -36,8 +37,7 @@ EXPECTED_EFFECTS = {'valid': 1, 'lost_ack': 1, 'revoked': 0, 'unreadable': 0}
 # end state fixed by the frozen reference (same ground truth as C12): case -> (acknowledgement_summary, destination_observed)
 TRUTH = {'valid': ('received', 'applied'), 'lost_ack': ('unknown', 'applied'), 'revoked': ('not_applicable', 'unknown'),
          'unreadable': ('not_applicable', 'unknown')}
-PINS = {'control_plane': 'a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5', 'moltbot_safe': 'e20f92e104aba2ba6ad06120d8549c6170eaf63f',
-        'replay': '79ba16d48b9be1e059b3045989c7df960c3df1c2'}
+PINS = dict(_pins.C14_PINS)
 
 SEPARATE_CONSUMER = r'''
 import json, sys

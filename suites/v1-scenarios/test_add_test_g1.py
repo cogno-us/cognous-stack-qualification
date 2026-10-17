@@ -37,6 +37,7 @@ import pytest
 import yaml
 
 import _d02_d05_d09_helpers as H
+import _pins
 from _d02_d05_d09_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
@@ -68,7 +69,8 @@ def test_add_test_g1_source_config_manifest_is_verified_against_bytes_in_this_ru
 
     def trial(work, mp, checks):
         ref = H.reference()
-        freeze = json.loads((VALIDATION / 'freeze-manifest.json').read_text())
+        freeze = json.loads((VALIDATION / 'freeze-manifest.json').read_text())  # the ORIGINAL freeze: file hashes and tag identities
+        resolved = _pins.RESOLVED_MANIFEST  # freeze manifest + APPLIED refreeze-log entries: the pins in force for this run
         manifest = {'validation_id': freeze['validation_id'], 'files': {}, 'components': {}, 'ci_job': {}}
         for rel, expected in freeze['hub_file_hashes'].items():
             actual = _sha256(hub / rel)
@@ -79,14 +81,18 @@ def test_add_test_g1_source_config_manifest_is_verified_against_bytes_in_this_ru
             manifest['files'][f'qualification:{rel}'] = actual
             checks.equal(actual, expected, f'qualification file {rel} matches the freeze manifest')
         checks.equal(freeze['identities']['hub']['head'], H.FROZEN_HUB, 'freeze manifest hub head equals the pin asserted by the harness')
-        checks.equal(freeze['identities']['runtime']['sha'], H.FROZEN_RUNTIME, 'freeze manifest runtime sha equals the pin asserted by the harness')
-        subject = freeze['components_subject']
+        checks.equal(freeze['identities']['runtime']['sha'], _pins.ORIGINAL_MANIFEST['components_subject']['moltbot_safe']['sha'],
+                     'freeze manifest runtime identity (tag pin) equals the originally frozen runtime pin')
+        checks.equal(resolved['components_subject']['moltbot_safe']['sha'], H.FROZEN_RUNTIME,
+                     'freeze manifest + refreeze overlay runtime sha equals the pin asserted by the harness')
+        manifest['refreeze_applied'] = [{'id': e, 'component': k, 'from_sha': f, 'to_sha': to} for e, _g, k, f, to in _pins.APPLIED_REFREEZES]
+        subject = resolved['components_subject']
         by_repo = {v['repository']: v['sha'] for v in subject.values()}
         for name, pin in ref.pins.items():
             manifest['components'][name] = {'repository': pin['repository'], 'commit': pin['commit'], 'tree': pin['tree']}
             frozen = by_repo.get(pin['repository'])
-            checks.equal(frozen, pin['commit'], f'loaded component {name} equals the freeze manifest pin')
-        profile = json.loads((ROOT / 'process/security-runtime-f5b-20261016.json').read_text())
+            checks.equal(frozen, pin['commit'], f'loaded component {name} equals the freeze manifest pin (with refreeze overlay)')
+        profile = json.loads(_pins.PROFILE_PATH.read_text())
         for name in H.COMPONENT_NAMES:
             checks.equal(ref.pins[name]['commit'], profile['components'][name]['revision'], f'loaded {name} equals the qualification profile')
         # CI job that executes the scenarios: SHA-pinned, secret-free, read-only
@@ -135,6 +141,11 @@ def test_add_test_g1_test_identities_from_retained_junit_are_listed_and_verified
         identities, seen, stale, mismatch, pins_bad, failing, no_evidence = [], set(), [], [], [], [], []
         cache = {}
         pins = {n: ref.pins[n]['commit'] for n in H.COMPONENT_NAMES}
+        # a retained run is judged against the pin generation that produced it (original freeze or a later re-freeze of the
+        # refreeze log), never against "whatever is loaded now"; evidence that matches NO generation, or that mixes generations,
+        # is still drift. Which generation the retained junit belongs to is recorded below.
+        gens = _pins.GENERATIONS
+        evidence_pin_sets = []
         for tc in cases:
             classname, name = tc.get('classname'), tc.get('name')
             identity = f'{classname}::{name}'
@@ -164,15 +175,28 @@ def test_add_test_g1_test_identities_from_retained_junit_are_listed_and_verified
                 if pname == 'scenario_evidence' and ev.get('test') != name:
                     mismatch.append((identity, ev.get('test')))
                 components = (ev.get('environment') or {}).get('components') if isinstance(ev, dict) else None
-                if components is not None and {k: v['commit'] for k, v in components.items()} != pins:
-                    pins_bad.append(identity)
+                if components is not None:
+                    got = {k: v['commit'] for k, v in components.items()}
+                    evidence_pin_sets.append(got)
+                    if not any(got == g for _, g in gens):
+                        pins_bad.append(identity)
             identities.append(identity)
         checks.equal(stale, [], 'every retained test identity resolves to a test function that still exists in suites/v1-scenarios')
         checks.equal(mismatch, [], 'retained evidence names the same test as its junit case')
-        checks.equal(pins_bad, [], 'retained evidence records exactly the frozen component pins')
+        checks.equal(pins_bad, [], 'retained evidence records exactly the component pins of a frozen generation (original freeze or an applied re-freeze)')
+        retained_generation = None
+        try:
+            retained_generation = _pins.classify_generation(evidence_pin_sets, gens)
+        except _pins.RefreezeError as exc:
+            if not pins_bad:  # unmatched sets are already reported above; this is the mixed-generation case
+                checks.violations.append(str(exc))
+        current_label = gens[-1][0]
+        checks.expect(any(g == pins for _, g in gens), 'the pins loaded by this run are a frozen generation')
         assert len(identities) == len(set(identities))
         listing = hashlib.sha256('\n'.join(sorted(identities)).encode()).hexdigest()
-        return {'retained_junit': str(junit.relative_to(ROOT)), 'identity_count': len(identities), 'identities_sha256': listing,
+        return {'retained_junit': str(junit.relative_to(ROOT)),
+                'retained_junit_pin_generation': retained_generation and retained_generation[0], 'current_pin_generation': current_label,
+                'retained_junit_is_current_generation': bool(retained_generation) and retained_generation[1] == len(gens) - 1, 'identity_count': len(identities), 'identities_sha256': listing,
                 'identities_by_module': {m: sum(1 for i in identities if i.split('::')[0].endswith(m)) for m in sorted({i.split('::')[0].split('.')[-1] for i in identities})},
                 'retained_failing_identities_listed_not_asserted': sorted(failing), 'retained_failing_count': len(failing),
                 'retained_cases_without_any_evidence_property_listed_not_asserted': sorted(no_evidence),

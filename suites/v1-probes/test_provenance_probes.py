@@ -32,12 +32,16 @@ import json
 import os
 import re
 import subprocess
+import sys
 import zipfile
 from pathlib import Path
 
 import pytest
 
 from conftest import pin_dir
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # suites/
+import _pins  # noqa: E402
 
 TERMS = {"ISS": r"\bISS\b", "IGPG": r"\bIGPG\b", "AoM": r"\bAoM\b"}
 BOUNDARY = re.compile(
@@ -56,17 +60,14 @@ def pins_root():
 
 
 def manifest():
-    return json.loads(Path(pin_dir("PROBE_FREEZE_MANIFEST")).read_text(encoding="utf-8"))
+    """The freeze manifest with the refreeze overlay applied when the controller supplies PROBE_REFREEZE_LOG."""
+    m = json.loads(Path(pin_dir("PROBE_FREEZE_MANIFEST")).read_text(encoding="utf-8"))
+    log = os.environ.get("PROBE_REFREEZE_LOG")
+    return _pins.apply_overlay(m, _pins.load_refreeze_log(log))[0] if log else m
 
 
 def expected_pins(m):
-    pins = {}
-    for group in ("components_subject", "components_lock_remainder"):
-        for key, spec in m[group].items():
-            pins[key] = (spec["repository"], spec["sha"])
-    pins["hub"] = (m["identities"]["hub"]["repository"], m["identities"]["hub"]["head"])
-    pins["qualification"] = (m["identities"]["qualification"]["repository"], m["identities"]["qualification"]["closeout"])
-    return pins
+    return _pins.pinned_sources(m)
 
 
 def git(repo, *args):

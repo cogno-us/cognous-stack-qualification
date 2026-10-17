@@ -26,6 +26,7 @@ import pytest
 
 import _asw_helpers as A
 import _d02_d05_d09_helpers as H
+import _pins
 from _asw_helpers import C, no_network, pinned_reference  # noqa: F401  (fixtures)
 from pristine_checkout import require_pristine
 
@@ -134,7 +135,7 @@ def test_asw_s01_qualification_runner_refuses_a_drifted_component_set(request, r
         drifted_copy(name, kind, comps)
         out = work / 'out'
         env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1')
-        proc = subprocess.run([sys.executable, '-I', str(A.ROOT / 'tools/run_security_runtime.py'), '--profile', 'process/security-runtime-f5b-20261016.json',
+        proc = subprocess.run([sys.executable, '-I', str(A.ROOT / 'tools/run_security_runtime.py'), '--profile', _pins.PROFILE_RELPATH,
                                '--components', str(comps), '--out', str(out)], cwd=str(A.ROOT), env=env, capture_output=True, text=True, timeout=120)
         checks.expect(proc.returncode != 0, f'the runner must exit non-zero for a drifted {name}; observed exit {proc.returncode}')
         checks.expect(f'Dirty or mismatched source: {name}' in proc.stderr, f'the runner names the drifted component; observed {proc.stderr[-200:]!r}')
