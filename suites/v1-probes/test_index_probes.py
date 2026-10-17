@@ -23,6 +23,14 @@ def link_payload(claim_id, evidence_id, attested_by):
             "attested_by": attested_by}
 
 
+def require_links_stored(status):
+    """Non-vacuity guard: a probe about stored links proves nothing if the service rejected every link
+    (e.g. a version that requires signed attestations). Report that as skipped (INCONCLUSIVE), never as a pass."""
+    import pytest
+    if not status.get("supporting_weight"):
+        pytest.skip("no link was stored (service rejected unsigned links); probe not exercised - needs a signing variant")
+
+
 def forged_link_accepted(client):
     """True when the service stores a link whose attestor identity is unverifiable."""
     c = client.post("/api/v1/claims/", json=CLAIM).json()
@@ -80,6 +88,7 @@ def test_er02_duplicated_evidence_is_not_independent_corroboration(index_client)
         e = index_client.post("/api/v1/evidence/", json=evidence(i)).json()
         index_client.post("/api/v1/evidence/links", json=link_payload(c["id"], e["id"], "probe_attestor"))
     s = index_client.get(f"/api/v1/evidence/epistemic-status/{c['id']}").json()
+    require_links_stored(s)
     assert s["independence_score"] <= 0.2, f"independence_score={s['independence_score']} for 1 distinct source"
 
 
@@ -89,6 +98,7 @@ def test_er02_status_reproducible_from_identical_inputs(index_client):
     e = index_client.post("/api/v1/evidence/", json=evidence(0)).json()
     index_client.post("/api/v1/evidence/links", json=link_payload(c["id"], e["id"], "probe_attestor"))
     a = index_client.get(f"/api/v1/evidence/epistemic-status/{c['id']}").json()
+    require_links_stored(a)
     b = index_client.get(f"/api/v1/evidence/epistemic-status/{c['id']}").json()
     for k in ("status", "supporting_weight", "contradicting_weight", "independence_score", "robustness_score"):
         assert a[k] == b[k]
