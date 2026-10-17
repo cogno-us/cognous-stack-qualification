@@ -1,0 +1,100 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:8bf6b12078c6ac694306f2f95489b175f659a66d8f337e5f4684038686521e71",
+    "run2_digest": "sha256:8bf6b12078c6ac694306f2f95489b175f659a66d8f337e5f4684038686521e71",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+      },
+      "exchange": {
+        "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+      },
+      "replay": {
+        "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+      },
+      "runtime": {
+        "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "excess_duplicate_effects": 0,
+      "malformation": "unit_none",
+      "rejected_by": "ValidationError",
+      "unauthorized_effects": 0
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "excess_duplicate_effects": 0,
+      "malformation": "unit_none",
+      "rejected_by": "ValidationError",
+      "unauthorized_effects": 0
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": {
+    "asw_case": "A03",
+    "attack_condition": "Malformed action/tool schema",
+    "expected_secure_outcome": "Reject before adapter side effect.",
+    "family": "L06 agent/tool",
+    "live_agent_or_human_part_not_covered": "Argument generation by a live model (what a model emits when its tool-call schema is stressed).",
+    "mapping_note": "proposal only; no 1:1 or compliance claim",
+    "nearest_wiki_cases": {
+      "TC-L06-014": "Tool Call Argument Validation and Parameter-Level Policy"
+    },
+    "register_item": "GR-0552"
+  },
+  "test": "test_asw_a03_malformed_proposal_is_rejected_by_the_schema[unit_none]",
+  "verdict": "PASS"
+}

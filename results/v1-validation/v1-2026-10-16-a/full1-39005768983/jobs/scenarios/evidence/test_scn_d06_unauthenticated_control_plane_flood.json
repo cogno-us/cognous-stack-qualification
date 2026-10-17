@@ -1,0 +1,461 @@
+{
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+      },
+      "exchange": {
+        "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+      },
+      "replay": {
+        "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+      },
+      "runtime": {
+        "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+      }
+    },
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "metrics": {
+      "evidence_pipeline_seconds_after_flood": 0.404,
+      "evidence_stage_reasons": [
+        [
+          "replay_import",
+          "accepted",
+          ""
+        ],
+        [
+          "evidence_pack_import",
+          "accepted",
+          ""
+        ],
+        [
+          "odes_export",
+          "rejected",
+          "ExportError: export supports exactly one retained runtime_decision"
+        ]
+      ],
+      "flood": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 7,
+          "voluntary": 2551
+        },
+        "cpu_seconds_process_all_threads": 1.7869,
+        "cpu_utilisation_of_one_core": 0.913,
+        "label": "unauthenticated_control_plane_flood",
+        "latency": {
+          "actor_spoof": {
+            "max_ms": 131.126,
+            "mean_ms": 80.136,
+            "n": 3,
+            "p50_ms": 79.758,
+            "p95_ms": 131.126,
+            "p99_ms": 131.126
+          },
+          "adapter_mismatch": {
+            "max_ms": 254.112,
+            "mean_ms": 183.839,
+            "n": 3,
+            "p50_ms": 231.354,
+            "p95_ms": 254.112,
+            "p99_ms": 254.112
+          },
+          "all": {
+            "max_ms": 254.112,
+            "mean_ms": 93.204,
+            "n": 21,
+            "p50_ms": 73.677,
+            "p95_ms": 231.354,
+            "p99_ms": 254.112
+          },
+          "authority_context_missing": {
+            "max_ms": 60.132,
+            "mean_ms": 38.935,
+            "n": 3,
+            "p50_ms": 38.065,
+            "p95_ms": 60.132,
+            "p99_ms": 60.132
+          },
+          "manifest_digest_forged": {
+            "max_ms": 161.609,
+            "mean_ms": 105.325,
+            "n": 3,
+            "p50_ms": 101.295,
+            "p95_ms": 161.609,
+            "p99_ms": 161.609
+          },
+          "principal_swap": {
+            "max_ms": 155.125,
+            "mean_ms": 95.318,
+            "n": 3,
+            "p50_ms": 90.143,
+            "p95_ms": 155.125,
+            "p99_ms": 155.125
+          },
+          "target_out_of_scope": {
+            "max_ms": 168.68,
+            "mean_ms": 122.47,
+            "n": 3,
+            "p50_ms": 125.053,
+            "p95_ms": 168.68,
+            "p99_ms": 168.68
+          },
+          "unknown_action": {
+            "max_ms": 42.383,
+            "mean_ms": 26.404,
+            "n": 3,
+            "p50_ms": 24.849,
+            "p95_ms": 42.383,
+            "p99_ms": 42.383
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 198620,
+          "rss_after": 198568,
+          "rss_before": 198632
+        },
+        "report_only": true,
+        "request_rate_per_second": 10.73,
+        "requests": 21,
+        "storage_bytes": {
+          "after": 532692,
+          "before": 90621,
+          "growth": 442071,
+          "growth_per_request": 21051.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 1.9575
+      },
+      "journal_bytes": 499388,
+      "journal_decisions": 22
+    },
+    "outcome": {
+      "effects_after_valid": 1,
+      "effects_before_valid": [],
+      "evidence_stages": [
+        [
+          "replay_import",
+          "accepted"
+        ],
+        [
+          "evidence_pack_import",
+          "accepted"
+        ],
+        [
+          "odes_export",
+          "rejected"
+        ]
+      ],
+      "executor_with_held_decision": [
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        }
+      ],
+      "reasons_contain_expected_code": {
+        "actor_spoof": true,
+        "adapter_mismatch": true,
+        "authority_context_missing": true,
+        "manifest_digest_forged": true,
+        "principal_swap": true,
+        "target_out_of_scope": true,
+        "unknown_action": true
+      },
+      "results": {
+        "actor_spoof": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "adapter_mismatch": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "authority_context_missing": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "manifest_digest_forged": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "principal_swap": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "target_out_of_scope": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 4}}"
+        ],
+        "unknown_action": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 1}}"
+        ]
+      },
+      "valid_status": "executed"
+    }
+  },
+  "run2": {
+    "metrics": {
+      "evidence_pipeline_seconds_after_flood": 0.44,
+      "evidence_stage_reasons": [
+        [
+          "replay_import",
+          "accepted",
+          ""
+        ],
+        [
+          "evidence_pack_import",
+          "accepted",
+          ""
+        ],
+        [
+          "odes_export",
+          "rejected",
+          "ExportError: export supports exactly one retained runtime_decision"
+        ]
+      ],
+      "flood": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 12,
+          "voluntary": 2529
+        },
+        "cpu_seconds_process_all_threads": 1.5917,
+        "cpu_utilisation_of_one_core": 0.895,
+        "label": "unauthenticated_control_plane_flood",
+        "latency": {
+          "actor_spoof": {
+            "max_ms": 127.711,
+            "mean_ms": 80.392,
+            "n": 3,
+            "p50_ms": 84.379,
+            "p95_ms": 127.711,
+            "p99_ms": 127.711
+          },
+          "adapter_mismatch": {
+            "max_ms": 177.653,
+            "mean_ms": 118.232,
+            "n": 3,
+            "p50_ms": 115.945,
+            "p95_ms": 177.653,
+            "p99_ms": 177.653
+          },
+          "all": {
+            "max_ms": 177.918,
+            "mean_ms": 84.714,
+            "n": 21,
+            "p50_ms": 74.074,
+            "p95_ms": 177.653,
+            "p99_ms": 177.918
+          },
+          "authority_context_missing": {
+            "max_ms": 63.95,
+            "mean_ms": 40.164,
+            "n": 3,
+            "p50_ms": 38.471,
+            "p95_ms": 63.95,
+            "p99_ms": 63.95
+          },
+          "manifest_digest_forged": {
+            "max_ms": 173.361,
+            "mean_ms": 111.902,
+            "n": 3,
+            "p50_ms": 108.831,
+            "p95_ms": 173.361,
+            "p99_ms": 173.361
+          },
+          "principal_swap": {
+            "max_ms": 143.428,
+            "mean_ms": 91.305,
+            "n": 3,
+            "p50_ms": 91.678,
+            "p95_ms": 143.428,
+            "p99_ms": 143.428
+          },
+          "target_out_of_scope": {
+            "max_ms": 177.918,
+            "mean_ms": 125.108,
+            "n": 3,
+            "p50_ms": 123.333,
+            "p95_ms": 177.918,
+            "p99_ms": 177.918
+          },
+          "unknown_action": {
+            "max_ms": 40.458,
+            "mean_ms": 25.895,
+            "n": 3,
+            "p50_ms": 25.654,
+            "p95_ms": 40.458,
+            "p99_ms": 40.458
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 202076,
+          "rss_after": 201992,
+          "rss_before": 201992
+        },
+        "report_only": true,
+        "request_rate_per_second": 11.8,
+        "requests": 21,
+        "storage_bytes": {
+          "after": 532692,
+          "before": 90621,
+          "growth": 442071,
+          "growth_per_request": 21051.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 1.7792
+      },
+      "journal_bytes": 499388,
+      "journal_decisions": 22
+    },
+    "outcome": {
+      "effects_after_valid": 1,
+      "effects_before_valid": [],
+      "evidence_stages": [
+        [
+          "replay_import",
+          "accepted"
+        ],
+        [
+          "evidence_pack_import",
+          "accepted"
+        ],
+        [
+          "odes_export",
+          "rejected"
+        ]
+      ],
+      "executor_with_held_decision": [
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        },
+        {
+          "returned": "denied"
+        }
+      ],
+      "reasons_contain_expected_code": {
+        "actor_spoof": true,
+        "adapter_mismatch": true,
+        "authority_context_missing": true,
+        "manifest_digest_forged": true,
+        "principal_swap": true,
+        "target_out_of_scope": true,
+        "unknown_action": true
+      },
+      "results": {
+        "actor_spoof": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "adapter_mismatch": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "authority_context_missing": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "manifest_digest_forged": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "principal_swap": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 2}}"
+        ],
+        "target_out_of_scope": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 4}}"
+        ],
+        "unknown_action": [
+          "{'returned': {'result': 'hold', 'blocking_reason_count': 1}}"
+        ]
+      },
+      "valid_status": "executed"
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:3303f10b908731d6704570435622649ac464a6b9a56c44464c48573201c27a38",
+    "run2_outcome_digest": "sha256:3303f10b908731d6704570435622649ac464a6b9a56c44464c48573201c27a38",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "Control Plane decide + executor effect-time check",
+  "test": "test_scn_d06_unauthenticated_control_plane_flood",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}
