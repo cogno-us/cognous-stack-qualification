@@ -288,7 +288,7 @@ jobs:
   scenarios:
     needs: [freeze]
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -306,6 +306,26 @@ jobs:
       - run: |
           python -m pip install --require-hashes -r _hub/tools/requirements-release.lock
           python -m pip install pytest
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-evidence-registry
+          ref: d5e45d275cb301d9684b543e93b05997991d1cf2
+          path: _index
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-evidence-attestation
+          ref: 5b5077dafde232a7801cb425c4efddcffb468723
+          path: _bitrep
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+      - name: Index and BitRep pins for C03/C04 (no dependency files are written into the pins)
+        run: |
+          python -m pip install -r _index/requirements.txt -r _bitrep/requirements.txt httpx pydantic-settings
+          cp -r _index/chain "$RUNNER_TEMP/index-chain"
+          (cd "$RUNNER_TEMP/index-chain" && npm ci --ignore-scripts)
       - name: Build the seven pinned components (pristine, via the native runner's prepare step)
         working-directory: q
         run: python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016.json --prepare-work --components "$RUNNER_TEMP/_components" --out "$RUNNER_TEMP/prep" || true
@@ -313,7 +333,7 @@ jobs:
         working-directory: q
         run: |
           mkdir -p ../out/evidence
-          PYTHONDONTWRITEBYTECODE=1 SCN_COMPONENTS_DIR="$RUNNER_TEMP/_components" SCN_HUB_DIR="$GITHUB_WORKSPACE/_hub" SCN_EVIDENCE_DIR="$GITHUB_WORKSPACE/out/evidence" timeout 2400 python -m pytest -q -p no:cacheprovider suites/v1-scenarios --junitxml="$GITHUB_WORKSPACE/out/junit.xml" || echo "pytest exit $?" > ../out/exit.txt
+          PYTHONDONTWRITEBYTECODE=1 SCN_COMPONENTS_DIR="$RUNNER_TEMP/_components" SCN_HUB_DIR="$GITHUB_WORKSPACE/_hub" SCN_EVIDENCE_DIR="$GITHUB_WORKSPACE/out/evidence" SCN_INDEX_DIR="$GITHUB_WORKSPACE/_index" SCN_BITREP_DIR="$GITHUB_WORKSPACE/_bitrep" SCN_INDEX_CHAIN_DIR="$RUNNER_TEMP/index-chain" timeout 4800 python -m pytest -q -p no:cacheprovider suites/v1-scenarios --junitxml="$GITHUB_WORKSPACE/out/junit.xml" || echo "pytest exit $?" > ../out/exit.txt
       - name: Result record
         if: always()
         run: |
