@@ -26,6 +26,14 @@ def records(tmp_path_factory):
 @pytest.mark.parametrize('case',['success','rejected_wrong_effect','rejected_stale','rejected_malformed','rejected_contradictory','unavailable','restart','rejected_restart','lost_ack','partial','prior_absence','denied','historical_applied','historical_absent'])
 def test_actual_merged_producer_roundtrip_is_non_effecting(records,case):
     sources,results=records;source=sources[case];before=copy.deepcopy(source)
+    code=results['scenarios'][case].get('refusal_code')
+    if code:
+        # Contract-version matrix row for an executor that predates the lifecycle contract: its old export shape is
+        # refused since Replay step B, strictly with the contract's code (see scripts/generate_producer_v2_examples.py).
+        with pytest.raises(ImportContractError) as info:import_bounded_workflow(**source)
+        assert info.value.code==code and source==before
+        assert results['scenarios'][case]['records_unchanged']
+        return
     bundle=import_bounded_workflow(**source)
     assert source==before
     assert ReconstructionBundle.model_validate_json(bundle.model_dump_json())==bundle
