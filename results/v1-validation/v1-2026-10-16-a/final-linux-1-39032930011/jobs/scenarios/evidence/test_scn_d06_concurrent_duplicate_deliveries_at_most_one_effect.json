@@ -1,0 +1,370 @@
+{
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "505a3590114705b7ebf736b92dd189f338134635",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "afedbd6da3572f53b526c797bbe41cb26dc00cb9"
+      },
+      "exchange": {
+        "commit": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "f7ba44749c5aa0abf1b67bdb5605267802093474"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "71d1b377d1a77a9de6af618a3d625060ba543e2c"
+      },
+      "replay": {
+        "commit": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "0caea786da735b4878682642a7cb1a30da48ecde"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "note": "raw per-thread outcome kinds are report-only (race timing); the effect count is the gate",
+  "run1": {
+    "metrics": {
+      "chain": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 6,
+          "voluntary": 1951
+        },
+        "cpu_seconds_process_all_threads": 0.8491,
+        "cpu_utilisation_of_one_core": 0.889,
+        "label": "chain_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 954.797,
+            "mean_ms": 929.292,
+            "n": 8,
+            "p50_ms": 933.381,
+            "p95_ms": 954.797,
+            "p99_ms": 954.797
+          },
+          "dup": {
+            "max_ms": 954.797,
+            "mean_ms": 929.292,
+            "n": 8,
+            "p50_ms": 933.381,
+            "p95_ms": 954.797,
+            "p99_ms": 954.797
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 237128,
+          "rss_after": 236892,
+          "rss_before": 236860
+        },
+        "report_only": true,
+        "request_rate_per_second": 8.37,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 543312,
+          "before": 90621,
+          "growth": 452691,
+          "growth_per_request": 56586.4
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.9555
+      },
+      "exchange": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 2157,
+          "voluntary": 58318
+        },
+        "cpu_seconds_process_all_threads": 1.4209,
+        "cpu_utilisation_of_one_core": 1.075,
+        "label": "exchange_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 1320.423,
+            "mean_ms": 1245.448,
+            "n": 8,
+            "p50_ms": 1275.056,
+            "p95_ms": 1320.423,
+            "p99_ms": 1320.423
+          },
+          "dup": {
+            "max_ms": 1320.423,
+            "mean_ms": 1245.448,
+            "n": 8,
+            "p50_ms": 1275.056,
+            "p95_ms": 1320.423,
+            "p99_ms": 1320.423
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 237128,
+          "rss_after": 236892,
+          "rss_before": 236892
+        },
+        "report_only": true,
+        "request_rate_per_second": 6.05,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 921439,
+          "before": 335608,
+          "growth": 585831,
+          "growth_per_request": 73228.9
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 1.3215
+      }
+    },
+    "outcome": {
+      "chain_effects": 1,
+      "chain_new_claims": 1,
+      "chain_sequential": {
+        "returned": [
+          "reconciled",
+          false
+        ]
+      },
+      "exchange_effects": 1,
+      "exchange_new_claims": 0,
+      "exchange_sequential": {
+        "message": "single-proposal importer does not support multiple authorization bindings",
+        "raised": "ImportContractError"
+      }
+    },
+    "report_only": {
+      "chain": {
+        "attempts_table": [
+          [
+            8
+          ]
+        ],
+        "effects": 1,
+        "kinds": {
+          "returned": 8
+        },
+        "newly_executed_claims": 1,
+        "sequential_redelivery": {
+          "returned": [
+            "reconciled",
+            false
+          ]
+        }
+      },
+      "exchange": {
+        "effects": 1,
+        "kinds": {
+          "ImportContractError: single-proposal importer does not support multiple authorization bindings": 1,
+          "RuntimeError: dispatch checkpoint identity cannot be replaced": 7
+        },
+        "newly_executed_claims": 0,
+        "sequential_redelivery": {
+          "message": "single-proposal importer does not support multiple authorization bindings",
+          "raised": "ImportContractError"
+        }
+      }
+    }
+  },
+  "run2": {
+    "metrics": {
+      "chain": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 7,
+          "voluntary": 1955
+        },
+        "cpu_seconds_process_all_threads": 0.7041,
+        "cpu_utilisation_of_one_core": 0.868,
+        "label": "chain_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 810.348,
+            "mean_ms": 785.522,
+            "n": 8,
+            "p50_ms": 789.445,
+            "p95_ms": 810.348,
+            "p99_ms": 810.348
+          },
+          "dup": {
+            "max_ms": 810.348,
+            "mean_ms": 785.522,
+            "n": 8,
+            "p50_ms": 789.445,
+            "p95_ms": 810.348,
+            "p99_ms": 810.348
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 236068,
+          "rss_after": 235884,
+          "rss_before": 235852
+        },
+        "report_only": true,
+        "request_rate_per_second": 9.86,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 543312,
+          "before": 90621,
+          "growth": 452691,
+          "growth_per_request": 56586.4
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.8112
+      },
+      "exchange": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 2016,
+          "voluntary": 57428
+        },
+        "cpu_seconds_process_all_threads": 1.3735,
+        "cpu_utilisation_of_one_core": 1.029,
+        "label": "exchange_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 1333.767,
+            "mean_ms": 1005.869,
+            "n": 8,
+            "p50_ms": 982.356,
+            "p95_ms": 1333.767,
+            "p99_ms": 1333.767
+          },
+          "dup": {
+            "max_ms": 1333.767,
+            "mean_ms": 1005.869,
+            "n": 8,
+            "p50_ms": 982.356,
+            "p95_ms": 1333.767,
+            "p99_ms": 1333.767
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 236068,
+          "rss_after": 235884,
+          "rss_before": 235884
+        },
+        "report_only": true,
+        "request_rate_per_second": 5.99,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 921437,
+          "before": 335606,
+          "growth": 585831,
+          "growth_per_request": 73228.9
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 1.3345
+      }
+    },
+    "outcome": {
+      "chain_effects": 1,
+      "chain_new_claims": 1,
+      "chain_sequential": {
+        "returned": [
+          "reconciled",
+          false
+        ]
+      },
+      "exchange_effects": 1,
+      "exchange_new_claims": 0,
+      "exchange_sequential": {
+        "message": "single-proposal importer does not support multiple authorization bindings",
+        "raised": "ImportContractError"
+      }
+    },
+    "report_only": {
+      "chain": {
+        "attempts_table": [
+          [
+            8
+          ]
+        ],
+        "effects": 1,
+        "kinds": {
+          "returned": 8
+        },
+        "newly_executed_claims": 1,
+        "sequential_redelivery": {
+          "returned": [
+            "reconciled",
+            false
+          ]
+        }
+      },
+      "exchange": {
+        "effects": 1,
+        "kinds": {
+          "ImportContractError: single-proposal importer does not support multiple authorization bindings": 1,
+          "RuntimeError: dispatch checkpoint identity cannot be replaced": 7
+        },
+        "newly_executed_claims": 0,
+        "sequential_redelivery": {
+          "message": "single-proposal importer does not support multiple authorization bindings",
+          "raised": "ImportContractError"
+        }
+      }
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:4ad65a51e7d37eb88f98e33f08785d4e1c0f5c5dbeeeae47ce66ddd3fc4fa07c",
+    "run2_outcome_digest": "sha256:4ad65a51e7d37eb88f98e33f08785d4e1c0f5c5dbeeeae47ce66ddd3fc4fa07c",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "8 simultaneous deliveries of one valid operation (chain and exchange)",
+  "test": "test_scn_d06_concurrent_duplicate_deliveries_at_most_one_effect",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}

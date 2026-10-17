@@ -1,0 +1,382 @@
+{
+  "schema": "cognous.v1-validation-freeze-verification/1",
+  "validation_id": "v1-2026-10-16-a",
+  "refreeze_applied": [
+    {
+      "id": "RF-1",
+      "component": "the_index",
+      "from_sha": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "to_sha": "d17b8ac2b8445d385fbf51185a35914b2d8b835c"
+    },
+    {
+      "id": "RF-2",
+      "component": "moltbot_safe",
+      "from_sha": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "to_sha": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    {
+      "id": "RF-3",
+      "component": "replay_bundle",
+      "from_sha": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "to_sha": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657"
+    },
+    {
+      "id": "RF-4",
+      "component": "odes",
+      "from_sha": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "to_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b"
+    },
+    {
+      "id": "RF-5",
+      "component": "governance_evidence_pack",
+      "from_sha": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "to_sha": "683246e05d291308211778ec48045df65466461f"
+    },
+    {
+      "id": "RF-6",
+      "component": "gax_imx_transport",
+      "from_sha": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "to_sha": "da95378228b8f3205af49a86e68ba722961f6af0"
+    },
+    {
+      "id": "RF-7",
+      "component": "replay_bundle",
+      "from_sha": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+      "to_sha": "def0ee0f3af713283ea3cd13f0caf79e1607b651"
+    },
+    {
+      "id": "RF-8",
+      "component": "odes",
+      "from_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+      "to_sha": "5675f1b96d95ba69510656bf73b1006110ef5b57"
+    },
+    {
+      "id": "RF-9",
+      "component": "governance_evidence_pack",
+      "from_sha": "683246e05d291308211778ec48045df65466461f",
+      "to_sha": "505a3590114705b7ebf736b92dd189f338134635"
+    },
+    {
+      "id": "RF-10",
+      "component": "gax_imx_transport",
+      "from_sha": "da95378228b8f3205af49a86e68ba722961f6af0",
+      "to_sha": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4"
+    }
+  ],
+  "harness_revision": "6bc1d0e0903bbe9cf30c559a7c9d5f07dfad41d0",
+  "workflow_run": "39032930011",
+  "run_attempt": "1",
+  "python": "3.12.15 (main, Oct  1 2026, 02:35:59) [GCC 13.3.0]",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "components": {},
+  "checks": [
+    {
+      "check": "hub head equals frozen hub head",
+      "status": "PASS",
+      "expected": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "actual": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "detail": null
+    },
+    {
+      "check": "hub public-reference tag peels to recorded commit",
+      "status": "PASS",
+      "expected": "a2d3a509856e1621105664c5f11195f6f6b100ce",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "hub tag commit is an ancestor of hub head",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "hub head differs from tag only by the recorded tag-recording files",
+      "status": "PASS",
+      "expected": [
+        "collateral/evidence-snapshot.json",
+        "docs/release-status.md"
+      ],
+      "actual": [
+        "collateral/evidence-snapshot.json",
+        "docs/release-status.md"
+      ],
+      "detail": null
+    },
+    {
+      "check": "hub file hash component-lock.json",
+      "status": "PASS",
+      "expected": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+      "actual": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+      "detail": null
+    },
+    {
+      "check": "hub file hash tools/requirements-release.lock",
+      "status": "PASS",
+      "expected": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+      "actual": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+      "detail": null
+    },
+    {
+      "check": "hub file hash profiles/security-runtime-f5b-candidate-20261016.json",
+      "status": "PASS",
+      "expected": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274",
+      "actual": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274",
+      "detail": null
+    },
+    {
+      "check": "qualification file hash process/security-runtime-f5b-20261016.json",
+      "status": "PASS",
+      "expected": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+      "actual": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+      "detail": null
+    },
+    {
+      "check": "qualification file hash tools/requirements-ci.lock",
+      "status": "PASS",
+      "expected": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495",
+      "actual": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495",
+      "detail": null
+    },
+    {
+      "check": "qualification closeout is an ancestor of the harness checkout",
+      "status": "PASS",
+      "expected": "af9f5843b9188ee5c6dc0648206d1e92e41a73ef",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "qualification public-reference tag peels to closeout",
+      "status": "PASS",
+      "expected": "af9f5843b9188ee5c6dc0648206d1e92e41a73ef",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "runtime public-reference tag peels to recorded sha",
+      "status": "PASS",
+      "expected": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "runtime quarantine tag exists",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "hub profile pin control_plane equals manifest",
+      "status": "PASS",
+      "expected": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "actual": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin runtime equals manifest",
+      "status": "PASS",
+      "expected": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "actual": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin replay equals manifest",
+      "status": "PASS",
+      "expected": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "actual": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin evidence_pack equals manifest",
+      "status": "PASS",
+      "expected": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "actual": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin odes equals manifest",
+      "status": "PASS",
+      "expected": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "actual": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin exchange equals manifest",
+      "status": "PASS",
+      "expected": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "actual": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin manifest equals manifest",
+      "status": "PASS",
+      "expected": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "actual": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-1: the_index from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "actual": "d17b8ac2b8445d385fbf51185a35914b2d8b835c",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-2: moltbot_safe from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "actual": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-3: replay_bundle from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "actual": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-4: odes from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "actual": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-5: governance_evidence_pack from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "actual": "683246e05d291308211778ec48045df65466461f",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-6: gax_imx_transport from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "actual": "da95378228b8f3205af49a86e68ba722961f6af0",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-7: replay_bundle from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+      "actual": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-8: odes from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+      "actual": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-9: governance_evidence_pack from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "683246e05d291308211778ec48045df65466461f",
+      "actual": "505a3590114705b7ebf736b92dd189f338134635",
+      "detail": null
+    },
+    {
+      "check": "refreeze RF-10: gax_imx_transport from_sha equals the pin in force (freeze-manifest pin or the previous re-freeze's to_sha) and to_sha is a distinct 40-hex commit",
+      "status": "PASS",
+      "expected": "da95378228b8f3205af49a86e68ba722961f6af0",
+      "actual": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin control_plane equals manifest + refreeze overlay",
+      "status": "PASS",
+      "expected": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "actual": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin runtime equals manifest + refreeze overlay",
+      "status": "PASS",
+      "expected": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+      "actual": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin replay equals manifest + refreeze overlay",
+      "status": "PASS",
+      "expected": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+      "actual": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin evidence_pack equals manifest + refreeze overlay",
+      "status": "PASS",
+      "expected": "505a3590114705b7ebf736b92dd189f338134635",
+      "actual": "505a3590114705b7ebf736b92dd189f338134635",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin odes equals manifest + refreeze overlay",
+      "status": "PASS",
+      "expected": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+      "actual": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin exchange equals manifest + refreeze overlay",
+      "status": "PASS",
+      "expected": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+      "actual": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin manifest equals manifest + refreeze overlay",
+      "status": "PASS",
+      "expected": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "actual": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin bitrep equals manifest",
+      "status": "PASS",
+      "expected": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "actual": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin the_index equals manifest",
+      "status": "PASS",
+      "expected": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "actual": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin constitutional_authority equals manifest",
+      "status": "PASS",
+      "expected": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "actual": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin prp equals manifest",
+      "status": "PASS",
+      "expected": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "actual": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin research_intelligence equals manifest",
+      "status": "PASS",
+      "expected": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "actual": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin tfa equals manifest",
+      "status": "PASS",
+      "expected": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "actual": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "detail": null
+    }
+  ],
+  "status": "PASS"
+}
