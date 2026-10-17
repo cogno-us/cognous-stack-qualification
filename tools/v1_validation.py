@@ -77,7 +77,7 @@ def cmd_plan(args):
     manifest, _ = load_resolved(args.manifest, args.refreeze_log)
     include = []
     for group, key, spec in all_components(manifest):
-        oses = ["ubuntu-latest", "windows-latest", "macos-latest"] if group != "components_optional" else ["ubuntu-latest"]
+        oses = ["ubuntu-latest", "windows-latest", "macos-latest"] if group != "components_optional" and not getattr(args, "linux_only", False) else ["ubuntu-latest"]
         for os_name in oses:
             pys = ["3.12"] + (["3.11"] if os_name == "ubuntu-latest" and group != "components_optional" else [])
             for py in pys:
@@ -581,7 +581,7 @@ def cmd_aggregate(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    p = sub.add_parser("plan"); p.add_argument("--manifest", required=True); p.add_argument("--refreeze-log", default=None, help="overlay: APPLIED entries override the manifest pins"); p.add_argument("--github-output"); p.add_argument("--out-file")
+    p = sub.add_parser("plan"); p.add_argument("--manifest", required=True); p.add_argument("--refreeze-log", default=None, help="overlay: APPLIED entries override the manifest pins"); p.add_argument("--linux-only", action="store_true", help="D2: plan Linux (ubuntu) jobs only; macOS/Windows are unsupported platforms"); p.add_argument("--github-output"); p.add_argument("--out-file")
     p.set_defaults(fn=cmd_plan)
     p = sub.add_parser("freeze-verify")
     for a in ("--manifest", "--hub-dir", "--qual-dir", "--work", "--out"):
