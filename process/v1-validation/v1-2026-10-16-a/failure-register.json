@@ -359,14 +359,15 @@
    "component": "cognous-governance-evidence-pack (505a3590) / cognous-replay-bundle (8eaf3a42)",
    "summary": "The evidence pack cannot re-validate Replay bundles that carry a route-B recovery report. Replay (#37) retains the report as record type executor_recovery_report; the pack rebuilds the executor export from retained records and does not map that type back, so its pinned-Replay re-validation fails with 'accepted executor observations differ from result' for observe_bound_fail, lost_ack_recon_down and reconcile_only.",
    "classification": "cross-component contract mismatch (found by the P0 inventory, reproduced 2026-10-17)",
-   "status": "OPEN",
+   "status": "FIXED-UNVERIFIED",
    "decision": "Not yet decided by the owner. Proposed: fix in the P3 phase of the decoupling plan together with the other evidence-pack changes (cogno-us/cognous-control-plane#38). Outside the reduced V1 claim; no V1 row depends on it.",
-   "evidence": "docs/engineering/ODES-P0-INVENTORY.md finding N-2 in cogno-us/open-decision-evidence-standard; probe over the three route_b_post_commit fixtures in cogno-us/cognous-replay-bundle tests/fixtures. Suggested fix: map executor_recovery_report back to the retained export's observations in the pack's _retained_replay_inputs."
+   "evidence": "docs/engineering/ODES-P0-INVENTORY.md finding N-2 in cogno-us/open-decision-evidence-standard; probe over the three route_b_post_commit fixtures in cogno-us/cognous-replay-bundle tests/fixtures. Suggested fix: map executor_recovery_report back to the retained export's observations in the pack's _retained_replay_inputs.",
+   "remediation": "cognous-governance-evidence-pack #36 (main dbc8cc77): the pinned-Replay re-validation maps executor_recovery_report and executor_export_extensions back by source path when rebuilding the executor export (18 tests; 173 pass with Replay 8702b8a7). Not verified in CI: the pack's pinned Replay (def0ee0f) predates route-B support, so the new tests skip there. Verification waits for the Replay pin move (P4/P5). No pin changed."
   },
   {
    "requirements": [],
    "classification": "contract conformance divergence (found by P2 lifecycle conformance suites, not by a V1 row)",
-   "status": "OPEN",
+   "status": "FIXED-UNVERIFIED",
    "decision": "Not individually decided by the owner. Handled in the decoupling plan (cogno-us/cognous-control-plane#38): fix in P3, one component per PR, after the contract is reviewed. Each item is pinned as a strict expected failure in the component's own conformance test, so a fix flips it visibly. Outside the reduced V1 claim.",
    "id": "F-26",
    "component": "cognous-execution-runtime (4a83b175, conformance suite merged in runtime #104)",
@@ -398,12 +399,13 @@
      "summary": "Export uses the legacy layout (recovery report in observations, no recovery_observations); the P3 layout move."
     }
    ],
-   "evidence": "cogno-us/cognous-execution-runtime tests/test_contract_lifecycle_conformance.py and docs/contract-conformance-execution-attempt-lifecycle.md (strict xfail cases). Caveat: route B cases use a test-only subclass of the real destination; route C and recovery 'hold' are not exercised."
+   "evidence": "cogno-us/cognous-execution-runtime tests/test_contract_lifecycle_conformance.py and docs/contract-conformance-execution-attempt-lifecycle.md (strict xfail cases). Caveat: route B cases use a test-only subclass of the real destination; route C and recovery 'hold' are not exercised.",
+   "remediation": "cognous-execution-runtime #106 (main 187ff3b8, supersedes draft #105): N-1 and F-P2-RT-1..RT-4 fixed at component level; all 8 strict xfails pass (221 tests on 3.11/3.12); vendored contract at ODES e33d541a. Qualification #84 and #85 made the four lost-ack expectations version-tolerant (pinned runtime unknown, P3 runtime reconciled/partial). Open: route C case (validated absent/unknown observation under result unknown has no contract status) and the choice of unknown with null observation after a timeout, both awaiting owner decision. Not verified at row level until the pins advance."
   },
   {
    "requirements": [],
    "classification": "contract conformance divergence (found by P2 lifecycle conformance suites, not by a V1 row)",
-   "status": "OPEN",
+   "status": "FIXED-UNVERIFIED",
    "decision": "Owner decisions 2026-10-17 (asked one at a time): (1) legacy recovery layout: NEW LAYOUT ONLY, Replay refuses the report inside observations (recommendation was to accept both during alpha); sequencing: runtime moves to the new layout before Replay tightens. (2) Replay's extra checks: write F-P2-RP-1, 2 and 10 into the contract; align F-P2-RP-11 (Replay stops requiring members the contract leaves optional, contract requires those always present) and F-P2-RP-9 (Replay tightens the reconciled_existing marker). (3) Error mapping: REPLAY EMITS CONTRACT CODES (recommendation was to approve test-only patterns for now); a code field on Replay's import errors. All fixes in P3 of cogno-us/cognous-control-plane#38, one component per PR; none done yet. Outside the reduced V1 claim.",
    "id": "F-27",
    "component": "cognous-replay-bundle (8eaf3a42, conformance suite merged in replay #39)",
@@ -458,7 +460,8 @@
      "summary": "Export-level extensions is validated then dropped; the contract requires consumers to preserve it."
     }
    ],
-   "evidence": "cogno-us/cognous-replay-bundle tests/test_contract_lifecycle_conformance.py and docs/contract-conformance-execution-attempt-lifecycle.md. The doc's error-pattern mapping has five 'proposed' patterns that need the owner's agreement."
+   "evidence": "cogno-us/cognous-replay-bundle tests/test_contract_lifecycle_conformance.py and docs/contract-conformance-execution-attempt-lifecycle.md. The doc's error-pattern mapping has five 'proposed' patterns that need the owner's agreement.",
+   "remediation": "cognous-replay-bundle #40 (main 8702b8a7): step A. New layout accepted (legacy still tolerated), ImportContractError.code emits contract codes, closed enums and member closure, export-level extensions retained, RP-1/2/9/10/11 aligned, denied valid; 421 passed. Two strict xfails remain by owner decision: legacy layout refusal and RP-6 (unknown with a validated observation), both step B after the pins advance in P4. Open owner decisions: observation {} on denied results, relaxed null-observation rule, extensions on journal/check objects, mixed layout, Control Plane row closure."
   }
  ],
  "notes": [
