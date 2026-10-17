@@ -1,0 +1,33 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "Cognous V1 validation failure register",
+ "description": "Entries keep their historical, heterogeneous fields (additional properties allowed). Only the fields below are constrained. closure_evidence (C12) is optional and says how a closure was established, not whether the entry is closed: it never changes a status or verdict.",
+ "type": "object",
+ "required": ["schema", "validation_id", "statuses", "entries"],
+ "properties": {
+  "schema": {"const": "cognous.v1-validation-failure-register/1"},
+  "validation_id": {"type": "string"},
+  "statuses": {"type": "array", "items": {"enum": ["OPEN", "REMEDIATION-PR", "FIXED-UNVERIFIED", "VERIFIED", "WONTFIX-OWNER-DECISION"]}},
+  "entries": {"type": "array", "items": {"$ref": "#/$defs/entry"}}
+ },
+ "$defs": {
+  "entry": {
+   "type": "object",
+   "required": ["id", "status"],
+   "properties": {
+    "id": {"type": "string", "pattern": "^F-[0-9]+$"},
+    "status": {"enum": ["OPEN", "REMEDIATION-PR", "FIXED-UNVERIFIED", "VERIFIED", "WONTFIX-OWNER-DECISION"]},
+    "closure_evidence": {"$ref": "#/$defs/closure_evidence"}
+   }
+  },
+  "closure_evidence": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": ["label", "owner"],
+   "properties": {
+    "label": {"enum": ["machine-asserted", "independently-checked", "human-validated"], "description": "machine-asserted: a harness assertion closed it. independently-checked: a party other than the harness author re-checked it. human-validated: a named person validated it."},
+    "owner": {"type": "string", "minLength": 1, "description": "Named owner of the closure claim. The literal 'unassigned' is allowed only with machine-asserted (conservative back-fill)."}
+   }
+  }
+ }
+}
