@@ -1087,45 +1087,69 @@
    "id": "SCN-C01",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Missing grant: Refuse execution; authoritative destination is unchanged; refusal evidence is retained.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c01",
+     "min": 18
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "tenant variants and OpenShell destination not covered"
   },
   {
    "id": "SCN-C02",
    "source": "scenario catalog 04 Agent Action Manifest",
    "text": "Unknown action and manifest mismatch: Neither request defaults to permission; destination remains unchanged.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c02",
+     "min": 22
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "tenant variants and OpenShell destination not covered"
   },
   {
    "id": "SCN-C03",
    "source": "scenario catalog 01 BitRep",
    "text": "Forged and replayed attestation: Rejected evidence never becomes accepted support or execution authority; record temporal key semantics.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c03",
+     "min": 2
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "run against the frozen Index pin d5e45d27; BitRep verification is not integrated at the Index link route there"
   },
   {
    "id": "SCN-C04",
    "source": "scenario catalog 02 The Index",
    "text": "Evidence supersession and dependence: History survives; current status recomputes from pinned inputs; copied evidence is not counted as independent corroboration.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c04",
+     "min": 10
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "run against the frozen Index pin d5e45d27"
   },
   {
    "id": "SCN-C05",
@@ -1142,100 +1166,154 @@
    "id": "SCN-C06",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Authoritative observer unavailable: Delivery remains unresolved; no verified completion or blind retry.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c06",
+     "min": 7
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "observer independence beyond an in-process oracle not exercised"
   },
   {
    "id": "SCN-C07",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Concurrent authority change: Record actual order against the declared linearization contract; expose rather than conceal any residual race.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c07",
+     "min": 47
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "residual check-to-commit race recorded as evidence, not a failure (C0 default)"
   },
   {
    "id": "SCN-C08",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Crash and restart: Reconcile authoritative state and stable effect identity; no unsupported completion or duplicate.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c08",
+     "min": 12
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "no OS-level kill for routes A and C (BaseException crash model); power loss not claimed"
   },
   {
    "id": "SCN-C09",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Repeat delivery: No excess committed effect; attempt identity is distinct and linked to the original effect.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c09",
+     "min": 12
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "tenant and OpenShell variants not covered"
   },
   {
    "id": "SCN-C10",
    "source": "scenario catalog 06 Moltbot Safe",
    "text": "Executor confinement: No access outside the declared test boundary; report exactly which isolation surfaces were exercised.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c10",
+     "min": 69
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "no OpenShell destination, container isolation or credential broker in the reference"
   },
   {
    "id": "SCN-C11",
    "source": "scenario catalog Shared implementation requirements; 06 Moltbot Safe",
    "text": "Credential and permission boundaries: Institutional authorization cannot override stricter local permissions; no unauthorized destination mutation or credential exposure.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c11",
+     "min": 55
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "no credential broker in the reference; local-credential holder bypass is characterised"
   },
   {
    "id": "SCN-C12",
    "source": "scenario catalog 07 Agent Replay Bundle; 08 Agent Governance Evidence Pack",
    "text": "Producer consumer compatibility: Supported records preserve identifiers and outcomes; invalid references and unsupported versions fail explicitly; field loss is reported.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c12",
+     "min": 57
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "executor export silently drops injected unknown members (see failures)"
   },
   {
    "id": "SCN-C13",
    "source": "scenario catalog 07 Agent Replay Bundle",
    "text": "Redaction and signing: Integrity failures are detected; absent, unknown and redacted states remain distinct; HMAC is not treated as public independent attestation.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c13",
+     "min": 39
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "HMAC and content digest only; no public-key signature path; absent/unavailable states not emitted by producers"
   },
   {
    "id": "SCN-C14",
    "source": "scenario catalog 09 Open Decision Evidence Standard; 18 Cognous Open Control Stack consolidation",
    "text": "Optional ODES consumer: Declared versions validate; lineage and uncertainty survive; envelope validity does not grant authority or prove delivery.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c14",
+     "min": 28
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "ODES as an optional absent consumer not covered"
   },
   {
    "id": "SCN-C15",
@@ -1252,34 +1330,52 @@
    "id": "SCN-C16",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Shared budget exhaustion: No effect exceeding the budget under the declared coordination contract; unsupported coordination is reported.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c16",
+     "min": 18
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "no exchange-route budget case; no per-agent quotas or replenish API in the reference"
   },
   {
    "id": "SCN-C17",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Stale shared state: Reject or reconcile according to the declared concurrency contract; no silently lost update or expanded authority.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c17",
+     "min": 34
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "authority writers have no compare-and-set (unsupported coordination); exchange route covers grant revision and policy version only"
   },
   {
    "id": "SCN-C18",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Bounded delegation: Only supported bounded delegation can proceed; a handoff cannot create new authority.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c18",
+     "min": 60
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "sub-delegation unsupported by the reference; exchange route not covered"
   },
   {
    "id": "SCN-C19",
@@ -1318,23 +1414,35 @@
    "id": "SCN-C22",
    "source": "scenario catalog 18 Cognous Open Control Stack consolidation",
    "text": "Equal conditions comparison: Report correctness, prohibited and duplicate effects, false blocks, latency, recovery and human effort per arm; recovery is a separate trajectory.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c22",
+     "min": 25
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "conventional control defined by the harness (catalog gives none); only 4 permitted cases; human effort not measured; metrics report-only per D5"
   },
   {
    "id": "SCN-C23",
    "source": "scenario catalog 5 Evaluators metrics and acceptance rules",
    "text": "Evaluator calibration: Detect every seeded critical defect and report false alarms; scanner completion alone is not detection evidence.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c23",
+     "min": 12
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "prohibited_access seeded only in producer artifacts"
   },
   {
    "id": "ADD-C2C-R1",
