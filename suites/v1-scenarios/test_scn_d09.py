@@ -29,6 +29,7 @@ from pathlib import Path
 import pytest
 
 import _d02_d05_d09_helpers as H
+from _reason_norm import exc_summary, normalise_reason  # noqa: E402
 from _d02_d05_d09_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
@@ -179,7 +180,7 @@ def test_scn_d09_supported_route_effect_follows_current_authority(request, recor
                 attempt, observation = f.execute(p, d, adapter_id=p.adapter_id, now=ch.NOW)
                 view = {'attempt': attempt.status, 'observation': observation.state if observation else None}
             except PermissionError as exc:
-                view = {'raised': f'PermissionError: {exc}'}
+                view = {'raised': 'PermissionError: ' + normalise_reason(exc)}
             effects = f.destination.snapshot()['effects']
             summary = {'effects': [{'effect_id': k, 'state': v.get('state'), 'operation_digest': None, 'target': v.get('target'), 'amount': v.get('amount')} for k, v in effects.items()],
                        'attempts': [], 'failures': []}
@@ -214,7 +215,7 @@ def test_scn_d09_direct_bypass_of_executor_route_is_refused_by_destination(reque
                 flow.dest.commit(snapshot)
                 outcome = {'raised': None}
             except Exception as exc:
-                outcome = {'raised': f'{type(exc).__name__}: {exc}'}
+                outcome = {'raised': exc_summary(exc)}
         elif variant == 'commit-with-stale-digest':
             H.revoke_destination(flow)
             flow.dest.set_effective_grant(principal=flow.p.principal, grant_id=grant.grant_id, revision='2', permissions=flow.p.requested_permissions)
@@ -222,14 +223,14 @@ def test_scn_d09_direct_bypass_of_executor_route_is_refused_by_destination(reque
                 flow.dest.commit(snapshot, expected_effective_grant_digest=current_digest, effective_grant_derivation_version=ch.DERIVATION)
                 outcome = {'raised': None}
             except Exception as exc:
-                outcome = {'raised': f'{type(exc).__name__}: {exc}'}
+                outcome = {'raised': exc_summary(exc)}
         elif variant == 'commit-with-correct-digest-after-revocation':
             revoked_digest = H.revoke_destination(flow)
             try:
                 flow.dest.commit(snapshot, expected_effective_grant_digest=revoked_digest, effective_grant_derivation_version=ch.DERIVATION)
                 outcome = {'raised': None}
             except Exception as exc:
-                outcome = {'raised': f'{type(exc).__name__}: {exc}'}
+                outcome = {'raised': exc_summary(exc)}
         elif variant == 'execute_snapshot-without-precondition':
             local = ch.LocalDestinationExecutor if hasattr(ch, 'LocalDestinationExecutor') else __import__('engine.safe_executor', fromlist=['x']).LocalDestinationExecutor
             res = local(flow.dest, flow.executor.policy).execute_snapshot(snapshot)
@@ -245,7 +246,7 @@ def test_scn_d09_direct_bypass_of_executor_route_is_refused_by_destination(reque
                               amount=op.amount, unit=op.unit, payload=op.payload)
                 outcome = {'raised': None}
             except Exception as exc:
-                outcome = {'raised': f'{type(exc).__name__}: {exc}'}
+                outcome = {'raised': exc_summary(exc)}
         after = H.db_summary(flow.dest.path)
         checks.equal(after['effects'], [], f'bypass variant {variant} must not mutate the destination; observed {outcome}')
         refused = outcome.get('raised') not in (None, '') if 'raised' in outcome else outcome.get('status') in ('failed', 'denied')
@@ -271,7 +272,7 @@ def test_scn_d09_exchange_ingress_without_trusted_configuration_fails_closed(req
         checks.expect(bool(raised) and 'requires trusted' in raised, f'missing runtime authority profile is refused: {raised}')
         checks.equal(res['execution'].get('reason'), 'trusted_resolver_required', 'missing resolver fails closed')
         checks.equal(after['effects'], [], 'no destination mutation through the unconfigured ingress')
-        return {'missing_profile': raised, 'missing_resolver': H.exchange_view(res), 'effects': after['effects'], **H.effect_gate(after)}
+        return {'missing_profile': None if raised is None else normalise_reason(raised), 'missing_resolver': H.exchange_view(res), 'effects': after['effects'], **H.effect_gate(after)}
     H.run_case(request, record_property, tmp_path, 'D09', trial)
 
 
@@ -285,7 +286,7 @@ def test_scn_d09_legacy_write_path_on_atomic_profile_database_is_refused(request
             legacy.commit(snapshot)
             direct = None
         except Exception as exc:
-            direct = f'{type(exc).__name__}: {exc}'
+            direct = exc_summary(exc)
         res = LocalDestinationExecutor(legacy, flow.policy).execute_snapshot(snapshot)
         after = H.db_summary(flow.dest.path)
         checks.expect(bool(direct) and 'requires atomic claim execution' in direct, f'direct legacy commit refused: {direct}')
@@ -309,7 +310,7 @@ def test_scn_d09_legacy_write_path_on_intent_profile_database_is_refused(request
             destination.commit(snapshot)
             direct = None
         except Exception as exc:
-            direct = f'{type(exc).__name__}: {exc}'
+            direct = exc_summary(exc)
         res = LocalDestinationExecutor(destination, flow.executor.policy).execute_snapshot(snapshot)
         after = H.db_summary(destination.path)
         checks.expect(bool(direct) and 'requires bound dispatch' in direct, f'direct legacy commit refused: {direct}')
@@ -336,7 +337,7 @@ def test_scn_d09_legacy_agent_engine_performs_no_side_effect(request, record_pro
         checks.equal((res['status'], res['executed']), ('unsupported', False), 'even a permitted legacy action reports no execution')
         checks.expect(bool(denied), 'unpermitted legacy action is refused')
         checks.equal(files, [], 'legacy engine writes nothing to its sandbox')
-        return {'permitted': {'status': res['status'], 'executed': res['executed']}, 'unpermitted': denied, 'sandbox_files': files,
+        return {'permitted': {'status': res['status'], 'executed': res['executed']}, 'unpermitted': None if denied is None else normalise_reason(denied), 'sandbox_files': files,
                 'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
     H.run_case(request, record_property, tmp_path, 'D09', trial)
 
@@ -355,7 +356,7 @@ def _start_canceller(fn):
         try:
             fn()
         except Exception as exc:  # pragma: no cover - surfaced through the observation
-            errors.append(f'{type(exc).__name__}: {exc}')
+            errors.append(exc_summary(exc))
     thread = threading.Thread(target=run)
     thread.start()
     return thread, started, errors

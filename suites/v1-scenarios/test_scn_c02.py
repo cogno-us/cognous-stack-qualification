@@ -28,6 +28,7 @@ import pytest
 
 import _c_2a_helpers as C
 import _d02_d05_d09_helpers as H
+from _reason_norm import exc_summary  # noqa: E402
 from _c_2a_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
@@ -207,7 +208,7 @@ def test_scn_c02_route_c_exchange_does_not_default_to_permission(request, record
             msg = flow.gax.make_message(bundle, created_at=ref.chain.NOW.isoformat(), expires_at=(ref.chain.NOW + timedelta(hours=1)).isoformat())
             result = flow.gax.run_exchange(msg, bundle, flow.registry, flow.dest, **flow.kwargs)
         except Exception as exc:
-            refusal = f'{type(exc).__name__}: {str(exc)[:200]}'
+            refusal = exc_summary(exc)
         after = H.db_summary(flow.dest.path)
         if result is not None:
             view = H.exchange_view(result)

@@ -43,6 +43,7 @@ ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 sys.path.insert(0, str(ROOT / 'suites'))
 import _pins  # noqa: E402  (the one source of pinned identities: freeze manifest + refreeze overlay)
+from _reason_norm import exc_summary, normalise_reason  # noqa: E402,F401
 PROFILE_PATH = _pins.PROFILE_PATH
 from pristine_checkout import require_pristine  # noqa: E402
 
@@ -384,12 +385,12 @@ def trajectory_a(flow, env, res):
     try:
         export = chain.export_execution_artifacts(env, res, flow.dest, repository_revision=chain.MOLTBOT_RUNTIME_AUTHORITY_REVISION)
     except Exception as exc:
-        return {'export': f'UNSUPPORTED/FAILED: {type(exc).__name__}: {str(exc)[:160]}'}
+        return {'export': f'UNSUPPORTED/FAILED: {exc_summary(exc)}'}
     try:
         bundle = chain.import_bounded_workflow(flow.f.records.load().model_dump(mode='json'), proposal=flow.p.model_dump(mode='json'),
                                                moltbot_export=export, control_plane_revision=chain.CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION)
     except Exception as exc:
-        return {'export': 'ok', 'replay_import': f'FAILED: {type(exc).__name__}: {str(exc)[:160]}'}
+        return {'export': 'ok', 'replay_import': f'FAILED: {exc_summary(exc)}'}
     return {'export': 'ok', 'replay_import': 'ok', 'import_reports_complete': all(x.complete for x in bundle.import_reports),
             'record_types': sorted({x.record_type for x in bundle.records})}
 

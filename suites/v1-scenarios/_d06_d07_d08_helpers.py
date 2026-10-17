@@ -292,13 +292,7 @@ class Meter:
 import re  # noqa: E402
 
 D08_CASES = ('valid', 'lost_ack', 'revoked', 'unreadable')
-_UUID_RE = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
-_HEX_RE = re.compile(r'sha256:[0-9a-f]{64}|[0-9a-f]{32,}')
-
-
-def normalise_reason(text):
-    """Strip run-specific identifiers so two runs can be compared."""
-    return _HEX_RE.sub('<hex>', _UUID_RE.sub('<uuid>', str(text)))[:200]
+from _reason_norm import normalise_reason  # noqa: E402,F401  (shared normaliser; re-exported for existing callers)
 
 
 def build_exports(case, root):

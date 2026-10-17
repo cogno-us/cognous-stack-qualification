@@ -21,6 +21,7 @@ from datetime import timedelta
 import pytest
 
 import _d02_d05_d09_helpers as H
+from _reason_norm import exc_summary  # noqa: E402
 from _d02_d05_d09_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
@@ -276,7 +277,7 @@ def test_scn_d02_route_c_exchange_substitution_is_refused(request, record_proper
             msg = gax.make_message(altered, created_at=ref.chain.NOW.isoformat(), expires_at=(ref.chain.NOW + timedelta(hours=1)).isoformat())
             result = gax.run_exchange(msg, altered, registry, dest, **kwargs)
         except Exception as exc:
-            refusal = f'{type(exc).__name__}: {str(exc)[:200]}'
+            refusal = exc_summary(exc)
         after = H.db_summary(dest.path)
         if result is not None:
             ex = result['execution']

@@ -117,7 +117,7 @@ def test_asw_s01_drifted_component_checkout_is_refused_before_its_code_runs(requ
         except ValueError as exc:
             refused = str(exc)
         checks.expect(refused is not None, f'{name} with {kind} drift must be refused by the pristine-pin check')
-        return {'component': name, 'drift': kind, 'refused_with': refused, 'head_after_drift': git(clone, 'rev-parse', 'HEAD') == pin, 'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
+        return {'component': name, 'drift': kind, 'refused_with': A.norm(refused), 'head_after_drift': git(clone, 'rev-parse', 'HEAD') == pin, 'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
     A.run(request, record_property, tmp_path, 'S01', trial)
 
 
