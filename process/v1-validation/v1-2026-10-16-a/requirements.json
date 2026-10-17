@@ -806,12 +806,18 @@
    "id": "SR-2",
    "source": "docx Shared implementation requirements",
    "text": "False allows/blocks, duplicate effects, unresolved delivery, recovery, latency and human review burden measured against a conventional-control baseline",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "INCONCLUSIVE",
-   "reason": "matched refund battery measures duplicate effect and recovery on one fixture; no conventional-control arm, latency or review-burden measurement executed (catalog C22/C23)",
-   "classification": "missing capability",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_c22",
+     "min": 25
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "C22 equal-conditions comparison vs a harness-defined conventional control (catalog gives none); hard gates asserted on V1; false blocks, latency and review burden report-only per D5; only 4 permitted cases; human effort not measured"
   },
   {
    "id": "SR-3",
@@ -1554,34 +1560,52 @@
    "id": "ADD-C2C-EVID",
    "source": "Stokes addendum §4 4.1",
    "text": "Race evidence records persist revalidation time, ordering source and direct destination inspection",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": false,
    "source_class": "addenda",
-   "declared_status": "INCONCLUSIVE",
-   "reason": "cases pass, but no executed check that each required evidence field is persisted for every race case",
-   "classification": "missing evidence/access"
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_add_c2c_evid_",
+     "min": 46
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "route B refusals persist only the refusal stage and time, no ordering source (product_layer_not_persisted)"
   },
   {
    "id": "ADD-C2C-C1DOC",
    "source": "Stokes addendum §8 P0",
    "text": "Same-host atomic profile surfaced as C1 in support documentation without enabling it by default",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": false,
    "source_class": "addenda",
-   "declared_status": "INCONCLUSIVE",
-   "reason": "hub release-status describes C1 as optional same-host (document review); no executed check",
-   "classification": "missing evidence/access"
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_add_c2c_c1doc_",
+     "min": 8
+    }
+   ],
+   "adequacy": "adequate",
+   "adequacy_note": "text and default-route behavioural check at the hub pin with negative controls; release-status header v1.1.0 vs snapshot 1.1.1 noted as an observation"
   },
   {
    "id": "ADD-C2C-BI",
    "source": "Stokes addendum §6/§8 P0",
    "text": "Business-intent duplication negative control (different effect IDs, same refund intent) published",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": false,
    "source_class": "addenda",
-   "declared_status": "INCONCLUSIVE",
-   "reason": "same-effect replay is covered by matched refund duplicate-redelivery; the different-effect-ID control was not executed",
-   "classification": "missing capability"
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_add_c2c_bi_",
+     "min": 7
+    }
+   ],
+   "adequacy": "adequate",
+   "adequacy_note": "business duplicate exposure on default route A and C1 route B is recorded as residual_exposed, matching the published statement; the opt-in intent profile holds the second effect"
   },
   {
    "id": "ADD-COL-WORD",
@@ -1620,12 +1644,18 @@
    "id": "ADD-TEST-G1",
    "source": "Agentic testing addendum §7 G1",
    "text": "Source/config manifest with verified test identities, network limits and reset procedure",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": false,
    "source_class": "addenda",
-   "declared_status": "INCONCLUSIVE",
-   "reason": "freeze manifest verified PASS; reset procedure and test-identity listing are not asserted as a gate",
-   "classification": "missing evidence/access"
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_add_test_g1_",
+     "min": 9
+    }
+   ],
+   "adequacy": "adequate",
+   "adequacy_note": "freeze files re-hashed; 158 retained test identities resolved; network refusal and reset procedure probed with drift negative controls"
   },
   {
    "id": "ADD-TEST-G2",
@@ -1769,12 +1799,18 @@
    "id": "ADD-MOLT-VERIFY",
    "source": "Moltbook addenda (E3, E6, H5, denied-path)",
    "text": "Four open verify items: per-item grant-status freshness, adapter ID vs code digest, denied path writes nothing, lineage generation on effect path",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": false,
    "source_class": "addenda",
-   "declared_status": "NOT RUN",
-   "reason": "claims came from public replies and code reading; no probe executed",
-   "classification": "missing evidence/access"
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_add_molt_verify_",
+     "min": 13
+    }
+   ],
+   "adequacy": "adequate",
+   "adequacy_note": "E3, E6, denied-path and H5 recorded; run_exchange(generation_fence=...) on F5b fails on every commit"
   },
   {
    "id": "ADD-AUTH-RA",
