@@ -339,7 +339,7 @@ def test_scn_c23_source_identity_and_containment(request, record_property, runs)
     for n in (1, 2):
         for case in CASES:
             ex = runs[(n, case)]
-            assert ex['status'] == {'valid': 'executed', 'lost_ack': 'unknown', 'revoked': 'denied', 'unreadable': 'denied'}[case]
+            assert ex['status'] == {'valid': 'executed', 'lost_ack': H2.lost_ack_status(), 'revoked': 'denied', 'unreadable': 'denied'}[case]
     H.record(request, record_property, 'c23_identity', {'scenario': 'C23', 'pins': ref.pins, 'cases': list(CASES),
                                                           'statuses': {c: runs[(1, c)]['status'] for c in CASES}, 'network': 'none'})
 

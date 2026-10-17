@@ -20,7 +20,7 @@ from tools.openappa.test_persistent_join import run_probe, assert_destination
     ('flow-denied', 'flow-refused', 'not-reported', False),
     ('revoked', 'denied', 'not-reported', False),
     ('partial', 'partial', 'not-reported', False),
-    ('lost_ack', 'unknown', 'not-reported', False),  # or reconciled/acknowledged on the P3 runtime, see below
+    ('lost_ack', 'unknown', 'not-reported', False),  # unknown on a runtime that predates the lifecycle contract, see below
 ])
 def test_actual_execution_and_feedback_are_distinct(tmp_path, case, expected_status, expected_feedback, delivered):
     resolver, decision, destination, arguments, path = enrolled(tmp_path)
@@ -58,10 +58,13 @@ def test_actual_execution_and_feedback_are_distinct(tmp_path, case, expected_sta
     finally:
         left.close()
         right.close()
-    # Version-tolerant lost-ack expectation (P3, runtime PR cognous-execution-runtime#105): the pinned runtime reports
-    # a lost ack as 'unknown'; the P3 runtime reports 'reconciled' (observed applied) and the harness then acknowledges
-    # feedback. The strict single expectation returns at the P4 contract-version matrix switch.
-    reconciled_lost_ack = case == 'lost_ack' and outcome.execution_status == 'reconciled'
+    # Contract-version matrix (qualification docs/contract-matrix.md): a runtime that declares the execution-attempt
+    # lifecycle contract reports a lost ack that is then observed applied as 'reconciled' and the harness then
+    # acknowledges feedback; an older, undeclared runtime reports 'unknown'. One strict expectation per row.
+    import engine
+    from pathlib import Path
+    declared = (Path(engine.__file__).resolve().parent.parent / 'tests' / 'contracts' / 'execution-attempt-lifecycle' / 'CONTRACT.json').is_file()
+    reconciled_lost_ack = case == 'lost_ack' and declared
     if reconciled_lost_ack:
         expected_status, expected_feedback, delivered = 'reconciled', 'acknowledged', True
     assert (outcome.execution_status, outcome.feedback_status) == (expected_status, expected_feedback)

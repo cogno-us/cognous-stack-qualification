@@ -17,10 +17,22 @@ Sub-cases: route A (observer unavailable; observation stale; lost acknowledgemen
 executor), route C (governed exchange: original run, redelivery, resume under observer outage and after restoration).
 Every case runs twice from fresh stores and the normalised observations are compared (owner decision D3).
 Hard gates (D5): zero unauthorized effects and zero excess duplicate effects. A genuine violation FAILS.
+
+Route-B round trip (P4 of the decoupling plan, cognous-control-plane#38; verifies F-24, F-25 and F-28). The cases of
+``test_scn_c06_route_b_round_trip`` take a REAL route-B export (``AtomicLocalControlPlaneExecutor`` over the atomic
+claim destination, the real Control Plane journal and decision of the integrated flow) through the whole downstream
+chain: ``export_execution_artifacts`` -> Replay ``import_bounded_workflow`` -> evidence pack
+``import_manifest_reconstruction`` (which re-runs Replay's validator over the retained records) -> pack validation.
+Four cases: a normal executed effect, the post-commit observation read failing (recovery status applied), a lost
+acknowledgement with reconciliation down (recovery status unknown), and an effect-free reconcile of a consumed claim.
+Each case also plants a defect into the retained bundle and requires the pack re-validation to refuse it, so a pass
+cannot come from a validator that never ran. Replay step B negative controls on the real export: observation {} and a recovery
+report mirrored in ``observations`` (the retired legacy layout) are refused with schema_violation.
 """
 from __future__ import annotations
 
 import dataclasses
+import json
 from datetime import timedelta
 
 import pytest
@@ -259,3 +271,138 @@ def test_scn_c06_route_c_exchange_observer_outage_keeps_delivery_unresolved_unti
         return {'first': v1, 'redelivery': redelivery, 'resume_while_down': down_resume, 'resume_after_restore': resumed, 'effects': final['effects'],
                 **H.effect_gate(final, authorized_effect_ids={first['execution'].get('effect_id')})}
     H.run_case(request, record_property, tmp_path, 'C06', trial)
+
+
+# ------------------------------------------------------------------------------------------------
+# route B round trip: real route-B export -> Replay import -> evidence pack re-validation
+# ------------------------------------------------------------------------------------------------
+
+ROUTE_B_VARIANTS = ['executed', 'observe_bound_fail', 'lost_ack_recon_down', 'reconcile_only']
+
+
+def _route_b_flow(work, mp, variant):
+    """Real route-B execution of the exact envelope the real Control Plane decided (route A is built only for its journal)."""
+    ref = H.reference()
+    (work / 'a').mkdir()
+    (work / 'b').mkdir()
+    fa = H.flow_a(work / 'a', mp)
+    h = ref.atomic
+    from engine.local_authority_effect import AtomicLocalControlPlaneExecutor
+    dest = H.hooked_atomic_class()(work / 'b', clock=h.MutableClock(h.BASE))
+    dest.trace = []
+    dest.provision_claim(h.make_claim(fa.env, claim_id='claim-1', budget_id='budget-main', max_effects=1))
+    executor = AtomicLocalControlPlaneExecutor(workflow=object(), destination=dest, policy=fa.executor.policy)
+    state, simulate = {'down': False}, None
+    if variant in ('observe_bound_fail', 'lost_ack_recon_down'):
+        dest.stage_hook = lambda stage: state.__setitem__('down', True) if stage == 'after_commit' else None
+    if variant == 'observe_bound_fail':
+        original = dest.observe_bound
+
+        def observe_bound(snapshot):
+            if state['down']:
+                raise ConnectionError('authoritative observer unavailable')
+            return original(snapshot)
+        dest.observe_bound = observe_bound
+    elif variant == 'lost_ack_recon_down':
+        original_reconcile = dest.reconcile_claim
+
+        def reconcile_claim(claim_id, snapshot):
+            if state['down']:
+                raise ConnectionError('authoritative observer unavailable')
+            return original_reconcile(claim_id, snapshot)
+        dest.reconcile_claim = reconcile_claim
+        simulate = 'lost_ack'
+    if variant == 'reconcile_only':
+        executor.execute(envelope=fa.env, claim_id='claim-1')
+        res = executor.reconcile(claim_id='claim-1', envelope=fa.env)
+    else:
+        res = executor.execute(envelope=fa.env, claim_id='claim-1', simulate=simulate)
+    return fa, dest, res
+
+
+@pytest.mark.parametrize('variant', ROUTE_B_VARIANTS)
+def test_scn_c06_route_b_round_trip(request, record_property, tmp_path, variant):
+    def trial(work, mp, checks):
+        ref = H.reference()
+        ch = ref.chain
+        fa, dest, res = _route_b_flow(work, mp, variant)
+        summary = H.db_summary(dest.path)
+        checks.equal(len(summary['effects']), 1, 'the oracle shows exactly one committed effect')
+        # 1. the real route-B export
+        export = ch.export_execution_artifacts(fa.env, res, dest, repository_revision=ch.MOLTBOT_RUNTIME_AUTHORITY_REVISION)
+        report = res.observation if isinstance(res.observation, dict) and res.observation and 'state' not in res.observation else None
+        checks.expect(all('state' in row for row in export['observations']),
+                      'export layout: observations carry validated observations only (rows with a state)')
+        checks.equal(export.get('recovery_observations', []), [report] if report else [],
+                     'export layout: recovery_observations carries the destination recovery report, and only that')
+        if variant == 'executed':
+            checks.equal((res.status, res.attempted, res.acknowledged, res.newly_executed), ('executed', True, True, True), 'normal route-B execution reports executed')
+        elif variant == 'reconcile_only':
+            checks.equal((res.status, res.attempted, res.newly_executed), ('observed', False, False), 'effect-free reconcile reports observed and claims no attempt')
+        else:
+            checks.equal((res.status, res.attempted, res.acknowledged), ('unknown', True, False), 'a post-commit failure is reported unresolved, not denied')
+            checks.expect(report is not None and report.get('retry_eligible') is False, 'the recovery report is typed and never makes the effect retry-eligible')
+            checks.equal(report.get('status') if report else None, 'applied' if variant == 'observe_bound_fail' else 'unknown',
+                         'recovery report status follows what the reconciliation could establish')
+        # 2. Replay import of the real export together with the real Control Plane journal
+        raw = fa.f.records.load().model_dump(mode='json')
+        proposal = fa.p.model_dump(mode='json')
+        bundle = ref_import(raw, proposal, export)
+        dump = bundle.model_dump(mode='json')
+        record_types = sorted({r['record_type'] for r in dump['records']})
+        checks.equal(dump['status'], 'reconstruction_complete', 'Replay reconstructs the bundle completely')
+        checks.expect(all(r['complete'] for r in dump['import_reports']), 'every Replay import report is complete')
+        checks.equal('executor_recovery_report' in record_types, report is not None, 'a recovery report is retained as a report record, only when the result carries one')
+        # 3. evidence pack: re-validation of the retained bundle (re-runs Replay's validator over the retained records)
+        from agent_governance_evidence_pack import import_manifest_reconstruction, validate_evidence_pack
+        from agent_governance_evidence_pack.importer import ImportContractError as PackRefusal
+        pack = import_manifest_reconstruction(fa.f.manifest, dump)
+        validation = pack.metadata['traceable_import']['replay_semantic_validation']
+        checks.equal(validation.get('status'), 'validated_complete', 'the evidence pack re-validates the retained bundle with Replay')
+        checks.expect(validate_evidence_pack(pack).valid, 'the evidence pack validates')
+        # 4. non-vacuity: a planted defect in the retained bundle is refused by the same re-validation
+        tampered = json.loads(json.dumps(dump))
+        target = next(r for r in tampered['records'] if r['record_type'] == ('executor_recovery_report' if report else 'execution_result'))
+        if report:
+            target['data']['status'] = 'hold' if target['data']['status'] != 'hold' else 'applied'
+        else:
+            target['data']['observed_state'] = 'partial' if target['data'].get('observed_state') != 'partial' else 'applied'
+        try:
+            import_manifest_reconstruction(fa.f.manifest, tampered)
+            refused = False
+        except PackRefusal:
+            refused = True
+        checks.expect(refused, 'a planted change to a retained record is refused by the pack re-validation')
+        # 5. step-B negative controls on the real export: the retired shapes are refused with the contract code
+        from agent_replay_bundle.importers import ImportContractError as ReplayRefusal
+        retired = {'empty_observation_object': lambda x: x['execution_result'].__setitem__('observation', {})}
+        if report:
+            def legacy_layout(x):
+                x.pop('recovery_observations', None)
+                x['observations'] = [json.loads(json.dumps(report))]
+            retired['legacy_layout_report_in_observations'] = legacy_layout
+        refusals = {}
+        for name, mutate in retired.items():
+            probe = json.loads(json.dumps(export, default=str))
+            mutate(probe)
+            try:
+                ref_import(raw, proposal, probe)
+                refusals[name] = None
+            except ReplayRefusal as exc:
+                refusals[name] = exc.code
+        checks.equal(refusals, {name: 'schema_violation' for name in retired}, 'Replay refuses the retired export shapes with schema_violation')
+        gate = H.effect_gate(summary, authorized_effect_ids={fa.env.effect_id})
+        return {'variant': variant, 'result': H.atomic_view(res), 'recovery_report_status': report.get('status') if report else None,
+                'export_layout': {'observations': len(export['observations']), 'recovery_observations': len(export.get('recovery_observations', []))},
+                'replay_status': dump['status'], 'replay_record_types': record_types, 'pack_replay_validation': validation.get('status'),
+                'pack_valid': True, 'tamper_refused': refused, 'retired_shapes_refused': refusals, 'contract_matrix': {r['boundary']: r['status'] for r in ref.matrix_rows},
+                'oracle_effects': len(summary['effects']), **gate}
+    H.run_case(request, record_property, tmp_path, 'C06', trial)
+
+
+def ref_import(raw, proposal, export):
+    """Replay's public bounded-workflow import at the generation the profile pins (revision constants come from Replay itself)."""
+    ch = H.reference().chain
+    from agent_replay_bundle.importers import import_bounded_workflow
+    return import_bounded_workflow(raw, proposal=proposal, moltbot_export=export,
+                                   control_plane_revision=ch.CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION)

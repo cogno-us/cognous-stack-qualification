@@ -77,6 +77,18 @@ def policy(op):
     )
 
 
+def _lifecycle_declared() -> bool:
+    """True when the runtime under test vendors a conformance declaration for the execution-attempt lifecycle contract.
+
+    Contract-version matrix rule (qualification docs/contract-matrix.md): a declaring runtime reports a lost acknowledgement that
+    is then observed applied as 'reconciled' (observed partial: 'partial'); an older, undeclared runtime reports 'unknown'.
+    Exactly one expectation per row, never "either".
+    """
+    import engine
+    root = Path(engine.__file__).resolve().parent.parent
+    return (root / 'tests' / 'contracts' / 'execution-attempt-lifecycle' / 'CONTRACT.json').is_file()
+
+
 def test_deep_snapshot_is_immune_to_nested_mutation(tmp_path):
     original = make_operation(payload={"nested": {"value": "approved"}})
     request = envelope(original)
@@ -165,11 +177,8 @@ def test_lost_ack_restart_preserves_attempt_history(tmp_path):
         snapshot_envelope(envelope(op, attempt_id="lost")),
         simulate="crash_after_commit",
     )
-    # P3 version tolerance (runtime PR #105, lifecycle conformance): the currently pinned runtime reports
-    # 'unknown' for a lost/malformed acknowledgement that is then observed applied; the P3 runtime reports
-    # 'reconciled' (observed partial: 'partial'). Both are accepted until the P4 contract-version matrix
-    # switch, when this returns to a single strict assertion.
-    assert result.status in {"unknown", "reconciled"}
+    # Contract-version matrix: one strict expectation per runtime row (see _lifecycle_declared).
+    assert result.status == ("reconciled" if _lifecycle_declared() else "unknown")
     assert destination.observe("effect-1")["state"] == "applied"
     if result.status == "reconciled":
         assert result.acknowledged is False

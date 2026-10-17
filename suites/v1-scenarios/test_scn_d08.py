@@ -156,6 +156,8 @@ def test_scn_d08_unknown_missing_refused_states_preserved_not_verified(request, 
     for n in (1, 2):
         ex = runs[(n, case)]
         status, effects, ack, destination, attempted, refusal = EXPECTED_STATES[case]
+        if case == 'lost_ack':
+            status = H.lost_ack_status()
         bundle, pack, odes = H.load_copy(ex, 'bundle'), H.load_copy(ex, 'pack'), H.load_copy(ex, 'odes')
         ti = pack['metadata']['traceable_import']
         life = ti['lifecycle_summary']
@@ -178,7 +180,7 @@ def test_scn_d08_unknown_missing_refused_states_preserved_not_verified(request, 
             findings = [fi for r in bundle['import_reports'] for fi in r['findings']]
             assert any(fi['code'] == 'M002' and fi['value_state'] == 'unknown' for fi in findings), 'unknown value state lost'
             result = [r for r in bundle['records'] if r['record_type'] == 'execution_result'][0]['data']
-            assert result['status'] == 'unknown' and result['acknowledged'] is False
+            assert result['status'] == H.lost_ack_status() and result['acknowledged'] is False
         if refusal:
             assert ti['refusal_vocabulary_summary']['total_refusals'] == 1
             assert [s['code'] for s in ti['refusal_vocabulary_summary']['series']] == [refusal]

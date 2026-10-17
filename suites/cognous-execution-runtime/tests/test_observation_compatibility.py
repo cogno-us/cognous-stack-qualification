@@ -1,6 +1,8 @@
 """Accepted CP contract against the real SQLite executor; faults at observation seam."""
 from datetime import timedelta
 
+from pathlib import Path
+
 import pytest
 
 from engine.control_plane_adapter import ControlPlaneRefundDestinationAdapter, PinnedControlPlaneExecutor
@@ -137,15 +139,25 @@ def test_absence_after_attempt_never_resubmits(tmp_path, monkeypatch):
     assert not executor.reconcile(request, now=h.NOW).retry_eligible
 
 
+def _lifecycle_declared() -> bool:
+    """True when the runtime under test vendors a conformance declaration for the execution-attempt lifecycle contract.
+
+    Contract-version matrix rule (qualification docs/contract-matrix.md): a declaring runtime reports a lost acknowledgement that
+    is then observed applied as 'reconciled' (observed partial: 'partial'); an older, undeclared runtime reports 'unknown'.
+    Exactly one expectation per row, never "either".
+    """
+    import engine
+    root = Path(engine.__file__).resolve().parent.parent
+    return (root / 'tests' / 'contracts' / 'execution-attempt-lifecycle' / 'CONTRACT.json').is_file()
+
+
 @pytest.mark.parametrize('simulate,state,status', [('lost_ack','applied','unknown'), ('partial','partial','partial')])
 def test_lost_ack_and_partial_export(tmp_path, simulate, state, status):
     h,p,_,_,decision,destination,executor,request = _integrated(tmp_path)
     result = executor.execute(envelope=request, proposal=p, decision=decision, now=h.NOW, simulate=simulate)
     if simulate == 'lost_ack':
-        # P3 version tolerance: the pinned runtime reports 'unknown' for a lost acknowledgement that is then
-        # observed applied; the P3 lifecycle change (runtime PR #105) reports 'reconciled'. Both are accepted
-        # until the P4 contract-version matrix switch, when this returns to a single strict expectation.
-        assert result.status in {'unknown', 'reconciled'}
+        # Contract-version matrix: one strict expectation per runtime row (see _lifecycle_declared).
+        assert result.status == ('reconciled' if _lifecycle_declared() else 'unknown')
         if result.status == 'reconciled':
             assert result.newly_executed is False
             assert result.observation is not None
@@ -156,7 +168,7 @@ def test_lost_ack_and_partial_export(tmp_path, simulate, state, status):
     _assert_effect(destination, request, state)
     exported = export_execution_artifacts(request, result, destination)
     if simulate == 'lost_ack' and result.status == 'reconciled':
-        # P3 behaviour: the terminal attempt event equals the result status.
+        # Lifecycle-conformant behaviour: the terminal attempt event equals the result status.
         assert exported['attempt_events'][-1]['status'] == result.status
     assert exported['observations'][0]['state'] == state
     assert exported['rejected_observations'] == []

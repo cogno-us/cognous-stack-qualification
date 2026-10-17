@@ -117,6 +117,8 @@ def _preservation(ex, checks):
     checks.equal(facts['independent_delivery_verification'], 'unavailable', 'no consumer promotes producer evidence to independent verification')
     if ex['status'] and (ex['dir'].name in LIFECYCLE):
         status, ack, observed, attempted = LIFECYCLE[ex['dir'].name]
+        if ex['dir'].name == 'lost_ack':
+            status = H2.lost_ack_status()
         checks.equal((truth['exec_status'], life['acknowledgement'], life['destination_observed'], life['execution_attempted']), (status, ack, observed, attempted), 'declared end state of the case')
     return {'decisions': len(truth['decision_ids']), 'authorization': truth['results'], 'exec_status': truth['exec_status'], 'destination_effects': truth['destination_effects'],
             'refusals': truth['refusal_reasons'], 'attempts': {'executor': len(truth['executor_attempts']), 'control_plane': len(truth['cp_attempts'])},

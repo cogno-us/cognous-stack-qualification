@@ -2,6 +2,7 @@ from dataclasses import asdict, replace
 import copy
 import json
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -85,17 +86,26 @@ def test_mocked_transport_real_worker_exact_effect_and_restart(tmp_path):
     assert {'bound_configuration','runtime_observed','dispatch_requested','destination_observed'} <= set(evidence)
 
 
+def _lifecycle_declared() -> bool:
+    """True when the runtime under test vendors a conformance declaration for the execution-attempt lifecycle contract.
+
+    Contract-version matrix rule (qualification docs/contract-matrix.md): a declaring runtime reports a lost acknowledgement that
+    is then observed applied as 'reconciled' (observed partial: 'partial'); an older, undeclared runtime reports 'unknown'.
+    Exactly one expectation per row, never "either".
+    """
+    import engine
+    root = Path(engine.__file__).resolve().parent.parent
+    return (root / 'tests' / 'contracts' / 'execution-attempt-lifecycle' / 'CONTRACT.json').is_file()
+
+
 @pytest.mark.parametrize('failure', ['lost_ack', 'before_commit', 'startup'])
 def test_unknown_delivery_never_blindly_retries(tmp_path, failure):
     c, cli, d, snap, executor = setup(tmp_path)
     cli.failure = failure
     first = executor.execute_snapshot(snap)
-    # P3 version tolerance (runtime PR #105, lifecycle conformance): the currently pinned runtime reports
-    # 'unknown' for a lost/malformed acknowledgement that is then observed applied; the P3 runtime reports
-    # 'reconciled' (observed partial: 'partial'). Both are accepted until the P4 contract-version matrix
-    # switch, when this returns to a single strict assertion.
+    # Contract-version matrix: one strict expectation per runtime row (see _lifecycle_declared).
     if failure == 'lost_ack':
-        assert first.status in {'unknown', 'reconciled'}
+        assert first.status == ('reconciled' if _lifecycle_declared() else 'unknown')
         if first.status == 'reconciled':
             assert first.acknowledged is False
             assert first.observation is not None
