@@ -350,6 +350,18 @@
    "evidence": "ODES PR #51 consumer-conformance appendix; public-path reproduction 2026-10-17 (scratchpad rb2.py). Suggested fix: recognise reconcile-claim observations in _validate_v2_export and extend unresolved_ack; add an SCN-C06 route-B export->import round-trip test.",
    "remediation": "cognous-replay-bundle #37 (main 287a2b6b): public import accepts route-B recovery reports (post-commit 'unknown' and effect-free 'observed'; applied|partial|hold|unknown) under explicit rules and retains them as executor_recovery_report (finding M021), never as a validated observation; 25+ new tests with three real captured exports and a planted hold. open-decision-evidence-standard #52: contract rules and golden fixtures for hold and effect-free reconcile.",
    "verification": "Pending. Verified at component level (replay suite 271 pass; the new tests fail on the previous main). Row-level verification needs the SCN-C06 route-B export->import round-trip scenario run against the refreshed replay pin; add that scenario with the pin refresh."
+  },
+  {
+   "id": "F-25",
+   "requirements": [
+    "SCN-C06"
+   ],
+   "component": "cognous-governance-evidence-pack (505a3590) / cognous-replay-bundle (8eaf3a42)",
+   "summary": "The evidence pack cannot re-validate Replay bundles that carry a route-B recovery report. Replay (#37) retains the report as record type executor_recovery_report; the pack rebuilds the executor export from retained records and does not map that type back, so its pinned-Replay re-validation fails with 'accepted executor observations differ from result' for observe_bound_fail, lost_ack_recon_down and reconcile_only.",
+   "classification": "cross-component contract mismatch (found by the P0 inventory, reproduced 2026-10-17)",
+   "status": "OPEN",
+   "decision": "Not yet decided by the owner. Proposed: fix in the P3 phase of the decoupling plan together with the other evidence-pack changes (cogno-us/cognous-control-plane#38). Outside the reduced V1 claim; no V1 row depends on it.",
+   "evidence": "docs/engineering/ODES-P0-INVENTORY.md finding N-2 in cogno-us/open-decision-evidence-standard; probe over the three route_b_post_commit fixtures in cogno-us/cognous-replay-bundle tests/fixtures. Suggested fix: map executor_recovery_report back to the retained export's observations in the pack's _retained_replay_inputs."
   }
  ],
  "notes": [

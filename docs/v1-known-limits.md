@@ -100,3 +100,7 @@ D4: no extension families in V1, all eight deferred. D6: governed memory is out 
 ## Route B export is not accepted by Replay (F-24, found 2026-10-17)
 
 The runtime's atomic local executor (route B) returns status `unknown` with a recovery observation after a post-commit failure. Replay at the validated pin rejects that export on its public import path. The fix for F-20 to F-22 covered route C only. Qualification scenario SCN-C06 route B passes because it never exports into Replay, so that pass does not show Replay can consume route B. This is outside the reduced V1 claim. Update 2026-10-17: fixed in Replay (cognous-replay-bundle #37, main 287a2b6b) and covered by ODES contract fixtures (open-decision-evidence-standard #52). It is not re-pinned, so the validated pin still rejects route B, and the SCN-C06 route-B round-trip scenario will be added with the end-of-alpha pin refresh. Status FIXED-UNVERIFIED.
+
+## Evidence pack cannot re-validate route-B bundles (F-25, found 2026-10-17)
+
+Replay now imports the real route-B post-commit exports (F-24) and retains the recovery report as `executor_recovery_report`. The evidence pack at its pinned revision does not map that record type back when it re-validates a retained Replay bundle, so it rejects all three captured route-B bundles. Outside the reduced V1 claim. Status OPEN; proposed for the decoupling plan's P3 phase.
