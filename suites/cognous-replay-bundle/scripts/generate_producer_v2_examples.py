@@ -18,8 +18,16 @@ import tempfile
 from unittest.mock import patch
 
 from agent_replay_bundle import import_bounded_workflow, ReconstructionBundle
-from agent_replay_bundle.importers import (CONTROL_PLANE_SUPPORTED_V2_REVISIONS, MOLTBOT_V2_REVISION, MANIFEST_REVISION, CONTROL_PLANE_MERGED_REVISION, MOLTBOT_MERGED_REVISION)
+from agent_replay_bundle.importers import (ImportContractError, CONTROL_PLANE_SUPPORTED_V2_REVISIONS, MOLTBOT_V2_REVISION, MANIFEST_REVISION, CONTROL_PLANE_MERGED_REVISION, MOLTBOT_MERGED_REVISION)
 from agent_replay_bundle.reconstruction import content_digest
+
+
+# Contract-version matrix row for the executors that predate the execution-attempt-lifecycle contract (no vendored
+# CONTRACT.json). Since Replay step B those executors' old export shapes are refused, strictly and with these codes:
+# a lost acknowledgement exported as `unknown` with a validated applied observation, and `observation: {}` on a
+# denied result. A conforming executor reports `reconciled` / null instead and imports as usual.
+PRE_LIFECYCLE_REFUSALS = {'lost_ack': 'unknown_with_validated_observation', 'prior_absence': 'schema_violation',
+                          'denied': 'schema_violation'}
 
 
 def main(output: Path):
@@ -34,6 +42,7 @@ def main(output: Path):
         actual = subprocess.check_output(['git', '-C', str(path), 'rev-parse', 'HEAD'], text=True).strip()
         if actual != revision:
             raise RuntimeError(f'wrong pinned producer revision: {actual}')
+    lifecycle_declared = (executor_root / 'tests/contracts/execution-attempt-lifecycle/CONTRACT.json').is_file()
     sys.path[:0] = [str(cp / 'src'), str(executor_root)]
     os.environ['MOLTBOT_SAFE_CONTROL_PLANE_ROOT'] = str(cp)
     os.environ['MOLTBOT_SAFE_MANIFEST_FIXTURE'] = str(manifest)
@@ -115,6 +124,29 @@ def main(output: Path):
                 with sqlite3.connect(dest.path) as db:
                     return list(db.iterdump())
             db_before = database_snapshot()
+            refusal_code = None if lifecycle_declared else PRE_LIFECYCLE_REFUSALS.get(name)
+            if refusal_code:
+                # strict per-row expectation: this old shape is refused, with exactly this code, and nothing is mutated
+                try:
+                    import_bounded_workflow(**source)
+                except ImportContractError as exc:
+                    assert exc.code == refusal_code, (name, exc.code, str(exc))
+                else:
+                    raise AssertionError(f'{name}: the pre-lifecycle export shape must be refused ({refusal_code})')
+                assert w.records.path.read_bytes() == cp_before
+                assert database_snapshot() == db_before
+                assert dest.observe(d.effect_id) == before_import
+                cases[name] = source
+                summaries[name] = {
+                    'decision_id': d.decision_id, 'effect_id': d.effect_id, 'attempt_identity': m['attempt_identity'],
+                    'effect_count_before_import': count, 'effect_count_after_import': count, 'destination': before_import,
+                    'status': result.status, 'observed_state': result.observed_state,
+                    'reconstruction_status': 'refused', 'refusal_code': refusal_code,
+                    'acknowledged': result.acknowledged, 'newly_executed': result.newly_executed,
+                    'records_unchanged': True, 'executor_attempt_count': len(m['attempts']),
+                    'cp_record_sha256': hashlib.sha256(cp_before).hexdigest(),
+                    'classification': 'required_safety_invariant_pass'}
+                continue
             bundle = import_bounded_workflow(**source)
             ReconstructionBundle.model_validate_json(bundle.model_dump_json())
             assert w.records.path.read_bytes() == cp_before
@@ -148,7 +180,8 @@ def main(output: Path):
         'pins': {'control_plane': cp_revision, 'executor': executor_revision, 'manifest': MANIFEST_REVISION},
         'scope': 'synthetic same-host SQLite; reconstruction is non-effecting; no independent verification',
         'scenarios': summaries}, indent=2) + '\n')
-    print(f'{len(cases)} real-producer scenarios passed; destination and CP stores unchanged by import')
+    print(f'{len(cases)} real-producer scenarios passed; destination and CP stores unchanged by import'
+          + ('' if lifecycle_declared else f' ({len(PRE_LIFECYCLE_REFUSALS)} pre-lifecycle shapes refused as expected)'))
 
 
 if __name__ == '__main__':

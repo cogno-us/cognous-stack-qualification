@@ -63,6 +63,16 @@ def test_persistence_revision_is_exact_and_wire_compatible(persistence_cases):
 def test_required_persistence_repair_scenarios_import_without_mutation(persistence_cases, name):
     source = persistence_cases["sources"][name]
     before = copy.deepcopy(source)
+    summary = persistence_cases["results"]["scenarios"][name]
+    if summary.get("refusal_code"):
+        # pre-lifecycle executor row: the old export shape is refused with exactly this contract code, without mutation
+        with pytest.raises(ImportContractError) as info:
+            import_bounded_workflow(**source)
+        assert info.value.code == summary["refusal_code"]
+        assert source == before
+        assert summary["effect_count_before_import"] == summary["effect_count_after_import"]
+        assert summary["records_unchanged"]
+        return
     bundle = import_bounded_workflow(**source)
     assert source == before
     assert bundle.bundle_version == "0.2.0"
