@@ -875,12 +875,18 @@
    "id": "SCN-D02",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Binding substitution: Each altered request is refused; no prohibited destination mutation; refusal path is observable.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_d02",
+     "min": 58
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "no tenant concept on the exchange route; no OpenShell destination"
   },
   {
    "id": "SCN-D03",
@@ -908,56 +914,86 @@
    "id": "SCN-D05",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Partial effect: Delivered and undelivered parts remain distinguishable; recovery respects current authority and does not redeliver completed parts.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_d05",
+     "min": 12
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "reference has no native multi-part operation or explicit cancel call; parts composed from claims on a shared budget"
   },
   {
    "id": "SCN-D06",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Ingress pressure: Measured CPU, memory, concurrency, storage and latency stay within predeclared profile limits; authenticated evidence obligations remain intact.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_d06",
+     "min": 8
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "reference has no ingress limiter, typed INGRESS_SATURATED refusal or listener; measurements report-only per D5"
   },
   {
    "id": "SCN-D07",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Restore boundary: Show accepted replays or refusal under each restoration; distinguish local persistence from an external anchor guarantee.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_d07",
+     "min": 16
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "no external anchor exists; some restores re-admit effects after history erasure (recorded as limitations)"
   },
   {
    "id": "SCN-D08",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Audit and export: Evaluator detects planted defects; Replay and Evidence Pack preserve unknown, missing and refused states without promoting them to verified.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_d08",
+     "min": 32
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "covers planted defects in five artifact families, not every stimulus class beyond the catalogue"
   },
   {
    "id": "SCN-D09",
    "source": "scenario catalog 3 Minimum deterministic acceptance suite",
    "text": "Bypass and interruption: Inventory and test all supported routes; state matches documented commit ordering. Do not claim reversal after an irreversible commit.",
-   "kind": "gap",
+   "kind": "tests",
    "mandatory": true,
-   "declared_status": "NOT RUN",
-   "reason": "no accepted execution; coverage mapping PARTIAL",
-   "classification": "missing evidence/access",
-   "source_class": "docx-or-catalog"
+   "source_class": "docx-or-catalog",
+   "selectors": [
+    {
+     "component": "scenarios",
+     "re": "test_scn_d09",
+     "min": 32
+    }
+   ],
+   "adequacy": "partial",
+   "adequacy_note": "raw SQL by the database holder and OpenShell routes are out of model"
   },
   {
    "id": "SCN-A01",
