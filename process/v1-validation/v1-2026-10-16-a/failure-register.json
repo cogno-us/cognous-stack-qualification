@@ -1,0 +1,16 @@
+{
+ "schema": "cognous.v1-validation-failure-register/1",
+ "validation_id": "v1-2026-10-16-a",
+ "policy": "Owner instruction 2026-10-16: record every failure here; no remediation until all testing is complete. Frozen pins are not moved. Entries are never deleted, only re-statused.",
+ "statuses": ["OPEN", "REMEDIATION-PR", "FIXED-UNVERIFIED", "VERIFIED", "WONTFIX-OWNER-DECISION"],
+ "entries": [
+  {"id": "F-01", "requirements": ["ER-02-2", "SCN-C03"], "component": "the_index", "summary": "Link route accepts unverifiable attestations", "issue": "cogno-us/cognous-evidence-registry#23", "status": "REMEDIATION-PR", "note": "Fix merged to registry main (PR #25) ahead of the testing-complete rule, before it was set; frozen pin d5e45d27 still fails; re-verification needs a re-freeze decision", "evidence": "final-38962759690"},
+  {"id": "F-02", "requirements": ["ER-02-4b", "SCN-C04"], "component": "the_index", "summary": "Duplicated evidence counted as independent", "issue": "cogno-us/cognous-evidence-registry#24", "status": "REMEDIATION-PR", "note": "Same PR #25; same re-freeze caveat", "evidence": "final-38962759690"},
+  {"id": "F-03", "requirements": ["ER-09-3"], "component": "odes", "summary": "Stack-export profiles 0.2.1 and 0.2.2-refusal-candidate not labelled proposed / not documented", "issue": "cogno-us/open-decision-evidence-standard#41", "status": "OPEN", "evidence": "step2b-38983273247"},
+  {"id": "F-04", "requirements": ["SCN-D02"], "component": "moltbot_safe (runtime route A)", "summary": "tenant_id not compared; tenant-substituted request commits an effect (3 cases, 1 unauthorized effect each)", "issue": "cogno-us/cognous-execution-runtime#95", "status": "OPEN", "evidence": "scn1-38998931247"},
+  {"id": "F-05", "requirements": ["SCN-D06"], "component": "odes / replay export", "summary": "One unauthorized hold blocks export of the valid flow", "issue": "cogno-us/open-decision-evidence-standard#42", "status": "OPEN", "evidence": "scn1-38998931247"},
+  {"id": "F-06", "requirements": ["SCN-D08"], "component": "producer and replay bundle evaluators", "summary": "8 planted-defect cases undetected (attempt_events drop/corrupt, resolution_checks reorder, bundle import_reports drop)", "issue": "cogno-us/cognous-stack-qualification#53", "status": "OPEN", "evidence": "scn1-38998931247"},
+  {"id": "F-07", "requirements": ["platform"], "component": "control_plane, moltbot_safe", "summary": "Fails on macOS and Windows (Linux-only by design)", "issue": "cogno-us/cognous-open-control-stack#157", "status": "WONTFIX-OWNER-DECISION", "note": "D2 Linux only; documented in hub PR #159", "evidence": "final-38962759690"}
+ ],
+ "limits_not_failures": ["SCN-D06 reference limits (no ingress limiter, unbounded rejection rows) - report-only per D5, tracked in #53", "SCN-D07 restore limitations - tracked in #53", "Replay at legacy default Control Plane revision accepts executed claim against unknown attempt; frozen F5b refuses"]
+}
