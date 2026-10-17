@@ -96,3 +96,7 @@ C05, C15, C19, C20, C21 and A01 are unimplemented. No test exists for them. They
 - **PRP and TFA (D8)** were removed from the stack. ER-11 and ER-13 are NOT APPLICABLE citing D8.
 
 D4: no extension families in V1, all eight deferred. D6: governed memory is out of V1, and its addenda rows are NOT APPLICABLE citing D6.
+
+## Route B export is not accepted by Replay (F-24, found 2026-10-17)
+
+The runtime's atomic local executor (route B) returns status `unknown` with a recovery observation after a post-commit failure. Replay at the validated pin rejects that export on its public import path. The fix for F-20 to F-22 covered route C only. Qualification scenario SCN-C06 route B passes because it never exports into Replay, so that pass does not show Replay can consume route B. This is outside the reduced V1 claim and is to be closed through the ODES execution-attempt lifecycle contract (post-V1).

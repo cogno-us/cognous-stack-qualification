@@ -336,6 +336,18 @@
    "remediation": "cogno-us/cognous-replay-bundle#36 (merged def0ee0f); verification pending controller run",
    "verified_in": "final-linux-1-39032930011",
    "verification_scope": "ER-07-1 (73 cases) and ER-07-2 (59 cases) rows PASS in final-linux-1 with 0 skips"
+  },
+  {
+   "id": "F-24",
+   "requirements": [
+    "SCN-C06"
+   ],
+   "component": "cognous-replay-bundle (def0ee0f) / runtime route B (4a83b175)",
+   "summary": "Replay rejects the real route-B (atomic local) post-commit-failure export: status 'unknown' with a recovery observation (key 'status', not 'state'). Public path import_bounded_workflow raises 'execution observed-state contradiction' in _validate_v2_export (importers.py ~823-1284); _validate_v2_executor_rows also rejects it (unresolved_ack exemption requires observation None). Sibling of F-20..F-22, which were fixed for route C only. SCN-C06 route B passes in CI because the scenario never exports into Replay, so that pass says nothing about Replay acceptance of route B.",
+   "classification": "cross-component contract mismatch (found during ODES contract spike, not by a V1 row)",
+   "status": "OPEN",
+   "decision": "Not yet individually decided by the owner. Proposed: handle post-V1 through the ODES execution-attempt lifecycle contract (cogno-us/open-decision-evidence-standard docs/engineering/ODES-INTERCOMPONENT-CONTRACTS.md; fixtures executor-unknown-recovery-observation-route-b and -unavailable-route-b), consistent with the D15 direction to address known limitations after ODES re-engineering. Outside the reduced V1 claim.",
+   "evidence": "ODES PR #51 consumer-conformance appendix; public-path reproduction 2026-10-17 (scratchpad rb2.py). Suggested fix: recognise reconcile-claim observations in _validate_v2_export and extend unresolved_ack; add an SCN-C06 route-B export->import round-trip test."
   }
  ],
  "notes": [
