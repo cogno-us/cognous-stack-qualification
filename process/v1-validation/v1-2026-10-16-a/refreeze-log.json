@@ -1,0 +1,20 @@
+{
+ "schema": "cognous.v1-validation-refreeze-log/1",
+ "validation_id": "v1-2026-10-16-a",
+ "policy": "A re-freeze is an owner-authorised change of one component pin to a remediation commit. The original freeze-manifest.json is never edited; results obtained at the original pin are retained as historical evidence and are never relabelled. A verdict applies to the subject as re-frozen only after a full controller run at the new pins.",
+ "entries": [
+  {
+   "id": "RF-1",
+   "authorised": "André de Lima, 2026-10-17 (\"yes refreeze and continue\")",
+   "component": "the_index",
+   "repository": "cogno-us/cognous-evidence-registry",
+   "from_sha": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+   "to_sha": "d17b8ac2b8445d385fbf51185a35914b2d8b835c",
+   "reason": "Remediation PR #25 for failures F-01 and F-02 (link attestation verification; independence by distinct source identity)",
+   "behaviour_changes": ["unsigned link clients rejected", "requires-python >= 3.10", "status values change for claims whose evidence shares a source"],
+   "open_item": "link profile index.link.v1 and issuer enrollment still need governor approval; BitRep contract remains proposed",
+   "historical_results_at_from_sha": "final-38962759690 and later runs through full1-39005768983",
+   "status": "PENDING-RUN"
+  }
+ ]
+}
