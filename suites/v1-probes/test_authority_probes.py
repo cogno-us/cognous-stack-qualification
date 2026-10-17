@@ -255,21 +255,49 @@ def test_probe_er031_archived_results_still_verify_by_hash_and_deterministic_rep
 
 
 def test_probe_er031_new_authority_checks_do_not_alter_the_archived_results(root, harness):
+    """Executing the Authority Context reference checks must not write to the archived results, and the checks the pin has
+    already recorded must keep their recorded outcome. The check count is DERIVED, not fixed: the pin may add reference
+    checks (F-15 added seven) but every recorded check must still be executed with its recorded outcome, every executed
+    check must satisfy its oracle, and the executed set must equal the declared fixture set. (F-15 / P4 revision 2026-10-17:
+    replaced the literal 44.)"""
     ac, rac = harness
     before = tree_digest(root / "testing" / "results")
-    assert rac.execute()["passed"] == 44
+    result = rac.execute()
     assert tree_digest(root / "testing" / "results") == before
+    declared = [c["id"] for c in jload(root / "testing/fixtures/authority-context/cases.json")]
+    executed = [r["id"] for r in result["results"]]
+    assert len(set(declared)) == len(declared), "duplicate fixture ids"
+    assert executed == declared and result["fixture_count"] == len(declared), "executed checks differ from the declared fixture set"
+    assert result["passed"] == result["fixture_count"] and all(r["oracle_satisfied"] for r in result["results"]), \
+        [r["id"] for r in result["results"] if not r["oracle_satisfied"]]
+    # the pin's recorded run: every recorded check is still executed with the same outcome (new checks may be added)
+    recorded = jload(root / "testing/fixtures/authority-context/results.json")
+    live = {r["id"]: r for r in result["results"]}
+    assert recorded["fixture_count"] == len(recorded["results"]) and recorded["fixture_count"] <= result["fixture_count"]
+    for row in recorded["results"]:
+        assert live.get(row["id"]) == row, f"recorded check {row['id']} is missing or changed"
 
 
 def test_probe_er031_archived_results_retain_their_synthetic_and_unreviewed_scope(root):
-    for d in sorted((root / "testing" / "results").iterdir()):
-        if not d.is_dir():
-            continue
-        text = (d / "README.md").read_text(encoding="utf-8")
-        assert re.search(r"synthetic", text, re.I), d.name
-        assert re.search(r"not independent|NOT_INDEPENDENTLY_REVIEWED|independent review", text, re.I), d.name
-        assert not re.search(r"proven (?:efficacy|governance)|field (?:pilot )?success", text, re.I) or \
-            re.search(r"not (?:a )?field", text, re.I), d.name
+    """The scope of an archived result (synthetic execution, no independent review) is carried by its machine-readable
+    results.json (execution_status / review_status), which the pin's verifiers hash. It used to be asserted by README wording
+    ('synthetic' must appear); the pin moved run commentary to the central test hub (stack-qualification
+    results/readme-commentary), so the README is now a pointer and its wording is documentation, not the guarantee.
+    (F-15 / P4 revision 2026-10-17.) Asserted instead: each archive directory still has its results and manifest, its
+    results.json is marked EXECUTED_SYNTHETIC and NOT_INDEPENDENTLY_REVIEWED, and no README upgrades the status
+    (no claim of proven efficacy or field success)."""
+    archives = [d for d in sorted((root / "testing" / "results").iterdir()) if d.is_dir()]
+    assert len(archives) >= 3, [d.name for d in archives]
+    for d in archives:
+        assert (d / "results.json").is_file() and (d / "manifest.json").is_file(), d.name
+        res = jload(d / "results.json")
+        assert res["execution_status"] == "EXECUTED_SYNTHETIC", d.name
+        assert res["review_status"] == "NOT_INDEPENDENTLY_REVIEWED", d.name
+        readme = d / "README.md"
+        if readme.is_file():
+            text = readme.read_text(encoding="utf-8")
+            assert not re.search(r"proven (?:efficacy|governance)|field (?:pilot )?success", text, re.I) or \
+                re.search(r"not (?:a )?field", text, re.I), d.name
     ae = jload(root / "testing/results/2026-10-05-authorization-effect-v1/results.json")
     assert ae["execution_status"] == "EXECUTED_SYNTHETIC" and ae["review_status"] == "NOT_INDEPENDENTLY_REVIEWED"
 
@@ -342,6 +370,35 @@ def test_probe_er031_profile_imports_no_private_mechanisms_or_coordination_exper
 # ------------------------------------------------------------------ history-based scope probes (need the pinned checkout's full history)
 BASELINE = "76cdff90d0370632faa4e033749c552fd6bbd37d"  # the baseline named in the profile README ("Sources and scope")
 
+# RE-BASELINED 2026-10-17 (F-15 / P4, owner instruction; see docs/authority-probe-rebaseline.md).
+# The baseline commit is unchanged. What changed is the split of what the pin must guarantee:
+#
+# NORMATIVE_IMMUTABLE: the normative and evidential artifacts. No file that existed at BASELINE may be modified, deleted or
+#   renamed (additions are allowed): constitutional text and drafts, history, archived results (data, manifests and verifier
+#   inputs; only their README commentary may move), the battery/sources/protocol, applications, the pre-existing harness
+#   scripts and the authorization/effect contract.
+# DOCUMENTATION_METADATA: files whose wording may change without affecting any guarantee: citation, licence/notice and
+#   repository metadata, root and directory READMEs, docs/. Archived-result READMEs are here because the pin moved run
+#   commentary to the central test hub; the archives' scope is asserted from their machine-readable results.json instead.
+# Everything else that was modified (for example process/PROPORTIONAL_GOVERNANCE.md, tests/test_bootstrap.py) may only be
+#   EXTENDED: a removed line must reappear as the prefix of an added line (a column or sentence appended), never rewritten.
+# tools/validate_bootstrap.py is the one reviewed refactor exception (linear-time duplicate detection, symlink refusal,
+#   a new schedule-O instrument check): it is guarded by tests/test_bootstrap.py, which is append-only above.
+NORMATIVE_IMMUTABLE = ("constitution/", "constitutional-design/", "history/", "testing/results/", "testing/battery/",
+                       "testing/sources/", "testing/PROTOCOL.md", "applications/", "testing/harness/run_reference.py",
+                       "testing/harness/run_authorization_effect.py", "testing/harness/run_film_review.py",
+                       "testing/harness/test_authorization_effect.py", "testing/harness/test_film_review_adapter.py",
+                       "testing/harness/verify_snapshot.py", "testing/harness/verify_authorization_effect.py",
+                       "testing/harness/verify_film_review.py", "tests/test_reviewed_artifact_digest.py",
+                       "process/AUTHORIZATION_EFFECT_CONTRACT.md")
+DOCUMENTATION_METADATA = ("CITATION.cff", "LICENSE", "NOTICE.md", "README.md", "CHANGELOG.md", "CONTRIBUTING.md",
+                          "CODE_OF_CONDUCT.md", "docs/")
+REVIEWED_REFACTOR = ("tools/validate_bootstrap.py",)
+
+
+def _is_documentation(path):
+    return path.startswith(DOCUMENTATION_METADATA) or path.endswith("/README.md")
+
 
 def _git(root, *args):
     return subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True, timeout=300)
@@ -354,35 +411,68 @@ def _history(root):
     assert proc.returncode == 0, f"profile baseline {BASELINE} is not an ancestor of the pin"
 
 
+def _is_immutable(path):
+    # archived-result READMEs carry commentary only; everything else under the immutable prefixes is fixed
+    return path.startswith(NORMATIVE_IMMUTABLE) and not (path.startswith("testing/results/") and path.endswith("/README.md"))
+
+
 def test_probe_er031_profile_commits_only_add_to_the_baseline_and_never_rewrite_existing_content(root):
-    """Existing tests, archived results and the constitutional text keep their scope because they are not modified at all:
-    between the baseline the profile names and the frozen pin there is no deletion, rename or removal of a single existing line."""
+    """Between the baseline the profile names and the pin, no path is deleted, renamed or type-changed, and no normative
+    file loses or rewrites an existing line. Documentation and citation metadata may be rewritten (they carry no guarantee);
+    other modified files may only be extended (a removed line must reappear with text appended, e.g. a new table column or
+    sentence). Revised 2026-10-17 from 'no existing line removed anywhere' (see the constants above)."""
     _history(root)
     names = _git(root, "diff", "--name-status", BASELINE, "HEAD").stdout.splitlines()
     assert names, "no change between baseline and pin"
     kinds = Counter(line.split("\t")[0][0] for line in names)
     assert set(kinds) <= {"A", "M"}, f"deleted/renamed/type-changed paths between baseline and pin: {names}"
-    for line in _git(root, "diff", "--numstat", BASELINE, "HEAD").stdout.splitlines():
-        added, removed, path = line.split("\t")
-        assert removed == "0", f"{path}: {removed} existing line(s) removed or rewritten"
+    modified = [line.split("\t", 1)[1] for line in names if line[0] == "M"]
+    rewritten = []
+    for path in modified:
+        if _is_documentation(path) or path in REVIEWED_REFACTOR:
+            continue
+        diff = _git(root, "diff", "-U0", "--no-color", BASELINE, "HEAD", "--", path).stdout.splitlines()
+        removed = [l[1:].rstrip() for l in diff if l.startswith("-") and not l.startswith("---")]
+        added = [l[1:] for l in diff if l.startswith("+") and not l.startswith("+++")]
+        rewritten += [f"{path}: {r[:100]!r}" for r in removed if not any(a.startswith(r) for a in added)]
+    assert not rewritten, f"existing normative lines removed or rewritten (not merely extended): {rewritten}"
+    # the tier table keeps its original columns and cells; F-15 may only append the delay-limit column
+    old = _git(root, "show", f"{BASELINE}:process/PROPORTIONAL_GOVERNANCE.md").stdout
+    new = (root / "process/PROPORTIONAL_GOVERNANCE.md").read_text(encoding="utf-8")
+    cells = lambda text: [[c.strip() for c in l.strip().strip("|").split("|")] for l in text.splitlines()
+                          if re.match(r"\|\s*(?:Tier\b|T[0-4]\b)", l)]
+    old_rows, new_rows = cells(old), cells(new)
+    assert len(old_rows) == len(new_rows) == 6 and all(n[:len(o)] == o for o, n in zip(old_rows, new_rows)), \
+        "the baseline tier table cells were changed"
 
 
 def test_probe_er031_constitutional_text_archives_and_pre_existing_checks_are_untouched_since_the_baseline(root):
+    """The normative and evidential artifacts the pin must guarantee are byte-identical to the baseline: no file that existed
+    at the baseline under NORMATIVE_IMMUTABLE is modified, deleted or renamed (additions are allowed), the immutable draft
+    constitution and every archived-result data file are byte-identical, and the baseline test names of the pin's own
+    repository suite are all still present. Documentation and citation metadata are no longer protected (re-baselined
+    2026-10-17, see the constants above)."""
     _history(root)
-    protected = ("constitution/", "constitutional-design/", "history/", "testing/results/", "testing/battery/", "testing/sources/",
-                 "testing/PROTOCOL.md", "applications/", "docs/", "testing/harness/run_reference.py", "testing/harness/run_authorization_effect.py",
-                 "testing/harness/run_film_review.py", "testing/harness/test_authorization_effect.py",
-                 "testing/harness/test_film_review_adapter.py", "testing/harness/verify_snapshot.py",
-                 "testing/harness/verify_authorization_effect.py", "testing/harness/verify_film_review.py",
-                 "tests/test_bootstrap.py", "tests/test_reviewed_artifact_digest.py", "tools/validate_bootstrap.py",
-                 "process/AUTHORIZATION_EFFECT_CONTRACT.md", "process/PROPORTIONAL_GOVERNANCE.md")
-    changed = _git(root, "diff", "--name-only", BASELINE, "HEAD").stdout.splitlines()
-    touched = [c for c in changed if c.startswith(protected)]
+    changed = _git(root, "diff", "--name-status", "--diff-filter=MDRT", BASELINE, "HEAD").stdout.splitlines()
+    touched = [c for c in changed if _is_immutable(c.split("\t")[-1]) or _is_immutable(c.split("\t")[1])]
     assert not touched, touched
-    # the immutable draft constitution is byte-identical to the baseline
+    # the immutable draft constitution and the archived result data are byte-identical to the baseline
     for path in ("constitutional-design/drafts/CONSTITUTION_v0.1.md",):
         then = _git(root, "show", f"{BASELINE}:{path}").stdout
         assert then and then == (root / path).read_text(encoding="utf-8"), path
+    archived = [p for p in _git(root, "ls-tree", "-r", "--name-only", BASELINE, "testing/results").stdout.splitlines()
+                if not p.endswith("/README.md")]
+    assert len(archived) >= 15, archived
+    for path in archived:
+        assert (root / path).is_file(), f"archived result file removed: {path}"
+        assert hashlib.sha256((root / path).read_bytes()).hexdigest() == \
+            hashlib.sha256(subprocess.run(["git", "-C", str(root), "show", f"{BASELINE}:{path}"], capture_output=True, timeout=300).stdout).hexdigest(), path
+    # pre-existing repository checks may be added to but not dropped
+    names = lambda text: set(re.findall(r"^\s+def (test_\w+)\(", text, re.M))
+    old_tests = names(_git(root, "show", f"{BASELINE}:tests/test_bootstrap.py").stdout)
+    assert len(old_tests) > 100
+    missing = old_tests - names((root / "tests/test_bootstrap.py").read_text(encoding="utf-8"))
+    assert not missing, sorted(missing)[:10]
 
 
 # ------------------------------------------------------------------ R2: human approval path for outcome-driven change

@@ -12,7 +12,7 @@ The 36 moved rows (re-evaluation: `results/v1-validation/v1-2026-10-16-a/final-l
 
 ### Failed: fix merged outside the pinned tuple (F-15, D11) (1 rows)
 
-- **ER-03-1** (FAIL): probes-authority: no delay limit linked to any consequence tier (F-15); fix merged in institutional-governance (cbc39e79) but outside the pinned tuple (fb3d9793).
+- **ER-03-1** (FAIL): probes-authority: no delay limit linked to any consequence tier (F-15); fix merged in institutional-governance (cbc39e79) but outside the pinned tuple (fb3d9793). Update 2026-10-17: the authority pin has since moved to cbc39e79 (RF-17, profile r4); this row is not re-run, so it keeps this recorded result until a controller run at the r4 pins.
 
 ### Failed: design limit accepted (F-19, D14) (1 rows)
 
@@ -76,7 +76,7 @@ Decisions D10 to D14 were made on 2026-10-17, after the refreeze-r1b result. The
 
 ## Failure with a fix pending
 
-- **F-15, tier delay limit (ER-03-1, D11).** The tier table declares no delay limit. The fix is merged as cogno-us/cognous-institutional-governance#51 (main cbc39e79) but is not in the pinned tuple (the authority pin stays at fb3d9793 by owner decision), so ER-03-1 still fails here. Until the pin is bumped and a controller run verifies it, treat this as open (status REMEDIATION-PR).
+- **F-15, tier delay limit (ER-03-1, D11).** The tier table declared no delay limit at the original pin. The fix is merged as cogno-us/cognous-institutional-governance#51 (main cbc39e79) and the authority pin now points at it (refreeze entry RF-17, profile `process/security-runtime-f5b-20261016-r4.json`; the probe revisions that came with the bump are in `docs/authority-probe-rebaseline.md`). The authority probes pass 23 of 23 locally at cbc39e79, but no controller run has executed at the r4 pins, so ER-03-1 keeps its recorded FAIL in the retained final-linux-1 results. Status FIXED-UNVERIFIED; a controller run at the r4 pins is what can verify it.
 
 ## Rows with partial coverage (D13)
 

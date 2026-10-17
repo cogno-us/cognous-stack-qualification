@@ -1,0 +1,83 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "profile_id": "security-runtime-f5b-20261016-r4",
+  "supersedes_profile": "process/security-runtime-f5b-20261016-r3.json",
+  "refreeze_ids": [
+    "RF-2",
+    "RF-3",
+    "RF-4",
+    "RF-5",
+    "RF-6",
+    "RF-7",
+    "RF-8",
+    "RF-9",
+    "RF-10",
+    "RF-11",
+    "RF-12",
+    "RF-13",
+    "RF-14",
+    "RF-15",
+    "RF-16",
+    "RF-17"
+  ],
+  "note": "Owner-authorised re-freeze (process/v1-validation/v1-2026-10-16-a/refreeze-log.json RF-2..RF-17): r4 is r3 with the constitutional authority pin moved from fb3d9793 to cbc39e79 (RF-17, institutional-governance main with the F-15 delay-limit fix #51); every component pin, the suite generation and the exchange compatibility profile are unchanged from r3. The authority is not a security-runtime component, so it is recorded in the constitutional_authority field (not in components) and is exercised by the V1 authority probes. r4 supersedes r3. The original profile, r1, r2, r3 and freeze-manifest.json are retained unedited. A verdict applies to this profile only after a full controller run at these pins.",
+  "predecessor_profile": "process/security-runtime-candidate-20261016.json",
+  "suite_generation": "p4",
+  "exchange_compatibility_profile": "security-runtime-p4-20261017",
+  "additional_source_hashes": [
+    ".github/workflows/security-runtime-f5b-qualification.yml",
+    "tools/summarize_security_runtime.py"
+  ],
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "26a7e6594eb535827ccc248cbca36a7d119d613b"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "54df6984dd418e2e0a09f89e54f281493475831c"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "c5f4e2d0015ccdc94127a4025a6b605fc7fbdcbd"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "914db78dc3a4dbcc4abc79159f0ac0b7c1edc144"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e"
+    }
+  },
+  "constitutional_authority": {
+    "repository": "cogno-us/cognous-institutional-governance",
+    "revision": "cbc39e79a1328a74b6cb1aba0cd1e5149164865d",
+    "previous_revision": "fb3d97938969a89e149e8ff8db2756091d1233fc"
+  },
+  "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+  "limitations": [
+    "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+    "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+    "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement",
+    "r2 re-freezes four further component pins (replay, odes, evidence_pack, exchange) relative to r1; evidence retained at the original F5b pins or at the r1 pins is historical and is not transferred to r2",
+    "r3 moves six component pins to the P4 generation relative to r2; evidence retained at the original F5b pins, the r1 pins or the r2 pins is historical and is not transferred to r3",
+    "r4 moves only the constitutional authority pin (fb3d9793 to cbc39e79) relative to r3; evidence retained at the r3 or earlier pins is historical and is not transferred to r4, and the authority probe revisions of 2026-10-17 apply only from r4"
+  ]
+}
