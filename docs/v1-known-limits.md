@@ -76,7 +76,7 @@ Decisions D10 to D14 were made on 2026-10-17, after the refreeze-r1b result. The
 
 ## Failure with a fix pending
 
-- **F-15, tier delay limit (ER-03-1, D11).** The tier table declares no delay limit. A fix is open as cogno-us/cognous-institutional-governance#51, with limit values pending owner confirmation. Until it is confirmed and re-pinned, treat this as open.
+- **F-15, tier delay limit (ER-03-1, D11).** The tier table declares no delay limit. The fix is merged as cogno-us/cognous-institutional-governance#51 (main cbc39e79) but is not in the pinned tuple (the authority pin stays at fb3d9793 by owner decision), so ER-03-1 still fails here. Until the pin is bumped and a controller run verifies it, treat this as open (status REMEDIATION-PR).
 
 ## Rows with partial coverage (D13)
 
@@ -107,7 +107,7 @@ Replay now imports the real route-B post-commit exports (F-24) and retains the r
 
 ## Lifecycle contract conformance divergences (F-26 runtime, F-27 Replay, found 2026-10-17)
 
-The P2 conformance suites for the execution-attempt lifecycle contract (0.1.0-draft) found five runtime divergences (F-26, including the OpenShell `unknown`-with-validated-observation path, N-1) and twelve Replay divergences (F-27). The control plane conforms in every case it exercised. Each divergence is pinned as a strict expected failure in the component's own test, none is fixed, and none is part of the reduced V1 claim. They are handled in the decoupling plan (cogno-us/cognous-control-plane#38), P3.
+The P2 conformance suites for the execution-attempt lifecycle contract (0.1.0-draft) found five runtime divergences (F-26, including the OpenShell `unknown`-with-validated-observation path, N-1) and twelve Replay divergences (F-27). The control plane conforms in every case it exercised. Each divergence was pinned as a strict expected failure in the component's own test; none was fixed at the time (they are fixed since, see the updates below), and none is part of the reduced V1 claim. They are handled in the decoupling plan (cogno-us/cognous-control-plane#38), P3.
 
 
 ### Update 2026-10-17 (P3)
