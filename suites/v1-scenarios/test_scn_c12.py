@@ -6,10 +6,10 @@ Stimulus (catalog C12): import ACTUAL pinned Control Plane + executor outputs in
 consumer that reads their product); vary schema versions and break references. Required observation: supported records
 preserve identifiers and outcomes; invalid references and unsupported versions fail explicitly; field loss is reported.
 
-Producers: the frozen F5b Control Plane (a34c3dc2) journal + the executor producer export (runtime e20f92e1) for nine real
+Producers: the frozen F5b Control Plane (a34c3dc2) journal + the executor producer export (runtime 4a83b175) for nine real
 runs (valid, lost_ack, race, unreadable, revoked, purpose_closed, purpose_reopened, tampered_evidence, input_dropped), written
-to disk and re-read. Consumers: Replay ``import_bounded_workflow`` (79ba16d4), Evidence Pack importer/validator (893aca8d)
-and the ODES exporter/recipient evaluator (eb83220c). Defects are planted ONLY in deep copies re-read from the exported files;
+to disk and re-read. Consumers: Replay ``import_bounded_workflow`` (0cfe7a63), Evidence Pack importer/validator (683246e0)
+and the ODES exporter/recipient evaluator (4e6d1169). Defects are planted ONLY in deep copies re-read from the exported files;
 the pinned checkouts and the exported originals are verified byte-unchanged. Each case runs twice (two independent producer
 runs, D3) and the normalised observations are compared.
 

@@ -1,6 +1,6 @@
 """ER-07-4 probes for the Replay Bundle importer: an incomplete delivery record cannot become verified completion.
 
-Runs the real importer at the frozen F5b generation (Control Plane a34c3dc2 / runtime e20f92e1 profile) on the pinned
+Runs the real importer at the frozen F5b generation (Control Plane a34c3dc2 / runtime 4a83b175 profile) on the pinned
 repo's own synthetic fixture, then degrades the delivery evidence and asserts the importer never reports completion or
 verification it cannot support. Run against the checkout named by PROBE_REPLAY_DIR.
 """

@@ -6,7 +6,7 @@ Stimulus (catalog C10): attempt path traversal, symlink escape, prohibited files
 supported surfaces. Required observation: no access outside the declared test boundary; report exactly which isolation
 surfaces were exercised.
 
-Declared boundary (frozen runtime e20f92e1 docs/execution-boundary.md and docs/threat-model.md): the supported adapter has
+Declared boundary (frozen runtime 4a83b175 docs/execution-boundary.md and docs/threat-model.md): the supported adapter has
 NO subprocess, network or credential capability; the supported destinations reject path traversal and symlinked database
 paths/components before resolution. NOT declared (and so not claimed): OS/container confinement, seccomp/AppArmor, network
 namespaces, credential brokers, and the filesystem check/use race. Where the reference itself declares a limit, a separate
