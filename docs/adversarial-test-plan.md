@@ -1,0 +1,537 @@
+# Adversarial test plan (hypotheses and plan only)
+
+> **Status.** This is a hypothesis backlog and a build plan. Nothing here is a finding. No test described below has been executed or written; every batch result is `not tested`. Retained existing tests are cited as evidence from their own earlier runs, not as newly executed work. Failing to reproduce an attack would not prove safety, and nothing here is a production-readiness claim. Prepared 2026-10-18 under programme 2 (tracker cogno-us/cognous-control-plane#43).
+
+The input is an external brainstorm of 75 numbered attack hypotheses (groups A to I) and 8 compound chains. The 5 October 2026 recommendations it descends from are historical; each idea was mapped by reading current component code and the retained suites, not by trusting them. 'Moltbot Safe' in older text means the current `cognous-execution-runtime`. Machine-readable twin: [`process/adversarial/ideas.json`](../process/adversarial/ideas.json).
+
+## 1. How to read this
+
+- **IDs.** `ADV-<id>` is the brainstorm number (for example A01, B15, H55); `CH1` to `CH8` are the chains; `T01` to `T20` are batch-1 tests. These IDs do not collide with scenario IDs (`SCN-C01`, `SCN-A01`).
+- **Routes.** Route A is control plane `BoundedAuthorizationWorkflow.decide/execute` with the runtime executor and effective-grant destination. Route B is `AtomicLocalControlPlaneExecutor` with the atomic authority-effect destination. Route C is the governed exchange (`run_exchange`, driving route A).
+- **Test citations** are `<repo>:<path>::<function>` with repo keys QL qualification, CP control plane, RT runtime, HB hub, OR orchestrator, VF verifier, OD ODES. Every citation was checked to exist in a shallow clone of the commits in section 2 when this file was generated; `tests/test_adversarial_plan.py` re-checks the qualification-repo ones.
+- **Classification** is one of: covered by existing test; partially covered; not covered but testable offline; needs a capability that does not exist; not applicable to V1 scope. 'Covered' means a retained test asserts the invariant for the cases it names, not that the attack class is closed. Uncovered hypotheses are kept.
+- **Result vocabulary for future tests:** `prevented`, `detected only`, `reproduced failure`, `inconclusive`, `not applicable`, `not tested`. It is separate from the scenario-catalogue statuses (PASS, FAIL, INCONCLUSIVE, NOT RUN, NOT APPLICABLE) and must not feed the `v1_validation` verdict.
+
+## 2. Component commits
+
+Three layers matter and they differ. The hub `component-lock.json` pins, the V1 profile r4 pins (resolved through `suites/_pins.py`), and the component mains at the time of writing. Programme-2 opt-in profiles exist only on mains, so their tests are red at the V1 pins by design.
+
+| Key | Component | Repository | Hub lock | V1 r4 pin | Main 2026-10-18 |
+|---|---|---|---|---|---|
+| CP | control plane | cogno-us/cognous-control-plane | `d3dadee7` | `26a7e659` | `128eaa5e` |
+| RT | execution runtime (legacy 'Moltbot Safe') | cogno-us/cognous-execution-runtime | `c3c3ee71` | `3024ef6e` | `fc034d14` |
+| EX | governed exchange | cogno-us/cognous-governed-exchange | `a1cbc7b2` | `914db78d` | `d8d44c1b` |
+| RP | replay bundle | cogno-us/cognous-replay-bundle | `459e4ba6` | `9aab3f6c` | `d0e7b368` |
+| EP | governance evidence pack | cogno-us/cognous-governance-evidence-pack | `b4baccd8` | `54df6984` | `fa7cd7eb` |
+| OD | ODES | cogno-us/open-decision-evidence-standard | `c5e9a0f3` | `c5f4e2d0` | `bcbaf4b1` |
+| BR | BitRep | cogno-us/cognous-evidence-attestation | `5b5077da` | `5b5077da` | `03dfc8f8` |
+| IX | Index | cogno-us/cognous-evidence-registry | `d5e45d27` | `d17b8ac2` | `d17b8ac2` |
+| AM | action manifest | cogno-us/cognous-action-manifest | `46c950be` | `2c36bcd0` | `2c36bcd0` |
+| IG | institutional governance | cogno-us/cognous-institutional-governance | `fb3d9793` | `cbc39e79` | `cbc39e79` |
+| HB | hub | cogno-us/cognous-open-control-stack (hub) | frozen subject 8517818f (V1 r4) | n/a | `afca5bbd` |
+| QL | qualification | cogno-us/cognous-stack-qualification | this repository | n/a | `580882d1` |
+| VF | verifier | cogno-us/cognous-open-control-stack-verifier | not pinned | n/a | `05afab84` |
+| OR | orchestrator | cogno-us/cognous-stack-orchestrator | not pinned (read at 3cb0699e; main now ab3c14f1) | n/a | `ab3c14f1` |
+
+Full SHAs are in `ideas.json`. The orchestrator clone used for citations was read at `3cb0699e`; main has since moved to `ab3c14f1`.
+
+## 3. Counts
+
+| Classification | Ideas | Chains |
+|---|---|---|
+| covered by existing test | 30 | 0 |
+| partially covered | 36 | 6 |
+| not covered, testable offline | 1 | 1 |
+| needs a capability that does not exist | 7 | 1 |
+| not applicable to V1 scope | 1 | 0 |
+| **Total** | **75** | **8** |
+
+Only 30 of the 75 ideas are classed as covered. Several partial rows also have an offline-testable residual; those are the ones selected for batch 1. Idea E38 is classed covered because a retained test asserts the behaviour, but it reproduces the known Index copied-evidence limit (F-19, decision D14), so the retained result there is a recorded failure, not safety.
+
+## 4. Priority order
+
+The order follows the brainstorm: 1 direct execution bypass; 2 payload, target, adapter and tenant substitution; 3 revocation and approval withdrawal at the commit boundary; 4 duplicate effects after unknown delivery; 5 forged observation and false verified completion; 6 credential and isolation boundaries; 7 shared budget, cancellation and delegation; 8 release evidence and artifact mismatches. Ideas are weighed by reachable surface, attacker capability, consequence and quality of existing evidence (heuristic in section 1 of the JSON; not severity). The brainstorm's priority list has no slot for group F (prompt injection and context); F41 and F42 are placed in tier 2 because their effect is a substitution of what is authorised, F44 to F45 are placed beside their nearest evidence tier, and F43 is not applicable.
+
+## 5. Mapping of the 75 ideas
+
+Each row lists the entry point, retained tests that already exercise it, the gap, related ideas, and the batch-1 test that would extend it. Ideas within a group are in brainstorm order.
+
+### A. Authorization and effect binding
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| A01 | Payload substitution | 2 | partially covered | Routes A/B/C: approved proposal -> execution envelope or claim -> destination row (RT FrozenOperation, 23 members; CP AuthorizationBinding) | `QL:suites/v1-scenarios/test_scn_d02.py::test_scn_d02_route_a_envelope_substitution_is_refused`<br>`QL:suites/v1-scenarios/test_scn_d02.py::test_scn_d02_route_b_claim_binding_substitution_is_refused_without_consuming_authority`<br>`QL:suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_payload_tampered_after_commitment_is_refused`<br>`RT:tests/test_producer_contract.py::test_export_rejects_changed_payload_even_with_recomputed_payload_commitment`<br>`QL:suites/cognous-execution-runtime/tests/test_safe_executor.py::test_deep_snapshot_is_immune_to_nested_mutation` | Amount, target and envelope substitution are asserted; one-member-at-a-time completeness over every frozen-operation member and nested payload key is not, so an unbound member would not be noticed. | A04, A07 | T03, T04 |
+| A02 | Target alias substitution | 2 | partially covered | Grant scope and target match (CP bounded.py exact membership; RT SafeLocalPolicy uses str.startswith on allowed prefixes); destination database path | `QL:suites/v1-probes/test_runtime_probes.py::test_probe_symlink_database_file_to_outside_denied_and_target_untouched`<br>`QL:suites/v1-scenarios/test_scn_c10.py::test_scn_c10_symlink_escape`<br>`RT:tests/test_security_admission.py::test_local_policy_rejects_universal_or_malformed_target_prefixes`<br>`HB:tests/test_federated_governance.py::test_object_resolution_mismatch_and_other_resource` | Filesystem alias of the destination database is covered. Equivalent spellings of a target (case, trailing separator, prefix extension such as acct-1 against acct-10) and a resolver-level alias remap after approval are not asserted; a resolver-backed alias destination does not exist in V1. | none | T04, T05 |
+| A03 | Adapter impersonation | 2 | partially covered | adapter_id compared in the binding (CP bounded.py, id string only); RT ControlPlaneRefundDestinationAdapter; OpenShell CLI digest check | `QL:suites/v1-scenarios/test_asw_a.py::test_asw_a02_route_a_lookalike_adapter_in_envelope_is_refused`<br>`QL:suites/v1-scenarios/test_asw_a.py::test_asw_a02_registered_tool_replaced_in_manifest_after_decision_is_refused`<br>`QL:suites/v1-scenarios/test_add_molt_verify.py::test_add_molt_verify_e6_adapter_binding_is_id_string_not_code_digest`<br>`QL:suites/v1-probes/test_runtime_probes.py::test_probe_credential_cli_binary_substitution_refused_by_digest`<br>`CP:tests/test_tool_adapter.py::test_adapter_identity_mismatch_is_not_executed` | Id-level impersonation is refused. Substituting implementation, configuration or destination credentials behind an unchanged adapter id is a documented non-goal (E6; V1 core addendum GR-1853 defers adapter_digest). An offline test can only record detected-only through ledger verification; prevention needs adapter attestation, which does not exist. Known limit: E6: binding compares adapter id, not code. | none | T06 |
+| A04 | Cross-context authorization replay | 2 | partially covered | Routes A/B/C: tenant, actor, principal, institution, authority domain, manifest, run, environment, action type | `QL:suites/v1-scenarios/test_asw_i.py::test_asw_i01_route_b_other_tenants_claim_cannot_carry_this_tenants_envelope`<br>`QL:suites/v1-scenarios/test_asw_i.py::test_asw_i01_route_a_proposal_substitution_is_not_authorized`<br>`QL:suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py::test_actor_principal_institution_domain_substitution`<br>`QL:suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_environment_substitution_holds`<br>`QL:suites/v1-scenarios/test_scn_c02.py::test_scn_c02_route_a_execution_with_altered_manifest_binding_cannot_reuse_authorization` | Tenant, actor, principal, institution, domain, manifest and environment are exercised. No table says which dimensions the authorization binds; run_id and correlation_id are bound only through the proposal commitment and are not perturbed. | A01 | T04 |
+| A05 | Manifest or policy downgrade | 2 | partially covered | Manifest version/digest and policy digest checks at decision and effect time; opt-in rule-revision profile (CP rule_revision.py) | `QL:suites/v1-scenarios/test_scn_c02.py::test_scn_c02_route_a_ordered_sequence_unknown_action_then_manifest_version_then_digest`<br>`CP:tests/test_bounded_authorization.py::test_changed_policy_after_decision_prevents_effect`<br>`QL:suites/v1-probes/test_rule_revision_probes.py::test_probe_n2_policy_edited_in_place_detected_by_digest`<br>`CP:tests/test_rule_revision.py::test_chain_is_append_only_and_checked`<br>`QL:suites/operation-identity/test_adapter_forwarding.py::test_unadopted_policy_digest_is_refused_at_effect_time_through_the_runtime_adapter` | In-place edits and unadopted digests are covered. An earlier adopted-then-superseded digest presented as current is not. Manifests carry digests, not signatures, so a validly signed older manifest has no V1 referent. R1 finding 1 (adapter dropped rule_revision_profile unless freshness is on) is being fixed in stream F1; the effect-time pin depends on it. | none | T15, T19 |
+| A06 | Canonicalization disagreement | 2 | partially covered | acp run JSON ingress (cli_run._load_json uses json.loads: last duplicate member wins, NaN accepted before model validation); CP commitment (sort_keys, allow_nan=False); RT _canonical; verifier canon and strict wire parser | `CP:tests/test_decision_input_commitment_profile.py::test_canonicalization_vectors`<br>`VF:tests/test_wire.py::test_duplicate_member_refused_even_when_escaped`<br>`VF:tests/test_canon.py::test_int_float_and_zero_forms_are_distinct`<br>`RT:tests/test_security_admission.py::test_string_subclass_rejected_before_copy_or_authorization`<br>`QL:suites/cognous-execution-runtime/tests/test_safe_executor.py::test_amount_must_be_strict_finite_number`<br>`HB:tests/test_deployment_review.py::test_strict_json_rejects_duplicate_keys_and_nonfinite_values` | Strict parsing is proven for the verifier, the deployment review and the pack importer, which are not on the decision path. No test feeds duplicate keys, NFC/NFD text, number spellings or BOM/trailing data through the governed ingress and compares the approved commitment with the destination row. Code-reading lead, not a finding. | A01, A07 | T03 |
+| A07 | Unbound extension fields | 2 | partially covered | RuntimeProposal (pydantic default ignores extras; acp run refuses unknown top-level members); RT ExecutionOperation is a closed dataclass; ODES x- extensions are digested | `CP:tests/test_cli_run.py::test_invalid_input_exit_2`<br>`CP:tests/test_operation_identity.py::test_operation_id_in_extension_is_unsupported_without_the_profile`<br>`RT:tests/test_producer_contract.py::test_export_rejects_changed_operation_under_same_decision_and_effect`<br>`QL:suites/v1-scenarios/test_scn_c12.py::test_scn_c12_unknown_member_is_rejected_reported_or_preserved_never_silently_lost` | Top-level unknown members are refused at acp run and the runtime operation is closed. Free-form nested members (payload, risk_metadata) are committed; no test shows that no adapter reads anything outside the committed set. | A01, A06 | T03, T04 |
+| A08 | Declaration promoted to permission | 2 | covered by existing test | Manifest requirements, supported-claim and ODES records versus the grant check at decide() and effect time | `CP:tests/test_bounded_authorization.py::test_requirement_only_or_copied_verification_json_cannot_authorize`<br>`QL:suites/v1-scenarios/test_scn_c14.py::test_scn_c14_valid_envelope_grants_no_authority_and_proves_no_delivery`<br>`QL:suites/v1-scenarios/test_scn_c03.py::test_scn_c03_control_plane_forged_evidence_never_becomes_execution_authority`<br>`OR:tests/scenarios/customer_refunds/test_compose.py::test_consistent_references_never_authorize`<br>`OR:tests/contracts/institutional/test_authority_context_mapping.py::test_requirement_only_context_is_not_a_grant` | Covered across the control plane, the exchange envelope and the orchestrator contracts. Residual: new declarative profile members (rule_revision, holder inventory, freshness) have no promotion probe of their own. | none | none |
+
+### B. Revocation, time and atomicity
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| B09 | Revocation at each boundary | 3 | covered by existing test | Routes A/B/C; boundaries: decision, claim provisioning, dispatch, commit transaction. RT revocation_closeout sidecar for queued/executing items | `QL:suites/v1-scenarios/test_asw_i.py::test_asw_i03_route_a_destination_authority_revoked_after_revalidation_is_refused_at_commit`<br>`QL:suites/v1-scenarios/test_asw_i.py::test_asw_i03_route_b_revocation_at_the_commit_boundary_is_seen_inside_the_transaction`<br>`QL:suites/v1-scenarios/test_scn_c07.py::test_scn_c07_route_a_authority_change_ordering_against_destination_commit`<br>`QL:suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_invalidation_transaction_first_prevents_effect`<br>`QL:suites/v1-scenarios/test_scn_d09.py::test_scn_d09_route_a_cancellation_ordering`<br>`CP:tests/test_check_commit_inventory.py::test_c0_change_after_revalidation_before_destination_commit_is_residual_race` | Covered with the linearization point recorded per route. There is no queue between approval and execution in V1, so the queueing boundary only exists in the opt-in revocation_closeout sidecar (RT test_o6_p1d_revocation_closeout.py). Default route A keeps the recorded C0 residual race. Known limit: C0 check-to-commit race (SCN-C07, INCONCLUSIVE by design). | B16, B10 | T08 |
+| B10 | Approval withdrawal race | 3 | covered by existing test | Approval status row; claim provisioning; commit transaction; RT DelayedCommit pause points | `CP:tests/test_negative_resolution_evidence.py::test_approval_withdrawal_is_durable_without_creating_override_authority`<br>`QL:suites/v1-scenarios/test_asw_i.py::test_asw_i03_route_b_authority_withdrawal_after_provisioning_is_revalidated`<br>`QL:suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_revocation_waits_while_effect_transaction_is_paused`<br>`OR:tests/scenarios/customer_refunds/connected/handoff/test_connected_handoff.py::test_connected_approval_withdrawal_after_handoff_refuses_without_effect` | Queued work and already-issued claims are handled separately (claim provisioning test and paused-transaction test). | B09 | T08 |
+| B11 | Critical evidence invalidation | 3 | covered by existing test | Evidence rows at decision, claim provisioning and inside the destination transaction | `QL:suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_evidence_expiry_first_prevents_effect`<br>`QL:suites/v1-scenarios/test_scn_c17.py::test_scn_c17_route_b_evidence_aged_past_its_freshness_is_rejected`<br>`CP:tests/test_bounded_authorization.py::test_stale_required_evidence_holds_but_optional_unknown_does_not`<br>`QL:suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_grant_expiry_and_evidence_expiry_are_checked_after_lock_acquisition` | Dependency invalidation reaches the executing path on route B and the effective-grant route. | none | none |
+| B12 | Stale authorization cache | 3 | partially covered | CP runtime-authority profile: cached status, per-class max_status_age_seconds, reversible-class tolerance; hub resolver assurance reference | `CP:tests/test_runtime_authority.py::test_known_denial_overrides_cache`<br>`CP:tests/test_runtime_authority.py::test_recorded_denial_cannot_be_overridden_by_later_outage_cache`<br>`CP:tests/test_runtime_authority.py::test_irreversible_class_refuses_on_unreadable_reversible_tolerates_bounded_age`<br>`HB:tests/test_resolver_assurance.py::test_outage_holds_without_cache` | Resolver-side logic is covered. The documented reversible-class tolerance (act on a cached active status inside the age bound) is not shown end to end against a destination that stays reachable after a revocation, and no real process or network partition exists (single host). Known limit: reversible class tolerates bounded stale status by design. | B16 | T12 |
+| B13 | Clock disagreement | 3 | partially covered | CP trusted clock, observation floors; RT destination _trusted_now inside BEGIN IMMEDIATE; ODES recipient clock; BitRep half-open intervals | `QL:suites/v1-probes/test_control_plane_probes.py::test_probe_clock_caller_supplied_time_is_ignored_outside_the_explicit_test_clock`<br>`QL:suites/v1-probes/test_control_plane_probes.py::test_probe_clock_observation_floor_survives_store_reopen`<br>`QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er013_key_and_statement_expiry_boundaries_are_half_open`<br>`QL:suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_expiry_is_evaluated_after_waiting_for_transaction_lock`<br>`QL:suites/open-decision-evidence-standard/tests/test_odes_stack_export.py::test_absent_recipient_clock_with_expired_record_prevents_acceptance` | Per-evaluator boundaries are covered. Equality at the exact expiry instant and timezone-offset equivalence are not compared across the control plane, the destination transaction and the recipient on one fixture. | none | T09 |
+| B14 | State rollback | 3 | partially covered | Restore of destination database, control-plane store, witness ledger and (opt-in) operation-key and budget tables | `QL:suites/cognous-open-control-stack/tests/test_destination_restore_boundary.py::test_authority_only_restore`<br>`QL:suites/cognous-open-control-stack/tests/test_destination_restore_boundary.py::test_full_restore_before_invalidation`<br>`QL:suites/v1-scenarios/test_scn_d07.py::test_scn_d07_restore_boundary`<br>`QL:suites/outside-holder/test_witness_digest.py::test_dropped_entry_after_published_digest_rejected`<br>`HB:tests/test_research_assurance.py::test_restart_rejects_rollback` | Restore is characterised and prevention is blocked on an independently administered anchor (SCN-D07 INCONCLUSIVE). The programme-2 state added after that characterization (operation keys, effect budgets under the R2 key, freshness floors) has not been rolled back in a test. Prevention needs the external anchor, which does not exist. Known limit: no external anchor (SCN-D07). | none | T10 |
+| B15 | Authority ABA | 3 | not covered, testable offline | Grant resolver (id + revision) -> effect_id = commitment(proposal, grant_id, grant_revision); RT authority_grants_v1 provisioning refuses an existing id whose revision/status differ | none found | No test or doc found for revoke-then-recreate with the same grant id or equivalent fields. effect_id is a pure function of grant id and revision, so an approval for the first grant can match a resolver-supplied replacement with the same id and revision; the revoked status in the runtime authority row is the only observable difference. Code-reading lead. | none | T07 |
+| B16 | Non-atomic revalidation | 3 | covered by existing test | Route A default (C0: revalidate, then destination.apply) versus effective-grant destination and route B (check inside the commit transaction) | `CP:tests/test_check_commit_inventory.py::test_c0_change_after_revalidation_before_destination_commit_is_residual_race`<br>`QL:suites/cognous-open-control-stack/tests/test_remediation_candidate.py::test_c0_race_unsafe_characterization`<br>`QL:suites/cognous-open-control-stack/tests/test_research_qualification.py::test_selected_c0_revocation_inside_commit_window_is_characterized`<br>`RT:tests/test_effective_grant.py::test_comparison_occurs_in_effect_transaction`<br>`QL:suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_effect_transaction_first_preserves_effect_then_invalidation` | Prevention (atomic routes) and detection-only (C0 default) are both asserted and kept distinct. Residual: the adapter route with the opt-in delayed-commit destination has not been mapped onto the same prevented/detected-only split. Known limit: C0 race by design. | B09 | T08 |
+
+### C. Retries, recovery and effect identity
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| C17 | Lost acknowledgement after commit | 4 | covered by existing test | Routes A/B/C; RT DelayedCommit destination (opt-in) and simulate=lost_ack | `QL:suites/v1-scenarios/test_asw_r.py::test_asw_r01_route_a_lost_ack_is_retained_unknown_and_reconciled_before_any_retry`<br>`QL:suites/v1-scenarios/test_asw_r.py::test_asw_r01_route_b_lost_ack_keeps_the_claim_consumed_and_retry_is_refused`<br>`QL:suites/v1-scenarios/test_scn_c09.py::test_scn_c09_route_a_retry_after_lost_acknowledgement_does_not_double_commit`<br>`QL:suites/cognous-governed-exchange/tests/test_gax_imx_redelivery.py::test_lost_ack_exact_redelivery_preserves_unknown_ack_and_applied_effect`<br>`OR:tests/overlay/test_overlay_destinations.py::test_lost_ack_then_late_landing_is_one_effect_and_never_licenses_retry` | Covered on all three routes and on the opt-in delayed-commit destination. | C20 | T11 |
+| C18 | Crash at persistence boundaries | 4 | partially covered | Boundaries: claim persistence, dispatch, commit, result record, observation, refusal write; programme-2 journal, join-row, operation-key and witness writes | `QL:suites/v1-scenarios/test_asw_r.py::test_asw_r02_route_b_real_process_kill_after_commit_then_restart_adds_no_duplicate`<br>`QL:suites/v1-scenarios/test_scn_c08.py::test_scn_c08_route_a_crash_then_restart_reconciles_without_duplicate`<br>`QL:suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_process_termination_transaction_boundaries`<br>`CP:tests/test_record_store_concurrency.py::test_termination_during_persistence`<br>`CP:tests/test_operation_identity.py::test_join_row_is_written_before_the_attempt_and_once_per_attempt`<br>`QL:suites/cognous-open-control-stack/tests/test_context_action_profile.py::test_crash_after_started_marker_prevents_restart_dispatch` | Route B and the runtime use real process kill. Routes A and C use a BaseException crash model (SCN-C08 INCONCLUSIVE: no OS-level kill). The freshness gate refusal is three separate writes (X4 finding), and the programme-2 write points have no kill-at-boundary matrix. Known limit: no OS-level kill on routes A and C (SCN-C08). | C19 | T13 |
+| C19 | Partial batch execution | 4 | covered by existing test | Route B multi-part composition (claims on a shared budget); route C partial delivery successor | `QL:suites/v1-scenarios/test_scn_d05.py::test_scn_d05_route_b_multi_part_interruption_keeps_delivered_and_undelivered_distinct`<br>`QL:suites/v1-scenarios/test_scn_d05.py::test_scn_d05_route_c_exchange_recovery_under_current_authority_does_not_redeliver`<br>`CP:tests/test_bounded_authorization.py::test_partial_delivery_holds_instead_of_blind_retry`<br>`QL:suites/cognous-governed-exchange/tests/test_gax_imx_redelivery.py::test_partial_delivery_exact_redelivery_preserves_pending_and_unresolved` | Covered for composed parts. The reference has no native multi-part operation (SCN-D05 INCONCLUSIVE), so batch semantics are exercised through parts on a shared budget. | C18 | T13 |
+| C20 | Concurrent duplicate delivery | 4 | covered by existing test | Same effect through several processes and entry points: routes A/B/C, exchange redelivery | `QL:suites/v1-scenarios/test_scn_d06.py::test_scn_d06_concurrent_duplicate_deliveries_at_most_one_effect`<br>`QL:suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_same_claim_concurrent_processes_commit_at_most_once`<br>`QL:suites/cognous-execution-runtime/tests/test_refund_intent.py::test_concurrent_destination_dispatch_has_one_effect`<br>`QL:suites/cognous-open-control-stack/tests/test_process_boundary_qualification.py::test_duplicate_operation_across_processes`<br>`QL:suites/cognous-execution-runtime/tests/test_profile_exclusivity.py::test_atomic_database_rejects_intent_activation_without_changes` | Covered per route. Mixed-route simultaneous delivery to one database is excluded by profile exclusivity rather than raced. | C17 | T11 |
+| C21 | Idempotency-key collision | 4 | covered by existing test | effect_id/attempt_id/operation key uniqueness inside destination transactions | `QL:suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_effect_id_cannot_be_rebound_to_different_operation`<br>`QL:suites/cognous-execution-runtime/tests/test_safe_executor.py::test_attempt_id_reuse_never_overwrites_success`<br>`QL:suites/cognous-execution-runtime/tests/test_safe_executor.py::test_reconciliation_rejects_different_operation_content`<br>`HB:tests/test_protected_destination.py::test_effect_id_conflict_refused`<br>`RT:tests/test_n1_operation_identity.py::test_operation_key_is_scoped_by_principal_and_authority_domain`<br>`OR:tests/scenarios/customer_refunds/runtime/test_refund_runtime.py::test_attempt_identity_cannot_be_reused_for_distinct_request` | Covered, including principal/domain scoping of the opt-in operation key. | none | none |
+| C22 | Retry identity laundering | 4 | partially covered | Re-planned proposal (new effect_id) after an unresolved effect; opt-in refund-intent registry (route B only); operation identity (renewal only) | `QL:suites/v1-scenarios/test_add_c2c_bi.py::test_add_c2c_bi_route_a_different_effect_id_same_business_request`<br>`QL:suites/v1-scenarios/test_add_c2c_bi.py::test_add_c2c_bi_refund_intent_profile_is_not_composable_with_route_a_and_fails_closed`<br>`QL:suites/cognous-execution-runtime/tests/test_refund_intent.py::test_paused_original_can_commit_but_replan_cannot`<br>`QL:suites/cognous-open-control-stack/tests/test_research_qualification.py::test_original_late_commit_never_permits_replacement`<br>`QL:suites/operation-identity/test_atomic_route_operation_identity.py::test_atomic_route_legacy_cap_two_renewal_commits_two_effects_today` | Characterised, not prevented, on the default routes: logical-intent prevention is not implemented, adopted or qualified (hub logical-intent-prevention-contract); the intent profile cannot combine with route A (F-18); the default atomic route double-commits after renewal at cap 2 (orchestrator F-5, KNOWN GAP; opt-in key merged in runtime fc034d14). The full chain with a concurrent retry is not exercised. Known limit: business-level duplication not prevented by default (F-5, F-18). | C17 | T11 |
+| C23 | Stale worker after lease expiry | 4 | partially covered | CP freshness profile: check lease, deadline at opening, reaper, superseded-owner write refusal; RT delayed-commit pause points; hub generation fence (reference) | `CP:tests/test_freshness.py::test_superseded_owner_cannot_write_to_a_closed_check`<br>`CP:tests/test_runtime_authority.py::test_live_owner_cannot_be_recovered`<br>`QL:suites/operation-identity/test_freshness_profile.py::test_superseded_owner_journal_write_refused`<br>`CP:tests/test_freshness.py::test_stalled_check_past_class_bound_is_refused_before_dispatch`<br>`HB:tests/test_protected_destination.py::test_fence_cannot_decrease` | Journal and dispatch gate are covered. A worker paused after the gate and resumed after takeover is stopped by effect-id dedupe, not by a destination-enforced fencing token; the N3 profile is same-host flock only and cross-host fencing is not built. Needs a fencing capability for prevention; offline test can measure detected-only. Known limit: same-host lease; no cross-host fencing (N3). | none | T12 |
+| C24 | Compensation abuse | 4 | needs a capability that does not exist | No compensation or rollback action exists; RT cancellation is not rollback; ODES effect-reversibility is a draft contract (#75) | `QL:suites/cognous-execution-runtime/tests/test_w2_stop_recovery.py::test_stop_after_commit_does_not_claim_rollback`<br>`QL:suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_cancellation_is_not_rollback`<br>`QL:suites/v1-scenarios/test_scn_d05.py::test_scn_d05_route_a_recovery_after_authority_withdrawal_adds_no_effect` | Needs a compensating-action capability (a refund-reversal action with its own grant), which does not exist; adjacent recovery paths are shown not to dispatch. Retained tests prove only that no reversal is claimed. | none | none |
+
+### D. Execution and credential boundaries
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| D25 | Alternate execution path | 1 | partially covered | Inventory of destination call sites (SCN-D09 ROUTES): CP BoundedAuthorizationWorkflow.execute; RT LocalDestinationExecutor.execute_snapshot, ControlPlaneRefundDestinationAdapter.apply, AtomicLocalControlPlaneExecutor.execute, IntentRefundDestination.commit; direct destination.commit; acp run and other CLIs; reaper thread; legacy AgentEngine and CLI | `QL:suites/v1-scenarios/test_scn_d09.py::test_scn_d09_route_inventory_is_complete_and_classified`<br>`QL:suites/v1-scenarios/test_scn_d09.py::test_scn_d09_direct_bypass_of_executor_route_is_refused_by_destination`<br>`QL:suites/v1-scenarios/test_scn_d09.py::test_scn_d09_legacy_write_path_on_atomic_profile_database_is_refused`<br>`QL:suites/v1-scenarios/test_scn_d09.py::test_scn_d09_legacy_agent_engine_performs_no_side_effect`<br>`HB:tests/test_destination_ingress.py::test_direct_operation_cannot_bypass_admission` | Direct commit, snapshot execution and adapter apply are refused on effective-grant and atomic destinations, and the call-site list is checked against the source. By design a base destination holds no authority state and accepts a direct commit; raw SQL by the file holder and the OpenShell destination are out of model or unexercised. The call-site table was checked at the V1 pins; runtime fc034d14 added delayed-commit and operation-key destinations that the table does not name. No non-dispatching entry (reaper, recovery, import, CLI) has an unchanged-destination assertion. Known limit: base destination and raw SQL holder are out of model (SCN-D09). | none | T01, T02 |
+| D26 | Filesystem boundary escape | 6 | covered by existing test | RT DurableRefundDestination path checks; CP acp run input/output confinement; record-store ids | `QL:suites/v1-probes/test_runtime_probes.py::test_probe_path_traversal_absolute_database_name_denied_and_nothing_created`<br>`QL:suites/v1-probes/test_runtime_probes.py::test_probe_symlink_dangling_database_link_to_outside_does_not_create_outside_file`<br>`QL:suites/v1-scenarios/test_scn_c10.py::test_scn_c10_declared_out_of_model_symlink_swap_after_construction`<br>`QL:suites/v1-scenarios/test_scn_c10.py::test_scn_c10_declared_out_of_model_hardlinked_database_file`<br>`CP:tests/test_cli_run.py::test_output_dir_confinement`<br>`CP:tests/test_persistence.py::test_run_record_ids_cannot_escape_store_root` | Traversal, symlink and dangling-link cases are covered; symlink swap after construction and hard links are characterised as declared out of model. Platform-specific path interpretation is not tested: Linux only (decision D2). Known limit: symlink swap after construction and hard link out of model (SCN-C10). | none | none |
+| D27 | Process argument confusion | 6 | partially covered | The only subprocess site: RT OpenShell CLI adapter (constant argv, payload on stdin); legacy CLI statically asserted to reach no destination | `QL:suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_cli_contract_uses_constant_argv_and_stdin`<br>`QL:suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_cli_digest_substitution_rejects`<br>`QL:suites/v1-scenarios/test_scn_c10.py::test_scn_c10_supported_engine_modules_have_no_process_or_network_imports` | The one process-spawning adapter uses constant argv with the payload on stdin (mock transport). The live OpenShell gateway, image and CLI are not executed (W6 blocked), so option or shell injection through the real CLI is untested. Known limit: live OpenShell unexercised. | D29 | none |
+| D28 | Network destination escape | 6 | needs a capability that does not exist | Needs an egress-controlled executor; V1 reference engine has no network imports and a synthetic SQLite destination | `QL:suites/v1-scenarios/test_scn_c10.py::test_scn_c10_authorized_run_has_no_process_network_or_outside_write`<br>`QL:suites/cognous-execution-runtime/tests/test_openshell_live.py::test_live_filesystem_and_network_denial` | Needs a live OpenShell sandbox with a network policy (pinned gateway, Docker, immutable image; W6 blocked) or another egress-controlled executor. The retained live test requires that environment and is not part of the bounded Linux reference. | D29 | none |
+| D29 | Child-process privilege inheritance | 6 | needs a capability that does not exist | Needs a sandboxed tool executor; the reference engine launches no child process | `QL:suites/v1-scenarios/test_scn_c10.py::test_scn_c10_denied_run_has_no_process_network_or_outside_write`<br>`QL:suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_local_restriction_prevents_sandbox_dispatch` | Needs a tool executor that can spawn children under a sandbox (live OpenShell). Today only the absence of process and network use in the engine is asserted. | D27, D28 | none |
+| D30 | Credential scope mismatch | 6 | partially covered | Route A credential table / effective-grant row; route B claim scope; destination transaction checks of tenant, grant, operation | `QL:suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_a_absent_or_out_of_scope_grant_credential_is_refused`<br>`QL:suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_b_consumed_claim_cannot_authorize_a_second_effect`<br>`QL:suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_wrong_tenant_authoritative_state_is_denied_at_effect_time`<br>`QL:suites/v1-scenarios/test_scn_c11.py::test_scn_c11_declared_out_of_model_direct_commit_by_local_credential_holder_after_institutional_revocation`<br>`HB:tests/test_protected_destination.py::test_revocation_closes_credential_binding` | Scope checks at the synthetic destination are covered and the local-credential-holder bypass is characterised (SCN-C11 INCONCLUSIVE: no credential broker). Real executor credentials for another tenant/resource/operation/environment need a credential broker, which does not exist; the hub protected destination is a reference profile. Known limit: no credential broker (SCN-C11). | none | none |
+| D31 | Credential exposure through artifacts | 6 | partially covered | Every produced file, log line, exception text, stderr, replay export, evidence pack, ODES package, acp run envelope; subprocess environment | `QL:suites/v1-scenarios/test_scn_c11.py::test_scn_c11_no_credential_exposure_in_any_artifact`<br>`QL:suites/v1-probes/test_runtime_probes.py::test_probe_credential_host_secrets_not_inherited_by_openshell_cli_subprocess`<br>`CP:tests/test_cli_run.py::test_json_format_prints_only_the_envelope`<br>`CP:tests/test_negative_resolution_evidence.py::test_diagnostic_projection_excludes_raw_payload_and_approver` | Covered for the pinned profile artifacts. Not covered: the programme-2 profile artifacts (identity, freshness, rule revision, witness, holder inventory), the acp run stderr path that echoes untrusted member names (R1 finding 9, fix in stream F1), and encodings (base64, hex, JSON-escaped) of a seeded secret. | none | T16 |
+| D32 | Isolation fallback | 6 | partially covered | Missing sandbox, authority tables, profile, trusted clock or registry; test-time flags (allow_test_time, --now); adapter profile forwarding | `QL:suites/cognous-open-control-stack/tests/test_protected_qualification.py::test_missing_isolation_stops_before_dispatch`<br>`CP:tests/test_runtime_authority.py::test_required_profile_cannot_be_downgraded_at_execute`<br>`QL:suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_missing_authoritative_state_fails_closed`<br>`RT:tests/test_effective_grant.py::test_unsupported_destination_rejects_precondition`<br>`CP:tests/test_cli_run.py::test_real_clock_without_now_holds_on_stale_inputs` | Individual fail-closed cases are covered. There is no systematic enumeration of silent fallbacks: R1 finding 1 showed an adapter dropping the rule_revision_profile unless freshness was on, which is exactly a silent downgrade, and no generic profile-forwarding completeness test exists. | A05 | T15 |
+
+### E. Attestation and knowledge integrity
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| E33 | Caller-selected verification key | 5 | covered by existing test | BitRep verify with trust snapshot; Index API link route; Index chain adapter | `QL:suites/v1-scenarios/test_scn_c03.py::test_scn_c03_bitrep_rejects_forged_attestation_variant`<br>`QL:suites/v1-probes/test_index_probes.py::test_er02_forged_attestation_rejected_at_link_route`<br>`QL:suites/v1-probes/test_index_probes.py::test_er02_no_trust_snapshot_fails_closed`<br>`QL:suites/v1-scenarios/test_scn_c03.py::test_scn_c03_control_plane_forged_evidence_never_becomes_execution_authority` | Forged and caller-keyed attestations are refused at the verifier, the Index link route and the control plane, with a no-snapshot fail-closed case and detector calibration controls. | E34 | none |
+| E34 | Signed-content substitution | 5 | covered by existing test | BitRep wire parser and signature scope; verifier strict wire | `QL:suites/v1-scenarios/test_scn_c03.py::test_scn_c03_bitrep_rejects_malformed_wire_forgery_before_verification`<br>`VF:tests/test_wire.py::test_duplicate_member_refused_even_when_escaped`<br>`QL:suites/cognous-open-control-stack/tests/test_comparative_governance.py::test_substitution_distinguishes_outer_signature_and_verifier_binding`<br>`QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_content_digest_detects_tamper_but_is_not_authentication` | Subject, statement and framing alterations outside the signed portion are rejected before verification; digest-only integrity is labelled as not authentication. | E33 | none |
+| E35 | Revoked-key temporal ambiguity | 5 | covered by existing test | BitRep key registry and trust snapshot currency; documented temporal semantics | `QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er013_revocation_applies_from_revoked_at_and_is_not_backdatable`<br>`QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er013_rotation_old_key_rejected_after_retirement_new_key_accepted`<br>`QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er013_temporal_semantics_are_documented_and_match_the_code`<br>`QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er013_trust_snapshot_currency_is_half_open_and_fails_closed` | Historical verification and current reliance are separated and documented. Residual: no test shows an old valid signature cannot be reused as present authority by a consumer that ignores the snapshot, which is outside the Index and control-plane paths. | none | none |
+| E36 | Demonstration proof acceptance | 5 | covered by existing test | BitRep zero-knowledge demonstration artifacts and the assurance HTTP path | `QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er014_zkproof_generated_demonstration_never_verifies`<br>`QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er014_zkproof_selective_disclosure_demonstration_never_verifies`<br>`QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er014_zkproof_assurance_path_refused_over_http`<br>`QL:suites/v1-probes/test_bitrep_probes.py::test_probe_er014_zkproof_result_model_cannot_carry_assurance_for_rejections` | Demonstration artifacts never verify and cannot carry assurance. | none | none |
+| E37 | Accepted-claim mutation | 5 | covered by existing test | Index claims service and API: update, delete, supersede; storage adapters | `QL:suites/v1-probes/test_index_probes.py::test_er02_accepted_claim_cannot_be_updated_or_deleted`<br>`QL:suites/v1-probes/test_index_supersession_probes.py::test_probe_supersession_claims_service_refuses_rewrite_and_delete_of_accepted_claims`<br>`QL:suites/v1-probes/test_index_supersession_probes.py::test_probe_supersession_only_the_author_may_supersede_with_a_related_revision`<br>`QL:suites/v1-scenarios/test_scn_c04.py::test_scn_c04_index_api_accepted_claim_history_survives_rewrite_and_delete` | Exposed API and service paths refuse rewrite and delete. Direct database edits by the storage holder are outside the model and are not claimed. Known limit: storage holder out of model. | none | none |
+| E38 | Evidence multiplication | 5 | covered by existing test | Index API and chain adapter corroboration computation | `QL:suites/v1-scenarios/test_scn_c04.py::test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration`<br>`QL:suites/v1-scenarios/test_scn_c04.py::test_scn_c04_index_chain_copied_evidence_is_visible_and_never_merged_or_scored_as_independent`<br>`QL:suites/v1-probes/test_index_probes.py::test_er02_duplicated_evidence_is_not_independent_corroboration`<br>`QL:suites/v1-probes/test_index_probes.py::test_er02_independent_sources_control_raises_independence` | Covered, and this is a reproduced known limit rather than a pass: the Index API cannot see copy provenance outside its own content-equality check (F-19; decision D14, SCN-C04 reproduces it). Result at the pinned revisions is a recorded failure, not safety. Known limit: F-19 / D14 copied-evidence limit. | none | none |
+| E39 | Contradiction suppression | 5 | partially covered | Index API list_evidence(limit, offset), filters, supersession links, chain adapter ordering | `QL:suites/v1-probes/test_index_supersession_probes.py::test_probe_supersession_is_terminal_and_does_not_erase_later_criticism`<br>`QL:suites/v1-probes/test_index_supersession_probes.py::test_probe_supersession_history_is_reconstructible_in_order_from_logs`<br>`QL:suites/v1-scenarios/test_scn_c04.py::test_scn_c04_index_chain_status_recomputes_from_logs_and_history_is_ordered` | History order and supersession terminality are covered. The relying view under pagination, offset and filter changes is not: list_evidence has limit/offset and no test found exercises a conflict dropping out of a page. Code-reading lead. | none | none |
+| E40 | Fresh wrapper around stale evidence | 5 | covered by existing test | CP observation timestamps and staleness window; BitRep statement expiry; ODES recipient clock | `QL:suites/v1-scenarios/test_scn_c17.py::test_scn_c17_route_b_evidence_aged_past_its_freshness_is_rejected`<br>`QL:suites/v1-probes/test_control_plane_probes.py::test_probe_clock_uncertainty_tolerance_never_extends_the_staleness_window`<br>`QL:suites/v1-probes/test_control_plane_probes.py::test_probe_clock_future_input_beyond_tolerance_cannot_poison_the_observation_floor`<br>`CP:tests/test_bounded_authorization.py::test_stale_required_evidence_holds_but_optional_unknown_does_not` | The observation time, not the envelope time, controls reliance on the control plane path. | B11 | none |
+
+### F. Prompt injection and governed context
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| F41 | Evidence-to-instruction injection | 2 | covered by existing test | Retrieved text in payload, narrative and descriptor fields of routes A/C; manifest descriptions | `QL:suites/v1-scenarios/test_asw_p.py::test_asw_p01_route_a_request_shaped_by_retrieved_instructions_is_not_authorized`<br>`QL:suites/v1-scenarios/test_asw_p.py::test_asw_p01_route_c_retrieved_bundle_instructing_a_different_operation_is_refused`<br>`QL:suites/v1-scenarios/test_asw_a.py::test_asw_a01_poisoned_descriptions_are_data_and_authorize_nothing_new`<br>`QL:suites/v1-scenarios/test_asw_a.py::test_asw_a01_acting_on_the_injected_instruction_yields_no_effect` | The stack treats text as data; no model is in the loop, so this shows that no code path interprets text, not that an agent would resist it. Placed in tier 2 because the brainstorm's tier list has no slot for group F. Known limit: no model-in-the-loop behaviour. | F42 | none |
+| F42 | Forged approval in natural language | 2 | covered by existing test | Natural-language approval claims in lower-trust fields on routes A and C | `QL:suites/v1-scenarios/test_asw_p.py::test_asw_p01_route_a_text_claiming_approval_does_not_substitute_for_a_missing_approval`<br>`QL:suites/v1-scenarios/test_asw_p.py::test_asw_p01_route_c_hostile_narrative_cannot_replace_a_missing_approval`<br>`QL:suites/v1-scenarios/test_asw_p.py::test_asw_p01_route_c_hostile_narrative_cannot_override_withdrawn_authority` | Text cannot manufacture a grant or an approval on routes A and C. | F41 | none |
+| F43 | Memory poisoning | 7 | not applicable to V1 scope | Governed memory is out of V1 scope (decision D6) | none found | Not applicable to V1: governed memory was moved out of scope by decision D6. Preserved as a hypothesis for any later memory profile; hub context_memory_profile tests exist but are not part of the V1 claim. Known limit: decision D6. | none | none |
+| F44 | Scope loss during summarization | 5 | partially covered | Exchange handoff and export, replay and ODES adapters (the only summarising steps in V1) | `QL:suites/v1-scenarios/test_scn_c14.py::test_scn_c14_lineage_survives_export`<br>`QL:suites/v1-scenarios/test_scn_c14.py::test_scn_c14_uncertainty_survives_export`<br>`QL:suites/v1-scenarios/test_scn_c12.py::test_scn_c12_known_conversion_losses_and_unsupported_semantics_are_enumerated` | Lineage and uncertainty survive export and known losses are enumerated. Restriction, expiry and approval-condition loss across a handoff are not asserted member by member; LLM summaries are not in V1 (decision D6). | H60 | none |
+| F45 | Delegated-agent authority laundering | 7 | covered by existing test | Route C informational messages; route B handoff of claims between agents | `QL:suites/v1-scenarios/test_asw_p.py::test_asw_p01_route_c_informational_message_with_instructions_has_no_effect`<br>`QL:suites/v1-scenarios/test_scn_c18.py::test_scn_c18_route_b_handoff_with_another_agents_capability_or_operation_is_refused`<br>`QL:suites/v1-scenarios/test_scn_c18.py::test_scn_c18_route_a_unsupported_or_invalid_delegation_is_held_and_cannot_execute` | A completion or approval message from another agent carries no authority on routes B and C; delegation proper is unsupported (see G49). | G49 | none |
+| F46 | Policy-change injection | 4 | partially covered | Rule-revision profile (opt-in) and policy digest; adoption flow of SCN-C20 is unimplemented (decision D9) | `QL:suites/v1-probes/test_rule_revision_probes.py::test_probe_n2_policy_edited_in_place_detected_by_digest`<br>`CP:tests/test_rule_revision.py::test_chain_is_append_only_and_checked`<br>`QL:suites/v1-scenarios/test_asw_p.py::test_asw_p01_route_c_hostile_narrative_cannot_override_withdrawn_authority` | Digest and chain checks stop an edited policy; an observed outcome presented as already adopted policy is not run through an adoption flow because SCN-C20 policy adoption is unimplemented (D9). Known limit: SCN-C20 unimplemented (D9). | A05 | T19 |
+
+### G. Orchestration and shared limits
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| G47 | Aggregate-limit evasion | 7 | partially covered | Per-grant cap (route A), per-budget claims (route B); no ceiling across grants, workers or time windows | `QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_b_exhausted_budget_blocks_every_later_agent`<br>`QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_b_distinct_budgets_are_independent_declared_boundary`<br>`QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_a_grant_cap_exhausted_blocks_a_second_agent`<br>`QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_unsupported_coordination_is_reported` | Within one grant or budget the cap holds; independent budgets are an explicitly declared boundary and no cross-grant aggregate ceiling exists, so grant multiplication is characterised, not prevented. Boundary test (T17) can measure it. Known limit: independent budgets not aggregated (SCN-C16). | G48 | T17 |
+| G48 | Shared-budget race | 7 | partially covered | Route B budget table in the claim transaction; route A grant cap; route C (drives route A) | `QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_b_concurrent_agents_never_exceed_budget_threads`<br>`QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_b_concurrent_agents_never_exceed_budget_processes`<br>`QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_a_destination_cap_is_caller_supplied_boundary_observation`<br>`QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_b_partial_and_unknown_ack_effects_still_consume_budget` | Route B is covered with threads and processes. Route A and C last-unit races are characterised as a caller-supplied boundary and have no deterministic barrier test; the opt-in R2 atomic-route operation key changes the cap-2 outcome and needs its own last-unit case. | G47 | T17 |
+| G49 | Delegation amplification | 7 | needs a capability that does not exist | CP refuses parent_grant_id (delegation_profile_unsupported); route B handoff of claims only | `QL:suites/v1-scenarios/test_scn_c18.py::test_scn_c18_unsupported_delegation_is_reported`<br>`QL:suites/v1-scenarios/test_scn_c18.py::test_scn_c18_route_b_handoff_cannot_extend_a_grant_by_provisioning_a_broader_claim`<br>`QL:suites/v1-scenarios/test_scn_c18.py::test_scn_c18_route_a_unsupported_or_invalid_delegation_is_held_and_cannot_execute` | Needs delegation support in the control plane (parent grant, narrowing rules, redelegation rights), which does not exist; today delegation requests are refused and the refusal is tested. Known limit: delegation unsupported. | F45 | none |
+| G50 | Cancellation propagation gap | 7 | needs a capability that does not exist | No parent/child task graph or scheduled follow-ups; single-run cancellation ordering only | `QL:suites/v1-scenarios/test_scn_d09.py::test_scn_d09_route_a_cancellation_ordering`<br>`QL:suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_cancellation_is_not_rollback` | Needs a task graph with parent and child runs, retries and scheduled follow-ups; V1 has none (no merge or queue concept). Only single-run cancellation ordering is tested. | G51 | none |
+| G51 | Fleet suspension gap | 7 | needs a capability that does not exist | Fleet suspension scenario SCN-C19 is unimplemented (decision D9); revocation closeout sidecar is per item | `QL:suites/v1-scenarios/test_asw_i.py::test_asw_i03_route_c_exchange_authority_revoked_after_decision_is_refused` | Needs fleet-level suspension with partition and restart of a worker holding credentials and queued work (SCN-C19, unimplemented, D9). The retained test shows only per-run revocation. Known limit: SCN-C19 unimplemented (D9). | G50, B09 | none |
+| G52 | Cross-tenant orchestration collision | 7 | partially covered | Task ids, claim ids, budget ids, run-record ids, cache keys and workspace paths across synthetic tenants | `QL:suites/v1-scenarios/test_asw_i.py::test_asw_i01_route_b_other_tenants_claim_cannot_carry_this_tenants_envelope`<br>`QL:suites/v1-scenarios/test_asw_i.py::test_asw_i01_route_a_envelope_tenant_substitution_is_refused`<br>`RT:tests/test_n1_operation_identity.py::test_operation_key_is_scoped_by_principal_and_authority_domain`<br>`CP:tests/test_persistence.py::test_run_record_ids_cannot_escape_store_root` | Tenant substitution and scoped operation keys are covered; identifier reuse of budget ids, run ids and workspace paths across tenants is not enumerated. | A04 | none |
+| G53 | Restart as renewed authority | 7 | covered by existing test | Process restart, reopened stores, saved run records, claim reuse after expiry | `QL:suites/v1-scenarios/test_asw_i.py::test_asw_i02_route_a_fresh_decision_after_expiry_is_not_authorized`<br>`QL:suites/v1-scenarios/test_asw_i.py::test_asw_i02_route_b_claim_outside_validity_interval_is_denied`<br>`QL:suites/v1-scenarios/test_scn_c08.py::test_scn_c08_route_a_crash_then_restart_reconciles_without_duplicate`<br>`QL:suites/v1-scenarios/test_scn_c16.py::test_scn_c16_route_b_exhaustion_persists_across_restart_and_fresh_claims` | Authority is recomputed from stores after restart; saved conversation or agent context is not part of V1 (decision D6), so only store-backed restart is covered. Known limit: saved context out of scope (D6). | none | none |
+| G54 | Availability pressure on governance | 7 | partially covered | Unauthenticated flood on CP, exchange and admission; hold claims; reaper; timeout paths | `QL:suites/v1-scenarios/test_scn_d06.py::test_scn_d06_valid_request_under_mixed_flood_keeps_effect_and_evidence_gates`<br>`QL:suites/v1-scenarios/test_scn_d06.py::test_scn_d06_unauthenticated_control_plane_flood`<br>`QL:suites/v1-scenarios/test_scn_d06.py::test_scn_d06_generation_fence_refusal_flood_is_bounded`<br>`CP:tests/test_freshness.py::test_stalled_check_past_class_bound_is_refused_before_dispatch` | Floods do not weaken effect or evidence gates, within bounded fixtures. No review queue, ingress rate limiter or emergency path exists, so timeout and overload paths that could weaken authorization cannot be exercised; reaper thread death is silent (R1 finding 6). Known limit: no review queue or limiter. | D25 | T02 |
+
+### H. Observation, replay and assurance
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| H55 | Executor acknowledgement as observation | 5 | covered by existing test | Executor ack versus destination read; replay import report; verifier | `QL:suites/v1-probes/test_replay_probes.py::test_probe_verified_completion_cannot_be_forged_through_import_report_or_record_labels`<br>`QL:suites/v1-scenarios/test_scn_c23.py::test_scn_c23_effect_oracle_detects_seeded_effect_state_defects_and_passes_clean`<br>`QL:suites/cognous-open-control-stack/tests/test_comparative_governance.py::test_missing_effect_fails_even_when_receipt_claims_success`<br>`QL:suites/v1-scenarios/test_scn_c06.py::test_scn_c06_route_a_observer_removed_after_ack_leaves_delivery_unresolved` | An ack without destination change does not become observed or verified; the effect oracle reads destination state independently. | H56, H58 | T14 |
+| H56 | Observation substitution | 5 | partially covered | Observation fields: effect, target, tenant, amount, interval | `QL:suites/cognous-open-control-stack/tests/test_comparative_governance.py::test_wrong_effect_identity_fails`<br>`QL:suites/cognous-open-control-stack/tests/test_comparative_governance.py::test_wrong_effect_payload_fails`<br>`QL:suites/cognous-open-control-stack/tests/test_release_gate.py::test_substituted_identities_fail`<br>`QL:suites/v1-scenarios/test_scn_c23.py::test_scn_c23_seeded_critical_defects_detected_by_class` | Identity and payload substitution are caught; tenant, target and time-interval substitution of an otherwise genuine observation are not enumerated field by field. | H55 | T14 |
+| H57 | Shared producer and observer compromise | 5 | needs a capability that does not exist | Executor identity and writable store reused to forge readback; HMAC export | `QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_hmac_is_not_public_attestation_key_id_is_a_label`<br>`QL:suites/v1-scenarios/test_scn_c06.py::test_scn_c06_route_b_independent_observer_unavailable_after_lost_ack_gives_no_completion_and_no_retry` | Needs an independently operated observer with its own credentials and storage, which does not exist in V1; the stack documents that producer and verifier share a trust domain, and tests assert the labelling, not prevention. Known limit: no independent observer. | H63, CH6 | none |
+| H58 | Readback ambiguity | 5 | covered by existing test | Destination readback matching state created by another actor | `QL:suites/v1-scenarios/test_scn_c23.py::test_scn_c23_effect_oracle_scope_boundary_effect_without_consumed_claim`<br>`QL:suites/cognous-open-control-stack/tests/test_comparative_governance.py::test_unrelated_denial_evidence_does_not_count`<br>`QL:suites/cognous-open-control-stack/tests/test_comparative_governance.py::test_duplicate_effect_fails` | An effect without a consumed claim is flagged; matching state from another actor is attributed only through effect identity. | H55 | T14 |
+| H59 | Missing failures in export | 5 | covered by existing test | Replay export, evidence pack, ODES export, verifier ledger | `QL:suites/security-runtime/test_security_runtime_chain.py::test_journal_read_omission_rejected`<br>`QL:suites/security-runtime/test_security_runtime_chain.py::test_refusal_vocabulary_cannot_disappear`<br>`QL:suites/v1-scenarios/test_scn_d06.py::test_scn_d06_valid_flow_export_survives_unauthorized_hold`<br>`QL:suites/outside-holder/test_witness_digest.py::test_dropped_entry_after_published_digest_rejected` | Dropped refusals and failures are detected where a prior witness digest exists; without a published digest the drop is accepted today and recorded as such (witness test, opt-in profile). Known limit: dropped entry accepted without a published digest. | H61 | none |
+| H60 | Lossy adapter transformation | 5 | covered by existing test | Producer record to replay to evidence pack to ODES round trip | `QL:suites/v1-scenarios/test_scn_c12.py::test_scn_c12_known_conversion_losses_and_unsupported_semantics_are_enumerated`<br>`QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_absent_unknown_redacted_are_schema_distinct`<br>`QL:suites/security-runtime/test_security_runtime_chain.py::test_odes_preserves_repaired_runtime_semantics`<br>`QL:suites/v1-scenarios/test_scn_c12.py::test_scn_c12_unknown_member_is_rejected_reported_or_preserved_never_silently_lost` | Unknown, absent and redacted do not collapse into success in the enumerated cases; profile-on records are refused by replay (F-4) and verifier (F-3), so the programme-2 shapes are not round-tripped. Known limit: replay (F-4) and verifier (F-3) refuse profile-on records. | F44 | none |
+| H61 | Count and coverage manipulation | 5 | partially covered | Evidence pack totals, duplicate records, selective subsets against a source population | `QL:suites/security-runtime/test_security_runtime_chain.py::test_evidence_pack_cannot_relabel_refusal_counts`<br>`QL:suites/v1-scenarios/test_scn_d08.py::test_scn_d08_planted_defects_detected`<br>`QL:suites/v1-scenarios/test_scn_c12.py::test_scn_c12_odes_retained_source_reference_removal_is_detected` | Refusal-count relabelling and planted defects are detected; a pack claiming complete coverage without reconciling its source population is not tested as such, and copied-evidence packs carry the D14 limit. | H59 | none |
+| H62 | Redaction and signing confusion | 5 | covered by existing test | Sign-then-redact, redact-then-sign, manual redaction, derived files | `QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_order_sign_then_redact_drops_the_signature`<br>`QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_order_sign_then_manual_redaction_is_detected`<br>`QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_redacted_derivative_is_explicitly_refused_downstream` | Each ordering has an asserted outcome. | none | none |
+| H63 | HMAC mistaken for independent attestation | 5 | covered by existing test | Replay export HMAC; pack and ODES surfacing of authentication | `QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_hmac_is_not_public_attestation_key_id_is_a_label`<br>`QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_hmac_not_surfaced_as_attestation_by_pack_or_odes`<br>`QL:suites/v1-scenarios/test_scn_c13.py::test_scn_c13_odes_rehash_forgery_keeps_authentication_unavailable` | A holder of the shared secret can forge a record and the stack labels the HMAC as non-independent. Residual: documentation that mentions an HMAC key that does not exist (R1 finding 5, fix in stream F1). | H57 | none |
+| H64 | Schema validity promoted to assurance | 5 | covered by existing test | ODES validators, replay importer, pack, verifier | `QL:suites/v1-scenarios/test_scn_c14.py::test_scn_c14_forged_authority_or_delivery_claims_are_not_validated`<br>`QL:suites/v1-scenarios/test_scn_c14.py::test_scn_c14_valid_envelope_grants_no_authority_and_proves_no_delivery`<br>`QL:suites/v1-probes/test_replay_probes.py::test_probe_delivery_incomplete_or_contradicted_record_is_refused_not_promoted_to_completion` | Structurally valid records claiming approval or completion are not promoted. | A08 | none |
+| H65 | Replay that causes effects | 5 | covered by existing test | Bundle open, import and verify paths; active references in bundles | `QL:suites/v1-scenarios/test_scn_c14.py::test_scn_c14_read_cannot_be_used_to_reach_the_destination`<br>`QL:suites/v1-scenarios/test_scn_c14.py::test_scn_c14_separate_consumer_without_replay_fails_closed`<br>`QL:suites/v1-scenarios/test_asw_s.py::test_asw_s02_route_c_substituted_replay_bundle_is_rejected_or_nonverification_disclosed` | Reading and importing do not reach a destination at the pinned revisions. Programme-2 additions (reaper, recovery, new importers) lack an unchanged-destination assertion; T02 extends it. | D25 | T02 |
+| H66 | Evidence importer resource abuse | 5 | partially covered | Wire budget, nesting and cycle limits in hub, verifier wire and importers | `HB:tests/test_wire_budget.py::test_cycles_and_excess_depth_fail_before_serialization`<br>`HB:tests/test_wire_budget.py::test_aggregate_budget_rejects_before_serialization`<br>`HB:tests/test_wire_budget.py::test_oversize_destination_input_never_opens_database` | Limits are tested in the hub wire budget and verifier wire parser. Replay and ODES importer limit parity and compressed inputs were not mapped, and nothing was run. | none | none |
+
+### I. Supply chain, release and test integrity
+
+| ID | Hypothesis | Tier | Class | Entry point | Existing tests (retained evidence) | Gap and unsupported surface | Related | Batch |
+|---|---|---|---|---|---|---|---|---|
+| I67 | Artifact swap after verification | 8 | partially covered | Pin check at install and import; OpenShell CLI digest; component checkout verification | `QL:suites/v1-scenarios/test_asw_s.py::test_asw_s01_drifted_component_checkout_is_refused_before_its_code_runs`<br>`QL:tests/test_security_checkout.py::test_untracked_ignored_staged_and_unstaged_refused_by_both_runners`<br>`QL:suites/v1-probes/test_runtime_probes.py::test_probe_credential_cli_binary_substitution_refused_by_digest` | Drift before use is refused. A swap between verification and load (time-of-check to time-of-use) is not exercised; owned by the deferred supply-chain stream (S3). | I69 | none |
+| I68 | Dependency and profile mismatch | 8 | covered by existing test | Contract matrix, V1 profile pins, component lock, profile exclusivity | `QL:tests/test_contract_matrix.py::test_unknown_version_is_refused`<br>`QL:tests/test_contract_matrix.py::test_same_draft_version_string_with_different_content_is_refused`<br>`QL:suites/v1-scenarios/test_asw_s.py::test_asw_s01_qualification_runner_refuses_a_drifted_component_set`<br>`QL:suites/cognous-execution-runtime/tests/test_profile_exclusivity.py::test_atomic_database_rejects_intent_activation_without_changes` | Unsupported combinations are refused at the contract matrix and profile exclusivity. The opt-in programme-2 profiles are not yet in the matrix (registry changed 121 to 139 codes under an unchanged label, R1 finding 4). | none | none |
+| I69 | Mutable release reference | 8 | partially covered | Workflow pins by sha, hub component-lock, tag and branch use in release tooling | `QL:suites/v1-scenarios/test_asw_s.py::test_asw_s01_positive_control_exact_pins_are_accepted_and_the_lock_is_observed`<br>`QL:tests/test_workflow_assembly_order.py::test_assembly_precedes_test_commands` | Hashes are used for component pins. No test moves a tag or branch after qualification and observes the release tooling; owned by S3. | I67, I70 | none |
+| I70 | Qualification evidence substitution | 8 | partially covered | Dashboard accounting, release evidence packet, import of accepted revisions | `QL:tests/test_qualification_dashboard.py::test_cannot_relabel_failed_workflow_successful`<br>`QL:tests/test_qualification_dashboard.py::test_changed_test_bytes_are_not_silently_covered`<br>`QL:suites/cognous-open-control-stack/tests/test_v1_release_evidence.py::test_old_population_cannot_be_relabelled_as_current_contract`<br>`QL:suites/v1-scenarios/test_asw_s.py::test_asw_s01_replay_import_rejects_unaccepted_component_revisions` | Relabelling and changed test bytes are detected. Results from another commit, fixture or workflow attempt are not systematically perturbed against the release evidence packet. | I74 | T18 |
+| I71 | Skipped or mocked checks presented as coverage | 8 | partially covered | Scenario coverage map; test-symbol existence; evaluator sentinels | `QL:tests/test_qualification_dashboard.py::test_missing_test_symbol_or_wrong_license_is_rejected`<br>`QL:suites/v1-scenarios/test_scn_c23.py::test_scn_c23_evaluators_are_alive_sentinels`<br>`QL:tests/test_v1_scope_reduction.py::test_reduced_row_is_never_counted_pass` | Symbol existence and reduced-row accounting are checked. Nothing checks that a cited test asserts destination state, is not skipped, or mocks below the relevant boundary. T20 audits this for the batch citations. | none | T20 |
+| I72 | Compromised evidence producer | 8 | partially covered | Test runner or adapter fabricating observations and a passing report | `QL:suites/v1-scenarios/test_scn_c23.py::test_scn_c23_effect_oracle_detects_seeded_effect_state_defects_and_passes_clean`<br>`QL:suites/v1-scenarios/test_add_test_g1.py::test_add_test_g1_test_identities_from_retained_junit_are_listed_and_verified`<br>`QL:tests/test_command_run_manifest.py::test_success_is_command_only` | Seeded defects and retained test identities give partial detection. An independent producer of evidence for the same run does not exist (CI and suite share one trust domain); the verifier-mutation suite tests detection power, not an adversarial producer. Known limit: single trust domain for runner and evidence. | H57, CH6 | none |
+| I73 | Security exclusion abuse | 8 | partially covered | Security coverage tool exclusions and review scope | `QL:tests/test_security_coverage.py::test_binary_and_symlinks_are_not_claimed_reviewed`<br>`QL:tests/test_security_coverage.py::test_python_screen_is_not_semantic_clearance`<br>`QL:tests/test_security_coverage.py::test_delta_distinguishes_new_review_scope` | Unreviewed classes are labelled as such. Broadening an exclusion or renaming a path while the dashboard stays green is not tested; owned by S3. | none | none |
+| I74 | Control-panel divergence | 8 | partially covered | Hub release-closeout control panel (md plus companion JSON), failure register, scenario report | `QL:tests/test_failure_register.py::test_validation_refuses_overclaims`<br>`QL:tests/test_qualification_dashboard.py::test_workflow_pass_does_not_accept_cases_or_components`<br>`QL:tests/test_scenario_report.py::test_dashboard_carries_the_section_without_changing_scenario_verdicts` | Dashboards are derived and refuse overclaims. The hub control panel is hand-edited markdown with a companion JSON and no test compares it with the failure register. Hub bytes are frozen, so a fix is a coordinator follow-up; a read-only checker can live here. | I70 | T18 |
+| I75 | Cross-adapter semantic drift | 8 | partially covered | Same frozen request through native, OpenShell (mock), OpenAPPA and Microsoft AGT paths | `QL:suites/cognous-open-control-stack/tests/test_openappa_optional_compat.py::test_cognous_denial_blocks_even_when_openappa_allows`<br>`QL:suites/cognous-open-control-stack/tests/test_comparative_governance.py::test_wrong_exact_reason_fails_even_with_effect_and_audit_conformance`<br>`QL:suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_local_restriction_prevents_sandbox_dispatch` | Optional OpenAPPA compatibility and comparative governance exist; the same frozen request has not been replayed across all adapters, the live OpenShell and Microsoft AGT paths are unavailable, and OpenAPPA is optional and not in the core lock. Known limit: live OpenShell and AGT unexercised. | A03 | none |
+
+## 6. Compound chains
+
+| Chain | Sequence | Legs | Class | Note |
+|---|---|---|---|---|
+| CH1 | Malicious retrieved evidence, poisoned context, payload substitution, legitimate executor credentials | F41, A01, D30 | partially covered | Links are each covered (SCN-ASW-P01, SCN-D02, SCN-C11) but not composed. A composed test needs a payload that survives the injection stage and reaches a credentialed destination; T04 and T16 supply the substitution and credential legs. The context-poisoning stage has no model in V1. |
+| CH2 | Revoked grant, stale cache, partitioned worker, late commit, misleading verified export | B09, B12, C23, H55 | partially covered | Offline-testable as a single sequence on one host (revoke, cache-age, paused worker, late commit, export, verify) using the delayed-commit destination and the barrier pause points; T08 and T12 are its legs. A real partition needs a second host, which does not exist. |
+| CH3 | Lost acknowledgement, new effect id, concurrent retry, duplicate business effect | C17, C22, C20 | partially covered | Characterised as a known limitation: default routes do not prevent a business-level duplicate (F-5, F-18). T11 runs the full chain per configuration (default, operation identity on, refund intent on route B). |
+| CH4 | Copied attestations, inflated confidence, supported claim treated as authority, unauthorized action | E38, A08, B15 | not covered, testable offline | Offline-testable and expected to be refused at the last link: issue #42 records that the Index has no path into control-plane decisions, and SCN-C03 shows forged evidence never becomes authority. The copied-evidence step reproduces F-19 and the chain end-to-end is not run. |
+| CH5 | Manifest downgrade, alternate adapter route, broader credentials, incomplete replay record | A05, A03, D30, H59 | partially covered | Legs covered separately; the downgrade leg depends on R1 finding 1 (rule-revision forwarding) and the replay leg is refused for profile-on records (F-4). T19, T15 and T06 are the legs. |
+| CH6 | Compromised executor, forged observation, evidence-pack transformation, false independent assurance | H57, H55, H60, H63 | partially covered | Needs an independent observer to be preventable (capability absent); the transformation and labelling legs are covered. An offline run can only show what the stack labels, not that it detects. |
+| CH7 | Child-agent delegation, aggregate-budget evasion, cancellation gap, continued effects after suspension | G49, G47, G50, G51 | needs a capability that does not exist | Delegation, cancellation and fleet suspension do not exist; only the aggregate-budget leg (G47) is offline-testable. |
+| CH8 | Passing qualification on one commit, mutable release reference, artifact substitution, false release readiness | I70, I69, I67 | partially covered | Pin and relabel checks exist; tag/branch movement and time-of-check swap are owned by the deferred supply-chain stream (S3). |
+
+No chain is covered end to end by a retained test; chains are classed by their weakest leg.
+
+## 7. Batch 1: at most 20 tests to build next
+
+Selection: tier order first, then the planning score, with at most one test per distinct mechanism. Every test must assert destination state independently of executor acknowledgements, use deterministic barriers (the existing pause points) for races, record event order, run twice from fresh stores and compare normalised observations (existing harness convention D3), and include a positive control. Each carries an overlap flag against the deferred security reviews S1, S2, S3 so they can be merged into those streams if the owner prefers.
+
+| Test | Title | Tier | Ideas | Overlap |
+|---|---|---|---|---|
+| T01 | Direct-call matrix over every destination class | 1 | D25 | S1 code attacks |
+| T02 | Non-dispatching entry points leave destinations unchanged | 1 | D25, H65, G54 | S1 code attacks |
+| T03 | Raw-ingress canonicalization differential at acp run | 2 | A06, A01, A07 | S1 code attacks |
+| T04 | Every-field post-approval mutation completeness | 2 | A01, A02, A04, A07 | S1 code attacks |
+| T05 | Target equivalence and prefix semantics | 2 | A02 | S1 code attacks |
+| T06 | Adapter identity versus implementation | 2 | A03 | S1 code attacks |
+| T07 | Authority ABA | 3 | B15 | S1 code attacks |
+| T08 | Revocation against the delayed-commit destination: prevented or detected only | 3 | B09, B10, B16 | none |
+| T09 | Expiry equality and offset across evaluators | 3 | B13 | none |
+| T10 | Rollback of programme-2 state | 3 | B14 | none |
+| T11 | C3 chain per configuration | 4 | C22, C17, C20 | none |
+| T12 | Stale worker resumes after lease or deadline expiry | 4 | C23, B12 | none |
+| T13 | Real process kill at every persistence boundary | 4 | C18, C19 | none |
+| T14 | Observation field matrix | 5 | H55, H56, H58 | S2 verifier red team |
+| T15 | Profile-flag forwarding completeness | 6 | D32, A05 | none |
+| T16 | Canary-secret sweep over every artifact | 6 | D31 | S1 code attacks |
+| T17 | Last-unit budget race and grant multiplication | 7 | G47, G48 | none |
+| T18 | Control-panel and results consistency checker | 8 | I74, I70 | S3 supply chain |
+| T19 | Rule-revision downgrade | 2 | A05, F46 | none |
+| T20 | Coverage-claim audit of cited tests | 8 | I71 | S3 supply chain |
+
+### T01. Direct-call matrix over every destination class
+
+- **ID / hypothesis:** T01; ideas D25 (tier 1, Direct execution bypass)
+- **Attacker capability:** Holder of a destination object or database path who calls its public methods directly
+- **Component, commit and entry point:** RT `fc034d14`, CP `128eaa5e`, HB `afca5bbd` at mains; Public commit, execute_snapshot and apply methods of each destination class at component mains, including the delayed-commit and operation-key destinations added after the SCN-D09 table
+- **Boundary and invariant:** Without a valid effective-grant row and matching claim, no effect row appears, on every destination class that claims to enforce authority; a base destination that accepts the call is listed, not hidden
+- **Minimal fixture and perturbation:** Fresh store per destination class; one approved operation; call each public method with no grant, an expired grant, a revoked grant and a wrong-tenant grant
+- **Expected decision and independently observed destination state:** Refusal on every authority-enforcing class; destination row count read from the database file independently of the return value; base destination recorded as detected-only/not applicable by design
+- **Positive control:** The same call with a valid grant commits exactly one row
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Raw SQL by the database-file holder and live OpenShell remain out of model
+- **Overlap with deferred streams:** S1 code attacks
+
+### T02. Non-dispatching entry points leave destinations unchanged
+
+- **ID / hypothesis:** T02; ideas D25, H65, G54 (tier 1, Direct execution bypass)
+- **Attacker capability:** Any caller of reaper, recovery, replay import, evidence-pack, ODES and acp read-only commands
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14`, RP `d0e7b368`, EP `fa7cd7eb`, OD `bcbaf4b1` at mains; Reaper thread and sweeps, check-lease recovery, replay import, evidence-pack build, ODES export, acp witness and read-only commands
+- **Boundary and invariant:** These paths never create, change or delete a destination row or a claim
+- **Minimal fixture and perturbation:** Destination with one landed effect and one unresolved attempt; hash every table and file before and after each entry point, including under a flood of malformed inputs
+- **Expected decision and independently observed destination state:** Destination hash unchanged for every entry point; reaper death is observed (R1 finding 6) and recorded as inconclusive if undetectable
+- **Positive control:** A dispatching entry (execute) changes the hash, proving the observer can see change
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** New entry points added after this plan are not covered
+- **Overlap with deferred streams:** S1 code attacks
+
+### T03. Raw-ingress canonicalization differential at acp run
+
+- **ID / hypothesis:** T03; ideas A06, A01, A07 (tier 2, Payload, target, adapter and tenant substitution)
+- **Attacker capability:** Author of the JSON input file
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14` at mains; cli_run._load_json (json.loads: last duplicate member wins, NaN accepted) into the proposal model, commitment and destination row
+- **Boundary and invariant:** What was approved is byte-for-byte what the destination receives; duplicate keys, NaN or Infinity, BOM or trailing data, NFC against NFD text and number spellings (1, 1.0, 1e0) are refused or normalised identically on both sides
+- **Minimal fixture and perturbation:** One proposal file with a perturbation per case; run through acp run; compare the approved commitment with the stored operation
+- **Expected decision and independently observed destination state:** Refusal, or equal commitment and destination operation; any difference is a reproduced failure
+- **Positive control:** Unperturbed file executes once with equal commitment
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Other ingress formats and the library API are separate
+- **Overlap with deferred streams:** S1 code attacks
+
+### T04. Every-field post-approval mutation completeness
+
+- **ID / hypothesis:** T04; ideas A01, A02, A04, A07 (tier 2, Payload, target, adapter and tenant substitution)
+- **Attacker capability:** Holder of the approved envelope or claim between decision and effect
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14`, EX `d8d44c1b` at mains; Routes A, B and C; the 23-member FrozenOperation, AuthorizationBinding and the claim row
+- **Boundary and invariant:** Mutating any single member or nested payload key after approval, including run_id and correlation_id, either changes the commitment and is refused, or is listed as unbound with the reason
+- **Minimal fixture and perturbation:** One approved operation per route; mutate each member in turn (generated from the model members so a new member forces a new case)
+- **Expected decision and independently observed destination state:** Refusal with no destination row for every bound member; unbound members listed explicitly
+- **Positive control:** Unmutated operation executes once
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Adapter-internal behaviour is not covered (see T06)
+- **Overlap with deferred streams:** S1 code attacks
+
+### T05. Target equivalence and prefix semantics
+
+- **ID / hypothesis:** T05; ideas A02 (tier 2, Payload, target, adapter and tenant substitution)
+- **Attacker capability:** Proposer choosing the target string
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14` at mains; CP exact-membership target check (bounded.py) versus RT SafeLocalPolicy startswith on allowed prefixes
+- **Boundary and invariant:** The two evaluators agree on which targets are allowed; a target that extends a prefix (acct-1 against acct-10), differs in case, separator, Unicode form or trailing space is refused by both or the difference is recorded
+- **Minimal fixture and perturbation:** Grant for one target; a table of equivalent and near-equivalent spellings evaluated on both routes
+- **Expected decision and independently observed destination state:** Same decision from both evaluators for every row; a disagreement is a reproduced failure
+- **Positive control:** Exact target allowed on both
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Resolver-level alias remap has no V1 referent
+- **Overlap with deferred streams:** S1 code attacks
+
+### T06. Adapter identity versus implementation
+
+- **ID / hypothesis:** T06; ideas A03 (tier 2, Payload, target, adapter and tenant substitution)
+- **Attacker capability:** Party who can replace adapter code or configuration behind an unchanged adapter id
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14` at mains; Adapter id binding (CP) and ControlPlaneRefundDestinationAdapter; ledger verification
+- **Boundary and invariant:** A swapped implementation under the same id is detected after the fact by the ledger, or the gap is recorded as accepted limit E6
+- **Minimal fixture and perturbation:** Registered adapter, then a lookalike class with the same id that writes a different amount
+- **Expected decision and independently observed destination state:** Result is detected only (ledger shows the mismatch) or reproduced failure; never recorded as prevented
+- **Positive control:** Registered adapter yields a consistent ledger
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Prevention needs adapter attestation (absent)
+- **Overlap with deferred streams:** S1 code attacks
+
+### T07. Authority ABA
+
+- **ID / hypothesis:** T07; ideas B15 (tier 3, Revocation and approval withdrawal at the commit boundary)
+- **Attacker capability:** Administrator who revokes and recreates a grant with the same id
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14` at mains; Grant resolver (id, revision), effect_id, RT provision_claim and authority_grants_v1
+- **Boundary and invariant:** An approval or claim made against the first grant cannot spend authority of a re-created grant unless it is bound by revision and status; the provisioning refusal on differing rows holds
+- **Minimal fixture and perturbation:** Grant G rev 1 approved, revoked, recreated as G rev 1 (and rev 2) with identical fields; attempt execute on routes A and B
+- **Expected decision and independently observed destination state:** Refusal and no destination row, or reproduced failure documenting which field distinguishes the grants
+- **Positive control:** Original grant executes once before revocation
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Resolver implementations are external
+- **Overlap with deferred streams:** S1 code attacks
+
+### T08. Revocation against the delayed-commit destination: prevented or detected only
+
+- **ID / hypothesis:** T08; ideas B09, B10, B16 (tier 3, Revocation and approval withdrawal at the commit boundary)
+- **Attacker capability:** Revoker acting at a chosen point of the commit sequence
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14` at mains; Route A default (C0), effective-grant destination, route B, and the delayed-commit destination with its pause points
+- **Boundary and invariant:** Per route, revocation placed before, inside and after the destination transaction is classified prevented or detected only and the classification matches the documented checkpoint level
+- **Minimal fixture and perturbation:** Deterministic barrier at each pause point; event order recorded; destination rows read independently
+- **Expected decision and independently observed destination state:** Prevented on atomic routes; detected only on default route A; any mismatch is a reproduced failure
+- **Positive control:** No revocation yields exactly one effect
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** C0 race on default route A is by design
+- **Overlap with deferred streams:** none
+
+### T09. Expiry equality and offset across evaluators
+
+- **ID / hypothesis:** T09; ideas B13 (tier 3, Revocation and approval withdrawal at the commit boundary)
+- **Attacker capability:** Proposer controlling timestamps and offsets
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14`, OD `bcbaf4b1` at mains; CP clock, destination _trusted_now, ODES recipient clock
+- **Boundary and invariant:** At the exact expiry instant and with equivalent offsets (Z, +00:00, +01:00 shifted) all evaluators agree
+- **Minimal fixture and perturbation:** Grant and evidence expiring at T; evaluate at T-1us, T, T+1us with equivalent offsets on each evaluator
+- **Expected decision and independently observed destination state:** Identical accept or refuse decision per instant across evaluators
+- **Positive control:** Mid-validity instant accepted by all
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Real clock skew between hosts is not modelled
+- **Overlap with deferred streams:** none
+
+### T10. Rollback of programme-2 state
+
+- **ID / hypothesis:** T10; ideas B14 (tier 3, Revocation and approval withdrawal at the commit boundary)
+- **Attacker capability:** Operator restoring a database or store from backup
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14` at mains; Restore of operation-key table, effect budgets under the R2 key, freshness floors and witness ledger
+- **Boundary and invariant:** After restoring an older copy, a spent operation key, budget unit or published witness digest is either still enforced or the loss is detected by a prior digest; undetected loss is recorded
+- **Minimal fixture and perturbation:** Spend a key and a budget unit, snapshot, spend again, restore the earlier snapshot, retry
+- **Expected decision and independently observed destination state:** Prevented, detected only (witness) or reproduced failure per table; SCN-D07 classification extended, not replaced
+- **Positive control:** No restore gives the refusal
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Prevention needs an external anchor (absent)
+- **Overlap with deferred streams:** none
+
+### T11. C3 chain per configuration
+
+- **ID / hypothesis:** T11; ideas C22, C17, C20 (tier 4, Duplicate effects after unknown delivery)
+- **Attacker capability:** Retrying client with a re-planned proposal
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14`, EX `d8d44c1b` at mains; Lost ack, re-plan with new effect id, concurrent retry, on default, operation-identity-on and refund-intent routes
+- **Boundary and invariant:** Count business-level effects per configuration; default configurations may duplicate (known), opt-in ones must not
+- **Minimal fixture and perturbation:** One business request; lost ack; second proposal with new effect_id; two concurrent submissions with a barrier
+- **Expected decision and independently observed destination state:** Effect count per configuration recorded from destination rows; default duplicate is recorded as reproduced known failure, not hidden
+- **Positive control:** Single submission yields one effect
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Logical-intent prevention is not implemented
+- **Overlap with deferred streams:** none
+
+### T12. Stale worker resumes after lease or deadline expiry
+
+- **ID / hypothesis:** T12; ideas C23, B12 (tier 4, Duplicate effects after unknown delivery)
+- **Attacker capability:** Worker paused by the scheduler, resumed after takeover
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14` at mains; Freshness profile gate, delayed-commit pause point, destination commit
+- **Boundary and invariant:** A resumed worker whose lease has expired is refused at the destination or its effect is detected; no second effect
+- **Minimal fixture and perturbation:** Worker A pauses after the gate; lease expires; worker B takes over and commits; A resumes
+- **Expected decision and independently observed destination state:** Prevented by effect-id dedupe; the destination-enforced fencing absence recorded as residual
+- **Positive control:** Without takeover A commits once
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Same-host flock only; no cross-host fencing
+- **Overlap with deferred streams:** none
+
+### T13. Real process kill at every persistence boundary
+
+- **ID / hypothesis:** T13; ideas C18, C19 (tier 4, Duplicate effects after unknown delivery)
+- **Attacker capability:** Operator or fault killing the process
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14`, EX `d8d44c1b` at mains; Routes A and C (BaseException model today) and programme-2 write points: journal, join row, operation key, witness
+- **Boundary and invariant:** After SIGKILL at each boundary and restart, destination holds at most one effect and no state claims success without it
+- **Minimal fixture and perturbation:** Subprocess killed at barrier N for each boundary; restart; read destination
+- **Expected decision and independently observed destination state:** At most one effect per boundary; any state that over- or under-claims is a reproduced failure
+- **Positive control:** No kill yields one effect
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Machine crash and fsync loss are not modelled
+- **Overlap with deferred streams:** none
+
+### T14. Observation field matrix
+
+- **ID / hypothesis:** T14; ideas H55, H56, H58 (tier 5, Forged observation and false verified completion)
+- **Attacker capability:** Executor or party who writes observations
+- **Component, commit and entry point:** RP `d0e7b368`, VF `05afab84`, RT `fc034d14` at mains; Replay import, verifier, effect oracle
+- **Boundary and invariant:** A genuine observation with one field changed (effect, target, tenant, amount, interval) or a matching state written by another actor is never counted as verified completion
+- **Minimal fixture and perturbation:** One verified run; substitute each field in turn from another genuine run; add an unrelated matching row
+- **Expected decision and independently observed destination state:** Not verified for every substitution; ack-only run not verified
+- **Positive control:** Unchanged observation yields verified
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Verifier refuses profile-on records until J1 (F-3)
+- **Overlap with deferred streams:** S2 verifier red team
+
+### T15. Profile-flag forwarding completeness
+
+- **ID / hypothesis:** T15; ideas D32, A05 (tier 6, Credential and isolation boundaries)
+- **Attacker capability:** Misconfiguration or older caller
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14`, EX `d8d44c1b` at mains; Every adapter and executor constructor that accepts a profile flag
+- **Boundary and invariant:** A profile set at the control plane is forwarded to every adapter and enforced at effect time, or construction fails; none is silently dropped
+- **Minimal fixture and perturbation:** Generate all combinations of rule-revision, freshness, operation-identity, witness, holder inventory flags
+- **Expected decision and independently observed destination state:** Flag effective or refusal at construction; silent drop is a reproduced failure (known: R1 finding 1)
+- **Positive control:** All flags on yields all enforced
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Fix is in stream F1; this test is its regression guard
+- **Overlap with deferred streams:** none
+
+### T16. Canary-secret sweep over every artifact
+
+- **ID / hypothesis:** T16; ideas D31 (tier 6, Credential and isolation boundaries)
+- **Attacker capability:** Reader of any produced file, log or exception
+- **Component, commit and entry point:** RT `fc034d14`, CP `128eaa5e`, RP `d0e7b368`, EP `fa7cd7eb`, OD `bcbaf4b1` at mains; All outputs, including programme-2 profiles and acp run stderr
+- **Boundary and invariant:** A seeded canary secret appears in no artifact in plain text, base64, hex or JSON-escaped form
+- **Minimal fixture and perturbation:** Canary as credential and in payload; run success, refusal and crash paths; scan
+- **Expected decision and independently observed destination state:** No occurrence; any hit is a reproduced failure
+- **Positive control:** Scanner finds a canary planted deliberately
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Subprocess environment of live OpenShell untested
+- **Overlap with deferred streams:** S1 code attacks
+
+### T17. Last-unit budget race and grant multiplication
+
+- **ID / hypothesis:** T17; ideas G47, G48 (tier 7, Shared budget, cancellation and delegation)
+- **Attacker capability:** Several workers or one actor with several grants
+- **Component, commit and entry point:** CP `128eaa5e`, RT `fc034d14`, EX `d8d44c1b` at mains; Route C and adapter route last unit; route B budget; N grants of cap 1
+- **Boundary and invariant:** Last unit is spent once under barriers; grant multiplication across N grants is measured and reported as characterised
+- **Minimal fixture and perturbation:** Barrier before the commit; two workers on the final unit; N grants splitting one prohibited total
+- **Expected decision and independently observed destination state:** One effect for last unit; aggregate for N grants recorded as detected-only or reproduced failure
+- **Positive control:** Single worker spends the last unit once
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** No cross-grant ceiling exists
+- **Overlap with deferred streams:** none
+
+### T18. Control-panel and results consistency checker
+
+- **ID / hypothesis:** T18; ideas I74, I70 (tier 8, Release evidence and artifact mismatches)
+- **Attacker capability:** Editor of release summaries
+- **Component, commit and entry point:** HB `afca5bbd`, QL `580882d1` at mains; Hub release-closeout control panel (md and json), failure register, scenario report
+- **Boundary and invariant:** Markdown, companion JSON and failure register agree; a status changed in one without evidence is flagged; read-only
+- **Minimal fixture and perturbation:** Mutate a status in each artifact copy; run checker
+- **Expected decision and independently observed destination state:** Flagged for every divergence
+- **Positive control:** Consistent copies pass
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Hub edits are frozen; any fix is a coordinator follow-up
+- **Overlap with deferred streams:** S3 supply chain
+
+### T19. Rule-revision downgrade
+
+- **ID / hypothesis:** T19; ideas A05, F46 (tier 2, Payload, target, adapter and tenant substitution)
+- **Attacker capability:** Policy editor presenting an older or unadopted policy
+- **Component, commit and entry point:** CP `128eaa5e`, AM `2c36bcd0`, IG `cbc39e79` at mains; Rule-revision chain and effect-time digest check, through CP and the RT adapter
+- **Boundary and invariant:** A previously adopted, since superseded digest is not accepted as current; an unadopted digest is refused at effect time
+- **Minimal fixture and perturbation:** Adopt P1, adopt P2, then present P1 at decide and at effect
+- **Expected decision and independently observed destination state:** Refusal at both points
+- **Positive control:** P2 accepted
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Manifest signatures do not exist
+- **Overlap with deferred streams:** none
+
+### T20. Coverage-claim audit of cited tests
+
+- **ID / hypothesis:** T20; ideas I71 (tier 8, Release evidence and artifact mismatches)
+- **Attacker capability:** Reviewer relying on a retained test as coverage
+- **Component, commit and entry point:** QL `580882d1` at mains; Static scan of the tests cited in this plan
+- **Boundary and invariant:** Each cited test exists, is not skipped or xfailed, and asserts destination state, not only a return value; mocks below the boundary are listed
+- **Minimal fixture and perturbation:** AST scan plus a per-test annotation table
+- **Expected decision and independently observed destination state:** Per-test flags; tests that fail the audit are downgraded in this plan
+- **Positive control:** A known-good scenario test passes the audit
+- **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
+- **Residual limits:** Static analysis cannot prove assertion quality
+- **Overlap with deferred streams:** S3 supply chain
+
+## 8. Unsupported surfaces
+
+Hypotheses that touch these are preserved, classed as needing a capability or as partial, and cannot be settled by an offline test.
+
+| Surface | Why it matters here |
+|---|---|
+| Live OpenShell gateway, image and CLI | W6 blocked; D27, D28, D29 and part of D31 depend on it |
+| Credential broker | SCN-C11 INCONCLUSIVE; local credential holders bypass the control plane by design |
+| Independently operated observer | H57, CH6; V1 producer and verifier share a trust domain |
+| External anchor for rollback | SCN-D07 INCONCLUSIVE; B14 prevention |
+| Delegation in the control plane | parent_grant_id is refused (delegation_profile_unsupported); G49, G45 partly |
+| Cancellation, parent/child task graph, fleet suspension | G50, G51; SCN-C19 unimplemented (D9) |
+| Compensation or rollback action | C24; effect-reversibility is a draft ODES contract |
+| Cross-grant aggregate ceilings | G47 boundary; SCN-C16 independent budgets |
+| Cross-host fencing | N3 lease is a same-host flock; C23, CH2 |
+| Adapter attestation (code digest) | E6; A03 prevention |
+| Model-in-the-loop behaviour | F41, F42, F44 test code paths only; no model is exercised |
+| Governed memory | decision D6; F43 |
+| Windows and macOS | decision D2, Linux only; D26 platform path rules |
+| Production resolver authentication | resolver assurance is a reference profile |
+| Logical-intent duplicate prevention | C22, CH3; not implemented, adopted or qualified |
+| Ingress rate limiter, review queue, emergency path | G54 |
+| Policy-adoption flow | SCN-C20 unimplemented (D9); F46 |
+| Conflicting proposals, queueing | SCN-C05, SCN-C15 unimplemented (D9) |
+| Replay and verifier handling of profile-on records | F-4, F-3 until J1; limits H60, T14 |
+| Microsoft AGT adapter, OpenAPPA beyond optional compat | I75 |
+
+## 9. Known findings and decisions used
+
+- **F-1..F-7** (Orchestrator development/programme-2-gap-report.md): overlay results; F-5 atomic route double-commits at cap 2 after renewal (default); opt-in operation key merged in runtime fc034d14.
+- **R1 findings 1, 2, 3, 4, 5, 6, 9** (issues #42 and #43): 1 adapter drops rule_revision_profile unless freshness is on; 2 signer and issuer are asserted strings; 3 extension limit trusts the row base; 4 registry changed 121 to 139 under an unchanged label; 5 docs mention an HMAC key that does not exist; 6 reaper thread dies silently; 9 acp run echoes untrusted member names to stderr. Fixes were in flight in stream F1 when this was written.
+- **Addenda audit** (claim-level status of the engineering addenda (A1 stream)): used for GR-1853 adapter digest deferral and E6.
+- **Decisions that bound this plan:** D2 Linux only; D4 no extension families; D6 governed memory out of scope; D8 PRP and TFA removed; D9 SCN-C05, C15, C19, C20, C21 and A01 unimplemented; D13/D15 partial-coverage rows and reduced scope; D14/F-19 Index copied-evidence limit. Other limits: delegation is refused, there is no merge concept, the check lease is a same-host flock, and the base destination holds no authority state by design (SCN-D09).
+- **Code-reading leads (hypotheses, nothing run):** `acp run` uses plain `json.loads` (last duplicate key wins, NaN accepted) before model validation; the runtime local policy matches targets with `startswith` where the control plane uses exact membership; no test covers revoking and recreating a grant with the same id; the Index `list_evidence` pagination has no test.
+
+## 10. What could not be mapped
+
+- The 5 Oct 2026 consolidated recommendations document was not available; the brainstorm text is the only input.
+- Index API pagination and ordering semantics were read at signature level only.
+- Replay and ODES importer resource-limit parity and compressed inputs.
+- Exchange (route C) budget semantics beyond what SCN-C16 states.
+- ODES validators (fixture counts only); acp subcommands other than run and witness; the ocs CLI.
+- No existing suite was executed for this plan; every retained test is evidence from its own earlier runs, not newly executed work.
+
+## 11. Owner decisions needed
+
+- Hub control-panel links and any checker wiring: hub bytes are frozen, so the coordinator must decide.
+- Disclosure policy for any reproduced failure: repositories are public; use the SECURITY.md channel before publishing details.
+- Sequencing against the deferred security reviews S1 (code attacks), S2 (verifier red team) and S3 (supply chain); overlap flags are on each batch test.
+- Pin policy: new suites are red at V1 pins by design; run them as an overlay at component mains and leave pin bumps to the coordinator batch.
+- Whether batch tests become scenario-catalogue entries or stay under process/adversarial, and how the batch result vocabulary maps to catalogue statuses; the vocabulary must not feed the v1_validation verdict.
+- Acceptance of F43 (memory poisoning) as not applicable under D6.
+- The brainstorm says do not merge; the programme brief pre-authorises self-merge of green PRs. The brief was followed; this PR is documentation and a static consistency test only.
+
+## 12. Process notes
+
+This file and its JSON twin are the only deliverables of the mapping phase. No attack or exploit probe was run, no pins were moved, and no controller run was made. A guard test, `tests/test_adversarial_plan.py`, checks identifiers, vocabulary, counts against this document, the batch size limit, that every result is `not tested`, and that qualification-repo citations exist.
