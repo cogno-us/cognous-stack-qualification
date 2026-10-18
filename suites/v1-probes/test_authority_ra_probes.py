@@ -34,6 +34,18 @@ def make(tmp_path, **kw):
     return t.setup_flow(tmp_path, **kw)
 
 
+def _reasons_registry():
+    """The current reason registry of the checkout: 0.2 (the 157-code superset a current control plane emits). The frozen V1 pin predates
+    0.2 and only has the original 0.1 (121 codes); these two probes assert registry shape only (not a code count), which holds for both."""
+    import os
+    from pathlib import Path
+    schemas = Path(os.environ["PROBE_CONTROL_PLANE_DIR"]) / "schemas"
+    path = schemas / "runtime_authority_reasons_0_2.json"
+    if not path.exists():
+        path = schemas / "runtime_authority_reasons_0_1.json"
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def events(f):
     return [e.model_dump(mode="json") for e in f.records.load().check_events]
 
@@ -518,8 +530,7 @@ def test_probe_addauthra_hold_and_refusal_rows_carry_the_vocabulary_version_and_
 def test_probe_addauthra_registry_declares_operands_for_every_recomputable_code_and_none_for_typed_only(tmp_path):
     from pathlib import Path
     import os
-    registry = json.loads((Path(os.environ["PROBE_CONTROL_PLANE_DIR"]) / "schemas" / "runtime_authority_reasons_0_1.json")
-                          .read_text(encoding="utf-8"))
+    registry = _reasons_registry()
     kinds = Counter(v["reason_kind"] for v in registry["codes"].values())
     assert set(kinds) <= {"recomputable", "typed_only"} and kinds["recomputable"] >= 1
     for code, spec in registry["codes"].items():
@@ -651,7 +662,7 @@ def test_probe_addauthra_registry_declares_applicable_reopen_predicates(tmp_path
     """Addendum K5: 'The governed registry defines each code, meaning, reason_kind, operand schema and applicable reopen predicates.'"""
     import os
     from pathlib import Path
-    registry = json.loads((Path(os.environ["PROBE_CONTROL_PLANE_DIR"]) / "schemas" / "runtime_authority_reasons_0_1.json").read_text(encoding="utf-8"))
+    registry = _reasons_registry()
     for code in ("status_unreadable", "grant_revoked"):  # the two codes for which the gate emits a reopen_condition
         assert any("reopen" in key for key in registry["codes"][code]), f"{code}: registry entry {sorted(registry['codes'][code])} has no reopen predicate"
 

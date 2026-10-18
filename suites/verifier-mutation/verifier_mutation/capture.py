@@ -44,7 +44,7 @@ def capture(control_plane: Path, out: Path) -> dict[str, Any]:
 
     bounded._now = lambda: NOW  # fixed synthetic clock, as the control plane's own suite does
     revision = subprocess.run(["git", "-C", str(cp), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
-    registry = cp / "schemas" / "runtime_authority_reasons_0_1.json"
+    registry = cp / "schemas" / "runtime_authority_reasons_0_2.json"  # 0.2 = the 157-code superset a current control plane emits (0.1 stays the original 121)
     work = Path(tempfile.mkdtemp(prefix="vm-capture-"))
     if out.exists():
         shutil.rmtree(out)
@@ -264,7 +264,7 @@ def capture_witnessed(control_plane: Path, out: Path) -> dict[str, Any]:
 
     bounded._now = lambda: NOW
     revision = subprocess.run(["git", "-C", str(cp), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
-    registry = cp / "schemas" / "runtime_authority_reasons_0_1.json"
+    registry = cp / "schemas" / "runtime_authority_reasons_0_2.json"  # 0.2 = the 157-code superset a current control plane emits (0.1 stays the original 121)
     acp = Path(sys.executable).parent / "acp"
     work = Path(tempfile.mkdtemp(prefix="vm-capture-witnessed-"))
     if out.exists():

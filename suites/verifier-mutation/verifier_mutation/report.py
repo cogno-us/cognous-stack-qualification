@@ -97,6 +97,15 @@ def _tally(outcomes: Sequence[Outcome]) -> dict[str, int]:
     return {"reject": c["reject"], "accept": c["accept"], "abstain": c["abstain"], "error": c["error"]}
 
 
+INPUT_ERROR_DETAIL = "exit 2, no report"  # the runner's detail for a run that exited 2 without a report
+
+
+def _input_error_met(r: "Result") -> bool:
+    """An input-error control (expected_outcome input_error) whose run exited 2 with no report: the expected outcome, not a runtime error."""
+    return (r.slot.expected_outcome == "input_error" and r.outcome is not None and r.outcome.verdict == "error"
+            and r.outcome.detail.startswith(INPUT_ERROR_DETAIL))
+
+
 def _intended_hit(outcome: Outcome, intended: Sequence[str]) -> bool:
     return outcome.verdict == "reject" and bool(outcome.codes & set(intended))
 
@@ -229,12 +238,25 @@ def flags(run: Run, seeds: SeedCorpus | None) -> list[dict[str, Any]]:
     clean = list(run.clean.values())
     if clean and all(o.verdict == "reject" for o in clean):
         out.append({"id": "rejects_every_clean_trace", "k": len(clean), "n": len(clean), "detail": "the verifier rejected every clean trace: its detection figures say nothing"})
-    errors = sum(1 for o in clean if o.verdict == "error") + sum(1 for r in eff if r.outcome.verdict == "error")  # type: ignore[union-attr]
+    errors = sum(1 for o in clean if o.verdict == "error") + sum(1 for r in eff if r.outcome.verdict == "error" and not _input_error_met(r))  # type: ignore[union-attr]
     if errors:
         out.append({"id": "errors_present", "k": errors, "n": len(clean) + len(eff), "detail": "runs with no usable report (crash, time-out, invalid report); never counted as detection"})
     if seeds is not None and seeds.valid and all(o.verdict == "reject" for _, o in run.seed_valid):
         out.append({"id": "rejects_every_valid_seed", "k": len(run.seed_valid), "n": len(run.seed_valid), "detail": "the verifier rejected every valid ODES fixture"})
     return out
+
+
+def input_error_controls(run: Run) -> list[dict[str, Any]]:
+    """Per input-error control operator (ODES decision 30-A): effective slots, those that exited 2 with no report as expected, and the rest
+    (any other outcome is a finding). Counted aside: these runs are in the category row's ``error`` count (the report contract has no row-level
+    input_error), never in detection."""
+    by: dict[str, list[Result]] = defaultdict(list)
+    for r in run.results:
+        if r.slot.expected_outcome == "input_error" and r.slot.status == "effective":
+            by[r.slot.operator_id].append(r)
+    return [{"operator_id": oid, "expected_outcome": "input_error", "n_eff": len(rs), "exit_2_no_report": sum(1 for r in rs if _input_error_met(r)),
+             "other": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict}" for r in rs if not _input_error_met(r))}  # type: ignore[union-attr]
+            for oid, rs in sorted(by.items())]
 
 
 def witnessed_flags(run: Run) -> list[dict[str, Any]]:
@@ -247,7 +269,7 @@ def witnessed_flags(run: Run) -> list[dict[str, Any]]:
                     "detail": "the verifier rejected none of the effective H1 to H6 mutants (is it given the witness and inventory?)"})
     if eff and all(r.outcome.verdict == "accept" for r in eff):  # type: ignore[union-attr]
         out.append({"id": "witnessed_accepts_every_mutant", "k": len(eff), "n": len(eff), "detail": "every effective witnessed mutant was accepted"})
-    controls = [r for r in eff if r.slot.category in ("H7", "H8")]
+    controls = [r for r in eff if r.slot.category in ("H7", "H8") and r.slot.expected_outcome != "input_error"]
     if controls and not any(r.outcome.verdict == "abstain" for r in controls):  # type: ignore[union-attr]
         out.append({"id": "witnessed_controls_never_abstain", "k": 0, "n": len(controls),
                     "detail": "no H7 or H8 control was abstained on: the verifier confirms or rejects what it cannot check"})
@@ -255,10 +277,10 @@ def witnessed_flags(run: Run) -> list[dict[str, Any]]:
     if clean and all(o.verdict == "reject" for o in clean):
         out.append({"id": "witnessed_rejects_every_clean_trace", "k": len(clean), "n": len(clean),
                     "detail": "the verifier rejected every witnessed clean trace: its family H figures say nothing"})
-    errors = sum(1 for o in clean if o.verdict == "error") + sum(1 for r in eff if r.outcome.verdict == "error")  # type: ignore[union-attr]
+    errors = sum(1 for o in clean if o.verdict == "error") + sum(1 for r in eff if r.outcome.verdict == "error" and not _input_error_met(r))  # type: ignore[union-attr]
     if errors:
         out.append({"id": "witnessed_errors_present", "k": errors, "n": len(clean) + len(eff),
-                    "detail": "witnessed runs with no usable report (crash, time-out, input error, invalid report); never counted as detection"})
+                    "detail": "witnessed runs with no usable report (crash, time-out, input error, invalid report); never counted as detection. Input-error controls that exited 2 with no report as expected are not counted here (see input_error_controls)"})
     return out
 
 
@@ -370,6 +392,7 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
                             if w.seeds else "not run"),
             "seed_controls": [{"seed_id": s.seed_id, "expected_verdict": "abstain", "observed_verdict": o.verdict, "codes": sorted(o.codes)} for s, o in w.seed_controls],
             "flags": witnessed_flags(w.run),
+            "input_error_controls": input_error_controls(w.run),
         }
     inputs.sort(key=lambda i: (i["role"], i["name"], i["digest"]))
 
@@ -397,7 +420,7 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
             "clean_false_rejection": "per category, clean traces on which that category's operators produced an effective mutant, rejected by the verifier; benign (B) counts benign mutants",
             "metric_impact": "measures are derived by this harness from the mutant's files (the verifier does not expose them); unavailable for a mutant Python's parser cannot read",
             "intended_code": "the operator's frozen intended codes; a different but correct verifier code counts in any_code only. Catalogue version 2: intended codes frozen post-hoc after run 1 (703cdde1), so intended_code figures are not held-out; any_code detection is the primary figure. Catalogue version 3 (family H): operators written after the verifier's tier V3 existed, intended codes frozen post-hoc from its emitted codes; any_code detection is the primary figure",
-            "expected_abstain": "H7 and H8 are controls with expected verdict abstain (the verifier says could_not_check); an accept there is a false acceptance (counted in false_acceptance), a reject a false rejection (it shows as reject in verdicts and detection.any_code, which for these rows is not detection)",
+            "expected_abstain": "H7 and H8 are controls with expected verdict abstain (the verifier says could_not_check); an accept there is a false acceptance (counted in false_acceptance), a reject a false rejection (it shows as reject in verdicts and detection.any_code, which for these rows is not detection). Exception (catalogue 3.1, ODES decision 30-A): H8.witness-file-absent is an input-error control, expected exit 2 and no report; those runs sit in the row's error count (the contract has no row-level input_error) and are listed apart under witnessed.input_error_controls",
         },
         "intended_codes_status": json.loads(operator_set_bytes).get("intended_codes", {}).get("status", "frozen with the operator set before the run"),
         "operator_version": json.loads(operator_set_bytes).get("operator_version"),
@@ -438,13 +461,15 @@ def per_operator(run: Run, population: str) -> list[dict[str, Any]]:
         codes: Counter[str] = Counter(c for r in eff if r.outcome and r.outcome.verdict == "reject" for c in r.outcome.codes)
         out.append({
             "population": population, "operator_id": oid, "category": rs[0].slot.category, "expected_verdict": rs[0].slot.expected_verdict,
+            "expected_outcome": rs[0].slot.expected_outcome or rs[0].slot.expected_verdict,
             "slots": dict(Counter(r.slot.status for r in rs)), "verdicts": _tally([r.outcome for r in eff]),  # type: ignore[misc]
             "intended_code_hits": sum(1 for r in eff if _intended_hit(r.outcome, r.slot.intended_codes)),  # type: ignore[arg-type]
             "codes": dict(sorted(codes.items())),
             "not_rejected": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict}" + (f" ({r.outcome.detail})" if r.outcome.detail else "")  # type: ignore[union-attr]
                                    for r in eff if r.slot.expected_verdict == "reject" and r.outcome.verdict != "reject"),  # type: ignore[union-attr]
             "unexpected": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict} {sorted(r.outcome.codes)}"  # type: ignore[union-attr]
-                                 for r in eff if r.slot.expected_verdict != "reject" and r.outcome.verdict != r.slot.expected_verdict),  # type: ignore[union-attr]
+                                 for r in eff if r.slot.expected_verdict != "reject" and r.outcome.verdict != r.slot.expected_verdict
+                                 and not _input_error_met(r)),  # type: ignore[union-attr]
         })
     return out
 
