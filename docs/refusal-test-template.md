@@ -31,6 +31,8 @@ A holder that produced no refusal is `coverage_unknown`. It is never reported as
 2. Declare a `RefusalSpec` (reasons, changed inputs, provenance, revocation flag, optional stage).
 3. Call `run_refusal_scenario(adapter, spec, tmp_path, pytest.MonkeyPatch)`, then `classify_holders` over the holders you enumerated, and record `report_json(...)` with `record_property`.
 
+Record the principal the scenario acts for with `record_property('principal', <id>)`; `tools/scenario_report.py` reports per principal only from that property and counts every case without it as `unrecorded`.
+
 Test the template's sensitivity the way the example does: a wrong expected reason must fail leg (b); a change that does not refuse must fail leg (a); a bad provenance label must fail leg (e).
 
 ## Code facts the template relies on (code wins over the addenda)

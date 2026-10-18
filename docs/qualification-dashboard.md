@@ -49,6 +49,63 @@ Workflow PASS means that workflow reported success. It does not accept a catalog
 | [Tests](https://github.com/cogno-us/cognous-governance-evidence-pack/actions/runs/38777456427) / cogno-us/cognous-governance-evidence-pack | PASS | `2d1f314af4ab704223fe249d464823175c0f3073` | [Manifest](../results/workflows/gh-cognous-governance-evidence-pack-38777456427-attempt-1/67d04cddda440975100d3f0452a49d93c0699bd1f308c73c7ca68a28d715217c.json) |
 | [Typed refusal compatibility](https://github.com/cogno-us/cognous-replay-bundle/actions/runs/38777425564) / cogno-us/cognous-replay-bundle | PASS | `af2b69e1956c632c50b07f0c8248dd63bfcaead5` | [Manifest](../results/workflows/gh-cognous-replay-bundle-38777425564-attempt-1/9f7f7baf39f672f6e36e41f35bd98a6d191e66f4d98de4f5ea44af902bb222ff.json) |
 
+## Recorded test outcomes by scenario and principal
+
+Reporting only. Test-case outcomes retained from [`final-linux-1-39032930011`](../results/v1-validation/v1-2026-10-16-a/final-linux-1-39032930011) (scenarios job: 1084 cases, 1080 passed, 4 failed, 0 skipped), shown one scenario per row instead of one pooled count. This is not scenario acceptance: every catalog scenario above stays NOT RUN, and no pass/fail rule or verdict is computed here. Rows named ASW and ADD are addenda test families, not catalog scenarios.
+
+| Scenario | Cases | Passed | Failed | Skipped | Failing cases |
+|---|---:|---:|---:|---:|---|
+| ADD-C2C-BI | 7 | 7 | 0 | 0 | - |
+| ADD-C2C-C1DOC | 8 | 8 | 0 | 0 | - |
+| ADD-C2C-EVID | 46 | 46 | 0 | 0 | - |
+| ADD-MOLT-VERIFY | 13 | 13 | 0 | 0 | - |
+| ADD-TEST-G1 | 9 | 9 | 0 | 0 | - |
+| ASW-A | 91 | 91 | 0 | 0 | - |
+| ASW-I | 27 | 27 | 0 | 0 | - |
+| ASW-P | 13 | 13 | 0 | 0 | - |
+| ASW-R | 10 | 10 | 0 | 0 | - |
+| ASW-S | 90 | 90 | 0 | 0 | - |
+| C01 Missing grant | 18 | 18 | 0 | 0 | - |
+| C02 Unknown action and manifest mismatch | 22 | 22 | 0 | 0 | - |
+| C03 Forged and replayed attestation | 87 | 87 | 0 | 0 | - |
+| C04 Evidence supersession and dependence | 10 | 6 | 4 | 0 | `test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration[five_copies_of_one_source_distinct_metadata]`; `test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration[five_exact_duplicate_submissions]`; `test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration[five_copies_attested_by_five_attestors]`; `test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration[one_evidence_record_linked_five_times]` |
+| C06 Authoritative observer unavailable | 7 | 7 | 0 | 0 | - |
+| C07 Concurrent authority change | 47 | 47 | 0 | 0 | - |
+| C08 Crash and restart | 12 | 12 | 0 | 0 | - |
+| C09 Repeat delivery | 12 | 12 | 0 | 0 | - |
+| C10 Executor confinement | 69 | 69 | 0 | 0 | - |
+| C11 Credential and permission boundaries | 55 | 55 | 0 | 0 | - |
+| C12 Producer consumer compatibility | 57 | 57 | 0 | 0 | - |
+| C13 Redaction and signing | 39 | 39 | 0 | 0 | - |
+| C14 Optional ODES consumer | 28 | 28 | 0 | 0 | - |
+| C16 Shared budget exhaustion | 18 | 18 | 0 | 0 | - |
+| C17 Stale shared state | 34 | 34 | 0 | 0 | - |
+| C18 Bounded delegation | 60 | 60 | 0 | 0 | - |
+| C22 Equal conditions comparison | 25 | 25 | 0 | 0 | - |
+| C23 Evaluator calibration | 12 | 12 | 0 | 0 | - |
+| D02 Binding substitution | 58 | 58 | 0 | 0 | - |
+| D05 Partial effect | 12 | 12 | 0 | 0 | - |
+| D06 Ingress pressure | 8 | 8 | 0 | 0 | - |
+| D07 Restore boundary | 16 | 16 | 0 | 0 | - |
+| D08 Audit and export | 32 | 32 | 0 | 0 | - |
+| D09 Bypass and interruption | 32 | 32 | 0 | 0 | - |
+
+Principal attribution: 0 cases recorded a principal, 1084 did not (`unrecorded`). No principal is derived from a test name.
+
+| Principal | Cases | Passed | Failed | Skipped |
+|---|---:|---:|---:|---:|
+| unrecorded | 1084 | 1080 | 4 | 0 |
+
+Identity dimension named in the test id (inferred from the id text, not an attribution):
+
+| Dimension | Cases | Passed | Failed | Skipped |
+|---|---:|---:|---:|---:|
+| actor | 10 | 10 | 0 | 0 |
+| agent | 13 | 13 | 0 | 0 |
+| none | 1020 | 1016 | 4 | 0 |
+| principal | 14 | 14 | 0 | 0 |
+| tenant | 27 | 27 | 0 | 0 |
+
 ## Scenario mappings
 
 Every mapping below is proposed and partial, unimplemented or deferred. Follow the source links for exact assertions; the gap is part of the record.

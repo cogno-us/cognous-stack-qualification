@@ -13,8 +13,11 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 from qualification_results import ROOT, digest, validate_manifest
+import scenario_report
 
 REPO = 'https://github.com/cogno-us/cognous-stack-qualification'
+# Retained V1 validation run whose JUnit outcomes are reported per scenario and per principal (reporting only, C13).
+OUTCOMES_RUN = 'results/v1-validation/v1-2026-10-16-a/final-linux-1-39032930011'
 
 
 def symbols(path):
@@ -94,7 +97,12 @@ def load_data(root=ROOT):
     wiki = json.loads((root/'scenarios/ai-security-wiki/catalog.json').read_text())
     wiki_count = len(wiki['scenarios'])
     from serial_orchestration import load_serial
-    return {'orchestration':load_serial(root), 'schema_version': '1.0.0', 'scenarios': rows,
+    outcomes = None
+    if (root/OUTCOMES_RUN/'jobs/scenarios').is_dir():
+        outcomes = scenario_report.build(root/OUTCOMES_RUN)
+        outcomes['run_dir'] = OUTCOMES_RUN
+        outcomes['titles'] = {c['id']: c['title'] for c in cases.values()}
+    return {'orchestration':load_serial(root), 'recorded_outcomes': outcomes, 'schema_version': '1.0.0', 'scenarios': rows,
             'mapping_counts': dict(Counter(m['mapping_status'] for m in rows)),
             'runs': sorted(latest.values(), key=lambda r: r.get('observed_at', ''), reverse=True),
             'snapshots': records, 'wiki_specifications': wiki_count,
@@ -132,6 +140,13 @@ def markdown(data):
         lines.append(f"| [{label}]({e['url']}) / {cell(r['source']['repository'])} | {e['outcome']} | `{r['source']['commit']}` | [Manifest](../{r['manifest_path']}) |")
     if not data['runs']:
         lines.append('| No captured workflow records | NOT RUN | — | — |')
+    if data.get('recorded_outcomes'):
+        out = data['recorded_outcomes']
+        t = out['totals']
+        lines += ['', '## Recorded test outcomes by scenario and principal', '',
+                  f"Reporting only. Test-case outcomes retained from [`{out['run_dir'].rsplit('/', 1)[-1]}`](../{out['run_dir']}) (scenarios job: {t['cases']} cases, {t['passed']} passed, {t['failed']} failed, {t['skipped']} skipped), shown one scenario per row instead of one pooled count. "
+                  'This is not scenario acceptance: every catalog scenario above stays NOT RUN, and no pass/fail rule or verdict is computed here. Rows named ASW and ADD are addenda test families, not catalog scenarios.', '',
+                  scenario_report.markdown(out, out.get('titles'))]
     lines += ['', '## Scenario mappings', '',
               'Every mapping below is proposed and partial, unimplemented or deferred. Follow the source links for exact assertions; the gap is part of the record.', '',
               '| Case | Scenario | Mapping | Supporting source | Remaining gap |', '|---|---|---|---|---|']
