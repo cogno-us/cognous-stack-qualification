@@ -36,3 +36,21 @@ The delayed-r1 cases use the runtime's delayed-commit mode (`pause_at`, `defer_n
 destination code of its own. Without the profile or the mode the freshness tests, and every test that builds a flow, fail by
 design on control plane main 83b49b5 and runtime main 63a7c0fe; with only the delayed-commit module added to that runtime the
 default-path legs, the N1 tests and the `*_today` tests pass (ran: 11 passed, 9 failed by design). This suite is not part of the V1 validation controller and changes no verdict.
+
+## Atomic route operation key (R2, `test_atomic_route_operation_identity.py`)
+
+Closes orchestrator finding F-5: on the atomic route (`AtomicLocalControlPlaneExecutor` + atomic destination) a renewal with a new
+approval commits a second effect for one operation when the per-grant cap allows two, even with the identity profile on. Opt-in
+fix: executor `operation_identity=True` with `OperationIdentityAtomicAuthorityEffectDestination`; the id is derived from the
+persisted issuer-approved decision, never passed by the caller. The five key-on tests fail on runtime main d90a2cae by design; the
+two `legacy` tests pass there.
+
+| Test | Proves |
+|---|---|
+| `legacy_cap_two_renewal_commits_two_effects_today` | default path: two effects for one operation, identity profile on (the finding) |
+| `legacy_cap_one_is_blocked_only_by_the_budget_today` | default path, cap 1: one effect, barrier is the per-grant budget |
+| `operation_key_refuses_the_renewed_claim_at_cap_two` | key on: claim 2 refused `operation_already_committed`, one effect, durable failure row, claim not consumed |
+| `operation_key_does_not_change_the_first_commit` | control: first claim commits as before; operation row written |
+| `operation_key_cap_one_still_one_effect` | key on, cap 1: still one effect |
+| `operation_key_without_the_control_plane_profile_is_refused` | no derivable id: refused, nothing commits |
+| `operation_key_on_a_destination_without_the_capability_is_refused` | plain atomic destination cannot store the key: refused, never dropped |
