@@ -14,7 +14,7 @@ section 7; machine-readable twin [`ideas.json`](ideas.json)). Programme 2, track
 ## Components attacked
 
 Final revisions, listed in [`components.json`](components.json) and checked against each checkout's HEAD at run time:
-control plane `3cd17ead`, runtime `11de097c`, verifier `f99a6543`, Replay `46e8bd7c`, Evidence Pack `4fbbd344`, ODES `e2cbc0dc`,
+control plane `3cd17ead`, runtime `11de097c`, verifier `f99a6543`, Replay `46e8bd7c`, Evidence Pack `4fbbd344`, ODES `cdf704c8`,
 hub `afca5bbd` (read-only, T18 and T20). Batch 1 was first run against control plane `3755c71a`, runtime `7170da59`, verifier
 `0a43a7f0`, Replay `541180fd`, Evidence Pack `63e9ee99` and ODES `304f6cc3`; the revisions above carry the later programme-2 fixes. The governed exchange (route C) and the orchestrator are not in the attacked set; legs
 that need them are named as not covered in the module docstrings.
@@ -44,7 +44,7 @@ There is no workflow for this directory yet (workflow files are outside this cha
 
 ## Status
 
-Run of 2026-10-18 against the final revisions (local; Python 3.13): **132 passed, 4 xfailed, 0 failed, 0 skipped** (136 cases) at the revisions listed above (ODES `e2cbc0dc`; an earlier run of the same counts minus one case was recorded at ODES `81979784`, and `e2cbc0dc` differs from it by documentation only). The first run,
+Run of 2026-10-18 against the final revisions (local; Python 3.13): **132 passed, 4 xfailed, 0 failed, 0 skipped** (136 cases) at the revisions listed above except ODES (the run was made at ODES `e2cbc0dc`, and the ODES revision now listed, `cdf704c8`, differs from it by documentation only, so batch 1 was not re-run for it; an earlier run of the same counts minus one case was recorded at ODES `81979784`, and `e2cbc0dc` differs from it by documentation only). The first run,
 against the earlier revisions, was 126 passed, 7 xfailed (133 cases); changes since: T09 and T16 now pass, T07 route B asserts the refusal,
 T07 route A gained a profile-on variant (2 cases), T04 route B lists one unbound member instead of three, and T01 covers the revoked-revision rule, and T05 gained an exact-mode agreement case (the runtime policy with `target_match` exact agrees with the control plane on every spelling). Per test, the overall
 classification; [`batch-1.json`](batch-1.json) carries the same table with a summary per test.
