@@ -1,0 +1,41 @@
+{
+ "schema": "cognous-adversarial-batch/0.1",
+ "batch": "batch-1",
+ "plan": "docs/adversarial-test-plan.md (section 7); ideas: process/adversarial/ideas.json",
+ "feeds_v1_validation": false,
+ "catalogue_scenarios": false,
+ "result_vocabulary": ["prevented", "detected only", "reproduced failure", "inconclusive", "not applicable", "not tested"],
+ "conventions": {
+  "suspected_defect": "a new reproduced failure is a strict xfail (raises=AssertionError) with a neutral reason; detail goes to the SECURITY.md private channel first",
+  "known_limit": "a reproduced failure that matches a documented limit (C0 window, F-5/F-18, SCN-D07, SCN-C16) is characterised by a passing test and labelled known",
+  "listed": "behaviour that is out of the attacked boundary by design is recorded as not applicable, never hidden"
+ },
+ "run": {
+  "date": "2026-10-18",
+  "kind": "local run (python 3.13, pytest 8.3.5, pydantic 2.13.5, cryptography 50.0.0); not a CI run",
+  "components": "process/adversarial/components.json",
+  "cases": {"passed": 126, "xfailed": 7, "failed": 0, "skipped": 0}
+ },
+ "tests": [
+  {"id": "T01", "file": "tests/test_t01_direct_call_matrix.py", "status": "prevented", "summary": "authority-enforcing destination classes refuse every direct call without a valid grant or claim; five non-enforcing classes and the control plane JSON destination accept by design and are listed"},
+  {"id": "T02", "file": "tests/test_t02_non_dispatching.py", "status": "prevented", "summary": "13 groups of non-dispatching entry points and a malformed-input flood leave effects, claims, budgets and authority rows unchanged; a stopped reaper makes decide refuse (detected only)"},
+  {"id": "T03", "file": "tests/test_t03_raw_ingress.py", "status": "prevented", "summary": "acp run refuses duplicate members, NaN/Infinity, BOM, trailing data, non-UTF-8 and unknown members; number spellings and Unicode forms land exactly as approved"},
+  {"id": "T04", "file": "tests/test_t04_post_approval_mutation.py", "status": "prevented", "summary": "every single-member mutation refused on routes A and B except listed unbound members (attempt label on both; on route B the envelope proposal_commitment and effective_max_effects, which do not change effect content)"},
+  {"id": "T05", "file": "tests/test_t05_target_equivalence.py", "status": "reproduced failure", "summary": "composed route refuses every near-equivalent target (prevented); the runtime prefix policy and the control plane exact check disagree on several spellings (evaluator differential, strict xfail)"},
+  {"id": "T06", "file": "tests/test_t06_adapter_identity.py", "status": "detected only", "summary": "a lookalike implementation under the registered adapter id writes 10x the amount; the control plane accepts the run; the verifier's ledger check refutes it"},
+  {"id": "T07", "file": "tests/test_t07_authority_aba.py", "status": "reproduced failure", "summary": "five re-creation variants are refused (new revision on both routes, new authority basis, spent authority, provisioning over a differing row); three cases are recorded as a suspected defect (strict xfail); detail held for the private channel"},
+  {"id": "T08", "file": "tests/test_t08_revocation_delayed_commit.py", "status": "prevented", "summary": "effective-grant destination and atomic route refuse a revocation visible to their transaction; the default route A window (C0) lets the commit land, as documented (known)"},
+  {"id": "T09", "file": "tests/test_t09_expiry_equality.py", "status": "reproduced failure", "summary": "control plane and atomic destination agree at T with Z/+00:00/+01:00 (half-open); the ODES recipient consumption window differs at the equality instant (boundary differential, strict xfail)"},
+  {"id": "T10", "file": "tests/test_t10_rollback.py", "status": "detected only", "summary": "a restored destination re-spends a budget unit or operation key undetected (known, SCN-D07); a witness digest held elsewhere detects a restored control plane record"},
+  {"id": "T11", "file": "tests/test_t11_c3_chain.py", "status": "prevented", "summary": "default configuration duplicates the business effect (known, F-5/F-18); operation-identity and refund-intent configurations keep one effect"},
+  {"id": "T12", "file": "tests/test_t12_stale_worker.py", "status": "prevented", "summary": "no second effect after a stale-worker resume (prior-attempt rule, operation key); default renewal takeover duplicates (known); no destination fencing token (residual)"},
+  {"id": "T13", "file": "tests/test_t13_process_kill.py", "status": "prevented", "summary": "SIGKILL-equivalent exit at five write points, with and without operation identity: at most one effect, no acknowledged row without a row, a landed row is reconciled"},
+  {"id": "T14", "file": "tests/test_t14_observation_matrix.py", "status": "detected only", "summary": "single ledger field substitutions, an unrelated matching row, an acknowledgement without a row and a moved observation time are never verified"},
+  {"id": "T15", "file": "tests/test_t15_profile_forwarding.py", "status": "prevented", "summary": "all 16 combinations of rule-revision, freshness, operation identity and holder inventory are forwarded to the runtime adapter's per-call view (R1 finding 1 regression guard)"},
+  {"id": "T16", "file": "tests/test_t16_canary_sweep.py", "status": "reproduced failure", "summary": "credential canary absent on the success and refusal paths and from payload diagnostics; one path is recorded as a suspected defect (strict xfail); detail held for the private channel"},
+  {"id": "T17", "file": "tests/test_t17_budget_race.py", "status": "prevented", "summary": "last unit spent once under barriers on routes A and B; grant multiplication over N grants is characterised (known, no cross-grant ceiling)"},
+  {"id": "T18", "file": "tests/test_t18_status_consistency.py", "status": "detected only", "summary": "retained matrix, summary, hub panel JSON and Markdown and failure register agree; every single-copy status mutation is flagged by consistency_check.py"},
+  {"id": "T19", "file": "tests/test_t19_rule_revision_downgrade.py", "status": "prevented", "summary": "a superseded or never-adopted policy digest is refused at decision and at effect through the runtime adapter"},
+  {"id": "T20", "file": "tests/test_t20_coverage_claim_audit.py", "status": "detected only", "summary": "253 of 258 cited tests audited (5 orchestrator citations not in the attacked set); one cited test asserts nothing about its idea (D26 row to downgrade at docs cleanup)"}
+ ]
+}
