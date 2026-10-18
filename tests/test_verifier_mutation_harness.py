@@ -285,9 +285,48 @@ class VersionTwo(unittest.TestCase):
         self.assertEqual(set(entry['files']), set(FILENAMES))
         self.assertEqual(MANIFEST['control_plane_revision'], json.loads((SUITE / 'corpus' / 'clean' / t.trace_id / 'scenario.json').read_text())['control_plane_revision'])
 
+    def test_code_vocabulary_refresh_keeps_every_earlier_name_and_adds_the_witness_and_ledger_codes(self):
+        names = set(json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
+        self.assertEqual(len(names), 268)
+        self.assertEqual(sorted(names), json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
+        # the 07c2eb8 file (246 names) is a subset: a refresh adds names, it does not drop any
+        self.assertTrue(len(names) >= 246)
+        added_since_07c2eb8 = {'attempt_rows_not_in_record', 'destination_state_has_members_outside_ledger_row', 'holder_inventory_missing', 'holder_inventory_shape',
+                               'operation_digest_mismatch', 'operation_digest_not_in_destination_state', 'rows_not_covered_by_witness', 'witness_chain_invalid',
+                               'witness_ledger_head_mismatch', 'witness_ledger_shrunk', 'witness_record_shape', 'witness_run_mismatch', 'witness_version_unsupported'}
+        self.assertTrue(added_since_07c2eb8 <= names)
+        # present at 07c2eb8 already, listed for the record
+        self.assertTrue({'resolution_check_mismatch', 'resolution_check_without_completion', 'effect_check_before_decision_check', 'ledger_row_without_attempt',
+                         'ledger_row_after_definitive_failure'} <= names)
+
+    def test_retained_run_3_report_validates_against_the_vendored_contract_and_names_its_pins(self):
+        report_path = ROOT / 'results' / 'verifier-mutation' / 'run-3-adb8927' / 'mutation-report.json'
+        doc = json.loads(report_path.read_text())
+        contract = json.loads((SUITE / 'contract' / 'verification-report' / 'CONTRACT.json').read_text())
+        validator = ODES
+        self.assertEqual(validator.validate(doc), [])
+        harness = doc['mutation_report']['extensions']['x-qualification-harness']
+        self.assertEqual(doc['verifier']['source_revision'], 'adb8927fc13308370ea3b7ad3c899fd69c8fe203')
+        self.assertEqual(harness['seed_corpus']['odes_revision'], contract['odes_commit'])
+        self.assertEqual(contract['odes_commit'], 'fe705e8703ef4290aa7e6f00c31f1049b75a2bec')
+        self.assertEqual(doc['mutation_report']['operator_set_digest'], 'sha256:' + hashlib.sha256((SUITE / 'operators.json').read_bytes()).hexdigest())
+        self.assertEqual(harness['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
+        self.assertEqual(harness['flags'], [])
+
+    def test_code_vocabulary_matches_the_verifier_source_when_a_clone_is_available(self):
+        import os
+        clone = os.environ.get('VERIFIER_CLONE')
+        if not clone or not Path(clone).is_dir():
+            self.skipTest('set VERIFIER_CLONE to a verifier clone to regenerate the vocabulary')
+        from verifier_mutation import codenames
+        vocab = json.loads((SUITE / 'verifier-code-names.json').read_text())
+        full, names = codenames.names_at(Path(clone), vocab['verifier_revision'])
+        self.assertEqual(full, vocab['verifier_revision'])
+        self.assertEqual(names, vocab['names'])
+
     def test_intended_codes_are_names_the_verifier_has_and_are_labelled_post_hoc(self):
         vocab = json.loads((SUITE / 'verifier-code-names.json').read_text())
-        self.assertEqual(vocab['verifier_revision'], '07c2eb86dc048787bf208dd548018d74887adff8')
+        self.assertEqual(vocab['verifier_revision'], 'adb8927fc13308370ea3b7ad3c899fd69c8fe203')
         names = set(vocab['names'])
         for o in operators.OPERATORS:
             with self.subTest(operator=o.operator_id):

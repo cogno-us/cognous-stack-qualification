@@ -1,4 +1,4 @@
-"""Command line: ``python -m verifier_mutation {capture,capture-extra,operator-set,check-corpus,report}`` (run with ``PYTHONPATH=suites/verifier-mutation``).
+"""Command line: ``python -m verifier_mutation {capture,capture-extra,operator-set,code-names,check-corpus,report}`` (run with ``PYTHONPATH=suites/verifier-mutation``).
 
 Report-only. ``report`` exits 0 when it produced a valid report, whatever the verifier scored; it exits 2 when the operator set is not the
 frozen one, the corpus does not match its manifest, or the report it built is refused by the ODES validator; ``--strict`` additionally
@@ -127,6 +127,10 @@ def main(argv: list[str] | None = None) -> int:
     e.add_argument("--out", default=str(SUITE / "corpus" / "clean"))
     o = sub.add_parser("operator-set", help="write or check operators.json (the frozen operator set)")
     o.add_argument("--write", action="store_true")
+    n = sub.add_parser("code-names", help="write or check verifier-code-names.json from a verifier clone at a revision (reads source with git; runs nothing)")
+    n.add_argument("--verifier", required=True, help="clone of cogno-us/cognous-open-control-stack-verifier")
+    n.add_argument("--revision", required=True)
+    n.add_argument("--write", action="store_true")
     k = sub.add_parser("check-corpus", help="check the clean corpus against its manifest")
     k.add_argument("--clean-corpus", default=str(SUITE / "corpus" / "clean"))
     r = sub.add_parser("report", help="run the verifier over the corpora and write the mutation report")
@@ -170,6 +174,17 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         same = OPERATOR_SET.exists() and OPERATOR_SET.read_bytes() == data
         print("operator set matches the code" if same else "operators.json differs from the code")
+        return 0 if same else 1
+    if a.cmd == "code-names":
+        from .codenames import vocabulary_bytes, vocabulary_doc
+        target = SUITE / "verifier-code-names.json"
+        data = vocabulary_bytes(vocabulary_doc(Path(a.verifier), a.revision))
+        if a.write:
+            target.write_bytes(data)
+            print(f"wrote {target} ({digest(data)})")
+            return 0
+        same = target.exists() and target.read_bytes() == data
+        print("verifier-code-names.json matches the verifier source" if same else "verifier-code-names.json differs from the verifier source")
         return 0 if same else 1
     if a.cmd == "check-corpus":
         try:
