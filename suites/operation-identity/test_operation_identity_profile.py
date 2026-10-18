@@ -119,6 +119,11 @@ class OperationAdapter(T.Adapter):
             original = flow.f.records.append_attempt  # the failed-attempt row is the destination-refusal evidence
             flow.f.records.append_attempt = lambda value: None if value.status == "failed" else original(value)
             flow.f.records.append_refusal = lambda value: None  # and any effect-time refusal row
+            records = flow.f.records
+
+            def gate_without_evidence(attempt, refusal, event):  # control plane >= F1: the gate refusal is one atomic write
+                records.append_check_event(event)  # the failed-attempt and refusal evidence rows are lost
+            records.record_gate_refusal = gate_without_evidence
 
     def policy_versions_observed_at_enforcement(self, flow, stage):
         return {}

@@ -168,6 +168,12 @@ class FreshnessAdapter(T.Adapter):
 
     def disable_refusal_writer(self, flow):
         flow.f.records.append_refusal = lambda value: None  # only the evidence row is lost; the refusal still raises
+        records = flow.f.records
+
+        def gate_without_refusal_row(attempt, refusal, event):  # control plane >= F1: the gate refusal is one atomic write
+            records.append_attempt(attempt)
+            records.append_check_event(event)
+        records.record_gate_refusal = gate_without_refusal_row
 
     def policy_versions_observed_at_enforcement(self, flow, stage):
         return {}

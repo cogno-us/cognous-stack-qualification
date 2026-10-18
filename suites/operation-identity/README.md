@@ -54,3 +54,28 @@ two `legacy` tests pass there.
 | `operation_key_cap_one_still_one_effect` | key on, cap 1: still one effect |
 | `operation_key_without_the_control_plane_profile_is_refused` | no derivable id: refused, nothing commits |
 | `operation_key_on_a_destination_without_the_capability_is_refused` | plain atomic destination cannot store the key: refused, never dropped |
+
+## Merge record, reversibility, dedupe TTL (N4: `test_merge_profile.py`, `test_reversibility_profile.py`, `test_dedupe_profile.py`)
+
+Opt-in `merge-record/0.1`, `reversibility/0.1` and `dedupe-ttl/0.1` (control plane `RuntimeAuthorityProfile.merge`, `.reversibility`,
+`.dedupe`; runtime `engine/dedupe_destination.py`). The flow helper gained optional arguments (`purpose`, `reversible`, `cfg_update`,
+`dest_factory`) and multi-operation helpers; the default path of every earlier test is unchanged. Refusal scenarios follow the
+refusal-test template; ledger properties write its legs out.
+
+| Test | Proves |
+|---|---|
+| `merge_before_effect_suppresses_second` | two operations merged before the second effect: the second is refused before dispatch (`operation_merged_effect_exists`), the ledger keeps one effect |
+| `merge_suppresses_whichever_operation_applies_second` | the merged set has one effect budget; a folded operation dispatches under the survivor's operation id; `merged_into` names an operation id |
+| `merge_after_both_applied_emits_compensation_obligation` | a merge after two effects landed writes a record-only obligation listing every applied effect id; nothing is compensated |
+| `merge_by_unfunded_authority_holds`, `merge_record_names_rule_digest`, `rule_change_appends_not_edits` | funded authority, signed independent `merge_equivalence_rule` digest, append-only rule history |
+| `merge_after_renewal_names_operation_not_attempt` | a merge references operation ids, never attempt ids |
+| `reversible_until_past_deadline_treated_irreversible`, `purpose_outage_cached_open_reversible_proceeds_records_age`, `purpose_outage_protected_read_refuses`, `recorded_closure_overrides_cached_open` | reversibility values on the action class; a cached open purpose snapshot only for a reversible class inside its age bound, never for a protected read, never against a recorded closure; every use is a row with epoch and age |
+| `expired_destination_key_does_not_make_a_duplicate_fresh` | the destination forgot the operation key at its TTL: the control plane still refuses the second effect from its own ledger (`dedupe_operation_effect_applied`) |
+| `in_progress_never_mints_a_second_key` | an in-progress answer leaves the attempt unknown; a renewal is refused (`dedupe_unresolved_attempt_blocks_new_key`) |
+| `escalation_fires_inside_the_key_ttl...`, `a_late_escalation_is_flagged...` | an unresolved attempt escalates at a deadline inside the key TTL; a late row carries `escalation_after_key_ttl` |
+| `*_today` | the default path today: two operations, two effects, nothing folds them; a purpose outage refuses every class; an expired key lets a second effect land |
+
+Red at the pinned mains by design: the profiles and the TTL destination do not exist there (ran on control plane 0eed74e and runtime
+fc034d1: the 21 new tests fail or pass as the code shows, 19 failed 2 passed). With the N4 control plane and runtime branches all 50
+tests of this directory pass. `disable_refusal_writer` in two earlier adapters now also replaces `record_gate_refusal` (F1 made the
+gate refusal one atomic write, which left two template mutations unable to fail; found by running the suite at the F1 main).
