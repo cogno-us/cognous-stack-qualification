@@ -2,12 +2,12 @@
  "kind": "verifier-mutation-operator-set",
  "family": "T",
  "harness_version": "1",
- "operator_version": "3.2",
+ "operator_version": "3.3",
  "seed": 20261018,
  "draws_per_variant": 2,
  "implementation_sha256": {
   "jsonio.py": "eef696cda559fb8f57985cd94eb6884152892d5a62a51eb5375571d8074626fd",
-  "operators.py": "006eccfca2d2857d21aa8f123c345bd4d9c2e2472e579e3797bee598ccb87dfd",
+  "operators.py": "7050e244715f0744d23aacd52b4161ea040c4d5a14fe10256befcc8a0d6cbdab",
   "corpus.py": "028b2185f604247676281ed7f05c530a10612e86272dedba1bbbd526cbbbc0ef",
   "trace.py": "8e664ab91859595f82c1a3d3fa105b123f661d4764aa73a7b867970a470b1f82",
   "witness_operators.py": "f925ad91b2a00c5c61065998832c870daf194115cb4512d2067c3748e23edd58"
@@ -80,10 +80,10 @@
   "vocabulary": "verifier-code-names.json"
  },
  "revises": {
-  "operator_version": "3.1",
-  "qualification_revision": "f1592c374fb60e607da17c2de98bf0719ceb566d",
-  "operator_set_digest": "sha256:4ae13f234ac214a02d34d247d8b7f9a086cbf8f18156aaf166acf164b4d42a62",
-  "note": "catalogue version 3.2 changes no operator id, function, mutant or intended code; it reclassifies H4.destination-row-dropped-uncorroborated as a known-limit control (expected outcome accept, labelled post-hoc: the witness profile does not cover destination.json, ODES decision 30-A, ODES #89). Version 3.1 (H8.witness-file-absent as an input-error control) revised version 3 (qualification ce684ec6, digest sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c, the set run 4 measured)"
+  "operator_version": "3.2",
+  "qualification_revision": "52a20fa303b8d512eae2b8cb964ce4317b008190",
+  "operator_set_digest": "sha256:17359e5f36edcbfba43f9fd22da65a2df63dbb944949d9bf1316de705e7eef73",
+  "note": "catalogue version 3.3 adds nine unwitnessed operators over the evidence check hardening of verifier 31708c33 (attempt identity and lifecycle, acknowledgement freshness and receipt comparison, tenant on one side only; a tenth, a refusal recorded before its evaluation pass, was tried and not catalogued because the native refusal rows carry no evaluation time) and changes no earlier operator id, function, mutant or intended code. Version 3.2 (set as of qualification 52a20fa3) revised version 3.1 (qualification f1592c37, digest sha256:4ae13f234ac214a02d34d247d8b7f9a086cbf8f18156aaf166acf164b4d42a62): it reclassified H4.destination-row-dropped-uncorroborated as a known-limit control (expected outcome accept, labelled post-hoc: the witness profile does not cover destination.json, ODES decision 30-A, ODES #89). Version 3.1 (H8.witness-file-absent as an input-error control) revised version 3 (qualification ce684ec6, digest sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c, the set run 4 measured)"
  },
  "supersedes": {
   "operator_version": "2",
@@ -92,6 +92,45 @@
   "note": "catalogue version 3 keeps the 81 unwitnessed operators of version 2 unchanged (same functions, same intended codes) and adds the witnessed operators"
  },
  "operators": [
+  {
+   "operator_id": "A1.attempt-closed-twice",
+   "category": "A1",
+   "variant": "attempt-closed-twice",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "attempt_transition_invalid"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A second, different closing row appended to an attempt that an acknowledged or partial row already closed (not a repeated record)."
+  },
+  {
+   "operator_id": "A1.attempt-decision-identity-switched",
+   "category": "A1",
+   "variant": "attempt-decision-identity-switched",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "attempt_identity_changed"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A later row of an attempt names another decision than the attempt's first row."
+  },
+  {
+   "operator_id": "A1.attempt-effect-identity-switched",
+   "category": "A1",
+   "variant": "attempt-effect-identity-switched",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "attempt_identity_changed"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A later row of an attempt names another effect than the attempt's first row (an attempt is fixed to its first row's identity)."
+  },
   {
    "operator_id": "A1.attempt-on-held-decision",
    "category": "A1",
@@ -104,6 +143,19 @@
     "run_record"
    ],
    "description": "An attempt row written against a held decision."
+  },
+  {
+   "operator_id": "A1.attempt-reopened-after-close",
+   "category": "A1",
+   "variant": "attempt-reopened-after-close",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "attempt_transition_invalid"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An ``attempted`` row appended to an attempt that an acknowledged, partial or failed row already closed."
   },
   {
    "operator_id": "A1.drop-start-record",
@@ -130,6 +182,19 @@
     "run_record"
    ],
    "description": "A second attempt lifecycle started for an effect that already has one."
+  },
+  {
+   "operator_id": "A1.uncertain-attempt-restarted",
+   "category": "A1",
+   "variant": "uncertain-attempt-restarted",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "attempt_transition_invalid"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An ``attempted`` row appended to an attempt that stands at ``unknown`` (an uncertain attempt may only be followed by a closing row)."
   },
   {
    "operator_id": "A2.closeout-observation-mismatch",
@@ -395,6 +460,22 @@
    "description": "A decision's ``effect_id`` replaced by another digest (rows that name the effect keep the original)."
   },
   {
+   "operator_id": "I1.tenant-on-the-binding-only",
+   "category": "I1",
+   "variant": "tenant-on-the-binding-only",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "binding_proposal_mismatch",
+    "proposal_commitment_mismatch",
+    "schema_violation"
+   ],
+   "roles": [
+    "run_record",
+    "proposal_export"
+   ],
+   "description": "A ``tenant_id`` added to one decision's binding while the proposal carries none (a tenant on one side only is a difference, never a pass)."
+  },
+  {
    "operator_id": "I2.edit-proposal-amount",
    "category": "I2",
    "variant": "edit-proposal-amount",
@@ -625,6 +706,21 @@
    "description": "A ledger effect row for an effect whose decision is a hold."
   },
   {
+   "operator_id": "R3.acknowledgement-effect-amount-differs",
+   "category": "R3",
+   "variant": "acknowledgement-effect-amount-differs",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "acknowledgement_differs_from_ledger_row",
+    "observation_differs_from_ledger_row"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "The amount inside an acknowledgement's effect receipt changed, so it differs from the ledger row."
+  },
+  {
    "operator_id": "R3.ledger-amount-differs",
    "category": "R3",
    "variant": "ledger-amount-differs",
@@ -667,6 +763,19 @@
    "description": "A ledger row whose target differs from the decision's binding."
   },
   {
+   "operator_id": "R4.acknowledgement-freshness-flags-contradict",
+   "category": "R4",
+   "variant": "acknowledgement-freshness-flags-contradict",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "acknowledgement_flags_contradict"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An acknowledgement that says ``duplicate: false`` and, in the same breath, ``newly_executed: false`` (the two flags claim the same thing)."
+  },
+  {
    "operator_id": "R4.duplicate-attempt-acknowledgement",
    "category": "R4",
    "variant": "duplicate-attempt-acknowledgement",
@@ -680,6 +789,22 @@
     "run_record"
    ],
    "description": "An acknowledged attempt row written twice."
+  },
+  {
+   "operator_id": "R4.fresh-acknowledgement-repeated",
+   "category": "R4",
+   "variant": "fresh-acknowledgement-repeated",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "fresh_acknowledgement_repeated",
+    "second_attempt_for_effect",
+    "repeated_record",
+    "duplicate_attempt_row"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A second attempt (another attempt id, same effect) that also claims a fresh execution of the effect an acknowledged attempt already executed."
   },
   {
    "operator_id": "R4.second-ledger-row",

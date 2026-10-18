@@ -27,6 +27,10 @@ from verifier_mutation.trace import ABSENT_FILE, FILENAMES, load_clean_corpus  #
 import test_verifier_mutation_harness as base  # noqa: E402
 
 ODES = contract.load()
+CATALOGUE_33_OPERATORS = {'A1.attempt-effect-identity-switched', 'A1.attempt-decision-identity-switched', 'A1.attempt-reopened-after-close', 'A1.attempt-closed-twice',
+                          'A1.uncertain-attempt-restarted', 'R4.fresh-acknowledgement-repeated', 'R4.acknowledgement-freshness-flags-contradict',
+                          'R3.acknowledgement-effect-amount-differs', 'I1.tenant-on-the-binding-only'}  # added in catalogue 3.3
+V32_OPERATOR_SET_DIGEST = 'sha256:17359e5f36edcbfba43f9fd22da65a2df63dbb944949d9bf1316de705e7eef73'  # operators.json of catalogue 3.2 as at qualification 52a20fa3
 V31_OPERATOR_SET_DIGEST = 'sha256:4ae13f234ac214a02d34d247d8b7f9a086cbf8f18156aaf166acf164b4d42a62'  # operators.json of catalogue 3.1 (qualification f1592c37)
 V3_OPERATOR_SET_DIGEST = 'sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c'  # operators.json of catalogue 3 (qualification ce684ec6), the set run 4 used
 RUN4_ODES = '296e6bce26d5d68bae402eebca188a3f362b2963'  # run 4's own ODES revision (the vendored validator has moved on)
@@ -130,9 +134,10 @@ class WitnessOperators(unittest.TestCase):
         self.assertTrue(all(n >= 3 for n in per.values()), per)  # several variants per category
 
     def test_operator_set_is_catalogue_v3_labelled_post_hoc_and_keeps_v2(self):
-        self.assertEqual(OPERATOR_SET['operator_version'], '3.2')
-        self.assertEqual(OPERATOR_SET['revises']['operator_version'], '3.1')
-        self.assertEqual(OPERATOR_SET['revises']['operator_set_digest'], V31_OPERATOR_SET_DIGEST)  # catalogue 3.1 as merged in qualification f1592c37
+        self.assertEqual(OPERATOR_SET['operator_version'], '3.3')
+        self.assertEqual(OPERATOR_SET['revises']['operator_version'], '3.2')
+        self.assertEqual(OPERATOR_SET['revises']['operator_set_digest'], V32_OPERATOR_SET_DIGEST)
+        self.assertIn(V31_OPERATOR_SET_DIGEST, OPERATOR_SET['revises']['note'])  # catalogue 3.1 as merged in qualification f1592c37
         self.assertIn(V3_OPERATOR_SET_DIGEST, OPERATOR_SET['revises']['note'])  # catalogue 3 as run 4 measured it
         by = {o['operator_id']: o for o in OPERATOR_SET['witnessed_operators']}
         self.assertEqual({k for k, o in by.items() if o['expected_outcome'] == 'input_error'}, {'H8.witness-file-absent'})  # decision 30-A
@@ -141,7 +146,7 @@ class WitnessOperators(unittest.TestCase):
         self.assertEqual({k for k, o in by.items() if o['expected_outcome'] == 'accept' and o['category'] == 'H4'}, {'H4.destination-row-dropped-uncorroborated'})  # known limit, catalogue 3.2
         self.assertEqual(by['H4.destination-row-dropped-uncorroborated']['expected_verdict'], 'reject')  # the row keeps the contract's expectation
         self.assertEqual(by['H4.ledger-removed']['expected_outcome'], 'reject')
-        self.assertEqual(len(OPERATOR_SET['operators']), 81)  # the version 2 operators, unchanged
+        self.assertEqual(len(OPERATOR_SET['operators']), 90)  # the 81 version 2 operators, unchanged, plus the nine of catalogue 3.3
         self.assertEqual(len(OPERATOR_SET['witnessed_operators']), len(wo.WITNESS_OPERATORS))
         self.assertEqual(OPERATOR_SET['expected_abstain_categories'], ['H7', 'H8'])
         self.assertIn("written after the verifier's tier V3 existed", OPERATOR_SET['intended_codes']['status'])
@@ -153,7 +158,10 @@ class WitnessOperators(unittest.TestCase):
         slots, _ = base.full(OPERATOR_SET['seed'], OPERATOR_SET['draws_per_variant'])
         run3 = json.loads((ROOT / 'results' / 'verifier-mutation' / 'run-3-adb8927' / 'mutation-report.json').read_text())
         want = next(i['digest'] for i in run3['subject']['inputs'] if i['name'] == 'generated-mutants')
-        self.assertEqual(corpus.mutant_set_digest(slots), want)
+        earlier = [x for x in slots if x.operator_id not in CATALOGUE_33_OPERATORS]
+        self.assertEqual(corpus.mutant_set_digest(earlier), want)  # catalogue 3.3 adds operators; it changes no earlier mutant
+        self.assertEqual(len(CATALOGUE_33_OPERATORS), 9)
+        self.assertTrue(CATALOGUE_33_OPERATORS <= {o['operator_id'] for o in OPERATOR_SET['operators']})
 
     def test_deterministic_under_a_seed(self):
         a, _ = corpus.generate(TINY_W, 11, 2, operators=wo.WITNESS_OPERATORS)
