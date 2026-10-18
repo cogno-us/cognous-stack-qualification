@@ -23,13 +23,14 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       matrix:
         python-version:
         - '3.11'
         - '3.12'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
         repository: cogno-us/cognous-governed-exchange
         ref: ${{ inputs.source_revision || '9de2d438ed03531bb960c896f541a6a2da1b2315' }}
@@ -46,44 +47,51 @@ jobs:
       run: python3 _qualification/tools/install_suite.py --suite cognous-governed-exchange --source-root "." --evidence
         "qualification-evidence/test.json"
     - name: Checkout pinned Manifest
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-action-manifest
         ref: 46c950bed37fe3812000895430bc0312d29e37ce
         path: upstream/manifest
     - name: Checkout pinned Authority Context
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-institutional-governance
         ref: fb3d97938969a89e149e8ff8db2756091d1233fc
         path: upstream/authority-context
     - name: Checkout pinned Control Plane
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-control-plane
         ref: 248d899634d9db3518e831bc7ab568a48733f825
         path: upstream/control-plane
     - name: Checkout pinned Moltbot Safe
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-execution-runtime
         ref: 177354e959cc78c59c1a776f018cfbfbf28c927b
         path: upstream/moltbot-safe
     - name: Checkout pinned Replay
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-replay-bundle
         ref: 043830b56595cecddfa65c064afd1c0b95e64792
         path: upstream/replay
     - name: Checkout pinned Evidence Pack
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-governance-evidence-pack
         ref: de6b9e071df49fc3e0c1254d39b5c94cced554f0
         path: upstream/evidence-pack
     - name: Checkout pinned ODES
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/open-decision-evidence-standard
         ref: 0486b645e99c46d9cd16ca34b1ba7c653a6b3024
         path: upstream/odes
@@ -104,7 +112,7 @@ jobs:
 
         '
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install pinned integration packages and workbench
@@ -154,7 +162,7 @@ jobs:
         UPSTREAM_REPLAY_SUCCESS_EXAMPLE: upstream/replay/examples/bounded_success_reconstruction_v0_2.json
       run: python -m experiments.odex_gax_imx_reference.demo --manifest "$UPSTREAM_MANIFEST_EXAMPLE" --replay "$UPSTREAM_REPLAY_SUCCESS_EXAMPLE"
         --out /tmp/gax-imx-demo.json
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: gax-observation-repair-${{ github.sha }}-py${{ matrix.python-version }}
         path: '/tmp/gax-observation-repair-results.json

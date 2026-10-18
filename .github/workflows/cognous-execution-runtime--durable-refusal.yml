@@ -23,6 +23,7 @@ permissions:
 jobs:
   refusal:
     runs-on: ubuntu-22.04
+    timeout-minutes: 45
     strategy:
       matrix:
         python:
@@ -47,11 +48,13 @@ jobs:
         "qualification-evidence/refusal.json"
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-control-plane
         ref: c7f122ba3a6e39f9268a7163c99be3ee514cd97e
         path: pinned/refusal-control-plane
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-action-manifest
         ref: 46c950bed37fe3812000895430bc0312d29e37ce
         path: pinned/refusal-manifest

@@ -38,7 +38,7 @@ The adapter preserves API content blocks in memory for tool-loop continuity, inc
 Use a clean qualification checkout and a clean hub at the configured commit. Keep outputs and the persistent ledger outside both checkouts.
 
 ```bash
-python -m pip install -r tools/requirements-serial.txt
+python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-serial.lock
 PYTHONDONTWRITEBYTECODE=1 python tools/claude_agent_pilot.py \
   --hub /path/to/hub --output /path/to/new-preflight \
   --ledger /path/to/campaign/ledger.sqlite

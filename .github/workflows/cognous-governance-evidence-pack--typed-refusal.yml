@@ -48,21 +48,25 @@ jobs:
         "." --evidence "qualification-evidence/qualify.json"
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-control-plane
         ref: c7f122ba3a6e39f9268a7163c99be3ee514cd97e
         path: pinned/control-plane
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-execution-runtime
         ref: 309e194c1b0a3de23e11e20133e6eaf88875e48a
         path: pinned/executor
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-action-manifest
         ref: 46c950bed37fe3812000895430bc0312d29e37ce
         path: pinned/manifest
     - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-replay-bundle
         ref: 83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a
         path: pinned/replay

@@ -27,16 +27,16 @@ def aggregate(reqs_doc, jobs):
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
         inp = td / 'in'
-        (inp / 'freeze').mkdir(parents=True)
-        (inp / 'freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS'}))
+        (inp / 'v1v-freeze').mkdir(parents=True)
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS'}))
         for name, st in jobs.items():
-            (inp / name).mkdir()
-            (inp / name / 'result.json').write_text(json.dumps({'component': name, 'status': st, 'os': 'ubuntu-latest', 'python': '3.12'}))
+            (inp / ('v1v-' + name)).mkdir()
+            (inp / ('v1v-' + name) / 'result.json').write_text(json.dumps({'component': name, 'status': st, 'os': 'ubuntu-latest', 'python': '3.12'}))
         rq = td / 'requirements.json'
         rq.write_text(json.dumps(reqs_doc))
         out = td / 'out'
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(argparse.Namespace(inputs=str(inp), out=str(out), validation_id='t', requirements=str(rq)))
+            v.cmd_aggregate(argparse.Namespace(inputs=str(inp), out=str(out), validation_id='v1-2026-10-16-t', requirements=str(rq)))
         return json.loads((out / 'summary.json').read_text()), (out / 'summary.md').read_text()
 
 

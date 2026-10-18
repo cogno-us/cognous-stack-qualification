@@ -33,10 +33,19 @@ permissions:
 jobs:
   suite:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     strategy:
       matrix:
         python: ['3.11', '3.12']
     steps:
+      - name: Validate revision inputs (40-hex commit SHAs only)
+        env:
+          CP_REV: ${{ inputs.control_plane_revision }}
+          RT_REV: ${{ inputs.runtime_revision }}
+          QUAL_REV: ${{ inputs.qualification_revision }}
+        run: |
+          for v in "$CP_REV" "$RT_REV"; do [[ "$v" =~ ^[0-9a-f]{40}$ ]] || { echo "revision input is not a 40-hex commit SHA"; exit 1; }; done
+          [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ inputs.qualification_revision || github.sha }}
@@ -58,9 +67,12 @@ jobs:
           python-version: ${{ matrix.python }}
       - run: python -m pip install pytest==8.3.5 pydantic==2.13.5 cryptography==50.0.0
       - name: Verify the checked-out revisions
+        env:
+          CP_REV: ${{ inputs.control_plane_revision }}
+          RT_REV: ${{ inputs.runtime_revision }}
         run: |
-          test "$(git -C components/control_plane rev-parse HEAD)" = "${{ inputs.control_plane_revision }}"
-          test "$(git -C components/runtime rev-parse HEAD)" = "${{ inputs.runtime_revision }}"
+          test "$(git -C components/control_plane rev-parse HEAD)" = "$CP_REV"
+          test "$(git -C components/runtime rev-parse HEAD)" = "$RT_REV"
       - name: Run the outside-holder suite
         env:
           OH_CONTROL_PLANE_DIR: ${{ github.workspace }}/components/control_plane

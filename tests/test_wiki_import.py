@@ -75,6 +75,19 @@ class ImportBoundary(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'revision differs'):
             sync.build(self.root, self.policy)
 
+    def test_oversized_page_is_blocked(self):
+        self.page.write_text(self.page.read_text() + 'x' * (sync.MAX_FILE_BYTES + 1))
+        self.commit()
+        with self.assertRaisesRegex(ValueError, 'exceeds'):
+            sync.build(self.root, self.policy, True)
+
+    def test_total_byte_cap_is_blocked(self):
+        original = sync.MAX_TOTAL_BYTES
+        sync.MAX_TOTAL_BYTES = 10
+        self.addCleanup(setattr, sync, 'MAX_TOTAL_BYTES', original)
+        with self.assertRaisesRegex(ValueError, 'total byte cap'):
+            sync.build(self.root, self.policy)
+
     def test_source_must_be_clean(self):
         self.page.write_text(self.page.read_text() + '\nUncommitted data\n')
         with self.assertRaisesRegex(ValueError, 'must be clean'):

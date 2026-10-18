@@ -14,6 +14,7 @@ import sys
 from xml.etree import ElementTree
 
 from trajectory_contract import ROOT, validate_record
+from safe_paths import assert_plain_tree, resolve_regular_file, safe_relative_name
 from pristine_checkout import require_pristine
 from verify_exchange import verify
 
@@ -27,25 +28,29 @@ def export(run, output, hub, log):
     record = json.loads((run/'record.json').read_text())
     plan = json.loads((run/'plan.json').read_text())
     validate_record(record, plan, json.loads((ROOT/'scenarios/catalog.json').read_text()), artifact_root=run)
+    assert_plain_tree(run)
+    for name in record['artifacts']:
+        resolve_regular_file(run, name)
     for label, source in [('qualification', ROOT), ('hub', hub)]:
         expected = record['sources'][label]
         require_pristine(source,expected['commit'],label)
         if subprocess.check_output(['git','-C',str(source),'rev-parse','HEAD'], text=True).strip() != expected['commit']:
             raise ValueError('Source changed before export: '+label)
         for name, sha in expected['files'].items():
-            if hashlib.sha256((source/name).read_bytes()).hexdigest() != sha:
+            if hashlib.sha256(resolve_regular_file(source, name).read_bytes()).hexdigest() != sha:
                 raise ValueError('Source bytes changed before export: '+name)
     output.mkdir(parents=True, exist_ok=False)
-    shutil.copytree(run, output/'native')
+    shutil.copytree(run, output/'native', symlinks=True)
     shutil.copy2(ROOT/'tools/verify_exchange.py', output/'verify_export.py')
     for label, source in [('qualification',ROOT), ('hub',hub)]:
         paths = set(record['sources'][label]['files']) | {'LICENSE'}
         if (source/'NOTICE').exists(): paths.add('NOTICE')
         if label == 'qualification': paths |= {'tools/export_exchange.py','tools/verify_exchange.py','tools/requirements-ci.lock','tools/requirements-serial.txt'}
         for name in sorted(paths):
+            origin = resolve_regular_file(source, name)
             destination = output/'evidence/source'/label/name
             destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source/name, destination)
+            shutil.copy2(origin, destination)
     shutil.copy2(ROOT/'LICENSE', output/'LICENSE')
     write(output/'evidence/source-identities.json', record['sources'])
     write(output/'evidence/evaluator-calibration.json', record['calibration'])

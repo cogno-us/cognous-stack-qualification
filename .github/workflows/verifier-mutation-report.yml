@@ -33,7 +33,16 @@ permissions:
 jobs:
   report:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
+      - name: Validate revision inputs (40-hex commit SHAs only)
+        env:
+          V_REV: ${{ inputs.verifier_revision }}
+          O_REV: ${{ inputs.odes_revision }}
+          QUAL_REV: ${{ inputs.qualification_revision }}
+        run: |
+          for v in "$V_REV" "$O_REV"; do [[ "$v" =~ ^[0-9a-f]{40}$ ]] || { echo "revision input is not a 40-hex commit SHA"; exit 1; }; done
+          [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ inputs.qualification_revision || github.sha }}
@@ -54,9 +63,12 @@ jobs:
         with:
           python-version: '3.12'
       - name: Verify the checked-out revisions
+        env:
+          V_REV: ${{ inputs.verifier_revision }}
+          O_REV: ${{ inputs.odes_revision }}
         run: |
-          test "$(git -C components/verifier rev-parse HEAD)" = "${{ inputs.verifier_revision }}"
-          test "$(git -C components/odes rev-parse HEAD)" = "${{ inputs.odes_revision }}"
+          test "$(git -C components/verifier rev-parse HEAD)" = "$V_REV"
+          test "$(git -C components/odes rev-parse HEAD)" = "$O_REV"
       - name: Install the verifier (standard library only) into its own environment
         run: |
           python -m venv "$RUNNER_TEMP/verifier-env"
@@ -67,11 +79,13 @@ jobs:
         env:
           PYTHONPATH: suites/verifier-mutation
           PYTHONDONTWRITEBYTECODE: '1'
+          V_REV: ${{ inputs.verifier_revision }}
+          O_REV: ${{ inputs.odes_revision }}
         run: |
           mkdir -p results/verifier-mutation
-          python -m verifier_mutation report --odes components/odes --odes-revision "${{ inputs.odes_revision }}" \
+          python -m verifier_mutation report --odes components/odes --odes-revision "$O_REV" \
             --out results/verifier-mutation/mutation-report.json --per-operator results/verifier-mutation/per-operator.json --jobs 4 \
-            --verifier-cmd "$RUNNER_TEMP/verifier-env/bin/cognous-verify {run_record} [--proposal {proposal_export}] [--manifest {manifest}] [--ledger {destination_ledger}] [--witness {witness}] [--holder-inventory {holder_inventory}] --source-revision ${{ inputs.verifier_revision }} --json"
+            --verifier-cmd "$RUNNER_TEMP/verifier-env/bin/cognous-verify {run_record} [--proposal {proposal_export}] [--manifest {manifest}] [--ledger {destination_ledger}] [--witness {witness}] [--holder-inventory {holder_inventory}] --source-revision $V_REV --json"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
