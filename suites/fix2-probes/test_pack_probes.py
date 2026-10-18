@@ -14,7 +14,6 @@ from pathlib import Path
 
 import pytest
 
-from _support import pending
 from conftest import checkout
 
 PINNED = "1" * 40
@@ -73,7 +72,6 @@ def test_other_pinned_commit_is_refused(tmp_path):
     assert refused(tmp_path, real, expected="2" * 40) is True
 
 
-@pending()
 def test_code_ahead_on_the_path_of_the_distribution_is_refused(tmp_path):
     real = layout(tmp_path, "site-real", with_metadata=True)
     other = layout(tmp_path, "site-other", with_metadata=False)

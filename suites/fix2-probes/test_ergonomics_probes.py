@@ -14,7 +14,6 @@ from pathlib import Path
 
 import pytest
 
-from _support import pending
 from conftest import checkout
 
 
@@ -106,10 +105,7 @@ def test_regular_output_directory_gets_diagnostics_only_when_the_run_fails(space
     assert (space / "other-file.txt").read_text() == "KEEP\n"
 
 
-LINK_WRITES = [pytest.param(n, marks=pending()) if n != "success" else n for n in RUNS]  # a passing run writes nothing
-
-
-@pytest.mark.parametrize("name", LINK_WRITES)
+@pytest.mark.parametrize("name", list(RUNS))
 def test_diagnostics_link_target_is_left_unchanged(space, monkeypatch, name):
     argv, outcome, expected = RUNS[name]
     if outcome:
@@ -119,7 +115,7 @@ def test_diagnostics_link_target_is_left_unchanged(space, monkeypatch, name):
     assert (space / "other-file.txt").read_text() == "KEEP\n"
 
 
-@pytest.mark.parametrize("name", [pytest.param(n, marks=pending()) for n in RUNS])
+@pytest.mark.parametrize("name", list(RUNS))
 def test_no_diagnostics_link_remains_in_the_output_directory(space, monkeypatch, name):
     argv, outcome, expected = RUNS[name]
     if outcome:
@@ -151,7 +147,6 @@ def test_action_helper_writes_diagnostics_into_a_regular_directory(space):
     assert (space / "other-file.txt").read_text() == "KEEP\n"
 
 
-@pending()
 def test_action_helper_does_not_write_through_a_diagnostics_link(space):
     helper = _load_action_helper()
     plant(space)

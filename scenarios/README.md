@@ -16,7 +16,7 @@ A = Agentic Testing Engineering Addendum, 15 October 2026. B = Consolidated Engi
 | [D06](#d06) | Ingress pressure | deterministic | NOT RUN |
 | [D07](#d07) | Restore boundary | deterministic | NOT RUN |
 | [D08](#d08) | Audit and export | deterministic | NOT RUN |
-| [D09](#d09) | Bypass and interruption | deterministic | NOT RUN |
+| [D09](#d09) | Bypass and interruption | deterministic | NOT RUN (catalog record); partial implementation, see [D09](#d09) |
 | [A01](#a01) | Workflow fidelity | agent_and_human | NOT RUN |
 | [A02](#a02) | Indirect injection | agent_and_human | NOT RUN |
 | [A03](#a03) | Memory continuity | agent_and_human | NOT RUN |
@@ -156,6 +156,14 @@ Source: A, 3 Minimum deterministic acceptance suite.
 **Required observation:** Inventory and test all supported routes; state matches documented commit ordering. Do not claim reversal after an irreversible commit.
 
 **Applicability:** Requires a declared supported profile and the relevant capability. Determine before execution; unsupported capability is NOT APPLICABLE with a reason, never a pass.
+
+**Implementation note (V1 reference).** The status above is the catalog record and is unchanged. A partial implementation exists in `suites/v1-scenarios/test_scn_d09.py` (32 cases, each run twice from fresh stores, normalised observations compared). It covers the bounded Linux synthetic reference only, and the V1 validation records it as INCONCLUSIVE (see [v1-known-limits](../docs/v1-known-limits.md)).
+
+- **Route inventory.** Eleven routes are declared; eight are exercised: the pinned executor route, the atomic claim route, the governed-exchange ingress, the Control Plane local destination, direct commit bypass, the legacy write path on an atomic-profile database, the legacy write path on an intent-profile database, and the legacy agent engine shell. The call sites that can mutate a destination are discovered statically and must match a declared table exactly, so a new route fails the case.
+- **Not exercised.** The OpenShell destination (needs a pinned gateway, Docker and an OCI image), the legacy CLI (asserted statically to reference no destination or executor route), and direct SQL by a holder of the SQLite file (declared out of model).
+- **Cancellation.** The reference has no executor-level cancel call outside the OpenShell destination, so the cases use withdrawal of authority as the analogue, placed before execution, at the commit boundary, inside the commit transaction, after a durable commit with a lost acknowledgement, and after acknowledgement (routes A and B; route C before commit and after commit). A withdrawal that lands first prevents the effect; one that lands later leaves the committed effect in place. The cases assert that no result, journal or state claims a reversal.
+- **Bypass.** Direct commit without the precondition, with a stale digest, with the correct digest after revocation, direct `execute_snapshot` and direct adapter `apply` must leave the destination unchanged.
+- **Scope limit.** Authority is evaluated inside the destination's `BEGIN IMMEDIATE` transaction of a local SQLite store. Nothing here covers a distributed destination.
 
 ## A01
 
