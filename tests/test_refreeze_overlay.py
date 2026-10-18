@@ -135,7 +135,9 @@ R5_PINS = {'control_plane': '3cd17ead6b24301290ad1e50ae4b22bbd93c12fb', 'runtime
 # Programme 2 gap fixes (r6): ODES with the P2 compatibility tuple (#97) and the exchange compatibility profile (#37) (RF-23, RF-24)
 R6_PINS = dict(R5_PINS, odes='81979784117588d199da6fdceb05264f8c5903a6', exchange='ba9fa16052a3d99b08d1d31b4f5dca2bdef0c608')
 # Programme 2 documentation and alignment fixes (r7): ODES with the P4/P2 profile versions documented (#98) and the exchange with the p2 profile's ODES pin aligned (#39) (RF-25, RF-26)
-NEW = dict(R5_PINS, odes='e2cbc0dcee795d1ba100e028107fdfe6d0bc9e21', exchange='06f58c329fe5221a0bfed47e9af9dc02405a93c3')
+R7_PINS = dict(R5_PINS, odes='e2cbc0dcee795d1ba100e028107fdfe6d0bc9e21', exchange='06f58c329fe5221a0bfed47e9af9dc02405a93c3')
+# Programme 2 documentation cleanup and alignment (r8): ODES with the README, conformance and decision-36 documentation corrections (#99) and the exchange with the p2 profile's ODES pin aligned (#40) (RF-27, RF-28)
+NEW = dict(R5_PINS, odes='cdf704c88bb6542e3f1121a5ceb6cb03fc7d6a52', exchange='8721e8d358baaec3663b9183e09a14ae4e464e7c')
 R1_PINS = {'runtime': '4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f', 'replay': '0cfe7a6319930bccad3e9027a1dfbe3d6e29d657',
            'odes': '4e6d11691b9dea56a70026b6519159cf0e0ffd8b', 'evidence_pack': '683246e05d291308211778ec48045df65466461f',
            'exchange': 'da95378228b8f3205af49a86e68ba722961f6af0'}
@@ -146,12 +148,13 @@ R4 = 'process/security-runtime-f5b-20261016-r4.json'
 R5 = 'process/security-runtime-f5b-20261016-r5.json'
 R6 = 'process/security-runtime-f5b-20261016-r6.json'
 R7 = 'process/security-runtime-f5b-20261016-r7.json'
+R8 = 'process/security-runtime-f5b-20261016-r8.json'
 AUTH_OLD = 'fb3d97938969a89e149e8ff8db2756091d1233fc'
 AUTH_NEW = 'cbc39e79a1328a74b6cb1aba0cd1e5149164865d'  # RF-17: institutional-governance main with the F-15 fix (#51)
 
 
 class CurrentPins(unittest.TestCase):
-    """Resolved pins equal the pins in force: the freeze manifest plus RF-1 (Index), RF-2..RF-16 (the P4 generation of the decoupling plan), RF-17 (the constitutional authority, F-15), RF-18..RF-22 (the Programme 2 generation), RF-23, RF-24 (the ODES and exchange compatibility gap fixes) and RF-25, RF-26 (the ODES documentation fix and the exchange pin alignment)."""
+    """Resolved pins equal the pins in force: the freeze manifest plus RF-1 (Index), RF-2..RF-16 (the P4 generation of the decoupling plan), RF-17 (the constitutional authority, F-15), RF-18..RF-22 (the Programme 2 generation), RF-23, RF-24 (the ODES and exchange compatibility gap fixes) and RF-25, RF-26 (the ODES documentation fix and the exchange pin alignment) and RF-27, RF-28 (the ODES documentation cleanup and the second exchange pin alignment)."""
     def test_resolved_pins_equal_todays_literals(self):
         self.assertEqual(_pins.FROZEN_HUB, '8517818fbf817897aacfb6fe7898c22aea46fd95')
         self.assertEqual(_pins.FROZEN_RUNTIME, NEW['runtime'])
@@ -167,12 +170,12 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.REFROZEN_INDEX_PIN, 'd17b8ac2b8445d385fbf51185a35914b2d8b835c')
         self.assertEqual(_pins.C14_PINS, {'control_plane': NEW['control_plane'],
                                           'moltbot_safe': NEW['runtime'], 'replay': NEW['replay']})
-        self.assertEqual(_pins.PROFILE_RELPATH, R7)  # the newest profile whose refreeze_ids are all applied
+        self.assertEqual(_pins.PROFILE_RELPATH, R8)  # the newest profile whose refreeze_ids are all applied
         self.assertEqual(_pins.RESOLVED_MANIFEST['components_lock_remainder']['constitutional_authority']['sha'], AUTH_NEW)  # RF-17 through the overlay
         self.assertEqual(_pins.ORIGINAL_MANIFEST['components_lock_remainder']['constitutional_authority']['sha'], AUTH_OLD)
 
-    def test_profile_pins_equal_the_r7_qualification_profile(self):
-        prof = json.loads((ROOT / R7).read_text())
+    def test_profile_pins_equal_the_r8_qualification_profile(self):
+        prof = json.loads((ROOT / R8).read_text())
         self.assertEqual(_pins.PROFILE_PINS, {k: v['revision'] for k, v in prof['components'].items()})
 
     def test_controller_workflow_v1_profile_equals_the_profile_the_overlay_selects(self):
@@ -293,13 +296,32 @@ class CurrentPins(unittest.TestCase):
             self.assertIs(r7[key], False)
         self.assertEqual(r7['constitutional_authority'], r6['constitutional_authority'])
         for name in ('odes', 'exchange'):
-            self.assertEqual(r7['components'][name]['revision'], NEW[name])
+            self.assertEqual(r7['components'][name]['revision'], R7_PINS[name])
             self.assertEqual(r6['components'][name]['revision'], R6_PINS[name])
         for key in ('profile_id', 'supersedes_profile', 'refreeze_ids', 'note', 'limitations'):
             r6.pop(key, None); r7.pop(key)
         for name in ('odes', 'exchange'):
             r7['components'][name]['revision'] = r6['components'][name]['revision']
         self.assertEqual(r7, r6)  # control plane, runtime, Replay, evidence pack, manifest, authority, the suite generation and the exchange compatibility profile are r6's
+
+    def test_r8_profile_is_r7_with_only_the_odes_and_exchange_pins_changed(self):
+        r7 = json.loads((ROOT / R7).read_text())
+        r8 = json.loads((ROOT / R8).read_text())
+        self.assertEqual(r8['profile_id'], 'security-runtime-f5b-20261016-r8')
+        self.assertEqual(r8['supersedes_profile'], R7)
+        self.assertEqual(r8['refreeze_ids'], ['RF-%d' % i for i in range(2, 29)])
+        self.assertEqual((r8['suite_generation'], r8['exchange_compatibility_profile']), ('p2', 'security-runtime-p2-20261018'))
+        for key in ('selected', 'reference_release_authorized', 'production_deployment_authorized'):
+            self.assertIs(r8[key], False)
+        self.assertEqual(r8['constitutional_authority'], r7['constitutional_authority'])
+        for name in ('odes', 'exchange'):
+            self.assertEqual(r8['components'][name]['revision'], NEW[name])
+            self.assertEqual(r7['components'][name]['revision'], R7_PINS[name])
+        for key in ('profile_id', 'supersedes_profile', 'refreeze_ids', 'note', 'limitations'):
+            r7.pop(key, None); r8.pop(key)
+        for name in ('odes', 'exchange'):
+            r8['components'][name]['revision'] = r7['components'][name]['revision']
+        self.assertEqual(r8, r7)  # control plane, runtime, Replay, evidence pack, manifest, authority, the suite generation and the exchange compatibility profile are r7's
 
     def test_select_profile_picks_newest_fully_applied_profile(self):
         done = 'APPLIED-IN-WORKFLOW (pending full controller run)'
@@ -317,7 +339,9 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.select_profile(ids(23)), R5)
         self.assertEqual(_pins.select_profile(ids(24)), R6)          # r7 needs RF-25, RF-26 too
         self.assertEqual(_pins.select_profile(ids(25)), R6)
-        self.assertEqual(_pins.select_profile(ids(26)), R7)
+        self.assertEqual(_pins.select_profile(ids(26)), R7)          # r8 needs RF-27, RF-28 too
+        self.assertEqual(_pins.select_profile(ids(27)), R7)
+        self.assertEqual(_pins.select_profile(ids(28)), R8)
         partial = ids(10); partial['entries'][-1]['status'] = 'PROPOSED'
         self.assertEqual(_pins.select_profile(partial), R1)
         partial = ids(16); partial['entries'][-1]['status'] = 'PROPOSED'
@@ -330,6 +354,8 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.select_profile(partial), R5)
         partial = ids(26); partial['entries'][-1]['status'] = 'PROPOSED'
         self.assertEqual(_pins.select_profile(partial), R6)
+        partial = ids(28); partial['entries'][-1]['status'] = 'PROPOSED'
+        self.assertEqual(_pins.select_profile(partial), R7)
 
     def test_original_profile_and_freeze_manifest_are_unedited(self):
         import hashlib
@@ -340,15 +366,15 @@ class CurrentPins(unittest.TestCase):
     def test_repo_log_applies_cleanly_and_changes_the_index_the_authority_and_the_six_components(self):
         m = manifest()
         r, applied = _pins.apply_overlay(m, _pins.load_refreeze_log())
-        self.assertEqual([a[0] for a in applied], ['RF-%d' % i for i in range(1, 27)])
+        self.assertEqual([a[0] for a in applied], ['RF-%d' % i for i in range(1, 29)])
         changed = {(g, k) for g in _pins.GROUPS for k in m.get(g, {}) if m[g][k]['sha'] != r[g][k]['sha']}
         self.assertEqual(changed, {('components_lock_remainder', 'the_index'), ('components_subject', 'moltbot_safe'),
                                    ('components_subject', 'control_plane'),
                                    ('components_subject', 'replay_bundle'), ('components_subject', 'odes'),
                                    ('components_subject', 'governance_evidence_pack'), ('components_subject', 'gax_imx_transport'),
                                    ('components_lock_remainder', 'constitutional_authority')})
-        self.assertEqual(len(_pins.GENERATIONS), 25)  # original + RF-2..RF-16 + RF-18..RF-26; RF-1 (Index) and RF-17 (authority) are not seven-component profile generations
-        self.assertEqual([g[0] for g in _pins.GENERATIONS], ["original-freeze"] + ["RF-%d" % i for i in range(2, 17)] + ["RF-%d" % i for i in range(18, 27)])
+        self.assertEqual(len(_pins.GENERATIONS), 27)  # original + RF-2..RF-16 + RF-18..RF-28; RF-1 (Index) and RF-17 (authority) are not seven-component profile generations
+        self.assertEqual([g[0] for g in _pins.GENERATIONS], ["original-freeze"] + ["RF-%d" % i for i in range(2, 17)] + ["RF-%d" % i for i in range(18, 29)])
 
     def test_no_pin_literal_left_in_helpers(self):
         pinned = {s['sha'] for g in _pins.GROUPS for s in manifest().get(g, {}).values()} | {manifest()['identities']['hub']['head'],

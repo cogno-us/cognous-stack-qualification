@@ -239,7 +239,7 @@ class RealMatrixFile(unittest.TestCase):
 
     def test_every_profile_component_has_a_gate(self):
         m = M.load_matrix()
-        profile = json.loads((ROOT / 'process/security-runtime-f5b-20261016-r7.json').read_text())
+        profile = json.loads((ROOT / 'process/security-runtime-f5b-20261016-r8.json').read_text())
         self.assertEqual(set(profile['components']), set(M.governed_components(m)) | set(M.sha_pinned_components(m)))
 
 
