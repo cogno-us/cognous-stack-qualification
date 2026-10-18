@@ -6,7 +6,8 @@ trace verdict with ``overall_verdict`` (``reject`` if any check is refuted, ``ab
 checked or there is none, ``accept`` if every check is confirmed). A crash, a time-out, output that is not JSON and a report the
 validator refuses are all ``error``: never a verdict and never detection. The exit status is not read as a verdict.
 
-Template: ``cognous-verify --run-record {run_record} [--proposal {proposal_export}] [--ledger {destination_ledger}]``. A bracketed
+Template: ``cognous-verify --run-record {run_record} [--proposal {proposal_export}] [--ledger {destination_ledger}] [--witness {witness}]
+[--holder-inventory {holder_inventory}]``. A bracketed
 group is included only when every placeholder inside it has a file; an unbracketed placeholder must be ``{run_record}``.
 SPDX-License-Identifier: Apache-2.0
 """
@@ -23,7 +24,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from . import contract
-from .trace import FILENAMES, ROLES
+from .trace import ABSENT_FILE, FILENAMES, ROLES
 
 PLACEHOLDER = re.compile(r"\{(" + "|".join(ROLES) + r")\}")
 VERDICTS = ("reject", "accept", "abstain", "error")
@@ -129,7 +130,8 @@ class Runner:
             paths = {}
             for role, data in files.items():
                 path = Path(tmp) / FILENAMES[role]
-                path.write_bytes(data)
+                if data != ABSENT_FILE:  # family H8: the path is passed, no file exists there
+                    path.write_bytes(data)
                 paths[role] = path
             env = {k: v for k, v in os.environ.items() if k in ("PATH", "HOME", "LANG", "LC_ALL", "SYSTEMROOT", "VIRTUAL_ENV", "PYTHONPATH")}
             env["PYTHONDONTWRITEBYTECODE"] = "1"

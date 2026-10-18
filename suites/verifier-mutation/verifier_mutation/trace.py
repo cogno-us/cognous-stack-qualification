@@ -2,7 +2,9 @@
 
 A trace has up to four files, named by role (the ODES verification-report input roles): ``run_record`` (the native bounded run
 record), ``proposal_export`` (the full proposal model dump, nulls included), ``manifest`` and ``destination_ledger`` (the
-destination file as the control plane's local destination wrote it).
+destination file as the control plane's local destination wrote it). A witnessed trace (catalogue version 3, family H) also has
+``witness`` (the ``witness-digest/0.1`` JSON-lines file ``acp witness publish`` wrote) and may have ``holder_inventory``; it can carry
+extra files (an earlier snapshot of the record and the destination taken at an earlier publication) that no verifier is given.
 SPDX-License-Identifier: Apache-2.0
 """
 from __future__ import annotations
@@ -14,13 +16,22 @@ from typing import Any, Mapping
 
 from .jsonio import digest, parse_lenient
 
-ROLES = ("run_record", "proposal_export", "manifest", "destination_ledger")
+ROLES = ("run_record", "proposal_export", "manifest", "destination_ledger", "witness", "holder_inventory")
 FILENAMES = {
     "run_record": "bounded-run-record.json",
     "proposal_export": "proposal.json",
     "manifest": "manifest.json",
     "destination_ledger": "destination.json",
+    "witness": "witness.jsonl",
+    "holder_inventory": "holder-inventory.json",
 }
+#: extra files of a witnessed trace (operator material only, never given to the verifier)
+EXTRA_FILENAMES = {
+    "earlier_run_record": "earlier-bounded-run-record.json",
+    "earlier_destination_ledger": "earlier-destination.json",
+}
+#: a role whose content is this marker is passed to the verifier as a path that does not exist (family H8, witness file absent)
+ABSENT_FILE = b"\x00verifier-mutation:absent-file\x00"
 MEASURES = ("unauthorized_effects", "excess_duplicate_effects", "authorized_count", "held_count")
 
 
@@ -48,7 +59,13 @@ def load_clean_corpus(root: Path) -> tuple[dict[str, Any], list[Trace]]:
             if digest(data) != recorded:
                 raise ValueError(f"{entry['trace_id']}/{FILENAMES[role]}: digest differs from the corpus manifest")
             files[role] = data
-        traces.append(Trace(entry["trace_id"], entry["scenario"], files, entry.get("description", "")))
+        extra: dict[str, bytes] = {}
+        for name, recorded in sorted(entry.get("extra_files", {}).items()):
+            data = (directory / EXTRA_FILENAMES[name]).read_bytes()
+            if digest(data) != recorded:
+                raise ValueError(f"{entry['trace_id']}/{EXTRA_FILENAMES[name]}: digest differs from the corpus manifest")
+            extra[name] = data
+        traces.append(Trace(entry["trace_id"], entry["scenario"], files, entry.get("description", ""), extra))
     ids = [t.trace_id for t in traces]
     if ids != sorted(ids) or len(set(ids)) != len(ids):
         raise ValueError("corpus manifest traces must be unique and sorted by trace_id")

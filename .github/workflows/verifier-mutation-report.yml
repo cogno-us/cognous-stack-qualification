@@ -1,7 +1,7 @@
 name: Verifier mutation report (design S5, family T)
 # Opt-in, report-only. Dispatch or workflow_call only: never on push, not a required check, selects nothing and changes no verdict,
 # profile or pin. Runs the independent verifier as an external process over the frozen clean corpus and its generated mutants and the
-# ODES fixtures, and uploads the ODES verification-report mutation report. The harness proof itself (stubs) runs in Catalog validation.
+# ODES fixtures, and (catalogue v3) the witnessed corpus with --witness/--holder-inventory, and uploads the ODES verification-report mutation report. The harness proof itself (stubs) runs in Catalog validation.
 'on':
   workflow_dispatch:
     inputs:
@@ -62,7 +62,7 @@ jobs:
           python -m venv "$RUNNER_TEMP/verifier-env"
           "$RUNNER_TEMP/verifier-env/bin/python" -m pip install ./components/verifier
       - name: Harness proof with stubs
-        run: python -m unittest tests.test_verifier_mutation_harness
+        run: python -m unittest tests.test_verifier_mutation_harness tests.test_verifier_mutation_witnessed
       - name: Run the mutation harness
         env:
           PYTHONPATH: suites/verifier-mutation
@@ -70,8 +70,8 @@ jobs:
         run: |
           mkdir -p results/verifier-mutation
           python -m verifier_mutation report --odes components/odes --odes-revision "${{ inputs.odes_revision }}" \
-            --out results/verifier-mutation/mutation-report.json --jobs 4 \
-            --verifier-cmd "$RUNNER_TEMP/verifier-env/bin/cognous-verify {run_record} [--proposal {proposal_export}] [--manifest {manifest}] [--ledger {destination_ledger}] --source-revision ${{ inputs.verifier_revision }} --json"
+            --out results/verifier-mutation/mutation-report.json --per-operator results/verifier-mutation/per-operator.json --jobs 4 \
+            --verifier-cmd "$RUNNER_TEMP/verifier-env/bin/cognous-verify {run_record} [--proposal {proposal_export}] [--manifest {manifest}] [--ledger {destination_ledger}] [--witness {witness}] [--holder-inventory {holder_inventory}] --source-revision ${{ inputs.verifier_revision }} --json"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

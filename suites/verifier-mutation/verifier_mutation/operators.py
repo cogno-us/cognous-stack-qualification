@@ -27,8 +27,9 @@ from typing import Any, Callable
 from .jsonio import Pairs, Raw, commitment, dump_file_bytes, dumps
 from .trace import FILENAMES, ROLES, Trace
 
-OPERATOR_VERSION = "2"
+OPERATOR_VERSION = "3"
 EXPECTED_ACCEPT = ("B", "F", "R6")
+EXPECTED_ABSTAIN = ("H7", "H8")  # catalogue version 3, family H controls (ODES decision 28)
 CATEGORIES_WITHOUT_OPERATOR = ("L1", "Q")
 NOT_APPLICABLE_CATEGORIES = ("Q",)
 
@@ -70,7 +71,7 @@ class Operator:
 
     @property
     def expected_verdict(self) -> str:
-        return "accept" if self.category in EXPECTED_ACCEPT else "reject"
+        return "accept" if self.category in EXPECTED_ACCEPT else "abstain" if self.category in EXPECTED_ABSTAIN else "reject"
 
 
 OPERATORS: list[Operator] = []
