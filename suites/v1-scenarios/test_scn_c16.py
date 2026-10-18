@@ -114,7 +114,7 @@ def test_scn_c16_route_b_exhaustion_persists_across_restart_and_fresh_claims(req
         executor = type(flow.executor)(workflow=object(), destination=reopened, policy=flow.policy)
         after_restart = H.atomic_view(*H.execute_b(flow, flow.parts[2], executor=executor))
         # fresh authority for a 4th agent naming the same budget with the same declared limit: provisioning is allowed, execution is not
-        env4 = flow.helpers.envelope(effect_no=4)
+        env4 = H.envelope_with_cap(flow.helpers, 4, 2)
         claim4 = flow.helpers.make_claim(env4, claim_id='claim-4', budget_id='budget-main', max_effects=2)
         reopened.provision_claim(claim4)
         fourth = H.atomic_view(*H.execute_b(flow, type('P', (), {'env': env4, 'claim': claim4})(), executor=executor))
@@ -204,11 +204,11 @@ def test_scn_c16_route_b_budget_cannot_be_inflated_or_reset_by_another_agent(req
         checks.expect('already provisioned' in attempts['reprovision_same_claim_id'], f'claim identity cannot be re-provisioned; observed {attempts["reprovision_same_claim_id"]}')
         checks.equal(s['budgets'], [('budget-main', 2, 1)], 'budget limit and usage are unchanged by the attempts')
         # the budget can still be spent exactly to its limit by a legitimate second agent and not beyond
-        env2 = h.envelope(effect_no=2)
+        env2 = H.envelope_with_cap(h, 2, 2)
         claim2 = h.make_claim(env2, claim_id='claim-2', budget_id='budget-main', max_effects=2)
         flow.dest.provision_claim(claim2)
         second = H.atomic_view(*H.execute_b(flow, type('P', (), {'env': env2, 'claim': claim2})()))
-        env3 = h.envelope(effect_no=3)
+        env3 = H.envelope_with_cap(h, 3, 2)
         claim3 = h.make_claim(env3, claim_id='claim-3', budget_id='budget-main', max_effects=2)
         flow.dest.provision_claim(claim3)
         third = H.atomic_view(*H.execute_b(flow, type('P', (), {'env': env3, 'claim': claim3})()))

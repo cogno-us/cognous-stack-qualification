@@ -62,6 +62,8 @@ EXPECTED_CALL_SITES = {
     'runtime/engine/control_plane_adapter.py': 'ControlPlaneRefundDestinationAdapter.apply -> execute_snapshot',
     'runtime/engine/atomic_local_control_plane_executor.py': 'AtomicLocalControlPlaneExecutor.execute -> execute_claim_atomic',
     'runtime/engine/refund_intent.py': 'IntentRefundDestination.commit -> super().commit',
+    'runtime/engine/dedupe_destination.py': 'DedupeTtlMixin.commit -> super().commit (opt-in dedupe-ttl/0.1 wrapper around the same destination commit path; reached only through execute_snapshot)',
+    'runtime/engine/delayed_commit_destination.py': 'DelayedCommitMixin.commit -> super().commit (opt-in delayed-commit/0.1 wrapper, in-flight and land() go through the same commit path; reached only through execute_snapshot)',
     'runtime/engine/openshell_worker.py': 'sandbox worker destination.commit (OpenShell route)',
     'control_plane/src/agent_control_plane/bounded.py': 'BoundedAuthorizationWorkflow.execute -> destination.apply',
 }

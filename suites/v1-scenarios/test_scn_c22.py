@@ -209,7 +209,7 @@ class V1Arm:
         self.claims = {}
         self.base_env = {}
         for n, amount in case['approved'].items():
-            env = h.envelope(effect_no=n)
+            env = H.envelope_with_cap(h, n, case['cap'])
             env = dataclasses.replace(env, operation=dataclasses.replace(env.operation, amount=float(amount)))
             claim = h.make_claim(env, claim_id=f'claim-{n}', budget_id='budget-main', max_effects=case['cap'])
             self.dest.provision_claim(claim)

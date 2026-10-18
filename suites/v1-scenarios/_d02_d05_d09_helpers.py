@@ -466,6 +466,19 @@ def hooked_atomic_class():
     return _HOOKED
 
 
+def envelope_with_cap(h, effect_no, cap, **kwargs):
+    """The route-B envelope whose ``effective_max_effects`` equals ``cap``.
+
+    Programme 2 (runtime 11de097c): the atomic route binds the claim's ``max_effects`` to the envelope's ``effective_max_effects`` and
+    refuses a mismatch (``execution claim operation mismatch: effective_max_effects``). A shared-budget claim whose budget limit differs
+    from the envelope's cap is therefore refused; the scenarios build the envelope with the same value as the claim so the budget flow
+    is the thing under test (the refusal itself is recorded in docs/v1-known-limits.md for the owner's review)."""
+    env = h.envelope(effect_no=effect_no, **kwargs)
+    if int(env.operation.effective_max_effects) != int(cap):
+        env = dataclasses.replace(env, operation=dataclasses.replace(env.operation, effective_max_effects=int(cap)))
+    return env
+
+
 def flow_b(work, *, tenant=None, effect_nos=(1,), budget_max=None, claim_tenant_override=None):
     """Atomic-claim flow with one claim per part (shared budget when several parts)."""
     ref = reference()
@@ -479,7 +492,7 @@ def flow_b(work, *, tenant=None, effect_nos=(1,), budget_max=None, claim_tenant_
     max_effects = budget_max or len(effect_nos)
     for n in effect_nos:
         if tenant is None:
-            env = h.envelope(effect_no=n)
+            env = envelope_with_cap(h, n, max_effects)
             claim = h.make_claim(env, claim_id=f'claim-{n}', budget_id='budget-main', max_effects=max_effects)
         else:
             base = h.envelope(effect_no=n, effect_id=f'effect-tenant-{n}')
