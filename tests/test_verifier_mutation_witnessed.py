@@ -494,5 +494,55 @@ class RetainedRun4(unittest.TestCase):
         self.assertEqual(ops['H8.witness-file-absent']['verdicts'], {'reject': 0, 'accept': 0, 'abstain': 0, 'error': 17})
 
 
+class RetainedRun5(unittest.TestCase):
+    """The retained run 5 report (verifier 0a43a7f0, ODES 304f6cc3, catalogue 3.2): it validates, names its pins, and moves from run 4 only where intended."""
+
+    DIR = ROOT / 'results' / 'verifier-mutation' / 'run-5-0a43a7f0'
+    doc = property(lambda self: json.loads((self.DIR / 'mutation-report.json').read_text()))
+
+    def test_validates_and_names_its_pins(self):
+        doc = self.doc
+        self.assertEqual(ODES.validate(doc), [])
+        h = doc['mutation_report']['extensions']['x-qualification-harness']
+        self.assertEqual(doc['verifier']['source_revision'], '0a43a7f0216cb0300f198e69d1c2f6d3acb19c1a')
+        self.assertEqual(h['seed_corpus']['odes_revision'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')
+        self.assertEqual(h['witnessed']['seed_corpus']['odes_revision'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')
+        self.assertEqual(h['operator_version'], '3.2')
+        self.assertEqual(h['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
+        self.assertEqual(h['witnessed']['clean_traces'], {'n': 17, 'verdicts': {'reject': 0, 'accept': 17, 'abstain': 0, 'error': 0}})
+
+    def test_clean_false_rejection_is_zero_in_every_clean_corpus(self):
+        for c in self.doc['mutation_report']['clean']:
+            with self.subTest(corpus=c['corpus_id']):
+                self.assertTrue(all(r['false_rejection']['k'] == 0 for r in c['rows']))
+
+    def test_family_h_and_the_controls(self):
+        mr = self.doc['mutation_report']
+        by = {o['operator_id']: o for o in json.loads((self.DIR / 'per-operator.json').read_text())['operators'] if o['population'] == 'witnessed'}
+        self.assertEqual(by['H4.ledger-removed']['verdicts'], {'reject': 31, 'accept': 0, 'abstain': 0, 'error': 0})
+        self.assertEqual({k: o['verdicts'] for k, o in by.items() if o['not_rejected']}, {})  # no missed detection in family H
+        h4 = next(r for r in next(c for c in mr['family_t'] if c['corpus_id'] == 't-generated-witnessed')['categories'] if r['category'] == 'H4')
+        self.assertEqual(h4['verdicts'], {'reject': 229, 'accept': 1, 'abstain': 0, 'error': 0})  # the 1 accept is the known-limit control
+        w = mr['extensions']['x-qualification-harness']['witnessed']
+        kl = w['known_limit_controls']
+        self.assertEqual([(k['operator_id'], k['n_eff'], k['accepted_as_expected'], k['other']) for k in kl], [('H4.destination-row-dropped-uncorroborated', 1, 1, [])])
+        self.assertEqual(w['input_error_controls'], [{'operator_id': 'H8.witness-file-absent', 'expected_outcome': 'input_error', 'n_eff': 17, 'exit_2_no_report': 17, 'other': []}])
+        self.assertEqual(w['flags'], [])
+        self.assertEqual(by['H8.witness-file-absent']['unexpected'], [])
+
+    def test_only_the_intended_rows_differ_from_run_4(self):
+        r4 = json.loads((ROOT / 'results' / 'verifier-mutation' / 'run-4-5974c50' / 'mutation-report.json').read_text())['mutation_report']
+        r5 = self.doc['mutation_report']
+        pick = lambda m, cid: next(c for c in m['family_t'] + m['clean'] if c['corpus_id'] == cid)
+        for cid in ('t-generated', 'clean-generated'):
+            self.assertEqual(pick(r4, cid), pick(r5, cid))  # unwitnessed rows identical to run 4
+        w4, w5 = pick(r4, 't-generated-witnessed'), pick(r5, 't-generated-witnessed')
+        d4 = {c['category']: c for c in w4['categories']}
+        for c in w5['categories']:
+            if c['category'] != 'H4':
+                self.assertEqual(c, d4[c['category']], c['category'])
+        self.assertEqual(pick(r4, 'clean-generated-witnessed')['rows'], pick(r5, 'clean-generated-witnessed')['rows'])
+
+
 if __name__ == '__main__':
     unittest.main()
