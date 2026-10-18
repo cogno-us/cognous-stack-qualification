@@ -409,5 +409,42 @@ class WitnessSeeds(unittest.TestCase):
         self.assertEqual(seeds.digests()[0][0], jsonio.commitment(entries))
 
 
+class RetainedRun4(unittest.TestCase):
+    """The retained run 4 report (verifier 5974c50, ODES 296e6bce, catalogue v3): it validates, names its pins, keeps the populations apart."""
+
+    DIR = ROOT / 'results' / 'verifier-mutation' / 'run-4-5974c50'
+
+    def test_validates_and_names_its_pins(self):
+        doc = json.loads((self.DIR / 'mutation-report.json').read_text())
+        self.assertEqual(ODES.validate(doc), [])
+        mr = doc['mutation_report']
+        h = mr['extensions']['x-qualification-harness']
+        contract_doc = json.loads((SUITE / 'contract' / 'verification-report' / 'CONTRACT.json').read_text())
+        self.assertEqual(doc['verifier']['source_revision'], '5974c505e8b01b529fe1852c5b5deefe78a1c677')
+        self.assertEqual(h['seed_corpus']['odes_revision'], contract_doc['odes_commit'])
+        self.assertEqual(h['witnessed']['seed_corpus']['odes_revision'], contract_doc['odes_commit'])
+        self.assertEqual(mr['operator_set_digest'], jsonio.digest((SUITE / 'operators.json').read_bytes()))
+        self.assertEqual(h['operator_version'], '3')
+        self.assertEqual(h['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
+        self.assertEqual(h['witnessed']['clean_traces'], {'n': 17, 'verdicts': {'reject': 0, 'accept': 17, 'abstain': 0, 'error': 0}})
+        self.assertIn('witness_is_not_publication', {n['id'] for n in doc['does_not_prove']})
+        clean_w = next(c for c in mr['clean'] if c['corpus_id'] == 'clean-generated-witnessed')
+        self.assertTrue(all(r['false_rejection']['k'] == 0 for r in clean_w['rows']))
+
+    def test_unwitnessed_rows_equal_run_3(self):
+        a = json.loads((ROOT / 'results' / 'verifier-mutation' / 'run-3-adb8927' / 'mutation-report.json').read_text())['mutation_report']
+        b = json.loads((self.DIR / 'mutation-report.json').read_text())['mutation_report']
+        pick = lambda m, cid: next(c for c in m['family_t'] + m['clean'] if c['corpus_id'] == cid)
+        self.assertEqual(pick(a, 't-generated'), pick(b, 't-generated'))
+        self.assertEqual(pick(a, 'clean-generated'), pick(b, 'clean-generated'))
+
+    def test_the_misses_are_the_ones_the_readme_lists(self):
+        ops = {o['operator_id']: o for o in json.loads((self.DIR / 'per-operator.json').read_text())['operators'] if o['population'] == 'witnessed'}
+        missed = {k: o['verdicts'] for k, o in ops.items() if o['not_rejected']}
+        self.assertEqual(missed, {'H4.destination-row-dropped-uncorroborated': {'reject': 0, 'accept': 1, 'abstain': 0, 'error': 0},
+                                  'H4.ledger-removed': {'reject': 19, 'accept': 0, 'abstain': 12, 'error': 0}})
+        self.assertEqual(ops['H8.witness-file-absent']['verdicts'], {'reject': 0, 'accept': 0, 'abstain': 0, 'error': 17})
+
+
 if __name__ == '__main__':
     unittest.main()
