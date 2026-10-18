@@ -41,7 +41,8 @@ C_INV = "holder_inventory_shape"
 
 def hop(category: str, variant: str, codes: tuple[str, ...], roles: tuple[str, ...] = ("run_record", "witness")):
     def deco(fn: Callable[[Ctx], None]) -> Callable[[Ctx], None]:
-        WITNESS_OPERATORS.append(Operator(f"{category}.{variant}", category, variant, codes, roles, (fn.__doc__ or "").strip(), fn))
+        # one line, whitespace collapsed: Python 3.13 dedents docstrings at compile time and 3.12 does not, and operators.json must not depend on it
+        WITNESS_OPERATORS.append(Operator(f"{category}.{variant}", category, variant, codes, roles, " ".join((fn.__doc__ or "").split()), fn))
         return fn
 
     return deco

@@ -10,7 +10,7 @@
   "operators.py": "a9b5868c3bddcc8cd2723362a6d29fb7b4aecf5d765cdaa8b4ef7c2b3c0a58cd",
   "corpus.py": "95444ba72be95678cf18e3e668551a7da2e39695b0ba0c5db4f0b4a82a510b32",
   "trace.py": "8e664ab91859595f82c1a3d3fa105b123f661d4764aa73a7b867970a470b1f82",
-  "witness_operators.py": "cc25a2db472e548564d59c14565ad1eae445017b6655257f7c8fc81bfa2d9304"
+  "witness_operators.py": "6a2dde41da2492a5c276c9695c5e4e84824bfe50d568485f33d0d26aac909b6c"
  },
  "categories_with_operator": [
   "A1",
@@ -1220,7 +1220,7 @@
    "roles": [
     "holder_inventory"
    ],
-   "description": "A second holder with the id of an enumerated holder (kind ``other``). The profile defines no uniqueness rule; the ODES draft pins this\nas valid (``repeated-holder-id-is-not-refused``). Contract-valid, not value-equal: an accept is the contract's expectation."
+   "description": "A second holder with the id of an enumerated holder (kind ``other``). The profile defines no uniqueness rule; the ODES draft pins this as valid (``repeated-holder-id-is-not-refused``). Contract-valid, not value-equal: an accept is the contract's expectation."
   },
   {
    "operator_id": "B.record-compact-whitespace",
@@ -1350,7 +1350,7 @@
     "destination_ledger",
     "witness"
    ],
-   "description": "The catalogue's self-consistent reseal (proposal amount changed, every dependent commitment recomputed) and the witness re-made over\nthe resealed record with the same publication structure (each record's counts kept, heads and digests recomputed): the record and the\nwitness rewritten together so that they agree."
+   "description": "The catalogue's self-consistent reseal (proposal amount changed, every dependent commitment recomputed) and the witness re-made over the resealed record with the same publication structure (each record's counts kept, heads and digests recomputed): the record and the witness rewritten together so that they agree."
   },
   {
    "operator_id": "F.witness-history-collapsed",
@@ -1376,7 +1376,7 @@
     "run_record",
     "witness"
    ],
-   "description": "A fabricated intermediate publication inserted before the latest record: its counts lie between the previous record's and the\nlatest's, its heads are right for those prefixes, and the chain is re-computed (the witness's holder added history that never happened)."
+   "description": "A fabricated intermediate publication inserted before the latest record: its counts lie between the previous record's and the latest's, its heads are right for those prefixes, and the chain is re-computed (the witness's holder added history that never happened)."
   },
   {
    "operator_id": "H1.digest-line-duplicated",
@@ -1653,7 +1653,7 @@
     "run_record",
     "witness"
    ],
-   "description": "The witness file of another run that uses the same ``run_id`` string (the producers here name most runs ``run-1``): the run id\ncannot tell the runs apart, only the heads can."
+   "description": "The witness file of another run that uses the same ``run_id`` string (the producers here name most runs ``run-1``): the run id cannot tell the runs apart, only the heads can."
   },
   {
    "operator_id": "H3.count-as-boolean",
@@ -1919,7 +1919,7 @@
     "run_record",
     "witness"
    ],
-   "description": "A member that looks like a signer, proof or publication time added to a record, digest recomputed (the profile has none; it must\nnot be read as one)."
+   "description": "A member that looks like a signer, proof or publication time added to a record, digest recomputed (the profile has none; it must not be read as one)."
   },
   {
    "operator_id": "H3.version-next-minor",
@@ -2134,7 +2134,7 @@
     "destination_ledger",
     "witness"
    ],
-   "description": "The destination ledger row of an effect nothing in the record corroborates (unknown attempt, no accepted applied or partial\nobservation: the R6 shape) dropped in a witnessed trace. The design says: \"with a witness the same drop is H4\". The witness profile\ncovers the run record's list-valued members only; the destination snapshot is a different file."
+   "description": "The destination ledger row of an effect nothing in the record corroborates (unknown attempt, no accepted applied or partial observation: the R6 shape) dropped in a witnessed trace. The design says: \"with a witness the same drop is H4\". The witness profile covers the run record's list-valued members only; the destination snapshot is a different file."
   },
   {
    "operator_id": "H4.ledger-emptied",
@@ -2180,7 +2180,7 @@
     "destination_ledger",
     "witness"
    ],
-   "description": "The record and the destination ledger replaced by their own earlier snapshot (taken at the first publication, a valid state of the\nsame run), the full witness unchanged: a newer witness against an older record."
+   "description": "The record and the destination ledger replaced by their own earlier snapshot (taken at the first publication, a valid state of the same run), the full witness unchanged: a newer witness against an older record."
   },
   {
    "operator_id": "H4.shrunk-latest-record-rewritten",
@@ -2197,7 +2197,7 @@
     "run_record",
     "witness"
    ],
-   "description": "A row covered by an earlier record dropped and the witness's latest record re-made over the shrunk record (linked to the previous\none): the earlier digest still covers the dropped row."
+   "description": "A row covered by an earlier record dropped and the witness's latest record re-made over the shrunk record (linked to the previous one): the earlier digest still covers the dropped row."
   },
   {
    "operator_id": "H4.shrunk-then-republished",
@@ -2213,7 +2213,7 @@
     "run_record",
     "witness"
    ],
-   "description": "A covered row dropped and a new witness record made over the shrunk record appended, correctly linked (what ``publish_head`` refuses\nto do: laundering the drop into a fresh digest)."
+   "description": "A covered row dropped and a new witness record made over the shrunk record appended, correctly linked (what ``publish_head`` refuses to do: laundering the drop into a fresh digest)."
   },
   {
    "operator_id": "H4.witness-count-raised",
@@ -2273,7 +2273,7 @@
     "run_record",
     "witness"
    ],
-   "description": "An ``extensions`` member with one ``x-`` name added to a covered row (where the record's contracts admit extensions this is the\none change only the witness can see); the witness unchanged."
+   "description": "An ``extensions`` member with one ``x-`` name added to a covered row (where the record's contracts admit extensions this is the one change only the witness can see); the witness unchanged."
   },
   {
    "operator_id": "H5.covered-row-replaced-by-copy",
@@ -2652,7 +2652,7 @@
     "run_record",
     "witness"
    ],
-   "description": "The latest record's count for one ledger lowered by one with the head recomputed over the shorter prefix, digest recomputed\n(consistent: the last row is now unwitnessed)."
+   "description": "The latest record's count for one ledger lowered by one with the head recomputed over the shorter prefix, digest recomputed (consistent: the last row is now unwitnessed)."
   },
   {
    "operator_id": "H7.witness-omits-a-ledger",
@@ -2678,7 +2678,7 @@
     "run_record",
     "witness"
    ],
-   "description": "The witness replaced by one record made over a prefix of one ledger (as if published before the later rows were appended); the record\nunchanged."
+   "description": "The witness replaced by one record made over a prefix of one ledger (as if published before the later rows were appended); the record unchanged."
   },
   {
    "operator_id": "H7.witness-tail-truncated",
@@ -2691,7 +2691,7 @@
     "run_record",
     "witness"
    ],
-   "description": "The latest witness record(s) removed so an older valid witness is replayed against the newer record: the remaining latest record\ncovers fewer rows than the record holds (the rows appended since are unwitnessed, not damaged)."
+   "description": "The latest witness record(s) removed so an older valid witness is replayed against the newer record: the remaining latest record covers fewer rows than the record holds (the rows appended since are unwitnessed, not damaged)."
   },
   {
    "operator_id": "H8.witness-blank-lines",
