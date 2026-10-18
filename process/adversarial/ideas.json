@@ -1,0 +1,4341 @@
+{
+ "schema": "cognous.adversarial-test-plan/1",
+ "status": "HYPOTHESIS BACKLOG AND PLAN. Nothing in this file is a finding. No test in it has been executed; every result is 'not tested'. Retained existing tests are evidence from their own earlier runs. Failure to reproduce would not be proof of safety. No production-readiness claim.",
+ "source": "External brainstorm of 75 attack hypotheses and 8 chains (ChatGPT); the 5 Oct 2026 recommendations are historical and were checked against current code only by reading it",
+ "prepared": "2026-10-18",
+ "result_vocabulary": [
+  "prevented",
+  "detected only",
+  "reproduced failure",
+  "inconclusive",
+  "not applicable",
+  "not tested"
+ ],
+ "classification_vocabulary": {
+  "COV": "covered by existing test",
+  "PART": "partially covered",
+  "OFFL": "not covered, testable offline",
+  "CAP": "needs a capability that does not exist",
+  "NA": "not applicable to V1 scope"
+ },
+ "scoring_note": "priority_score = reach + capability + consequence (1-3 each, planning judgement) + evidence gap (covered 1, partial 2, not covered or capability missing 3, not applicable 0). A planning heuristic, not a severity assessment.",
+ "counts": {
+  "ideas": {
+   "CAP": 7,
+   "COV": 30,
+   "NA": 1,
+   "OFFL": 1,
+   "PART": 36
+  },
+  "chains": {
+   "CAP": 1,
+   "OFFL": 1,
+   "PART": 6
+  },
+  "total_ideas": 75,
+  "total_chains": 8,
+  "batch_size": 20
+ },
+ "commits": [
+  {
+   "key": "CP",
+   "repo": "cogno-us/cognous-control-plane",
+   "hub_lock": "d3dadee70bd319812b207389ab1e0f6efe511916",
+   "v1_profile_pin": "26a7e659",
+   "main_2026_10_18": "128eaa5e36fdff772fdc709581712dbeac046db3"
+  },
+  {
+   "key": "RT",
+   "repo": "cogno-us/cognous-execution-runtime",
+   "hub_lock": "c3c3ee7188b9367cf70b08074b9c40a5c70c94ac",
+   "v1_profile_pin": "3024ef6e",
+   "main_2026_10_18": "fc034d140ce55d9887ac3a0aab598f3a2c05ea47"
+  },
+  {
+   "key": "EX",
+   "repo": "cogno-us/cognous-governed-exchange",
+   "hub_lock": "a1cbc7b28f702283b0e4f3192bb43e4a9e618ebf",
+   "v1_profile_pin": "914db78d",
+   "main_2026_10_18": "d8d44c1b3dab37b06a4c1bcec6b2d6af47e17425"
+  },
+  {
+   "key": "RP",
+   "repo": "cogno-us/cognous-replay-bundle",
+   "hub_lock": "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa",
+   "v1_profile_pin": "9aab3f6c",
+   "main_2026_10_18": "d0e7b368d75bd2c1108aced76859962aec86a12a"
+  },
+  {
+   "key": "EP",
+   "repo": "cogno-us/cognous-governance-evidence-pack",
+   "hub_lock": "b4baccd823d2a73be276c1de745b19cf7c56a0d6",
+   "v1_profile_pin": "54df6984",
+   "main_2026_10_18": "fa7cd7ebbf2d15cce8d423fc21de3dcce1ecaa87"
+  },
+  {
+   "key": "OD",
+   "repo": "cogno-us/open-decision-evidence-standard",
+   "hub_lock": "c5e9a0f3695ae836b803be06c46d2c669642ee03",
+   "v1_profile_pin": "c5f4e2d0",
+   "main_2026_10_18": "bcbaf4b17c42936c766afe892a2547643b71cd9d"
+  },
+  {
+   "key": "BR",
+   "repo": "cogno-us/cognous-evidence-attestation",
+   "hub_lock": "5b5077dafde232a7801cb425c4efddcffb468723",
+   "v1_profile_pin": "5b5077da",
+   "main_2026_10_18": "03dfc8f88bf7f89d3e9ac551b2c3a51596469ded"
+  },
+  {
+   "key": "IX",
+   "repo": "cogno-us/cognous-evidence-registry",
+   "hub_lock": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+   "v1_profile_pin": "d17b8ac2",
+   "main_2026_10_18": "d17b8ac2b8445d385fbf51185a35914b2d8b835c"
+  },
+  {
+   "key": "AM",
+   "repo": "cogno-us/cognous-action-manifest",
+   "hub_lock": "46c950bed37fe3812000895430bc0312d29e37ce",
+   "v1_profile_pin": "2c36bcd0",
+   "main_2026_10_18": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e"
+  },
+  {
+   "key": "IG",
+   "repo": "cogno-us/cognous-institutional-governance",
+   "hub_lock": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+   "v1_profile_pin": "cbc39e79",
+   "main_2026_10_18": "cbc39e79a1328a74b6cb1aba0cd1e5149164865d"
+  },
+  {
+   "key": "HB",
+   "repo": "cogno-us/cognous-open-control-stack (hub)",
+   "pin": "frozen subject 8517818f (V1 r4)",
+   "main_2026_10_18": "afca5bbdfac1b8a5073b8db9f1f108243e14d451"
+  },
+  {
+   "key": "QL",
+   "repo": "cogno-us/cognous-stack-qualification",
+   "pin": "this repository",
+   "main_2026_10_18": "580882d1cf8e45c4ea7c60add32eabc86e73597e"
+  },
+  {
+   "key": "VF",
+   "repo": "cogno-us/cognous-open-control-stack-verifier",
+   "pin": "not pinned",
+   "main_2026_10_18": "05afab84c621a9f2fdd06567023f7c86bc7db371"
+  },
+  {
+   "key": "OR",
+   "repo": "cogno-us/cognous-stack-orchestrator",
+   "pin": "not pinned (read at 3cb0699e; main now ab3c14f1)",
+   "main_2026_10_18": "ab3c14f17d4f84cdc3a757bd1ccefe7dfa649965"
+  }
+ ],
+ "ideas": [
+  {
+   "id": "D25",
+   "title": "Alternate execution path",
+   "tier": 1,
+   "group": "D",
+   "comps": [
+    "RT",
+    "CP",
+    "HB",
+    "QL"
+   ],
+   "entry": "Inventory of destination call sites (SCN-D09 ROUTES): CP BoundedAuthorizationWorkflow.execute; RT LocalDestinationExecutor.execute_snapshot, ControlPlaneRefundDestinationAdapter.apply, AtomicLocalControlPlaneExecutor.execute, IntentRefundDestination.commit; direct destination.commit; acp run and other CLIs; reaper thread; legacy AgentEngine and CLI",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d09.py",
+     "test": "test_scn_d09_route_inventory_is_complete_and_classified"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d09.py",
+     "test": "test_scn_d09_direct_bypass_of_executor_route_is_refused_by_destination"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d09.py",
+     "test": "test_scn_d09_legacy_write_path_on_atomic_profile_database_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d09.py",
+     "test": "test_scn_d09_legacy_agent_engine_performs_no_side_effect"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_destination_ingress.py",
+     "test": "test_direct_operation_cannot_bypass_admission"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Direct commit, snapshot execution and adapter apply are refused on effective-grant and atomic destinations, and the call-site list is checked against the source. By design a base destination holds no authority state and accepts a direct commit; raw SQL by the file holder and the OpenShell destination are out of model or unexercised. The call-site table was checked at the V1 pins; runtime fc034d14 added delayed-commit and operation-key destinations that the table does not name. No non-dispatching entry (reaper, recovery, import, CLI) has an unchanged-destination assertion.",
+   "batch": [
+    "T01",
+    "T02"
+   ],
+   "known_limit": "base destination and raw SQL holder are out of model (SCN-D09)",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "A01",
+   "title": "Payload substitution",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Routes A/B/C: approved proposal -> execution envelope or claim -> destination row (RT FrozenOperation, 23 members; CP AuthorizationBinding)",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d02.py",
+     "test": "test_scn_d02_route_a_envelope_substitution_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d02.py",
+     "test": "test_scn_d02_route_b_claim_binding_substitution_is_refused_without_consuming_authority"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_policy_bypass_payload_tampered_after_commitment_is_refused"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_producer_contract.py",
+     "test": "test_export_rejects_changed_payload_even_with_recomputed_payload_commitment"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_safe_executor.py",
+     "test": "test_deep_snapshot_is_immune_to_nested_mutation"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Amount, target and envelope substitution are asserted; one-member-at-a-time completeness over every frozen-operation member and nested payload key is not, so an unbound member would not be noticed.",
+   "batch": [
+    "T03",
+    "T04"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "A04",
+    "A07"
+   ],
+   "gap_weight": 2,
+   "priority_score": 11,
+   "result": "not tested"
+  },
+  {
+   "id": "A04",
+   "title": "Cross-context authorization replay",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Routes A/B/C: tenant, actor, principal, institution, authority domain, manifest, run, environment, action type",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i01_route_b_other_tenants_claim_cannot_carry_this_tenants_envelope"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i01_route_a_proposal_substitution_is_not_authorized"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py",
+     "test": "test_actor_principal_institution_domain_substitution"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py",
+     "test": "test_environment_substitution_holds"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c02.py",
+     "test": "test_scn_c02_route_a_execution_with_altered_manifest_binding_cannot_reuse_authorization"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Tenant, actor, principal, institution, domain, manifest and environment are exercised. No table says which dimensions the authorization binds; run_id and correlation_id are bound only through the proposal commitment and are not perturbed.",
+   "batch": [
+    "T04"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "A01"
+   ],
+   "gap_weight": 2,
+   "priority_score": 11,
+   "result": "not tested"
+  },
+  {
+   "id": "A06",
+   "title": "Canonicalization disagreement",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "RT",
+    "VF",
+    "OD"
+   ],
+   "entry": "acp run JSON ingress (cli_run._load_json uses json.loads: last duplicate member wins, NaN accepted before model validation); CP commitment (sort_keys, allow_nan=False); RT _canonical; verifier canon and strict wire parser",
+   "existing": [
+    {
+     "repo": "CP",
+     "path": "tests/test_decision_input_commitment_profile.py",
+     "test": "test_canonicalization_vectors"
+    },
+    {
+     "repo": "VF",
+     "path": "tests/test_wire.py",
+     "test": "test_duplicate_member_refused_even_when_escaped"
+    },
+    {
+     "repo": "VF",
+     "path": "tests/test_canon.py",
+     "test": "test_int_float_and_zero_forms_are_distinct"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_security_admission.py",
+     "test": "test_string_subclass_rejected_before_copy_or_authorization"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_safe_executor.py",
+     "test": "test_amount_must_be_strict_finite_number"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_deployment_review.py",
+     "test": "test_strict_json_rejects_duplicate_keys_and_nonfinite_values"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Strict parsing is proven for the verifier, the deployment review and the pack importer, which are not on the decision path. No test feeds duplicate keys, NFC/NFD text, number spellings or BOM/trailing data through the governed ingress and compares the approved commitment with the destination row. Code-reading lead, not a finding.",
+   "batch": [
+    "T03"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "A01",
+    "A07"
+   ],
+   "gap_weight": 2,
+   "priority_score": 11,
+   "result": "not tested"
+  },
+  {
+   "id": "A07",
+   "title": "Unbound extension fields",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "RT",
+    "OD"
+   ],
+   "entry": "RuntimeProposal (pydantic default ignores extras; acp run refuses unknown top-level members); RT ExecutionOperation is a closed dataclass; ODES x- extensions are digested",
+   "existing": [
+    {
+     "repo": "CP",
+     "path": "tests/test_cli_run.py",
+     "test": "test_invalid_input_exit_2"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_operation_identity.py",
+     "test": "test_operation_id_in_extension_is_unsupported_without_the_profile"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_producer_contract.py",
+     "test": "test_export_rejects_changed_operation_under_same_decision_and_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c12.py",
+     "test": "test_scn_c12_unknown_member_is_rejected_reported_or_preserved_never_silently_lost"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Top-level unknown members are refused at acp run and the runtime operation is closed. Free-form nested members (payload, risk_metadata) are committed; no test shows that no adapter reads anything outside the committed set.",
+   "batch": [
+    "T03",
+    "T04"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "A01",
+    "A06"
+   ],
+   "gap_weight": 2,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "A08",
+   "title": "Declaration promoted to permission",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "AM",
+    "OR",
+    "HB"
+   ],
+   "entry": "Manifest requirements, supported-claim and ODES records versus the grant check at decide() and effect time",
+   "existing": [
+    {
+     "repo": "CP",
+     "path": "tests/test_bounded_authorization.py",
+     "test": "test_requirement_only_or_copied_verification_json_cannot_authorize"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c14.py",
+     "test": "test_scn_c14_valid_envelope_grants_no_authority_and_proves_no_delivery"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c03.py",
+     "test": "test_scn_c03_control_plane_forged_evidence_never_becomes_execution_authority"
+    },
+    {
+     "repo": "OR",
+     "path": "tests/scenarios/customer_refunds/test_compose.py",
+     "test": "test_consistent_references_never_authorize"
+    },
+    {
+     "repo": "OR",
+     "path": "tests/contracts/institutional/test_authority_context_mapping.py",
+     "test": "test_requirement_only_context_is_not_a_grant"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Covered across the control plane, the exchange envelope and the orchestrator contracts. Residual: new declarative profile members (rule_revision, holder inventory, freshness) have no promotion probe of their own.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "F42",
+   "title": "Forged approval in natural language",
+   "tier": 2,
+   "group": "F",
+   "comps": [
+    "CP",
+    "EX"
+   ],
+   "entry": "Natural-language approval claims in lower-trust fields on routes A and C",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_p.py",
+     "test": "test_asw_p01_route_a_text_claiming_approval_does_not_substitute_for_a_missing_approval"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_p.py",
+     "test": "test_asw_p01_route_c_hostile_narrative_cannot_replace_a_missing_approval"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_p.py",
+     "test": "test_asw_p01_route_c_hostile_narrative_cannot_override_withdrawn_authority"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Text cannot manufacture a grant or an approval on routes A and C.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "F41"
+   ],
+   "gap_weight": 1,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "A02",
+   "title": "Target alias substitution",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "RT",
+    "HB"
+   ],
+   "entry": "Grant scope and target match (CP bounded.py exact membership; RT SafeLocalPolicy uses str.startswith on allowed prefixes); destination database path",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_symlink_database_file_to_outside_denied_and_target_untouched"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c10.py",
+     "test": "test_scn_c10_symlink_escape"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_security_admission.py",
+     "test": "test_local_policy_rejects_universal_or_malformed_target_prefixes"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_federated_governance.py",
+     "test": "test_object_resolution_mismatch_and_other_resource"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Filesystem alias of the destination database is covered. Equivalent spellings of a target (case, trailing separator, prefix extension such as acct-1 against acct-10) and a resolver-level alias remap after approval are not asserted; a resolver-backed alias destination does not exist in V1.",
+   "batch": [
+    "T04",
+    "T05"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "A03",
+   "title": "Adapter impersonation",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "adapter_id compared in the binding (CP bounded.py, id string only); RT ControlPlaneRefundDestinationAdapter; OpenShell CLI digest check",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_a.py",
+     "test": "test_asw_a02_route_a_lookalike_adapter_in_envelope_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_a.py",
+     "test": "test_asw_a02_registered_tool_replaced_in_manifest_after_decision_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_add_molt_verify.py",
+     "test": "test_add_molt_verify_e6_adapter_binding_is_id_string_not_code_digest"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_credential_cli_binary_substitution_refused_by_digest"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_tool_adapter.py",
+     "test": "test_adapter_identity_mismatch_is_not_executed"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Id-level impersonation is refused. Substituting implementation, configuration or destination credentials behind an unchanged adapter id is a documented non-goal (E6; V1 core addendum GR-1853 defers adapter_digest). An offline test can only record detected-only through ledger verification; prevention needs adapter attestation, which does not exist.",
+   "batch": [
+    "T06"
+   ],
+   "known_limit": "E6: binding compares adapter id, not code",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "A05",
+   "title": "Manifest or policy downgrade",
+   "tier": 2,
+   "group": "A",
+   "comps": [
+    "CP",
+    "AM",
+    "IG"
+   ],
+   "entry": "Manifest version/digest and policy digest checks at decision and effect time; opt-in rule-revision profile (CP rule_revision.py)",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c02.py",
+     "test": "test_scn_c02_route_a_ordered_sequence_unknown_action_then_manifest_version_then_digest"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_bounded_authorization.py",
+     "test": "test_changed_policy_after_decision_prevents_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_rule_revision_probes.py",
+     "test": "test_probe_n2_policy_edited_in_place_detected_by_digest"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_rule_revision.py",
+     "test": "test_chain_is_append_only_and_checked"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/operation-identity/test_adapter_forwarding.py",
+     "test": "test_unadopted_policy_digest_is_refused_at_effect_time_through_the_runtime_adapter"
+    }
+   ],
+   "cls": "PART",
+   "gap": "In-place edits and unadopted digests are covered. An earlier adopted-then-superseded digest presented as current is not. Manifests carry digests, not signatures, so a validly signed older manifest has no V1 referent. R1 finding 1 (adapter dropped rule_revision_profile unless freshness is on) is being fixed in stream F1; the effect-time pin depends on it.",
+   "batch": [
+    "T15",
+    "T19"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "F41",
+   "title": "Evidence-to-instruction injection",
+   "tier": 2,
+   "group": "F",
+   "comps": [
+    "CP",
+    "EX",
+    "OR"
+   ],
+   "entry": "Retrieved text in payload, narrative and descriptor fields of routes A/C; manifest descriptions",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_p.py",
+     "test": "test_asw_p01_route_a_request_shaped_by_retrieved_instructions_is_not_authorized"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_p.py",
+     "test": "test_asw_p01_route_c_retrieved_bundle_instructing_a_different_operation_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_a.py",
+     "test": "test_asw_a01_poisoned_descriptions_are_data_and_authorize_nothing_new"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_a.py",
+     "test": "test_asw_a01_acting_on_the_injected_instruction_yields_no_effect"
+    }
+   ],
+   "cls": "COV",
+   "gap": "The stack treats text as data; no model is in the loop, so this shows that no code path interprets text, not that an agent would resist it. Placed in tier 2 because the brainstorm's tier list has no slot for group F.",
+   "batch": [],
+   "known_limit": "no model-in-the-loop behaviour",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 2
+   },
+   "related": [
+    "F42"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "B15",
+   "title": "Authority ABA",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Grant resolver (id + revision) -> effect_id = commitment(proposal, grant_id, grant_revision); RT authority_grants_v1 provisioning refuses an existing id whose revision/status differ",
+   "existing": [],
+   "cls": "OFFL",
+   "gap": "No test or doc found for revoke-then-recreate with the same grant id or equivalent fields. effect_id is a pure function of grant id and revision, so an approval for the first grant can match a resolver-supplied replacement with the same id and revision; the revoked status in the runtime authority row is the only observable difference. Code-reading lead.",
+   "batch": [
+    "T07"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 3,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "B09",
+   "title": "Revocation at each boundary",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "RT",
+    "EX",
+    "HB"
+   ],
+   "entry": "Routes A/B/C; boundaries: decision, claim provisioning, dispatch, commit transaction. RT revocation_closeout sidecar for queued/executing items",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i03_route_a_destination_authority_revoked_after_revalidation_is_refused_at_commit"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i03_route_b_revocation_at_the_commit_boundary_is_seen_inside_the_transaction"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c07.py",
+     "test": "test_scn_c07_route_a_authority_change_ordering_against_destination_commit"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py",
+     "test": "test_invalidation_transaction_first_prevents_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d09.py",
+     "test": "test_scn_d09_route_a_cancellation_ordering"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_check_commit_inventory.py",
+     "test": "test_c0_change_after_revalidation_before_destination_commit_is_residual_race"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Covered with the linearization point recorded per route. There is no queue between approval and execution in V1, so the queueing boundary only exists in the opt-in revocation_closeout sidecar (RT test_o6_p1d_revocation_closeout.py). Default route A keeps the recorded C0 residual race.",
+   "batch": [
+    "T08"
+   ],
+   "known_limit": "C0 check-to-commit race (SCN-C07, INCONCLUSIVE by design)",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "B16",
+    "B10"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "B10",
+   "title": "Approval withdrawal race",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "RT",
+    "OR"
+   ],
+   "entry": "Approval status row; claim provisioning; commit transaction; RT DelayedCommit pause points",
+   "existing": [
+    {
+     "repo": "CP",
+     "path": "tests/test_negative_resolution_evidence.py",
+     "test": "test_approval_withdrawal_is_durable_without_creating_override_authority"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i03_route_b_authority_withdrawal_after_provisioning_is_revalidated"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py",
+     "test": "test_revocation_waits_while_effect_transaction_is_paused"
+    },
+    {
+     "repo": "OR",
+     "path": "tests/scenarios/customer_refunds/connected/handoff/test_connected_handoff.py",
+     "test": "test_connected_approval_withdrawal_after_handoff_refuses_without_effect"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Queued work and already-issued claims are handled separately (claim provisioning test and paused-transaction test).",
+   "batch": [
+    "T08"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "B09"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "B11",
+   "title": "Critical evidence invalidation",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Evidence rows at decision, claim provisioning and inside the destination transaction",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py",
+     "test": "test_evidence_expiry_first_prevents_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c17.py",
+     "test": "test_scn_c17_route_b_evidence_aged_past_its_freshness_is_rejected"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_bounded_authorization.py",
+     "test": "test_stale_required_evidence_holds_but_optional_unknown_does_not"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py",
+     "test": "test_grant_expiry_and_evidence_expiry_are_checked_after_lock_acquisition"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Dependency invalidation reaches the executing path on route B and the effective-grant route.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "B12",
+   "title": "Stale authorization cache",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "HB"
+   ],
+   "entry": "CP runtime-authority profile: cached status, per-class max_status_age_seconds, reversible-class tolerance; hub resolver assurance reference",
+   "existing": [
+    {
+     "repo": "CP",
+     "path": "tests/test_runtime_authority.py",
+     "test": "test_known_denial_overrides_cache"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_runtime_authority.py",
+     "test": "test_recorded_denial_cannot_be_overridden_by_later_outage_cache"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_runtime_authority.py",
+     "test": "test_irreversible_class_refuses_on_unreadable_reversible_tolerates_bounded_age"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_resolver_assurance.py",
+     "test": "test_outage_holds_without_cache"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Resolver-side logic is covered. The documented reversible-class tolerance (act on a cached active status inside the age bound) is not shown end to end against a destination that stays reachable after a revocation, and no real process or network partition exists (single host).",
+   "batch": [
+    "T12"
+   ],
+   "known_limit": "reversible class tolerates bounded stale status by design",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "B16"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "B16",
+   "title": "Non-atomic revalidation",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Route A default (C0: revalidate, then destination.apply) versus effective-grant destination and route B (check inside the commit transaction)",
+   "existing": [
+    {
+     "repo": "CP",
+     "path": "tests/test_check_commit_inventory.py",
+     "test": "test_c0_change_after_revalidation_before_destination_commit_is_residual_race"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_remediation_candidate.py",
+     "test": "test_c0_race_unsafe_characterization"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_research_qualification.py",
+     "test": "test_selected_c0_revocation_inside_commit_window_is_characterized"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_effective_grant.py",
+     "test": "test_comparison_occurs_in_effect_transaction"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py",
+     "test": "test_effect_transaction_first_preserves_effect_then_invalidation"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Prevention (atomic routes) and detection-only (C0 default) are both asserted and kept distinct. Residual: the adapter route with the opt-in delayed-commit destination has not been mapped onto the same prevented/detected-only split.",
+   "batch": [
+    "T08"
+   ],
+   "known_limit": "C0 race by design",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "B09"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "B13",
+   "title": "Clock disagreement",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "RT",
+    "OD",
+    "BR"
+   ],
+   "entry": "CP trusted clock, observation floors; RT destination _trusted_now inside BEGIN IMMEDIATE; ODES recipient clock; BitRep half-open intervals",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_control_plane_probes.py",
+     "test": "test_probe_clock_caller_supplied_time_is_ignored_outside_the_explicit_test_clock"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_control_plane_probes.py",
+     "test": "test_probe_clock_observation_floor_survives_store_reopen"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er013_key_and_statement_expiry_boundaries_are_half_open"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py",
+     "test": "test_expiry_is_evaluated_after_waiting_for_transaction_lock"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/open-decision-evidence-standard/tests/test_odes_stack_export.py",
+     "test": "test_absent_recipient_clock_with_expired_record_prevents_acceptance"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Per-evaluator boundaries are covered. Equality at the exact expiry instant and timezone-offset equivalence are not compared across the control plane, the destination transaction and the recipient on one fixture.",
+   "batch": [
+    "T09"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "B14",
+   "title": "State rollback",
+   "tier": 3,
+   "group": "B",
+   "comps": [
+    "CP",
+    "RT",
+    "HB"
+   ],
+   "entry": "Restore of destination database, control-plane store, witness ledger and (opt-in) operation-key and budget tables",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_destination_restore_boundary.py",
+     "test": "test_authority_only_restore"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_destination_restore_boundary.py",
+     "test": "test_full_restore_before_invalidation"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d07.py",
+     "test": "test_scn_d07_restore_boundary"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/outside-holder/test_witness_digest.py",
+     "test": "test_dropped_entry_after_published_digest_rejected"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_research_assurance.py",
+     "test": "test_restart_rejects_rollback"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Restore is characterised and prevention is blocked on an independently administered anchor (SCN-D07 INCONCLUSIVE). The programme-2 state added after that characterization (operation keys, effect budgets under the R2 key, freshness floors) has not been rolled back in a test. Prevention needs the external anchor, which does not exist.",
+   "batch": [
+    "T10"
+   ],
+   "known_limit": "no external anchor (SCN-D07)",
+   "rating": {
+    "reach": 2,
+    "capability": 1,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "C22",
+   "title": "Retry identity laundering",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Re-planned proposal (new effect_id) after an unresolved effect; opt-in refund-intent registry (route B only); operation identity (renewal only)",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_add_c2c_bi.py",
+     "test": "test_add_c2c_bi_route_a_different_effect_id_same_business_request"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_add_c2c_bi.py",
+     "test": "test_add_c2c_bi_refund_intent_profile_is_not_composable_with_route_a_and_fails_closed"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_refund_intent.py",
+     "test": "test_paused_original_can_commit_but_replan_cannot"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_research_qualification.py",
+     "test": "test_original_late_commit_never_permits_replacement"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/operation-identity/test_atomic_route_operation_identity.py",
+     "test": "test_atomic_route_legacy_cap_two_renewal_commits_two_effects_today"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Characterised, not prevented, on the default routes: logical-intent prevention is not implemented, adopted or qualified (hub logical-intent-prevention-contract); the intent profile cannot combine with route A (F-18); the default atomic route double-commits after renewal at cap 2 (orchestrator F-5, KNOWN GAP; opt-in key merged in runtime fc034d14). The full chain with a concurrent retry is not exercised.",
+   "batch": [
+    "T11"
+   ],
+   "known_limit": "business-level duplication not prevented by default (F-5, F-18)",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "C17"
+   ],
+   "gap_weight": 2,
+   "priority_score": 11,
+   "result": "not tested"
+  },
+  {
+   "id": "C20",
+   "title": "Concurrent duplicate delivery",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Same effect through several processes and entry points: routes A/B/C, exchange redelivery",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d06.py",
+     "test": "test_scn_d06_concurrent_duplicate_deliveries_at_most_one_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py",
+     "test": "test_same_claim_concurrent_processes_commit_at_most_once"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_refund_intent.py",
+     "test": "test_concurrent_destination_dispatch_has_one_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_process_boundary_qualification.py",
+     "test": "test_duplicate_operation_across_processes"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_profile_exclusivity.py",
+     "test": "test_atomic_database_rejects_intent_activation_without_changes"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Covered per route. Mixed-route simultaneous delivery to one database is excluded by profile exclusivity rather than raced.",
+   "batch": [
+    "T11"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "C17"
+   ],
+   "gap_weight": 1,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "C21",
+   "title": "Idempotency-key collision",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "CP",
+    "RT",
+    "HB"
+   ],
+   "entry": "effect_id/attempt_id/operation key uniqueness inside destination transactions",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_policy_bypass_effect_id_cannot_be_rebound_to_different_operation"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_safe_executor.py",
+     "test": "test_attempt_id_reuse_never_overwrites_success"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_safe_executor.py",
+     "test": "test_reconciliation_rejects_different_operation_content"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_protected_destination.py",
+     "test": "test_effect_id_conflict_refused"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_n1_operation_identity.py",
+     "test": "test_operation_key_is_scoped_by_principal_and_authority_domain"
+    },
+    {
+     "repo": "OR",
+     "path": "tests/scenarios/customer_refunds/runtime/test_refund_runtime.py",
+     "test": "test_attempt_identity_cannot_be_reused_for_distinct_request"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Covered, including principal/domain scoping of the opt-in operation key.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "C17",
+   "title": "Lost acknowledgement after commit",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Routes A/B/C; RT DelayedCommit destination (opt-in) and simulate=lost_ack",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_r.py",
+     "test": "test_asw_r01_route_a_lost_ack_is_retained_unknown_and_reconciled_before_any_retry"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_r.py",
+     "test": "test_asw_r01_route_b_lost_ack_keeps_the_claim_consumed_and_retry_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c09.py",
+     "test": "test_scn_c09_route_a_retry_after_lost_acknowledgement_does_not_double_commit"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-governed-exchange/tests/test_gax_imx_redelivery.py",
+     "test": "test_lost_ack_exact_redelivery_preserves_unknown_ack_and_applied_effect"
+    },
+    {
+     "repo": "OR",
+     "path": "tests/overlay/test_overlay_destinations.py",
+     "test": "test_lost_ack_then_late_landing_is_one_effect_and_never_licenses_retry"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Covered on all three routes and on the opt-in delayed-commit destination.",
+   "batch": [
+    "T11"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "C20"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "C18",
+   "title": "Crash at persistence boundaries",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "CP",
+    "RT",
+    "EX",
+    "HB"
+   ],
+   "entry": "Boundaries: claim persistence, dispatch, commit, result record, observation, refusal write; programme-2 journal, join-row, operation-key and witness writes",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_r.py",
+     "test": "test_asw_r02_route_b_real_process_kill_after_commit_then_restart_adds_no_duplicate"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c08.py",
+     "test": "test_scn_c08_route_a_crash_then_restart_reconciles_without_duplicate"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py",
+     "test": "test_process_termination_transaction_boundaries"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_record_store_concurrency.py",
+     "test": "test_termination_during_persistence"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_operation_identity.py",
+     "test": "test_join_row_is_written_before_the_attempt_and_once_per_attempt"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_context_action_profile.py",
+     "test": "test_crash_after_started_marker_prevents_restart_dispatch"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Route B and the runtime use real process kill. Routes A and C use a BaseException crash model (SCN-C08 INCONCLUSIVE: no OS-level kill). The freshness gate refusal is three separate writes (X4 finding), and the programme-2 write points have no kill-at-boundary matrix.",
+   "batch": [
+    "T13"
+   ],
+   "known_limit": "no OS-level kill on routes A and C (SCN-C08)",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "C19"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "C23",
+   "title": "Stale worker after lease expiry",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "CP freshness profile: check lease, deadline at opening, reaper, superseded-owner write refusal; RT delayed-commit pause points; hub generation fence (reference)",
+   "existing": [
+    {
+     "repo": "CP",
+     "path": "tests/test_freshness.py",
+     "test": "test_superseded_owner_cannot_write_to_a_closed_check"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_runtime_authority.py",
+     "test": "test_live_owner_cannot_be_recovered"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/operation-identity/test_freshness_profile.py",
+     "test": "test_superseded_owner_journal_write_refused"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_freshness.py",
+     "test": "test_stalled_check_past_class_bound_is_refused_before_dispatch"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_protected_destination.py",
+     "test": "test_fence_cannot_decrease"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Journal and dispatch gate are covered. A worker paused after the gate and resumed after takeover is stopped by effect-id dedupe, not by a destination-enforced fencing token; the N3 profile is same-host flock only and cross-host fencing is not built. Needs a fencing capability for prevention; offline test can measure detected-only.",
+   "batch": [
+    "T12"
+   ],
+   "known_limit": "same-host lease; no cross-host fencing (N3)",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "C24",
+   "title": "Compensation abuse",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "RT",
+    "OD"
+   ],
+   "entry": "No compensation or rollback action exists; RT cancellation is not rollback; ODES effect-reversibility is a draft contract (#75)",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_w2_stop_recovery.py",
+     "test": "test_stop_after_commit_does_not_claim_rollback"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py",
+     "test": "test_cancellation_is_not_rollback"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d05.py",
+     "test": "test_scn_d05_route_a_recovery_after_authority_withdrawal_adds_no_effect"
+    }
+   ],
+   "cls": "CAP",
+   "gap": "Needs a compensating-action capability (a refund-reversal action with its own grant), which does not exist; adjacent recovery paths are shown not to dispatch. Retained tests prove only that no reversal is claimed.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 1,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 3,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "F46",
+   "title": "Policy-change injection",
+   "tier": 4,
+   "group": "F",
+   "comps": [
+    "CP",
+    "AM",
+    "IG"
+   ],
+   "entry": "Rule-revision profile (opt-in) and policy digest; adoption flow of SCN-C20 is unimplemented (decision D9)",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_rule_revision_probes.py",
+     "test": "test_probe_n2_policy_edited_in_place_detected_by_digest"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_rule_revision.py",
+     "test": "test_chain_is_append_only_and_checked"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_p.py",
+     "test": "test_asw_p01_route_c_hostile_narrative_cannot_override_withdrawn_authority"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Digest and chain checks stop an edited policy; an observed outcome presented as already adopted policy is not run through an adoption flow because SCN-C20 policy adoption is unimplemented (D9).",
+   "batch": [
+    "T19"
+   ],
+   "known_limit": "SCN-C20 unimplemented (D9)",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "A05"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "C19",
+   "title": "Partial batch execution",
+   "tier": 4,
+   "group": "C",
+   "comps": [
+    "RT",
+    "EX"
+   ],
+   "entry": "Route B multi-part composition (claims on a shared budget); route C partial delivery successor",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d05.py",
+     "test": "test_scn_d05_route_b_multi_part_interruption_keeps_delivered_and_undelivered_distinct"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d05.py",
+     "test": "test_scn_d05_route_c_exchange_recovery_under_current_authority_does_not_redeliver"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_bounded_authorization.py",
+     "test": "test_partial_delivery_holds_instead_of_blind_retry"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-governed-exchange/tests/test_gax_imx_redelivery.py",
+     "test": "test_partial_delivery_exact_redelivery_preserves_pending_and_unresolved"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Covered for composed parts. The reference has no native multi-part operation (SCN-D05 INCONCLUSIVE), so batch semantics are exercised through parts on a shared budget.",
+   "batch": [
+    "T13"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "C18"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "H56",
+   "title": "Observation substitution",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "VF",
+    "RT"
+   ],
+   "entry": "Observation fields: effect, target, tenant, amount, interval",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_comparative_governance.py",
+     "test": "test_wrong_effect_identity_fails"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_comparative_governance.py",
+     "test": "test_wrong_effect_payload_fails"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_release_gate.py",
+     "test": "test_substituted_identities_fail"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c23.py",
+     "test": "test_scn_c23_seeded_critical_defects_detected_by_class"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Identity and payload substitution are caught; tenant, target and time-interval substitution of an otherwise genuine observation are not enumerated field by field.",
+   "batch": [
+    "T14"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "H55"
+   ],
+   "gap_weight": 2,
+   "priority_score": 11,
+   "result": "not tested"
+  },
+  {
+   "id": "H57",
+   "title": "Shared producer and observer compromise",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RT",
+    "RP",
+    "VF"
+   ],
+   "entry": "Executor identity and writable store reused to forge readback; HMAC export",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_hmac_is_not_public_attestation_key_id_is_a_label"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c06.py",
+     "test": "test_scn_c06_route_b_independent_observer_unavailable_after_lost_ack_gives_no_completion_and_no_retry"
+    }
+   ],
+   "cls": "CAP",
+   "gap": "Needs an independently operated observer with its own credentials and storage, which does not exist in V1; the stack documents that producer and verifier share a trust domain, and tests assert the labelling, not prevention.",
+   "batch": [],
+   "known_limit": "no independent observer",
+   "rating": {
+    "reach": 2,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "H63",
+    "CH6"
+   ],
+   "gap_weight": 3,
+   "priority_score": 11,
+   "result": "not tested"
+  },
+  {
+   "id": "E33",
+   "title": "Caller-selected verification key",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "BR",
+    "IX",
+    "CP"
+   ],
+   "entry": "BitRep verify with trust snapshot; Index API link route; Index chain adapter",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c03.py",
+     "test": "test_scn_c03_bitrep_rejects_forged_attestation_variant"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_probes.py",
+     "test": "test_er02_forged_attestation_rejected_at_link_route"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_probes.py",
+     "test": "test_er02_no_trust_snapshot_fails_closed"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c03.py",
+     "test": "test_scn_c03_control_plane_forged_evidence_never_becomes_execution_authority"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Forged and caller-keyed attestations are refused at the verifier, the Index link route and the control plane, with a no-snapshot fail-closed case and detector calibration controls.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "E34"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "F44",
+   "title": "Scope loss during summarization",
+   "tier": 5,
+   "group": "F",
+   "comps": [
+    "EX",
+    "OD",
+    "RP"
+   ],
+   "entry": "Exchange handoff and export, replay and ODES adapters (the only summarising steps in V1)",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c14.py",
+     "test": "test_scn_c14_lineage_survives_export"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c14.py",
+     "test": "test_scn_c14_uncertainty_survives_export"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c12.py",
+     "test": "test_scn_c12_known_conversion_losses_and_unsupported_semantics_are_enumerated"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Lineage and uncertainty survive export and known losses are enumerated. Restriction, expiry and approval-condition loss across a handoff are not asserted member by member; LLM summaries are not in V1 (decision D6).",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "H60"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "H55",
+   "title": "Executor acknowledgement as observation",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "VF",
+    "RT"
+   ],
+   "entry": "Executor ack versus destination read; replay import report; verifier",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_replay_probes.py",
+     "test": "test_probe_verified_completion_cannot_be_forged_through_import_report_or_record_labels"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c23.py",
+     "test": "test_scn_c23_effect_oracle_detects_seeded_effect_state_defects_and_passes_clean"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_comparative_governance.py",
+     "test": "test_missing_effect_fails_even_when_receipt_claims_success"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c06.py",
+     "test": "test_scn_c06_route_a_observer_removed_after_ack_leaves_delivery_unresolved"
+    }
+   ],
+   "cls": "COV",
+   "gap": "An ack without destination change does not become observed or verified; the effect oracle reads destination state independently.",
+   "batch": [
+    "T14"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "H56",
+    "H58"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "H59",
+   "title": "Missing failures in export",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "EP",
+    "VF"
+   ],
+   "entry": "Replay export, evidence pack, ODES export, verifier ledger",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/security-runtime/test_security_runtime_chain.py",
+     "test": "test_journal_read_omission_rejected"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/security-runtime/test_security_runtime_chain.py",
+     "test": "test_refusal_vocabulary_cannot_disappear"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d06.py",
+     "test": "test_scn_d06_valid_flow_export_survives_unauthorized_hold"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/outside-holder/test_witness_digest.py",
+     "test": "test_dropped_entry_after_published_digest_rejected"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Dropped refusals and failures are detected where a prior witness digest exists; without a published digest the drop is accepted today and recorded as such (witness test, opt-in profile).",
+   "batch": [],
+   "known_limit": "dropped entry accepted without a published digest",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "H61"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "H61",
+   "title": "Count and coverage manipulation",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "EP",
+    "RP",
+    "OD"
+   ],
+   "entry": "Evidence pack totals, duplicate records, selective subsets against a source population",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/security-runtime/test_security_runtime_chain.py",
+     "test": "test_evidence_pack_cannot_relabel_refusal_counts"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d08.py",
+     "test": "test_scn_d08_planted_defects_detected"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c12.py",
+     "test": "test_scn_c12_odes_retained_source_reference_removal_is_detected"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Refusal-count relabelling and planted defects are detected; a pack claiming complete coverage without reconciling its source population is not tested as such, and copied-evidence packs carry the D14 limit.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "H59"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "H65",
+   "title": "Replay that causes effects",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "OD",
+    "EP"
+   ],
+   "entry": "Bundle open, import and verify paths; active references in bundles",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c14.py",
+     "test": "test_scn_c14_read_cannot_be_used_to_reach_the_destination"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c14.py",
+     "test": "test_scn_c14_separate_consumer_without_replay_fails_closed"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_s.py",
+     "test": "test_asw_s02_route_c_substituted_replay_bundle_is_rejected_or_nonverification_disclosed"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Reading and importing do not reach a destination at the pinned revisions. Programme-2 additions (reaper, recovery, new importers) lack an unchanged-destination assertion; T02 extends it.",
+   "batch": [
+    "T02"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "D25"
+   ],
+   "gap_weight": 1,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "E34",
+   "title": "Signed-content substitution",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "BR",
+    "VF"
+   ],
+   "entry": "BitRep wire parser and signature scope; verifier strict wire",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c03.py",
+     "test": "test_scn_c03_bitrep_rejects_malformed_wire_forgery_before_verification"
+    },
+    {
+     "repo": "VF",
+     "path": "tests/test_wire.py",
+     "test": "test_duplicate_member_refused_even_when_escaped"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_comparative_governance.py",
+     "test": "test_substitution_distinguishes_outer_signature_and_verifier_binding"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_content_digest_detects_tamper_but_is_not_authentication"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Subject, statement and framing alterations outside the signed portion are rejected before verification; digest-only integrity is labelled as not authentication.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "E33"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "E37",
+   "title": "Accepted-claim mutation",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "IX"
+   ],
+   "entry": "Index claims service and API: update, delete, supersede; storage adapters",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_probes.py",
+     "test": "test_er02_accepted_claim_cannot_be_updated_or_deleted"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_supersession_probes.py",
+     "test": "test_probe_supersession_claims_service_refuses_rewrite_and_delete_of_accepted_claims"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_supersession_probes.py",
+     "test": "test_probe_supersession_only_the_author_may_supersede_with_a_related_revision"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c04.py",
+     "test": "test_scn_c04_index_api_accepted_claim_history_survives_rewrite_and_delete"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Exposed API and service paths refuse rewrite and delete. Direct database edits by the storage holder are outside the model and are not claimed.",
+   "batch": [],
+   "known_limit": "storage holder out of model",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "E39",
+   "title": "Contradiction suppression",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "IX"
+   ],
+   "entry": "Index API list_evidence(limit, offset), filters, supersession links, chain adapter ordering",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_supersession_probes.py",
+     "test": "test_probe_supersession_is_terminal_and_does_not_erase_later_criticism"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_supersession_probes.py",
+     "test": "test_probe_supersession_history_is_reconstructible_in_order_from_logs"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c04.py",
+     "test": "test_scn_c04_index_chain_status_recomputes_from_logs_and_history_is_ordered"
+    }
+   ],
+   "cls": "PART",
+   "gap": "History order and supersession terminality are covered. The relying view under pagination, offset and filter changes is not: list_evidence has limit/offset and no test found exercises a conflict dropping out of a page. Code-reading lead.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "E40",
+   "title": "Fresh wrapper around stale evidence",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "CP",
+    "BR",
+    "OD"
+   ],
+   "entry": "CP observation timestamps and staleness window; BitRep statement expiry; ODES recipient clock",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c17.py",
+     "test": "test_scn_c17_route_b_evidence_aged_past_its_freshness_is_rejected"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_control_plane_probes.py",
+     "test": "test_probe_clock_uncertainty_tolerance_never_extends_the_staleness_window"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_control_plane_probes.py",
+     "test": "test_probe_clock_future_input_beyond_tolerance_cannot_poison_the_observation_floor"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_bounded_authorization.py",
+     "test": "test_stale_required_evidence_holds_but_optional_unknown_does_not"
+    }
+   ],
+   "cls": "COV",
+   "gap": "The observation time, not the envelope time, controls reliance on the control plane path.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "B11"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "H58",
+   "title": "Readback ambiguity",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RT",
+    "VF"
+   ],
+   "entry": "Destination readback matching state created by another actor",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c23.py",
+     "test": "test_scn_c23_effect_oracle_scope_boundary_effect_without_consumed_claim"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_comparative_governance.py",
+     "test": "test_unrelated_denial_evidence_does_not_count"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_comparative_governance.py",
+     "test": "test_duplicate_effect_fails"
+    }
+   ],
+   "cls": "COV",
+   "gap": "An effect without a consumed claim is flagged; matching state from another actor is attributed only through effect identity.",
+   "batch": [
+    "T14"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "H55"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "H60",
+   "title": "Lossy adapter transformation",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "EP",
+    "OD"
+   ],
+   "entry": "Producer record to replay to evidence pack to ODES round trip",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c12.py",
+     "test": "test_scn_c12_known_conversion_losses_and_unsupported_semantics_are_enumerated"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_absent_unknown_redacted_are_schema_distinct"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/security-runtime/test_security_runtime_chain.py",
+     "test": "test_odes_preserves_repaired_runtime_semantics"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c12.py",
+     "test": "test_scn_c12_unknown_member_is_rejected_reported_or_preserved_never_silently_lost"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Unknown, absent and redacted do not collapse into success in the enumerated cases; profile-on records are refused by replay (F-4) and verifier (F-3), so the programme-2 shapes are not round-tripped.",
+   "batch": [],
+   "known_limit": "replay (F-4) and verifier (F-3) refuse profile-on records",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "F44"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "H63",
+   "title": "HMAC mistaken for independent attestation",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "EP",
+    "OD"
+   ],
+   "entry": "Replay export HMAC; pack and ODES surfacing of authentication",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_hmac_is_not_public_attestation_key_id_is_a_label"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_hmac_not_surfaced_as_attestation_by_pack_or_odes"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_odes_rehash_forgery_keeps_authentication_unavailable"
+    }
+   ],
+   "cls": "COV",
+   "gap": "A holder of the shared secret can forge a record and the stack labels the HMAC as non-independent. Residual: documentation that mentions an HMAC key that does not exist (R1 finding 5, fix in stream F1).",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "H57"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "H64",
+   "title": "Schema validity promoted to assurance",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "OD",
+    "RP",
+    "EP"
+   ],
+   "entry": "ODES validators, replay importer, pack, verifier",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c14.py",
+     "test": "test_scn_c14_forged_authority_or_delivery_claims_are_not_validated"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c14.py",
+     "test": "test_scn_c14_valid_envelope_grants_no_authority_and_proves_no_delivery"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_replay_probes.py",
+     "test": "test_probe_delivery_incomplete_or_contradicted_record_is_refused_not_promoted_to_completion"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Structurally valid records claiming approval or completion are not promoted.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "A08"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "H66",
+   "title": "Evidence importer resource abuse",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "OD",
+    "VF"
+   ],
+   "entry": "Wire budget, nesting and cycle limits in hub, verifier wire and importers",
+   "existing": [
+    {
+     "repo": "HB",
+     "path": "tests/test_wire_budget.py",
+     "test": "test_cycles_and_excess_depth_fail_before_serialization"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_wire_budget.py",
+     "test": "test_aggregate_budget_rejects_before_serialization"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_wire_budget.py",
+     "test": "test_oversize_destination_input_never_opens_database"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Limits are tested in the hub wire budget and verifier wire parser. Replay and ODES importer limit parity and compressed inputs were not mapped, and nothing was run.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "E35",
+   "title": "Revoked-key temporal ambiguity",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "BR",
+    "IX"
+   ],
+   "entry": "BitRep key registry and trust snapshot currency; documented temporal semantics",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er013_revocation_applies_from_revoked_at_and_is_not_backdatable"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er013_rotation_old_key_rejected_after_retirement_new_key_accepted"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er013_temporal_semantics_are_documented_and_match_the_code"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er013_trust_snapshot_currency_is_half_open_and_fails_closed"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Historical verification and current reliance are separated and documented. Residual: no test shows an old valid signature cannot be reused as present authority by a consumer that ignores the snapshot, which is outside the Index and control-plane paths.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 7,
+   "result": "not tested"
+  },
+  {
+   "id": "E38",
+   "title": "Evidence multiplication",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "IX"
+   ],
+   "entry": "Index API and chain adapter corroboration computation",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c04.py",
+     "test": "test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c04.py",
+     "test": "test_scn_c04_index_chain_copied_evidence_is_visible_and_never_merged_or_scored_as_independent"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_probes.py",
+     "test": "test_er02_duplicated_evidence_is_not_independent_corroboration"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_index_probes.py",
+     "test": "test_er02_independent_sources_control_raises_independence"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Covered, and this is a reproduced known limit rather than a pass: the Index API cannot see copy provenance outside its own content-equality check (F-19; decision D14, SCN-C04 reproduces it). Result at the pinned revisions is a recorded failure, not safety.",
+   "batch": [],
+   "known_limit": "F-19 / D14 copied-evidence limit",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 7,
+   "result": "not tested"
+  },
+  {
+   "id": "E36",
+   "title": "Demonstration proof acceptance",
+   "tier": 5,
+   "group": "E",
+   "comps": [
+    "BR"
+   ],
+   "entry": "BitRep zero-knowledge demonstration artifacts and the assurance HTTP path",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er014_zkproof_generated_demonstration_never_verifies"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er014_zkproof_selective_disclosure_demonstration_never_verifies"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er014_zkproof_assurance_path_refused_over_http"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_bitrep_probes.py",
+     "test": "test_probe_er014_zkproof_result_model_cannot_carry_assurance_for_rejections"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Demonstration artifacts never verify and cannot carry assurance.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 1,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 6,
+   "result": "not tested"
+  },
+  {
+   "id": "H62",
+   "title": "Redaction and signing confusion",
+   "tier": 5,
+   "group": "H",
+   "comps": [
+    "RP",
+    "EP",
+    "OD"
+   ],
+   "entry": "Sign-then-redact, redact-then-sign, manual redaction, derived files",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_order_sign_then_redact_drops_the_signature"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_order_sign_then_manual_redaction_is_detected"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c13.py",
+     "test": "test_scn_c13_redacted_derivative_is_explicitly_refused_downstream"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Each ordering has an asserted outcome.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 1,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 6,
+   "result": "not tested"
+  },
+  {
+   "id": "D28",
+   "title": "Network destination escape",
+   "tier": 6,
+   "group": "D",
+   "comps": [
+    "RT"
+   ],
+   "entry": "Needs an egress-controlled executor; V1 reference engine has no network imports and a synthetic SQLite destination",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c10.py",
+     "test": "test_scn_c10_authorized_run_has_no_process_network_or_outside_write"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_live.py",
+     "test": "test_live_filesystem_and_network_denial"
+    }
+   ],
+   "cls": "CAP",
+   "gap": "Needs a live OpenShell sandbox with a network policy (pinned gateway, Docker, immutable image; W6 blocked) or another egress-controlled executor. The retained live test requires that environment and is not part of the bounded Linux reference.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 1,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "D29"
+   ],
+   "gap_weight": 3,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "D29",
+   "title": "Child-process privilege inheritance",
+   "tier": 6,
+   "group": "D",
+   "comps": [
+    "RT"
+   ],
+   "entry": "Needs a sandboxed tool executor; the reference engine launches no child process",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c10.py",
+     "test": "test_scn_c10_denied_run_has_no_process_network_or_outside_write"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py",
+     "test": "test_local_restriction_prevents_sandbox_dispatch"
+    }
+   ],
+   "cls": "CAP",
+   "gap": "Needs a tool executor that can spawn children under a sandbox (live OpenShell). Today only the absence of process and network use in the engine is asserted.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 1,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "D27",
+    "D28"
+   ],
+   "gap_weight": 3,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "D27",
+   "title": "Process argument confusion",
+   "tier": 6,
+   "group": "D",
+   "comps": [
+    "RT"
+   ],
+   "entry": "The only subprocess site: RT OpenShell CLI adapter (constant argv, payload on stdin); legacy CLI statically asserted to reach no destination",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py",
+     "test": "test_cli_contract_uses_constant_argv_and_stdin"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py",
+     "test": "test_cli_digest_substitution_rejects"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c10.py",
+     "test": "test_scn_c10_supported_engine_modules_have_no_process_or_network_imports"
+    }
+   ],
+   "cls": "PART",
+   "gap": "The one process-spawning adapter uses constant argv with the payload on stdin (mock transport). The live OpenShell gateway, image and CLI are not executed (W6 blocked), so option or shell injection through the real CLI is untested.",
+   "batch": [],
+   "known_limit": "live OpenShell unexercised",
+   "rating": {
+    "reach": 1,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "D29"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "D30",
+   "title": "Credential scope mismatch",
+   "tier": 6,
+   "group": "D",
+   "comps": [
+    "RT",
+    "CP",
+    "HB"
+   ],
+   "entry": "Route A credential table / effective-grant row; route B claim scope; destination transaction checks of tenant, grant, operation",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c11.py",
+     "test": "test_scn_c11_route_a_absent_or_out_of_scope_grant_credential_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c11.py",
+     "test": "test_scn_c11_route_b_consumed_claim_cannot_authorize_a_second_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py",
+     "test": "test_wrong_tenant_authoritative_state_is_denied_at_effect_time"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c11.py",
+     "test": "test_scn_c11_declared_out_of_model_direct_commit_by_local_credential_holder_after_institutional_revocation"
+    },
+    {
+     "repo": "HB",
+     "path": "tests/test_protected_destination.py",
+     "test": "test_revocation_closes_credential_binding"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Scope checks at the synthetic destination are covered and the local-credential-holder bypass is characterised (SCN-C11 INCONCLUSIVE: no credential broker). Real executor credentials for another tenant/resource/operation/environment need a credential broker, which does not exist; the hub protected destination is a reference profile.",
+   "batch": [],
+   "known_limit": "no credential broker (SCN-C11)",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "D31",
+   "title": "Credential exposure through artifacts",
+   "tier": 6,
+   "group": "D",
+   "comps": [
+    "RT",
+    "CP",
+    "RP",
+    "EP",
+    "OD",
+    "OR"
+   ],
+   "entry": "Every produced file, log line, exception text, stderr, replay export, evidence pack, ODES package, acp run envelope; subprocess environment",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c11.py",
+     "test": "test_scn_c11_no_credential_exposure_in_any_artifact"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_credential_host_secrets_not_inherited_by_openshell_cli_subprocess"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_cli_run.py",
+     "test": "test_json_format_prints_only_the_envelope"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_negative_resolution_evidence.py",
+     "test": "test_diagnostic_projection_excludes_raw_payload_and_approver"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Covered for the pinned profile artifacts. Not covered: the programme-2 profile artifacts (identity, freshness, rule revision, witness, holder inventory), the acp run stderr path that echoes untrusted member names (R1 finding 9, fix in stream F1), and encodings (base64, hex, JSON-escaped) of a seeded secret.",
+   "batch": [
+    "T16"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "D32",
+   "title": "Isolation fallback",
+   "tier": 6,
+   "group": "D",
+   "comps": [
+    "CP",
+    "RT",
+    "HB"
+   ],
+   "entry": "Missing sandbox, authority tables, profile, trusted clock or registry; test-time flags (allow_test_time, --now); adapter profile forwarding",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_protected_qualification.py",
+     "test": "test_missing_isolation_stops_before_dispatch"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_runtime_authority.py",
+     "test": "test_required_profile_cannot_be_downgraded_at_execute"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py",
+     "test": "test_missing_authoritative_state_fails_closed"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_effective_grant.py",
+     "test": "test_unsupported_destination_rejects_precondition"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_cli_run.py",
+     "test": "test_real_clock_without_now_holds_on_stale_inputs"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Individual fail-closed cases are covered. There is no systematic enumeration of silent fallbacks: R1 finding 1 showed an adapter dropping the rule_revision_profile unless freshness was on, which is exactly a silent downgrade, and no generic profile-forwarding completeness test exists.",
+   "batch": [
+    "T15"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "A05"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "D26",
+   "title": "Filesystem boundary escape",
+   "tier": 6,
+   "group": "D",
+   "comps": [
+    "RT",
+    "CP"
+   ],
+   "entry": "RT DurableRefundDestination path checks; CP acp run input/output confinement; record-store ids",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_path_traversal_absolute_database_name_denied_and_nothing_created"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_symlink_dangling_database_link_to_outside_does_not_create_outside_file"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c10.py",
+     "test": "test_scn_c10_declared_out_of_model_symlink_swap_after_construction"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c10.py",
+     "test": "test_scn_c10_declared_out_of_model_hardlinked_database_file"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_cli_run.py",
+     "test": "test_output_dir_confinement"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_persistence.py",
+     "test": "test_run_record_ids_cannot_escape_store_root"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Traversal, symlink and dangling-link cases are covered; symlink swap after construction and hard links are characterised as declared out of model. Platform-specific path interpretation is not tested: Linux only (decision D2).",
+   "batch": [],
+   "known_limit": "symlink swap after construction and hard link out of model (SCN-C10)",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "G48",
+   "title": "Shared-budget race",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Route B budget table in the claim transaction; route A grant cap; route C (drives route A)",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_b_concurrent_agents_never_exceed_budget_threads"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_b_concurrent_agents_never_exceed_budget_processes"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_a_destination_cap_is_caller_supplied_boundary_observation"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_b_partial_and_unknown_ack_effects_still_consume_budget"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Route B is covered with threads and processes. Route A and C last-unit races are characterised as a caller-supplied boundary and have no deterministic barrier test; the opt-in R2 atomic-route operation key changes the cap-2 outcome and needs its own last-unit case.",
+   "batch": [
+    "T17"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 3,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "G47"
+   ],
+   "gap_weight": 2,
+   "priority_score": 11,
+   "result": "not tested"
+  },
+  {
+   "id": "G47",
+   "title": "Aggregate-limit evasion",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Per-grant cap (route A), per-budget claims (route B); no ceiling across grants, workers or time windows",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_b_exhausted_budget_blocks_every_later_agent"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_b_distinct_budgets_are_independent_declared_boundary"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_a_grant_cap_exhausted_blocks_a_second_agent"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_unsupported_coordination_is_reported"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Within one grant or budget the cap holds; independent budgets are an explicitly declared boundary and no cross-grant aggregate ceiling exists, so grant multiplication is characterised, not prevented. Boundary test (T17) can measure it.",
+   "batch": [
+    "T17"
+   ],
+   "known_limit": "independent budgets not aggregated (SCN-C16)",
+   "rating": {
+    "reach": 3,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "G48"
+   ],
+   "gap_weight": 2,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "G49",
+   "title": "Delegation amplification",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "CP"
+   ],
+   "entry": "CP refuses parent_grant_id (delegation_profile_unsupported); route B handoff of claims only",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c18.py",
+     "test": "test_scn_c18_unsupported_delegation_is_reported"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c18.py",
+     "test": "test_scn_c18_route_b_handoff_cannot_extend_a_grant_by_provisioning_a_broader_claim"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c18.py",
+     "test": "test_scn_c18_route_a_unsupported_or_invalid_delegation_is_held_and_cannot_execute"
+    }
+   ],
+   "cls": "CAP",
+   "gap": "Needs delegation support in the control plane (parent grant, narrowing rules, redelegation rights), which does not exist; today delegation requests are refused and the refusal is tested.",
+   "batch": [],
+   "known_limit": "delegation unsupported",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "F45"
+   ],
+   "gap_weight": 3,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "G50",
+   "title": "Cancellation propagation gap",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "RT",
+    "CP"
+   ],
+   "entry": "No parent/child task graph or scheduled follow-ups; single-run cancellation ordering only",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d09.py",
+     "test": "test_scn_d09_route_a_cancellation_ordering"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py",
+     "test": "test_cancellation_is_not_rollback"
+    }
+   ],
+   "cls": "CAP",
+   "gap": "Needs a task graph with parent and child runs, retries and scheduled follow-ups; V1 has none (no merge or queue concept). Only single-run cancellation ordering is tested.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "G51"
+   ],
+   "gap_weight": 3,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "G51",
+   "title": "Fleet suspension gap",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "RT",
+    "CP"
+   ],
+   "entry": "Fleet suspension scenario SCN-C19 is unimplemented (decision D9); revocation closeout sidecar is per item",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i03_route_c_exchange_authority_revoked_after_decision_is_refused"
+    }
+   ],
+   "cls": "CAP",
+   "gap": "Needs fleet-level suspension with partition and restart of a worker holding credentials and queued work (SCN-C19, unimplemented, D9). The retained test shows only per-run revocation.",
+   "batch": [],
+   "known_limit": "SCN-C19 unimplemented (D9)",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "G50",
+    "B09"
+   ],
+   "gap_weight": 3,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "G52",
+   "title": "Cross-tenant orchestration collision",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Task ids, claim ids, budget ids, run-record ids, cache keys and workspace paths across synthetic tenants",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i01_route_b_other_tenants_claim_cannot_carry_this_tenants_envelope"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i01_route_a_envelope_tenant_substitution_is_refused"
+    },
+    {
+     "repo": "RT",
+     "path": "tests/test_n1_operation_identity.py",
+     "test": "test_operation_key_is_scoped_by_principal_and_authority_domain"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_persistence.py",
+     "test": "test_run_record_ids_cannot_escape_store_root"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Tenant substitution and scoped operation keys are covered; identifier reuse of budget ids, run ids and workspace paths across tenants is not enumerated.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "A04"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "F45",
+   "title": "Delegated-agent authority laundering",
+   "tier": 7,
+   "group": "F",
+   "comps": [
+    "EX",
+    "CP",
+    "RT"
+   ],
+   "entry": "Route C informational messages; route B handoff of claims between agents",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_p.py",
+     "test": "test_asw_p01_route_c_informational_message_with_instructions_has_no_effect"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c18.py",
+     "test": "test_scn_c18_route_b_handoff_with_another_agents_capability_or_operation_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c18.py",
+     "test": "test_scn_c18_route_a_unsupported_or_invalid_delegation_is_held_and_cannot_execute"
+    }
+   ],
+   "cls": "COV",
+   "gap": "A completion or approval message from another agent carries no authority on routes B and C; delegation proper is unsupported (see G49).",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "G49"
+   ],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "G53",
+   "title": "Restart as renewed authority",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Process restart, reopened stores, saved run records, claim reuse after expiry",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i02_route_a_fresh_decision_after_expiry_is_not_authorized"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_i.py",
+     "test": "test_asw_i02_route_b_claim_outside_validity_interval_is_denied"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c08.py",
+     "test": "test_scn_c08_route_a_crash_then_restart_reconciles_without_duplicate"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c16.py",
+     "test": "test_scn_c16_route_b_exhaustion_persists_across_restart_and_fresh_claims"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Authority is recomputed from stores after restart; saved conversation or agent context is not part of V1 (decision D6), so only store-backed restart is covered.",
+   "batch": [],
+   "known_limit": "saved context out of scope (D6)",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "G54",
+   "title": "Availability pressure on governance",
+   "tier": 7,
+   "group": "G",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Unauthenticated flood on CP, exchange and admission; hold claims; reaper; timeout paths",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d06.py",
+     "test": "test_scn_d06_valid_request_under_mixed_flood_keeps_effect_and_evidence_gates"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d06.py",
+     "test": "test_scn_d06_unauthenticated_control_plane_flood"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_d06.py",
+     "test": "test_scn_d06_generation_fence_refusal_flood_is_bounded"
+    },
+    {
+     "repo": "CP",
+     "path": "tests/test_freshness.py",
+     "test": "test_stalled_check_past_class_bound_is_refused_before_dispatch"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Floods do not weaken effect or evidence gates, within bounded fixtures. No review queue, ingress rate limiter or emergency path exists, so timeout and overload paths that could weaken authorization cannot be exercised; reaper thread death is silent (R1 finding 6).",
+   "batch": [
+    "T02"
+   ],
+   "known_limit": "no review queue or limiter",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [
+    "D25"
+   ],
+   "gap_weight": 2,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "F43",
+   "title": "Memory poisoning",
+   "tier": 7,
+   "group": "F",
+   "comps": [],
+   "entry": "Governed memory is out of V1 scope (decision D6)",
+   "existing": [],
+   "cls": "NA",
+   "gap": "Not applicable to V1: governed memory was moved out of scope by decision D6. Preserved as a hypothesis for any later memory profile; hub context_memory_profile tests exist but are not part of the V1 claim.",
+   "batch": [],
+   "known_limit": "decision D6",
+   "rating": {
+    "reach": 1,
+    "capability": 1,
+    "consequence": 1
+   },
+   "related": [],
+   "gap_weight": 0,
+   "priority_score": 3,
+   "result": "not tested"
+  },
+  {
+   "id": "I72",
+   "title": "Compromised evidence producer",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "QL",
+    "VF"
+   ],
+   "entry": "Test runner or adapter fabricating observations and a passing report",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c23.py",
+     "test": "test_scn_c23_effect_oracle_detects_seeded_effect_state_defects_and_passes_clean"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_add_test_g1.py",
+     "test": "test_add_test_g1_test_identities_from_retained_junit_are_listed_and_verified"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_command_run_manifest.py",
+     "test": "test_success_is_command_only"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Seeded defects and retained test identities give partial detection. An independent producer of evidence for the same run does not exist (CI and suite share one trust domain); the verifier-mutation suite tests detection power, not an adversarial producer.",
+   "batch": [],
+   "known_limit": "single trust domain for runner and evidence",
+   "rating": {
+    "reach": 2,
+    "capability": 3,
+    "consequence": 3
+   },
+   "related": [
+    "H57",
+    "CH6"
+   ],
+   "gap_weight": 2,
+   "priority_score": 10,
+   "result": "not tested"
+  },
+  {
+   "id": "I67",
+   "title": "Artifact swap after verification",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "QL",
+    "RT"
+   ],
+   "entry": "Pin check at install and import; OpenShell CLI digest; component checkout verification",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_s.py",
+     "test": "test_asw_s01_drifted_component_checkout_is_refused_before_its_code_runs"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_security_checkout.py",
+     "test": "test_untracked_ignored_staged_and_unstaged_refused_by_both_runners"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-probes/test_runtime_probes.py",
+     "test": "test_probe_credential_cli_binary_substitution_refused_by_digest"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Drift before use is refused. A swap between verification and load (time-of-check to time-of-use) is not exercised; owned by the deferred supply-chain stream (S3).",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "I69"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "I70",
+   "title": "Qualification evidence substitution",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "QL",
+    "HB"
+   ],
+   "entry": "Dashboard accounting, release evidence packet, import of accepted revisions",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "tests/test_qualification_dashboard.py",
+     "test": "test_cannot_relabel_failed_workflow_successful"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_qualification_dashboard.py",
+     "test": "test_changed_test_bytes_are_not_silently_covered"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_v1_release_evidence.py",
+     "test": "test_old_population_cannot_be_relabelled_as_current_contract"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_s.py",
+     "test": "test_asw_s01_replay_import_rejects_unaccepted_component_revisions"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Relabelling and changed test bytes are detected. Results from another commit, fixture or workflow attempt are not systematically perturbed against the release evidence packet.",
+   "batch": [
+    "T18"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "I74"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "I71",
+   "title": "Skipped or mocked checks presented as coverage",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "QL"
+   ],
+   "entry": "Scenario coverage map; test-symbol existence; evaluator sentinels",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "tests/test_qualification_dashboard.py",
+     "test": "test_missing_test_symbol_or_wrong_license_is_rejected"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_scn_c23.py",
+     "test": "test_scn_c23_evaluators_are_alive_sentinels"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_v1_scope_reduction.py",
+     "test": "test_reduced_row_is_never_counted_pass"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Symbol existence and reduced-row accounting are checked. Nothing checks that a cited test asserts destination state, is not skipped, or mocks below the relevant boundary. T20 audits this for the batch citations.",
+   "batch": [
+    "T20"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "I74",
+   "title": "Control-panel divergence",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "HB",
+    "QL"
+   ],
+   "entry": "Hub release-closeout control panel (md plus companion JSON), failure register, scenario report",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "tests/test_failure_register.py",
+     "test": "test_validation_refuses_overclaims"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_qualification_dashboard.py",
+     "test": "test_workflow_pass_does_not_accept_cases_or_components"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_scenario_report.py",
+     "test": "test_dashboard_carries_the_section_without_changing_scenario_verdicts"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Dashboards are derived and refuse overclaims. The hub control panel is hand-edited markdown with a companion JSON and no test compares it with the failure register. Hub bytes are frozen, so a fix is a coordinator follow-up; a read-only checker can live here.",
+   "batch": [
+    "T18"
+   ],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "I70"
+   ],
+   "gap_weight": 2,
+   "priority_score": 9,
+   "result": "not tested"
+  },
+  {
+   "id": "I69",
+   "title": "Mutable release reference",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "QL",
+    "HB"
+   ],
+   "entry": "Workflow pins by sha, hub component-lock, tag and branch use in release tooling",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_s.py",
+     "test": "test_asw_s01_positive_control_exact_pins_are_accepted_and_the_lock_is_observed"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_workflow_assembly_order.py",
+     "test": "test_assembly_precedes_test_commands"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Hashes are used for component pins. No test moves a tag or branch after qualification and observes the release tooling; owned by S3.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 1,
+    "capability": 2,
+    "consequence": 3
+   },
+   "related": [
+    "I67",
+    "I70"
+   ],
+   "gap_weight": 2,
+   "priority_score": 8,
+   "result": "not tested"
+  },
+  {
+   "id": "I68",
+   "title": "Dependency and profile mismatch",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "QL",
+    "HB"
+   ],
+   "entry": "Contract matrix, V1 profile pins, component lock, profile exclusivity",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "tests/test_contract_matrix.py",
+     "test": "test_unknown_version_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_contract_matrix.py",
+     "test": "test_same_draft_version_string_with_different_content_is_refused"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/v1-scenarios/test_asw_s.py",
+     "test": "test_asw_s01_qualification_runner_refuses_a_drifted_component_set"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_profile_exclusivity.py",
+     "test": "test_atomic_database_rejects_intent_activation_without_changes"
+    }
+   ],
+   "cls": "COV",
+   "gap": "Unsupported combinations are refused at the contract matrix and profile exclusivity. The opt-in programme-2 profiles are not yet in the matrix (registry changed 121 to 139 codes under an unchanged label, R1 finding 4).",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 2,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 1,
+   "priority_score": 7,
+   "result": "not tested"
+  },
+  {
+   "id": "I73",
+   "title": "Security exclusion abuse",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "QL"
+   ],
+   "entry": "Security coverage tool exclusions and review scope",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "tests/test_security_coverage.py",
+     "test": "test_binary_and_symlinks_are_not_claimed_reviewed"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_security_coverage.py",
+     "test": "test_python_screen_is_not_semantic_clearance"
+    },
+    {
+     "repo": "QL",
+     "path": "tests/test_security_coverage.py",
+     "test": "test_delta_distinguishes_new_review_scope"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Unreviewed classes are labelled as such. Broadening an exclusion or renaming a path while the dashboard stays green is not tested; owned by S3.",
+   "batch": [],
+   "known_limit": "",
+   "rating": {
+    "reach": 1,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [],
+   "gap_weight": 2,
+   "priority_score": 7,
+   "result": "not tested"
+  },
+  {
+   "id": "I75",
+   "title": "Cross-adapter semantic drift",
+   "tier": 8,
+   "group": "I",
+   "comps": [
+    "RT",
+    "HB"
+   ],
+   "entry": "Same frozen request through native, OpenShell (mock), OpenAPPA and Microsoft AGT paths",
+   "existing": [
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_openappa_optional_compat.py",
+     "test": "test_cognous_denial_blocks_even_when_openappa_allows"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-open-control-stack/tests/test_comparative_governance.py",
+     "test": "test_wrong_exact_reason_fails_even_with_effect_and_audit_conformance"
+    },
+    {
+     "repo": "QL",
+     "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py",
+     "test": "test_local_restriction_prevents_sandbox_dispatch"
+    }
+   ],
+   "cls": "PART",
+   "gap": "Optional OpenAPPA compatibility and comparative governance exist; the same frozen request has not been replayed across all adapters, the live OpenShell and Microsoft AGT paths are unavailable, and OpenAPPA is optional and not in the core lock.",
+   "batch": [],
+   "known_limit": "live OpenShell and AGT unexercised",
+   "rating": {
+    "reach": 1,
+    "capability": 2,
+    "consequence": 2
+   },
+   "related": [
+    "A03"
+   ],
+   "gap_weight": 2,
+   "priority_score": 7,
+   "result": "not tested"
+  }
+ ],
+ "chains": [
+  {
+   "id": "CH1",
+   "title": "Malicious retrieved evidence, poisoned context, payload substitution, legitimate executor credentials",
+   "parts": [
+    "F41",
+    "A01",
+    "D30"
+   ],
+   "cls": "PART",
+   "note": "Links are each covered (SCN-ASW-P01, SCN-D02, SCN-C11) but not composed. A composed test needs a payload that survives the injection stage and reaches a credentialed destination; T04 and T16 supply the substitution and credential legs. The context-poisoning stage has no model in V1."
+  },
+  {
+   "id": "CH2",
+   "title": "Revoked grant, stale cache, partitioned worker, late commit, misleading verified export",
+   "parts": [
+    "B09",
+    "B12",
+    "C23",
+    "H55"
+   ],
+   "cls": "PART",
+   "note": "Offline-testable as a single sequence on one host (revoke, cache-age, paused worker, late commit, export, verify) using the delayed-commit destination and the barrier pause points; T08 and T12 are its legs. A real partition needs a second host, which does not exist."
+  },
+  {
+   "id": "CH3",
+   "title": "Lost acknowledgement, new effect id, concurrent retry, duplicate business effect",
+   "parts": [
+    "C17",
+    "C22",
+    "C20"
+   ],
+   "cls": "PART",
+   "note": "Characterised as a known limitation: default routes do not prevent a business-level duplicate (F-5, F-18). T11 runs the full chain per configuration (default, operation identity on, refund intent on route B)."
+  },
+  {
+   "id": "CH4",
+   "title": "Copied attestations, inflated confidence, supported claim treated as authority, unauthorized action",
+   "parts": [
+    "E38",
+    "A08",
+    "B15"
+   ],
+   "cls": "OFFL",
+   "note": "Offline-testable and expected to be refused at the last link: issue #42 records that the Index has no path into control-plane decisions, and SCN-C03 shows forged evidence never becomes authority. The copied-evidence step reproduces F-19 and the chain end-to-end is not run."
+  },
+  {
+   "id": "CH5",
+   "title": "Manifest downgrade, alternate adapter route, broader credentials, incomplete replay record",
+   "parts": [
+    "A05",
+    "A03",
+    "D30",
+    "H59"
+   ],
+   "cls": "PART",
+   "note": "Legs covered separately; the downgrade leg depends on R1 finding 1 (rule-revision forwarding) and the replay leg is refused for profile-on records (F-4). T19, T15 and T06 are the legs."
+  },
+  {
+   "id": "CH6",
+   "title": "Compromised executor, forged observation, evidence-pack transformation, false independent assurance",
+   "parts": [
+    "H57",
+    "H55",
+    "H60",
+    "H63"
+   ],
+   "cls": "PART",
+   "note": "Needs an independent observer to be preventable (capability absent); the transformation and labelling legs are covered. An offline run can only show what the stack labels, not that it detects."
+  },
+  {
+   "id": "CH7",
+   "title": "Child-agent delegation, aggregate-budget evasion, cancellation gap, continued effects after suspension",
+   "parts": [
+    "G49",
+    "G47",
+    "G50",
+    "G51"
+   ],
+   "cls": "CAP",
+   "note": "Delegation, cancellation and fleet suspension do not exist; only the aggregate-budget leg (G47) is offline-testable."
+  },
+  {
+   "id": "CH8",
+   "title": "Passing qualification on one commit, mutable release reference, artifact substitution, false release readiness",
+   "parts": [
+    "I70",
+    "I69",
+    "I67"
+   ],
+   "cls": "PART",
+   "note": "Pin and relabel checks exist; tag/branch movement and time-of-check swap are owned by the deferred supply-chain stream (S3)."
+  }
+ ],
+ "batch_1": [
+  {
+   "id": "T01",
+   "title": "Direct-call matrix over every destination class",
+   "tier": 1,
+   "ideas": [
+    "D25"
+   ],
+   "cap": "Holder of a destination object or database path who calls its public methods directly",
+   "comps": [
+    "RT",
+    "CP",
+    "HB"
+   ],
+   "entry": "Public commit, execute_snapshot and apply methods of each destination class at component mains, including the delayed-commit and operation-key destinations added after the SCN-D09 table",
+   "inv": "Without a valid effective-grant row and matching claim, no effect row appears, on every destination class that claims to enforce authority; a base destination that accepts the call is listed, not hidden",
+   "fixture": "Fresh store per destination class; one approved operation; call each public method with no grant, an expired grant, a revoked grant and a wrong-tenant grant",
+   "expected": "Refusal on every authority-enforcing class; destination row count read from the database file independently of the return value; base destination recorded as detected-only/not applicable by design",
+   "pos": "The same call with a valid grant commits exactly one row",
+   "resid": "Raw SQL by the database-file holder and live OpenShell remain out of model",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T02",
+   "title": "Non-dispatching entry points leave destinations unchanged",
+   "tier": 1,
+   "ideas": [
+    "D25",
+    "H65",
+    "G54"
+   ],
+   "cap": "Any caller of reaper, recovery, replay import, evidence-pack, ODES and acp read-only commands",
+   "comps": [
+    "CP",
+    "RT",
+    "RP",
+    "EP",
+    "OD"
+   ],
+   "entry": "Reaper thread and sweeps, check-lease recovery, replay import, evidence-pack build, ODES export, acp witness and read-only commands",
+   "inv": "These paths never create, change or delete a destination row or a claim",
+   "fixture": "Destination with one landed effect and one unresolved attempt; hash every table and file before and after each entry point, including under a flood of malformed inputs",
+   "expected": "Destination hash unchanged for every entry point; reaper death is observed (R1 finding 6) and recorded as inconclusive if undetectable",
+   "pos": "A dispatching entry (execute) changes the hash, proving the observer can see change",
+   "resid": "New entry points added after this plan are not covered",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T03",
+   "title": "Raw-ingress canonicalization differential at acp run",
+   "tier": 2,
+   "ideas": [
+    "A06",
+    "A01",
+    "A07"
+   ],
+   "cap": "Author of the JSON input file",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "cli_run._load_json (json.loads: last duplicate member wins, NaN accepted) into the proposal model, commitment and destination row",
+   "inv": "What was approved is byte-for-byte what the destination receives; duplicate keys, NaN or Infinity, BOM or trailing data, NFC against NFD text and number spellings (1, 1.0, 1e0) are refused or normalised identically on both sides",
+   "fixture": "One proposal file with a perturbation per case; run through acp run; compare the approved commitment with the stored operation",
+   "expected": "Refusal, or equal commitment and destination operation; any difference is a reproduced failure",
+   "pos": "Unperturbed file executes once with equal commitment",
+   "resid": "Other ingress formats and the library API are separate",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T04",
+   "title": "Every-field post-approval mutation completeness",
+   "tier": 2,
+   "ideas": [
+    "A01",
+    "A02",
+    "A04",
+    "A07"
+   ],
+   "cap": "Holder of the approved envelope or claim between decision and effect",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Routes A, B and C; the 23-member FrozenOperation, AuthorizationBinding and the claim row",
+   "inv": "Mutating any single member or nested payload key after approval, including run_id and correlation_id, either changes the commitment and is refused, or is listed as unbound with the reason",
+   "fixture": "One approved operation per route; mutate each member in turn (generated from the model members so a new member forces a new case)",
+   "expected": "Refusal with no destination row for every bound member; unbound members listed explicitly",
+   "pos": "Unmutated operation executes once",
+   "resid": "Adapter-internal behaviour is not covered (see T06)",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T05",
+   "title": "Target equivalence and prefix semantics",
+   "tier": 2,
+   "ideas": [
+    "A02"
+   ],
+   "cap": "Proposer choosing the target string",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "CP exact-membership target check (bounded.py) versus RT SafeLocalPolicy startswith on allowed prefixes",
+   "inv": "The two evaluators agree on which targets are allowed; a target that extends a prefix (acct-1 against acct-10), differs in case, separator, Unicode form or trailing space is refused by both or the difference is recorded",
+   "fixture": "Grant for one target; a table of equivalent and near-equivalent spellings evaluated on both routes",
+   "expected": "Same decision from both evaluators for every row; a disagreement is a reproduced failure",
+   "pos": "Exact target allowed on both",
+   "resid": "Resolver-level alias remap has no V1 referent",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T06",
+   "title": "Adapter identity versus implementation",
+   "tier": 2,
+   "ideas": [
+    "A03"
+   ],
+   "cap": "Party who can replace adapter code or configuration behind an unchanged adapter id",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Adapter id binding (CP) and ControlPlaneRefundDestinationAdapter; ledger verification",
+   "inv": "A swapped implementation under the same id is detected after the fact by the ledger, or the gap is recorded as accepted limit E6",
+   "fixture": "Registered adapter, then a lookalike class with the same id that writes a different amount",
+   "expected": "Result is detected only (ledger shows the mismatch) or reproduced failure; never recorded as prevented",
+   "pos": "Registered adapter yields a consistent ledger",
+   "resid": "Prevention needs adapter attestation (absent)",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T07",
+   "title": "Authority ABA",
+   "tier": 3,
+   "ideas": [
+    "B15"
+   ],
+   "cap": "Administrator who revokes and recreates a grant with the same id",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Grant resolver (id, revision), effect_id, RT provision_claim and authority_grants_v1",
+   "inv": "An approval or claim made against the first grant cannot spend authority of a re-created grant unless it is bound by revision and status; the provisioning refusal on differing rows holds",
+   "fixture": "Grant G rev 1 approved, revoked, recreated as G rev 1 (and rev 2) with identical fields; attempt execute on routes A and B",
+   "expected": "Refusal and no destination row, or reproduced failure documenting which field distinguishes the grants",
+   "pos": "Original grant executes once before revocation",
+   "resid": "Resolver implementations are external",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T08",
+   "title": "Revocation against the delayed-commit destination: prevented or detected only",
+   "tier": 3,
+   "ideas": [
+    "B09",
+    "B10",
+    "B16"
+   ],
+   "cap": "Revoker acting at a chosen point of the commit sequence",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Route A default (C0), effective-grant destination, route B, and the delayed-commit destination with its pause points",
+   "inv": "Per route, revocation placed before, inside and after the destination transaction is classified prevented or detected only and the classification matches the documented checkpoint level",
+   "fixture": "Deterministic barrier at each pause point; event order recorded; destination rows read independently",
+   "expected": "Prevented on atomic routes; detected only on default route A; any mismatch is a reproduced failure",
+   "pos": "No revocation yields exactly one effect",
+   "resid": "C0 race on default route A is by design",
+   "overlap": "none"
+  },
+  {
+   "id": "T09",
+   "title": "Expiry equality and offset across evaluators",
+   "tier": 3,
+   "ideas": [
+    "B13"
+   ],
+   "cap": "Proposer controlling timestamps and offsets",
+   "comps": [
+    "CP",
+    "RT",
+    "OD"
+   ],
+   "entry": "CP clock, destination _trusted_now, ODES recipient clock",
+   "inv": "At the exact expiry instant and with equivalent offsets (Z, +00:00, +01:00 shifted) all evaluators agree",
+   "fixture": "Grant and evidence expiring at T; evaluate at T-1us, T, T+1us with equivalent offsets on each evaluator",
+   "expected": "Identical accept or refuse decision per instant across evaluators",
+   "pos": "Mid-validity instant accepted by all",
+   "resid": "Real clock skew between hosts is not modelled",
+   "overlap": "none"
+  },
+  {
+   "id": "T10",
+   "title": "Rollback of programme-2 state",
+   "tier": 3,
+   "ideas": [
+    "B14"
+   ],
+   "cap": "Operator restoring a database or store from backup",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Restore of operation-key table, effect budgets under the R2 key, freshness floors and witness ledger",
+   "inv": "After restoring an older copy, a spent operation key, budget unit or published witness digest is either still enforced or the loss is detected by a prior digest; undetected loss is recorded",
+   "fixture": "Spend a key and a budget unit, snapshot, spend again, restore the earlier snapshot, retry",
+   "expected": "Prevented, detected only (witness) or reproduced failure per table; SCN-D07 classification extended, not replaced",
+   "pos": "No restore gives the refusal",
+   "resid": "Prevention needs an external anchor (absent)",
+   "overlap": "none"
+  },
+  {
+   "id": "T11",
+   "title": "C3 chain per configuration",
+   "tier": 4,
+   "ideas": [
+    "C22",
+    "C17",
+    "C20"
+   ],
+   "cap": "Retrying client with a re-planned proposal",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Lost ack, re-plan with new effect id, concurrent retry, on default, operation-identity-on and refund-intent routes",
+   "inv": "Count business-level effects per configuration; default configurations may duplicate (known), opt-in ones must not",
+   "fixture": "One business request; lost ack; second proposal with new effect_id; two concurrent submissions with a barrier",
+   "expected": "Effect count per configuration recorded from destination rows; default duplicate is recorded as reproduced known failure, not hidden",
+   "pos": "Single submission yields one effect",
+   "resid": "Logical-intent prevention is not implemented",
+   "overlap": "none"
+  },
+  {
+   "id": "T12",
+   "title": "Stale worker resumes after lease or deadline expiry",
+   "tier": 4,
+   "ideas": [
+    "C23",
+    "B12"
+   ],
+   "cap": "Worker paused by the scheduler, resumed after takeover",
+   "comps": [
+    "CP",
+    "RT"
+   ],
+   "entry": "Freshness profile gate, delayed-commit pause point, destination commit",
+   "inv": "A resumed worker whose lease has expired is refused at the destination or its effect is detected; no second effect",
+   "fixture": "Worker A pauses after the gate; lease expires; worker B takes over and commits; A resumes",
+   "expected": "Prevented by effect-id dedupe; the destination-enforced fencing absence recorded as residual",
+   "pos": "Without takeover A commits once",
+   "resid": "Same-host flock only; no cross-host fencing",
+   "overlap": "none"
+  },
+  {
+   "id": "T13",
+   "title": "Real process kill at every persistence boundary",
+   "tier": 4,
+   "ideas": [
+    "C18",
+    "C19"
+   ],
+   "cap": "Operator or fault killing the process",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Routes A and C (BaseException model today) and programme-2 write points: journal, join row, operation key, witness",
+   "inv": "After SIGKILL at each boundary and restart, destination holds at most one effect and no state claims success without it",
+   "fixture": "Subprocess killed at barrier N for each boundary; restart; read destination",
+   "expected": "At most one effect per boundary; any state that over- or under-claims is a reproduced failure",
+   "pos": "No kill yields one effect",
+   "resid": "Machine crash and fsync loss are not modelled",
+   "overlap": "none"
+  },
+  {
+   "id": "T14",
+   "title": "Observation field matrix",
+   "tier": 5,
+   "ideas": [
+    "H55",
+    "H56",
+    "H58"
+   ],
+   "cap": "Executor or party who writes observations",
+   "comps": [
+    "RP",
+    "VF",
+    "RT"
+   ],
+   "entry": "Replay import, verifier, effect oracle",
+   "inv": "A genuine observation with one field changed (effect, target, tenant, amount, interval) or a matching state written by another actor is never counted as verified completion",
+   "fixture": "One verified run; substitute each field in turn from another genuine run; add an unrelated matching row",
+   "expected": "Not verified for every substitution; ack-only run not verified",
+   "pos": "Unchanged observation yields verified",
+   "resid": "Verifier refuses profile-on records until J1 (F-3)",
+   "overlap": "S2 verifier red team"
+  },
+  {
+   "id": "T15",
+   "title": "Profile-flag forwarding completeness",
+   "tier": 6,
+   "ideas": [
+    "D32",
+    "A05"
+   ],
+   "cap": "Misconfiguration or older caller",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Every adapter and executor constructor that accepts a profile flag",
+   "inv": "A profile set at the control plane is forwarded to every adapter and enforced at effect time, or construction fails; none is silently dropped",
+   "fixture": "Generate all combinations of rule-revision, freshness, operation-identity, witness, holder inventory flags",
+   "expected": "Flag effective or refusal at construction; silent drop is a reproduced failure (known: R1 finding 1)",
+   "pos": "All flags on yields all enforced",
+   "resid": "Fix is in stream F1; this test is its regression guard",
+   "overlap": "none"
+  },
+  {
+   "id": "T16",
+   "title": "Canary-secret sweep over every artifact",
+   "tier": 6,
+   "ideas": [
+    "D31"
+   ],
+   "cap": "Reader of any produced file, log or exception",
+   "comps": [
+    "RT",
+    "CP",
+    "RP",
+    "EP",
+    "OD"
+   ],
+   "entry": "All outputs, including programme-2 profiles and acp run stderr",
+   "inv": "A seeded canary secret appears in no artifact in plain text, base64, hex or JSON-escaped form",
+   "fixture": "Canary as credential and in payload; run success, refusal and crash paths; scan",
+   "expected": "No occurrence; any hit is a reproduced failure",
+   "pos": "Scanner finds a canary planted deliberately",
+   "resid": "Subprocess environment of live OpenShell untested",
+   "overlap": "S1 code attacks"
+  },
+  {
+   "id": "T17",
+   "title": "Last-unit budget race and grant multiplication",
+   "tier": 7,
+   "ideas": [
+    "G47",
+    "G48"
+   ],
+   "cap": "Several workers or one actor with several grants",
+   "comps": [
+    "CP",
+    "RT",
+    "EX"
+   ],
+   "entry": "Route C and adapter route last unit; route B budget; N grants of cap 1",
+   "inv": "Last unit is spent once under barriers; grant multiplication across N grants is measured and reported as characterised",
+   "fixture": "Barrier before the commit; two workers on the final unit; N grants splitting one prohibited total",
+   "expected": "One effect for last unit; aggregate for N grants recorded as detected-only or reproduced failure",
+   "pos": "Single worker spends the last unit once",
+   "resid": "No cross-grant ceiling exists",
+   "overlap": "none"
+  },
+  {
+   "id": "T18",
+   "title": "Control-panel and results consistency checker",
+   "tier": 8,
+   "ideas": [
+    "I74",
+    "I70"
+   ],
+   "cap": "Editor of release summaries",
+   "comps": [
+    "HB",
+    "QL"
+   ],
+   "entry": "Hub release-closeout control panel (md and json), failure register, scenario report",
+   "inv": "Markdown, companion JSON and failure register agree; a status changed in one without evidence is flagged; read-only",
+   "fixture": "Mutate a status in each artifact copy; run checker",
+   "expected": "Flagged for every divergence",
+   "pos": "Consistent copies pass",
+   "resid": "Hub edits are frozen; any fix is a coordinator follow-up",
+   "overlap": "S3 supply chain"
+  },
+  {
+   "id": "T19",
+   "title": "Rule-revision downgrade",
+   "tier": 2,
+   "ideas": [
+    "A05",
+    "F46"
+   ],
+   "cap": "Policy editor presenting an older or unadopted policy",
+   "comps": [
+    "CP",
+    "AM",
+    "IG"
+   ],
+   "entry": "Rule-revision chain and effect-time digest check, through CP and the RT adapter",
+   "inv": "A previously adopted, since superseded digest is not accepted as current; an unadopted digest is refused at effect time",
+   "fixture": "Adopt P1, adopt P2, then present P1 at decide and at effect",
+   "expected": "Refusal at both points",
+   "pos": "P2 accepted",
+   "resid": "Manifest signatures do not exist",
+   "overlap": "none"
+  },
+  {
+   "id": "T20",
+   "title": "Coverage-claim audit of cited tests",
+   "tier": 8,
+   "ideas": [
+    "I71"
+   ],
+   "cap": "Reviewer relying on a retained test as coverage",
+   "comps": [
+    "QL"
+   ],
+   "entry": "Static scan of the tests cited in this plan",
+   "inv": "Each cited test exists, is not skipped or xfailed, and asserts destination state, not only a return value; mocks below the boundary are listed",
+   "fixture": "AST scan plus a per-test annotation table",
+   "expected": "Per-test flags; tests that fail the audit are downgraded in this plan",
+   "pos": "A known-good scenario test passes the audit",
+   "resid": "Static analysis cannot prove assertion quality",
+   "overlap": "S3 supply chain"
+  }
+ ],
+ "unsupported_surfaces": [
+  {
+   "surface": "Live OpenShell gateway, image and CLI",
+   "note": "W6 blocked; D27, D28, D29 and part of D31 depend on it"
+  },
+  {
+   "surface": "Credential broker",
+   "note": "SCN-C11 INCONCLUSIVE; local credential holders bypass the control plane by design"
+  },
+  {
+   "surface": "Independently operated observer",
+   "note": "H57, CH6; V1 producer and verifier share a trust domain"
+  },
+  {
+   "surface": "External anchor for rollback",
+   "note": "SCN-D07 INCONCLUSIVE; B14 prevention"
+  },
+  {
+   "surface": "Delegation in the control plane",
+   "note": "parent_grant_id is refused (delegation_profile_unsupported); G49, G45 partly"
+  },
+  {
+   "surface": "Cancellation, parent/child task graph, fleet suspension",
+   "note": "G50, G51; SCN-C19 unimplemented (D9)"
+  },
+  {
+   "surface": "Compensation or rollback action",
+   "note": "C24; effect-reversibility is a draft ODES contract"
+  },
+  {
+   "surface": "Cross-grant aggregate ceilings",
+   "note": "G47 boundary; SCN-C16 independent budgets"
+  },
+  {
+   "surface": "Cross-host fencing",
+   "note": "N3 lease is a same-host flock; C23, CH2"
+  },
+  {
+   "surface": "Adapter attestation (code digest)",
+   "note": "E6; A03 prevention"
+  },
+  {
+   "surface": "Model-in-the-loop behaviour",
+   "note": "F41, F42, F44 test code paths only; no model is exercised"
+  },
+  {
+   "surface": "Governed memory",
+   "note": "decision D6; F43"
+  },
+  {
+   "surface": "Windows and macOS",
+   "note": "decision D2, Linux only; D26 platform path rules"
+  },
+  {
+   "surface": "Production resolver authentication",
+   "note": "resolver assurance is a reference profile"
+  },
+  {
+   "surface": "Logical-intent duplicate prevention",
+   "note": "C22, CH3; not implemented, adopted or qualified"
+  },
+  {
+   "surface": "Ingress rate limiter, review queue, emergency path",
+   "note": "G54"
+  },
+  {
+   "surface": "Policy-adoption flow",
+   "note": "SCN-C20 unimplemented (D9); F46"
+  },
+  {
+   "surface": "Conflicting proposals, queueing",
+   "note": "SCN-C05, SCN-C15 unimplemented (D9)"
+  },
+  {
+   "surface": "Replay and verifier handling of profile-on records",
+   "note": "F-4, F-3 until J1; limits H60, T14"
+  },
+  {
+   "surface": "Microsoft AGT adapter, OpenAPPA beyond optional compat",
+   "note": "I75"
+  }
+ ],
+ "owner_decisions": [
+  "Hub control-panel links and any checker wiring: hub bytes are frozen, so the coordinator must decide.",
+  "Disclosure policy for any reproduced failure: repositories are public; use the SECURITY.md channel before publishing details.",
+  "Sequencing against the deferred security reviews S1 (code attacks), S2 (verifier red team) and S3 (supply chain); overlap flags are on each batch test.",
+  "Pin policy: new suites are red at V1 pins by design; run them as an overlay at component mains and leave pin bumps to the coordinator batch.",
+  "Whether batch tests become scenario-catalogue entries or stay under process/adversarial, and how the batch result vocabulary maps to catalogue statuses; the vocabulary must not feed the v1_validation verdict.",
+  "Acceptance of F43 (memory poisoning) as not applicable under D6.",
+  "The brainstorm says do not merge; the programme brief pre-authorises self-merge of green PRs. The brief was followed; this PR is documentation and a static consistency test only."
+ ],
+ "not_mapped": [
+  "The 5 Oct 2026 consolidated recommendations document was not available; the brainstorm text is the only input.",
+  "Index API pagination and ordering semantics were read at signature level only.",
+  "Replay and ODES importer resource-limit parity and compressed inputs.",
+  "Exchange (route C) budget semantics beyond what SCN-C16 states.",
+  "ODES validators (fixture counts only); acp subcommands other than run and witness; the ocs CLI.",
+  "No existing suite was executed for this plan; every retained test is evidence from its own earlier runs, not newly executed work."
+ ]
+}
