@@ -56,7 +56,7 @@ No open PR diff touches these lines (pack #34 adds one `a34c3dc2` profile label 
 | tools/v1_validation.py:62-73, :146-153, :158-167 | `plan`, profile-equals-manifest, fetch each manifest sha. No refreeze overlay exists (RF-1 changed only workflow lines) | all seven |
 | tests/test_security_runtime_profiles.py:10, :37, :60 | asserts the original profile and workflow | leave unchanged |
 | docstrings: suites/v1-probes/test_replay_probes.py:3; v1-scenarios/test_add_molt_verify.py:12; test_scn_c10.py:9; c12:9-12; c13:9-11; c14:9-10 | 8-char prefixes | cosmetic |
-| results/** (3,496 files in results/v1-validation; 57 in results/comparisons/ecy-reachable-20261016; results/security-runtime-f5b-20261016/*; reports/*) | retained evidence at the old pins | historical, never edited |
+| results/** (3,496 files in results/v1-validation; results/security-runtime-f5b-20261016/*; reports/*) | retained evidence at the old pins | historical, never edited |
 
 ## 2. What each open PR invalidates
 
