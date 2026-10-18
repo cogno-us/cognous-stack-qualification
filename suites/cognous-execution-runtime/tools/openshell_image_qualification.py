@@ -78,6 +78,19 @@ def _request(effect_id: str, *, target: str = "urn:cognous:synthetic-account:17"
     }, snapshot
 
 
+# Confinement for every qualification container. No qualified case needs
+# network: the worker reads one JSON request on stdin, writes one JSON result on
+# stdout and keeps state in a SQLite file under the bind-mounted state path.
+CONFINEMENT_OPTIONS = (
+    "--cap-drop", "ALL",
+    "--security-opt", "no-new-privileges",
+    "--network", "none",
+    "--memory", "512m",
+    "--pids-limit", "128",
+    "--tmpfs", "/tmp:rw,noexec,nosuid,size=64m",
+)
+
+
 def _docker(
     image: str,
     state: Path,
@@ -86,8 +99,13 @@ def _docker(
     stdin: str | None = None,
     check: bool = True,
     user: str | None = None,
+    read_only: bool = True,
 ) -> subprocess.CompletedProcess[str]:
-    argv = ["docker", "run", "--rm"]
+    argv = ["docker", "run", "--rm", *CONFINEMENT_OPTIONS]
+    # read_only=False is used only by the check that the image's own file
+    # permissions protect the code path; a read-only root would hide that.
+    if read_only:
+        argv.append("--read-only")
     # docker run requires -i to keep stdin open for the worker JSON protocol.
     if stdin is not None:
         argv.append("-i")
@@ -174,6 +192,7 @@ def _packaging_checks(image: str, state: Path) -> dict[str, Any]:
         state,
         ["/usr/local/bin/python3", "-c", "from pathlib import Path; Path('/opt/cognous/should-not-write').write_text('x')"],
         check=False,
+        read_only=False,
     )
     if protected.returncode == 0:
         raise AssertionError("/opt/cognous unexpectedly writable by image default user")
