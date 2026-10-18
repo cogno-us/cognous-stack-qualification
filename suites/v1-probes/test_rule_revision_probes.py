@@ -278,23 +278,29 @@ def test_probe_n2_reused_code_raises_measured_arity(tmp_path, monkeypatch):
     must_fail_when_disabled(negative, tmp_path, monkeypatch, "arity_flags", lambda declared, measured: [])
 
 
-def test_probe_n2_declared_recomputable_without_operands_flagged(tmp_path, monkeypatch):
+def test_probe_n2_declared_recomputable_without_operands_is_derivation_unavailable(tmp_path, monkeypatch):
     rv, rr, ba, ra = mods()
     import json
     from pathlib import Path
     import agent_control_plane
     registry = json.loads((Path(agent_control_plane.__file__).resolve().parents[2] / "schemas" / "runtime_authority_reasons_0_1.json").read_text())
     kinds = [v["reason_kind"] for v in registry["codes"].values()]
-    assert (len(kinds), kinds.count("typed_only"), kinds.count("recomputable")) == (121, 120, 1)  # tracker #42 code check
+    # tracker #42 code check: exactly one recomputable code; the total grows with opt-in profiles (121 default, 128 with operation-identity/0.1)
+    assert kinds.count("recomputable") == 1 and kinds.count("typed_only") == len(kinds) - 1 and len(kinds) in (121, 128)
     bare = {"reasons": ["grant_revoked"], "resolution_inputs": []}
 
     def negative(_tp):
         flags = rv.recomputability_flags([bare], registry["codes"])
-        assert flags and flags[0]["flag"] == "declared_overclaim" and flags[0]["derived"] == "typed_only", flags
+        assert flags and flags[0]["flag"] == "derivation_unavailable" and flags[0]["derived"] == "underivable", flags  # N2b
         return flags
     flags = negative(None)
     assert flags[0]["declared"] == "recomputable" and flags[0]["code"] == "grant_revoked"  # declared stays as the expectation
     full = {"reasons": ["grant_revoked"], "resolution_inputs": [
         {"input_type": "grant", "input_id": "g", "observed": {"status": "revoked"}, "record_commitment": digest("g")}]}
     assert rv.recomputability_flags([full], registry["codes"]) == []  # positive control: operands present, declared == derived
+    mismatch = {"reasons": ["grant_revoked"], "resolution_inputs": [  # operands present and they show the declared kind cannot hold
+        {"input_type": "grant", "input_id": "g", "observed": {"status": "active"}, "expected": {"status": "active"},
+         "record_commitment": digest("g")}]}
+    over = rv.recomputability_flags([mismatch], registry["codes"])
+    assert over and over[0]["flag"] == "declared_overclaim" and over[0]["derived"] == "typed_only", over  # N2b: overclaim stays reachable
     must_fail_when_disabled(negative, tmp_path, monkeypatch, "derive_recomputability", lambda row: "recomputable")
