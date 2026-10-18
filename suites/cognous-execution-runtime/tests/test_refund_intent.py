@@ -293,7 +293,8 @@ def test_independently_approved_replan(tmp_path, same_intent):
     assert d.effect_count(first.operation.grant_id) == (1 if same_intent else 2)
     if same_intent:
         assert d.observe(second.effect_id)['state'] == 'absent'
-        assert first.effect_id in (result2.error or '')
+        # Diagnostic text only: newer targets report the generic observation message, older ones name the original effect.
+        assert first.effect_id in (result2.error or '') or (result2.error or '') == 'destination observation is not valid for effect dispatch'
         assert result2.control_plane_evidence['reconciliation']['retry_eligible'] is False
 
 
