@@ -132,3 +132,11 @@ The pins moved to the Programme 2 generation (refreeze entries RF-18..RF-22, pro
 - The bounded Replay-phase cases of the security-runtime chain suite run at the `p2` generation (24 of 24 pass locally). The ODES export cases (7) and the exchange reference-runtime cases (5) of the full phase do not pass at `p2` yet: the ODES exporter and the exchange reference runtime carry revision tuples for the earlier generations only. A tuple for the Programme 2 producers is needed in ODES and in the exchange (a new exchange compatibility profile) before the full phase can pass; the probes were not changed to hide this.
 - The retained verifier-mutation corpus (run 5) stays at verifier 0a43a7f0 and is historical.
 
+
+### Update 2026-10-18 (Programme 2 re-pin r6)
+
+Three gap fixes closed the 12 full-phase chain cases that did not pass at the r5 pins. The pins moved again (refreeze entries RF-23 and RF-24, profile `process/security-runtime-f5b-20261016-r6.json`, suite generation `p2`): ODES 0663d5a2 to 81979784 (ODES #97 adds the P2 compatibility tuple, so the exporter accepts the Programme 2 producers) and exchange 914db78d to ba9fa160 (exchange #37 adds the compatibility profile `security-runtime-p2-20261018` and #38 corrects its ODES pin to 81979784; the exchange head was d8d44c1 after the bytecode cleanup #36 and before #37). The control plane 3cd17ead, runtime 11de097c, Replay 46e8bd7c, evidence pack 4fbbd344, the action manifest and the constitutional authority are unchanged from r5. The `p2` branch of the chain suite's ODES generation helper now selects the P2 tuple; no probe assertion was changed.
+
+- No qualification-controller run has been made at the r6 pins; every earlier verdict is historical and is not transferred. The FIXED-UNVERIFIED rows stay FIXED-UNVERIFIED.
+- The full-phase cases of the security-runtime chain suite were run locally and read-only at the `p2` generation with the r6 pins (result recorded in the pull request that introduced r6). This is not a controller run and carries no verdict.
+- The exchange profile `security-runtime-p4-20261017` still refuses the Programme 2 producers (identity mismatch), as intended: the compatibility names are exact per generation.

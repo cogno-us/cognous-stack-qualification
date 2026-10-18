@@ -40,6 +40,7 @@ def odes_generation():
     import odes.common as common
     if GENERATION=='f5b':return common.F5B_REVISIONS,common.F5B_PROFILE_VERSION
     if GENERATION=='p4':return common.P4_REVISIONS,common.P4_PROFILE_VERSION
+    if GENERATION=='p2':return common.P2_REVISIONS,common.P2_PROFILE_VERSION
     return common.SECURITY_REVISIONS,common.SECURITY_PROFILE_VERSION
 
 

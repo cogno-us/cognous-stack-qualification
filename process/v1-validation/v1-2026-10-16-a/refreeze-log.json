@@ -344,6 +344,36 @@
    "open_item": "full controller run at the re-frozen tuple (RF-2..RF-22 together; mixed generations are refused) and the r5 profile process/security-runtime-f5b-20261016-r5.json; no run has been made",
    "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
    "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-23",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-18 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "odes",
+   "repository": "cogno-us/open-decision-evidence-standard",
+   "from_sha": "0663d5a24a2d94b83f51f611f30b3b3f144d6c5d",
+   "to_sha": "81979784117588d199da6fdceb05264f8c5903a6",
+   "reason": "Programme 2 gap fix: ODES #97 adds the P2 compatibility tuple (control plane 3cd17ead, runtime 11de097c, Replay 46e8bd7c, manifest 2c36bcd0) so the ODES exporter accepts the Programme 2 producers",
+   "behaviour_changes": [
+    "the exporter and recipient checks accept the P2 producer tuple and its profile version (odes-cognous-stack-export-0.2.6-security-runtime-p2-candidate); earlier generations and cross-generation rejection are unchanged"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-24 together; mixed generations are refused) and the r6 profile process/security-runtime-f5b-20261016-r6.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-24",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-18 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "gax_imx_transport",
+   "repository": "cogno-us/cognous-governed-exchange",
+   "from_sha": "914db78dc3a4dbcc4abc79159f0ac0b7c1edc144",
+   "to_sha": "ba9fa16052a3d99b08d1d31b4f5dca2bdef0c608",
+   "reason": "Programme 2 gap fix: exchange #37 adds the compatibility profile security-runtime-p2-20261018 and exchange #38 corrects its ODES pin to 81979784 (the commit that carries the P2 compatibility tuple); the profile pins control plane 3cd17ead, runtime 11de097c, Replay 46e8bd7c, ODES 81979784, evidence pack 4fbbd344, manifest 2c36bcd0. The exchange head was d8d44c1 (#36, bytecode cleanup) before #37; the recorded from_sha is the r5 pin 914db78d",
+   "behaviour_changes": [
+    "new exchange compatibility profile security-runtime-p2-20261018 under the same strict source-identity and runtime-authority checks; the p4 and f5b profiles are unchanged"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-24 together; mixed generations are refused) and the r6 profile process/security-runtime-f5b-20261016-r6.json; no run has been made",
+   "historical_results_at_from_sha": "final-38962759690 and later runs through refreeze-r1b-39025887085; results at the earlier pins are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
   }
  ]
 }
