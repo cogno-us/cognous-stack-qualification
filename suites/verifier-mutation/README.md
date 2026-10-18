@@ -8,9 +8,10 @@ It selects no component, changes no scenario verdict, profile or pin, runs no qu
 
 | File | Role |
 |---|---|
-| `corpus/clean/` | frozen snapshot of 18 clean traces from the real control plane: 10 from its own test helpers (fixed clock, journal and default modes) and 8 from `acp run` (2 declared examples, 6 seeded variants). 12 authorized, 6 held. Manifest records the control plane revision, reason registry digest and every file digest |
-| `verifier_mutation/operators.py` | 77 deterministic, seeded operator variants over the traces, each tagged with one design category (34 categories; `Q` is reported as n/a, `L1` is the S6 join step and has no trace operator) |
+| `corpus/clean/` | frozen snapshot of 19 clean traces from the real control plane: 11 from its own test helpers (fixed clock, journal and default modes) and 8 from `acp run` (2 declared examples, 6 seeded variants). 13 authorized, 6 held. Run 1 used the first 18; `journal-lost-ack-unobserved` was added for run 2 (see the change log). Manifest records the control plane revision, reason registry digest and every file digest |
+| `verifier_mutation/operators.py` | 81 deterministic, seeded operator variants over the traces (catalogue version 2; version 1 had 77), each tagged with one design category (34 categories; `Q` is reported as n/a, `L1` is the S6 join step and has no trace operator) |
 | `operators.json` | the frozen operator set: catalogue, seed, draws, intended codes and the digests of the implementation files. `operator-set --check` and a test fail when it differs from the code; `report` refuses to run unless it matches. Commit it before any verifier run |
+| `verifier-code-names.json` | every code-shaped string literal in the verifier source at 07c2eb8 (a superset of the codes it can emit); a test checks that no intended code is a name the verifier never had |
 | `seed-map.json` | which category each ODES invalid fixture seeds; unmapped fixtures are counted as unclassified, never dropped |
 | `verifier_mutation/runner.py` | runs the verifier as an external process per trace; reads its stdout as an ODES report, validates it, derives reject / abstain / accept; crash, time-out, non-JSON and refused reports are `error`, never detection |
 | `verifier_mutation/report.py` | tallies and emits the mutation report; validated with the ODES validator before it is written |
@@ -40,10 +41,75 @@ Regenerate the clean corpus (opt-in; needs the control plane virtualenv with `cr
 - Divergence from the design text: noop is decided on files, not on a lenient re-parse, because a duplicate member or `NaN` reads as the clean document under Python's parser yet is the damage being measured.
 - Clean false rejection per category counts the clean traces on which that category's operators produced an effective mutant; benign (B) counts benign mutants. For the ODES valid fixtures the row covers the valid fixtures of the contracts that category's seeds come from, so rows repeat the same fixtures.
 - Metric impact measures are derived by this harness from the files (the verifier does not expose them); unavailable (counted aside) for an accepted mutant Python cannot parse.
-- Intended codes are frozen with the operator set. A different but correct verifier code counts in `any_code` only. Working names are used where no ODES contract or verifier code existed when the set was frozen.
+- Intended codes are frozen with the operator set. A different but correct verifier code counts in `any_code` only. In catalogue version 1 they were frozen before the verifier ran, with working names where no ODES contract or verifier code existed. In catalogue version 2 they were rewritten after run 1 was read (see the change log): **intended codes frozen post-hoc after run 1 (703cdde1)**. `any_code` detection is the primary figure; localized (intended-code) figures are secondary, are reported separately, and are never held-out.
 - J3 is realized as completed-to-interrupted or completed-event-dropped: no real clean trace holds an interrupted check to rewrite.
-- Expected-accept categories (B, F, R6) are reported with the same columns; an accept there is the expected outcome, not a failure.
-- Held-out: the operator set and seed are fixed in this repository before the verifier is run; the clean bases are the same scenario family the verifier's own tests use, so only the mutants are held out.
+- Expected-accept categories (B, F, R6) are reported with the same columns; an accept there is the expected outcome, not a failure. In catalogue version 2, B also holds the float-spelling, renamed-check-id and similar value-equal variants (post-hoc), and R6 is only a ledger row that nothing in the record corroborates.
+- Held-out: for run 1 the operator set and seed were fixed in this repository before the verifier was run; the clean bases are the same scenario family the verifier's own tests use, so only the mutants were held out. Run 2 is NOT held-out: the catalogue (version 2), the intended codes and one added clean trace were written after run 1 and the verifier follow-up (V3a) were read. Its figures are a re-measurement, not a fresh blind one.
 - Flags (`no_detection_anywhere`, `accepts_every_mutant`, `abstains_on_every_mutant`, `rejects_every_clean_trace`, `rejects_every_valid_seed`, `errors_present`) say the verifier is not measuring anything. They gate nothing.
 
 Nothing here claims a decision is correct or that the verifier is correct; figures are counts over the stated corpora and say nothing outside them.
+
+## Change log
+
+### Catalogue version 2 (V3b, post-hoc: written AFTER run 1 and the V3a re-measurement were seen)
+
+Run 1 (qualification 703cdde1, catalogue version 1, verifier `cognous-verify` 0.1.0 at 1a74bb9) and the V3a verifier fixes (verifier main 07c2eb8) showed that three groups of "misses" were not verifier gaps but operator mislabels. They were reclassified on that evidence alone; no other operator was changed to improve a number. Everything below was decided after the results were known.
+
+| Change | Why | Effect |
+|---|---|---|
+| W3 operators keep only the integer spelling (`50` for `50.0`); renamed `W3.{binding,proposal,ledger}-amount-integer-form` | `50.00`, `5e1` and `50.0e0` are one float with one canonical byte string under the pinned profile (`json-sort-keys-compact-utf8-no-nan-python-semantics-v0.1`, Python `repr`): value-equal, not damage. In run 1, 53 of 69 W3 mutants were such forms and were accepted; the 16 integer-for-float ones were all refused | The value-equal forms are new `B.{binding,proposal,ledger}-amount-float-form` operators (expected accept) |
+| `J2.completed-matches-no-resolution-check` became `B.resolution-check-id-renamed` | It changes only a resolution check id. The contract treats resolution-check ids and journal-check ids as separate producer ids and a completed journal check binds by stage, inputs and reasons, so the record stays consistent: undetectable by design (documented in the verifier at 07c2eb8). No J2 operator that alters inputs or reasons was added | J2 is now the reorder operator only |
+| `R6.truncate-ledger-tail` requires an uncorroborated row; the corroborated drop moved to `R5.drop-ledger-row-of-lost-ack-observed` (expected reject) | When the record holds an accepted applied observation of the effect, refusing a missing row is correct (the record contradicts the snapshot: `observation_without_ledger_row`). An expected-accept R6 mutant needs a row nothing corroborates: an unknown attempt and no accepted applied or partial observation | Needs a clean trace of that shape. The 18 run-1 traces have none (the control plane observes right after dispatch), so `journal-lost-ack-unobserved` was captured from the control plane's own `execute(lose_ack=True)` with the follow-up `observe` failing (`observation_unavailable`): attempts `attempted`, `unknown`; observations `absent` only; ledger row present. Existing traces and digests are untouched; the manifest gains one entry (`capture-extra`) |
+| Intended codes rewritten (catalogue `intended_codes.status`: "frozen post-hoc after run 1 (703cdde1); not held-out") | Many frozen names never existed in the verifier (`wire_number_form_drift`, `transplanted_record`, `ledger_row_mismatch`, `ledger_binding_mismatch`, `ledger_row_missing`, `unauthorized_effect`, `excess_duplicate_effect`, `ledger_duplicate_effect`, `record_commitment_mismatch`, `binding_mismatch` and others). Rule: keep a frozen name that exists in the verifier, drop one that does not, add the verifier code whose documented meaning names the damage. Given mappings: I4 `resolution_check_mismatch`; J2 reorder `resolution_checks_out_of_order`, `effect_check_before_decision_check`; J3 `resolution_check_without_completion`; X1 ledger donor seven ledger and observation codes; R6 corroborated drop `observation_without_ledger_row`, `acknowledged_attempt_without_ledger_row`. D3, D5, R2, R3, R4, W3, W4 and I5 were fixed by reading the codes the verifier emits | Localized figures rose in every category that had a name mismatch (D3, D5, R2-R4, J3, I4, I5, W4, X1); that rise is the renaming, not a better verifier |
+
+`operator_version` is now `2` and `operators.json` was regenerated (digest recorded in every report); it names its predecessor (`supersedes`). Report `x-qualification-harness` carries `intended_codes_status` and `operator_version`, and the `intended_code` definition says "not held-out". A trace added after seeing results also means the denominators of every category grew (one more base trace); a column below runs the new catalogue on the 18 run-1 traces only so that effect can be separated.
+
+## Results: run 1 and run 2 side by side
+
+Cell: `any-code detections / effective mutants (intended-code detections)`; for expected-accept categories `accepted k/n`. Denominators are per category and never pooled. Localized figures in the run 2 columns are post-hoc (see above) and not held-out; the run 1 and run 1b localized figures use the version 1 names that were frozen before the verifier ran (and so understate localization where the names never existed). Run 1b is the same catalogue and corpus as run 1 against the fixed verifier (reproduces the V3a figures: I4 52/52, J3 24/24, J2 13/29, X1 101/102); its tallies come from the harness code and are not a separate retained report.
+
+| Cat | Run 1: verifier 1a74bb9, set v1, 18 traces | Run 1b: verifier 07c2eb8, set v1, 18 traces | Run 2a: verifier 07c2eb8, set v2, 18 traces | Run 2: verifier 07c2eb8, set v2, 19 traces |
+|---|---|---|---|---|
+| W1 | 90/90 (90) | 90/90 (90) | 90/90 (90) | 95/95 (95) |
+| W2 | 95/95 (95) | 95/95 (95) | 95/95 (95) | 100/100 (100) |
+| W3 | 16/69 (6) | 16/69 (6) | 42/42 (42) | 45/45 (45) |
+| W4 | 44/44 (18) | 44/44 (18) | 44/44 (44) | 47/47 (47) |
+| W5 | 78/78 (78) | 78/78 (78) | 78/78 (78) | 81/81 (81) |
+| B | accepted 108/108 | accepted 108/108 | accepted 195/195 | accepted 208/208 |
+| S1 | 82/82 (82) | 82/82 (82) | 82/82 (82) | 87/87 (87) |
+| S2 | 73/73 (73) | 73/73 (73) | 73/73 (73) | 78/78 (78) |
+| S3 | 87/87 (87) | 87/87 (87) | 87/87 (87) | 91/91 (91) |
+| S4 | 61/61 (61) | 61/61 (61) | 61/61 (61) | 64/64 (64) |
+| I1 | 62/62 (62) | 62/62 (62) | 62/62 (62) | 66/66 (66) |
+| I2 | 79/79 (79) | 79/79 (79) | 79/79 (79) | 84/84 (84) |
+| I3 | 36/36 (26) | 36/36 (26) | 36/36 (26) | 38/38 (28) |
+| I4 | 27/52 (26) | 52/52 (52) | 52/52 (52) | 55/55 (55) |
+| I5 | 86/86 (34) | 86/86 (34) | 86/86 (86) | 92/92 (92) |
+| D1 | 27/27 (27) | 27/27 (27) | 27/27 (27) | 29/29 (29) |
+| D2 | 13/13 (13) | 13/13 (13) | 13/13 (13) | 14/14 (14) |
+| D3 | 37/37 (0) | 37/37 (0) | 37/37 (37) | 40/40 (40) |
+| D4 | 16/16 (16) | 16/16 (16) | 16/16 (16) | 17/17 (17) |
+| D5 | 13/13 (0) | 13/13 (0) | 13/13 (13) | 14/14 (14) |
+| J1 | 21/21 (21) | 21/21 (21) | 21/21 (21) | 24/24 (24) |
+| J2 | 7/29 (7) | 13/29 (7) | 13/13 (13) | 14/14 (14) |
+| J3 | 0/24 (0) | 24/24 (0) | 24/24 (24) | 27/27 (27) |
+| T1 | 75/75 (75) | 75/75 (75) | 75/75 (75) | 80/80 (80) |
+| A1 | 46/46 (46) | 46/46 (46) | 46/46 (46) | 49/49 (49) |
+| A2 | 6/6 (6) | 6/6 (6) | 6/6 (6) | 6/6 (6) |
+| R1 | 36/36 (36) | 36/36 (36) | 36/36 (36) | 38/38 (38) |
+| R2 | 5/5 (0) | 5/5 (0) | 5/5 (5) | 5/5 (5) |
+| R3 | 53/53 (0) | 53/53 (0) | 53/53 (53) | 58/58 (58) |
+| R4 | 19/19 (0) | 19/19 (0) | 19/19 (19) | 20/20 (20) |
+| R5 | 8/8 (8) | 8/8 (8) | 11/11 (11) | 11/11 (11) |
+| R6 | accepted 0/3 | accepted 0/3 | accepted 0/0 | accepted 1/1 |
+| X1 | 97/102 (56) | 101/102 (56) | 101/102 (91) | 108/109 (98) |
+| F | accepted 13/13 | accepted 13/13 | accepted 13/13 | accepted 14/14 |
+
+Other figures (run 2, the retained report): clean-trace false rejection 0/19 (run 1: 0/18); benign mutants rejected 0/208; ODES valid fixtures rejected 0 of 33 and 0 of 13 (per contract group); seed regression (15 categories, 98 invalid fixtures of which 63 classified, 35 unclassified) refused with the intended code in every classified category, unchanged from run 1; no harness flag raised; no error. The only effective mutant the verifier accepted outside B, F and R6 is one X1 ledger donor whose content equals the run's own ledger (documented by the verifier as the same document in other bytes).
+
+Reading the figures:
+
+- Any-code detection is the primary figure. In run 2 it is complete in every expected-reject category except X1 (108/109). The jump in W3, J2 and J3 versus run 1 has two different causes: the verifier fix (J3, I4, most of J2) and the reclassification of operators that were not damage (W3, J2); do not read the reclassified rows as detection that was gained.
+- Localized figures are secondary and post-hoc.
+- R6 expected-accept: n_eff is 1 (0 on the 18 run-1 traces), and the verifier accepted it as the contract says it must. One mutant on one trace is an anecdote, not a rate; it shows the design note's expectation can be exercised, not how often a dropped row goes unnoticed.
+- Design note section 4.3 (open-decision-evidence-standard) was revised for R6 the same day; see that PR.

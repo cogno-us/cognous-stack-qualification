@@ -2,12 +2,12 @@
  "kind": "verifier-mutation-operator-set",
  "family": "T",
  "harness_version": "1",
- "operator_version": "1",
+ "operator_version": "2",
  "seed": 20261018,
  "draws_per_variant": 2,
  "implementation_sha256": {
   "jsonio.py": "7f047c345e0645cc9b63729f11847636cc5add27f6284bf2a2a68ef44974d4fc",
-  "operators.py": "135d28347c08b63c5eb13474b2abb925b0f49e3cfe6a31957e5855c35cbb2f75",
+  "operators.py": "b1e3d074a5ede5f83870cd00124d2b5f5ad2044a711ce68d41fd707c1a94dd02",
   "corpus.py": "74e2b7cc80e2a858a369deff669e771443b79970006b48b96eeac784ac5fdd80",
   "trace.py": "1f1a9d4152b7a661a13335245e5fb8bb8d9617b4919e95d94d953cbb4aa82ffd"
  },
@@ -56,6 +56,17 @@
   "F",
   "R6"
  ],
+ "intended_codes": {
+  "status": "frozen post-hoc after run 1 (703cdde1); not held-out",
+  "basis": "catalogue version 2 drops intended-code names that do not exist in the verifier and adds the codes the verifier emits for the damage, chosen after run 1 and the V3a follow-up were read",
+  "primary_figure": "any_code detection; localized (intended-code) figures are secondary",
+  "vocabulary": "verifier-code-names.json"
+ },
+ "supersedes": {
+  "operator_version": "1",
+  "qualification_revision": "703cdde145c5818c0eef0de3da4d923953a673f5",
+  "operator_set_digest": "sha256:98ede4eeb0ff252a7bd9a9b39e85f43394fee9732c089381afa8210c8b798514"
+ },
  "operators": [
   {
    "operator_id": "A1.attempt-on-held-decision",
@@ -123,6 +134,17 @@
    "description": "The closeouts of uncertain attempts removed."
   },
   {
+   "operator_id": "B.binding-amount-float-form",
+   "category": "B",
+   "variant": "binding-amount-float-form",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A binding's ``amount`` written ``50.00``, ``5e1`` or ``50.0e0`` for ``50.0``: one float, one canonical byte string under the pinned profile (post-hoc, was W3)."
+  },
+  {
    "operator_id": "B.compact-whitespace",
    "category": "B",
    "variant": "compact-whitespace",
@@ -154,6 +176,39 @@
     "run_record"
    ],
    "description": "Every object's members written in a different order (the pinned profile sorts keys, so the content is the same)."
+  },
+  {
+   "operator_id": "B.ledger-amount-float-form",
+   "category": "B",
+   "variant": "ledger-amount-float-form",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "destination_ledger"
+   ],
+   "description": "A ledger row's ``amount`` written in a float spelling the pinned profile maps to the same bytes (post-hoc, was W3)."
+  },
+  {
+   "operator_id": "B.proposal-amount-float-form",
+   "category": "B",
+   "variant": "proposal-amount-float-form",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "proposal_export"
+   ],
+   "description": "The proposal export's ``amount`` written in a float spelling the pinned profile maps to the same bytes (post-hoc, was W3)."
+  },
+  {
+   "operator_id": "B.resolution-check-id-renamed",
+   "category": "B",
+   "variant": "resolution-check-id-renamed",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A resolution check's id changed. Resolution-check ids and journal-check ids are separate producer ids and a completed journal check binds to a resolution check by stage, inputs and reasons, so the record stays consistent (post-hoc, was J2.completed-matches-no-resolution-check)."
   },
   {
    "operator_id": "B.unicode-escapes",
@@ -212,9 +267,7 @@
    "expected_verdict": "reject",
    "intended_codes": [
     "decision_result_inconsistent",
-    "expected_observed_mismatch",
-    "grant_revoked_but_authorized",
-    "input_contradicts_result"
+    "authorized_input_contradicts_expected"
    ],
    "roles": [
     "run_record"
@@ -228,9 +281,7 @@
    "expected_verdict": "reject",
    "intended_codes": [
     "decision_result_inconsistent",
-    "expected_observed_mismatch",
-    "grant_revoked_but_authorized",
-    "input_contradicts_result"
+    "authorized_input_contradicts_expected"
    ],
    "roles": [
     "run_record"
@@ -243,8 +294,7 @@
    "variant": "unregistered-reason-code",
    "expected_verdict": "reject",
    "intended_codes": [
-    "reason_code_unregistered",
-    "unknown_reason_code"
+    "reason_code_unregistered"
    ],
    "roles": [
     "run_record"
@@ -271,9 +321,8 @@
    "expected_verdict": "reject",
    "intended_codes": [
     "decision_result_inconsistent",
-    "expected_observed_mismatch",
-    "grant_revoked_but_authorized",
-    "input_contradicts_result"
+    "authorized_input_contradicts_expected",
+    "recomputable_reason_ignored"
    ],
    "roles": [
     "run_record"
@@ -331,8 +380,7 @@
     "proposal_commitment_mismatch",
     "payload_commitment_mismatch",
     "manifest_digest_mismatch",
-    "horizon_binding_mismatch",
-    "binding_mismatch"
+    "horizon_binding_mismatch"
    ],
    "roles": [
     "run_record",
@@ -350,8 +398,7 @@
     "proposal_commitment_mismatch",
     "payload_commitment_mismatch",
     "manifest_digest_mismatch",
-    "horizon_binding_mismatch",
-    "binding_mismatch"
+    "horizon_binding_mismatch"
    ],
    "roles": [
     "run_record",
@@ -369,8 +416,7 @@
     "proposal_commitment_mismatch",
     "payload_commitment_mismatch",
     "manifest_digest_mismatch",
-    "horizon_binding_mismatch",
-    "binding_mismatch"
+    "horizon_binding_mismatch"
    ],
    "roles": [
     "run_record",
@@ -397,8 +443,6 @@
    "variant": "input-commitment-altered",
    "expected_verdict": "reject",
    "intended_codes": [
-    "record_commitment_mismatch",
-    "journal_unbound_completion",
     "resolution_check_mismatch"
    ],
    "roles": [
@@ -440,7 +484,7 @@
    "expected_verdict": "reject",
    "intended_codes": [
     "manifest_digest_mismatch",
-    "binding_mismatch"
+    "binding_proposal_mismatch"
    ],
    "roles": [
     "run_record"
@@ -454,7 +498,7 @@
    "expected_verdict": "reject",
    "intended_codes": [
     "payload_commitment_mismatch",
-    "binding_mismatch"
+    "binding_proposal_mismatch"
    ],
    "roles": [
     "run_record"
@@ -489,25 +533,13 @@
    "description": "A check's ``opened`` journal event written twice."
   },
   {
-   "operator_id": "J2.completed-matches-no-resolution-check",
-   "category": "J2",
-   "variant": "completed-matches-no-resolution-check",
-   "expected_verdict": "reject",
-   "intended_codes": [
-    "journal_unbound_completion"
-   ],
-   "roles": [
-    "run_record"
-   ],
-   "description": "A resolution check's id changed so a completed journal check matches no resolution check."
-  },
-  {
    "operator_id": "J2.resolution-checks-reordered",
    "category": "J2",
    "variant": "resolution-checks-reordered",
    "expected_verdict": "reject",
    "intended_codes": [
-    "resolution_checks_out_of_order"
+    "resolution_checks_out_of_order",
+    "effect_check_before_decision_check"
    ],
    "roles": [
     "run_record"
@@ -520,8 +552,7 @@
    "variant": "completed-event-dropped",
    "expected_verdict": "reject",
    "intended_codes": [
-    "journal_protocol",
-    "journal_unbound_completion"
+    "resolution_check_without_completion"
    ],
    "roles": [
     "run_record"
@@ -534,8 +565,7 @@
    "variant": "completed-rewritten-as-interrupted",
    "expected_verdict": "reject",
    "intended_codes": [
-    "journal_protocol",
-    "journal_unbound_completion"
+    "resolution_check_without_completion"
    ],
    "roles": [
     "run_record"
@@ -548,8 +578,7 @@
    "variant": "unauthorized-ledger-effect",
    "expected_verdict": "reject",
    "intended_codes": [
-    "ledger_effect_without_decision",
-    "unauthorized_effect"
+    "ledger_effect_without_decision"
    ],
    "roles": [
     "run_record",
@@ -563,8 +592,7 @@
    "variant": "ledger-effect-for-held-decision",
    "expected_verdict": "reject",
    "intended_codes": [
-    "ledger_effect_for_held_decision",
-    "unauthorized_effect"
+    "ledger_effect_on_held_decision"
    ],
    "roles": [
     "run_record",
@@ -578,8 +606,7 @@
    "variant": "ledger-amount-differs",
    "expected_verdict": "reject",
    "intended_codes": [
-    "ledger_row_mismatch",
-    "ledger_binding_mismatch"
+    "ledger_row_differs_from_binding"
    ],
    "roles": [
     "run_record",
@@ -593,8 +620,7 @@
    "variant": "ledger-grant-differs",
    "expected_verdict": "reject",
    "intended_codes": [
-    "ledger_row_mismatch",
-    "ledger_binding_mismatch"
+    "ledger_row_differs_from_binding"
    ],
    "roles": [
     "run_record",
@@ -608,8 +634,7 @@
    "variant": "ledger-target-differs",
    "expected_verdict": "reject",
    "intended_codes": [
-    "ledger_row_mismatch",
-    "ledger_binding_mismatch"
+    "ledger_row_differs_from_binding"
    ],
    "roles": [
     "run_record",
@@ -623,8 +648,9 @@
    "variant": "duplicate-attempt-acknowledgement",
    "expected_verdict": "reject",
    "intended_codes": [
-    "excess_duplicate_effect",
-    "second_attempt_for_effect"
+    "second_attempt_for_effect",
+    "repeated_record",
+    "duplicate_attempt_row"
    ],
    "roles": [
     "run_record"
@@ -637,8 +663,7 @@
    "variant": "second-ledger-row",
    "expected_verdict": "reject",
    "intended_codes": [
-    "excess_duplicate_effect",
-    "ledger_duplicate_effect"
+    "ledger_key_mismatch"
    ],
    "roles": [
     "run_record",
@@ -652,8 +677,7 @@
    "variant": "drop-ledger-row",
    "expected_verdict": "reject",
    "intended_codes": [
-    "acknowledged_attempt_without_ledger_row",
-    "ledger_row_missing"
+    "acknowledged_attempt_without_ledger_row"
    ],
    "roles": [
     "run_record",
@@ -662,18 +686,31 @@
    "description": "The ledger row of an acknowledged attempt removed (a dropped receipt)."
   },
   {
-   "operator_id": "R6.truncate-ledger-tail",
-   "category": "R6",
-   "variant": "truncate-ledger-tail",
-   "expected_verdict": "accept",
+   "operator_id": "R5.drop-ledger-row-of-lost-ack-observed",
+   "category": "R5",
+   "variant": "drop-ledger-row-of-lost-ack-observed",
+   "expected_verdict": "reject",
    "intended_codes": [
-    "ledger_row_missing"
+    "observation_without_ledger_row",
+    "acknowledged_attempt_without_ledger_row"
    ],
    "roles": [
     "run_record",
     "destination_ledger"
    ],
-   "description": "The ledger row of an effect whose acknowledgement was lost removed (a truncated tail; expected accepted: there is no sequence or chain)."
+   "description": "The ledger row of an effect whose acknowledgement was lost removed, while the record holds an accepted applied observation of it (post-hoc, was R6: refusing is correct, the record contradicts the snapshot)."
+  },
+  {
+   "operator_id": "R6.truncate-ledger-tail",
+   "category": "R6",
+   "variant": "truncate-ledger-tail",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "The ledger row of an effect whose acknowledgement was lost removed, with nothing in the record corroborating it (unknown attempt, no accepted applied or partial observation): the record does not say the row exists and the ledger has no sequence or chain, so expected accepted (post-hoc narrowing of the version 1 operator)."
   },
   {
    "operator_id": "S1.undeclared-in-attempt",
@@ -962,43 +999,42 @@
    "description": "A non-JSON constant as a destination ledger row's ``amount``."
   },
   {
-   "operator_id": "W3.binding-amount-form",
+   "operator_id": "W3.binding-amount-integer-form",
    "category": "W3",
-   "variant": "binding-amount-form",
+   "variant": "binding-amount-integer-form",
    "expected_verdict": "reject",
    "intended_codes": [
-    "wire_number_form_drift",
     "proposal_commitment_mismatch",
     "invalid_effect_identity",
-    "profile_ambiguous"
+    "profile_ambiguous",
+    "binding_proposal_mismatch",
+    "ledger_row_differs_from_binding"
    ],
    "roles": [
     "run_record"
    ],
-   "description": "A binding's ``amount`` written in another number form (``50`` or ``50.00`` or ``5e1`` for ``50.0``): a different canonical byte string."
+   "description": "A binding's ``amount`` written as an integer (``50`` for ``50.0``): a different canonical byte string, so a different number."
   },
   {
-   "operator_id": "W3.ledger-amount-form",
+   "operator_id": "W3.ledger-amount-integer-form",
    "category": "W3",
-   "variant": "ledger-amount-form",
+   "variant": "ledger-amount-integer-form",
    "expected_verdict": "reject",
    "intended_codes": [
-    "wire_number_form_drift",
-    "ledger_row_mismatch",
-    "profile_ambiguous"
+    "profile_ambiguous",
+    "ledger_row_differs_from_binding"
    ],
    "roles": [
     "destination_ledger"
    ],
-   "description": "A ledger row's ``amount`` written in another number form."
+   "description": "A ledger row's ``amount`` written as an integer."
   },
   {
-   "operator_id": "W3.proposal-amount-form",
+   "operator_id": "W3.proposal-amount-integer-form",
    "category": "W3",
-   "variant": "proposal-amount-form",
+   "variant": "proposal-amount-integer-form",
    "expected_verdict": "reject",
    "intended_codes": [
-    "wire_number_form_drift",
     "proposal_commitment_mismatch",
     "invalid_effect_identity",
     "profile_ambiguous"
@@ -1006,7 +1042,7 @@
    "roles": [
     "proposal_export"
    ],
-   "description": "The proposal export's ``amount`` written in another number form: its commitment no longer matches the record's."
+   "description": "The proposal export's ``amount`` written as an integer: its commitment no longer matches the record's."
   },
   {
    "operator_id": "W4.decomposed-letter",
@@ -1016,8 +1052,9 @@
    "intended_codes": [
     "proposal_commitment_mismatch",
     "invalid_effect_identity",
-    "wire_unicode_normalization",
-    "profile_ambiguous"
+    "profile_ambiguous",
+    "binding_proposal_mismatch",
+    "ledger_row_differs_from_binding"
    ],
    "roles": [
     "run_record"
@@ -1084,7 +1121,9 @@
    "intended_codes": [
     "effect_id_mismatch",
     "invalid_effect_identity",
-    "transplanted_record"
+    "dangling_decision_reference",
+    "dangling_effect_reference",
+    "ledger_effect_without_decision"
    ],
    "roles": [
     "run_record"
@@ -1098,7 +1137,12 @@
    "expected_verdict": "reject",
    "intended_codes": [
     "ledger_effect_without_decision",
-    "transplanted_record"
+    "ledger_row_without_attempt",
+    "ledger_row_after_definitive_failure",
+    "acknowledged_attempt_without_ledger_row",
+    "observation_without_ledger_row",
+    "acknowledgement_differs_from_ledger_row",
+    "observation_differs_from_ledger_row"
    ],
    "roles": [
     "run_record",
@@ -1114,7 +1158,7 @@
    "intended_codes": [
     "proposal_commitment_mismatch",
     "invalid_effect_identity",
-    "transplanted_record"
+    "run_id_mismatch"
    ],
    "roles": [
     "run_record",

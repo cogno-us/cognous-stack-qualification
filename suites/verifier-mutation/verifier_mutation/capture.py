@@ -173,3 +173,62 @@ def capture(control_plane: Path, out: Path) -> dict[str, Any]:
     (out / "manifest.json").write_bytes(dump_file_bytes(manifest_doc))
     shutil.rmtree(work)
     return manifest_doc
+
+
+UNOBSERVED = "journal-lost-ack-unobserved"
+
+
+def capture_unobserved(control_plane: Path, out: Path) -> dict[str, Any]:
+    """Add one trace to an existing clean corpus (post-run-1 addition, V3b): a lost acknowledgement whose post-dispatch observation failed.
+
+    The control plane's own code path is used: the destination commits and times out (``lose_ack``), the attempt is ``unknown``, and the
+    follow-up ``observe`` raises, so the record holds the pre-dispatch ``absent`` observation and a ``hold`` reconciliation but no accepted
+    applied observation, while the destination ledger holds the row. Nothing in the record corroborates that row, which is what a category R6
+    expected-accept mutant needs. The existing traces are left untouched; the manifest gains one entry.
+    """
+    cp = control_plane.resolve()
+    sys.path.insert(0, str(cp))
+    sys.path.insert(0, str(cp / "src"))
+    import agent_control_plane.bounded as bounded  # noqa: PLC0415
+    from tests.test_bounded_authorization import NOW, manifest  # noqa: PLC0415
+    from tests.test_runtime_authority import setup_flow  # noqa: PLC0415
+
+    bounded._now = lambda: NOW
+    manifest_path = out / "manifest.json"
+    doc = json.loads(manifest_path.read_text(encoding="utf-8"))
+    revision = subprocess.run(["git", "-C", str(cp), "rev-parse", "HEAD"], capture_output=True, text=True, check=True).stdout.strip()
+    if revision != doc["control_plane_revision"]:
+        raise ValueError(f"control plane {revision} is not the corpus's {doc['control_plane_revision']}")
+    work = Path(tempfile.mkdtemp(prefix="vm-capture-extra-"))
+    p, r, f, cfg = setup_flow(work / UNOBSERVED)
+    d = f.decide(p, now=NOW)
+    real_observe, calls = f.destination.observe, []
+
+    def observe(effect_id: str) -> Any:
+        calls.append(effect_id)
+        if len(calls) > 1:  # the first read is the pre-dispatch existence check; every later read fails
+            raise ConnectionError("synthetic: destination unreachable after the commit")
+        return real_observe(effect_id)
+
+    f.destination.observe = observe  # type: ignore[method-assign]
+    f.execute(p, d, adapter_id=p.adapter_id, now=NOW, lose_ack=True)
+    dest = out / UNOBSERVED
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir()
+    files = {"run_record": Path(f.records.path), "proposal_export": p.model_dump(mode="json", exclude_none=False), "manifest": manifest(),
+             "destination_ledger": f.destination.snapshot()}
+    recorded: dict[str, str] = {}
+    for role, content in files.items():
+        data = content.read_bytes() if isinstance(content, Path) else dump_file_bytes(content)
+        (dest / FILENAMES[role]).write_bytes(data)
+        recorded[role] = digest(data)
+    description = "journal mode, acknowledgement lost and the follow-up observation failed: unknown attempt, no accepted applied observation, ledger row present"
+    _write(dest / "scenario.json", {"scenario": UNOBSERVED, "description": description, "producer": "agent-control-plane bounded workflow (test helpers, fixed clock)",
+                                    "control_plane_revision": revision, "synthetic": True,
+                                    "note": "added after run 1 of the mutation harness (V3b); see the suite README"})
+    doc["traces"] = sorted([t for t in doc["traces"] if t["trace_id"] != UNOBSERVED] + [{"trace_id": UNOBSERVED, "scenario": UNOBSERVED, "description": description, "files": recorded}],
+                           key=lambda e: e["trace_id"])
+    manifest_path.write_bytes(dump_file_bytes(doc))
+    shutil.rmtree(work)
+    return doc
