@@ -17,8 +17,8 @@ Provenance of "expected today" values (leg e), per test:
   * *_legacy_* tests: ``run`` on pristine control plane main 5f5ae03f and runtime main 10a11d03 (the default path).
   * the profile tests describe new opt-in behaviour: there is no "expected today" value; they FAIL on those mains by design
     (the profile is absent there). ``absent_is_not_never_executed`` is identical today and with the profile (``run`` on both).
-  * the one N3-owned assertion (``check_expired_before_dispatch``) is a strict xfail: it fails today because stream N3 has not
-    landed, and will start passing (strict xfail then fails the run, forcing this marker to be removed) when it does.
+  * the one N3-owned assertion (``check_expired_before_dispatch``) was a strict xfail in N1 and is a plain test now that stream N3
+    landed the opt-in freshness/0.1 profile (control plane) and the delayed-commit mode (runtime).
 """
 from __future__ import annotations
 
@@ -47,11 +47,11 @@ class OperationAdapter(T.Adapter):
     built from real values (the operation's committing effect id, the renewal row's outcome and code). Nothing is invented.
     """
 
-    def __init__(self, scenario, stall_seconds=0):
-        self.scenario, self.stall_seconds = scenario, stall_seconds
+    def __init__(self, scenario, stall_seconds=0, freshness=None):
+        self.scenario, self.stall_seconds, self.freshness = scenario, stall_seconds, freshness
 
     def build(self, work, mp):
-        return Flow(work, mp, identity=True)
+        return Flow(work, mp, identity=True, freshness=self.freshness)
 
     def apply_change(self, flow):
         if self.scenario == "self_renewal":
@@ -63,7 +63,7 @@ class OperationAdapter(T.Adapter):
             if self.stall_seconds:
                 flow.advance_clock(self.stall_seconds)  # r1's check is now older than its class bound
             flow.renew_and_commit_r2()
-        flow.dest.hooks[hook] = while_r1_is_stalled  # the renewal and r2 happen while r1 is stalled
+        flow.dest.pause_at(hook, while_r1_is_stalled)  # the renewal and r2 happen while r1 is stalled
 
     def execute(self, flow):
         if self.scenario != "self_renewal":
@@ -197,7 +197,7 @@ def test_delayed_r1_after_renewal_legacy_two_effects_today(tmp_path):
     mp = pytest.MonkeyPatch()
     try:
         flow = Flow(tmp_path, mp, identity=False)
-        flow.dest.hooks["commit"] = flow.renew_and_commit_r2
+        flow.dest.pause_at("commit", flow.renew_and_commit_r2)
         r1 = flow.run(flow.d1)
         d2, r2 = flow.r2
         assert d2.effect_id != flow.d1.effect_id and r1.status == "executed" and r2.status == "executed"
@@ -239,17 +239,16 @@ def test_renewal_after_stalled_check_single_effect(tmp_path, record_property):
     assert attempt_order == [by_effect[d2.effect_id].attempt_id, by_effect[flow.d1.effect_id].attempt_id]  # r2's attempt first
 
 
-@pytest.mark.xfail(strict=True, raises=T.RefusalTemplateFailure,
-                   reason="N3-owned: check_expired_before_dispatch (deadline at opening, clock re-read before dispatch) does not exist yet")
 def test_renewal_after_stalled_check_r1_refused_as_check_expired_before_dispatch(tmp_path):
-    """N3 part of the composed scenario: past its class bound, r1 must be refused before dispatch, not by the destination.
+    """N3 part of the composed scenario (was the N1 strict xfail): past its class bound, r1 must be refused before dispatch, not
+    by the destination. Needs the opt-in freshness/0.1 profile.
 
     The service clock moves 61 s (class bound 60 s) while r1 is stalled; the destination observation is stamped by the checked
-    party and stays at r1's check time, so nothing else interferes. Today r1 is dispatched and the destination refuses it
-    (operation_already_committed), so leg (b) fails: no refusal row carries check_expired_before_dispatch.
+    party and stays at r1's check time, so nothing else interferes. Without the profile r1 is dispatched and the destination
+    refuses it (operation_already_committed): leg (b) fails because no refusal row carries check_expired_before_dispatch.
     """
     spec = T.RefusalSpec("renewal_after_stalled_check_expired", ("check_expired_before_dispatch",), (), PROVENANCE_PROFILE)
-    T.run_refusal_scenario(OperationAdapter("check_stall", stall_seconds=61), spec, tmp_path, pytest.MonkeyPatch)
+    T.run_refusal_scenario(OperationAdapter("check_stall", stall_seconds=61, freshness={}), spec, tmp_path, pytest.MonkeyPatch)
 
 
 def test_stalled_check_with_a_live_observation_clock_is_held_for_observation_time_today(tmp_path):
@@ -263,7 +262,7 @@ def test_stalled_check_with_a_live_observation_clock_is_held_for_observation_tim
 
         def stall():
             flow.advance_clock(61)
-        flow.dest.hooks["observe"] = stall
+        flow.dest.pause_at("observe", stall)
         result = flow.run(flow.d1)
         assert result.status == "denied" and result.error == "destination observation is not valid for effect dispatch"
         assert flow.ledger_effect_ids() == []
@@ -355,7 +354,7 @@ def test_absent_is_not_never_executed(tmp_path, record_property):
         mp = pytest.MonkeyPatch()
         try:
             flow = Flow(tmp_path / label / "refused", mp, identity=identity)
-            flow.dest.defer_next = True
+            flow.dest.defer_next_commit()
             first = flow.run(flow.d1)
             assert first.status == "unknown" and not first.acknowledged
             effect_id = flow.d1.effect_id
@@ -379,7 +378,7 @@ def test_absent_is_not_never_executed(tmp_path, record_property):
             assert control.run(control.d1).status == "reconciled" and control.ledger_effect_ids() == [control.d1.effect_id]
 
             mutant = Flow(tmp_path / label / "mutant", mp, identity=identity)  # (d)
-            mutant.dest.defer_next = True
+            mutant.dest.defer_next_commit()
             mutant.run(mutant.d1)
             real_load = mutant.f.records.load
             mutant.f.records.load = lambda: _without_attempts(real_load())  # the prior attempt is hidden: absence read as 'never executed'

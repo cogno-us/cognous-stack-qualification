@@ -5,11 +5,10 @@ SPDX-License-Identifier: Apache-2.0
 Route: control plane BoundedAuthorizationWorkflow -> runtime PinnedControlPlaneExecutor -> SQLite destination.
 The control plane fixtures are the component's own (`tests.test_runtime_authority.setup_flow`), as in suites/runtime-authority.
 
-MINIMAL IN-TEST DELAYED-COMMIT DESTINATION. ``DelayedMixin`` below is a stand-in for the CI destination delayed-commit mode
-that stream N3 owns (addendum 101726_B, decision 4). It has no in-flight or committed-but-invisible state: it runs a one-shot
-hook at a named point of the first attempt (``observe``: after the check, before dispatch; ``commit``: inside the destination,
-before the commit lands) or defers the first commit and loses its acknowledgement (``defer``), and lands it on ``land()``.
-Replace it with the N3 destination when that exists.
+DELAYED-COMMIT DESTINATION. The delayed-r1 cases use the runtime's opt-in delayed-commit mode
+(``engine.delayed_commit_destination``, stream N3: ``pause_at``, ``defer_next_commit``, ``land``), promoted from the in-test
+stand-in this module carried in N1. There is no test-only destination code here any more; a runtime without the mode fails every
+test that builds a flow, by design.
 """
 from __future__ import annotations
 
@@ -21,55 +20,20 @@ RESOLVER_ID, RESOLVER_VERSION = "synthetic-resolver", "1"
 EXPECTED_TODAY_RUN = ("run", "control plane main 5f5ae03f and runtime main 10a11d03, pristine checkouts, this suite with identity=False")
 
 
-class DelayedMixin:
-    """MINIMAL IN-TEST delayed-commit behaviour (see module docstring)."""
-
-    def _delayed_init(self):
-        self.hooks, self.deferred, self.defer_next = {}, None, False
-
-    def _fire(self, name):
-        hook = self.hooks.pop(name, None)
-        if hook is not None:
-            hook()
-
-    def observe_bound(self, snapshot):
-        self._fire("observe")
-        return super().observe_bound(snapshot)
-
-    def commit(self, snapshot, **kwargs):
-        self._fire("commit")
-        if self.defer_next:
-            self.defer_next = False
-            self.deferred = (snapshot, kwargs)
-            raise TimeoutError("synthetic acknowledgement lost; commit has not landed yet")
-        return super().commit(snapshot, **kwargs)
-
-    def land(self):
-        """The deferred first commit finally lands (the provider processed it late)."""
-        snapshot, kwargs = self.deferred
-        self.deferred = None
-        return super().commit(snapshot, **kwargs)
-
-
 def destination(path, *, identity, effective_grant=False):
-    if identity and effective_grant:
-        from engine.operation_identity_destination import OperationIdentityEffectiveGrantDestination as Base
-    elif identity:
-        from engine.operation_identity_destination import OperationIdentityDestination as Base
-    else:
-        from engine.safe_executor import DurableRefundDestination as Base
-
-    class Delayed(DelayedMixin, Base):
-        def __init__(self, root):
-            Base.__init__(self, root)
-            self._delayed_init()
-    return Delayed(path)
+    """The runtime's delayed-commit destination for this profile combination (it behaves as the base until asked to delay)."""
+    from engine.delayed_commit_destination import delayed
+    return delayed(operation_identity=identity, effective_grant=effective_grant)(path)
 
 
 class Flow:
     """One disposable flow. ``d1`` is the revision-1 decision; r1 is its execution."""
 
-    def __init__(self, work, mp, *, identity=True, wide=True, effective_grant=False, live_observation_clock=False):
+    def __init__(self, work, mp, *, identity=True, wide=True, effective_grant=False, live_observation_clock=False,
+                 freshness=None, echo_nonce=False, setup=None):
+        """``freshness``: None (profile absent) or a dict of FreshnessProfile options (``{}`` = the profile defaults).
+        ``setup``: optional callable run on the half-built flow before the revision-1 decision (for example to record an age
+        extension or adopt the fixture policy); it may use ``self.f``, ``self.r`` and ``self.cfg``."""
         import agent_control_plane.bounded as cp
         import tests.test_bounded_authorization as tba
         import tests.test_runtime_authority as tra
@@ -93,11 +57,17 @@ class Flow:
             ctx = self.r.contexts[self.PROFILE]
             ctx["requirement"]["permissions"][0]["max_effects"] = 2
             ctx["grant"]["permissions"][0]["max_effects"] = 2
+        updates = {}
         if identity:
             from agent_control_plane.operation_identity import OperationIdentityProfile
-            self.cfg = self.cfg.model_copy(update={"operation_identity": OperationIdentityProfile(
-                resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION)})
+            updates["operation_identity"] = OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION)
             self.r.contexts[self.PROFILE]["runtime_authority"]["operation_id"] = OPERATION
+        if freshness is not None:
+            from agent_control_plane.freshness import FreshnessProfile
+            updates["freshness"] = FreshnessProfile(**freshness)
+            self.r.echo_nonce = echo_nonce
+        if updates:
+            self.cfg = self.cfg.model_copy(update=updates)
             tra.bind_approval(self.r, self.cfg)
             self.f.runtime_authority_profile = self.cfg.snapshot()
         self.dest = destination(self.work / "sqlite", identity=identity, effective_grant=effective_grant)
@@ -120,6 +90,8 @@ class Flow:
         self.obs_now, self.live_observation_clock = self.NOW, live_observation_clock
         self.executor = PinnedControlPlaneExecutor(workflow=self.f, destination=self.dest, policy=self.policy,
                                                    observation_clock=lambda: self.NOW if self.live_observation_clock else self.obs_now)
+        if setup is not None:
+            setup(self)
         self.d1 = self.f.decide(self.p, now=self.NOW)
         assert self.d1.result == "authorized", self.d1.reasons
         self.r2 = None  # (decision, result) of the renewed execution, once it ran
