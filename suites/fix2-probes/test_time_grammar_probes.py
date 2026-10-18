@@ -127,7 +127,7 @@ def _replay_sites():
 
 
 @pytest.mark.parametrize("site", ["importers-aware-time", "profiles-instant", "recovery-inspection-time"])
-@pytest.mark.parametrize("value", form_params(red_forms=tuple(FORMS)))
+@pytest.mark.parametrize("value", form_params(red_forms=()))
 def test_probe_replay_refuses_a_malformed_instant(site, value):
     fn = _replay_sites()[site]
     assert refuses(fn, value)
