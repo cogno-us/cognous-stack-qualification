@@ -11,7 +11,6 @@ from pathlib import Path
 
 import pytest
 
-from _support import pending
 from conftest import checkout
 
 MODULES = {
@@ -117,7 +116,6 @@ def test_modified_sibling_module_without_hidden_flag_is_refused(checkouts):
     assert not marker.exists()
 
 
-@pending()
 def test_modified_sibling_module_with_hidden_flag_is_refused_before_it_runs(checkouts):
     runtime, roots, marker = checkouts
     git(roots["replay"], "update-index", "--assume-unchanged", SIBLING)
