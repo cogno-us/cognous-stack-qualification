@@ -9,7 +9,7 @@ accepts the call by design and is LISTED as 'not applicable', never hidden.
 Observed state: the effects table, read through an independent read-only connection.
 
 Does not prove: raw SQL by the database-file holder (out of model: the file holder can write any row); live OpenShell; any
-destination class added after runtime 7170da59; the control plane's own JSON destination beyond the one base-class row below.
+destination class added after runtime 11de097c; the control plane's own JSON destination beyond the one base-class row below.
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from _adv import atomic, effect_ids, flow, snapshot
 from conftest import observe
 
 T = "T01"
-DNP = "raw SQL by the file holder and classes added after runtime 7170da59 are out of model"
+DNP = "raw SQL by the file holder and classes added after runtime 11de097c are out of model"
 
 # Classes that hold no authority state: they accept a direct call by design (SCN-D09 table); listed, not hidden.
 NON_ENFORCING = [
@@ -148,8 +148,7 @@ def test_atomic_classes_refuse_direct_calls_without_valid_claim(cprt, tmp_path, 
         attempt("no_claim", lambda: dest.execute_claim_atomic("no-such-claim", snap, attempt_id="a-1"))
         claim = ex.provision_claim(proposal=fl.p, decision=fl.d1, now=fl.NOW)
         grant_id = fl.d1.binding.grant_id
-        dest.set_grant_status(grant_id, status="revoked")
-        attempt("revoked_grant", lambda: dest.execute_claim_atomic(claim.claim_id, snap, attempt_id="a-2"))
+        # suspension is reversible; the grant is restored to active before the next case
         dest.set_grant_status(grant_id, status="suspended")
         attempt("suspended_grant", lambda: dest.execute_claim_atomic(claim.claim_id, snap, attempt_id="a-3"))
         dest.set_grant_status(grant_id, status="active")
@@ -160,13 +159,25 @@ def test_atomic_classes_refuse_direct_calls_without_valid_claim(cprt, tmp_path, 
         import dataclasses
         wrong_tenant = dataclasses.replace(snap, operation=dataclasses.replace(snap.operation, tenant_id="tenant-other"))
         attempt("wrong_tenant_snapshot", lambda: dest.execute_claim_atomic(claim.claim_id, wrong_tenant, attempt_id="a-5"))
+        # revocation is final for the revision: the claim is refused, and so is every attempt to put the revision back
+        dest.set_grant_status(grant_id, status="revoked")
+        attempt("revoked_grant", lambda: dest.execute_claim_atomic(claim.claim_id, snap, attempt_id="a-2"))
+        for back in ("suspended", "active"):
+            attempt(f"revoked_then_{back}_same_revision", lambda back=back: dest.set_grant_status(grant_id, status=back))
+            assert outcomes[f"revoked_then_{back}_same_revision"] != "committed", "a revoked revision was set back (no PermissionError)"
+            attempt(f"revoked_claim_after_{back}_attempt", lambda: dest.execute_claim_atomic(claim.claim_id, snap, attempt_id="a-6"))
         assert "committed" not in outcomes.values(), outcomes
-        if key:
-            observe(T, f"{name}: direct calls without valid claim (6 cases)", "prevented", does_not_prove=DNP, detail=outcomes)
-            continue
-        # positive control: the issued claim with active grant commits exactly one row; a second call does not add one
-        dest.execute_claim_atomic(claim.claim_id, snap, attempt_id="a-ok")
+        # legitimate path: a successor revision; the claim bound to the revoked revision stays refused
+        dest.set_grant_status(grant_id, status="active", revision="successor-revision")
+        attempt("revoked_revision_claim_after_successor", lambda: dest.execute_claim_atomic(claim.claim_id, snap, attempt_id="a-7"))
+        assert "committed" not in outcomes.values(), outcomes
+        # positive control on a fresh store: the issued claim with an active grant commits exactly one row; a second call does not add one
+        cwork = tmp_path / (name + "-control")
+        cfl = flow(cwork, monkeypatch)
+        cdest, cex = atomic(cfl, cwork, identity_key=key)
+        cclaim = cex.provision_claim(proposal=cfl.p, decision=cfl.d1, now=cfl.NOW)
+        cdest.execute_claim_atomic(cclaim.claim_id, _snap(cfl), attempt_id="a-ok")
         with pytest.raises(PermissionError):
-            dest.execute_claim_atomic(claim.claim_id, snap, attempt_id="a-again")
-        assert effect_ids(dest.path) == [fl.d1.effect_id]
-        observe(T, f"{name}: direct calls without valid claim (6 cases)", "prevented", does_not_prove=DNP, detail=outcomes)
+            cdest.execute_claim_atomic(cclaim.claim_id, _snap(cfl), attempt_id="a-again")
+        assert effect_ids(cdest.path) == [cfl.d1.effect_id]
+        observe(T, f"{name}: direct calls without valid claim (9 cases)", "prevented", does_not_prove=DNP, detail=outcomes)

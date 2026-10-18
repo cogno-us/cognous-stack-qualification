@@ -25,11 +25,10 @@ DNP = "adapter internals (T06) and route C are not covered; one injected payload
 
 UNBOUND = {
     "A": {"attempt_id": "caller-chosen attempt label by design; it names the attempt, not the effect"},
+    # Batch 1 also listed proposal_commitment and effective_max_effects here; the atomic claim now binds both (runtime change
+    # after the first attacked revisions), so a mutation of either is refused and they are no longer unbound members.
     "B": {
         "attempt_id": "caller-chosen attempt label by design",
-        "proposal_commitment": "the atomic claim checks operation_commitment, which does not include proposal_commitment; "
-                               "effect content (target, amount, unit, payload) is still the claimed one",
-        "effective_max_effects": "the shared budget is taken from the claim, not the envelope; effect content unchanged",
     },
 }
 PROPOSAL_UNBOUND: dict[str, str] = {}

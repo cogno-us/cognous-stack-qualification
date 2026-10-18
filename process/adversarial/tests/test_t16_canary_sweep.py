@@ -91,8 +91,9 @@ def test_positive_control_scanner_finds_planted_canary():
     assert set(hits) == {"a", "b"} and "base64" in hits["a"] and "json_escaped" in hits["b"]
 
 
-SUSPECTED = "suspected defect at the attacked revisions; detail held for the private channel (SECURITY.md)"
-PATHS = ["success", "refusal", pytest.param("crash", marks=pytest.mark.xfail(strict=True, raises=AssertionError, reason=SUSPECTED))]
+# Batch 1 recorded one failing path (crash) at the first attacked revisions; the runtime fix since then (destination exceptions are
+# recorded by class name only) makes it pass, so it is now an ordinary assertion like the other two paths.
+PATHS = ["success", "refusal", "crash"]
 
 
 @pytest.mark.parametrize("path", PATHS)

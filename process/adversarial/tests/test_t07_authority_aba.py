@@ -8,9 +8,11 @@ binding distinguishes them; the atomic destination's provisioning refusal on dif
 Routes: A (control plane decide/execute -> runtime PinnedControlPlaneExecutor -> SQLite destination) and B (runtime
 AtomicLocalControlPlaneExecutor -> atomic authority/effect destination). Destination rows are read independently.
 
-Tests marked xfail(strict, raises=AssertionError) assert the invariant, which does not hold at the attacked revisions; the
-detail is held for the private channel in SECURITY.md, not described here. A strict xfail turns red when the behaviour changes,
-so a fix is noticed; a broken precondition fails outright (pytest.fail), it is never absorbed by the xfail.
+Tests marked xfail(strict, raises=AssertionError) assert the invariant, which does not hold on the DEFAULT configuration of
+route A; it is the documented default. Route A has an opt-in profile (control plane terminal-revocation/0.1) under which the same
+sequence is refused: its test passes. Route B (runtime atomic destination) now treats a revoked grant revision as final, so the
+sequence is refused at the status write and the test asserts that. A strict xfail turns red when the behaviour changes, so a
+change is noticed; a broken precondition fails outright (pytest.fail), it is never absorbed by the xfail.
 
 Does not prove: anything about real resolver implementations (external; the synthetic resolver serves whatever state it is
 given); whether a revoked grant should be terminal is a policy question this test records but does not settle; route C.
@@ -24,7 +26,7 @@ from conftest import observe
 
 T = "T07"
 DNP = "synthetic resolver only; real resolver semantics are external; route C not run"
-SUSPECTED = "suspected defect at the attacked revisions; detail held for the private channel (SECURITY.md)"
+SUSPECTED = "documented default of route A (terminal-revocation profile off); the opt-in profile is exercised by the variant below"
 
 
 def _status(fl):
@@ -81,10 +83,12 @@ def test_route_a_spent_authority_is_not_spent_twice_after_recreation(cprt, tmp_p
     observe(T, "route A: spent authority after identical re-creation", "prevented", does_not_prove=DNP)
 
 
-@pytest.mark.xfail(strict=True, raises=AssertionError, reason=SUSPECTED)
-@pytest.mark.parametrize("variant", ["identical", "new_status_version"])
-def test_route_a_unspent_decision_after_recreation(cprt, tmp_path, monkeypatch, variant):
-    fl = flow(tmp_path, monkeypatch)
+def _unspent_after_recreation(tmp_path, monkeypatch, variant, profile):
+    kw = {}
+    if profile:
+        from agent_control_plane.runtime_authority import TerminalRevocationProfile
+        kw["cfg_update"] = lambda fl: {"terminal_revocation": TerminalRevocationProfile()}
+    fl = flow(tmp_path, monkeypatch, **kw)
     _status(fl).status = "revoked"
     if fl.run(fl.d1).status != "denied":
         pytest.fail("precondition: the revocation itself was not refused")  # not an AssertionError: never hidden by the xfail
@@ -93,10 +97,34 @@ def test_route_a_unspent_decision_after_recreation(cprt, tmp_path, monkeypatch, 
     if variant == "new_status_version":
         st.version = "status-v2"
     r = fl.run(fl.d1)
-    observe(T, f"route A: unspent decision, re-creation ({variant})",
+    return fl, r
+
+
+@pytest.mark.xfail(strict=True, raises=AssertionError, reason=SUSPECTED)
+@pytest.mark.parametrize("variant", ["identical", "new_status_version"])
+def test_route_a_unspent_decision_after_recreation(cprt, tmp_path, monkeypatch, variant):
+    """DEFAULT configuration (terminal-revocation profile off): documents the default, kept as an expected failure."""
+    fl, r = _unspent_after_recreation(tmp_path, monkeypatch, variant, profile=False)
+    observe(T, f"route A, default profile: unspent decision, re-creation ({variant})",
             "reproduced failure" if effect_ids(fl.dest.path) else "prevented", does_not_prove=DNP,
-            detail={"status": r.status})
+            detail={"status": r.status, "profile": "off (default)"})
     assert r.status == "denied" and effect_ids(fl.dest.path) == []
+
+
+@pytest.mark.parametrize("variant", ["identical", "new_status_version"])
+def test_route_a_unspent_decision_after_recreation_terminal_revocation_profile(cprt, tmp_path, monkeypatch, variant):
+    """With the opt-in terminal-revocation/0.1 profile the control plane refuses a same-revision decision after a recorded revocation."""
+    fl, r = _unspent_after_recreation(tmp_path, monkeypatch, variant, profile=True)
+    reasons = [x.reasons for x in fl.f.records.load().refusals]
+    observe(T, f"route A, terminal-revocation profile on: unspent decision, re-creation ({variant})",
+            "reproduced failure" if effect_ids(fl.dest.path) else "prevented", does_not_prove=DNP + "; the memory is the control "
+            "plane's own record store (a revocation it never observed is not remembered)", detail={"status": r.status, "refusals": reasons})
+    assert r.status == "denied" and effect_ids(fl.dest.path) == []
+    assert any("grant_revocation_recorded" in x for x in reasons), reasons
+    # a successor revision is the way back
+    fl.publish_revision("2")
+    _status(fl).status = "active"
+    assert fl.f.decide(fl.p, now=fl.NOW).result in ("authorized", "held", "refused")  # evaluated, not blocked by the stale memory
 
 
 def test_route_b_provisioning_refused_while_revoked(cprt, tmp_path, monkeypatch):
@@ -136,16 +164,17 @@ def test_route_b_suspension_then_reinstatement_is_listed(cprt, tmp_path, monkeyp
             detail="suspension is reversible by design; recorded for comparison")
 
 
-@pytest.mark.xfail(strict=True, raises=AssertionError, reason=SUSPECTED)
 def test_route_b_issued_claim_after_recreation(cprt, tmp_path, monkeypatch):
+    """A revoked grant revision is final on the atomic destination: setting it back is refused and no effect row appears."""
     fl = flow(tmp_path, monkeypatch)
     dest, ex = atomic(fl, tmp_path)
     claim = ex.provision_claim(proposal=fl.p, decision=fl.d1, now=fl.NOW)
     dest.set_grant_status(fl.d1.binding.grant_id, status="revoked")
     if ex.execute(envelope=fl.envelope(fl.d1), claim_id=claim.claim_id).status != "denied":
-        pytest.fail("precondition: the revocation itself was not refused")  # not an AssertionError: never hidden by the xfail
-    dest.set_grant_status(fl.d1.binding.grant_id, status="active", revision=fl.d1.binding.grant_revision)
+        pytest.fail("precondition: the revocation itself was not refused")
+    with pytest.raises(PermissionError):
+        dest.set_grant_status(fl.d1.binding.grant_id, status="active", revision=fl.d1.binding.grant_revision)
     r = ex.execute(envelope=fl.envelope(fl.d1), claim_id=claim.claim_id)
-    observe(T, "route B: issued claim, same-revision re-creation",
+    observe(T, "route B: issued claim, same-revision re-creation refused at set_grant_status",
             "reproduced failure" if effect_ids(dest.path) else "prevented", does_not_prove=DNP, detail={"status": r.status})
-    assert r.status == "denied" and effect_ids(dest.path) == []
+    assert r.status == "denied" and effect_ids(dest.path) == [] and dest.claim_state(claim.claim_id) == "issued"

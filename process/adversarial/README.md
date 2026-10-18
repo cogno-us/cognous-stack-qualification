@@ -14,8 +14,9 @@ section 7; machine-readable twin [`ideas.json`](ideas.json)). Programme 2, track
 ## Components attacked
 
 Final revisions, listed in [`components.json`](components.json) and checked against each checkout's HEAD at run time:
-control plane `3755c71a`, runtime `7170da59`, verifier `0a43a7f0`, Replay `541180fd`, Evidence Pack `63e9ee99`, ODES `304f6cc3`,
-hub `afca5bbd` (read-only, T18 and T20). The governed exchange (route C) and the orchestrator are not in the attacked set; legs
+control plane `3cd17ead`, runtime `11de097c`, verifier `bb34c961`, Replay `253c3a61`, Evidence Pack `20cb11ea`, ODES `0663d5a2`,
+hub `afca5bbd` (read-only, T18 and T20). Batch 1 was first run against control plane `3755c71a`, runtime `7170da59`, verifier
+`0a43a7f0`, Replay `541180fd`, Evidence Pack `63e9ee99` and ODES `304f6cc3`; the revisions above carry the later programme-2 fixes. The governed exchange (route C) and the orchestrator are not in the attacked set; legs
 that need them are named as not covered in the module docstrings.
 
 ## Running
@@ -25,7 +26,7 @@ ADV_CONTROL_PLANE_DIR=... ADV_RUNTIME_DIR=... ADV_VERIFIER_DIR=... ADV_REPLAY_DI
 ADV_ODES_DIR=... ADV_HUB_DIR=... python -m pytest -p no:cacheprovider process/adversarial/tests
 ```
 
-Dependencies as the component suites: `pytest==8.3.5 pydantic==2.13.5 cryptography==50.0.0`. A test whose checkout is not named,
+Dependencies as the component suites: `pytest==8.3.5 pydantic==2.13.5 cryptography==50.0.0`, plus `jsonschema` (the ODES package imports it; T09 and T16 need it). A test whose checkout is not named,
 or is at another HEAD, **fails**; nothing skips (`ADV_ALLOW_REVISION_DRIFT=1` runs against other heads and records them).
 `ADV_REPORT_DIR` receives `observations.json`: one row per scenario with its result, detail and what it does not prove.
 There is no workflow for this directory yet (workflow files are outside this change); the run below is a local run.
@@ -43,27 +44,29 @@ There is no workflow for this directory yet (workflow files are outside this cha
 
 ## Status
 
-Run of 2026-10-18 (local; Python 3.13): **126 passed, 7 xfailed, 0 failed, 0 skipped** (133 cases). Per test, the overall
+Run of 2026-10-18 against the final revisions (local; Python 3.13): **131 passed, 4 xfailed, 0 failed, 0 skipped** (135 cases). The first run,
+against the earlier revisions, was 126 passed, 7 xfailed (133 cases); changes since: T09 and T16 now pass, T07 route B asserts the refusal,
+T07 route A gained a profile-on variant (2 cases), T04 route B lists one unbound member instead of three, and T01 covers the revoked-revision rule. Per test, the overall
 classification; [`batch-1.json`](batch-1.json) carries the same table with a summary per test.
 
 | Test | Title | Ideas | Status | Notes |
 |---|---|---|---|---|
-| T01 | Direct-call matrix over every destination class | D25 | prevented | non-enforcing classes listed as not applicable |
+| T01 | Direct-call matrix over every destination class | D25 | prevented | non-enforcing classes listed as not applicable; a revoked revision cannot be set back |
 | T02 | Non-dispatching entry points leave destinations unchanged | D25, H65, G54 | prevented | stopped reaper: decide refuses (detected only) |
 | T03 | Raw-ingress canonicalization differential at acp run | A06, A01, A07 | prevented | |
-| T04 | Every-field post-approval mutation completeness | A01, A02, A04, A07 | prevented | unbound members listed with reasons |
+| T04 | Every-field post-approval mutation completeness | A01, A02, A04, A07 | prevented | one unbound member listed with its reason (attempt label) |
 | T05 | Target equivalence and prefix semantics | A02 | reproduced failure | composed route prevented; evaluator differential (xfail) |
 | T06 | Adapter identity versus implementation | A03 | detected only | prevention needs adapter attestation (E6) |
-| T07 | Authority ABA | B15 | reproduced failure | suspected defect, 3 cases (xfail); detail held for the private channel |
+| T07 | Authority ABA | B15 | reproduced failure | route A default configuration: documented default, 2 cases (xfail); the opt-in terminal-revocation profile and route B refuse it |
 | T08 | Revocation against the delayed-commit destination | B09, B10, B16 | prevented | default route A window is the documented C0 limit |
-| T09 | Expiry equality and offset across evaluators | B13 | reproduced failure | boundary differential at the equality instant (xfail) |
+| T09 | Expiry equality and offset across evaluators | B13 | prevented | all three evaluators agree at the equality instant |
 | T10 | Rollback of programme-2 state | B14 | detected only | undetected without a witness (known, SCN-D07) |
 | T11 | C3 chain per configuration | C22, C17, C20 | prevented | default configuration duplicates (known, F-5/F-18) |
 | T12 | Stale worker resumes after lease or deadline expiry | C23, B12 | prevented | no destination fencing token (residual) |
 | T13 | Real process kill at every persistence boundary | C18, C19 | prevented | process exit only, no power loss |
 | T14 | Observation field matrix | H55, H56, H58 | detected only | verifier V4; consistent rewrites pass (forgery bound) |
 | T15 | Profile-flag forwarding completeness | D32, A05 | prevented | regression guard for R1 finding 1 |
-| T16 | Canary-secret sweep over every artifact | D31 | reproduced failure | suspected defect, 1 path (xfail); detail held for the private channel |
+| T16 | Canary-secret sweep over every artifact | D31 | prevented | all three paths clean |
 | T17 | Last-unit budget race and grant multiplication | G47, G48 | prevented | multiplication characterised (known, SCN-C16) |
 | T18 | Control-panel and results consistency checker | I74, I70 | detected only | read-only checker `consistency_check.py`; retained copies agree |
 | T19 | Rule-revision downgrade | A05, F46 | prevented | |

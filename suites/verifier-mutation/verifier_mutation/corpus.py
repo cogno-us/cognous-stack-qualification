@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-from .jsonio import Pairs, Raw, canonical_bytes, commitment, digest, dump_file_bytes
+from .jsonio import Pairs, Raw, canonical_bytes, commitment, digest, dump_file_bytes, wire_text_bytes
 from .operators import OPERATORS, Ctx, NotApplicable, Operator, build_files, rng_for
 from .trace import Trace
 
@@ -173,7 +173,8 @@ def load_seed_corpus(odes_dir: Path, seed_map: Mapping[str, Any], odes_revision:
                 code = fx.get("expected_refusal") if kind == "invalid" else None
                 key = f"{contract}/{fx['fixture_id']}"
                 category = seed_map["by_fixture"].get(key) or by_code.get(code) if kind == "invalid" else None
-                seed = Seed(key, contract, category, code, kind == "valid", {"run_record": data})
+                intended = tuple(seed_map.get("intended_codes_by_fixture", {}).get(key, ())) if kind == "invalid" else ()
+                seed = Seed(key, contract, category, code, kind == "valid", {"run_record": data}, intended)
                 (corpus.valid if kind == "valid" else corpus.invalid).append(seed)
     return corpus
 
@@ -186,7 +187,7 @@ WITNESS_SEED_CONTRACTS = ("witness-digest", "holder-inventory")
 def witness_lines(document: Any) -> bytes:
     """A witness-digest fixture document (a JSON array of records, oldest first) as the JSON-lines file the producer writes; a bare object is one line."""
     records = document if isinstance(document, list) else [document]
-    return b"".join((json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode("utf-8") for r in records)
+    return b"".join(wire_text_bytes(json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n") for r in records)
 
 
 def load_witness_seed_corpus(odes_dir: Path, seed_map: Mapping[str, Any], odes_revision: str) -> SeedCorpus:

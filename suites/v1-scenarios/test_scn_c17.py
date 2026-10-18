@@ -17,7 +17,7 @@ DECLARED CONCURRENCY CONTRACT (derived from the reference, not invented): FAIL-C
   * The executor never writes authority state; a stale caller cannot overwrite or revive a newer version (claim
     provisioning refuses to disagree with existing authoritative rows).
 NOT part of the contract (reported, never inferred): general multi-agent shared-document concurrency, compare-and-set on the
-trusted authority writers (they are unconditional, last-writer-wins) and reconciliation of a stale claim. See
+trusted authority writers (no version check; only a revoked grant revision is final) and reconciliation of a stale claim. See
 ``test_scn_c17_unsupported_concurrency_is_reported``.
 
 Every case runs twice from fresh stores and the two normalised observations are compared (owner decision D3).
@@ -443,7 +443,12 @@ def test_scn_c17_route_c_exchange_with_stale_authority_state_is_refused(request,
 
 
 def test_scn_c17_unsupported_concurrency_is_reported(request, record_property, tmp_path):
-    """REPORT: probe the concurrency capabilities the catalog implies and record which are not supported. Nothing is inferred."""
+    """REPORT: probe the concurrency capabilities the catalog implies and record which are not supported. Nothing is inferred.
+
+    Changed after the runtime made a revoked grant revision final (runtime 11de097c): the stale-writer probe used to observe that a
+    writer holding a stale view could set a revoked grant back to active at the same revision. It now asserts the stricter
+    outcome: that write is refused (PermissionError) and the grant stays revoked. The probe id is unchanged; the missing
+    compare-and-set on the authority writers (and the other three probes) are reported as before."""
     import inspect
 
     def trial(work, mp, checks):
@@ -454,14 +459,19 @@ def test_scn_c17_unsupported_concurrency_is_reported(request, record_property, t
         cas_params = {w: [p for p in inspect.signature(getattr(cls, w)).parameters if any(k in p for k in ('expected', 'if_version', 'if_revision', 'etag', 'cas'))] for w in writers}
         # observation: authority writers are unconditional (last writer wins); a stale writer can silently revert a newer update
         flow.dest.set_grant_status(part.claim.grant_id, status='revoked')                 # agent A revokes
-        flow.dest.set_grant_status(part.claim.grant_id, status='active', revision='1')    # agent B, holding a stale view, writes back 'active'
+        try:
+            flow.dest.set_grant_status(part.claim.grant_id, status='active', revision='1')    # agent B, holding a stale view, writes back 'active'
+            stale_write = 'accepted'
+        except PermissionError:
+            stale_write = 'refused'
+        checks.equal(stale_write, 'refused', 'a revoked grant revision is final: the stale write back to active is refused')
         reverted = C.authority_rows(flow.dest.path)['authority_grants_v1'][0]['status']
         # a claim can only be reconciled by exact original recovery, never against a changed version
         recon_api = [n for n in dir(cls) if 'reconcile' in n.lower()]
         probes = {
             'compare_and_set_on_authority_writers': {'supported': any(cas_params.values()), 'version_parameters_found': cas_params},
             'stale_writer_cannot_revert_newer_update': {'supported': reverted != 'active',
-                                                       'observed': f'after agent A revoked and a stale agent B wrote status=active, the grant status is {reverted!r}: last-writer-wins on the trusted authority writer'},
+                                                       'observed': f'after agent A revoked and a stale agent B wrote status=active, that write was {stale_write} and the grant status is {reverted!r}: a revoked revision is final on the trusted authority writer'},
             'reconcile_or_merge_of_stale_claim': {'supported': False, 'public_reconcile_methods': recon_api,
                                                   'observed': 'only exact-original effect recovery (reconcile_claim); no merge/rebase of a stale claim onto a newer version'},
             'general_multi_agent_shared_state_versioning': {'supported': False, 'observed': 'no shared-document or generic versioned-state object exists in the reference; shared state is the fixed authority tables'},

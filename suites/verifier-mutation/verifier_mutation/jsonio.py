@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from typing import Any
 
 PROFILE = "json-sort-keys-compact-utf8-no-nan-python-semantics-v0.1"
@@ -71,8 +72,20 @@ def dumps(value: Any, indent: int | None = 1, ascii_only: bool = False) -> str:
     return enc(value, 0)
 
 
+_LONE_SURROGATE = re.compile("[\ud800-\udfff]")
+
+
+def wire_text_bytes(text: str) -> bytes:
+    """UTF-8 bytes of a JSON text. A lone surrogate code point cannot be UTF-8 encoded, so it is written as the six-character JSON
+    escape (``\\udXXX``) it is on the wire: the same text a fixture file holds. Text without one is encoded exactly as before."""
+    try:
+        return text.encode("utf-8")
+    except UnicodeEncodeError:
+        return _LONE_SURROGATE.sub(lambda m: "\\u%04x" % ord(m.group()), text).encode("utf-8")
+
+
 def dump_file_bytes(value: Any, indent: int | None = 1) -> bytes:
-    return (dumps(value, indent=indent) + "\n").encode("utf-8")
+    return wire_text_bytes(dumps(value, indent=indent) + "\n")
 
 
 def parse_lenient(data: bytes) -> Any:
