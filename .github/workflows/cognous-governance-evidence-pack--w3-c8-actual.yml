@@ -23,8 +23,9 @@ permissions:
 jobs:
   actual-c8:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
         repository: cogno-us/cognous-governance-evidence-pack
         ref: ${{ inputs.source_revision || '1e789c7d67a897097445faef1813fb0cd22d55e5' }}
@@ -40,22 +41,25 @@ jobs:
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-governance-evidence-pack --source-root
         "." --evidence "qualification-evidence/actual-c8.json"
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-execution-runtime
         ref: ad9d8ffffb00aabfc4e1c53708ff00b59e0dbb4f
         path: upstream/runtime-c8
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-control-plane
         ref: e66e5f163c5d5c112ff345a2f332b4c3893ee183
         path: upstream/control
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: cogno-us/cognous-replay-bundle
         ref: 7536e9ef124d2e106f17012024e05a84a31a03f4
         path: upstream/replay-c8
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
       with:
         python-version: '3.11'
     - name: Verify pinned source and consumer revisions
@@ -78,7 +82,7 @@ jobs:
       env:
         PYTHONPATH: upstream/runtime-c8:upstream/runtime-c8/tests
       run: python scripts/w3_c8_actual_source.py output/c8
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       if: always()
       with:
         name: w3-c8-source-record-lineage

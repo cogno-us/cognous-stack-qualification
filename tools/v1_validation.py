@@ -541,16 +541,62 @@ def requirements_markdown(reqs):
     return "\n".join(lines) + "\n"
 
 
-def cmd_aggregate(args):
-    inputs = Path(args.inputs)
+VALIDATION_ID_RE = re.compile(r"^v1-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$")
+_CONTROL_NAMES = ("result.json", "plan.json", "freeze-verification.json")
+
+
+def _load_control_json(path: Path):
+    """Read one control record; refuse symlinks and non-regular files."""
+    if path.is_symlink() or not path.is_file():
+        raise SystemExit(f"refusing control record that is not a regular file: {path}")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def collect_control_records(inputs: Path):
+    """Read control records only from their fixed locations; refuse anything else.
+
+    plan.json: only collected/v1v-plan/.  freeze-verification.json: only
+    collected/v1v-freeze/.  result.json: only at the top level of the other
+    collected/v1v-*/ directories.  A control-named file anywhere else (for
+    example nested inside another artifact) is refused, as is more than one
+    result for one (component, os, python).
+    """
+    allowed = set()
+    plan_path = inputs / "v1v-plan" / "plan.json"
+    freeze_path = inputs / "v1v-freeze" / "freeze-verification.json"
+    allowed.update({plan_path, freeze_path})
     results = []
-    for p in sorted(inputs.rglob("result.json")):
-        r = json.loads(p.read_text(encoding="utf-8"))
-        r["_dir"] = str(p.parent.relative_to(inputs)).replace("\\", "/")
-        results.append(r)
-    freeze = None
-    for p in inputs.rglob("freeze-verification.json"):
-        freeze = json.loads(p.read_text(encoding="utf-8"))
+    for d in sorted(inputs.glob("v1v-*")):
+        if d.is_symlink() or not d.is_dir():
+            raise SystemExit(f"refusing artifact entry that is not a plain directory: {d}")
+        if d.name in ("v1v-plan", "v1v-freeze"):
+            continue
+        rp = d / "result.json"
+        if rp.exists() or rp.is_symlink():
+            allowed.add(rp)
+            r = _load_control_json(rp)
+            r["_dir"] = d.name
+            results.append(r)
+    for p in inputs.rglob("*"):
+        if p.name in _CONTROL_NAMES and p not in allowed:
+            raise SystemExit(f"refusing control record outside its fixed location: {p.relative_to(inputs)}")
+    seen = set()
+    for r in results:
+        key = (r.get("component"), r.get("os"), str(r.get("python")))
+        if key in seen:
+            raise SystemExit(f"refusing duplicate result for {key}")
+        seen.add(key)
+    freeze = _load_control_json(freeze_path) if freeze_path.exists() or freeze_path.is_symlink() else None
+    expected = (_load_control_json(plan_path).get("include", [])
+                if plan_path.exists() or plan_path.is_symlink() else [])
+    return results, freeze, expected
+
+
+def cmd_aggregate(args):
+    if not VALIDATION_ID_RE.fullmatch(str(args.validation_id)):
+        raise SystemExit("invalid validation id")
+    inputs = Path(args.inputs)
+    results, freeze, expected = collect_control_records(inputs)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     counts = {s: 0 for s in STATUSES}
@@ -561,9 +607,6 @@ def cmd_aggregate(args):
         rows.append({"job": r["_dir"], "component": r.get("component"), "os": r.get("os"), "python": r.get("python"),
                      "status": r.get("status"), "reason": r.get("reason"), "counts": att.get("counts"),
                      "attempts": len(r.get("attempts", []))})
-    expected = []
-    for p in inputs.rglob("plan.json"):
-        expected = json.loads(p.read_text(encoding="utf-8")).get("include", [])
     seen = {(r.get("component"), r.get("os"), str(r.get("python"))[:4]) for r in results}
     missing = []
     for e in expected:

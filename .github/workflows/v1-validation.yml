@@ -37,6 +37,13 @@ jobs:
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
     steps:
+      - name: Validate workflow inputs (fails closed before any other step)
+        env:
+          VID: ${{ inputs.validation_id }}
+          LABEL: ${{ inputs.label }}
+        run: |
+          [[ "$VID" =~ ^v1-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$ ]] || { echo "validation_id does not match the allowed pattern"; exit 1; }
+          [[ "$LABEL" =~ ^[A-Za-z0-9._-]{1,40}$ ]] || { echo "label does not match the allowed pattern"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
@@ -52,6 +59,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Validate workflow inputs (fails closed before any other step)
+        env:
+          VID: ${{ inputs.validation_id }}
+          LABEL: ${{ inputs.label }}
+        run: |
+          [[ "$VID" =~ ^v1-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$ ]] || { echo "validation_id does not match the allowed pattern"; exit 1; }
+          [[ "$LABEL" =~ ^[A-Za-z0-9._-]{1,40}$ ]] || { echo "label does not match the allowed pattern"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           path: q
@@ -259,8 +273,16 @@ jobs:
           python-version: '3.12'
           cache: ''
       - name: Probes at the exact pin (calibrated controls included for the Index)
+        env:
+          PROBE_NAME: ${{ matrix.name }}
+          PROBE_REPO: ${{ matrix.repo }}
+          PROBE_SHA: ${{ matrix.sha }}
+          PROBE_ENV: ${{ matrix.env }}
+          PROBE_EXTRA: ${{ matrix.extra }}
         run: |
-          python q/tools/v1_validation.py probe-suite --component "${{ matrix.name }}" --repository "${{ matrix.repo }}" --sha "${{ matrix.sha }}" --repo-dir "$RUNNER_TEMP/pin" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var "${{ matrix.env }}" ${{ matrix.extra }}
+          # PROBE_EXTRA holds fixed, reviewed flags from the matrix literal above; word-splitting is intended.
+          # shellcheck disable=SC2086
+          python q/tools/v1_validation.py probe-suite --component "$PROBE_NAME" --repository "$PROBE_REPO" --sha "$PROBE_SHA" --repo-dir "$RUNNER_TEMP/pin" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var "$PROBE_ENV" $PROBE_EXTRA
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -273,6 +295,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Validate workflow inputs (fails closed before any other step)
+        env:
+          VID: ${{ inputs.validation_id }}
+          LABEL: ${{ inputs.label }}
+        run: |
+          [[ "$VID" =~ ^v1-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$ ]] || { echo "validation_id does not match the allowed pattern"; exit 1; }
+          [[ "$LABEL" =~ ^[A-Za-z0-9._-]{1,40}$ ]] || { echo "label does not match the allowed pattern"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           path: q
@@ -283,7 +312,7 @@ jobs:
           cache: ''
       - name: SR-3 provenance scan of every pinned public source (hub, qualification closeout and all lock/subject components)
         run: |
-          python q/tools/v1_validation.py probe-suite --component provenance-scan --pins-manifest "q/${{ env.MANIFEST }}" --refreeze-log "q/${{ env.REFREEZE_LOG }}" --repo-dir "$RUNNER_TEMP/pins" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var PROBE_PINS_DIR
+          python q/tools/v1_validation.py probe-suite --component provenance-scan --pins-manifest "q/$MANIFEST" --refreeze-log "q/$REFREEZE_LOG" --repo-dir "$RUNNER_TEMP/pins" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var PROBE_PINS_DIR
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -454,25 +483,35 @@ jobs:
           if-no-files-found: error
 
   results:
-    needs: [freeze, components, native-f5b, harness-and-hub-tests, probes, provenance-scan, scenarios, matched-refund]
-    if: always()
+    needs: [plan, freeze, components, native-f5b, harness-and-hub-tests, probes, provenance-scan, scenarios, matched-refund]
+    # Runs after failed coverage jobs (the aggregate must record them) but never after failed input validation or a cancelled run.
+    if: ${{ !cancelled() && needs.plan.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write
       pull-requests: write
     steps:
+      - name: Validate workflow inputs (fails closed before any other step)
+        env:
+          VID: ${{ inputs.validation_id }}
+          LABEL: ${{ inputs.label }}
+        run: |
+          [[ "$VID" =~ ^v1-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$ ]] || { echo "validation_id does not match the allowed pattern"; exit 1; }
+          [[ "$LABEL" =~ ^[A-Za-z0-9._-]{1,40}$ ]] || { echo "label does not match the allowed pattern"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           path: q
-          persist-credentials: true
+          persist-credentials: true  # needed only by the push step below
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           pattern: v1v-*
           path: collected
       - name: Aggregate (refuses to promote missing, failed or skipped mandatory coverage)
+        env:
+          VID: ${{ inputs.validation_id }}
         run: |
-          python q/tools/v1_validation.py aggregate --inputs collected --out agg --validation-id "${{ inputs.validation_id }}" --requirements "q/process/v1-validation/${{ inputs.validation_id }}/requirements.json"
+          python q/tools/v1_validation.py aggregate --inputs collected --out agg --validation-id "$VID" --requirements "q/process/v1-validation/$VID/requirements.json"
       - name: Retain results in the repository through a reviewable PR
         env:
           GH_TOKEN: ${{ github.token }}

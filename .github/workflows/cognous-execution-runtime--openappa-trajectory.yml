@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
         repository: cogno-us/cognous-execution-runtime
         ref: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
@@ -41,8 +41,9 @@ jobs:
       shell: bash
       run: python3 _qualification/tools/install_suite.py --suite cognous-execution-runtime --source-root "." --evidence
         "qualification-evidence/trajectory.json"
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
+        persist-credentials: false
         repository: archestra-ai/OpenAPPA
         ref: 10aa0e09e32d8c6704bdb030dc3c66140bf81915
         path: pinned/openappa

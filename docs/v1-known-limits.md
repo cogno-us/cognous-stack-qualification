@@ -181,3 +181,7 @@ Two further pins moved (refreeze entries RF-27 and RF-28, profile `process/secur
 - No qualification-controller run has been made at the r8 pins; every earlier verdict is historical and is not transferred. The FIXED-UNVERIFIED rows stay FIXED-UNVERIFIED.
 - The full-phase cases of the security-runtime chain suite were run locally and read-only at the `p2` generation with the r8 pins (result recorded in the pull request that introduced r8). This is not a controller run and carries no verdict.
 - Adversarial batch 1 was last run at ODES e2cbc0dc; `components.json` names cdf704c8, which differs by documentation only, and batch 1 was not re-run for it.
+
+### Update 2026-10-18 (workflow and tooling hardening)
+
+Workflow inputs are validated and passed through the environment, the aggregator reads plan, freeze and result records only from fixed artifact locations and rejects duplicates, Actions are pinned by commit SHA, pilot installs are hash-locked, and the Wiki importer has byte caps (details and residuals in `security-residuals-20261016.md`). Open limits: the `python:3.12-slim` base image is not digest-pinned (registry unreachable when this was written); the `paid-provider-pilots` environment needs required reviewers configured by the owner; branch `evaluation/prp-openai-20261015` is not deleted. No pin, profile or refreeze value changed and no controller run was made, so earlier verdicts remain historical.

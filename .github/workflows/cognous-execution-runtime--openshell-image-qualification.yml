@@ -23,12 +23,13 @@ permissions:
 jobs:
   worker-image:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       PYTHONPATH: .
       QUALIFICATION_SOURCE_SHA: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
     steps:
     - name: Checkout submitted PR head
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
         ref: ${{ inputs.source_revision || '309e194c1b0a3de23e11e20133e6eaf88875e48a' }}
         repository: cogno-us/cognous-execution-runtime
@@ -55,7 +56,7 @@ jobs:
         printf ''%s\n'' "$ACTUAL_SHA" > openshell-source-sha.txt
 
         '
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
       with:
         python-version: '3.12'
     - name: Install focused test dependencies
@@ -81,7 +82,9 @@ jobs:
     - name: Build worker image from exact source
       id: build
       shell: bash
-      run: "set -euo pipefail\ndocker build \\\n  --build-arg BASE_IMAGE=\"${{ steps.base.outputs.digest }}\" \\\
+      env:
+        BASE_DIGEST: ${{ steps.base.outputs.digest }}
+      run: "set -euo pipefail\ndocker build \\\n  --build-arg BASE_IMAGE=\"${BASE_DIGEST}\" \\\
         \n  --label org.opencontainers.image.revision=\"${QUALIFICATION_SOURCE_SHA}\" \\\n  -f examples/openshell/Dockerfile\
         \ \\\n  -t cognous-refund:worker17-qualification .\nIMAGE_ID=\"$(docker image inspect cognous-refund:worker17-qualification\
         \ --format '{{.Id}}')\"\ntest -n \"$IMAGE_ID\"\necho \"image_id=$IMAGE_ID\" >> \"$GITHUB_OUTPUT\"\nprintf\
@@ -105,7 +108,7 @@ jobs:
         ,\n    \"live_openshell_execution\": \"unexecuted\",\n    \"live_confinement_enforcement\": \"unexecuted\"\
         ,\n}\npath.write_text(json.dumps(data, indent=2, sort_keys=True) + \"\\n\")\nPY\n"
     - name: Upload bounded qualification evidence
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
         name: openshell-worker-image-qualification
         path: 'openshell-image-qualification.json

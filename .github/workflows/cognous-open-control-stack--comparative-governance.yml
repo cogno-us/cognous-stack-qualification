@@ -77,10 +77,14 @@ jobs:
     - name: Validate scoring oracle
       run: python -m unittest discover -s tests -p test_comparative_governance.py -v
     - name: Run frozen plan and control-removal probes
-      run: python tools/run_comparative_governance.py --relocation-evidence qualification-evidence/compare.json --opa "$RUNNER_TEMP/opa" --seed ${{ matrix.seed }} --output
+      env:
+        SEED: ${{ matrix.seed }}
+      run: python tools/run_comparative_governance.py --relocation-evidence qualification-evidence/compare.json --opa "$RUNNER_TEMP/opa" --seed "$SEED" --output
         results/comparison
     - name: Observe adversarial corner cases (mismatches retained)
-      run: python tools/run_comparative_governance.py --relocation-evidence qualification-evidence/compare.json --opa "$RUNNER_TEMP/opa" --seed ${{ matrix.seed }} --plan
+      env:
+        SEED: ${{ matrix.seed }}
+      run: python tools/run_comparative_governance.py --relocation-evidence qualification-evidence/compare.json --opa "$RUNNER_TEMP/opa" --seed "$SEED" --plan
         benchmarks/governance/corner-plan.json --observe-conformance --output results/corners
     - name: Publish corner summary
       if: always()

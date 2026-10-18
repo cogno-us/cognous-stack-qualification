@@ -16,6 +16,26 @@ DEST = Path('scenarios/ai-security-wiki')
 LOCK = Path('sources/ai-security-wiki.lock.json')
 CASE = re.compile(r'^### (TC-[A-Z]\d+-\d+): (.+)$', re.M)
 REPO = 'https://github.com/nachi065/AI-Security-Wiki'
+MAX_FILE_BYTES = 1024 * 1024          # per imported file (largest current page is about 217 KB)
+MAX_TOTAL_BYTES = 8 * 1024 * 1024     # all imported files together
+MAX_FILES = 200
+
+
+def read_capped(path, budget):
+    """Read a regular, non-symlink file no larger than the per-file cap; charge it to the total budget."""
+    if path.is_symlink() or not path.is_file():
+        raise ValueError('Not a regular file: ' + path.name)
+    size = path.stat().st_size
+    if size > MAX_FILE_BYTES:
+        raise ValueError(f'Source file exceeds {MAX_FILE_BYTES} bytes: {path.name}')
+    budget['total'] += size
+    if budget['total'] > MAX_TOTAL_BYTES:
+        raise ValueError('Source import exceeds total byte cap')
+    with path.open('rb') as handle:
+        data = handle.read(MAX_FILE_BYTES + 1)
+    if len(data) > MAX_FILE_BYTES:
+        raise ValueError(f'Source file exceeds {MAX_FILE_BYTES} bytes: {path.name}')
+    return data
 
 
 def digest(data):
@@ -56,7 +76,8 @@ def build(source, previous, accept_revision=False):
     dirty = subprocess.check_output(['git', 'status', '--porcelain'], cwd=source, text=True)
     if dirty:
         raise ValueError('Source checkout must be clean')
-    license_bytes = (source / 'LICENSE').read_bytes()
+    budget = {'total': 0}
+    license_bytes = read_capped(source / 'LICENSE', budget)
     if digest(license_bytes) != previous['approved_license_sha256']:
         raise ValueError('LICENSE changed: rights review required before import; lock is not automatically relaxed')
     if 'Attribution-ShareAlike 4.0 International' not in license_bytes.decode():
@@ -65,10 +86,13 @@ def build(source, previous, accept_revision=False):
     pages, cases, seen = [], [], set()
     old_pages = {p['path']: p for p in previous.get('pages', [])}
     old_case_authors = {ident: page['authors'] for page in previous.get('pages', []) for ident in page.get('case_ids', [])}
-    for path in sorted(source.glob(previous['source_glob'])):
+    candidates = sorted(source.glob(previous['source_glob']))
+    if len(candidates) > MAX_FILES:
+        raise ValueError('Too many source files')
+    for path in candidates:
         if path.is_symlink():
             raise ValueError('Symlink source rejected')
-        original = path.read_bytes()
+        original = read_capped(path, budget)
         text = original.decode('utf-8')
         matches = list(CASE.finditer(text))
         if not matches:
@@ -127,8 +151,8 @@ def build(source, previous, accept_revision=False):
         raise ValueError('Upstream cases removed: manual retirement review required: ' + ', '.join(sorted(removed)))
     lock = dict(previous, source_commit=sha, pages=pages, case_count=len(cases), case_ids=sorted(seen),
                 license_source_url=f'{REPO}/blob/{sha}/LICENSE',
-                readme_sha256=digest((source / 'README.md').read_bytes()),
-                authors_sha256=digest((source / 'AUTHORS').read_bytes()))
+                readme_sha256=digest(read_capped(source / 'README.md', budget)),
+                authors_sha256=digest(read_capped(source / 'AUTHORS', budget)))
     output[LOCK] = (json.dumps(lock, indent=2) + '\n').encode()
     output[DEST / 'catalog.json'] = (json.dumps({'catalog_version': '1.0.0',
               'source_commit': sha, 'license': 'CC-BY-SA-4.0',

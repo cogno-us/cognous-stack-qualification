@@ -13,7 +13,7 @@ The [frozen plan](../qualification/serial/plan.json) implements 18 variants, eac
 Use a pristine qualification checkout, including ignored files, and a separate pristine hub checkout at the exact SHA recorded in the result. Output must be outside both checkouts. No overlays are required for these native tests.
 
 ```bash
-python -m pip install -r tools/requirements-serial.txt
+python -m pip install --require-hashes --only-binary=:all: -r tools/requirements-serial.lock
 PYTHONDONTWRITEBYTECODE=1 python tools/run_serial_qualification.py \
   --hub /absolute/path/to/pristine-hub \
   --output /absolute/path/to/new-result-directory

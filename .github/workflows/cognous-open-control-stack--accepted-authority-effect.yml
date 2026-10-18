@@ -55,8 +55,9 @@ jobs:
       with:
         python-version: '3.12'
     - name: Qualify accepted merge revisions
-      run: python tools/worker21_authority_effect_qualification.py run --accepted-merges --batch '${{ matrix.batch
-        }}' --results-dir 'results/accepted-${{ matrix.batch }}'
+      env:
+        BATCH: ${{ matrix.batch }}
+      run: python tools/worker21_authority_effect_qualification.py run --accepted-merges --batch "$BATCH" --results-dir "results/accepted-$BATCH"
     - name: Verify qualification failure accounting
       if: matrix.batch == 'control-plane-focused'
       run: python -m pytest -q tests/test_worker21_qualification_gate.py
