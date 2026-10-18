@@ -1,0 +1,1126 @@
+{
+ "kind": "verifier-mutation-operator-set",
+ "family": "T",
+ "harness_version": "1",
+ "operator_version": "1",
+ "seed": 20261018,
+ "draws_per_variant": 2,
+ "implementation_sha256": {
+  "jsonio.py": "7f047c345e0645cc9b63729f11847636cc5add27f6284bf2a2a68ef44974d4fc",
+  "operators.py": "135d28347c08b63c5eb13474b2abb925b0f49e3cfe6a31957e5855c35cbb2f75",
+  "corpus.py": "74e2b7cc80e2a858a369deff669e771443b79970006b48b96eeac784ac5fdd80",
+  "trace.py": "1f1a9d4152b7a661a13335245e5fb8bb8d9617b4919e95d94d953cbb4aa82ffd"
+ },
+ "categories_with_operator": [
+  "A1",
+  "A2",
+  "B",
+  "D1",
+  "D2",
+  "D3",
+  "D4",
+  "D5",
+  "F",
+  "I1",
+  "I2",
+  "I3",
+  "I4",
+  "I5",
+  "J1",
+  "J2",
+  "J3",
+  "R1",
+  "R2",
+  "R3",
+  "R4",
+  "R5",
+  "R6",
+  "S1",
+  "S2",
+  "S3",
+  "S4",
+  "T1",
+  "W1",
+  "W2",
+  "W3",
+  "W4",
+  "W5",
+  "X1"
+ ],
+ "categories_without_operator": [
+  "L1",
+  "Q"
+ ],
+ "expected_accept_categories": [
+  "B",
+  "F",
+  "R6"
+ ],
+ "operators": [
+  {
+   "operator_id": "A1.attempt-on-held-decision",
+   "category": "A1",
+   "variant": "attempt-on-held-decision",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "attempt_on_unauthorized_decision"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An attempt row written against a held decision."
+  },
+  {
+   "operator_id": "A1.drop-start-record",
+   "category": "A1",
+   "variant": "drop-start-record",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "missing_start_record"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "The ``attempted`` start row of an attempt removed."
+  },
+  {
+   "operator_id": "A1.second-attempt-for-effect",
+   "category": "A1",
+   "variant": "second-attempt-for-effect",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "second_attempt_for_effect"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A second attempt lifecycle started for an effect that already has one."
+  },
+  {
+   "operator_id": "A2.closeout-observation-mismatch",
+   "category": "A2",
+   "variant": "closeout-observation-mismatch",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "closeout_observation_missing"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A closeout that names an observation time no accepted observation has."
+  },
+  {
+   "operator_id": "A2.drop-closeouts",
+   "category": "A2",
+   "variant": "drop-closeouts",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "closeout_missing"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "The closeouts of uncertain attempts removed."
+  },
+  {
+   "operator_id": "B.compact-whitespace",
+   "category": "B",
+   "variant": "compact-whitespace",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "All insignificant whitespace removed."
+  },
+  {
+   "operator_id": "B.crlf-wide-indent",
+   "category": "B",
+   "variant": "crlf-wide-indent",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "Four-space indentation with CRLF line ends (valid JSON whitespace)."
+  },
+  {
+   "operator_id": "B.key-reorder",
+   "category": "B",
+   "variant": "key-reorder",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "Every object's members written in a different order (the pinned profile sorts keys, so the content is the same)."
+  },
+  {
+   "operator_id": "B.unicode-escapes",
+   "category": "B",
+   "variant": "unicode-escapes",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "Some letters and digits inside string values written as ``\\uXXXX`` escapes (same strings, other text)."
+  },
+  {
+   "operator_id": "D1.hold-flipped-to-authorized",
+   "category": "D1",
+   "variant": "hold-flipped-to-authorized",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "decision_result_inconsistent"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A held decision whose ``result`` is flipped to authorized while its reasons stay."
+  },
+  {
+   "operator_id": "D1.reasons-on-authorized",
+   "category": "D1",
+   "variant": "reasons-on-authorized",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "decision_result_inconsistent"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An authorized decision that carries reasons."
+  },
+  {
+   "operator_id": "D2.binding-stripped",
+   "category": "D2",
+   "variant": "binding-stripped",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "decision_result_inconsistent"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An authorized decision with its binding removed (``null``)."
+  },
+  {
+   "operator_id": "D3.grant-observed-contradicts-expected",
+   "category": "D3",
+   "variant": "grant-observed-contradicts-expected",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "decision_result_inconsistent",
+    "expected_observed_mismatch",
+    "grant_revoked_but_authorized",
+    "input_contradicts_result"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "The grant input's observed status contradicts its expected status under an authorized result."
+  },
+  {
+   "operator_id": "D3.policy-version-contradicts-expected",
+   "category": "D3",
+   "variant": "policy-version-contradicts-expected",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "decision_result_inconsistent",
+    "expected_observed_mismatch",
+    "grant_revoked_but_authorized",
+    "input_contradicts_result"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "The policy input's observed version contradicts its expected version under an authorized result."
+  },
+  {
+   "operator_id": "D4.unregistered-reason-code",
+   "category": "D4",
+   "variant": "unregistered-reason-code",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "reason_code_unregistered",
+    "unknown_reason_code"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A held decision whose reason is not in the pinned reason registry."
+  },
+  {
+   "operator_id": "D4.vocabulary-version-removed",
+   "category": "D4",
+   "variant": "vocabulary-version-removed",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "vocabulary_version_missing"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A journal-mode decision with its reason vocabulary version removed."
+  },
+  {
+   "operator_id": "D5.grant-revoked-but-authorized",
+   "category": "D5",
+   "variant": "grant-revoked-but-authorized",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "decision_result_inconsistent",
+    "expected_observed_mismatch",
+    "grant_revoked_but_authorized",
+    "input_contradicts_result"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "The grant input observed as ``revoked`` while the decision stays authorized (the one recomputable reason code)."
+  },
+  {
+   "operator_id": "F.reseal-amount-change",
+   "category": "F",
+   "variant": "reseal-amount-change",
+   "expected_verdict": "accept",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "proposal_export",
+    "destination_ledger"
+   ],
+   "description": "The proposal amount changed and every commitment that depends on it recomputed (proposal, effect id, rows, ledger): self-consistent, so expected accepted."
+  },
+  {
+   "operator_id": "I1.effect-id-everywhere",
+   "category": "I1",
+   "variant": "effect-id-everywhere",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "invalid_effect_identity"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "The ``effect_id`` replaced consistently in every row and in the ledger: only the recomputed identity can show it."
+  },
+  {
+   "operator_id": "I1.effect-id-in-decision",
+   "category": "I1",
+   "variant": "effect-id-in-decision",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "invalid_effect_identity",
+    "effect_id_mismatch"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A decision's ``effect_id`` replaced by another digest (rows that name the effect keep the original)."
+  },
+  {
+   "operator_id": "I2.edit-proposal-amount",
+   "category": "I2",
+   "variant": "edit-proposal-amount",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "invalid_effect_identity",
+    "proposal_commitment_mismatch",
+    "payload_commitment_mismatch",
+    "manifest_digest_mismatch",
+    "horizon_binding_mismatch",
+    "binding_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "proposal_export"
+   ],
+   "description": "The proposal export's ``amount`` changed while the record's binding is not."
+  },
+  {
+   "operator_id": "I2.edit-proposal-payload",
+   "category": "I2",
+   "variant": "edit-proposal-payload",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "invalid_effect_identity",
+    "proposal_commitment_mismatch",
+    "payload_commitment_mismatch",
+    "manifest_digest_mismatch",
+    "horizon_binding_mismatch",
+    "binding_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "proposal_export"
+   ],
+   "description": "The proposal export's ``payload`` changed while the record's binding and payload commitment are not."
+  },
+  {
+   "operator_id": "I2.edit-proposal-target",
+   "category": "I2",
+   "variant": "edit-proposal-target",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "invalid_effect_identity",
+    "proposal_commitment_mismatch",
+    "payload_commitment_mismatch",
+    "manifest_digest_mismatch",
+    "horizon_binding_mismatch",
+    "binding_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "proposal_export"
+   ],
+   "description": "The proposal export's ``target`` changed while the record's binding is not."
+  },
+  {
+   "operator_id": "I3.horizon-other-proposal",
+   "category": "I3",
+   "variant": "horizon-other-proposal",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "horizon_binding_mismatch"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A decision's operation horizon commits to a different proposal."
+  },
+  {
+   "operator_id": "I4.input-commitment-altered",
+   "category": "I4",
+   "variant": "input-commitment-altered",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "record_commitment_mismatch",
+    "journal_unbound_completion",
+    "resolution_check_mismatch"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "One resolution input's ``record_commitment`` altered in the decision (the resolution check keeps the original)."
+  },
+  {
+   "operator_id": "I4.missing-input-claims-commitment",
+   "category": "I4",
+   "variant": "missing-input-claims-commitment",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "missing_input_commitment"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An input marked ``missing`` that still carries a record commitment."
+  },
+  {
+   "operator_id": "I5.manifest-body-edited",
+   "category": "I5",
+   "variant": "manifest-body-edited",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "manifest_digest_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "manifest"
+   ],
+   "description": "The manifest file edited while the digests that commit to it are not."
+  },
+  {
+   "operator_id": "I5.manifest-digest-altered",
+   "category": "I5",
+   "variant": "manifest-digest-altered",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "manifest_digest_mismatch",
+    "binding_mismatch"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A binding's ``manifest_digest`` replaced."
+  },
+  {
+   "operator_id": "I5.payload-commitment-altered",
+   "category": "I5",
+   "variant": "payload-commitment-altered",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "payload_commitment_mismatch",
+    "binding_mismatch"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A binding's ``payload_commitment`` replaced."
+  },
+  {
+   "operator_id": "J1.drop-opened-event",
+   "category": "J1",
+   "variant": "drop-opened-event",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "journal_protocol",
+    "journal_lineage_mismatch"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A check's ``opened`` journal event removed."
+  },
+  {
+   "operator_id": "J1.duplicate-opened-event",
+   "category": "J1",
+   "variant": "duplicate-opened-event",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "journal_protocol"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A check's ``opened`` journal event written twice."
+  },
+  {
+   "operator_id": "J2.completed-matches-no-resolution-check",
+   "category": "J2",
+   "variant": "completed-matches-no-resolution-check",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "journal_unbound_completion"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A resolution check's id changed so a completed journal check matches no resolution check."
+  },
+  {
+   "operator_id": "J2.resolution-checks-reordered",
+   "category": "J2",
+   "variant": "resolution-checks-reordered",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "resolution_checks_out_of_order"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "Two resolution checks listed in the reverse of their order."
+  },
+  {
+   "operator_id": "J3.completed-event-dropped",
+   "category": "J3",
+   "variant": "completed-event-dropped",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "journal_protocol",
+    "journal_unbound_completion"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A check left opened-only (its ``completed`` event removed) while its resolution check stays."
+  },
+  {
+   "operator_id": "J3.completed-rewritten-as-interrupted",
+   "category": "J3",
+   "variant": "completed-rewritten-as-interrupted",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "journal_protocol",
+    "journal_unbound_completion"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A completed check's journal event rewritten as ``interrupted`` while its resolution check stays (the inverse of the design's rewrite: no real clean trace holds an interrupted check)."
+  },
+  {
+   "operator_id": "R1.unauthorized-ledger-effect",
+   "category": "R1",
+   "variant": "unauthorized-ledger-effect",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "ledger_effect_without_decision",
+    "unauthorized_effect"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "A ledger effect row for an effect no decision names (an injected unauthorized effect)."
+  },
+  {
+   "operator_id": "R2.ledger-effect-for-held-decision",
+   "category": "R2",
+   "variant": "ledger-effect-for-held-decision",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "ledger_effect_for_held_decision",
+    "unauthorized_effect"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "A ledger effect row for an effect whose decision is a hold."
+  },
+  {
+   "operator_id": "R3.ledger-amount-differs",
+   "category": "R3",
+   "variant": "ledger-amount-differs",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "ledger_row_mismatch",
+    "ledger_binding_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "A ledger row whose amount differs from the decision's binding."
+  },
+  {
+   "operator_id": "R3.ledger-grant-differs",
+   "category": "R3",
+   "variant": "ledger-grant-differs",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "ledger_row_mismatch",
+    "ledger_binding_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "A ledger row that names a different grant than the decision's binding."
+  },
+  {
+   "operator_id": "R3.ledger-target-differs",
+   "category": "R3",
+   "variant": "ledger-target-differs",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "ledger_row_mismatch",
+    "ledger_binding_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "A ledger row whose target differs from the decision's binding."
+  },
+  {
+   "operator_id": "R4.duplicate-attempt-acknowledgement",
+   "category": "R4",
+   "variant": "duplicate-attempt-acknowledgement",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "excess_duplicate_effect",
+    "second_attempt_for_effect"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An acknowledged attempt row written twice."
+  },
+  {
+   "operator_id": "R4.second-ledger-row",
+   "category": "R4",
+   "variant": "second-ledger-row",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "excess_duplicate_effect",
+    "ledger_duplicate_effect"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "A second ledger row (under another key) for one effect, with the grant's effect count raised."
+  },
+  {
+   "operator_id": "R5.drop-ledger-row",
+   "category": "R5",
+   "variant": "drop-ledger-row",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "acknowledged_attempt_without_ledger_row",
+    "ledger_row_missing"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "The ledger row of an acknowledged attempt removed (a dropped receipt)."
+  },
+  {
+   "operator_id": "R6.truncate-ledger-tail",
+   "category": "R6",
+   "variant": "truncate-ledger-tail",
+   "expected_verdict": "accept",
+   "intended_codes": [
+    "ledger_row_missing"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "The ledger row of an effect whose acknowledgement was lost removed (a truncated tail; expected accepted: there is no sequence or chain)."
+  },
+  {
+   "operator_id": "S1.undeclared-in-attempt",
+   "category": "S1",
+   "variant": "undeclared-in-attempt",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "undeclared_member"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A member the contract does not declare, on an attempt row."
+  },
+  {
+   "operator_id": "S1.undeclared-in-decision",
+   "category": "S1",
+   "variant": "undeclared-in-decision",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "undeclared_member"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A member the contract does not declare, on a decision."
+  },
+  {
+   "operator_id": "S1.undeclared-top-level",
+   "category": "S1",
+   "variant": "undeclared-top-level",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "undeclared_member"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A member the contract does not declare, at the top level."
+  },
+  {
+   "operator_id": "S2.attempt-status-unknown",
+   "category": "S2",
+   "variant": "attempt-status-unknown",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "unknown_enum_value"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An attempt ``status`` outside the closed set."
+  },
+  {
+   "operator_id": "S2.decision-result-unknown",
+   "category": "S2",
+   "variant": "decision-result-unknown",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "unknown_enum_value"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A decision ``result`` outside the closed set (``deny``, ``safe_to_retry``, ``approved``)."
+  },
+  {
+   "operator_id": "S2.reconciliation-result-unknown",
+   "category": "S2",
+   "variant": "reconciliation-result-unknown",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "unknown_enum_value"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A reconciliation ``result`` outside the closed set."
+  },
+  {
+   "operator_id": "S3.drop-attempt-member",
+   "category": "S3",
+   "variant": "drop-attempt-member",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "schema_violation"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A required attempt member removed."
+  },
+  {
+   "operator_id": "S3.drop-collection",
+   "category": "S3",
+   "variant": "drop-collection",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "schema_violation"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A required top-level collection removed."
+  },
+  {
+   "operator_id": "S3.drop-decision-member",
+   "category": "S3",
+   "variant": "drop-decision-member",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "schema_violation"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A required decision member removed."
+  },
+  {
+   "operator_id": "S4.extension-key-no-prefix",
+   "category": "S4",
+   "variant": "extension-key-no-prefix",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "invalid_extension_key"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An ``extensions`` member whose name lacks the ``x-`` prefix."
+  },
+  {
+   "operator_id": "S4.extension-key-no-prefix-decision",
+   "category": "S4",
+   "variant": "extension-key-no-prefix-decision",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "invalid_extension_key"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An ``extensions`` member without the ``x-`` prefix on a decision."
+  },
+  {
+   "operator_id": "T1.naive-decided-at",
+   "category": "T1",
+   "variant": "naive-decided-at",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "timestamp_invalid"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A decision time written without a UTC offset."
+  },
+  {
+   "operator_id": "T1.naive-input-time-floor",
+   "category": "T1",
+   "variant": "naive-input-time-floor",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "timestamp_invalid"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An input time floor written without a UTC offset."
+  },
+  {
+   "operator_id": "T1.observation-from-the-future",
+   "category": "T1",
+   "variant": "observation-from-the-future",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "observation_time_future"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An observation (in every row that carries it) stamped after the evaluation time."
+  },
+  {
+   "operator_id": "T1.stale-observation",
+   "category": "T1",
+   "variant": "stale-observation",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "observation_stale"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "An observation (in every row that carries it) stamped long before the evaluation time."
+  },
+  {
+   "operator_id": "W1.dup-effect-id",
+   "category": "W1",
+   "variant": "dup-effect-id",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_duplicate_member"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A second ``effect_id`` member with a different digest written before the real one."
+  },
+  {
+   "operator_id": "W1.dup-result",
+   "category": "W1",
+   "variant": "dup-result",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_duplicate_member"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A second ``result`` member (the opposite value) written before the real one in a decision, so a last-wins parser reads the original."
+  },
+  {
+   "operator_id": "W1.dup-run-id",
+   "category": "W1",
+   "variant": "dup-run-id",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_duplicate_member"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A second top-level ``run_id`` member written first."
+  },
+  {
+   "operator_id": "W2.nan-in-extension",
+   "category": "W2",
+   "variant": "nan-in-extension",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_nonfinite_constant"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "``NaN`` as a numeric value inside a declared ``x-`` extension."
+  },
+  {
+   "operator_id": "W2.nan-proposal-amount",
+   "category": "W2",
+   "variant": "nan-proposal-amount",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_nonfinite_constant"
+   ],
+   "roles": [
+    "proposal_export"
+   ],
+   "description": "A non-JSON constant as the proposal export's ``amount``."
+  },
+  {
+   "operator_id": "W2.nonfinite-binding-amount",
+   "category": "W2",
+   "variant": "nonfinite-binding-amount",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_nonfinite_constant"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A non-JSON constant as a decision binding's ``amount``."
+  },
+  {
+   "operator_id": "W2.nonfinite-ledger-amount",
+   "category": "W2",
+   "variant": "nonfinite-ledger-amount",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_nonfinite_constant"
+   ],
+   "roles": [
+    "destination_ledger"
+   ],
+   "description": "A non-JSON constant as a destination ledger row's ``amount``."
+  },
+  {
+   "operator_id": "W3.binding-amount-form",
+   "category": "W3",
+   "variant": "binding-amount-form",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_number_form_drift",
+    "proposal_commitment_mismatch",
+    "invalid_effect_identity",
+    "profile_ambiguous"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A binding's ``amount`` written in another number form (``50`` or ``50.00`` or ``5e1`` for ``50.0``): a different canonical byte string."
+  },
+  {
+   "operator_id": "W3.ledger-amount-form",
+   "category": "W3",
+   "variant": "ledger-amount-form",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_number_form_drift",
+    "ledger_row_mismatch",
+    "profile_ambiguous"
+   ],
+   "roles": [
+    "destination_ledger"
+   ],
+   "description": "A ledger row's ``amount`` written in another number form."
+  },
+  {
+   "operator_id": "W3.proposal-amount-form",
+   "category": "W3",
+   "variant": "proposal-amount-form",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_number_form_drift",
+    "proposal_commitment_mismatch",
+    "invalid_effect_identity",
+    "profile_ambiguous"
+   ],
+   "roles": [
+    "proposal_export"
+   ],
+   "description": "The proposal export's ``amount`` written in another number form: its commitment no longer matches the record's."
+  },
+  {
+   "operator_id": "W4.decomposed-letter",
+   "category": "W4",
+   "variant": "decomposed-letter",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "proposal_commitment_mismatch",
+    "invalid_effect_identity",
+    "wire_unicode_normalization",
+    "profile_ambiguous"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "One letter in a string of a decision binding replaced by the letter plus a combining accent (NFD form): different bytes, same look."
+  },
+  {
+   "operator_id": "W4.lone-surrogate",
+   "category": "W4",
+   "variant": "lone-surrogate",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_lone_surrogate"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A lone UTF-16 surrogate escape inside a string in a declared ``x-`` extension."
+  },
+  {
+   "operator_id": "W5.byte-order-mark",
+   "category": "W5",
+   "variant": "byte-order-mark",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_bom"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A UTF-8 byte-order mark in front of the run record."
+  },
+  {
+   "operator_id": "W5.nesting-depth",
+   "category": "W5",
+   "variant": "nesting-depth",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_depth"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A very deeply nested array inside a declared ``x-`` extension."
+  },
+  {
+   "operator_id": "W5.trailing-data",
+   "category": "W5",
+   "variant": "trailing-data",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "wire_trailing_data"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A second JSON value after the run record."
+  },
+  {
+   "operator_id": "X1.decision-from-another-run",
+   "category": "X1",
+   "variant": "decision-from-another-run",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "effect_id_mismatch",
+    "invalid_effect_identity",
+    "transplanted_record"
+   ],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A decision copied from another run in place of this run's decision."
+  },
+  {
+   "operator_id": "X1.ledger-from-another-run",
+   "category": "X1",
+   "variant": "ledger-from-another-run",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "ledger_effect_without_decision",
+    "transplanted_record"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger"
+   ],
+   "description": "The destination ledger of another run supplied with this run's record."
+  },
+  {
+   "operator_id": "X1.proposal-from-another-run",
+   "category": "X1",
+   "variant": "proposal-from-another-run",
+   "expected_verdict": "reject",
+   "intended_codes": [
+    "proposal_commitment_mismatch",
+    "invalid_effect_identity",
+    "transplanted_record"
+   ],
+   "roles": [
+    "run_record",
+    "proposal_export"
+   ],
+   "description": "The proposal export of another run supplied with this run's record."
+  }
+ ]
+}

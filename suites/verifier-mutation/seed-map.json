@@ -1,0 +1,22 @@
+{
+ "purpose": "Which design category each ODES invalid fixture is a regression seed for. Fixed with the operator set; fixtures whose code is not listed are unclassified and are counted, never silently dropped.",
+ "by_code": {
+  "S1": ["undeclared_member"],
+  "S2": ["unknown_enum_value"],
+  "S3": ["schema_violation", "unsupported_contract_version"],
+  "S4": ["invalid_extension_key"],
+  "I1": ["invalid_effect_identity"],
+  "I3": ["horizon_binding_mismatch", "refusal_horizon_mismatch"],
+  "I4": ["missing_input_commitment"],
+  "D1": ["decision_result_inconsistent"],
+  "D4": ["vocabulary_version_missing", "invalid_vocabulary_transition", "duplicate_vocabulary_change", "journal_missing", "runtime_authority_binding_missing"],
+  "J1": ["journal_protocol", "journal_lineage_mismatch"],
+  "J2": ["journal_unbound_completion", "journal_check_reused", "resolution_checks_out_of_order", "journal_stage_binding", "duplicate_check_id"],
+  "T1": ["timestamp_invalid", "observation_time_future", "observation_stale", "observation_time_invalid", "observation_policy_missing"],
+  "A1": ["missing_start_record", "missing_start_event", "invalid_reconciled_marker", "second_attempt_for_effect", "attempt_on_unauthorized_decision", "attempt_started_at_changed", "dangling_decision_reference", "effect_id_mismatch"],
+  "A2": ["closeout_missing", "closeout_observation_missing", "closeout_lineage_missing", "duplicate_closeout", "executed_without_observation", "terminal_event_missing"]
+ },
+ "by_fixture": {
+  "control-plane-journal/held-decision-with-binding": "D2"
+ }
+}
