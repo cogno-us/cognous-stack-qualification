@@ -106,6 +106,11 @@ def _input_error_met(r: "Result") -> bool:
             and r.outcome.detail.startswith(INPUT_ERROR_DETAIL))
 
 
+def _known_limit(r: "Result") -> bool:
+    """A known-limit control: its category expects reject but the operator is outside what the verified profile covers (catalogue 3.2), so the expected outcome is accept."""
+    return r.slot.expected_outcome == "accept" and r.slot.expected_verdict == "reject"
+
+
 def _intended_hit(outcome: Outcome, intended: Sequence[str]) -> bool:
     return outcome.verdict == "reject" and bool(outcome.codes & set(intended))
 
@@ -259,6 +264,24 @@ def input_error_controls(run: Run) -> list[dict[str, Any]]:
             for oid, rs in sorted(by.items())]
 
 
+KNOWN_LIMIT_REASON = ("the witness profile (witness-digest/0.1) covers the run record's list-valued members, not destination.json, so a destination row "
+                      "that nothing in the record corroborates is as undetectable with a witness as without (R6; ODES decision 30-A, ODES #89)")
+
+
+def known_limit_controls(run: Run) -> list[dict[str, Any]]:
+    """Per known-limit control operator (catalogue 3.2): effective slots, those accepted as expected, and the rest (any other outcome is a finding,
+    for example a verifier that now rejects). Counted aside: the category row's own counts are unchanged (the report contract has no
+    operator-level expectation), so an accepted known-limit mutant still shows in the row's ``accept`` count, labelled here, never as a missed detection."""
+    by: dict[str, list[Result]] = defaultdict(list)
+    for r in run.results:
+        if _known_limit(r) and r.slot.status == "effective":
+            by[r.slot.operator_id].append(r)
+    return [{"operator_id": oid, "category": rs[0].slot.category, "expected_outcome": "accept", "label": "known limit, post-hoc", "reason": KNOWN_LIMIT_REASON,
+             "n_eff": len(rs), "accepted_as_expected": sum(1 for r in rs if r.outcome.verdict == "accept"),  # type: ignore[union-attr]
+             "other": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict}" for r in rs if r.outcome.verdict != "accept")}  # type: ignore[union-attr]
+            for oid, rs in sorted(by.items())]
+
+
 def witnessed_flags(run: Run) -> list[dict[str, Any]]:
     """The same advisories for the witnessed population, measured on its own (ids prefixed ``witnessed_``). Report-only."""
     out: list[dict[str, Any]] = []
@@ -393,6 +416,7 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
             "seed_controls": [{"seed_id": s.seed_id, "expected_verdict": "abstain", "observed_verdict": o.verdict, "codes": sorted(o.codes)} for s, o in w.seed_controls],
             "flags": witnessed_flags(w.run),
             "input_error_controls": input_error_controls(w.run),
+            "known_limit_controls": known_limit_controls(w.run),
         }
     inputs.sort(key=lambda i: (i["role"], i["name"], i["digest"]))
 
@@ -420,6 +444,7 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
             "clean_false_rejection": "per category, clean traces on which that category's operators produced an effective mutant, rejected by the verifier; benign (B) counts benign mutants",
             "metric_impact": "measures are derived by this harness from the mutant's files (the verifier does not expose them); unavailable for a mutant Python's parser cannot read",
             "intended_code": "the operator's frozen intended codes; a different but correct verifier code counts in any_code only. Catalogue version 2: intended codes frozen post-hoc after run 1 (703cdde1), so intended_code figures are not held-out; any_code detection is the primary figure. Catalogue version 3 (family H): operators written after the verifier's tier V3 existed, intended codes frozen post-hoc from its emitted codes; any_code detection is the primary figure",
+            "known_limit": "H4.destination-row-dropped-uncorroborated is a known-limit control (catalogue 3.2): expected accept, labelled post-hoc, because the witness profile does not cover destination.json (ODES decision 30-A, ODES #89). It stays in the H4 row's accept count (the contract has no operator-level expectation) and is listed apart under witnessed.known_limit_controls; it is not a missed detection and is not in per-operator not_rejected.",
             "expected_abstain": "H7 and H8 are controls with expected verdict abstain (the verifier says could_not_check); an accept there is a false acceptance (counted in false_acceptance), a reject a false rejection (it shows as reject in verdicts and detection.any_code, which for these rows is not detection). Exception (catalogue 3.1, ODES decision 30-A): H8.witness-file-absent is an input-error control, expected exit 2 and no report; those runs sit in the row's error count (the contract has no row-level input_error) and are listed apart under witnessed.input_error_controls",
         },
         "intended_codes_status": json.loads(operator_set_bytes).get("intended_codes", {}).get("status", "frozen with the operator set before the run"),
@@ -466,9 +491,10 @@ def per_operator(run: Run, population: str) -> list[dict[str, Any]]:
             "intended_code_hits": sum(1 for r in eff if _intended_hit(r.outcome, r.slot.intended_codes)),  # type: ignore[arg-type]
             "codes": dict(sorted(codes.items())),
             "not_rejected": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict}" + (f" ({r.outcome.detail})" if r.outcome.detail else "")  # type: ignore[union-attr]
-                                   for r in eff if r.slot.expected_verdict == "reject" and r.outcome.verdict != "reject"),  # type: ignore[union-attr]
+                                   for r in eff if r.slot.expected_verdict == "reject" and r.outcome.verdict != "reject" and not _known_limit(r)),  # type: ignore[union-attr]
             "unexpected": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict} {sorted(r.outcome.codes)}"  # type: ignore[union-attr]
-                                 for r in eff if r.slot.expected_verdict != "reject" and r.outcome.verdict != r.slot.expected_verdict
+                                 for r in eff if ((r.slot.expected_verdict != "reject" and r.outcome.verdict != r.slot.expected_verdict)
+                                                  or (_known_limit(r) and r.outcome.verdict != "accept"))
                                  and not _input_error_met(r)),  # type: ignore[union-attr]
         })
     return out

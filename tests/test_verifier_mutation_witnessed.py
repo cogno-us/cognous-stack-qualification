@@ -27,6 +27,7 @@ from verifier_mutation.trace import ABSENT_FILE, FILENAMES, load_clean_corpus  #
 import test_verifier_mutation_harness as base  # noqa: E402
 
 ODES = contract.load()
+V31_OPERATOR_SET_DIGEST = 'sha256:4ae13f234ac214a02d34d247d8b7f9a086cbf8f18156aaf166acf164b4d42a62'  # operators.json of catalogue 3.1 (qualification f1592c37)
 V3_OPERATOR_SET_DIGEST = 'sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c'  # operators.json of catalogue 3 (qualification ce684ec6), the set run 4 used
 RUN4_ODES = '296e6bce26d5d68bae402eebca188a3f362b2963'  # run 4's own ODES revision (the vendored validator has moved on)
 WMANIFEST, WTRACES = load_clean_corpus(SUITE / 'corpus' / 'witnessed')
@@ -129,12 +130,17 @@ class WitnessOperators(unittest.TestCase):
         self.assertTrue(all(n >= 3 for n in per.values()), per)  # several variants per category
 
     def test_operator_set_is_catalogue_v3_labelled_post_hoc_and_keeps_v2(self):
-        self.assertEqual(OPERATOR_SET['operator_version'], '3.1')
-        self.assertEqual(OPERATOR_SET['revises']['operator_set_digest'], V3_OPERATOR_SET_DIGEST)  # catalogue 3 as run 4 measured it
+        self.assertEqual(OPERATOR_SET['operator_version'], '3.2')
+        self.assertEqual(OPERATOR_SET['revises']['operator_version'], '3.1')
+        self.assertEqual(OPERATOR_SET['revises']['operator_set_digest'], V31_OPERATOR_SET_DIGEST)  # catalogue 3.1 as merged in qualification f1592c37
+        self.assertIn(V3_OPERATOR_SET_DIGEST, OPERATOR_SET['revises']['note'])  # catalogue 3 as run 4 measured it
         by = {o['operator_id']: o for o in OPERATOR_SET['witnessed_operators']}
         self.assertEqual({k for k, o in by.items() if o['expected_outcome'] == 'input_error'}, {'H8.witness-file-absent'})  # decision 30-A
         self.assertEqual(by['H8.witness-file-absent']['expected_verdict'], 'abstain')  # the report contract has no row-level input_error
         self.assertEqual(by['H8.witness-empty-file']['expected_outcome'], 'abstain')
+        self.assertEqual({k for k, o in by.items() if o['expected_outcome'] == 'accept' and o['category'] == 'H4'}, {'H4.destination-row-dropped-uncorroborated'})  # known limit, catalogue 3.2
+        self.assertEqual(by['H4.destination-row-dropped-uncorroborated']['expected_verdict'], 'reject')  # the row keeps the contract's expectation
+        self.assertEqual(by['H4.ledger-removed']['expected_outcome'], 'reject')
         self.assertEqual(len(OPERATOR_SET['operators']), 81)  # the version 2 operators, unchanged
         self.assertEqual(len(OPERATOR_SET['witnessed_operators']), len(wo.WITNESS_OPERATORS))
         self.assertEqual(OPERATOR_SET['expected_abstain_categories'], ['H7', 'H8'])
@@ -358,6 +364,19 @@ class WitnessedHarness(unittest.TestCase):
                          [{'operator_id': 'H8.witness-file-absent', 'expected_outcome': 'input_error', 'n_eff': 3, 'exit_2_no_report': 1,
                            'other': ['t:H8.witness-file-absent:0 -> accept', 't:H8.witness-file-absent:0 -> error']}])
 
+    def test_a_known_limit_control_is_met_by_an_accept_and_a_rejection_is_a_finding(self):
+        slot = corpus.Slot(mutant_id='t:H4.destination-row-dropped-uncorroborated:0', trace_id='t', scenario='s', operator_id='H4.destination-row-dropped-uncorroborated',
+                           category='H4', draw=0, status='effective', expected_verdict='reject', expected_outcome='accept')
+        acc = report.Result(slot, runner.Outcome('accept'))
+        rej = report.Result(slot, runner.Outcome('reject', codes=frozenset({'witness_ledger_shrunk'})))
+        self.assertEqual([report._known_limit(r) for r in (acc, rej)], [True, True])
+        ctl = report.known_limit_controls(report.Run(results=[acc, rej]))
+        self.assertEqual((ctl[0]['n_eff'], ctl[0]['accepted_as_expected'], ctl[0]['label']), (2, 1, 'known limit, post-hoc'))
+        self.assertEqual(ctl[0]['other'], ['t:H4.destination-row-dropped-uncorroborated:0 -> reject'])
+        po = lambda rs: report.per_operator(report.Run(results=rs), 'witnessed')[0]
+        self.assertEqual((po([acc])['not_rejected'], po([acc])['unexpected']), ([], []))  # met: not a missed detection
+        self.assertEqual(po([rej])['unexpected'], ["t:H4.destination-row-dropped-uncorroborated:0 -> reject ['witness_ledger_shrunk']"])
+
     def test_the_real_runner_reports_an_input_error_with_the_detail_the_control_expects(self):
         import inspect
         self.assertIn('f"exit {done.returncode}, no report: "', inspect.getsource(runner.Runner.verify))
@@ -450,7 +469,7 @@ class RetainedRun4(unittest.TestCase):
         self.assertEqual(doc['verifier']['source_revision'], '5974c505e8b01b529fe1852c5b5deefe78a1c677')
         self.assertEqual(h['seed_corpus']['odes_revision'], RUN4_ODES)
         self.assertEqual(h['witnessed']['seed_corpus']['odes_revision'], RUN4_ODES)
-        self.assertEqual(contract_doc['odes_commit'], '0a37180fb09af596a1d134e38b316307e12fb424')  # re-vendored after run 4; run 4 still validates
+        self.assertEqual(contract_doc['odes_commit'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')  # re-vendored after run 4 (README only since 0a37180f); run 4 still validates
         self.assertEqual(mr['operator_set_digest'], V3_OPERATOR_SET_DIGEST)  # catalogue 3, not re-labelled: the current operators.json is 3.1
         self.assertNotEqual(mr['operator_set_digest'], jsonio.digest((SUITE / 'operators.json').read_bytes()))
         self.assertEqual(h['operator_version'], '3')
@@ -473,6 +492,56 @@ class RetainedRun4(unittest.TestCase):
         self.assertEqual(missed, {'H4.destination-row-dropped-uncorroborated': {'reject': 0, 'accept': 1, 'abstain': 0, 'error': 0},
                                   'H4.ledger-removed': {'reject': 19, 'accept': 0, 'abstain': 12, 'error': 0}})
         self.assertEqual(ops['H8.witness-file-absent']['verdicts'], {'reject': 0, 'accept': 0, 'abstain': 0, 'error': 17})
+
+
+class RetainedRun5(unittest.TestCase):
+    """The retained run 5 report (verifier 0a43a7f0, ODES 304f6cc3, catalogue 3.2): it validates, names its pins, and moves from run 4 only where intended."""
+
+    DIR = ROOT / 'results' / 'verifier-mutation' / 'run-5-0a43a7f0'
+    doc = property(lambda self: json.loads((self.DIR / 'mutation-report.json').read_text()))
+
+    def test_validates_and_names_its_pins(self):
+        doc = self.doc
+        self.assertEqual(ODES.validate(doc), [])
+        h = doc['mutation_report']['extensions']['x-qualification-harness']
+        self.assertEqual(doc['verifier']['source_revision'], '0a43a7f0216cb0300f198e69d1c2f6d3acb19c1a')
+        self.assertEqual(h['seed_corpus']['odes_revision'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')
+        self.assertEqual(h['witnessed']['seed_corpus']['odes_revision'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')
+        self.assertEqual(h['operator_version'], '3.2')
+        self.assertEqual(h['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
+        self.assertEqual(h['witnessed']['clean_traces'], {'n': 17, 'verdicts': {'reject': 0, 'accept': 17, 'abstain': 0, 'error': 0}})
+
+    def test_clean_false_rejection_is_zero_in_every_clean_corpus(self):
+        for c in self.doc['mutation_report']['clean']:
+            with self.subTest(corpus=c['corpus_id']):
+                self.assertTrue(all(r['false_rejection']['k'] == 0 for r in c['rows']))
+
+    def test_family_h_and_the_controls(self):
+        mr = self.doc['mutation_report']
+        by = {o['operator_id']: o for o in json.loads((self.DIR / 'per-operator.json').read_text())['operators'] if o['population'] == 'witnessed'}
+        self.assertEqual(by['H4.ledger-removed']['verdicts'], {'reject': 31, 'accept': 0, 'abstain': 0, 'error': 0})
+        self.assertEqual({k: o['verdicts'] for k, o in by.items() if o['not_rejected']}, {})  # no missed detection in family H
+        h4 = next(r for r in next(c for c in mr['family_t'] if c['corpus_id'] == 't-generated-witnessed')['categories'] if r['category'] == 'H4')
+        self.assertEqual(h4['verdicts'], {'reject': 229, 'accept': 1, 'abstain': 0, 'error': 0})  # the 1 accept is the known-limit control
+        w = mr['extensions']['x-qualification-harness']['witnessed']
+        kl = w['known_limit_controls']
+        self.assertEqual([(k['operator_id'], k['n_eff'], k['accepted_as_expected'], k['other']) for k in kl], [('H4.destination-row-dropped-uncorroborated', 1, 1, [])])
+        self.assertEqual(w['input_error_controls'], [{'operator_id': 'H8.witness-file-absent', 'expected_outcome': 'input_error', 'n_eff': 17, 'exit_2_no_report': 17, 'other': []}])
+        self.assertEqual(w['flags'], [])
+        self.assertEqual(by['H8.witness-file-absent']['unexpected'], [])
+
+    def test_only_the_intended_rows_differ_from_run_4(self):
+        r4 = json.loads((ROOT / 'results' / 'verifier-mutation' / 'run-4-5974c50' / 'mutation-report.json').read_text())['mutation_report']
+        r5 = self.doc['mutation_report']
+        pick = lambda m, cid: next(c for c in m['family_t'] + m['clean'] if c['corpus_id'] == cid)
+        for cid in ('t-generated', 'clean-generated'):
+            self.assertEqual(pick(r4, cid), pick(r5, cid))  # unwitnessed rows identical to run 4
+        w4, w5 = pick(r4, 't-generated-witnessed'), pick(r5, 't-generated-witnessed')
+        d4 = {c['category']: c for c in w4['categories']}
+        for c in w5['categories']:
+            if c['category'] != 'H4':
+                self.assertEqual(c, d4[c['category']], c['category'])
+        self.assertEqual(pick(r4, 'clean-generated-witnessed')['rows'], pick(r5, 'clean-generated-witnessed')['rows'])
 
 
 if __name__ == '__main__':

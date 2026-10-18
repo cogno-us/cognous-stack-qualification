@@ -729,11 +729,12 @@ def h4_rewrite_tail(c: Ctx) -> None:
 
 
 @hop("H4", "destination-row-dropped-uncorroborated", (C_SHRUNK, "observation_without_ledger_row", "acknowledged_attempt_without_ledger_row"),
-     ("run_record", "destination_ledger", "witness"))
+     ("run_record", "destination_ledger", "witness"), expected_outcome="accept")
 def h4_destination(c: Ctx) -> None:
-    """The destination ledger row of an effect nothing in the record corroborates (unknown attempt, no accepted applied or partial
-    observation: the R6 shape) dropped in a witnessed trace. The design says: "with a witness the same drop is H4". The witness profile
-    covers the run record's list-valued members only; the destination snapshot is a different file."""
+    """Known-limit control (ODES decision 30-A, ODES #89): the destination ledger row of an effect nothing in the record corroborates (unknown
+    attempt, no accepted applied or partial observation: the R6 shape) dropped in a witnessed trace. The witness profile covers the run
+    record's list-valued members only; the destination snapshot is a different file, so the drop is as undetectable as without a witness.
+    Expected outcome accept, labelled post-hoc; an accept is the measured limit, not a missed detection."""
     if not c.has("destination_ledger"):
         raise NotApplicable("no destination ledger")
     wit(c)

@@ -27,7 +27,7 @@ from typing import Any, Callable
 from .jsonio import Pairs, Raw, commitment, dump_file_bytes, dumps
 from .trace import FILENAMES, ROLES, Trace
 
-OPERATOR_VERSION = "3.1"
+OPERATOR_VERSION = "3.2"
 EXPECTED_ACCEPT = ("B", "F", "R6")
 EXPECTED_ABSTAIN = ("H7", "H8")  # catalogue version 3, family H controls (ODES decision 28); H8.witness-file-absent is an input-error control (decision 30-A)
 CATEGORIES_WITHOUT_OPERATOR = ("L1", "Q")
@@ -68,7 +68,7 @@ class Operator:
     roles: tuple[str, ...]
     description: str
     fn: Callable[[Ctx], None]
-    expected_outcome_override: str = ""  # catalogue version 3.1: "input_error" for the H8 absent-witness-file controls (ODES decision 30-A)
+    expected_outcome_override: str = ""  # catalogue version 3.1: "input_error" for the H8 absent-witness-file controls (ODES decision 30-A); catalogue 3.2: "accept" for the H4 destination-row known-limit control
 
     @property
     def expected_verdict(self) -> str:
@@ -77,7 +77,7 @@ class Operator:
 
     @property
     def expected_outcome(self) -> str:
-        """What the harness expects of the verifier run: the category's verdict, or ``input_error`` (exit 2, no report) for an input-error control."""
+        """What the harness expects of the verifier run: the category's verdict, ``input_error`` (exit 2, no report) for an input-error control, or ``accept`` for a known-limit control (a category that expects reject whose one operator is outside the verified profile)."""
         return self.expected_outcome_override or self.expected_verdict
 
 
