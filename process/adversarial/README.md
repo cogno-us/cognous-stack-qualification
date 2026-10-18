@@ -14,7 +14,7 @@ section 7; machine-readable twin [`ideas.json`](ideas.json)). Programme 2, track
 ## Components attacked
 
 Final revisions, listed in [`components.json`](components.json) and checked against each checkout's HEAD at run time:
-control plane `3cd17ead`, runtime `11de097c`, verifier `f99a6543`, Replay `46e8bd7c`, Evidence Pack `4fbbd344`, ODES `81979784`,
+control plane `3cd17ead`, runtime `11de097c`, verifier `f99a6543`, Replay `46e8bd7c`, Evidence Pack `4fbbd344`, ODES `e2cbc0dc`,
 hub `afca5bbd` (read-only, T18 and T20). Batch 1 was first run against control plane `3755c71a`, runtime `7170da59`, verifier
 `0a43a7f0`, Replay `541180fd`, Evidence Pack `63e9ee99` and ODES `304f6cc3`; the revisions above carry the later programme-2 fixes. The governed exchange (route C) and the orchestrator are not in the attacked set; legs
 that need them are named as not covered in the module docstrings.
