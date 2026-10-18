@@ -27,7 +27,7 @@ from typing import Any, Callable
 from .jsonio import Pairs, Raw, commitment, dump_file_bytes, dumps
 from .trace import FILENAMES, ROLES, Trace
 
-OPERATOR_VERSION = "3.2"
+OPERATOR_VERSION = "3.3"
 EXPECTED_ACCEPT = ("B", "F", "R6")
 EXPECTED_ABSTAIN = ("H7", "H8")  # catalogue version 3, family H controls (ODES decision 28); H8.witness-file-absent is an input-error control (decision 30-A)
 CATEGORIES_WITHOUT_OPERATOR = ("L1", "Q")
@@ -919,6 +919,124 @@ def f_reseal(c: Ctx) -> None:
         c.raw[role] = (text + "\n").encode("utf-8")
     if c.has("destination_ledger"):
         c.touched.add("destination_ledger")
+
+
+# ------------------------------------------------------------------ catalogue 3.3: evidence check hardening (verifier 31708c33)
+
+def _attempt_groups(c: Ctx) -> dict[str, list[dict[str, Any]]]:
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for row in _rows(c, "attempts"):
+        groups.setdefault(row["attempt_id"], []).append(row)
+    return groups
+
+
+def _new_attempt_id(c: Ctx) -> str:
+    return "00000000-0000-4000-8000-%012x" % c.rng.getrandbits(48)
+
+
+@op("A1", "attempt-effect-identity-switched", ("attempt_identity_changed",))
+def a1_identity_effect(c: Ctx) -> None:
+    """A later row of an attempt names another effect than the attempt's first row (an attempt is fixed to its first row's identity)."""
+    groups = [g for g in _attempt_groups(c).values() if len(g) >= 2]
+    if not groups:
+        raise NotApplicable("no attempt with two rows")
+    g = c.rng.choice(groups)
+    g[-1]["effect_id"] = _digest(c.rng)
+
+
+@op("A1", "attempt-decision-identity-switched", ("attempt_identity_changed",))
+def a1_identity_decision(c: Ctx) -> None:
+    """A later row of an attempt names another decision than the attempt's first row."""
+    groups = [g for g in _attempt_groups(c).values() if len(g) >= 2]
+    if not groups:
+        raise NotApplicable("no attempt with two rows")
+    g = c.rng.choice(groups)
+    g[-1]["decision_id"] = _new_attempt_id(c)
+
+
+@op("A1", "attempt-reopened-after-close", ("attempt_transition_invalid",))
+def a1_reopened(c: Ctx) -> None:
+    """An ``attempted`` row appended to an attempt that an acknowledged, partial or failed row already closed."""
+    closed = [g for g in _attempt_groups(c).values() if g[-1]["status"] in ("acknowledged", "partial", "failed")]
+    if not closed:
+        raise NotApplicable("no closed attempt")
+    row = copy.deepcopy(c.rng.choice(closed)[0])
+    row["status"] = "attempted"
+    row["acknowledgement"] = {}
+    row["error"] = None
+    c.doc("run_record")["attempts"].append(row)
+
+
+@op("A1", "attempt-closed-twice", ("attempt_transition_invalid",))
+def a1_double_close(c: Ctx) -> None:
+    """A second, different closing row appended to an attempt that an acknowledged or partial row already closed (not a repeated record)."""
+    closed = [g for g in _attempt_groups(c).values() if g[-1]["status"] in ("acknowledged", "partial")]
+    if not closed:
+        raise NotApplicable("no attempt closed by an acknowledgement")
+    row = copy.deepcopy(c.rng.choice(closed)[-1])
+    row["status"] = "failed"
+    row["acknowledgement"] = {}
+    row["error"] = "synthetic_late_failure"
+    c.doc("run_record")["attempts"].append(row)
+
+
+@op("A1", "uncertain-attempt-restarted", ("attempt_transition_invalid",))
+def a1_unknown_restarted(c: Ctx) -> None:
+    """An ``attempted`` row appended to an attempt that stands at ``unknown`` (an uncertain attempt may only be followed by a closing row)."""
+    open_unknown = [g for g in _attempt_groups(c).values() if g[-1]["status"] == "unknown"]
+    if not open_unknown:
+        raise NotApplicable("no attempt standing at unknown")
+    row = copy.deepcopy(c.rng.choice(open_unknown)[-1])
+    row["status"] = "attempted"
+    row["acknowledgement"] = {}
+    row["error"] = None
+    c.doc("run_record")["attempts"].append(row)
+
+
+def _fresh_acks(c: Ctx) -> list[dict[str, Any]]:
+    out = [a for a in _rows(c, "attempts") if a["status"] == "acknowledged" and (a.get("acknowledgement") or {}).get("duplicate") is False]
+    if not out:
+        raise NotApplicable("no fresh acknowledged attempt")
+    return out
+
+
+@op("R4", "fresh-acknowledgement-repeated", ("fresh_acknowledgement_repeated", "second_attempt_for_effect", "repeated_record", "duplicate_attempt_row"))
+def r4_fresh_repeated(c: Ctx) -> None:
+    """A second attempt (another attempt id, same effect) that also claims a fresh execution of the effect an acknowledged attempt already executed."""
+    rows = c.doc("run_record")["attempts"]
+    source = copy.deepcopy(c.rng.choice(_fresh_acks(c)))
+    source["attempt_id"] = _new_attempt_id(c)
+    rows.append(source)
+
+
+@op("R4", "acknowledgement-freshness-flags-contradict", ("acknowledgement_flags_contradict",))
+def r4_flags(c: Ctx) -> None:
+    """An acknowledgement that says ``duplicate: false`` and, in the same breath, ``newly_executed: false`` (the two flags claim the same thing)."""
+    row = c.rng.choice(_fresh_acks(c))
+    row["acknowledgement"]["newly_executed"] = False
+
+
+@op("R3", "acknowledgement-effect-amount-differs", ("acknowledgement_differs_from_ledger_row", "observation_differs_from_ledger_row"), ("run_record", "destination_ledger"))
+def r3_ack_amount(c: Ctx) -> None:
+    """The amount inside an acknowledgement's effect receipt changed, so it differs from the ledger row."""
+    if not c.has("destination_ledger"):
+        raise NotApplicable("no destination ledger")
+    row = c.rng.choice([a for a in _fresh_acks(c) if isinstance((a["acknowledgement"].get("effect") or {}).get("amount"), (int, float))] or _fresh_acks(c))
+    effect = row["acknowledgement"].get("effect")
+    if not isinstance(effect, dict) or not isinstance(effect.get("amount"), (int, float)):
+        raise NotApplicable("no acknowledgement effect receipt with an amount")
+    effect["amount"] = effect["amount"] + 7.0
+
+
+@op("I1", "tenant-on-the-binding-only", ("binding_proposal_mismatch", "proposal_commitment_mismatch", "schema_violation"), ("run_record", "proposal_export"))
+def i1_tenant(c: Ctx) -> None:
+    """A ``tenant_id`` added to one decision's binding while the proposal carries none (a tenant on one side only is a difference, never a pass)."""
+    if not c.has("proposal_export"):
+        raise NotApplicable("needs a proposal export")
+    if "tenant_id" in c.trace.doc("proposal_export"):
+        raise NotApplicable("the proposal carries a tenant")
+    d = c.rng.choice(_decisions(c, binding=True))
+    d["binding"]["tenant_id"] = "urn:cognous:tenant:" + "%08x" % c.rng.getrandbits(32)
 
 
 # --------------------------------------------------------------------------------------------------------- build / API

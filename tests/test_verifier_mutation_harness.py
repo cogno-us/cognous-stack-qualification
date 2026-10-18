@@ -289,7 +289,7 @@ class VersionTwo(unittest.TestCase):
 
     def test_code_vocabulary_refresh_keeps_every_earlier_name_and_adds_the_witness_and_ledger_codes(self):
         names = set(json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
-        self.assertEqual(len(names), 442)  # 268 at adb8927; 5974c50 adds 14 (witness and holder-inventory report notes, profile member names); 2fcdc3e6 adds 158 (V10's 157 and profile_sidecar_semantics_only); 0a43a7f0 adds reason_label_mismatch; f99a6543 adds unicode_escape; none removed
+        self.assertEqual(len(names), 450)  # 268 at adb8927; 5974c50 adds 14 (witness and holder-inventory report notes, profile member names); 2fcdc3e6 adds 158 (V10's 157 and profile_sidecar_semantics_only); 0a43a7f0 adds reason_label_mismatch; f99a6543 adds unicode_escape; 31708c33 adds 8; none removed
         self.assertIn('reason_label_mismatch', names)
         self.assertIn('profile_sidecar_semantics_only', names)
         self.assertEqual(sorted(names), json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
@@ -331,7 +331,7 @@ class VersionTwo(unittest.TestCase):
 
     def test_intended_codes_are_names_the_verifier_has_and_are_labelled_post_hoc(self):
         vocab = json.loads((SUITE / 'verifier-code-names.json').read_text())
-        self.assertEqual(vocab['verifier_revision'], 'f99a65430a15760977c25f356c304d6037ed5925')
+        self.assertEqual(vocab['verifier_revision'], '31708c3313e31df3b6a583215216372f25c9a489')
         names = set(vocab['names'])
         for o in operators.OPERATORS:
             with self.subTest(operator=o.operator_id):
@@ -350,7 +350,7 @@ class VersionTwo(unittest.TestCase):
                                                                'acknowledged_attempt_without_ledger_row', 'observation_without_ledger_row',
                                                                'acknowledgement_differs_from_ledger_row', 'observation_differs_from_ledger_row'})
         self.assertEqual(by_id['R5.drop-ledger-row-of-lost-ack-observed'], {'observation_without_ledger_row', 'acknowledged_attempt_without_ledger_row'})
-        self.assertEqual(OPERATOR_SET['operator_version'], '3.2')  # 3.1: H8.witness-file-absent input-error control; 3.2: H4.destination-row-dropped-uncorroborated known-limit control (ODES decision 30-A)
+        self.assertEqual(OPERATOR_SET['operator_version'], '3.3')  # 3.3: nine native-applicable operators over the evidence check hardening of verifier 31708c33; 3.1: H8.witness-file-absent input-error control; 3.2: H4.destination-row-dropped-uncorroborated known-limit control (ODES decision 30-A)
         self.assertIn('post-hoc', OPERATOR_SET['intended_codes']['status'])
         self.assertIn('703cdde1', OPERATOR_SET['intended_codes']['status'])
         self.assertEqual(OPERATOR_SET['supersedes']['operator_version'], '2')
@@ -362,7 +362,7 @@ class VersionTwo(unittest.TestCase):
         self.assertIn('post-hoc', harness['intended_codes_status'])
         self.assertIn('not held-out', harness['definitions']['intended_code'])
         self.assertIn('any_code detection is the primary figure', harness['definitions']['intended_code'])
-        self.assertEqual(harness['operator_version'], '3.2')
+        self.assertEqual(harness['operator_version'], '3.3')
 
 
 class Corpora(unittest.TestCase):

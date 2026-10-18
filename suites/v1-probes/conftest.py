@@ -24,6 +24,10 @@ MODULE_ENV = {
     "test_authority_probes.py": "PROBE_AUTHORITY_DIR",
     "test_authority_ra_probes.py": "PROBE_CONTROL_PLANE_DIR",
     "test_rule_revision_probes.py": "PROBE_CONTROL_PLANE_DIR",
+    "test_scan_fix_control_plane_probes.py": "PROBE_CONTROL_PLANE_DIR",
+    "test_scan_fix_runtime_probes.py": "PROBE_RUNTIME_DIR",
+    "test_scan_fix_replay_probes.py": "PROBE_REPLAY_DIR",
+    "test_scan_fix_evidence_pack_probes.py": "PROBE_EVIDENCE_PACK_DIR",
 }
 # Env vars whose directory must NOT be put on sys.path: documentation/provenance probes read files only, and PROBE_PINS_DIR is
 # a directory of several checkouts, not a package root.

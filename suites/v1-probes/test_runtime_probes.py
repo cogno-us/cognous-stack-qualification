@@ -183,10 +183,16 @@ def test_probe_credential_revoked_or_foreign_grant_refused_at_commit(tmp_path):
     dest.set_effective_grant(principal=op.principal, grant_id=op.grant_id, revision="2", permissions=["refund.issue"], status="revoked")
     with pytest.raises(PermissionError, match="effective_grant_changed_at_commit"):
         dest.commit(s, expected_effective_grant_digest=digest, effective_grant_derivation_version=DERIVATION)
-    # grant re-issued to a different principal cannot be used by the original principal's operation
-    d2 = dest.set_effective_grant(principal="urn:cognous:principal:someone-else", grant_id=op.grant_id, revision="3", permissions=["refund.issue"])
-    with pytest.raises(PermissionError, match="effective_grant_changed_at_commit"):
-        dest.commit(s, expected_effective_grant_digest=d2, effective_grant_derivation_version=DERIVATION)
+    # grant re-issued to a different principal cannot be used by the original principal's operation: the final runtime
+    # refuses the re-issue itself (a grant id stays bound to one principal for the life of the database); an earlier
+    # runtime accepted it and refused the commit. Either way the original operation must not commit.
+    try:
+        d2 = dest.set_effective_grant(principal="urn:cognous:principal:someone-else", grant_id=op.grant_id, revision="3", permissions=["refund.issue"])
+    except PermissionError as exc:
+        assert "already bound to another principal" in str(exc)
+    else:
+        with pytest.raises(PermissionError, match="effective_grant_changed_at_commit"):
+            dest.commit(s, expected_effective_grant_digest=d2, effective_grant_derivation_version=DERIVATION)
     assert dest.effect_count(op.grant_id) == 0
 
 
