@@ -51,9 +51,9 @@ jobs:
   actual-agent:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.campaign_authorized))
     needs: offline-controls
-    # Paid provider job: the repository owner must configure this environment with required reviewers
-    # (docs/security-residuals-20261016.md); without reviewers the declaration alone does not gate the job.
-    environment: paid-provider-pilots
+    # Paid provider job: runs in the reviewer-gated environment configured by the owner
+    # (docs/security-residuals-20261016.md); each live run waits for the reviewer's approval.
+    environment: provider-keys
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
