@@ -221,6 +221,8 @@ def test_in_progress_never_mints_a_second_key(tmp_path):
         flow = build(tmp_path, mp)
         first = lose_first_ack(flow)
         assert first.status in ("unknown", "unresolved"), first.status
+        (attempt,) = flow.latest_attempts()
+        assert attempt.status == "unknown" and attempt.error == "destination_outcome_unknown:TimeoutError", "the first answer is a lost ack"
         d2 = renew(flow)
         assert flow.run(d2).status == "denied"
         refusal = flow.record().refusals[-1]
@@ -243,7 +245,10 @@ def test_in_progress_then_renewal_dispatches_a_second_key_today(tmp_path):
         lose_first_ack(flow)
         d2 = renew(flow)
         flow.run(d2)
-        assert {a.effect_id for a in flow.latest_attempts()} == {flow.d1.effect_id, d2.effect_id}
+        attempts = {a.effect_id: a for a in flow.latest_attempts()}
+        assert set(attempts) == {flow.d1.effect_id, d2.effect_id}
+        assert attempts[d2.effect_id].error == "destination_outcome_unknown:DestinationInProgress", (
+            "the destination's in-progress answer reached the control plane as its own signal, and without the profile it is an ordinary unknown")
     finally:
         mp.undo()
 
