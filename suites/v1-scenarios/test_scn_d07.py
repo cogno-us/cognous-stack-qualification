@@ -178,6 +178,14 @@ def c1_destination_effect_tables_after_consume(w):
     return steps
 
 
+# Uses of the word "anchor" in the reference code that are not a restore/anchor concept. Programme 2 (control plane 3cd17ead) added
+# freshness.py, whose limits docstring says the deadline is "anchored" at the opening of the check (a time reference, not an external
+# restore anchor and not an input to admission). Keyed by (path under the components directory, exact stripped line).
+NON_RESTORE_ANCHOR_USES = {
+    ('control_plane/src/agent_control_plane/freshness.py',
+     '* The deadline is anchored at the opening of the check, not at the status\'s own timestamp. A status that was already close to the'),
+}
+
 # name: (kind, scenario, restored, remaining_external, expectation)
 # expectation: replay step label, status, error substring, newly_executed, final effects, total witnessed commits
 S = lambda **k: k
@@ -206,15 +214,19 @@ SCENARIOS = {
     'chain_destination_full_restore_after_consume_reconciles': ('chain', chain_destination_full_after_consume,
         'complete destination store (post-commit)', 'Control Plane journal',
         S(step='replay_after_destination_full_restore', status='reconciled', error=None, newly=False, effects=1, witness=1)),
+    # Programme 2 (runtime 11de097c): the executor records the exception CLASS only in attempt events, so the refusal by effect
+    # uniqueness now reads exactly 'IntegrityError' (it used to carry the SQL message text); exact_error pins that there is no message text.
     'c1_authority_tables_alone_after_consume_refused_by_effect_uniqueness': ('c1', c1_authority_tables_after_consume,
         'authority tables (grants/approvals/policies/evidence/claims/budgets) from pre-execution snapshot', 'effects, attempts, receipts tables',
-        S(step='replay_after_authority_tables_restore', status='denied', error='UNIQUE constraint failed: effects.effect_id', newly=False, effects=1, witness=1)),
-    'c1_authority_tables_alone_after_revoke_reopens': ('c1', c1_authority_tables_after_revoke,
-        'authority tables from pre-revocation snapshot', 'effects, attempts, receipts tables (none yet)',
-        S(step='replay_after_authority_tables_restore', status='executed', error=None, newly=True, effects=1, witness=1)),
+        S(step='replay_after_authority_tables_restore', status='denied', error='IntegrityError', exact_error=True, newly=False, effects=1, witness=1)),
+    # Programme 2 (runtime 11de097c, atomic-route destination grants are revoked-final): restoring the authority tables to the pre-revocation
+    # snapshot no longer reopens the revoked grant; the replay is refused (this case was 'c1_authority_tables_alone_after_revoke_reopens').
+    'c1_authority_tables_alone_after_revoke_refused_revocation_is_final': ('c1', c1_authority_tables_after_revoke,
+        'authority tables from pre-revocation snapshot', 'effects, attempts, receipts tables (none yet); destination grant row stays revoked',
+        S(step='replay_after_authority_tables_restore', status='denied', error='authoritative grant state invalid', exact_error=True, newly=False, effects=0, witness=0)),
     'c1_authority_tables_alone_after_lost_ack_refused_by_effect_uniqueness': ('c1', c1_authority_tables_after_lost_ack,
         'authority tables from pre-execution snapshot', 'effects, attempts, receipts tables (effect committed, ack lost)',
-        S(step='replay_after_authority_tables_restore', status='denied', error='UNIQUE constraint failed: effects.effect_id', newly=False, effects=1, witness=1)),
+        S(step='replay_after_authority_tables_restore', status='denied', error='IntegrityError', exact_error=True, newly=False, effects=1, witness=1)),
     'c1_full_restore_before_consume_accepts_replay': ('c1', c1_full_before_consume,
         'complete store (pre-execution)', 'nothing local; no external anchor exists',
         S(step='replay_after_full_restore', status='executed', error=None, newly=True, effects=1, witness=2)),
@@ -284,6 +296,8 @@ def test_scn_d07_restore_boundary(request, record_property, pinned_reference, tm
     assert bool(result['newly_executed']) is expect['newly'], (name, result)
     if expect['error']:
         assert expect['error'] in (result['error'] or ''), (name, result)
+        if expect.get('exact_error'):
+            assert result['error'] == expect['error'], (name, result)
     assert effect_state == expect['effects'], (name, replay['state'])
     assert replay['witness_commits'] == expect['witness'], (name, 'witnessed commits', replay['witness_commits'])
 
@@ -293,11 +307,18 @@ def test_scn_d07_external_anchor_absent_and_witness_not_consulted(request, recor
     outside witness changes no admission outcome (the witness is not an input)."""
     ref = pinned_reference
     offenders = []
+    classified = []
     for sub in ('control_plane/src', 'runtime/engine', 'exchange/experiments'):
         for path in (ref.paths[sub.split('/')[0]] / sub.split('/', 1)[1]).rglob('*.py'):
             for no, line in enumerate(path.read_text().splitlines(), 1):
                 if re.search(r'anchor', line, re.I) and 'path.anchor' not in line:
-                    offenders.append(f'{path.relative_to(ref.base)}:{no}')
+                    rel = path.relative_to(ref.base).as_posix()
+                    # a use of the word that is NOT a restore/anchor concept is classified by its exact file and exact line text
+                    # (never by line number or pattern), so any other occurrence still fails the tripwire
+                    if (rel, line.strip()) in NON_RESTORE_ANCHOR_USES:
+                        classified.append(f'{rel}:{no}')
+                    else:
+                        offenders.append(f'{rel}:{no}')
     assert not offenders, f'a restore/anchor concept appears in reference code, re-characterise D07: {offenders}'
 
     def replay_outcome(variant):
@@ -323,6 +344,7 @@ def test_scn_d07_external_anchor_absent_and_witness_not_consulted(request, recor
         hub_text = next(r for r in risks if r['id'] == 'R-REVIEW-OPERATIONS')
         assert 'do not prevent full destination rollback' in hub_text['description']
     H.record(request, record_property, 'd07_anchor_boundary', {
-        'scenario': 'D07', 'boundary': BOUNDARY, 'anchor_concept_in_reference_code': offenders, 'replay_outcome_by_witness_variant': outcomes,
+        'scenario': 'D07', 'boundary': BOUNDARY, 'anchor_concept_in_reference_code': offenders,
+        'anchor_word_uses_classified_as_not_a_restore_anchor': classified, 'replay_outcome_by_witness_variant': outcomes,
         'hub_declared_residual_risk': hub_text or 'SCN_HUB_DIR not supplied; declared residual not re-read in this run'})
     assert outcomes['witness_present'] == outcomes['witness_removed'] == outcomes['witness_forged']

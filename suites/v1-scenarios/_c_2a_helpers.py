@@ -180,7 +180,7 @@ def reopen_b(work, effect_nos=(1,)):
     dest.trace = []
     parts = []
     for n in effect_nos:
-        env = h.envelope(effect_no=n)
+        env = H.envelope_with_cap(h, n, len(effect_nos))
         claim = h.make_claim(env, claim_id=f'claim-{n}', budget_id='budget-main', max_effects=len(effect_nos))
         parts.append(SimpleNamespace(n=n, env=env, claim=claim))
     policy = dataclasses.replace(h.policy(parts[0].env.operation), max_effects=max(1, len(effect_nos)))

@@ -149,8 +149,8 @@ def test_add_c2c_bi_route_b_different_effect_id_same_business_request(request, r
         clock = h.MutableClock(h.BASE)
         dest = H.hooked_atomic_class()(work, clock=clock)
         dest.trace = []
-        env1 = h.envelope(effect_no=1)
-        env2 = dataclasses.replace(h.envelope(effect_no=1, effect_id='effect-1-second-id'), decision_id='decision-1-second-id')
+        env1 = H.envelope_with_cap(h, 1, budget)
+        env2 = dataclasses.replace(H.envelope_with_cap(h, 1, budget, effect_id='effect-1-second-id'), decision_id='decision-1-second-id')
         checks.equal(env1.operation, env2.operation, 'both envelopes carry the identical business operation')
         checks.expect(env1.effect_id != env2.effect_id, 'effect ids differ')
         claims = [h.make_claim(env1, claim_id='claim-a', budget_id='budget-main', max_effects=budget),

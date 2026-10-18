@@ -172,6 +172,14 @@ class CurrentPins(unittest.TestCase):
         prof = json.loads((ROOT / R6).read_text())
         self.assertEqual(_pins.PROFILE_PINS, {k: v['revision'] for k, v in prof['components'].items()})
 
+    def test_controller_workflow_v1_profile_equals_the_profile_the_overlay_selects(self):
+        import re
+        text = (ROOT / '.github/workflows/v1-validation.yml').read_text()
+        found = re.findall(r'^  V1_PROFILE: (\S+)$', text, flags=re.M)
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0], _pins.select_profile(_pins.load_refreeze_log()))
+        self.assertEqual(found[0], _pins.PROFILE_RELPATH)
+
     def test_r1_profile_is_the_original_with_only_the_five_revisions_changed(self):
         orig = json.loads((ROOT / _pins.ORIGINAL_PROFILE).read_text())
         r1 = json.loads((ROOT / R1).read_text())
