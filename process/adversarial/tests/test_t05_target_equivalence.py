@@ -4,7 +4,9 @@ SPDX-License-Identifier: Apache-2.0
 
 Attacker: a proposer choosing the target string.
 Evaluators: the control plane's exact-membership target check (manifest allowed_targets and grant permission targets, in
-bounded.py) and the runtime LocalExecutionPolicy, which matches allowed_target_prefixes with str.startswith.
+bounded.py) and the runtime LocalExecutionPolicy, which matches allowed_target_prefixes. At the attacked revisions it used
+str.startswith; at runtime 11de097c the default target_match is "segment" (a prefix matches only on a whole path segment, control
+and format characters and dot-segments are refused), with "exact" available and "legacy-prefix" an explicit opt-in.
 Invariant (plan): both evaluators agree on every near-equivalent spelling of the granted target; in the composed route a
 near-equivalent target never produces an effect.
 
@@ -43,10 +45,11 @@ def _cp_decides(fl, target):
     return fl.f.decide(p, now=fl.NOW)
 
 
-def _rt_allows(prefixes, target, fl):
+def _rt_allows(prefixes, target, fl, mode=None):
     import dataclasses
     from engine.safe_executor import LocalExecutionPolicy
-    pol = dataclasses.replace(fl.policy, allowed_target_prefixes=prefixes)
+    extra = {} if mode is None else {"target_match": mode}
+    pol = dataclasses.replace(fl.policy, allowed_target_prefixes=prefixes, **extra)
     assert isinstance(pol, LocalExecutionPolicy)
     from _adv import snapshot
     p = fl.p.model_copy(deep=True)
@@ -59,8 +62,8 @@ def _rt_allows(prefixes, target, fl):
         return False
 
 
-def _table(fl, prefixes):
-    return {name: {"control_plane": _cp_decides(fl, t).result == "authorized", "runtime": _rt_allows(prefixes, t, fl)}
+def _table(fl, prefixes, mode=None):
+    return {name: {"control_plane": _cp_decides(fl, t).result == "authorized", "runtime": _rt_allows(prefixes, t, fl, mode)}
             for name, t in VARIANTS.items()}
 
 
@@ -94,5 +97,17 @@ def test_evaluators_agree_on_every_variant(cprt, tmp_path, monkeypatch, config):
     table = _table(fl, prefixes)
     disagree = sorted(k for k, v in table.items() if v["control_plane"] != v["runtime"])
     observe(T, f"evaluator differential ({config})", "reproduced failure" if disagree else "prevented", does_not_prove=DNP,
+            detail={"disagreements": disagree})
+    assert disagree == []
+
+
+def test_exact_mode_agrees_with_the_control_plane_on_every_variant(cprt, tmp_path, monkeypatch):
+    """target_match="exact" with the granted target as the only entry: the runtime admits the granted target and refuses every
+    near-equivalent spelling, the same set the control plane does not authorise (the invariant holds in this configuration)."""
+    fl = flow(tmp_path, monkeypatch)
+    assert _rt_allows((GRANTED,), GRANTED, fl, "exact")
+    table = _table(fl, (GRANTED,), "exact")
+    disagree = sorted(k for k, v in table.items() if v["control_plane"] != v["runtime"])
+    observe(T, "evaluator agreement (exact mode)", "reproduced failure" if disagree else "prevented", does_not_prove=DNP,
             detail={"disagreements": disagree})
     assert disagree == []

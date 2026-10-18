@@ -134,6 +134,15 @@ def c1_authority_tables_after_revoke(w):
     return steps
 
 
+def c1_authority_tables_and_revocations_after_revoke(w):
+    s0 = w.snapshot('s0.sqlite')
+    w.revoke()
+    steps = [_step(w, 'baseline_after_revocation', w.execute(), c1=True)]
+    w.restore_tables(s0, H.C1_AUTHORITY_TABLES_WITH_REVOCATIONS)
+    steps.append(_step(w, 'replay_after_authority_tables_restore', w.execute(), c1=True))
+    return steps
+
+
 def c1_authority_tables_after_lost_ack(w):
     s0 = w.snapshot('s0.sqlite')
     steps = [_step(w, 'first_execution_lost_ack', w.execute('lost_ack'), c1=True)]
@@ -224,6 +233,12 @@ SCENARIOS = {
     'c1_authority_tables_alone_after_revoke_refused_revocation_is_final': ('c1', c1_authority_tables_after_revoke,
         'authority tables from pre-revocation snapshot', 'effects, attempts, receipts tables (none yet); destination grant row stays revoked',
         S(step='replay_after_authority_tables_restore', status='denied', error='authoritative grant state invalid', exact_error=True, newly=False, effects=0, witness=0)),
+    # Observed limitation, stated plainly: the revocation memory lives in its own table (authority_grant_revocations_v1). A restore that rolls
+    # that table back together with the authority tables (the table is absent from a pre-revocation snapshot, so it is restored to empty)
+    # reopens the revoked grant: one effect is admitted. Local-only persistence has no external anchor for the revocation.
+    'c1_authority_tables_and_revocations_after_revoke_reopens': ('c1', c1_authority_tables_and_revocations_after_revoke,
+        'authority tables AND the revocation table (authority_grant_revocations_v1) from pre-revocation snapshot', 'effects, attempts, receipts tables (none yet); nothing local anchors the revocation',
+        S(step='replay_after_authority_tables_restore', status='executed', error=None, newly=True, effects=1, witness=1)),
     'c1_authority_tables_alone_after_lost_ack_refused_by_effect_uniqueness': ('c1', c1_authority_tables_after_lost_ack,
         'authority tables from pre-execution snapshot', 'effects, attempts, receipts tables (effect committed, ack lost)',
         S(step='replay_after_authority_tables_restore', status='denied', error='IntegrityError', exact_error=True, newly=False, effects=1, witness=1)),

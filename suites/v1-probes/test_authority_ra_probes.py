@@ -35,14 +35,11 @@ def make(tmp_path, **kw):
 
 
 def _reasons_registry():
-    """The current reason registry of the checkout: 0.2 (the 157-code superset a current control plane emits). The frozen V1 pin predates
-    0.2 and only has the original 0.1 (121 codes); these two probes assert registry shape only (not a code count), which holds for both."""
+    """The reason registry of the checkout under test: 0.2 (the 158-code superset a current control plane emits). It is read directly;
+    there is no fallback to 0.1 (a checkout without the 0.2 file fails this probe)."""
     import os
     from pathlib import Path
-    schemas = Path(os.environ["PROBE_CONTROL_PLANE_DIR"]) / "schemas"
-    path = schemas / "runtime_authority_reasons_0_2.json"
-    if not path.exists():
-        path = schemas / "runtime_authority_reasons_0_1.json"
+    path = Path(os.environ["PROBE_CONTROL_PLANE_DIR"]) / "schemas" / "runtime_authority_reasons_0_2.json"
     return json.loads(path.read_text(encoding="utf-8"))
 
 
