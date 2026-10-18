@@ -133,7 +133,7 @@ R5_PINS = {'control_plane': '3cd17ead6b24301290ad1e50ae4b22bbd93c12fb', 'runtime
            'replay': '46e8bd7c263f5075cac3a7a9defcb265384f40e9', 'odes': '0663d5a24a2d94b83f51f611f30b3b3f144d6c5d',
            'evidence_pack': '4fbbd34418f8dce7a536879d7bd0378737179f47', 'exchange': '914db78dc3a4dbcc4abc79159f0ac0b7c1edc144'}
 # Programme 2 gap fixes (r6): ODES with the P2 compatibility tuple (#97) and the exchange compatibility profile (#37) (RF-23, RF-24)
-NEW = dict(R5_PINS, odes='81979784117588d199da6fdceb05264f8c5903a6', exchange='7172dde6b1117d8ecf2a6ff224f6059f05ad21b6')
+NEW = dict(R5_PINS, odes='81979784117588d199da6fdceb05264f8c5903a6', exchange='ba9fa16052a3d99b08d1d31b4f5dca2bdef0c608')
 R1_PINS = {'runtime': '4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f', 'replay': '0cfe7a6319930bccad3e9027a1dfbe3d6e29d657',
            'odes': '4e6d11691b9dea56a70026b6519159cf0e0ffd8b', 'evidence_pack': '683246e05d291308211778ec48045df65466461f',
            'exchange': 'da95378228b8f3205af49a86e68ba722961f6af0'}
