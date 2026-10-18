@@ -254,11 +254,11 @@ jobs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-replay-bundle
-        ref: 9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a
+        ref: 46e8bd7c263f5075cac3a7a9defcb265384f40e9
         path: upstream/replay-p4
         persist-credentials: false
     - name: Verify Replay step B pin
-      run: test "$(git -C upstream/replay-p4 rev-parse HEAD)" = "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a"
+      run: test "$(git -C upstream/replay-p4 rev-parse HEAD)" = "46e8bd7c263f5075cac3a7a9defcb265384f40e9"
     - name: Install Replay step B for the P4 and route-B tests
       run: pip install -e upstream/replay-p4
     - name: P4 generation and route-B round-trip tests (must run, not skip)

@@ -289,7 +289,7 @@ class VersionTwo(unittest.TestCase):
 
     def test_code_vocabulary_refresh_keeps_every_earlier_name_and_adds_the_witness_and_ledger_codes(self):
         names = set(json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
-        self.assertEqual(len(names), 441)  # 268 at adb8927; 5974c50 adds 14 (witness and holder-inventory report notes, profile member names); 2fcdc3e6 adds 158 (V10's 157 and profile_sidecar_semantics_only); 0a43a7f0 adds reason_label_mismatch; none removed
+        self.assertEqual(len(names), 442)  # 268 at adb8927; 5974c50 adds 14 (witness and holder-inventory report notes, profile member names); 2fcdc3e6 adds 158 (V10's 157 and profile_sidecar_semantics_only); 0a43a7f0 adds reason_label_mismatch; f99a6543 adds unicode_escape; none removed
         self.assertIn('reason_label_mismatch', names)
         self.assertIn('profile_sidecar_semantics_only', names)
         self.assertEqual(sorted(names), json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
@@ -331,7 +331,7 @@ class VersionTwo(unittest.TestCase):
 
     def test_intended_codes_are_names_the_verifier_has_and_are_labelled_post_hoc(self):
         vocab = json.loads((SUITE / 'verifier-code-names.json').read_text())
-        self.assertEqual(vocab['verifier_revision'], '0a43a7f0216cb0300f198e69d1c2f6d3acb19c1a')
+        self.assertEqual(vocab['verifier_revision'], 'f99a65430a15760977c25f356c304d6037ed5925')
         names = set(vocab['names'])
         for o in operators.OPERATORS:
             with self.subTest(operator=o.operator_id):

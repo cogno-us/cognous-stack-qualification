@@ -262,6 +262,88 @@
    "open_item": "full controller run at the re-frozen tuple (RF-2..RF-17 together; mixed generations are refused) and the r4 profile process/security-runtime-f5b-20261016-r4.json; F-15 and ER-03-1 stay FIXED-UNVERIFIED until that run",
    "historical_results_at_from_sha": "final-38962759690 and later runs through final-linux-1-39032930011",
    "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-18",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-18 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "control_plane",
+   "repository": "cogno-us/cognous-control-plane",
+   "from_sha": "26a7e6594eb535827ccc248cbca36a7d119d613b",
+   "to_sha": "3cd17ead6b24301290ad1e50ae4b22bbd93c12fb",
+   "reason": "Programme 2 main: optional operation identity, rule revision, freshness, witness/holder inventory, merge-record/reversibility/dedupe-ttl profiles; reason registry 0.2; strict JSON and instant parsing; typed target members; opt-in terminal-revocation profile",
+   "behaviour_changes": [
+    "profile-off runs are unchanged; the new profiles are opt-in",
+    "strict parsing refuses malformed JSON numbers, lone surrogates and non-conforming timestamps with a typed reason",
+    "target and scope members must be lists of exact strings",
+    "dedupe escalation is due strictly after the deadline"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-22 together; mixed generations are refused) and the r5 profile process/security-runtime-f5b-20261016-r5.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-19",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-18 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "moltbot_safe",
+   "repository": "cogno-us/cognous-execution-runtime",
+   "from_sha": "3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9",
+   "to_sha": "11de097c450d3ad4d89f9add41b00e38e7cc2c7c",
+   "reason": "Programme 2 main: optional operation key on the atomic route, segment-boundary target matching by default, revoked grant revisions final on the atomic destination, claim bound to the proposal commitment, strict timestamps",
+   "behaviour_changes": [
+    "local execution policy matches targets on path-segment boundaries by default (exact and legacy-prefix are opt-ins)",
+    "a revoked (grant_id, revision) stays refused on the atomic destination",
+    "exceptions are recorded by class name"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-22 together; mixed generations are refused) and the r5 profile process/security-runtime-f5b-20261016-r5.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-20",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-18 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "replay_bundle",
+   "repository": "cogno-us/cognous-replay-bundle",
+   "from_sha": "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a",
+   "to_sha": "46e8bd7c263f5075cac3a7a9defcb265384f40e9",
+   "reason": "Programme 2 main: bounded reader (size and depth limits, exit 3), verify refuses duplicate members, import tie to control plane 3cd17ead and runtime 11de097c",
+   "behaviour_changes": [
+    "oversized or too-deep input is refused with a typed exit instead of an uncaught error",
+    "duplicate members are refused by verify"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-22 together; mixed generations are refused) and the r5 profile process/security-runtime-f5b-20261016-r5.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-21",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-18 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "governance_evidence_pack",
+   "repository": "cogno-us/cognous-governance-evidence-pack",
+   "from_sha": "54df6984dd418e2e0a09f89e54f281493475831c",
+   "to_sha": "4fbbd34418f8dce7a536879d7bd0378737179f47",
+   "reason": "Programme 2 main: strict admission (non-finite numbers, lone surrogates), re-tie to the Programme 2 producers",
+   "behaviour_changes": [
+    "admission refuses non-finite numbers and lone surrogates with a typed reason"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-22 together; mixed generations are refused) and the r5 profile process/security-runtime-f5b-20261016-r5.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-22",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-18 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "odes",
+   "repository": "cogno-us/open-decision-evidence-standard",
+   "from_sha": "c5f4e2d0015ccdc94127a4025a6b605fc7fbdcbd",
+   "to_sha": "0663d5a24a2d94b83f51f611f30b3b3f144d6c5d",
+   "reason": "Programme 2 main: opt-in profile contracts, validator hardening, reason registry 0.2, terminal-revocation fixtures, ODES time semantics",
+   "behaviour_changes": [
+    "validators report typed violations instead of raising",
+    "timestamps follow docs/ODES-TIME-SEMANTICS.md; recipient expiry is inclusive of the boundary instant only as documented in decision 34"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-22 together; mixed generations are refused) and the r5 profile process/security-runtime-f5b-20261016-r5.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
   }
  ]
 }
