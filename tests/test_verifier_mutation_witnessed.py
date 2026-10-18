@@ -27,6 +27,8 @@ from verifier_mutation.trace import ABSENT_FILE, FILENAMES, load_clean_corpus  #
 import test_verifier_mutation_harness as base  # noqa: E402
 
 ODES = contract.load()
+V3_OPERATOR_SET_DIGEST = 'sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c'  # operators.json of catalogue 3 (qualification ce684ec6), the set run 4 used
+RUN4_ODES = '296e6bce26d5d68bae402eebca188a3f362b2963'  # run 4's own ODES revision (the vendored validator has moved on)
 WMANIFEST, WTRACES = load_clean_corpus(SUITE / 'corpus' / 'witnessed')
 WBY = {t.trace_id: t for t in WTRACES}
 OPERATOR_SET = json.loads((SUITE / 'operators.json').read_text(encoding='utf-8'))
@@ -72,6 +74,8 @@ class FakeRunner(base.FakeRunner):
             out = io.StringIO()
             with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
                 code = base.stub.main(argv)
+            if code == 2 and not out.getvalue().strip():  # what the real Runner reports for an input error: exit 2, no report
+                return runner.Outcome('error', detail='exit 2, no report: input error')
             if self.mode == 'crash' or code != 0:
                 return runner.Outcome('error', detail='crash or input error')
             return runner.reduce_report(out.getvalue().encode(), ODES)
@@ -125,7 +129,12 @@ class WitnessOperators(unittest.TestCase):
         self.assertTrue(all(n >= 3 for n in per.values()), per)  # several variants per category
 
     def test_operator_set_is_catalogue_v3_labelled_post_hoc_and_keeps_v2(self):
-        self.assertEqual(OPERATOR_SET['operator_version'], '3')
+        self.assertEqual(OPERATOR_SET['operator_version'], '3.1')
+        self.assertEqual(OPERATOR_SET['revises']['operator_set_digest'], V3_OPERATOR_SET_DIGEST)  # catalogue 3 as run 4 measured it
+        by = {o['operator_id']: o for o in OPERATOR_SET['witnessed_operators']}
+        self.assertEqual({k for k, o in by.items() if o['expected_outcome'] == 'input_error'}, {'H8.witness-file-absent'})  # decision 30-A
+        self.assertEqual(by['H8.witness-file-absent']['expected_verdict'], 'abstain')  # the report contract has no row-level input_error
+        self.assertEqual(by['H8.witness-empty-file']['expected_outcome'], 'abstain')
         self.assertEqual(len(OPERATOR_SET['operators']), 81)  # the version 2 operators, unchanged
         self.assertEqual(len(OPERATOR_SET['witnessed_operators']), len(wo.WITNESS_OPERATORS))
         self.assertEqual(OPERATOR_SET['expected_abstain_categories'], ['H7', 'H8'])
@@ -333,8 +342,26 @@ class WitnessedHarness(unittest.TestCase):
         # the absent-file variant is an input error for the stub (exit 2, no report): error, never abstain or detection
         absent = sum(1 for t in TINY_W)  # one effective slot per trace at draws=1
         self.assertEqual((h8['verdicts']['abstain'], h8['verdicts']['error']), (h8['n_eff'] - absent, absent))
-        self.assertIn('witnessed_errors_present', wflags(doc))
+        self.assertNotIn('witnessed_errors_present', wflags(doc))  # an expected input error (exit 2, no report) is not a runtime error
         self.assertNotIn('witnessed_controls_never_abstain', wflags(doc))
+        ctl = doc['mutation_report']['extensions']['x-qualification-harness']['witnessed']['input_error_controls']
+        self.assertEqual(ctl, [{'operator_id': 'H8.witness-file-absent', 'expected_outcome': 'input_error', 'n_eff': absent, 'exit_2_no_report': absent, 'other': []}])
+
+    def test_an_input_error_control_that_crashes_instead_is_still_an_error(self):
+        slot = corpus.Slot(mutant_id='t:H8.witness-file-absent:0', trace_id='t', scenario='s', operator_id='H8.witness-file-absent', category='H8', draw=0,
+                           status='effective', expected_verdict='abstain', expected_outcome='input_error')
+        met = report.Result(slot, runner.Outcome('error', detail='exit 2, no report: x'))
+        crashed = report.Result(slot, runner.Outcome('error', detail='timed out after 60s'))
+        accepted = report.Result(slot, runner.Outcome('accept'))
+        self.assertEqual([report._input_error_met(r) for r in (met, crashed, accepted)], [True, False, False])
+        self.assertEqual(report.input_error_controls(report.Run(results=[met, crashed, accepted])),
+                         [{'operator_id': 'H8.witness-file-absent', 'expected_outcome': 'input_error', 'n_eff': 3, 'exit_2_no_report': 1,
+                           'other': ['t:H8.witness-file-absent:0 -> accept', 't:H8.witness-file-absent:0 -> error']}])
+
+    def test_the_real_runner_reports_an_input_error_with_the_detail_the_control_expects(self):
+        import inspect
+        self.assertIn('f"exit {done.returncode}, no report: "', inspect.getsource(runner.Runner.verify))
+        self.assertEqual(report.INPUT_ERROR_DETAIL, 'exit 2, no report')
 
     def test_a_narrow_witness_check_separates_controls_from_damage(self):
         _, doc = run_both('witness')
@@ -421,9 +448,11 @@ class RetainedRun4(unittest.TestCase):
         h = mr['extensions']['x-qualification-harness']
         contract_doc = json.loads((SUITE / 'contract' / 'verification-report' / 'CONTRACT.json').read_text())
         self.assertEqual(doc['verifier']['source_revision'], '5974c505e8b01b529fe1852c5b5deefe78a1c677')
-        self.assertEqual(h['seed_corpus']['odes_revision'], contract_doc['odes_commit'])
-        self.assertEqual(h['witnessed']['seed_corpus']['odes_revision'], contract_doc['odes_commit'])
-        self.assertEqual(mr['operator_set_digest'], jsonio.digest((SUITE / 'operators.json').read_bytes()))
+        self.assertEqual(h['seed_corpus']['odes_revision'], RUN4_ODES)
+        self.assertEqual(h['witnessed']['seed_corpus']['odes_revision'], RUN4_ODES)
+        self.assertEqual(contract_doc['odes_commit'], '0a37180fb09af596a1d134e38b316307e12fb424')  # re-vendored after run 4; run 4 still validates
+        self.assertEqual(mr['operator_set_digest'], V3_OPERATOR_SET_DIGEST)  # catalogue 3, not re-labelled: the current operators.json is 3.1
+        self.assertNotEqual(mr['operator_set_digest'], jsonio.digest((SUITE / 'operators.json').read_bytes()))
         self.assertEqual(h['operator_version'], '3')
         self.assertEqual(h['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
         self.assertEqual(h['witnessed']['clean_traces'], {'n': 17, 'verdicts': {'reject': 0, 'accept': 17, 'abstain': 0, 'error': 0}})

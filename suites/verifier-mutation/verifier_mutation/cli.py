@@ -30,7 +30,7 @@ WITNESS_SEED_MAP = SUITE / "witness-seed-map.json"
 
 
 def _catalogue(ops: list[operators.Operator], population: str) -> list[dict[str, Any]]:
-    return [{"operator_id": o.operator_id, "category": o.category, "variant": o.variant, "expected_verdict": o.expected_verdict, "population": population,
+    return [{"operator_id": o.operator_id, "category": o.category, "variant": o.variant, "expected_verdict": o.expected_verdict, "expected_outcome": o.expected_outcome, "population": population,
              "intended_codes": list(o.intended_codes), "roles": list(o.roles), "description": o.description} for o in sorted(ops, key=lambda x: x.operator_id)]
 
 
@@ -50,6 +50,9 @@ def operator_set_doc(seed: int = corpus.DEFAULT_SEED, draws: int = corpus.DEFAUL
             "primary_figure": "any_code detection; localized (intended-code) figures are secondary",
             "vocabulary": "verifier-code-names.json",
         },
+        "revises": {"operator_version": "3", "qualification_revision": "ce684ec6147e1ec4e0daef40943aa5047e8264aa",
+                    "operator_set_digest": "sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c",
+                    "note": "catalogue version 3.1 changes no operator id, function or intended code; it reclassifies the H8 absent-witness-file expectation: H8.witness-file-absent is an input-error control (expected exit 2, no report; ODES decision 30-A) and the witnessed catalogue lists an expected_outcome per operator"},
         "supersedes": {"operator_version": "2", "qualification_revision": "336a70b86ab40640537b4a9607c2f4c9badf90b9",
                        "operator_set_digest": "sha256:0c2b6730560e53c2f6cb7670bd2ccaf3fab70e33e3e3330a31cb0d226fb65629",
                        "note": "catalogue version 3 keeps the 81 unwitnessed operators of version 2 unchanged (same functions, same intended codes) and adds the witnessed operators"},

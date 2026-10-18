@@ -2,15 +2,15 @@
  "kind": "verifier-mutation-operator-set",
  "family": "T",
  "harness_version": "1",
- "operator_version": "3",
+ "operator_version": "3.1",
  "seed": 20261018,
  "draws_per_variant": 2,
  "implementation_sha256": {
   "jsonio.py": "7f047c345e0645cc9b63729f11847636cc5add27f6284bf2a2a68ef44974d4fc",
-  "operators.py": "a9b5868c3bddcc8cd2723362a6d29fb7b4aecf5d765cdaa8b4ef7c2b3c0a58cd",
-  "corpus.py": "95444ba72be95678cf18e3e668551a7da2e39695b0ba0c5db4f0b4a82a510b32",
+  "operators.py": "aebd882dc6769b8c46349f6e729c444283d1f73c1378e259d8f160b3c805af98",
+  "corpus.py": "e77ee22623f3e3f910a7fa61034066b3decdb5f77e23a1445f406bea7f317481",
   "trace.py": "8e664ab91859595f82c1a3d3fa105b123f661d4764aa73a7b867970a470b1f82",
-  "witness_operators.py": "6a2dde41da2492a5c276c9695c5e4e84824bfe50d568485f33d0d26aac909b6c"
+  "witness_operators.py": "8293003bc7af9c719b247dcae8f57744df824e3c9fe03feba8fb11e3cd90e8a9"
  },
  "categories_with_operator": [
   "A1",
@@ -78,6 +78,12 @@
   "basis": "catalogue version 2 drops intended-code names that do not exist in the verifier and adds the codes the verifier emits for the damage, chosen after run 1 and the V3a follow-up were read. Catalogue version 3 adds family H operators written from the ODES design and contracts and the control plane's witness producer code, without reading the verifier's damage tests; their intended codes are the verifier's V3 codes named in its docs/tiers.md and the ODES report contract's family H table",
   "primary_figure": "any_code detection; localized (intended-code) figures are secondary",
   "vocabulary": "verifier-code-names.json"
+ },
+ "revises": {
+  "operator_version": "3",
+  "qualification_revision": "ce684ec6147e1ec4e0daef40943aa5047e8264aa",
+  "operator_set_digest": "sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c",
+  "note": "catalogue version 3.1 changes no operator id, function or intended code; it reclassifies the H8 absent-witness-file expectation: H8.witness-file-absent is an input-error control (expected exit 2, no report; ODES decision 30-A) and the witnessed catalogue lists an expected_outcome per operator"
  },
  "supersedes": {
   "operator_version": "2",
@@ -1191,6 +1197,7 @@
    "category": "B",
    "variant": "covered-row-float-spelling",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1203,6 +1210,7 @@
    "category": "B",
    "variant": "inventory-keys-reordered",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1215,6 +1223,7 @@
    "category": "B",
    "variant": "inventory-repeated-holder-id",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1227,6 +1236,7 @@
    "category": "B",
    "variant": "record-compact-whitespace",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1239,6 +1249,7 @@
    "category": "B",
    "variant": "record-keys-reordered",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1251,6 +1262,7 @@
    "category": "B",
    "variant": "witness-blank-line-between-records",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1264,6 +1276,7 @@
    "category": "B",
    "variant": "witness-crlf",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1277,6 +1290,7 @@
    "category": "B",
    "variant": "witness-escaped-ascii",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1290,6 +1304,7 @@
    "category": "B",
    "variant": "witness-keys-reordered",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1303,6 +1318,7 @@
    "category": "B",
    "variant": "witness-no-final-newline",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1316,6 +1332,7 @@
    "category": "B",
    "variant": "witness-republished-unchanged",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1329,6 +1346,7 @@
    "category": "B",
    "variant": "witness-spaced-separators",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1342,6 +1360,7 @@
    "category": "F",
    "variant": "reseal-amount-and-rewitness",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1357,6 +1376,7 @@
    "category": "F",
    "variant": "witness-history-collapsed",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1370,6 +1390,7 @@
    "category": "F",
    "variant": "witness-history-extended",
    "expected_verdict": "accept",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -1383,6 +1404,7 @@
    "category": "H1",
    "variant": "digest-line-duplicated",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1398,6 +1420,7 @@
    "category": "H1",
    "variant": "digest-replaced",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1413,6 +1436,7 @@
    "category": "H1",
    "variant": "first-record-gains-previous-digest",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1428,6 +1452,7 @@
    "category": "H1",
    "variant": "forged-record-inserted",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1443,6 +1468,7 @@
    "category": "H1",
    "variant": "head-edited-digest-stale",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid",
@@ -1459,6 +1485,7 @@
    "category": "H1",
    "variant": "lines-reordered",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1474,6 +1501,7 @@
    "category": "H1",
    "variant": "previous-digest-relinked",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1489,6 +1517,7 @@
    "category": "H1",
    "variant": "rechained-from-one",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1504,6 +1533,7 @@
    "category": "H1",
    "variant": "record-removed",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1519,6 +1549,7 @@
    "category": "H1",
    "variant": "sequence-shifted",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid"
@@ -1534,6 +1565,7 @@
    "category": "H1",
    "variant": "spliced-with-another-run",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_chain_invalid",
@@ -1552,6 +1584,7 @@
    "category": "H2",
    "variant": "record-run-id-changed",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_run_mismatch",
@@ -1568,6 +1601,7 @@
    "category": "H2",
    "variant": "run-id-case-changed",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_run_mismatch"
@@ -1583,6 +1617,7 @@
    "category": "H2",
    "variant": "run-id-lookalike-hyphen",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_run_mismatch"
@@ -1598,6 +1633,7 @@
    "category": "H2",
    "variant": "run-id-rewritten-rechained",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_run_mismatch"
@@ -1613,6 +1649,7 @@
    "category": "H2",
    "variant": "run-id-trailing-space",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_run_mismatch"
@@ -1628,6 +1665,7 @@
    "category": "H2",
    "variant": "witness-of-another-run-id",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_run_mismatch"
@@ -1643,6 +1681,7 @@
    "category": "H2",
    "variant": "witness-of-another-run-same-run-id",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_run_mismatch",
@@ -1660,6 +1699,7 @@
    "category": "H3",
    "variant": "count-as-boolean",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape"
@@ -1675,6 +1715,7 @@
    "category": "H3",
    "variant": "count-as-float",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape"
@@ -1690,6 +1731,7 @@
    "category": "H3",
    "variant": "count-as-string",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape"
@@ -1705,6 +1747,7 @@
    "category": "H3",
    "variant": "count-negative",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1721,6 +1764,7 @@
    "category": "H3",
    "variant": "digest-member-missing",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1737,6 +1781,7 @@
    "category": "H3",
    "variant": "extension-key-without-x",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1753,6 +1798,7 @@
    "category": "H3",
    "variant": "head-not-a-digest",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1769,6 +1815,7 @@
    "category": "H3",
    "variant": "ledger-entry-extra-member",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape"
@@ -1784,6 +1831,7 @@
    "category": "H3",
    "variant": "ledger-entry-member-missing",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape"
@@ -1799,6 +1847,7 @@
    "category": "H3",
    "variant": "ledgers-as-list",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape"
@@ -1814,6 +1863,7 @@
    "category": "H3",
    "variant": "line-is-an-array",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape"
@@ -1829,6 +1879,7 @@
    "category": "H3",
    "variant": "member-missing",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1845,6 +1896,7 @@
    "category": "H3",
    "variant": "record-split-across-lines",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1862,6 +1914,7 @@
    "category": "H3",
    "variant": "sequence-as-boolean",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1878,6 +1931,7 @@
    "category": "H3",
    "variant": "sequence-as-float",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1894,6 +1948,7 @@
    "category": "H3",
    "variant": "sequence-as-string",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1910,6 +1965,7 @@
    "category": "H3",
    "variant": "signer-or-proof-member",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_record_shape",
@@ -1926,6 +1982,7 @@
    "category": "H3",
    "variant": "version-next-minor",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_version_unsupported"
@@ -1941,6 +1998,7 @@
    "category": "H3",
    "variant": "version-not-a-string",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_version_unsupported",
@@ -1957,6 +2015,7 @@
    "category": "H3",
    "variant": "version-other-profile",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_version_unsupported"
@@ -1972,6 +2031,7 @@
    "category": "H3",
    "variant": "version-trailing-space",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_version_unsupported"
@@ -1987,6 +2047,7 @@
    "category": "H3",
    "variant": "wire-byte-order-mark",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "wire_bom"
@@ -2002,6 +2063,7 @@
    "category": "H3",
    "variant": "wire-duplicate-member",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "wire_duplicate_member"
@@ -2017,6 +2079,7 @@
    "category": "H3",
    "variant": "wire-invalid-utf8",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "wire_not_utf8",
@@ -2033,6 +2096,7 @@
    "category": "H3",
    "variant": "wire-lone-surrogate",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "wire_lone_surrogate"
@@ -2048,6 +2112,7 @@
    "category": "H3",
    "variant": "wire-nonfinite-count",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "wire_nonfinite_constant"
@@ -2063,6 +2128,7 @@
    "category": "H3",
    "variant": "wire-trailing-data-on-line",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "wire_trailing_data"
@@ -2078,6 +2144,7 @@
    "category": "H4",
    "variant": "covered-row-dropped-any",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk"
@@ -2093,6 +2160,7 @@
    "category": "H4",
    "variant": "covered-row-dropped-first",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk"
@@ -2108,6 +2176,7 @@
    "category": "H4",
    "variant": "covered-row-dropped-tail",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk"
@@ -2123,6 +2192,7 @@
    "category": "H4",
    "variant": "destination-row-dropped-uncorroborated",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk",
@@ -2141,6 +2211,7 @@
    "category": "H4",
    "variant": "ledger-emptied",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk"
@@ -2156,6 +2227,7 @@
    "category": "H4",
    "variant": "ledger-removed",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk"
@@ -2171,6 +2243,7 @@
    "category": "H4",
    "variant": "record-rolled-back",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk"
@@ -2187,6 +2260,7 @@
    "category": "H4",
    "variant": "shrunk-latest-record-rewritten",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk",
@@ -2204,6 +2278,7 @@
    "category": "H4",
    "variant": "shrunk-then-republished",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk",
@@ -2220,6 +2295,7 @@
    "category": "H4",
    "variant": "witness-count-raised",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk"
@@ -2235,6 +2311,7 @@
    "category": "H5",
    "variant": "covered-row-amount-integer-form",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2250,6 +2327,7 @@
    "category": "H5",
    "variant": "covered-row-dropped-and-padded",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2265,6 +2343,7 @@
    "category": "H5",
    "variant": "covered-row-extension-added",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2280,6 +2359,7 @@
    "category": "H5",
    "variant": "covered-row-replaced-by-copy",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2295,6 +2375,7 @@
    "category": "H5",
    "variant": "covered-row-string-rewritten",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2310,6 +2391,7 @@
    "category": "H5",
    "variant": "covered-rows-swapped",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2325,6 +2407,7 @@
    "category": "H5",
    "variant": "witness-count-lowered-head-kept",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2340,6 +2423,7 @@
    "category": "H5",
    "variant": "witness-head-replaced",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_head_mismatch"
@@ -2355,6 +2439,7 @@
    "category": "H6",
    "variant": "credential-ref-not-a-string",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2369,6 +2454,7 @@
    "category": "H6",
    "variant": "document-is-a-list",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2383,6 +2469,7 @@
    "category": "H6",
    "variant": "extension-key-without-x",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "invalid_extension_key",
@@ -2398,6 +2485,7 @@
    "category": "H6",
    "variant": "holder-added-against-record-reference",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2413,6 +2501,7 @@
    "category": "H6",
    "variant": "holder-dropped-against-record-reference",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2428,6 +2517,7 @@
    "category": "H6",
    "variant": "holder-duplicated-against-record-reference",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2443,6 +2533,7 @@
    "category": "H6",
    "variant": "holder-id-too-long",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2457,6 +2548,7 @@
    "category": "H6",
    "variant": "holder-member-undeclared",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "undeclared_member",
@@ -2472,6 +2564,7 @@
    "category": "H6",
    "variant": "holders-as-object",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2486,6 +2579,7 @@
    "category": "H6",
    "variant": "holders-missing",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2500,6 +2594,7 @@
    "category": "H6",
    "variant": "inventory-member-undeclared",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "undeclared_member",
@@ -2515,6 +2610,7 @@
    "category": "H6",
    "variant": "kind-case-changed",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "unknown_enum_value",
@@ -2530,6 +2626,7 @@
    "category": "H6",
    "variant": "kind-lifecycle-value",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "unknown_enum_value",
@@ -2545,6 +2642,7 @@
    "category": "H6",
    "variant": "kind-missing",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2559,6 +2657,7 @@
    "category": "H6",
    "variant": "recorded-at-not-a-time",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "timestamp_invalid",
@@ -2574,6 +2673,7 @@
    "category": "H6",
    "variant": "recorded-at-without-offset",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "timestamp_invalid",
@@ -2589,6 +2689,7 @@
    "category": "H6",
    "variant": "string-member-emptied",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2603,6 +2704,7 @@
    "category": "H6",
    "variant": "version-not-a-string",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "holder_inventory_shape"
@@ -2617,6 +2719,7 @@
    "category": "H6",
    "variant": "version-other-profile",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "unsupported_contract_version",
@@ -2632,6 +2735,7 @@
    "category": "H6",
    "variant": "wire-duplicate-kind",
    "expected_verdict": "reject",
+   "expected_outcome": "reject",
    "population": "witnessed",
    "intended_codes": [
     "wire_duplicate_member"
@@ -2646,6 +2750,7 @@
    "category": "H7",
    "variant": "witness-count-lowered-head-recomputed",
    "expected_verdict": "abstain",
+   "expected_outcome": "abstain",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -2659,6 +2764,7 @@
    "category": "H7",
    "variant": "witness-omits-a-ledger",
    "expected_verdict": "abstain",
+   "expected_outcome": "abstain",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -2672,6 +2778,7 @@
    "category": "H7",
    "variant": "witness-remade-over-prefix",
    "expected_verdict": "abstain",
+   "expected_outcome": "abstain",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -2685,6 +2792,7 @@
    "category": "H7",
    "variant": "witness-tail-truncated",
    "expected_verdict": "abstain",
+   "expected_outcome": "abstain",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -2698,6 +2806,7 @@
    "category": "H8",
    "variant": "witness-blank-lines",
    "expected_verdict": "abstain",
+   "expected_outcome": "abstain",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -2710,6 +2819,7 @@
    "category": "H8",
    "variant": "witness-empty-file",
    "expected_verdict": "abstain",
+   "expected_outcome": "abstain",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
@@ -2722,12 +2832,13 @@
    "category": "H8",
    "variant": "witness-file-absent",
    "expected_verdict": "abstain",
+   "expected_outcome": "input_error",
    "population": "witnessed",
    "intended_codes": [],
    "roles": [
     "witness"
    ],
-   "description": "``--witness`` names a path where no file exists (design default 29: how the verifier treats it was not checked)."
+   "description": "``--witness`` names a path where no file exists: an input-error control (ODES decision 30-A), expected exit 2 and no report."
   }
  ]
 }

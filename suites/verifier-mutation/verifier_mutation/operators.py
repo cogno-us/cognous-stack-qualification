@@ -27,9 +27,9 @@ from typing import Any, Callable
 from .jsonio import Pairs, Raw, commitment, dump_file_bytes, dumps
 from .trace import FILENAMES, ROLES, Trace
 
-OPERATOR_VERSION = "3"
+OPERATOR_VERSION = "3.1"
 EXPECTED_ACCEPT = ("B", "F", "R6")
-EXPECTED_ABSTAIN = ("H7", "H8")  # catalogue version 3, family H controls (ODES decision 28)
+EXPECTED_ABSTAIN = ("H7", "H8")  # catalogue version 3, family H controls (ODES decision 28); H8.witness-file-absent is an input-error control (decision 30-A)
 CATEGORIES_WITHOUT_OPERATOR = ("L1", "Q")
 NOT_APPLICABLE_CATEGORIES = ("Q",)
 
@@ -68,10 +68,17 @@ class Operator:
     roles: tuple[str, ...]
     description: str
     fn: Callable[[Ctx], None]
+    expected_outcome_override: str = ""  # catalogue version 3.1: "input_error" for the H8 absent-witness-file controls (ODES decision 30-A)
 
     @property
     def expected_verdict(self) -> str:
+        """The report-contract verdict of the operator's category (the contract's row enum has no input_error)."""
         return "accept" if self.category in EXPECTED_ACCEPT else "abstain" if self.category in EXPECTED_ABSTAIN else "reject"
+
+    @property
+    def expected_outcome(self) -> str:
+        """What the harness expects of the verifier run: the category's verdict, or ``input_error`` (exit 2, no report) for an input-error control."""
+        return self.expected_outcome_override or self.expected_verdict
 
 
 OPERATORS: list[Operator] = []

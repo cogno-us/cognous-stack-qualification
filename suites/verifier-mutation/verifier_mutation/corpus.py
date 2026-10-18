@@ -36,6 +36,7 @@ class Slot:
     files: Mapping[str, bytes] | None = None
     intended_codes: tuple[str, ...] = ()
     expected_verdict: str = "reject"
+    expected_outcome: str = ""  # "" = the expected verdict; "input_error" = exit 2, no report (not part of the mutant-set digest)
 
 
 def _has_text_damage(value: Any) -> bool:
@@ -73,7 +74,7 @@ def generate(traces: list[Trace], seed: int = DEFAULT_SEED, draws: int = DEFAULT
             for draw in range(draws):
                 mutant_id = f"{trace.trace_id}:{operator.operator_id}:{draw}"
                 base = dict(trace_id=trace.trace_id, scenario=trace.scenario, operator_id=operator.operator_id, category=operator.category,
-                            draw=draw, mutant_id=mutant_id, intended_codes=operator.intended_codes, expected_verdict=operator.expected_verdict)
+                            draw=draw, mutant_id=mutant_id, intended_codes=operator.intended_codes, expected_verdict=operator.expected_verdict, expected_outcome=operator.expected_outcome)
                 ctx = Ctx(trace=trace, rng=rng_for(seed, trace.trace_id, operator.operator_id, draw), peers=peers)
                 try:
                     operator.fn(ctx)

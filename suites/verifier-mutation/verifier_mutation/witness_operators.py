@@ -39,10 +39,10 @@ C_HEAD = "witness_ledger_head_mismatch"
 C_INV = "holder_inventory_shape"
 
 
-def hop(category: str, variant: str, codes: tuple[str, ...], roles: tuple[str, ...] = ("run_record", "witness")):
+def hop(category: str, variant: str, codes: tuple[str, ...], roles: tuple[str, ...] = ("run_record", "witness"), expected_outcome: str = ""):
     def deco(fn: Callable[[Ctx], None]) -> Callable[[Ctx], None]:
         # one line, whitespace collapsed: Python 3.13 dedents docstrings at compile time and 3.12 does not, and operators.json must not depend on it
-        WITNESS_OPERATORS.append(Operator(f"{category}.{variant}", category, variant, codes, roles, " ".join((fn.__doc__ or "").split()), fn))
+        WITNESS_OPERATORS.append(Operator(f"{category}.{variant}", category, variant, codes, roles, " ".join((fn.__doc__ or "").split()), fn, expected_outcome))
         return fn
 
     return deco
@@ -1085,7 +1085,7 @@ def h7_count(c: Ctx) -> None:
     put(c, rs)
 
 
-# ============================================================================ H8: witness absent or holding no digest (control, expected abstain)
+# ============================================================================ H8: witness holding no digest (control, expected abstain); witness file absent (input-error control, decision 30-A)
 
 @hop("H8", "witness-empty-file", (), ("witness",))
 def h8_empty(c: Ctx) -> None:
@@ -1101,9 +1101,9 @@ def h8_blank(c: Ctx) -> None:
     c.raw["witness"] = c.rng.choice((b"\n", b"\n\n", b"\r\n"))
 
 
-@hop("H8", "witness-file-absent", (), ("witness",))
+@hop("H8", "witness-file-absent", (), ("witness",), expected_outcome="input_error")
 def h8_absent(c: Ctx) -> None:
-    """``--witness`` names a path where no file exists (design default 29: how the verifier treats it was not checked)."""
+    """``--witness`` names a path where no file exists: an input-error control (ODES decision 30-A), expected exit 2 and no report."""
     wit(c)
     c.raw["witness"] = ABSENT_FILE
 
