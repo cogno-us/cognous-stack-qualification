@@ -759,16 +759,22 @@ class ChainWorld:
 
 C1_AUTHORITY_TABLES = ('authority_grants_v1', 'authority_approvals_v1', 'authority_policies_v1', 'authority_evidence_v1',
                        'execution_claims_v1', 'effect_budgets_v1')
+# The runtime keeps revocations of destination grants in a separate table (authority_grant_revocations_v1). C1_AUTHORITY_TABLES does
+# not include it, so a restore of C1_AUTHORITY_TABLES leaves the revocation memory in place; this set adds it for the case that
+# rolls the revocation memory back as well (SCN-D07 'c1_authority_tables_and_revocations_after_revoke').
+C1_AUTHORITY_TABLES_WITH_REVOCATIONS = C1_AUTHORITY_TABLES + ('authority_grant_revocations_v1',)
 C1_DESTINATION_TABLES = ('effects', 'attempts', 'attempt_events', 'authority_effect_receipts_v1', 'failure_records_v1')
 
 
 def restore_tables(snapshot, live, tables):
-    """Table-granular restore: replace only ``tables`` of ``live`` with their rows from ``snapshot``."""
+    """Table-granular restore: replace only ``tables`` of ``live`` with their rows from ``snapshot`` (a table absent from the snapshot becomes empty)."""
     with sqlite3.connect(live) as db:
         db.execute('ATTACH DATABASE ? AS snap', (str(snapshot),))
         for t in tables:
             db.execute(f'DELETE FROM main."{t}"')
-            db.execute(f'INSERT INTO main."{t}" SELECT * FROM snap."{t}"')
+            # a table the snapshot does not have yet (the revocation table is created at the first revocation) is restored to empty
+            if db.execute('SELECT 1 FROM snap.sqlite_master WHERE type = ? AND name = ?', ('table', t)).fetchone():
+                db.execute(f'INSERT INTO main."{t}" SELECT * FROM snap."{t}"')
         db.commit()
         db.execute('DETACH DATABASE snap')
 

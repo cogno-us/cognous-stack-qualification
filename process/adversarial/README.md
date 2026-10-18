@@ -44,9 +44,9 @@ There is no workflow for this directory yet (workflow files are outside this cha
 
 ## Status
 
-Run of 2026-10-18 against the final revisions (local; Python 3.13): **131 passed, 4 xfailed, 0 failed, 0 skipped** (135 cases). The first run,
+Run of 2026-10-18 against the final revisions (local; Python 3.13): **132 passed, 4 xfailed, 0 failed, 0 skipped** (136 cases) at the revisions listed above (ODES `e2cbc0dc`; an earlier run of the same counts minus one case was recorded at ODES `81979784`, and `e2cbc0dc` differs from it by documentation only). The first run,
 against the earlier revisions, was 126 passed, 7 xfailed (133 cases); changes since: T09 and T16 now pass, T07 route B asserts the refusal,
-T07 route A gained a profile-on variant (2 cases), T04 route B lists one unbound member instead of three, and T01 covers the revoked-revision rule. Per test, the overall
+T07 route A gained a profile-on variant (2 cases), T04 route B lists one unbound member instead of three, and T01 covers the revoked-revision rule, and T05 gained an exact-mode agreement case (the runtime policy with `target_match` exact agrees with the control plane on every spelling). Per test, the overall
 classification; [`batch-1.json`](batch-1.json) carries the same table with a summary per test.
 
 | Test | Title | Ideas | Status | Notes |
