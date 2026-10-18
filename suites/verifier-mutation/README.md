@@ -84,7 +84,7 @@ Witnessed corpus: 17 traces (above), all accepted by the verifier unmutated. Wit
 
 Also in this change: the vendored ODES `verification-report` validator re-vendored at ODES 296e6bce (decision 28: 44 categories, expected verdict `abstain`, the witnessed-population rules) with `contracts/tools/vendor_contract.py`; `verifier-code-names.json` refreshed at verifier 5974c50 (282 names, 14 added, none removed); the workflow passes the witness groups and writes `per-operator.json`. No profile, pin, refreeze log or scenario was touched.
 
-**Run 4** (retained: `results/verifier-mutation/run-4-5974c50/`: `mutation-report.json`, `per-operator.json`, `run.log`): verifier `cognous-verify` 0.1.0 at 5974c50 (main when run; V9 part 2 had merged), ODES 296e6bce, operator set version 3 (frozen at qualification commit 1cce4060), seed 20261018, 2 draws. 4143 verifier runs. The report validates against the vendored contract.
+**Run 4** (retained: `results/verifier-mutation/run-4-5974c50/`: `mutation-report.json`, `per-operator.json`, `run.log`): verifier `cognous-verify` 0.1.0 at 5974c50 (main when run; V9 part 2 had merged), ODES 296e6bce, operator set version 3 (frozen at qualification commit 226dfe0c; a first retained run at 1cce4060 differed only in the operator-set digest, because multi-line descriptions depended on the Python version, and gave identical rows), seed 20261018, 2 draws. 4143 verifier runs. The report validates against the vendored contract.
 
 Witnessed population (`t-generated-witnessed`; clean: `clean-generated-witnessed`). Cell counts are over each category's own n_eff; nothing is summed across rows.
 
