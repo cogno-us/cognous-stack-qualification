@@ -17,8 +17,6 @@ from __future__ import annotations
 
 from datetime import timedelta, timezone
 
-import pytest
-
 from _adv import atomic, effect_ids, flow
 from conftest import observe, require
 
@@ -97,7 +95,6 @@ def test_control_plane_and_atomic_destination_agree_at_the_boundary(cprt, tmp_pa
     assert cp == expected and at == expected
 
 
-@pytest.mark.xfail(strict=True, raises=AssertionError, reason="boundary differential recorded at the attacked revisions; see the batch README")
 def test_odes_recipient_window_agrees_at_the_boundary(cprt, tmp_path, monkeypatch):
     import sys
     sys.path.insert(0, str(require("odes")["odes"] / "src"))

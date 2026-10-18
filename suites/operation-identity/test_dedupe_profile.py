@@ -255,8 +255,9 @@ def test_in_progress_then_renewal_dispatches_a_second_key_today(tmp_path):
 
 # ----------------------------------------------------------------------------------------------- escalation deadline
 def test_escalation_fires_inside_the_key_ttl_and_says_whether_the_key_was_still_remembered(tmp_path):
-    """An unresolved attempt stays unknown through the provider horizon; at the deadline it escalates once, inside the key TTL, with
-    the time until which a same-key resubmission would still be deduped. Nothing retries; the attempt is still unknown."""
+    """An unresolved attempt stays unknown through the provider horizon; strictly after the deadline it escalates once, inside the key TTL, with
+    the time until which a same-key resubmission would still be deduped. Nothing retries; the attempt is still unknown.
+    ODES time semantics: a deadline is inclusive, so the attempt is overdue only strictly after it (at the deadline itself nothing fires)."""
     from datetime import timedelta
     mp = pytest.MonkeyPatch()
     try:
@@ -265,10 +266,11 @@ def test_escalation_fires_inside_the_key_ttl_and_says_whether_the_key_was_still_
         at = lambda s: flow.NOW + timedelta(seconds=s)  # noqa: E731
         assert [x["state"] for x in flow.f.dedupe_report(now=at(HORIZON - 1), destination=flow.dest)] == ["unknown_until_horizon"]
         assert flow.f.escalation_pass(now=at(DEADLINE - 1), destination=flow.dest) == []
-        (row,) = flow.f.escalation_pass(now=at(DEADLINE), destination=flow.dest)
+        assert flow.f.escalation_pass(now=at(DEADLINE), destination=flow.dest) == [], "inclusive deadline: not overdue at the deadline"
+        (row,) = flow.f.escalation_pass(now=at(DEADLINE + 1), destination=flow.dest)
         assert row.fired_inside_key_ttl and row.mode == "destination_ttl" and row.effect_id == flow.d1.effect_id
         assert row.same_key_safe_until == at(TTL).isoformat() and row.reasons == ["attempt_unresolved_past_horizon"]
-        assert flow.f.escalation_pass(now=at(DEADLINE + 1), destination=flow.dest) == [], "once per effect"
+        assert flow.f.escalation_pass(now=at(DEADLINE + 2), destination=flow.dest) == [], "once per effect"
         assert [a.status for a in flow.latest_attempts()] == ["unknown"] and flow.ledger_effect_ids() == []
     finally:
         mp.undo()

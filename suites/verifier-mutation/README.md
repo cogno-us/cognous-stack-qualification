@@ -72,6 +72,10 @@ Adding a category would change the design and the report contract's closed categ
 
 ## Change log
 
+### Harness fix (stream Q5): lone-surrogate seeds are loaded and written as wire bytes; no catalogue change
+
+The ODES `unpaired-surrogate-text` fixtures hold a text member with an unpaired surrogate code point. Loading one crashed the seed loader (`UnicodeEncodeError` in `dump_file_bytes`: a lone surrogate cannot be UTF-8 encoded). The writer now encodes such text with `jsonio.wire_text_bytes`, which writes each lone surrogate as its six-character JSON escape, the form the fixture file holds and the verifier's wire layer refuses (`wire_lone_surrogate`); text without one is encoded exactly as before, so no existing digest changes. The four seeds that reach the harness (`control-plane-journal`, `execution-attempt-lifecycle`, `witness-digest`, `holder-inventory`) are now classified: the first two as W4 with intended codes `schema_violation` or `wire_lone_surrogate` (`intended_codes_by_fixture` in `seed-map.json`), the other two as H3 and H6 in `witness-seed-map.json`. Operator ids, functions, intended codes and mutants are unchanged (catalogue 3.2); `operators.json` changed only in the `implementation_sha256` of `jsonio.py` and `corpus.py`. No retained run was made for this change.
+
 ### Run 5 and catalogue version 3.2 (stream Q4): H4 destination-row known limit, vendor refresh, code names; post-hoc
 
 **Run 5** (retained: `results/verifier-mutation/run-5-0a43a7f0/`: `mutation-report.json`, `per-operator.json`, `run.log`): verifier `cognous-verify` 0.1.0 at 0a43a7f0 (verifier #17, main), ODES 304f6cc3, control plane corpora unchanged (128eaa5), operator set version 3.2 (digest `sha256:fbb76c36...`, frozen at qualification commit f3b78135, a pre-merge commit of the Q4 PR; the squash commit has another id), seed 20261018, 2 draws, run from a local virtualenv (`pip install` of the verifier clone) with the workflow's command. The report validates against the vendored contract.
