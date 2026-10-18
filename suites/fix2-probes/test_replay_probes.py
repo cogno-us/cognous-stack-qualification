@@ -12,7 +12,7 @@ import textwrap
 
 import pytest
 
-from _support import pending, root
+from _support import root
 
 FIXTURE = "merge-folded-operation-dispatches-under-survivor"
 O1, O2, O3 = "op-order-100/refund-1", "op-order-100/refund-2", "op-order-100/refund-3"
@@ -63,7 +63,6 @@ def test_control_a_transitive_fold_is_accepted():
     assert imported(cp) is None
 
 
-@pending()
 def test_probe_a_fold_cycle_is_refused():
     """refund-2 is folded into refund-1 and refund-1 into refund-2."""
     cp = run_record()
@@ -71,7 +70,6 @@ def test_probe_a_fold_cycle_is_refused():
     assert imported(cp) is not None
 
 
-@pending()
 def test_probe_an_operation_folded_into_two_survivors_is_refused():
     """refund-2 is folded into refund-1 and also into refund-3."""
     cp = run_record()
@@ -101,7 +99,6 @@ def _scan_seconds(limit):
     return float(done.stdout.strip())
 
 
-@pending()
 def test_probe_an_80_kb_input_of_escaped_quotes_is_scanned_in_under_a_second():
     seconds = _scan_seconds(limit=3)
     assert seconds is not None and seconds < 1.0, f"depth scan took {'over 3' if seconds is None else seconds} s for 80 KB"
