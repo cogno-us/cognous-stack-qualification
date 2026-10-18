@@ -30,10 +30,15 @@ class Flow:
     """One disposable flow. ``d1`` is the revision-1 decision; r1 is its execution."""
 
     def __init__(self, work, mp, *, identity=True, wide=True, effective_grant=False, live_observation_clock=False,
-                 freshness=None, echo_nonce=False, setup=None):
+                 freshness=None, echo_nonce=False, setup=None, purpose=False, reversible=False, cfg_update=None,
+                 dest_factory=None):
         """``freshness``: None (profile absent) or a dict of FreshnessProfile options (``{}`` = the profile defaults).
         ``setup``: optional callable run on the half-built flow before the revision-1 decision (for example to record an age
-        extension or adopt the fixture policy); it may use ``self.f``, ``self.r`` and ``self.cfg``."""
+        extension or adopt the fixture policy); it may use ``self.f``, ``self.r`` and ``self.cfg``.
+        Stream N4 additions, all optional and ignored by the default path: ``purpose`` / ``reversible`` (the control plane
+        fixture's purpose binding and reversible class), ``cfg_update`` (callable ``flow -> dict`` of extra
+        ``RuntimeAuthorityProfile`` fields, for example ``merge``, ``reversibility``, ``dedupe`` or replacement ``actions``) and
+        ``dest_factory`` (callable ``(path, flow) -> destination`` replacing the delayed-commit destination)."""
         import agent_control_plane.bounded as cp
         import tests.test_bounded_authorization as tba
         import tests.test_runtime_authority as tra
@@ -52,7 +57,8 @@ class Flow:
                 return m
             mp.setattr(tba, "manifest", wide_manifest)
             mp.setattr(tra, "manifest", wide_manifest)
-        self.p, self.r, self.f, self.cfg = tra.setup_flow(self.work / "cp")
+        self.p, self.r, self.f, self.cfg = tra.setup_flow(self.work / "cp", **({"purpose": purpose, "reversible": reversible}
+                                                                             if (purpose or reversible) else {}))
         if wide:
             ctx = self.r.contexts[self.PROFILE]
             ctx["requirement"]["permissions"][0]["max_effects"] = 2
@@ -66,11 +72,15 @@ class Flow:
             from agent_control_plane.freshness import FreshnessProfile
             updates["freshness"] = FreshnessProfile(**freshness)
             self.r.echo_nonce = echo_nonce
+        if cfg_update is not None:
+            updates.update(cfg_update(self))
         if updates:
             self.cfg = self.cfg.model_copy(update=updates)
             tra.bind_approval(self.r, self.cfg)
             self.f.runtime_authority_profile = self.cfg.snapshot()
-        self.dest = destination(self.work / "sqlite", identity=identity, effective_grant=effective_grant)
+        self.clock_seconds = lambda: self.NOW.timestamp()  # for destinations that keep their own TTL clock
+        self.dest = (dest_factory(self.work / "sqlite", self) if dest_factory is not None
+                     else destination(self.work / "sqlite", identity=identity, effective_grant=effective_grant))
         self.digest = None
         if effective_grant:  # bind the effective-grant digest in the issuer-approved extension (opt-in, already supported)
             from engine.effective_grant import DERIVATION
@@ -95,11 +105,13 @@ class Flow:
         self.d1 = self.f.decide(self.p, now=self.NOW)
         assert self.d1.result == "authorized", self.d1.reasons
         self.r2 = None  # (decision, result) of the renewed execution, once it ran
+        self.proposals = {OPERATION: self.p}  # operation id -> its proposal (stream N4: several operations on one grant)
+        self.decisions = {OPERATION: self.d1}
 
     # -- control-plane side ---------------------------------------------------------------------------------
-    def envelope(self, d):
+    def envelope(self, d, p=None):
         from engine.safe_executor import EXECUTION_ENVELOPE_VERSION, ExecutionEnvelope, ExecutionOperation
-        p = self.p
+        p = p or self.p
         fields = {k: getattr(p, k) for k in ["actor", "principal", "manifest_id", "manifest_version", "manifest_digest", "action_id",
                                              "adapter_id", "target", "payload", "payload_commitment", "amount", "unit", "effects",
                                              "requirement_id"]}
@@ -110,8 +122,34 @@ class Flow:
                                 effective_max_effects=d.binding.effective_max_effects)
         return ExecutionEnvelope(EXECUTION_ENVELOPE_VERSION, d.decision_id, d.effect_id, op)
 
-    def run(self, d):
-        return self.executor.execute(envelope=self.envelope(d), proposal=self.p, decision=d, now=self.NOW)
+    def run(self, d, p=None):
+        return self.executor.execute(envelope=self.envelope(d, p), proposal=p or self.p, decision=d, now=self.NOW)
+
+    # -- several operations on one grant (stream N4) ------------------------------------------------------------
+    def add_operation(self, operation_id, correlation_id):
+        """A second operation (its own proposal, so its own effect id) under the same grant. The synthetic approval binds one
+        proposal and one operation id at a time: ``use_operation`` swaps both before a decision or an execution."""
+        self.proposals[operation_id] = self.tba.proposal(correlation_id=correlation_id)
+        return self.proposals[operation_id]
+
+    def use_operation(self, operation_id):
+        p = self.proposals[operation_id]
+        ctx = self.r.contexts[self.PROFILE]
+        ctx["runtime_authority"]["operation_id"] = operation_id
+        ref = ctx["grant"]["approval_refs"][0]
+        self.r.approvals[ref].proposal_commitment = self.cp.commitment(p.model_dump(mode="json", exclude_none=False))
+        self.tra.bind_approval(self.r, self.f.runtime_authority_profile or self.cfg)
+        return p
+
+    def decide_operation(self, operation_id):
+        d = self.f.decide(self.use_operation(operation_id), now=self.NOW)
+        assert d.result == "authorized", d.reasons
+        self.decisions[operation_id] = d
+        return d
+
+    def run_operation(self, operation_id):
+        p = self.use_operation(operation_id)
+        return self.run(self.decisions[operation_id], p)
 
     def publish_revision(self, revision):
         """The authority side publishes a new revision of the same grant (a renewal candidate)."""
