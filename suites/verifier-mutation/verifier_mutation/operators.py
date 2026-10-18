@@ -7,8 +7,13 @@ counted as ``n_na``, never dropped). Randomness comes only from ``ctx.rng``, see
 Categories follow the catalogue of INDEPENDENT-VERIFIER-DESIGN.md section 4.3 (36 values in the ODES contract). No operator exists
 for ``Q`` (semantic quality, not applicable, reported as n/a) or ``L1`` (outcome-label join, stage S6, not a trace mutation).
 ``intended_codes`` are the refusal codes the operator expects (ODES contract codes where one exists, the verifier's ``wire_*``
-codes for wire damage, working names elsewhere). They are frozen with the operator set, before the verifier runs: a verifier that
+codes for wire damage, working names elsewhere). In catalogue version 1 they were frozen before the verifier ran: a verifier that
 refuses with a different but correct code is counted in ``any_code`` and not in ``intended_code``.
+
+Catalogue version 2 (V3b) was written AFTER run 1 (703cdde1) had been read, so it is post-hoc. It changes (a) which operators are
+expected-accept (W3 float forms, J2 renamed check id, R6 on an uncorroborated row move to B or R6 proper; see the suite README change log) and
+(b) the intended codes: names that never existed in the verifier were dropped, the codes the verifier actually emits for the damage were
+added. Localized (intended-code) figures under version 2 are therefore never held-out; any-code detection is the primary figure.
 SPDX-License-Identifier: Apache-2.0
 """
 from __future__ import annotations
@@ -22,7 +27,7 @@ from typing import Any, Callable
 from .jsonio import Pairs, Raw, commitment, dump_file_bytes, dumps
 from .trace import FILENAMES, ROLES, Trace
 
-OPERATOR_VERSION = "1"
+OPERATOR_VERSION = "2"
 EXPECTED_ACCEPT = ("B", "F", "R6")
 CATEGORIES_WITHOUT_OPERATOR = ("L1", "Q")
 NOT_APPLICABLE_CATEGORIES = ("Q",)
@@ -200,30 +205,44 @@ def w2_nan_ledger(c: Ctx) -> None:
     row["amount"] = Raw(c.rng.choice(("NaN", "Infinity", "-Infinity")))
 
 
-def _amount_forms(value: float) -> list[str]:
-    whole = int(value)
-    return [str(whole), f"{whole}.00", f"{whole // 10}e1" if whole % 10 == 0 and whole else f"{whole}e0", f"{whole}.0e0"]
+def _whole(value: float) -> int:
+    if float(value) != int(value):
+        raise NotApplicable("the amount is not a whole number")
+    return int(value)
 
 
-@op("W3", "binding-amount-form", ("wire_number_form_drift", "proposal_commitment_mismatch", "invalid_effect_identity", "profile_ambiguous"))
+def _float_forms(value: float) -> list[str]:
+    """Spellings of a whole float that the pinned profile maps to the very same canonical bytes (Python ``repr``): ``50.00``, ``5e1``, ``50.0e0``."""
+    whole = _whole(value)
+    return [f"{whole}.00", f"{whole // 10}e1" if whole % 10 == 0 and whole else f"{whole}e0", f"{whole}.0e0"]
+
+
+def _int_form(value: float) -> str:
+    """The integer spelling (``50`` for ``50.0``): an integer is not the same JSON number as a float under the pinned profile."""
+    return str(_whole(value))
+
+
+# Version 2 (post-hoc, V3b): the version 1 W3 operators drew from integer AND float spellings. The float spellings are one value with one
+# canonical byte string under the pinned profile, so they are not damage; they moved to category B (below). W3 keeps the integer spelling.
+@op("W3", "binding-amount-integer-form", ("proposal_commitment_mismatch", "invalid_effect_identity", "profile_ambiguous", "binding_proposal_mismatch", "ledger_row_differs_from_binding"))
 def w3_binding(c: Ctx) -> None:
-    """A binding's ``amount`` written in another number form (``50`` or ``50.00`` or ``5e1`` for ``50.0``): a different canonical byte string."""
+    """A binding's ``amount`` written as an integer (``50`` for ``50.0``): a different canonical byte string, so a different number."""
     d = c.rng.choice(_decisions(c, binding=True))
-    d["binding"]["amount"] = Raw(c.rng.choice(_amount_forms(float(d["binding"]["amount"]))))
+    d["binding"]["amount"] = Raw(_int_form(d["binding"]["amount"]))
 
 
-@op("W3", "proposal-amount-form", ("wire_number_form_drift", "proposal_commitment_mismatch", "invalid_effect_identity", "profile_ambiguous"), ("proposal_export",))
+@op("W3", "proposal-amount-integer-form", ("proposal_commitment_mismatch", "invalid_effect_identity", "profile_ambiguous"), ("proposal_export",))
 def w3_proposal(c: Ctx) -> None:
-    """The proposal export's ``amount`` written in another number form: its commitment no longer matches the record's."""
+    """The proposal export's ``amount`` written as an integer: its commitment no longer matches the record's."""
     p = c.doc("proposal_export")
-    p["amount"] = Raw(c.rng.choice(_amount_forms(float(p["amount"]))))
+    p["amount"] = Raw(_int_form(p["amount"]))
 
 
-@op("W3", "ledger-amount-form", ("wire_number_form_drift", "ledger_row_mismatch", "profile_ambiguous"), ("destination_ledger",))
+@op("W3", "ledger-amount-integer-form", ("profile_ambiguous", "ledger_row_differs_from_binding"), ("destination_ledger",))
 def w3_ledger(c: Ctx) -> None:
-    """A ledger row's ``amount`` written in another number form."""
+    """A ledger row's ``amount`` written as an integer."""
     row = c.rng.choice(sorted(_ledger_rows(c).items()))[1]
-    row["amount"] = Raw(c.rng.choice(_amount_forms(float(row["amount"]))))
+    row["amount"] = Raw(_int_form(row["amount"]))
 
 
 @op("W4", "lone-surrogate", ("wire_lone_surrogate",))
@@ -232,7 +251,7 @@ def w4_surrogate(c: Ctx) -> None:
     _extension(c, "x-note", Raw('"abc\\ud800def"'))
 
 
-@op("W4", "decomposed-letter", ("proposal_commitment_mismatch", "invalid_effect_identity", "wire_unicode_normalization", "profile_ambiguous"))
+@op("W4", "decomposed-letter", ("proposal_commitment_mismatch", "invalid_effect_identity", "profile_ambiguous", "binding_proposal_mismatch", "ledger_row_differs_from_binding"))
 def w4_nfd(c: Ctx) -> None:
     """One letter in a string of a decision binding replaced by the letter plus a combining accent (NFD form): different bytes, same look."""
     d = c.rng.choice(_decisions(c, binding=True))
@@ -326,6 +345,35 @@ def b_escapes(c: Ctx) -> None:
         c.raw[role] = dump_file_bytes(_escape_some(c.docs[role], c.rng))
 
 
+@op("B", "binding-amount-float-form", (), ("run_record",))
+def b_binding_float(c: Ctx) -> None:
+    """A binding's ``amount`` written ``50.00``, ``5e1`` or ``50.0e0`` for ``50.0``: one float, one canonical byte string under the pinned profile (post-hoc, was W3)."""
+    d = c.rng.choice(_decisions(c, binding=True))
+    d["binding"]["amount"] = Raw(c.rng.choice(_float_forms(d["binding"]["amount"])))
+
+
+@op("B", "proposal-amount-float-form", (), ("proposal_export",))
+def b_proposal_float(c: Ctx) -> None:
+    """The proposal export's ``amount`` written in a float spelling the pinned profile maps to the same bytes (post-hoc, was W3)."""
+    p = c.doc("proposal_export")
+    p["amount"] = Raw(c.rng.choice(_float_forms(p["amount"])))
+
+
+@op("B", "ledger-amount-float-form", (), ("destination_ledger",))
+def b_ledger_float(c: Ctx) -> None:
+    """A ledger row's ``amount`` written in a float spelling the pinned profile maps to the same bytes (post-hoc, was W3)."""
+    row = c.rng.choice(sorted(_ledger_rows(c).items()))[1]
+    row["amount"] = Raw(c.rng.choice(_float_forms(row["amount"])))
+
+
+@op("B", "resolution-check-id-renamed", ())
+def b_check_id(c: Ctx) -> None:
+    """A resolution check's id changed. Resolution-check ids and journal-check ids are separate producer ids and a completed journal check binds to a resolution check by stage, inputs and reasons, so the record stays consistent (post-hoc, was J2.completed-matches-no-resolution-check)."""
+    if not _events(c):
+        raise NotApplicable("not journal mode")
+    c.rng.choice(_rows(c, "resolution_checks"))["check_id"] = "00000000-0000-4000-8000-%012x" % c.rng.getrandbits(48)
+
+
 # -------------------------------------------------------------------------------------------------- S: structure (V1)
 
 @op("S1", "undeclared-in-decision", ("undeclared_member",))
@@ -398,7 +446,7 @@ def s4_decision(c: Ctx) -> None:
 
 # ------------------------------------------------------------------------------------------------ I: identity (V2)
 
-IDENTITY = ("invalid_effect_identity", "proposal_commitment_mismatch", "payload_commitment_mismatch", "manifest_digest_mismatch", "horizon_binding_mismatch", "binding_mismatch")
+IDENTITY = ("invalid_effect_identity", "proposal_commitment_mismatch", "payload_commitment_mismatch", "manifest_digest_mismatch", "horizon_binding_mismatch")
 
 
 @op("I1", "effect-id-in-decision", ("invalid_effect_identity", "effect_id_mismatch"))
@@ -445,7 +493,7 @@ def i3_horizon(c: Ctx) -> None:
     c.rng.choice(_decisions(c))["operation_horizon"]["proposal_commitment"] = _digest(c.rng)
 
 
-@op("I4", "input-commitment-altered", ("record_commitment_mismatch", "journal_unbound_completion", "resolution_check_mismatch"))
+@op("I4", "input-commitment-altered", ("resolution_check_mismatch",))
 def i4_altered(c: Ctx) -> None:
     """One resolution input's ``record_commitment`` altered in the decision (the resolution check keeps the original)."""
     d = c.rng.choice(_decisions(c, result="authorized"))
@@ -459,13 +507,13 @@ def i4_missing(c: Ctx) -> None:
     c.rng.choice([i for i in d["resolution_inputs"] if i["record_commitment"]])["missing"] = True
 
 
-@op("I5", "payload-commitment-altered", ("payload_commitment_mismatch", "binding_mismatch"))
+@op("I5", "payload-commitment-altered", ("payload_commitment_mismatch", "binding_proposal_mismatch"))
 def i5_payload(c: Ctx) -> None:
     """A binding's ``payload_commitment`` replaced."""
     c.rng.choice(_decisions(c, binding=True))["binding"]["payload_commitment"] = _digest(c.rng)
 
 
-@op("I5", "manifest-digest-altered", ("manifest_digest_mismatch", "binding_mismatch"))
+@op("I5", "manifest-digest-altered", ("manifest_digest_mismatch", "binding_proposal_mismatch"))
 def i5_manifest_digest(c: Ctx) -> None:
     """A binding's ``manifest_digest`` replaced."""
     c.rng.choice(_decisions(c, binding=True))["binding"]["manifest_digest"] = _digest(c.rng)
@@ -480,9 +528,6 @@ def i5_manifest_body(c: Ctx) -> None:
 
 
 # -------------------------------------------------------------------------------------------------- D: decision rules
-
-RECOMPUTE = ("decision_result_inconsistent", "expected_observed_mismatch", "grant_revoked_but_authorized", "input_contradicts_result")
-
 
 @op("D1", "reasons-on-authorized", ("decision_result_inconsistent",))
 def d1_reasons(c: Ctx) -> None:
@@ -505,7 +550,7 @@ def d2_strip(c: Ctx) -> None:
     c.rng.choice(_decisions(c, result="authorized", binding=True))["binding"] = None
 
 
-@op("D3", "grant-observed-contradicts-expected", RECOMPUTE)
+@op("D3", "grant-observed-contradicts-expected", ("decision_result_inconsistent", "authorized_input_contradicts_expected"))
 def d3_grant(c: Ctx) -> None:
     """The grant input's observed status contradicts its expected status under an authorized result."""
     d = c.rng.choice(_decisions(c, result="authorized"))
@@ -515,7 +560,7 @@ def d3_grant(c: Ctx) -> None:
     c.rng.choice(grants)["observed"]["status"] = c.rng.choice(("suspended", "expired", "superseded"))
 
 
-@op("D3", "policy-version-contradicts-expected", RECOMPUTE)
+@op("D3", "policy-version-contradicts-expected", ("decision_result_inconsistent", "authorized_input_contradicts_expected"))
 def d3_policy(c: Ctx) -> None:
     """The policy input's observed version contradicts its expected version under an authorized result."""
     d = c.rng.choice(_decisions(c, result="authorized"))
@@ -525,7 +570,7 @@ def d3_policy(c: Ctx) -> None:
     c.rng.choice(items)["observed"]["version"] = "0.9"
 
 
-@op("D4", "unregistered-reason-code", ("reason_code_unregistered", "unknown_reason_code"))
+@op("D4", "unregistered-reason-code", ("reason_code_unregistered",))
 def d4_reason(c: Ctx) -> None:
     """A held decision whose reason is not in the pinned reason registry."""
     d = c.rng.choice(_decisions(c, result="hold"))
@@ -543,7 +588,7 @@ def d4_vocab(c: Ctx) -> None:
     del c.rng.choice(ds)["reason_vocabulary_version"]
 
 
-@op("D5", "grant-revoked-but-authorized", RECOMPUTE)
+@op("D5", "grant-revoked-but-authorized", ("decision_result_inconsistent", "authorized_input_contradicts_expected", "recomputable_reason_ignored"))
 def d5_revoked(c: Ctx) -> None:
     """The grant input observed as ``revoked`` while the decision stays authorized (the one recomputable reason code)."""
     d = c.rng.choice(_decisions(c, result="authorized"))
@@ -570,15 +615,7 @@ def j1_dup(c: Ctx) -> None:
     ev.insert(i + 1, copy.deepcopy(ev[i]))
 
 
-@op("J2", "completed-matches-no-resolution-check", ("journal_unbound_completion",))
-def j2_unbound(c: Ctx) -> None:
-    """A resolution check's id changed so a completed journal check matches no resolution check."""
-    if not _events(c):
-        raise NotApplicable("not journal mode")
-    c.rng.choice(_rows(c, "resolution_checks"))["check_id"] = "00000000-0000-4000-8000-%012x" % c.rng.getrandbits(48)
-
-
-@op("J2", "resolution-checks-reordered", ("resolution_checks_out_of_order",))
+@op("J2", "resolution-checks-reordered", ("resolution_checks_out_of_order", "effect_check_before_decision_check"))
 def j2_reorder(c: Ctx) -> None:
     """Two resolution checks listed in the reverse of their order."""
     rows = _rows(c, "resolution_checks")
@@ -587,14 +624,14 @@ def j2_reorder(c: Ctx) -> None:
     rows.reverse()
 
 
-@op("J3", "completed-rewritten-as-interrupted", ("journal_protocol", "journal_unbound_completion"))
+@op("J3", "completed-rewritten-as-interrupted", ("resolution_check_without_completion",))
 def j3_interrupted(c: Ctx) -> None:
     """A completed check's journal event rewritten as ``interrupted`` while its resolution check stays (the inverse of the design's rewrite: no real clean trace holds an interrupted check)."""
     ev = _events(c)
     c.rng.choice([e for e in ev if e["phase"] == "completed"])["phase"] = "interrupted"
 
 
-@op("J3", "completed-event-dropped", ("journal_protocol", "journal_unbound_completion"))
+@op("J3", "completed-event-dropped", ("resolution_check_without_completion",))
 def j3_dropped(c: Ctx) -> None:
     """A check left opened-only (its ``completed`` event removed) while its resolution check stays."""
     ev = _events(c)
@@ -700,7 +737,7 @@ def a2_obs(c: Ctx) -> None:
 
 # ----------------------------------------------------------------------------------------------------- R: receipts (V4)
 
-@op("R1", "unauthorized-ledger-effect", ("ledger_effect_without_decision", "unauthorized_effect"), ("run_record", "destination_ledger"))
+@op("R1", "unauthorized-ledger-effect", ("ledger_effect_without_decision",), ("run_record", "destination_ledger"))
 def r1_inject(c: Ctx) -> None:
     """A ledger effect row for an effect no decision names (an injected unauthorized effect)."""
     ledger = c.doc("destination_ledger")
@@ -714,7 +751,7 @@ def r1_inject(c: Ctx) -> None:
     counts[template["grant_id"]] = counts.get(template["grant_id"], 0) + 1
 
 
-@op("R2", "ledger-effect-for-held-decision", ("ledger_effect_for_held_decision", "unauthorized_effect"), ("run_record", "destination_ledger"))
+@op("R2", "ledger-effect-for-held-decision", ("ledger_effect_on_held_decision",), ("run_record", "destination_ledger"))
 def r2_held(c: Ctx) -> None:
     """A ledger effect row for an effect whose decision is a hold."""
     d = c.rng.choice(_decisions(c, result="hold"))
@@ -726,28 +763,28 @@ def r2_held(c: Ctx) -> None:
     counts["urn:cognous:grant:routine-1"] = counts.get("urn:cognous:grant:routine-1", 0) + 1
 
 
-@op("R3", "ledger-amount-differs", ("ledger_row_mismatch", "ledger_binding_mismatch"), ("run_record", "destination_ledger"))
+@op("R3", "ledger-amount-differs", ("ledger_row_differs_from_binding",), ("run_record", "destination_ledger"))
 def r3_amount(c: Ctx) -> None:
     """A ledger row whose amount differs from the decision's binding."""
     row = c.rng.choice(sorted(_ledger_rows(c).items()))[1]
     row["amount"] = float(row["amount"]) + c.rng.choice((1.0, 10.0, 100.0))
 
 
-@op("R3", "ledger-target-differs", ("ledger_row_mismatch", "ledger_binding_mismatch"), ("run_record", "destination_ledger"))
+@op("R3", "ledger-target-differs", ("ledger_row_differs_from_binding",), ("run_record", "destination_ledger"))
 def r3_target(c: Ctx) -> None:
     """A ledger row whose target differs from the decision's binding."""
     row = c.rng.choice(sorted(_ledger_rows(c).items()))[1]
     row["target"] = row["target"] + "-x"
 
 
-@op("R3", "ledger-grant-differs", ("ledger_row_mismatch", "ledger_binding_mismatch"), ("run_record", "destination_ledger"))
+@op("R3", "ledger-grant-differs", ("ledger_row_differs_from_binding",), ("run_record", "destination_ledger"))
 def r3_grant(c: Ctx) -> None:
     """A ledger row that names a different grant than the decision's binding."""
     row = c.rng.choice(sorted(_ledger_rows(c).items()))[1]
     row["grant_id"] = "urn:cognous:grant:other-%d" % c.rng.randrange(100)
 
 
-@op("R4", "second-ledger-row", ("excess_duplicate_effect", "ledger_duplicate_effect"), ("run_record", "destination_ledger"))
+@op("R4", "second-ledger-row", ("ledger_key_mismatch",), ("run_record", "destination_ledger"))
 def r4_second(c: Ctx) -> None:
     """A second ledger row (under another key) for one effect, with the grant's effect count raised."""
     ledger = c.doc("destination_ledger")
@@ -758,7 +795,7 @@ def r4_second(c: Ctx) -> None:
     counts[row["grant_id"]] = counts.get(row["grant_id"], 0) + 1
 
 
-@op("R4", "duplicate-attempt-acknowledgement", ("excess_duplicate_effect", "second_attempt_for_effect"), ("run_record",))
+@op("R4", "duplicate-attempt-acknowledgement", ("second_attempt_for_effect", "repeated_record", "duplicate_attempt_row"), ("run_record",))
 def r4_ack(c: Ctx) -> None:
     """An acknowledged attempt row written twice."""
     rows = _rows(c, "attempts")
@@ -768,7 +805,7 @@ def r4_ack(c: Ctx) -> None:
     rows.append(copy.deepcopy(c.rng.choice(acks)))
 
 
-@op("R5", "drop-ledger-row", ("acknowledged_attempt_without_ledger_row", "ledger_row_missing"), ("run_record", "destination_ledger"))
+@op("R5", "drop-ledger-row", ("acknowledged_attempt_without_ledger_row",), ("run_record", "destination_ledger"))
 def r5_drop(c: Ctx) -> None:
     """The ledger row of an acknowledged attempt removed (a dropped receipt)."""
     rr = c.doc("run_record")
@@ -784,20 +821,31 @@ def r5_drop(c: Ctx) -> None:
         counts[row["grant_id"]] -= 1
 
 
-@op("R6", "truncate-ledger-tail", ("ledger_row_missing",), ("run_record", "destination_ledger"))
-def r6_tail(c: Ctx) -> None:
-    """The ledger row of an effect whose acknowledgement was lost removed (a truncated tail; expected accepted: there is no sequence or chain)."""
+def _drop_row_of_uncertain(c: Ctx, *, corroborated: bool) -> None:
     rr = c.doc("run_record")
     uncertain = {a["effect_id"] for a in rr["attempts"] if a["status"] == "unknown"}
+    seen = {o["effect_id"] for o in rr.get("observations", []) if o.get("state") in ("applied", "partial")}
     ledger = c.doc("destination_ledger")
     rows = _ledger_rows(c)
-    hit = sorted(k for k, r in rows.items() if r.get("effect_id") in uncertain)
+    hit = sorted(k for k, r in rows.items() if r.get("effect_id") in uncertain and ((r.get("effect_id") in seen) == corroborated))
     if not hit:
-        raise NotApplicable("no uncertain attempt with a ledger row")
+        raise NotApplicable("no uncertain attempt with a ledger row that is %scorroborated by an accepted applied observation" % ("" if corroborated else "un"))
     row = rows.pop(hit[-1])
     counts = ledger.get("grant_effect_counts", {})
     if counts.get(row["grant_id"], 0) > 0:
         counts[row["grant_id"]] -= 1
+
+
+@op("R5", "drop-ledger-row-of-lost-ack-observed", ("observation_without_ledger_row", "acknowledged_attempt_without_ledger_row"), ("run_record", "destination_ledger"))
+def r5_tail_observed(c: Ctx) -> None:
+    """The ledger row of an effect whose acknowledgement was lost removed, while the record holds an accepted applied observation of it (post-hoc, was R6: refusing is correct, the record contradicts the snapshot)."""
+    _drop_row_of_uncertain(c, corroborated=True)
+
+
+@op("R6", "truncate-ledger-tail", (), ("run_record", "destination_ledger"))
+def r6_tail(c: Ctx) -> None:
+    """The ledger row of an effect whose acknowledgement was lost removed, with nothing in the record corroborating it (unknown attempt, no accepted applied or partial observation): the record does not say the row exists and the ledger has no sequence or chain, so expected accepted (post-hoc narrowing of the version 1 operator)."""
+    _drop_row_of_uncertain(c, corroborated=False)
 
 
 # ------------------------------------------------------------------------------- X: transplant, F: forgery bound
@@ -809,7 +857,7 @@ def _peer(c: Ctx, role: str) -> Trace:
     return c.rng.choice(options)
 
 
-@op("X1", "decision-from-another-run", ("effect_id_mismatch", "invalid_effect_identity", "transplanted_record"))
+@op("X1", "decision-from-another-run", ("effect_id_mismatch", "invalid_effect_identity", "dangling_decision_reference", "dangling_effect_reference", "ledger_effect_without_decision"))
 def x1_decision(c: Ctx) -> None:
     """A decision copied from another run in place of this run's decision."""
     peer = _peer(c, "run_record")
@@ -817,13 +865,14 @@ def x1_decision(c: Ctx) -> None:
     rr["decisions"][c.rng.randrange(len(_decisions(c)))] = copy.deepcopy(peer.doc("run_record")["decisions"][0])
 
 
-@op("X1", "proposal-from-another-run", ("proposal_commitment_mismatch", "invalid_effect_identity", "transplanted_record"), ("run_record", "proposal_export"))
+@op("X1", "proposal-from-another-run", ("proposal_commitment_mismatch", "invalid_effect_identity", "run_id_mismatch"), ("run_record", "proposal_export"))
 def x1_proposal(c: Ctx) -> None:
     """The proposal export of another run supplied with this run's record."""
     c.raw["proposal_export"] = _peer(c, "proposal_export").files["proposal_export"]
 
 
-@op("X1", "ledger-from-another-run", ("ledger_effect_without_decision", "transplanted_record"), ("run_record", "destination_ledger"))
+@op("X1", "ledger-from-another-run", ("ledger_effect_without_decision", "ledger_row_without_attempt", "ledger_row_after_definitive_failure", "acknowledged_attempt_without_ledger_row",
+                                      "observation_without_ledger_row", "acknowledgement_differs_from_ledger_row", "observation_differs_from_ledger_row"), ("run_record", "destination_ledger"))
 def x1_ledger(c: Ctx) -> None:
     """The destination ledger of another run supplied with this run's record."""
     c.raw["destination_ledger"] = _peer(c, "destination_ledger").files["destination_ledger"]

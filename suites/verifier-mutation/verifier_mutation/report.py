@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 from __future__ import annotations
 
 import datetime as dt
+import json
 from collections import Counter, defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -278,8 +279,10 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
             "noop": "the mutant's files are byte-identical to the clean trace's (a structural operator is also noop when its files are canonically equal); the design's wording 'byte-equal after canonicalization' is not used for text operators because a duplicate member or NaN reads as the clean document under Python's parser",
             "clean_false_rejection": "per category, clean traces on which that category's operators produced an effective mutant, rejected by the verifier; benign (B) counts benign mutants",
             "metric_impact": "measures are derived by this harness from the mutant's files (the verifier does not expose them); unavailable for a mutant Python's parser cannot read",
-            "intended_code": "the operator's frozen intended codes; a different but correct verifier code counts in any_code only",
+            "intended_code": "the operator's frozen intended codes; a different but correct verifier code counts in any_code only. Catalogue version 2: intended codes frozen post-hoc after run 1 (703cdde1), so intended_code figures are not held-out; any_code detection is the primary figure",
         },
+        "intended_codes_status": json.loads(operator_set_bytes).get("intended_codes", {}).get("status", "frozen with the operator set before the run"),
+        "operator_version": json.loads(operator_set_bytes).get("operator_version"),
         "flags": flags(run, seeds),
     }
     mutation_report = {

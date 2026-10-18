@@ -14,6 +14,7 @@ import hashlib
 import importlib.util
 import io
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -165,6 +166,8 @@ class Operators(unittest.TestCase):
                 with self.subTest(slot=s.mutant_id):
                     for role, data in s.files.items():
                         stub.strict_load(data)
+                        if s.operator_id == 'B.resolution-check-id-renamed' and role == 'run_record':
+                            continue  # a different (producer-local) id on purpose: checked in test_version_2_reclassifications
                         self.assertEqual(json.loads(data), BY_ID[s.trace_id].doc(role))  # same content, other text
 
     def test_decision_and_receipt_operators_break_what_they_claim(self):
@@ -208,9 +211,119 @@ class Operators(unittest.TestCase):
         self.assertIsNone(measures({'run_record': b'{not json'}))
 
 
+def canon_roles(files):
+    return {role: jsonio.commitment(json.loads(data)) for role, data in files.items()}
+
+
+class VersionTwo(unittest.TestCase):
+    """Catalogue version 2 (V3b, written after run 1 was read): the three evidence-based reclassifications and the post-hoc intended codes."""
+
+    @staticmethod
+    def effective(operator_id, draws=2):
+        ops = [o for o in operators.OPERATORS if o.operator_id == operator_id]
+        assert len(ops) == 1, operator_id
+        return [s for s in corpus.generate(TRACES, 5, draws, ops)[0] if s.status == 'effective']
+
+    def test_version_2_reclassifications(self):
+        # W3 keeps only the integer spelling: a different canonical byte string, so a different number under the pinned profile
+        for oid, role in (('W3.binding-amount-integer-form', 'run_record'), ('W3.proposal-amount-integer-form', 'proposal_export'), ('W3.ledger-amount-integer-form', 'destination_ledger')):
+            slots = self.effective(oid)
+            self.assertTrue(slots, oid)
+            for s in slots:
+                self.assertEqual(s.expected_verdict, 'reject')
+                self.assertNotEqual(canon_roles(s.files)[role], canon_roles(BY_ID[s.trace_id].files)[role], s.mutant_id)
+        # the float spellings are B: textually different, canonically identical, value-equal
+        for oid, role in (('B.binding-amount-float-form', 'run_record'), ('B.proposal-amount-float-form', 'proposal_export'), ('B.ledger-amount-float-form', 'destination_ledger')):
+            slots = self.effective(oid)
+            self.assertTrue(slots, oid)
+            for s in slots:
+                self.assertEqual(s.expected_verdict, 'accept')
+                self.assertEqual(s.intended_codes, ())
+                self.assertNotEqual(s.files[role], BY_ID[s.trace_id].files[role])
+                self.assertEqual(canon_roles(s.files), canon_roles(BY_ID[s.trace_id].files), s.mutant_id)
+                self.assertTrue(re.search(rb'"amount": (?:[0-9]+\.00|[0-9]+e[0-9]+|[0-9]+\.0e0)[,\s}]', s.files[role]), s.mutant_id)  # another spelling
+        # J2: only a resolution check id differs, and the operator is benign now; no J2 operator is expected-accept
+        self.assertEqual([o.operator_id for o in operators.OPERATORS if o.category == 'J2'], ['J2.resolution-checks-reordered'])
+        slots = self.effective('B.resolution-check-id-renamed')
+        self.assertTrue(slots)
+        for s in slots:
+            now, was = json.loads(s.files['run_record']), BY_ID[s.trace_id].doc('run_record')
+            self.assertEqual(s.expected_verdict, 'accept')
+            self.assertEqual({k: v for k, v in now.items() if k != 'resolution_checks'}, {k: v for k, v in was.items() if k != 'resolution_checks'})
+            diffs = [(a, b) for a, b in zip(now['resolution_checks'], was['resolution_checks']) if a != b]
+            self.assertEqual(len(diffs), 1)
+            self.assertEqual({k for k in diffs[0][0] if diffs[0][0][k] != diffs[0][1][k]}, {'check_id'})
+
+    def test_r6_is_an_uncorroborated_row_and_the_corroborated_drop_is_r5(self):
+        r6 = self.effective('R6.truncate-ledger-tail')
+        self.assertTrue(r6)
+        self.assertEqual({s.trace_id for s in r6}, {'journal-lost-ack-unobserved'})
+        for s in r6:
+            rr, was = json.loads(s.files['run_record']), BY_ID[s.trace_id]
+            self.assertEqual(s.expected_verdict, 'accept')
+            self.assertEqual(s.intended_codes, ())
+            self.assertIn('unknown', {a['status'] for a in rr['attempts']})
+            self.assertFalse([o for o in rr['observations'] if o['state'] in ('applied', 'partial')])  # nothing corroborates the row
+            self.assertEqual(len(json.loads(s.files['destination_ledger'])['effects']), len(was.doc('destination_ledger')['effects']) - 1)
+        r5 = self.effective('R5.drop-ledger-row-of-lost-ack-observed')
+        self.assertTrue(r5)
+        self.assertNotIn('journal-lost-ack-unobserved', {s.trace_id for s in r5})
+        for s in r5:
+            rr = json.loads(s.files['run_record'])
+            self.assertEqual(s.expected_verdict, 'reject')
+            self.assertTrue([o for o in rr['observations'] if o['state'] == 'applied'])  # the record contradicts the snapshot
+
+    def test_the_added_trace_is_a_real_lost_ack_without_an_applied_observation(self):
+        t = BY_ID['journal-lost-ack-unobserved']
+        rr = t.doc('run_record')
+        self.assertEqual([a['status'] for a in rr['attempts']], ['attempted', 'unknown'])
+        self.assertEqual([o['state'] for o in rr['observations']], ['absent'])
+        self.assertEqual(rr['closeouts'], [])
+        self.assertEqual([(x['result'], x['observation_accepted']) for x in rr['reconciliations']], [('observed_absent', True), ('hold', False)])
+        self.assertEqual(len(t.doc('destination_ledger')['effects']), 1)
+        entry = next(e for e in MANIFEST['traces'] if e['trace_id'] == 'journal-lost-ack-unobserved')
+        self.assertEqual(set(entry['files']), set(FILENAMES))
+        self.assertEqual(MANIFEST['control_plane_revision'], json.loads((SUITE / 'corpus' / 'clean' / t.trace_id / 'scenario.json').read_text())['control_plane_revision'])
+
+    def test_intended_codes_are_names_the_verifier_has_and_are_labelled_post_hoc(self):
+        vocab = json.loads((SUITE / 'verifier-code-names.json').read_text())
+        self.assertEqual(vocab['verifier_revision'], '07c2eb86dc048787bf208dd548018d74887adff8')
+        names = set(vocab['names'])
+        for o in operators.OPERATORS:
+            with self.subTest(operator=o.operator_id):
+                self.assertTrue(set(o.intended_codes) <= names, sorted(set(o.intended_codes) - names))
+                self.assertEqual(bool(o.intended_codes), o.expected_verdict == 'reject')
+        gone = {'wire_number_form_drift', 'transplanted_record', 'ledger_row_mismatch', 'ledger_binding_mismatch', 'ledger_row_missing', 'unauthorized_effect',
+                'ledger_effect_for_held_decision', 'excess_duplicate_effect', 'ledger_duplicate_effect', 'expected_observed_mismatch', 'grant_revoked_but_authorized',
+                'input_contradicts_result', 'record_commitment_mismatch', 'binding_mismatch', 'unknown_reason_code', 'wire_unicode_normalization'}
+        self.assertFalse(gone & {c for o in operators.OPERATORS for c in o.intended_codes})
+        by_id = {o.operator_id: set(o.intended_codes) for o in operators.OPERATORS}
+        self.assertEqual(by_id['I4.input-commitment-altered'], {'resolution_check_mismatch'})
+        self.assertEqual(by_id['J2.resolution-checks-reordered'], {'resolution_checks_out_of_order', 'effect_check_before_decision_check'})
+        self.assertEqual(by_id['J3.completed-event-dropped'], by_id['J3.completed-rewritten-as-interrupted'])
+        self.assertEqual(by_id['J3.completed-event-dropped'], {'resolution_check_without_completion'})
+        self.assertEqual(by_id['X1.ledger-from-another-run'], {'ledger_effect_without_decision', 'ledger_row_without_attempt', 'ledger_row_after_definitive_failure',
+                                                               'acknowledged_attempt_without_ledger_row', 'observation_without_ledger_row',
+                                                               'acknowledgement_differs_from_ledger_row', 'observation_differs_from_ledger_row'})
+        self.assertEqual(by_id['R5.drop-ledger-row-of-lost-ack-observed'], {'observation_without_ledger_row', 'acknowledged_attempt_without_ledger_row'})
+        self.assertEqual(OPERATOR_SET['operator_version'], '2')
+        self.assertIn('post-hoc', OPERATOR_SET['intended_codes']['status'])
+        self.assertIn('703cdde1', OPERATOR_SET['intended_codes']['status'])
+        self.assertEqual(OPERATOR_SET['supersedes']['operator_version'], '1')
+        self.assertEqual(OPERATOR_SET['supersedes']['operator_set_digest'], 'sha256:98ede4eeb0ff252a7bd9a9b39e85f43394fee9732c089381afa8210c8b798514')
+
+    def test_the_report_labels_localized_figures_as_post_hoc(self):
+        _, doc = run_harness('accept')
+        harness = doc['mutation_report']['extensions']['x-qualification-harness']
+        self.assertIn('post-hoc', harness['intended_codes_status'])
+        self.assertIn('not held-out', harness['definitions']['intended_code'])
+        self.assertIn('any_code detection is the primary figure', harness['definitions']['intended_code'])
+        self.assertEqual(harness['operator_version'], '2')
+
+
 class Corpora(unittest.TestCase):
     def test_clean_corpus_matches_its_manifest(self):
-        self.assertEqual(len(TRACES), 18)
+        self.assertEqual(len(TRACES), 19)
         self.assertEqual(MANIFEST['canonicalization_profile'], jsonio.PROFILE)
         self.assertEqual(set(MANIFEST['contract_versions']), {'control-plane-journal', 'execution-attempt-lifecycle'})
         for t in TRACES:

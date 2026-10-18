@@ -1,4 +1,4 @@
-"""Command line: ``python -m verifier_mutation {capture,operator-set,check-corpus,report}`` (run with ``PYTHONPATH=suites/verifier-mutation``).
+"""Command line: ``python -m verifier_mutation {capture,capture-extra,operator-set,check-corpus,report}`` (run with ``PYTHONPATH=suites/verifier-mutation``).
 
 Report-only. ``report`` exits 0 when it produced a valid report, whatever the verifier scored; it exits 2 when the operator set is not the
 frozen one, the corpus does not match its manifest, or the report it built is refused by the ODES validator; ``--strict`` additionally
@@ -35,6 +35,14 @@ def operator_set_doc(seed: int = corpus.DEFAULT_SEED, draws: int = corpus.DEFAUL
         "categories_with_operator": operators.categories_with_operator(),
         "categories_without_operator": list(operators.CATEGORIES_WITHOUT_OPERATOR),
         "expected_accept_categories": list(operators.EXPECTED_ACCEPT),
+        "intended_codes": {
+            "status": "frozen post-hoc after run 1 (703cdde1); not held-out",
+            "basis": "catalogue version 2 drops intended-code names that do not exist in the verifier and adds the codes the verifier emits for the damage, chosen after run 1 and the V3a follow-up were read",
+            "primary_figure": "any_code detection; localized (intended-code) figures are secondary",
+            "vocabulary": "verifier-code-names.json",
+        },
+        "supersedes": {"operator_version": "1", "qualification_revision": "703cdde145c5818c0eef0de3da4d923953a673f5",
+                       "operator_set_digest": "sha256:98ede4eeb0ff252a7bd9a9b39e85f43394fee9732c089381afa8210c8b798514"},
         "operators": operators.operator_catalogue(),
     }
 
@@ -114,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
     c = sub.add_parser("capture", help="capture the clean corpus from the control plane (needs its virtualenv)")
     c.add_argument("--control-plane", required=True)
     c.add_argument("--out", default=str(SUITE / "corpus" / "clean"))
+    e = sub.add_parser("capture-extra", help="add the post-run-1 trace (lost acknowledgement, failed follow-up observation) to the existing clean corpus")
+    e.add_argument("--control-plane", required=True)
+    e.add_argument("--out", default=str(SUITE / "corpus" / "clean"))
     o = sub.add_parser("operator-set", help="write or check operators.json (the frozen operator set)")
     o.add_argument("--write", action="store_true")
     k = sub.add_parser("check-corpus", help="check the clean corpus against its manifest")
@@ -140,6 +151,11 @@ def main(argv: list[str] | None = None) -> int:
         from .capture import capture
         m = capture(Path(a.control_plane), Path(a.out))
         print(f"captured {len(m['traces'])} traces at control plane {m['control_plane_revision']}")
+        return 0
+    if a.cmd == "capture-extra":
+        from .capture import capture_unobserved
+        m = capture_unobserved(Path(a.control_plane), Path(a.out))
+        print(f"corpus now holds {len(m['traces'])} traces (control plane {m['control_plane_revision']})")
         return 0
     if a.cmd == "operator-set":
         if OPERATOR_SET.exists():
