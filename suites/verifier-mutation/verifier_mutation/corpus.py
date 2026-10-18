@@ -52,6 +52,8 @@ def _has_text_damage(value: Any) -> bool:
 
 
 def _canonically_equal(a: bytes, b: bytes) -> bool:
+    if a == b:  # catalogue v3: identical bytes are equal (a JSON-lines witness file is not one JSON document)
+        return True
     try:
         return canonical_bytes(json.loads(a.decode("utf-8"))) == canonical_bytes(json.loads(b.decode("utf-8")))
     except (ValueError, UnicodeDecodeError, RecursionError):
@@ -127,6 +129,10 @@ class Seed:
     expected_code: str | None
     valid: bool
     files: Mapping[str, bytes]
+    intended_codes: tuple[str, ...] = ()  # catalogue v3 witness seeds: the fixture's ODES code plus the verifier's names for the same rule
+
+    def hit(self, codes: frozenset[str]) -> bool:
+        return (self.expected_code in codes) or bool(set(self.intended_codes) & codes)
 
 
 @dataclass
@@ -137,9 +143,13 @@ class SeedCorpus:
 
     def digests(self) -> tuple[tuple[str, int], tuple[str, int]]:
         def one(seeds: list[Seed]) -> tuple[str, int]:
-            entries = [{"seed_id": s.seed_id, "category": s.category, "expected_refusal": s.expected_code, "sha256": digest(s.files["run_record"])}
-                       for s in sorted(seeds, key=lambda x: x.seed_id)]
-            return commitment(entries), sum(len(s.files["run_record"]) for s in seeds)
+            entries = []
+            for s in sorted(seeds, key=lambda x: x.seed_id):
+                e: dict[str, Any] = {"seed_id": s.seed_id, "category": s.category, "expected_refusal": s.expected_code, "sha256": digest(s.files["run_record"])}
+                if set(s.files) != {"run_record"}:  # witness seeds also bind every file (unwitnessed seed digests are unchanged)
+                    e["files"] = {r: digest(d) for r, d in sorted(s.files.items())}
+                entries.append(e)
+            return commitment(entries), sum(len(d) for s in seeds for d in s.files.values())
         return one(self.invalid), one(self.valid)
 
     def unclassified(self) -> list[Seed]:
@@ -163,5 +173,50 @@ def load_seed_corpus(odes_dir: Path, seed_map: Mapping[str, Any], odes_revision:
                 key = f"{contract}/{fx['fixture_id']}"
                 category = seed_map["by_fixture"].get(key) or by_code.get(code) if kind == "invalid" else None
                 seed = Seed(key, contract, category, code, kind == "valid", {"run_record": data})
+                (corpus.valid if kind == "valid" else corpus.invalid).append(seed)
+    return corpus
+
+
+# ------------------------------------------------------------------------------------------ witness seeds (catalogue v3)
+
+WITNESS_SEED_CONTRACTS = ("witness-digest", "holder-inventory")
+
+
+def witness_lines(document: Any) -> bytes:
+    """A witness-digest fixture document (a JSON array of records, oldest first) as the JSON-lines file the producer writes; a bare object is one line."""
+    records = document if isinstance(document, list) else [document]
+    return b"".join((json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n").encode("utf-8") for r in records)
+
+
+def load_witness_seed_corpus(odes_dir: Path, seed_map: Mapping[str, Any], odes_revision: str) -> SeedCorpus:
+    """Seeds from the ODES ``witness-digest`` and ``holder-inventory`` fixtures (regression only, never detection).
+
+    A witness fixture with a ``record`` is run with that record; one without is carried by the record of the fixture named in the map's
+    ``carrier.witness-digest`` (the capture most invalid fixtures were mutated from): the file rules stop before the record rules, so the
+    carrier matters only for a file the verifier lets through. A holder-inventory fixture is run with the record and witness of the fixture
+    named in ``carrier.holder-inventory``. Intended codes are the fixture's ODES code plus the verifier's names for the category's rule
+    (``seed-map`` ``intended_codes``; the shape codes differ by name, see the ODES drafts' Divergences)."""
+    corpus = SeedCorpus(odes_revision)
+    base = odes_dir / "contracts"
+
+    def fixture(contract: str, kind: str, fid: str) -> dict[str, Any]:
+        return json.loads((base / contract / "fixtures" / kind / f"{fid}.json").read_text(encoding="utf-8"))
+
+    carrier_w = fixture("witness-digest", "valid", seed_map["carrier"]["witness-digest"])
+    carrier_i = fixture("witness-digest", "valid", seed_map["carrier"]["holder-inventory"])
+    for contract in WITNESS_SEED_CONTRACTS:
+        for kind in ("invalid", "valid"):
+            for path in sorted((base / contract / "fixtures" / kind).glob("*.json")):
+                fx = json.loads(path.read_text(encoding="utf-8"))
+                key = f"{contract}/{fx['fixture_id']}"
+                if contract == "witness-digest":
+                    files = {"run_record": dump_file_bytes(fx["record"] if "record" in fx else carrier_w["record"]), "witness": witness_lines(fx["document"])}
+                else:
+                    files = {"run_record": dump_file_bytes(carrier_i["record"]), "witness": witness_lines(carrier_i["document"]),
+                             "holder_inventory": dump_file_bytes(fx["document"])}
+                code = fx.get("expected_refusal") if kind == "invalid" else None
+                category = seed_map["by_fixture"].get(key) if kind == "invalid" else None
+                intended = tuple(seed_map["intended_codes"].get(category, ())) if category else ()
+                seed = Seed(key, contract, category, code, kind == "valid", files, intended)
                 (corpus.valid if kind == "valid" else corpus.invalid).append(seed)
     return corpus

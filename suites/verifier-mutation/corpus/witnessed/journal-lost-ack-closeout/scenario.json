@@ -1,0 +1,13 @@
+{
+ "scenario": "journal-lost-ack-closeout",
+ "description": "lost acknowledgement, then a reconcile closeout; published after each of the three steps",
+ "producer": "agent-control-plane bounded workflow (test helpers, fixed clock)",
+ "witness_producer": "acp witness publish (public command), unchanged output",
+ "publications": [
+  "after decision",
+  "after execution",
+  "after reconciliation"
+ ],
+ "control_plane_revision": "128eaa5e36fdff772fdc709581712dbeac046db3",
+ "synthetic": true
+}

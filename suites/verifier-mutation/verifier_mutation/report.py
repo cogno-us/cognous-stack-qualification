@@ -33,8 +33,15 @@ NON_CLAIMS = {
     "no_imported_headline_numbers": "No figure from any paper is a target, baseline or expectation; the only numbers are counts from the corpora named here, each over its own denominator.",
     "seeds_are_regression_not_detection": "Seed corpora are regression checks (the ODES fixtures were written for rules the validators already implement); detection figures come only from the generated corpus.",
 }
+WITNESS_NON_CLAIM = ("witness_is_not_publication",
+                     "A witness that matches the records shows only that match: not that it was published, published in time, held by a party independent of the "
+                     "record keeper, or who published it (the witness record has no signer or proof member). Rows appended after the latest witness digest are "
+                     "not covered, only list-valued run-record ledgers are covered (the destination ledger snapshot is not), and a record and witness rewritten "
+                     "together to agree are accepted (category F). Witnessed populations are measured apart from unwitnessed ones and never pooled.")
 CATEGORY_ORDER = ["W1", "W2", "W3", "W4", "W5", "B", "S1", "S2", "S3", "S4", "I1", "I2", "I3", "I4", "I5", "D1", "D2", "D3", "D4", "D5",
-                  "J1", "J2", "J3", "T1", "A1", "A2", "R1", "R2", "R3", "R4", "R5", "R6", "X1", "L1", "F", "Q"]
+                  "J1", "J2", "J3", "T1", "A1", "A2", "R1", "R2", "R3", "R4", "R5", "R6", "X1", "L1", "F", "H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8", "Q"]
+WITNESS_CATEGORIES = ("H1", "H2", "H3", "H4", "H5", "H6", "H7", "H8")
+WITNESS_REJECT = ("H1", "H2", "H3", "H4", "H5", "H6")
 
 
 @dataclass
@@ -130,7 +137,7 @@ def _generated_row(category: str, expected: str, results: list[Result]) -> dict[
 def _seed_row(category: str, pairs: list[tuple[Seed, Outcome]]) -> dict[str, Any]:
     n = len(pairs)
     v = _tally([o for _, o in pairs])
-    hit = sum(1 for s, o in pairs if o.verdict == "reject" and s.expected_code in o.codes)
+    hit = sum(1 for s, o in pairs if o.verdict == "reject" and s.hit(o.codes))
     return {
         "category": category, "expected_verdict": "reject", "n_gen": n, "n_noop": 0, "n_na": 0, "n_eff": n, "verdicts": v, "detection": None,
         "regression": {"refused_with_intended_code": _frac(hit, n)}, "false_acceptance": None, "abstained": None, "errored": None, "metric_impact": None,
@@ -148,19 +155,20 @@ def _ordered(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _expected(category: str) -> str:
-    from .operators import EXPECTED_ACCEPT
-    return "accept" if category in EXPECTED_ACCEPT else "reject"
+    from .operators import EXPECTED_ABSTAIN, EXPECTED_ACCEPT
+    return "accept" if category in EXPECTED_ACCEPT else "abstain" if category in EXPECTED_ABSTAIN else "reject"
 
 
-def generated_rows(results: list[Result]) -> list[dict[str, Any]]:
+def generated_rows(results: list[Result], categories: Sequence[str] | None = None, include_q: bool = True) -> list[dict[str, Any]]:
+    """One row per category with an operator; the witnessed population passes its own categories and no Q row (H, B and F only)."""
     by_cat: dict[str, list[Result]] = defaultdict(list)
     for r in results:
         by_cat[r.slot.category].append(r)
-    rows = [_generated_row(c, _expected(c), by_cat[c]) for c in categories_with_operator() if c in by_cat]
-    return _ordered(rows + [_q_row()])
+    rows = [_generated_row(c, _expected(c), by_cat[c]) for c in (categories if categories is not None else categories_with_operator()) if c in by_cat]
+    return _ordered(rows + ([_q_row()] if include_q else []))
 
 
-def clean_generated_rows(run: Run) -> list[dict[str, Any]]:
+def clean_generated_rows(run: Run, categories: Sequence[str] | None = None) -> list[dict[str, Any]]:
     """Per category: of the clean traces on which the category's operators produced an effective mutant (the checks are active), those the verifier rejected.
 
     Benign (B) is the exception the design names: a rejected benign mutant is a false rejection, so its row counts benign mutants.
@@ -175,7 +183,7 @@ def clean_generated_rows(run: Run) -> list[dict[str, Any]]:
         else:
             by_cat[r.slot.category].add(r.slot.trace_id)
     rows = []
-    for c in categories_with_operator():
+    for c in (categories if categories is not None else categories_with_operator()):
         if c == "B":
             k = sum(1 for o in benign if o.verdict == "reject")
             rows.append({"category": c, "false_rejection": _frac(k, len(benign)),
@@ -197,6 +205,8 @@ def clean_seed_rows(seeds: SeedCorpus, run: Run) -> list[dict[str, Any]]:
     rows = []
     for c in sorted(contracts, key=CATEGORY_ORDER.index):
         outs = [o for s, o in run.seed_valid if s.contract in contracts[c]]
+        if not outs:
+            continue
         rows.append({"category": c, "false_rejection": _frac(sum(1 for o in outs if o.verdict == "reject"), len(outs)),
                      "extensions": {"x-verdicts": _tally(outs), "x-contracts": sorted(contracts[c])}})
     return rows
@@ -227,11 +237,61 @@ def flags(run: Run, seeds: SeedCorpus | None) -> list[dict[str, Any]]:
     return out
 
 
+def witnessed_flags(run: Run) -> list[dict[str, Any]]:
+    """The same advisories for the witnessed population, measured on its own (ids prefixed ``witnessed_``). Report-only."""
+    out: list[dict[str, Any]] = []
+    eff = [r for r in run.results if r.slot.status == "effective"]
+    h_reject = [r for r in eff if r.slot.category in WITNESS_REJECT]
+    if h_reject and not any(r.outcome.verdict == "reject" for r in h_reject):  # type: ignore[union-attr]
+        out.append({"id": "witnessed_no_family_h_detection", "k": 0, "n": len(h_reject),
+                    "detail": "the verifier rejected none of the effective H1 to H6 mutants (is it given the witness and inventory?)"})
+    if eff and all(r.outcome.verdict == "accept" for r in eff):  # type: ignore[union-attr]
+        out.append({"id": "witnessed_accepts_every_mutant", "k": len(eff), "n": len(eff), "detail": "every effective witnessed mutant was accepted"})
+    controls = [r for r in eff if r.slot.category in ("H7", "H8")]
+    if controls and not any(r.outcome.verdict == "abstain" for r in controls):  # type: ignore[union-attr]
+        out.append({"id": "witnessed_controls_never_abstain", "k": 0, "n": len(controls),
+                    "detail": "no H7 or H8 control was abstained on: the verifier confirms or rejects what it cannot check"})
+    clean = list(run.clean.values())
+    if clean and all(o.verdict == "reject" for o in clean):
+        out.append({"id": "witnessed_rejects_every_clean_trace", "k": len(clean), "n": len(clean),
+                    "detail": "the verifier rejected every witnessed clean trace: its family H figures say nothing"})
+    errors = sum(1 for o in clean if o.verdict == "error") + sum(1 for r in eff if r.outcome.verdict == "error")  # type: ignore[union-attr]
+    if errors:
+        out.append({"id": "witnessed_errors_present", "k": errors, "n": len(clean) + len(eff),
+                    "detail": "witnessed runs with no usable report (crash, time-out, input error, invalid report); never counted as detection"})
+    return out
+
+
+@dataclass
+class Witnessed:
+    """The witnessed population (catalogue version 3, family H): its own clean corpus, generated mutants and seeds, never pooled."""
+    run: Run
+    traces: list[Trace]
+    slots: list[Slot]
+    duplicates_dropped: int
+    manifest: Mapping[str, Any]
+    seeds: SeedCorpus | None = None
+    seed_controls: list[tuple[Seed, Outcome]] = field(default_factory=list)
+
+
+def _files_digest(traces: list[Trace], role: str) -> tuple[str, int] | None:
+    entries = [{"trace_id": t.trace_id, "sha256": digest_of(t.files[role])} for t in sorted(traces, key=lambda t: t.trace_id) if role in t.files]
+    if not entries:
+        return None
+    return commitment(entries), sum(len(t.files[role]) for t in traces if role in t.files)
+
+
+def digest_of(data: bytes) -> str:
+    from .jsonio import digest
+    return digest(data)
+
+
 # ------------------------------------------------------------------------------------------------------------ document
 
 def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_dropped: int, seeds: SeedCorpus | None, clean_manifest: Mapping[str, Any],
           operator_set_bytes: bytes, operator_set_digest: str, seed: int, draws: int, frozen_revision: str, generated_at: str | None, command: str,
-          verifier_hint: Mapping[str, str] | None = None, per_scenario: bool = True, family_s: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+          verifier_hint: Mapping[str, str] | None = None, per_scenario: bool = True, family_s: list[dict[str, Any]] | None = None,
+          witnessed: Witnessed | None = None) -> dict[str, Any]:
     clean_digest, clean_size = clean_corpus_digest(traces)
     gen_digest, gen_size = mutant_set_digest(slots), mutant_set_size(slots)
     inputs: list[dict[str, Any]] = [
@@ -259,13 +319,70 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
                          "categories": _ordered([_seed_row(c, by_cat[c]) for c in by_cat]), "scenarios": None})
         clean_tables.append({"corpus_id": "clean-odes-valid", "provenance": "seed_valid_fixtures", "corpus_digest": val_digest, "rows": clean_seed_rows(seeds, run)})
     family_t.append({"corpus_id": "t-generated", "provenance": "generated", "corpus_digest": gen_digest, "categories": generated_rows(run.results), "scenarios": scenarios})
+    witnessed_ext: dict[str, Any] | str = "not run"
+    if witnessed is not None:
+        from .witness_operators import witness_categories
+        wcats = witness_categories()
+        w = witnessed
+        wclean_digest, wclean_size = clean_corpus_digest(w.traces)
+        wgen_digest, wgen_size = mutant_set_digest(w.slots), mutant_set_size(w.slots)
+        inputs += [{"role": "corpus", "name": "clean-generated-witnessed", "digest": wclean_digest, "size_bytes": wclean_size},
+                   {"role": "corpus", "name": "generated-witnessed-mutants", "digest": wgen_digest, "size_bytes": wgen_size}]
+        # tier V3 ran on these files: the contract ties V3 to a witness or holder-inventory input (v3_input_missing), so the witnessed clean
+        # corpus's witness files and inventories are listed under their own roles (the mutants' files are in generated-witnessed-mutants)
+        for role, name in (("witness", "clean-generated-witnessed-witness-files"), ("holder_inventory", "clean-generated-witnessed-holder-inventories")):
+            fd = _files_digest(w.traces, role)
+            if fd:
+                inputs.append({"role": role, "name": name, "digest": fd[0], "size_bytes": fd[1]})
+        wscen = None
+        if per_scenario:
+            by_wscn: dict[str, list[Result]] = defaultdict(list)
+            for r in w.run.results:
+                by_wscn[r.slot.scenario].append(r)
+            wscen = [{"scenario_id": sid, "categories": generated_rows(by_wscn[sid], wcats, include_q=False)} for sid in sorted(by_wscn)]
+        if w.seeds is not None:
+            (winv_digest, winv_size), (wval_digest, wval_size) = w.seeds.digests()
+            inputs += [{"role": "corpus", "name": "odes-witness-seed-invalid", "digest": winv_digest, "size_bytes": winv_size},
+                       {"role": "corpus", "name": "odes-witness-seed-valid", "digest": wval_digest, "size_bytes": wval_size}]
+            wby: dict[str, list[tuple[Seed, Outcome]]] = defaultdict(list)
+            for s, o in w.run.seed_invalid:
+                if s.category:
+                    wby[s.category].append((s, o))
+            family_t.append({"corpus_id": "t-seed-odes-witness", "provenance": "seed", "corpus_digest": winv_digest,
+                             "categories": _ordered([_seed_row(c, wby[c]) for c in wby]), "scenarios": None})
+        family_t.append({"corpus_id": "t-generated-witnessed", "provenance": "generated", "corpus_digest": wgen_digest,
+                         "categories": generated_rows(w.run.results, wcats, include_q=False), "scenarios": wscen})
+        clean_tables.append({"corpus_id": "clean-generated-witnessed", "provenance": "generated", "corpus_digest": wclean_digest,
+                             "rows": clean_generated_rows(w.run, wcats)})
+        if w.seeds is not None:
+            clean_tables.append({"corpus_id": "clean-odes-witness-valid", "provenance": "seed_valid_fixtures", "corpus_digest": wval_digest,
+                                 "rows": clean_seed_rows(w.seeds, w.run)})
+        wnoop = sum(1 for s in w.slots if s.status == "noop")
+        witnessed_ext = {
+            "population": "witnessed (family H, with the B and F controls measured on the same witnessed traces); never pooled with the unwitnessed corpora",
+            "duplicate_slots_dropped": w.duplicates_dropped,
+            "slots": {"effective": sum(1 for s in w.slots if s.status == "effective"), "noop": wnoop, "na": sum(1 for s in w.slots if s.status == "na")},
+            "clean_traces": {"n": len(w.traces), "verdicts": _tally(list(w.run.clean.values()))},
+            "control_plane_revision": w.manifest.get("control_plane_revision"),
+            "witness_producer": w.manifest.get("witness_producer"),
+            "seed_corpus": ({"odes_revision": w.seeds.odes_revision, "invalid": len(w.seeds.invalid), "valid": len(w.seeds.valid),
+                             "unclassified": len(w.seeds.unclassified()), "unclassified_fixtures": sorted(s.seed_id for s in w.seeds.unclassified())}
+                            if w.seeds else "not run"),
+            "seed_controls": [{"seed_id": s.seed_id, "expected_verdict": "abstain", "observed_verdict": o.verdict, "codes": sorted(o.codes)} for s, o in w.seed_controls],
+            "flags": witnessed_flags(w.run),
+        }
     inputs.sort(key=lambda i: (i["role"], i["name"], i["digest"]))
 
     verifier = next((o.verifier for o in [*run.clean.values(), *(r.outcome for r in run.results if r.outcome)] if o and o.verifier), None)
     hint = dict(verifier_hint or {})
     verifier_block = dict(verifier) if verifier else {"name": hint.get("name", "unknown"), "version": hint.get("version", "unknown"), "command": "cognous-verify",
                                                     "source_revision": hint.get("source_revision", "unknown"), "canonicalization_profile": PROFILE}
-    tiers = sorted({t for o in [*run.clean.values(), *(r.outcome for r in run.results if r.outcome)] if o for t in o.tiers})
+    every = [*run.clean.values(), *(r.outcome for r in run.results if r.outcome)]
+    if witnessed is not None:
+        every += [*witnessed.run.clean.values(), *(r.outcome for r in witnessed.run.results if r.outcome)]
+    tiers = sorted({t for o in every if o for t in o.tiers})
+    if "V3" not in tiers and any(i["role"] in ("witness", "holder_inventory") for i in inputs):
+        inputs = [i for i in inputs if i["role"] not in ("witness", "holder_inventory")]  # V3 never ran: no V3 input either
     noop_n = sum(1 for s in slots if s.status == "noop")
     harness = {
         "harness_version": HARNESS_VERSION, "verifier_command": command, "draws_per_variant": draws, "duplicate_slots_dropped": duplicates_dropped,
@@ -279,11 +396,13 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
             "noop": "the mutant's files are byte-identical to the clean trace's (a structural operator is also noop when its files are canonically equal); the design's wording 'byte-equal after canonicalization' is not used for text operators because a duplicate member or NaN reads as the clean document under Python's parser",
             "clean_false_rejection": "per category, clean traces on which that category's operators produced an effective mutant, rejected by the verifier; benign (B) counts benign mutants",
             "metric_impact": "measures are derived by this harness from the mutant's files (the verifier does not expose them); unavailable for a mutant Python's parser cannot read",
-            "intended_code": "the operator's frozen intended codes; a different but correct verifier code counts in any_code only. Catalogue version 2: intended codes frozen post-hoc after run 1 (703cdde1), so intended_code figures are not held-out; any_code detection is the primary figure",
+            "intended_code": "the operator's frozen intended codes; a different but correct verifier code counts in any_code only. Catalogue version 2: intended codes frozen post-hoc after run 1 (703cdde1), so intended_code figures are not held-out; any_code detection is the primary figure. Catalogue version 3 (family H): operators written after the verifier's tier V3 existed, intended codes frozen post-hoc from its emitted codes; any_code detection is the primary figure",
+            "expected_abstain": "H7 and H8 are controls with expected verdict abstain (the verifier says could_not_check); an accept there is a false acceptance (counted in false_acceptance), a reject a false rejection (it shows as reject in verdicts and detection.any_code, which for these rows is not detection)",
         },
         "intended_codes_status": json.loads(operator_set_bytes).get("intended_codes", {}).get("status", "frozen with the operator set before the run"),
         "operator_version": json.loads(operator_set_bytes).get("operator_version"),
         "flags": flags(run, seeds),
+        "witnessed": witnessed_ext,
     }
     mutation_report = {
         "report_only": True, "operator_set_digest": operator_set_digest, "seed": seed, "frozen_revision": frozen_revision,
@@ -296,13 +415,38 @@ def build(run: Run, *, traces: list[Trace], slots: list[Slot], duplicates_droppe
         "generated_at": generated_at or dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
         "verifier": verifier_block,
         "subject": {"canonicalization_profile": PROFILE, "inputs": inputs, "inputs_digest": commitment(inputs),
-                    "pinned": {"controller_revision": str(clean_manifest["control_plane_revision"]), "contract_versions": dict(clean_manifest["contract_versions"]),
+                    "pinned": {"controller_revision": str(clean_manifest["control_plane_revision"]),
+                               "contract_versions": {**dict(clean_manifest["contract_versions"]), **(dict(witnessed.manifest["contract_versions"]) if witnessed is not None else {})},
                                "reason_registry_digest": clean_manifest["reason_registry_digest"]}},
         "scope": {"semantic_quality": "not_assessed", "tiers_run": tiers},
         "checks": [], "summary": {"checks": 0, "confirmed": 0, "could_not_check": 0, "refuted": 0},
-        "does_not_prove": [{"id": k, "statement": v} for k, v in NON_CLAIMS.items()],
+        "does_not_prove": [{"id": k, "statement": v} for k, v in NON_CLAIMS.items()] + ([{"id": WITNESS_NON_CLAIM[0], "statement": WITNESS_NON_CLAIM[1]}] if witnessed is not None else []),
         "mutation_report": mutation_report,
     }
+
+
+def per_operator(run: Run, population: str) -> list[dict[str, Any]]:
+    """Per operator: slot statuses, verdicts over the effective slots, and the refusal codes seen (a breakdown of the category rows for
+    reading misses; its counts sum to the category rows of the report and add no figure of their own)."""
+    by: dict[str, list[Result]] = defaultdict(list)
+    for r in run.results:
+        by[r.slot.operator_id].append(r)
+    out = []
+    for oid in sorted(by):
+        rs = by[oid]
+        eff = [r for r in rs if r.slot.status == "effective"]
+        codes: Counter[str] = Counter(c for r in eff if r.outcome and r.outcome.verdict == "reject" for c in r.outcome.codes)
+        out.append({
+            "population": population, "operator_id": oid, "category": rs[0].slot.category, "expected_verdict": rs[0].slot.expected_verdict,
+            "slots": dict(Counter(r.slot.status for r in rs)), "verdicts": _tally([r.outcome for r in eff]),  # type: ignore[misc]
+            "intended_code_hits": sum(1 for r in eff if _intended_hit(r.outcome, r.slot.intended_codes)),  # type: ignore[arg-type]
+            "codes": dict(sorted(codes.items())),
+            "not_rejected": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict}" + (f" ({r.outcome.detail})" if r.outcome.detail else "")  # type: ignore[union-attr]
+                                   for r in eff if r.slot.expected_verdict == "reject" and r.outcome.verdict != "reject"),  # type: ignore[union-attr]
+            "unexpected": sorted(f"{r.slot.mutant_id} -> {r.outcome.verdict} {sorted(r.outcome.codes)}"  # type: ignore[union-attr]
+                                 for r in eff if r.slot.expected_verdict != "reject" and r.outcome.verdict != r.slot.expected_verdict),  # type: ignore[union-attr]
+        })
+    return out
 
 
 def validate(doc: dict[str, Any], contract_dir: Any = None) -> list[Any]:

@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 """Stub verifiers that prove the mutation harness. They are NOT verifiers and verify nothing real.
 
-    stub_verifier.py --mode accept|reject|abstain|crash|garbage|invalid|slow|partial --run-record F [--proposal F] [--ledger F]
+    stub_verifier.py --mode accept|reject|abstain|crash|garbage|invalid|slow|partial|witness --run-record F [--proposal F] [--ledger F]
+                     [--witness F] [--holder-inventory F]
 
 ``accept`` confirms every trace, ``reject`` refutes every trace, ``abstain`` could-not-checks every trace, ``crash`` exits without a
 report, ``garbage`` prints text that is not JSON, ``invalid`` prints a report the ODES validator refuses, ``slow`` hangs. ``partial``
 makes a handful of real but narrow checks (strict parse, result versus reasons, ledger rows versus authorized decisions) so a harness
-test can see mixed detection. Each prints one ODES ``verification-report`` on standard output.
+test can see mixed detection. ``witness`` (catalogue version 3) makes one narrow witness check: no record in the witness file is
+``could_not_check``, a line that is not strict JSON or a record naming another run than the run record is refuted, anything else confirmed.
+With ``--witness`` or ``--holder-inventory`` the stub adds one tier V3 check (the mode's verdict) and lists the inputs, as the contract
+requires; a witness path where no file exists is an input error (exit 2, no report). Each prints one ODES ``verification-report``.
 SPDX-License-Identifier: Apache-2.0
 """
 from __future__ import annotations
@@ -20,6 +24,7 @@ import time
 PROFILE = "json-sort-keys-compact-utf8-no-nan-python-semantics-v0.1"
 CLAIMS = ("relative_to_pinned_controller", "semantic_quality_not_certified", "receipt_source_bounded", "self_consistent_forgery_not_detected",
           "not_an_attestation", "parse_strictness_is_refusal_not_repair", "no_v1_scope_claim", "differential_agreement_is_not_equivalence")
+V3_CLAIM = "witness_is_not_publication"
 
 
 def commitment(value) -> str:
@@ -99,12 +104,29 @@ def partial_checks(paths):
     return out
 
 
+def witness_check(record_path, witness_path):
+    """The ``witness`` mode's one narrow check (a stub, not a re-derivation)."""
+    lines = [line for line in open(witness_path, "rb").read().splitlines() if line.strip()]
+    if not lines:
+        return "could_not_check", [], "input_absent"
+    try:
+        run_id = strict_load(open(record_path, "rb").read()).get("run_id")
+        records = [strict_load(line) for line in lines]
+    except Strict as exc:
+        return "refuted", [str(exc)], None
+    if any(not isinstance(r, dict) or r.get("run_id") != run_id for r in records):
+        return "refuted", ["witness_run_mismatch"], None
+    return "confirmed", [], None
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", required=True)
     ap.add_argument("--run-record", required=True)
     ap.add_argument("--proposal")
     ap.add_argument("--ledger")
+    ap.add_argument("--witness")
+    ap.add_argument("--holder-inventory")
     a = ap.parse_args(argv)
     if a.mode == "crash":
         print("stub verifier crashed", file=sys.stderr)
@@ -119,6 +141,15 @@ def main(argv=None) -> int:
         paths["proposal_export"] = a.proposal
     if a.ledger:
         paths["destination_ledger"] = a.ledger
+    v3 = {}
+    for role, path in (("witness", a.witness), ("holder_inventory", a.holder_inventory)):
+        if path:
+            try:
+                open(path, "rb").close()
+            except OSError:
+                print(f"error: cannot read input {path}", file=sys.stderr)
+                return 2
+            v3[role] = path
     if a.mode == "accept":
         checks = [check("stub.accept", "V1", "confirmed")]
     elif a.mode == "reject":
@@ -127,8 +158,17 @@ def main(argv=None) -> int:
         checks = [check("stub.abstain", "V1", "could_not_check", reason="tier_unavailable")]
     elif a.mode in ("partial", "invalid"):
         checks = partial_checks(paths)
+    elif a.mode == "witness":
+        checks = [check("stub.record", "V1", "confirmed")]
     else:
         raise SystemExit(f"unknown mode {a.mode}")
+    if v3:
+        verdict = {"accept": "confirmed", "reject": "refuted", "abstain": "could_not_check"}.get(a.mode, "confirmed")
+        findings, reason = ["stub_always_reject"] if verdict == "refuted" else [], "tier_unavailable" if verdict == "could_not_check" else None
+        if a.mode == "witness" and "witness" in v3:
+            verdict, findings, reason = witness_check(a.run_record, v3["witness"])
+        checks.append(check("stub.v3", "V3", verdict, findings, reason))
+        paths.update(v3)
     inputs = []
     for role, path in paths.items():
         data = open(path, "rb").read()
@@ -143,7 +183,7 @@ def main(argv=None) -> int:
                     "pinned": {"controller_revision": "stub", "contract_versions": {"control-plane-journal": "0.1.0-draft"}, "reason_registry_digest": "sha256:" + "0" * 64}},
         "scope": {"semantic_quality": "not_assessed", "tiers_run": sorted({c["tier"] for c in checks})},
         "checks": checks, "summary": {"checks": len(checks), **counts},
-        "does_not_prove": [{"id": c, "statement": c.replace("_", " ")} for c in CLAIMS], "mutation_report": None,
+        "does_not_prove": [{"id": c, "statement": c.replace("_", " ")} for c in CLAIMS + ((V3_CLAIM,) if v3 else ())], "mutation_report": None,
     }
     if a.mode == "invalid":
         del doc["does_not_prove"]

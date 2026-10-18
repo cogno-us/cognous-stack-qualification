@@ -2,14 +2,15 @@
  "kind": "verifier-mutation-operator-set",
  "family": "T",
  "harness_version": "1",
- "operator_version": "2",
+ "operator_version": "3",
  "seed": 20261018,
  "draws_per_variant": 2,
  "implementation_sha256": {
   "jsonio.py": "7f047c345e0645cc9b63729f11847636cc5add27f6284bf2a2a68ef44974d4fc",
-  "operators.py": "b1e3d074a5ede5f83870cd00124d2b5f5ad2044a711ce68d41fd707c1a94dd02",
-  "corpus.py": "74e2b7cc80e2a858a369deff669e771443b79970006b48b96eeac784ac5fdd80",
-  "trace.py": "1f1a9d4152b7a661a13335245e5fb8bb8d9617b4919e95d94d953cbb4aa82ffd"
+  "operators.py": "a9b5868c3bddcc8cd2723362a6d29fb7b4aecf5d765cdaa8b4ef7c2b3c0a58cd",
+  "corpus.py": "95444ba72be95678cf18e3e668551a7da2e39695b0ba0c5db4f0b4a82a510b32",
+  "trace.py": "8e664ab91859595f82c1a3d3fa105b123f661d4764aa73a7b867970a470b1f82",
+  "witness_operators.py": "cc25a2db472e548564d59c14565ad1eae445017b6655257f7c8fc81bfa2d9304"
  },
  "categories_with_operator": [
   "A1",
@@ -56,16 +57,33 @@
   "F",
   "R6"
  ],
+ "expected_abstain_categories": [
+  "H7",
+  "H8"
+ ],
+ "witnessed_categories_with_operator": [
+  "B",
+  "F",
+  "H1",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "H7",
+  "H8"
+ ],
  "intended_codes": {
-  "status": "frozen post-hoc after run 1 (703cdde1); not held-out",
-  "basis": "catalogue version 2 drops intended-code names that do not exist in the verifier and adds the codes the verifier emits for the damage, chosen after run 1 and the V3a follow-up were read",
+  "status": "unwitnessed operators: frozen post-hoc after run 1 (703cdde1), unchanged since catalogue version 2; witnessed operators (family H, catalogue version 3): written after the verifier's tier V3 existed, intended codes frozen post-hoc from the codes it emits; not held-out",
+  "basis": "catalogue version 2 drops intended-code names that do not exist in the verifier and adds the codes the verifier emits for the damage, chosen after run 1 and the V3a follow-up were read. Catalogue version 3 adds family H operators written from the ODES design and contracts and the control plane's witness producer code, without reading the verifier's damage tests; their intended codes are the verifier's V3 codes named in its docs/tiers.md and the ODES report contract's family H table",
   "primary_figure": "any_code detection; localized (intended-code) figures are secondary",
   "vocabulary": "verifier-code-names.json"
  },
  "supersedes": {
-  "operator_version": "1",
-  "qualification_revision": "703cdde145c5818c0eef0de3da4d923953a673f5",
-  "operator_set_digest": "sha256:98ede4eeb0ff252a7bd9a9b39e85f43394fee9732c089381afa8210c8b798514"
+  "operator_version": "2",
+  "qualification_revision": "336a70b86ab40640537b4a9607c2f4c9badf90b9",
+  "operator_set_digest": "sha256:0c2b6730560e53c2f6cb7670bd2ccaf3fab70e33e3e3330a31cb0d226fb65629",
+  "note": "catalogue version 3 keeps the 81 unwitnessed operators of version 2 unchanged (same functions, same intended codes) and adds the witnessed operators"
  },
  "operators": [
   {
@@ -1165,6 +1183,1551 @@
     "proposal_export"
    ],
    "description": "The proposal export of another run supplied with this run's record."
+  }
+ ],
+ "witnessed_operators": [
+  {
+   "operator_id": "B.covered-row-float-spelling",
+   "category": "B",
+   "variant": "covered-row-float-spelling",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "A whole float ``amount`` in a covered row written as ``50.00``, ``5e1`` or ``50.0e0`` (one float, one canonical form: the head is unchanged)."
+  },
+  {
+   "operator_id": "B.inventory-keys-reordered",
+   "category": "B",
+   "variant": "inventory-keys-reordered",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "The holder inventory's members written in a different order."
+  },
+  {
+   "operator_id": "B.inventory-repeated-holder-id",
+   "category": "B",
+   "variant": "inventory-repeated-holder-id",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "A second holder with the id of an enumerated holder (kind ``other``). The profile defines no uniqueness rule; the ODES draft pins this\nas valid (``repeated-holder-id-is-not-refused``). Contract-valid, not value-equal: an accept is the contract's expectation."
+  },
+  {
+   "operator_id": "B.record-compact-whitespace",
+   "category": "B",
+   "variant": "record-compact-whitespace",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "All insignificant whitespace removed from the run record."
+  },
+  {
+   "operator_id": "B.record-keys-reordered",
+   "category": "B",
+   "variant": "record-keys-reordered",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record"
+   ],
+   "description": "Every object's members in the run record written in a different order (the heads are over canonical rows, so unchanged)."
+  },
+  {
+   "operator_id": "B.witness-blank-line-between-records",
+   "category": "B",
+   "variant": "witness-blank-line-between-records",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "An empty line before or between witness records (the producer's reader skips blank lines)."
+  },
+  {
+   "operator_id": "B.witness-crlf",
+   "category": "B",
+   "variant": "witness-crlf",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "CRLF line ends in the witness file."
+  },
+  {
+   "operator_id": "B.witness-escaped-ascii",
+   "category": "B",
+   "variant": "witness-escaped-ascii",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "Letters of the run id written as ``\\u00XX`` escapes (the same string)."
+  },
+  {
+   "operator_id": "B.witness-keys-reordered",
+   "category": "B",
+   "variant": "witness-keys-reordered",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "Each witness line's members written in a different order (compact); same records."
+  },
+  {
+   "operator_id": "B.witness-no-final-newline",
+   "category": "B",
+   "variant": "witness-no-final-newline",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The witness file without its final line end."
+  },
+  {
+   "operator_id": "B.witness-republished-unchanged",
+   "category": "B",
+   "variant": "witness-republished-unchanged",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A further record over the unchanged record appended, correctly chained (a re-publication with nothing new: a valid witness)."
+  },
+  {
+   "operator_id": "B.witness-spaced-separators",
+   "category": "B",
+   "variant": "witness-spaced-separators",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "Each witness line written with a space after every ``:`` and ``,`` (still one record per line)."
+  },
+  {
+   "operator_id": "F.reseal-amount-and-rewitness",
+   "category": "F",
+   "variant": "reseal-amount-and-rewitness",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "proposal_export",
+    "destination_ledger",
+    "witness"
+   ],
+   "description": "The catalogue's self-consistent reseal (proposal amount changed, every dependent commitment recomputed) and the witness re-made over\nthe resealed record with the same publication structure (each record's counts kept, heads and digests recomputed): the record and the\nwitness rewritten together so that they agree."
+  },
+  {
+   "operator_id": "F.witness-history-collapsed",
+   "category": "F",
+   "variant": "witness-history-collapsed",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A multi-record witness replaced by one fresh record over the current record (the witness's holder rewrote its history)."
+  },
+  {
+   "operator_id": "F.witness-history-extended",
+   "category": "F",
+   "variant": "witness-history-extended",
+   "expected_verdict": "accept",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A fabricated intermediate publication inserted before the latest record: its counts lie between the previous record's and the\nlatest's, its heads are right for those prefixes, and the chain is re-computed (the witness's holder added history that never happened)."
+  },
+  {
+   "operator_id": "H1.digest-line-duplicated",
+   "category": "H1",
+   "variant": "digest-line-duplicated",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "One witness line written twice in a row (a duplicated digest line)."
+  },
+  {
+   "operator_id": "H1.digest-replaced",
+   "category": "H1",
+   "variant": "digest-replaced",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "One record's ``digest`` replaced by another well-formed digest (not recomputed)."
+  },
+  {
+   "operator_id": "H1.first-record-gains-previous-digest",
+   "category": "H1",
+   "variant": "first-record-gains-previous-digest",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The first record given a ``previous_digest`` (it claims a predecessor the file does not hold), digest recomputed."
+  },
+  {
+   "operator_id": "H1.forged-record-inserted",
+   "category": "H1",
+   "variant": "forged-record-inserted",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A forged record (a copy of an existing one, digest recomputed) inserted before the latest record without re-chaining what follows."
+  },
+  {
+   "operator_id": "H1.head-edited-digest-stale",
+   "category": "H1",
+   "variant": "head-edited-digest-stale",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid",
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A held ledger head edited without recomputing the record's ``digest`` (the record no longer recomputes)."
+  },
+  {
+   "operator_id": "H1.lines-reordered",
+   "category": "H1",
+   "variant": "lines-reordered",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "Two witness lines swapped (each record unchanged)."
+  },
+  {
+   "operator_id": "H1.previous-digest-relinked",
+   "category": "H1",
+   "variant": "previous-digest-relinked",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A later record's ``previous_digest`` pointed at another digest, the record's own ``digest`` recomputed (only the link is broken)."
+  },
+  {
+   "operator_id": "H1.rechained-from-one",
+   "category": "H1",
+   "variant": "rechained-from-one",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The whole chain re-chained with sequences starting at 1: links and digests consistent, sequence is not the index."
+  },
+  {
+   "operator_id": "H1.record-removed",
+   "category": "H1",
+   "variant": "record-removed",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A record other than the latest removed from the chain, nothing re-chained (removing the latest is the H7 tail truncation)."
+  },
+  {
+   "operator_id": "H1.sequence-shifted",
+   "category": "H1",
+   "variant": "sequence-shifted",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "One record's ``sequence`` no longer its index (shifted by 1 to 3), digest recomputed."
+  },
+  {
+   "operator_id": "H1.spliced-with-another-run",
+   "category": "H1",
+   "variant": "spliced-with-another-run",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_chain_invalid",
+    "witness_run_mismatch",
+    "witness_ledger_head_mismatch",
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A record of another run's witness spliced onto this chain as its newest record, re-linked (sequence, previous digest, digest recomputed)."
+  },
+  {
+   "operator_id": "H2.record-run-id-changed",
+   "category": "H2",
+   "variant": "record-run-id-changed",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_run_mismatch",
+    "run_id_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The run record's top-level ``run_id`` changed; the witness unchanged (the witness now covers another run than the record)."
+  },
+  {
+   "operator_id": "H2.run-id-case-changed",
+   "category": "H2",
+   "variant": "run-id-case-changed",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_run_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The run id upper-cased in every record, chain re-computed (a different string that reads alike)."
+  },
+  {
+   "operator_id": "H2.run-id-lookalike-hyphen",
+   "category": "H2",
+   "variant": "run-id-lookalike-hyphen",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_run_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The ASCII hyphen in the run id replaced by U+2010 HYPHEN in every record, chain re-computed (looks identical)."
+  },
+  {
+   "operator_id": "H2.run-id-rewritten-rechained",
+   "category": "H2",
+   "variant": "run-id-rewritten-rechained",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_run_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "Every record's ``run_id`` replaced by another run id, chain re-computed (internally consistent, wrong run)."
+  },
+  {
+   "operator_id": "H2.run-id-trailing-space",
+   "category": "H2",
+   "variant": "run-id-trailing-space",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_run_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A trailing space appended to the run id in every record, chain re-computed."
+  },
+  {
+   "operator_id": "H2.witness-of-another-run-id",
+   "category": "H2",
+   "variant": "witness-of-another-run-id",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_run_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The witness file of another run (whose records name a different ``run_id``) supplied with this run's record."
+  },
+  {
+   "operator_id": "H2.witness-of-another-run-same-run-id",
+   "category": "H2",
+   "variant": "witness-of-another-run-same-run-id",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_run_mismatch",
+    "witness_ledger_shrunk",
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The witness file of another run that uses the same ``run_id`` string (the producers here name most runs ``run-1``): the run id\ncannot tell the runs apart, only the heads can."
+  },
+  {
+   "operator_id": "H3.count-as-boolean",
+   "category": "H3",
+   "variant": "count-as-boolean",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A ledger entry whose ``count`` is 1 written as ``true``, digest recomputed (``True == 1`` in Python)."
+  },
+  {
+   "operator_id": "H3.count-as-float",
+   "category": "H3",
+   "variant": "count-as-float",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A ledger entry's ``count`` written as a float of the same value, digest recomputed."
+  },
+  {
+   "operator_id": "H3.count-as-string",
+   "category": "H3",
+   "variant": "count-as-string",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A ledger entry's ``count`` written as a string, digest recomputed."
+  },
+  {
+   "operator_id": "H3.count-negative",
+   "category": "H3",
+   "variant": "count-negative",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A ledger entry's ``count`` made negative, digest recomputed."
+  },
+  {
+   "operator_id": "H3.digest-member-missing",
+   "category": "H3",
+   "variant": "digest-member-missing",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The ``digest`` member removed from one record."
+  },
+  {
+   "operator_id": "H3.extension-key-without-x",
+   "category": "H3",
+   "variant": "extension-key-without-x",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "invalid_extension_key"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "An ``extensions`` object whose key has no ``x-`` prefix added to a record, digest recomputed."
+  },
+  {
+   "operator_id": "H3.head-not-a-digest",
+   "category": "H3",
+   "variant": "head-not-a-digest",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A held head written in upper-case hex or without the ``sha256:`` prefix (not the digest form), digest recomputed."
+  },
+  {
+   "operator_id": "H3.ledger-entry-extra-member",
+   "category": "H3",
+   "variant": "ledger-entry-extra-member",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "An extra member (``algorithm`` or ``rows``) in a ledger entry, digest recomputed."
+  },
+  {
+   "operator_id": "H3.ledger-entry-member-missing",
+   "category": "H3",
+   "variant": "ledger-entry-member-missing",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``count`` or ``head`` removed from a ledger entry, digest recomputed."
+  },
+  {
+   "operator_id": "H3.ledgers-as-list",
+   "category": "H3",
+   "variant": "ledgers-as-list",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``ledgers`` written as a list of ``{name, count, head}`` objects instead of an object, digest recomputed."
+  },
+  {
+   "operator_id": "H3.line-is-an-array",
+   "category": "H3",
+   "variant": "line-is-an-array",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "One witness line written as a one-element JSON array holding the record."
+  },
+  {
+   "operator_id": "H3.member-missing",
+   "category": "H3",
+   "variant": "member-missing",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "One required member (``sequence``, ``previous_digest``, ``ledgers`` or ``run_id``) removed from a record, digest recomputed."
+  },
+  {
+   "operator_id": "H3.record-split-across-lines",
+   "category": "H3",
+   "variant": "record-split-across-lines",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "wire_syntax",
+    "wire_trailing_data"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "One record pretty-printed over several lines (the file is no longer one record per line)."
+  },
+  {
+   "operator_id": "H3.sequence-as-boolean",
+   "category": "H3",
+   "variant": "sequence-as-boolean",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``sequence`` 0 or 1 written as ``false`` or ``true``, digest recomputed (a Python bool compares equal to the integer)."
+  },
+  {
+   "operator_id": "H3.sequence-as-float",
+   "category": "H3",
+   "variant": "sequence-as-float",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``sequence`` written as a float of the same value (``1.0`` for ``1``), digest recomputed (equal in Python, not an integer)."
+  },
+  {
+   "operator_id": "H3.sequence-as-string",
+   "category": "H3",
+   "variant": "sequence-as-string",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``sequence`` written as a string (``\"0\"``), digest recomputed."
+  },
+  {
+   "operator_id": "H3.signer-or-proof-member",
+   "category": "H3",
+   "variant": "signer-or-proof-member",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_record_shape",
+    "undeclared_member"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A member that looks like a signer, proof or publication time added to a record, digest recomputed (the profile has none; it must\nnot be read as one)."
+  },
+  {
+   "operator_id": "H3.version-next-minor",
+   "category": "H3",
+   "variant": "version-next-minor",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_version_unsupported"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``version`` of one record set to ``witness-digest/0.2``, digest recomputed."
+  },
+  {
+   "operator_id": "H3.version-not-a-string",
+   "category": "H3",
+   "variant": "version-not-a-string",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_version_unsupported",
+    "witness_record_shape"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``version`` of one record written as the number ``0.1``, digest recomputed."
+  },
+  {
+   "operator_id": "H3.version-other-profile",
+   "category": "H3",
+   "variant": "version-other-profile",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_version_unsupported"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``version`` of one record set to another profile's name (``holder-inventory/0.1``), digest recomputed."
+  },
+  {
+   "operator_id": "H3.version-trailing-space",
+   "category": "H3",
+   "variant": "version-trailing-space",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_version_unsupported"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "``version`` with a trailing space, digest recomputed."
+  },
+  {
+   "operator_id": "H3.wire-byte-order-mark",
+   "category": "H3",
+   "variant": "wire-byte-order-mark",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "wire_bom"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A UTF-8 byte-order mark in front of the witness file."
+  },
+  {
+   "operator_id": "H3.wire-duplicate-member",
+   "category": "H3",
+   "variant": "wire-duplicate-member",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "wire_duplicate_member"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A second ``run_id`` (or ``ledgers``) member written before the real one in a witness line, so a last-wins reader sees the clean record."
+  },
+  {
+   "operator_id": "H3.wire-invalid-utf8",
+   "category": "H3",
+   "variant": "wire-invalid-utf8",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "wire_not_utf8",
+    "wire_syntax"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "An invalid UTF-8 byte inside the run id string of one witness line."
+  },
+  {
+   "operator_id": "H3.wire-lone-surrogate",
+   "category": "H3",
+   "variant": "wire-lone-surrogate",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "wire_lone_surrogate"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A lone UTF-16 surrogate escape appended to the run id string of one witness line."
+  },
+  {
+   "operator_id": "H3.wire-nonfinite-count",
+   "category": "H3",
+   "variant": "wire-nonfinite-count",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "wire_nonfinite_constant"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A ledger entry's ``count`` written as ``NaN`` or ``Infinity``."
+  },
+  {
+   "operator_id": "H3.wire-trailing-data-on-line",
+   "category": "H3",
+   "variant": "wire-trailing-data-on-line",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "wire_trailing_data"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A second JSON value after the record on one witness line."
+  },
+  {
+   "operator_id": "H4.covered-row-dropped-any",
+   "category": "H4",
+   "variant": "covered-row-dropped-any",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A random row of a fully covered run-record ledger removed; the witness unchanged."
+  },
+  {
+   "operator_id": "H4.covered-row-dropped-first",
+   "category": "H4",
+   "variant": "covered-row-dropped-first",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The first row of a fully covered run-record ledger removed; the witness unchanged."
+  },
+  {
+   "operator_id": "H4.covered-row-dropped-tail",
+   "category": "H4",
+   "variant": "covered-row-dropped-tail",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The last row of a fully covered run-record ledger removed; the witness unchanged."
+  },
+  {
+   "operator_id": "H4.destination-row-dropped-uncorroborated",
+   "category": "H4",
+   "variant": "destination-row-dropped-uncorroborated",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk",
+    "observation_without_ledger_row",
+    "acknowledged_attempt_without_ledger_row"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger",
+    "witness"
+   ],
+   "description": "The destination ledger row of an effect nothing in the record corroborates (unknown attempt, no accepted applied or partial\nobservation: the R6 shape) dropped in a witnessed trace. The design says: \"with a witness the same drop is H4\". The witness profile\ncovers the run record's list-valued members only; the destination snapshot is a different file."
+  },
+  {
+   "operator_id": "H4.ledger-emptied",
+   "category": "H4",
+   "variant": "ledger-emptied",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A covered ledger emptied (``[]``); the witness unchanged."
+  },
+  {
+   "operator_id": "H4.ledger-removed",
+   "category": "H4",
+   "variant": "ledger-removed",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A covered ledger member removed from the record; the witness unchanged."
+  },
+  {
+   "operator_id": "H4.record-rolled-back",
+   "category": "H4",
+   "variant": "record-rolled-back",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "destination_ledger",
+    "witness"
+   ],
+   "description": "The record and the destination ledger replaced by their own earlier snapshot (taken at the first publication, a valid state of the\nsame run), the full witness unchanged: a newer witness against an older record."
+  },
+  {
+   "operator_id": "H4.shrunk-latest-record-rewritten",
+   "category": "H4",
+   "variant": "shrunk-latest-record-rewritten",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk",
+    "witness_ledger_head_mismatch",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A row covered by an earlier record dropped and the witness's latest record re-made over the shrunk record (linked to the previous\none): the earlier digest still covers the dropped row."
+  },
+  {
+   "operator_id": "H4.shrunk-then-republished",
+   "category": "H4",
+   "variant": "shrunk-then-republished",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk",
+    "witness_chain_invalid"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A covered row dropped and a new witness record made over the shrunk record appended, correctly linked (what ``publish_head`` refuses\nto do: laundering the drop into a fresh digest)."
+  },
+  {
+   "operator_id": "H4.witness-count-raised",
+   "category": "H4",
+   "variant": "witness-count-raised",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_shrunk"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The latest record's count for a ledger raised by one (head kept), digest recomputed: the record now holds fewer rows than witnessed."
+  },
+  {
+   "operator_id": "H5.covered-row-amount-integer-form",
+   "category": "H5",
+   "variant": "covered-row-amount-integer-form",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A whole-number float ``amount`` in a covered row written as an integer (a different canonical number); the witness unchanged."
+  },
+  {
+   "operator_id": "H5.covered-row-dropped-and-padded",
+   "category": "H5",
+   "variant": "covered-row-dropped-and-padded",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A covered row dropped and a copy of the last row appended so the count holds; the witness unchanged."
+  },
+  {
+   "operator_id": "H5.covered-row-extension-added",
+   "category": "H5",
+   "variant": "covered-row-extension-added",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "An ``extensions`` member with one ``x-`` name added to a covered row (where the record's contracts admit extensions this is the\none change only the witness can see); the witness unchanged."
+  },
+  {
+   "operator_id": "H5.covered-row-replaced-by-copy",
+   "category": "H5",
+   "variant": "covered-row-replaced-by-copy",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A covered row replaced by a copy of another row of the same ledger (count unchanged); the witness unchanged."
+  },
+  {
+   "operator_id": "H5.covered-row-string-rewritten",
+   "category": "H5",
+   "variant": "covered-row-string-rewritten",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "One string value inside a covered row changed (a character appended); the witness unchanged."
+  },
+  {
+   "operator_id": "H5.covered-rows-swapped",
+   "category": "H5",
+   "variant": "covered-rows-swapped",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "Two distinct covered rows of one ledger swapped (count unchanged); the witness unchanged."
+  },
+  {
+   "operator_id": "H5.witness-count-lowered-head-kept",
+   "category": "H5",
+   "variant": "witness-count-lowered-head-kept",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The latest record's count for a ledger lowered by one with the head kept, digest recomputed (the head no longer covers that prefix)."
+  },
+  {
+   "operator_id": "H5.witness-head-replaced",
+   "category": "H5",
+   "variant": "witness-head-replaced",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "witness_ledger_head_mismatch"
+   ],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "A held head replaced by another digest and the record's digest recomputed (a consistent witness holding a wrong head)."
+  },
+  {
+   "operator_id": "H6.credential-ref-not-a-string",
+   "category": "H6",
+   "variant": "credential-ref-not-a-string",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "A holder's ``credential_ref`` written as a number or an object."
+  },
+  {
+   "operator_id": "H6.document-is-a-list",
+   "category": "H6",
+   "variant": "document-is-a-list",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "The inventory written as a one-element list holding the inventory object."
+  },
+  {
+   "operator_id": "H6.extension-key-without-x",
+   "category": "H6",
+   "variant": "extension-key-without-x",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "invalid_extension_key",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "An ``extensions`` object whose key has no ``x-`` prefix, on the inventory or on a holder."
+  },
+  {
+   "operator_id": "H6.holder-added-against-record-reference",
+   "category": "H6",
+   "variant": "holder-added-against-record-reference",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "run_record",
+    "holder_inventory"
+   ],
+   "description": "Where the record names the inventory: an extra holder added to the supplied inventory."
+  },
+  {
+   "operator_id": "H6.holder-dropped-against-record-reference",
+   "category": "H6",
+   "variant": "holder-dropped-against-record-reference",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "run_record",
+    "holder_inventory"
+   ],
+   "description": "Where the record names the inventory: a holder removed from the supplied inventory."
+  },
+  {
+   "operator_id": "H6.holder-duplicated-against-record-reference",
+   "category": "H6",
+   "variant": "holder-duplicated-against-record-reference",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "run_record",
+    "holder_inventory"
+   ],
+   "description": "Where the record names the inventory: a holder duplicated in the supplied inventory (so it is not the inventory the record names)."
+  },
+  {
+   "operator_id": "H6.holder-id-too-long",
+   "category": "H6",
+   "variant": "holder-id-too-long",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "A holder id of 257 characters (the limit is 256)."
+  },
+  {
+   "operator_id": "H6.holder-member-undeclared",
+   "category": "H6",
+   "variant": "holder-member-undeclared",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "undeclared_member",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "An undeclared member (``revoked_at``, ``secret`` or ``state``) added to a holder."
+  },
+  {
+   "operator_id": "H6.holders-as-object",
+   "category": "H6",
+   "variant": "holders-as-object",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "``holders`` written as an object keyed by holder id instead of a list."
+  },
+  {
+   "operator_id": "H6.holders-missing",
+   "category": "H6",
+   "variant": "holders-missing",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "The ``holders`` member removed from the inventory."
+  },
+  {
+   "operator_id": "H6.inventory-member-undeclared",
+   "category": "H6",
+   "variant": "inventory-member-undeclared",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "undeclared_member",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "An undeclared member (``signature``, ``complete`` or ``covers_classes``) added to the inventory."
+  },
+  {
+   "operator_id": "H6.kind-case-changed",
+   "category": "H6",
+   "variant": "kind-case-changed",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "unknown_enum_value",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "A holder's ``kind`` capitalised (``Routed``)."
+  },
+  {
+   "operator_id": "H6.kind-lifecycle-value",
+   "category": "H6",
+   "variant": "kind-lifecycle-value",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "unknown_enum_value",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "A holder's ``kind`` set to a lifecycle word (``expired``, ``revoked`` or ``lapsed``) the closed set does not have."
+  },
+  {
+   "operator_id": "H6.kind-missing",
+   "category": "H6",
+   "variant": "kind-missing",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "A holder's ``kind`` removed."
+  },
+  {
+   "operator_id": "H6.recorded-at-not-a-time",
+   "category": "H6",
+   "variant": "recorded-at-not-a-time",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "timestamp_invalid",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "``recorded_at`` a word, not a time."
+  },
+  {
+   "operator_id": "H6.recorded-at-without-offset",
+   "category": "H6",
+   "variant": "recorded-at-without-offset",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "timestamp_invalid",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "``recorded_at`` without its UTC offset (a naive time) or as a bare date."
+  },
+  {
+   "operator_id": "H6.string-member-emptied",
+   "category": "H6",
+   "variant": "string-member-emptied",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "``inventory_id``, ``recorded_by`` or a holder's ``enforcement_point`` / ``holder_id`` set to the empty string."
+  },
+  {
+   "operator_id": "H6.version-not-a-string",
+   "category": "H6",
+   "variant": "version-not-a-string",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "``version`` written as the number ``0.1``."
+  },
+  {
+   "operator_id": "H6.version-other-profile",
+   "category": "H6",
+   "variant": "version-other-profile",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "unsupported_contract_version",
+    "holder_inventory_shape"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "``version`` set to another profile (``witness-digest/0.1``) or a next minor (``holder-inventory/0.2``)."
+  },
+  {
+   "operator_id": "H6.wire-duplicate-kind",
+   "category": "H6",
+   "variant": "wire-duplicate-kind",
+   "expected_verdict": "reject",
+   "population": "witnessed",
+   "intended_codes": [
+    "wire_duplicate_member"
+   ],
+   "roles": [
+    "holder_inventory"
+   ],
+   "description": "A second ``kind`` member (``expired``) written before the real one in a holder, so a last-wins reader sees the clean inventory."
+  },
+  {
+   "operator_id": "H7.witness-count-lowered-head-recomputed",
+   "category": "H7",
+   "variant": "witness-count-lowered-head-recomputed",
+   "expected_verdict": "abstain",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The latest record's count for one ledger lowered by one with the head recomputed over the shorter prefix, digest recomputed\n(consistent: the last row is now unwitnessed)."
+  },
+  {
+   "operator_id": "H7.witness-omits-a-ledger",
+   "category": "H7",
+   "variant": "witness-omits-a-ledger",
+   "expected_verdict": "abstain",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "Every witness record re-made without one ledger and the chain re-computed (consistent; that ledger's rows are not covered at all)."
+  },
+  {
+   "operator_id": "H7.witness-remade-over-prefix",
+   "category": "H7",
+   "variant": "witness-remade-over-prefix",
+   "expected_verdict": "abstain",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The witness replaced by one record made over a prefix of one ledger (as if published before the later rows were appended); the record\nunchanged."
+  },
+  {
+   "operator_id": "H7.witness-tail-truncated",
+   "category": "H7",
+   "variant": "witness-tail-truncated",
+   "expected_verdict": "abstain",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "run_record",
+    "witness"
+   ],
+   "description": "The latest witness record(s) removed so an older valid witness is replayed against the newer record: the remaining latest record\ncovers fewer rows than the record holds (the rows appended since are unwitnessed, not damaged)."
+  },
+  {
+   "operator_id": "H8.witness-blank-lines",
+   "category": "H8",
+   "variant": "witness-blank-lines",
+   "expected_verdict": "abstain",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "witness"
+   ],
+   "description": "The witness file holding only line ends (no record; the producer's reader skips blank lines)."
+  },
+  {
+   "operator_id": "H8.witness-empty-file",
+   "category": "H8",
+   "variant": "witness-empty-file",
+   "expected_verdict": "abstain",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "witness"
+   ],
+   "description": "The witness file supplied empty (zero bytes)."
+  },
+  {
+   "operator_id": "H8.witness-file-absent",
+   "category": "H8",
+   "variant": "witness-file-absent",
+   "expected_verdict": "abstain",
+   "population": "witnessed",
+   "intended_codes": [],
+   "roles": [
+    "witness"
+   ],
+   "description": "``--witness`` names a path where no file exists (design default 29: how the verifier treats it was not checked)."
   }
  ]
 }

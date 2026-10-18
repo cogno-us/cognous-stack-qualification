@@ -39,6 +39,8 @@ def full(seed, draws):
     return corpus.generate(TRACES, seed, draws)
 
 
+UNWITNESSED_ROLES = {'run_record', 'proposal_export', 'manifest', 'destination_ledger'}
+V2_OPERATOR_SET_DIGEST = 'sha256:0c2b6730560e53c2f6cb7670bd2ccaf3fab70e33e3e3330a31cb0d226fb65629'
 TINY = [BY_ID[i] for i in ('default-applied', 'default-held', 'journal-lost-ack', 'acp-run-authorized')]
 
 
@@ -107,9 +109,9 @@ class Operators(unittest.TestCase):
     def test_every_operator_is_tagged_with_one_design_category(self):
         schema = json.loads((SUITE / 'contract' / 'verification-report' / 'schema.json').read_text())
         enum = schema['$defs']['category']['enum']
-        self.assertEqual(len(enum), 36)
+        self.assertEqual(len(enum), 44)  # 36 + family H (ODES decision 28); the unwitnessed operators never use an H category
         self.assertTrue({o.category for o in operators.OPERATORS} <= set(enum))
-        self.assertEqual(sorted(set(enum) - {o.category for o in operators.OPERATORS}), ['L1', 'Q'])
+        self.assertEqual(sorted(set(enum) - {o.category for o in operators.OPERATORS}), ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'L1', 'Q'])
         self.assertEqual(len({o.operator_id for o in operators.OPERATORS}), len(operators.OPERATORS))
         self.assertEqual(report.CATEGORY_ORDER, enum)
 
@@ -282,12 +284,12 @@ class VersionTwo(unittest.TestCase):
         self.assertEqual([(x['result'], x['observation_accepted']) for x in rr['reconciliations']], [('observed_absent', True), ('hold', False)])
         self.assertEqual(len(t.doc('destination_ledger')['effects']), 1)
         entry = next(e for e in MANIFEST['traces'] if e['trace_id'] == 'journal-lost-ack-unobserved')
-        self.assertEqual(set(entry['files']), set(FILENAMES))
+        self.assertEqual(set(entry['files']), UNWITNESSED_ROLES)
         self.assertEqual(MANIFEST['control_plane_revision'], json.loads((SUITE / 'corpus' / 'clean' / t.trace_id / 'scenario.json').read_text())['control_plane_revision'])
 
     def test_code_vocabulary_refresh_keeps_every_earlier_name_and_adds_the_witness_and_ledger_codes(self):
         names = set(json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
-        self.assertEqual(len(names), 268)
+        self.assertEqual(len(names), 282)  # 268 at adb8927; 5974c50 adds 14 (witness and holder-inventory report notes, profile member names); none removed
         self.assertEqual(sorted(names), json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
         # the 07c2eb8 file (246 names) is a subset: a refresh adds names, it does not drop any
         self.assertTrue(len(names) >= 246)
@@ -307,9 +309,10 @@ class VersionTwo(unittest.TestCase):
         self.assertEqual(validator.validate(doc), [])
         harness = doc['mutation_report']['extensions']['x-qualification-harness']
         self.assertEqual(doc['verifier']['source_revision'], 'adb8927fc13308370ea3b7ad3c899fd69c8fe203')
-        self.assertEqual(harness['seed_corpus']['odes_revision'], contract['odes_commit'])
-        self.assertEqual(contract['odes_commit'], 'fe705e8703ef4290aa7e6f00c31f1049b75a2bec')
-        self.assertEqual(doc['mutation_report']['operator_set_digest'], 'sha256:' + hashlib.sha256((SUITE / 'operators.json').read_bytes()).hexdigest())
+        self.assertEqual(harness['seed_corpus']['odes_revision'], 'fe705e8703ef4290aa7e6f00c31f1049b75a2bec')  # run 3's own ODES revision
+        self.assertEqual(contract['odes_commit'], '296e6bce26d5d68bae402eebca188a3f362b2963')  # re-vendored for catalogue v3; run 3 still validates
+        self.assertEqual(doc['mutation_report']['operator_set_digest'], V2_OPERATOR_SET_DIGEST)  # catalogue v2, not re-labelled
+        self.assertEqual(OPERATOR_SET['supersedes']['operator_set_digest'], V2_OPERATOR_SET_DIGEST)
         self.assertEqual(harness['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
         self.assertEqual(harness['flags'], [])
 
@@ -326,7 +329,7 @@ class VersionTwo(unittest.TestCase):
 
     def test_intended_codes_are_names_the_verifier_has_and_are_labelled_post_hoc(self):
         vocab = json.loads((SUITE / 'verifier-code-names.json').read_text())
-        self.assertEqual(vocab['verifier_revision'], 'adb8927fc13308370ea3b7ad3c899fd69c8fe203')
+        self.assertEqual(vocab['verifier_revision'], '5974c505e8b01b529fe1852c5b5deefe78a1c677')
         names = set(vocab['names'])
         for o in operators.OPERATORS:
             with self.subTest(operator=o.operator_id):
@@ -345,11 +348,11 @@ class VersionTwo(unittest.TestCase):
                                                                'acknowledged_attempt_without_ledger_row', 'observation_without_ledger_row',
                                                                'acknowledgement_differs_from_ledger_row', 'observation_differs_from_ledger_row'})
         self.assertEqual(by_id['R5.drop-ledger-row-of-lost-ack-observed'], {'observation_without_ledger_row', 'acknowledged_attempt_without_ledger_row'})
-        self.assertEqual(OPERATOR_SET['operator_version'], '2')
+        self.assertEqual(OPERATOR_SET['operator_version'], '3')
         self.assertIn('post-hoc', OPERATOR_SET['intended_codes']['status'])
         self.assertIn('703cdde1', OPERATOR_SET['intended_codes']['status'])
-        self.assertEqual(OPERATOR_SET['supersedes']['operator_version'], '1')
-        self.assertEqual(OPERATOR_SET['supersedes']['operator_set_digest'], 'sha256:98ede4eeb0ff252a7bd9a9b39e85f43394fee9732c089381afa8210c8b798514')
+        self.assertEqual(OPERATOR_SET['supersedes']['operator_version'], '2')
+        self.assertEqual(OPERATOR_SET['supersedes']['operator_set_digest'], V2_OPERATOR_SET_DIGEST)
 
     def test_the_report_labels_localized_figures_as_post_hoc(self):
         _, doc = run_harness('accept')
@@ -357,7 +360,7 @@ class VersionTwo(unittest.TestCase):
         self.assertIn('post-hoc', harness['intended_codes_status'])
         self.assertIn('not held-out', harness['definitions']['intended_code'])
         self.assertIn('any_code detection is the primary figure', harness['definitions']['intended_code'])
-        self.assertEqual(harness['operator_version'], '2')
+        self.assertEqual(harness['operator_version'], '3')
 
 
 class Corpora(unittest.TestCase):
@@ -366,7 +369,7 @@ class Corpora(unittest.TestCase):
         self.assertEqual(MANIFEST['canonicalization_profile'], jsonio.PROFILE)
         self.assertEqual(set(MANIFEST['contract_versions']), {'control-plane-journal', 'execution-attempt-lifecycle'})
         for t in TRACES:
-            self.assertEqual(set(t.files), set(FILENAMES))
+            self.assertEqual(set(t.files), UNWITNESSED_ROLES)
         with tempfile.TemporaryDirectory() as tmp:
             import shutil
             shutil.copytree(SUITE / 'corpus' / 'clean', Path(tmp) / 'c')
@@ -407,7 +410,7 @@ class Corpora(unittest.TestCase):
                     if path.name == 'capture.py' and n in ('agent_control_plane', 'tests'):
                         continue  # the opt-in capture tool imports the stack's own test helpers, as its docstring says
                     self.assertIn(n, stdlib, f'{path.name} imports {n}')
-        for name in ('cli.py', 'report.py', 'runner.py', 'corpus.py', 'operators.py'):
+        for name in ('cli.py', 'report.py', 'runner.py', 'corpus.py', 'operators.py', 'witness_operators.py'):
             self.assertNotIn('v1_validation', (SUITE / 'verifier_mutation' / name).read_text())
 
 

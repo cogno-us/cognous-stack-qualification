@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from . import corpus, operators, report
+from . import corpus, operators, report, witness_operators
 from .jsonio import digest
 from .runner import Runner
 from .trace import load_clean_corpus
@@ -24,7 +24,14 @@ HERE = Path(__file__).resolve().parent
 SUITE = HERE.parent
 REPO = SUITE.parent.parent
 OPERATOR_SET = SUITE / "operators.json"
-IMPLEMENTATION_FILES = ("jsonio.py", "operators.py", "corpus.py", "trace.py")
+IMPLEMENTATION_FILES = ("jsonio.py", "operators.py", "corpus.py", "trace.py", "witness_operators.py")
+WITNESSED_CORPUS = SUITE / "corpus" / "witnessed"
+WITNESS_SEED_MAP = SUITE / "witness-seed-map.json"
+
+
+def _catalogue(ops: list[operators.Operator], population: str) -> list[dict[str, Any]]:
+    return [{"operator_id": o.operator_id, "category": o.category, "variant": o.variant, "expected_verdict": o.expected_verdict, "population": population,
+             "intended_codes": list(o.intended_codes), "roles": list(o.roles), "description": o.description} for o in sorted(ops, key=lambda x: x.operator_id)]
 
 
 def operator_set_doc(seed: int = corpus.DEFAULT_SEED, draws: int = corpus.DEFAULT_DRAWS) -> dict[str, Any]:
@@ -35,15 +42,19 @@ def operator_set_doc(seed: int = corpus.DEFAULT_SEED, draws: int = corpus.DEFAUL
         "categories_with_operator": operators.categories_with_operator(),
         "categories_without_operator": list(operators.CATEGORIES_WITHOUT_OPERATOR),
         "expected_accept_categories": list(operators.EXPECTED_ACCEPT),
+        "expected_abstain_categories": list(operators.EXPECTED_ABSTAIN),
+        "witnessed_categories_with_operator": witness_operators.witness_categories(),
         "intended_codes": {
-            "status": "frozen post-hoc after run 1 (703cdde1); not held-out",
-            "basis": "catalogue version 2 drops intended-code names that do not exist in the verifier and adds the codes the verifier emits for the damage, chosen after run 1 and the V3a follow-up were read",
+            "status": "unwitnessed operators: frozen post-hoc after run 1 (703cdde1), unchanged since catalogue version 2; witnessed operators (family H, catalogue version 3): written after the verifier's tier V3 existed, intended codes frozen post-hoc from the codes it emits; not held-out",
+            "basis": "catalogue version 2 drops intended-code names that do not exist in the verifier and adds the codes the verifier emits for the damage, chosen after run 1 and the V3a follow-up were read. Catalogue version 3 adds family H operators written from the ODES design and contracts and the control plane's witness producer code, without reading the verifier's damage tests; their intended codes are the verifier's V3 codes named in its docs/tiers.md and the ODES report contract's family H table",
             "primary_figure": "any_code detection; localized (intended-code) figures are secondary",
             "vocabulary": "verifier-code-names.json",
         },
-        "supersedes": {"operator_version": "1", "qualification_revision": "703cdde145c5818c0eef0de3da4d923953a673f5",
-                       "operator_set_digest": "sha256:98ede4eeb0ff252a7bd9a9b39e85f43394fee9732c089381afa8210c8b798514"},
+        "supersedes": {"operator_version": "2", "qualification_revision": "336a70b86ab40640537b4a9607c2f4c9badf90b9",
+                       "operator_set_digest": "sha256:0c2b6730560e53c2f6cb7670bd2ccaf3fab70e33e3e3330a31cb0d226fb65629",
+                       "note": "catalogue version 3 keeps the 81 unwitnessed operators of version 2 unchanged (same functions, same intended codes) and adds the witnessed operators"},
         "operators": operators.operator_catalogue(),
+        "witnessed_operators": _catalogue(witness_operators.WITNESS_OPERATORS, "witnessed"),
     }
 
 
@@ -75,7 +86,9 @@ def _summary(doc: dict[str, Any]) -> list[str]:
     for c in mr["clean"]:
         out.append(f"clean, {c['corpus_id']}: false rejection per category")
         out.append("  " + "  ".join(f"{r['category']} {report.render_fraction(r['false_rejection'])}" for r in c["rows"]))
-    for f in mr["extensions"]["x-qualification-harness"]["flags"]:
+    harness = mr["extensions"]["x-qualification-harness"]
+    flags = harness["flags"] + (harness["witnessed"]["flags"] if isinstance(harness.get("witnessed"), dict) else [])
+    for f in flags:
         out.append(f"FLAG {f['id']}: {f['k']}/{f['n']}  {f['detail']}")
     return out
 
@@ -98,22 +111,47 @@ def cmd_report(a: argparse.Namespace) -> int:
     slots, dropped = corpus.generate(traces, set_doc["seed"], set_doc["draws_per_variant"])
     runner = Runner(a.verifier_cmd, timeout=a.timeout, contract_dir=Path(a.contract_dir) if a.contract_dir else None)
     run = report.execute(runner, traces, slots, seeds, jobs=a.jobs)
+    witnessed = None
+    if not a.no_witnessed:
+        try:
+            wmanifest, wtraces = load_clean_corpus(Path(a.witnessed_corpus))
+        except (OSError, ValueError, KeyError) as exc:
+            print(f"witnessed corpus refused: {exc}", file=sys.stderr)
+            return 2
+        if wmanifest["control_plane_revision"] != manifest["control_plane_revision"]:
+            print("the witnessed corpus comes from another control plane revision than the clean corpus; the report pins one", file=sys.stderr)
+            return 2
+        wseeds = None
+        wmap = json.loads(WITNESS_SEED_MAP.read_text(encoding="utf-8"))
+        if a.odes:
+            wseeds = corpus.load_witness_seed_corpus(Path(a.odes), wmap, seeds.odes_revision if seeds else "unknown")
+        wslots, wdropped = corpus.generate(wtraces, set_doc["seed"], set_doc["draws_per_variant"], operators=witness_operators.WITNESS_OPERATORS)
+        wrun = report.execute(runner, wtraces, wslots, wseeds, jobs=a.jobs)
+        controls = [(s, o) for s, o in wrun.seed_invalid if s.seed_id in wmap.get("unclassified_on_purpose", {})]
+        witnessed = report.Witnessed(wrun, wtraces, wslots, wdropped, wmanifest, wseeds, controls)
     family_s = json.loads(Path(a.family_s).read_text(encoding="utf-8")) if a.family_s else None
     doc = report.build(
         run, traces=traces, slots=slots, duplicates_dropped=dropped, seeds=seeds, clean_manifest=manifest, operator_set_bytes=frozen, operator_set_digest=digest(frozen),
         seed=set_doc["seed"], draws=set_doc["draws_per_variant"], frozen_revision=a.frozen_revision or _git(["rev-parse", "HEAD"], REPO) or "unknown",
         generated_at=a.generated_at, command=a.verifier_cmd,
-        verifier_hint={"name": a.verifier_name, "version": a.verifier_version, "source_revision": a.verifier_revision}, per_scenario=not a.no_per_scenario, family_s=family_s)
+        verifier_hint={"name": a.verifier_name, "version": a.verifier_version, "source_revision": a.verifier_revision}, per_scenario=not a.no_per_scenario, family_s=family_s,
+        witnessed=witnessed)
     violations = report.validate(doc, a.contract_dir)
     if violations:
         for v in violations[:20]:
             print(f"harness report refused by the ODES validator: {v.code} {v.path}: {v.message}", file=sys.stderr)
         return 2
     Path(a.out).write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    if a.per_operator:
+        rows = report.per_operator(run, "unwitnessed") + (report.per_operator(witnessed.run, "witnessed") if witnessed else [])
+        Path(a.per_operator).write_text(json.dumps({"kind": "verifier-mutation-per-operator", "report_id": doc["report_id"], "operators": rows},
+                                                   indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     for line in _summary(doc):
         print(line)
     print(f"wrote {a.out} ({runner.calls} verifier runs); the report validates against the ODES verification-report contract")
-    return 3 if (a.strict and doc["mutation_report"]["extensions"]["x-qualification-harness"]["flags"]) else 0
+    h = doc["mutation_report"]["extensions"]["x-qualification-harness"]
+    raised = h["flags"] or (isinstance(h.get("witnessed"), dict) and h["witnessed"]["flags"])
+    return 3 if (a.strict and raised) else 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -125,19 +163,25 @@ def main(argv: list[str] | None = None) -> int:
     e = sub.add_parser("capture-extra", help="add the post-run-1 trace (lost acknowledgement, failed follow-up observation) to the existing clean corpus")
     e.add_argument("--control-plane", required=True)
     e.add_argument("--out", default=str(SUITE / "corpus" / "clean"))
+    w = sub.add_parser("capture-witnessed", help="capture the witnessed clean corpus (catalogue v3, family H) with `acp witness publish` (needs the control plane virtualenv)")
+    w.add_argument("--control-plane", required=True)
+    w.add_argument("--out", default=str(SUITE / "corpus" / "witnessed"))
     o = sub.add_parser("operator-set", help="write or check operators.json (the frozen operator set)")
     o.add_argument("--write", action="store_true")
     n = sub.add_parser("code-names", help="write or check verifier-code-names.json from a verifier clone at a revision (reads source with git; runs nothing)")
     n.add_argument("--verifier", required=True, help="clone of cogno-us/cognous-open-control-stack-verifier")
     n.add_argument("--revision", required=True)
     n.add_argument("--write", action="store_true")
-    k = sub.add_parser("check-corpus", help="check the clean corpus against its manifest")
+    k = sub.add_parser("check-corpus", help="check the clean corpus (or the witnessed one) against its manifest")
     k.add_argument("--clean-corpus", default=str(SUITE / "corpus" / "clean"))
     r = sub.add_parser("report", help="run the verifier over the corpora and write the mutation report")
     r.add_argument("--verifier-cmd", required=True, help="e.g. 'cognous-verify --run-record {run_record} [--proposal {proposal_export}] [--ledger {destination_ledger}]'")
     r.add_argument("--out", required=True)
     r.add_argument("--clean-corpus", default=str(SUITE / "corpus" / "clean"))
-    r.add_argument("--odes", help="checkout of cogno-us/open-decision-evidence-standard (adds the seed corpus)")
+    r.add_argument("--odes", help="checkout of cogno-us/open-decision-evidence-standard (adds the seed corpora)")
+    r.add_argument("--witnessed-corpus", default=str(WITNESSED_CORPUS), help="witnessed clean corpus (family H, catalogue v3)")
+    r.add_argument("--no-witnessed", action="store_true", help="skip the witnessed population (family H)")
+    r.add_argument("--per-operator", help="also write a per-operator breakdown (verdicts, codes, the mutants not handled as expected)")
     r.add_argument("--odes-revision")
     r.add_argument("--contract-dir", help="verification-report contract directory (default: the vendored copy)")
     r.add_argument("--family-s", help="JSON list of family S context corpora (counts supplied by their own tools; never run here)")
@@ -160,6 +204,11 @@ def main(argv: list[str] | None = None) -> int:
         from .capture import capture_unobserved
         m = capture_unobserved(Path(a.control_plane), Path(a.out))
         print(f"corpus now holds {len(m['traces'])} traces (control plane {m['control_plane_revision']})")
+        return 0
+    if a.cmd == "capture-witnessed":
+        from .capture import capture_witnessed
+        m = capture_witnessed(Path(a.control_plane), Path(a.out))
+        print(f"captured {len(m['traces'])} witnessed traces at control plane {m['control_plane_revision']}")
         return 0
     if a.cmd == "operator-set":
         if OPERATOR_SET.exists():

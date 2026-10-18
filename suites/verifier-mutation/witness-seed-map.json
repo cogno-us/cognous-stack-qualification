@@ -1,0 +1,91 @@
+{
+ "kind": "verifier-mutation-witness-seed-map",
+ "catalogue_version": "3",
+ "what": "which family H category each ODES witness-digest and holder-inventory invalid fixture seeds (catalogue version 3; regression only, never detection). Classified by the design's category definitions (INDEPENDENT-VERIFIER-DESIGN.md section 4.3, family H) and its seed column; written after the verifier's tier V3 existed (post-hoc). Fixtures not listed are counted as unclassified, never dropped.",
+ "unclassified_on_purpose": {
+  "witness-digest/empty-witness-file": "H8 control (expected abstain): a seed row reports refusal with the intended code, which an abstain-expected control cannot have; its observed verdict is reported in the harness extension instead"
+ },
+ "carrier": {
+  "witness-digest": "staged-two-records-chained",
+  "holder-inventory": "run-with-holder-inventory-journal-mode",
+  "why": "witness fixtures without a record are run with the record of the capture they were mutated from; holder-inventory fixtures carry no record or witness, so they are run with the record and witness of the captured run that held an inventory"
+ },
+ "intended_codes": {
+  "H1": [
+   "witness_chain_invalid"
+  ],
+  "H2": [
+   "witness_run_mismatch"
+  ],
+  "H3": [
+   "witness_version_unsupported",
+   "witness_record_shape",
+   "invalid_extension_key"
+  ],
+  "H4": [
+   "witness_ledger_shrunk",
+   "witness_chain_invalid"
+  ],
+  "H5": [
+   "witness_ledger_head_mismatch"
+  ],
+  "H6": [
+   "holder_inventory_shape",
+   "undeclared_member",
+   "unknown_enum_value",
+   "timestamp_invalid",
+   "unsupported_contract_version",
+   "invalid_extension_key"
+  ]
+ },
+ "by_fixture": {
+  "holder-inventory/credential-ref-member-missing": "H6",
+  "holder-inventory/credential-ref-not-a-string": "H6",
+  "holder-inventory/document-is-a-list": "H6",
+  "holder-inventory/enforcement-point-empty": "H6",
+  "holder-inventory/extension-key-without-x-prefix": "H6",
+  "holder-inventory/holder-id-too-long": "H6",
+  "holder-inventory/holder-member-undeclared": "H6",
+  "holder-inventory/holders-member-missing": "H6",
+  "holder-inventory/holders-not-a-list": "H6",
+  "holder-inventory/inventory-id-missing": "H6",
+  "holder-inventory/inventory-member-undeclared": "H6",
+  "holder-inventory/kind-expired": "H6",
+  "holder-inventory/kind-missing": "H6",
+  "holder-inventory/recorded-at-naive": "H6",
+  "holder-inventory/recorded-at-not-a-time": "H6",
+  "holder-inventory/recorded-by-empty": "H6",
+  "holder-inventory/version-is-another-profile": "H6",
+  "holder-inventory/version-not-a-string": "H6",
+  "witness-digest/chain-defect-stops-the-record-checks": "H1",
+  "witness-digest/covered-row-dropped": "H4",
+  "witness-digest/covered-row-replaced": "H5",
+  "witness-digest/covered-row-rewritten": "H5",
+  "witness-digest/covered-rows-reordered": "H5",
+  "witness-digest/digest-does-not-recompute": "H1",
+  "witness-digest/digest-not-sha256": "H3",
+  "witness-digest/extension-key-without-x-prefix": "H3",
+  "witness-digest/first-record-has-previous-digest": "H1",
+  "witness-digest/ledger-count-decreases": "H4",
+  "witness-digest/ledger-count-zero": "H3",
+  "witness-digest/ledger-entry-extra-member": "H3",
+  "witness-digest/ledger-head-not-sha256": "H3",
+  "witness-digest/ledger-missing-from-a-later-record": "H1",
+  "witness-digest/ledger-removed-from-record": "H4",
+  "witness-digest/ledgers-not-an-object": "H3",
+  "witness-digest/previous-digest-does-not-link": "H1",
+  "witness-digest/previous-digest-empty-string": "H3",
+  "witness-digest/record-for-another-run": "H2",
+  "witness-digest/record-member-missing": "H3",
+  "witness-digest/record-proof-member": "H3",
+  "witness-digest/record-signer-member": "H3",
+  "witness-digest/record-without-run-id": "H2",
+  "witness-digest/run-id-changes-mid-chain": "H1",
+  "witness-digest/run-id-empty": "H3",
+  "witness-digest/sequence-gap": "H1",
+  "witness-digest/sequence-negative": "H3",
+  "witness-digest/version-is-another-profile": "H3",
+  "witness-digest/version-not-a-string": "H3",
+  "witness-digest/witness-file-is-an-object": "H3"
+ }
+}
