@@ -299,6 +299,20 @@ class VersionTwo(unittest.TestCase):
         self.assertTrue({'resolution_check_mismatch', 'resolution_check_without_completion', 'effect_check_before_decision_check', 'ledger_row_without_attempt',
                          'ledger_row_after_definitive_failure'} <= names)
 
+    def test_retained_run_3_report_validates_against_the_vendored_contract_and_names_its_pins(self):
+        report_path = ROOT / 'results' / 'verifier-mutation' / 'run-3-adb8927' / 'mutation-report.json'
+        doc = json.loads(report_path.read_text())
+        contract = json.loads((SUITE / 'contract' / 'verification-report' / 'CONTRACT.json').read_text())
+        validator = ODES
+        self.assertEqual(validator.validate(doc), [])
+        harness = doc['mutation_report']['extensions']['x-qualification-harness']
+        self.assertEqual(doc['verifier']['source_revision'], 'adb8927fc13308370ea3b7ad3c899fd69c8fe203')
+        self.assertEqual(harness['seed_corpus']['odes_revision'], contract['odes_commit'])
+        self.assertEqual(contract['odes_commit'], 'fe705e8703ef4290aa7e6f00c31f1049b75a2bec')
+        self.assertEqual(doc['mutation_report']['operator_set_digest'], 'sha256:' + hashlib.sha256((SUITE / 'operators.json').read_bytes()).hexdigest())
+        self.assertEqual(harness['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
+        self.assertEqual(harness['flags'], [])
+
     def test_code_vocabulary_matches_the_verifier_source_when_a_clone_is_available(self):
         import os
         clone = os.environ.get('VERIFIER_CLONE')
