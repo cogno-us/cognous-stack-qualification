@@ -2,15 +2,15 @@
  "kind": "verifier-mutation-operator-set",
  "family": "T",
  "harness_version": "1",
- "operator_version": "3.1",
+ "operator_version": "3.2",
  "seed": 20261018,
  "draws_per_variant": 2,
  "implementation_sha256": {
   "jsonio.py": "7f047c345e0645cc9b63729f11847636cc5add27f6284bf2a2a68ef44974d4fc",
-  "operators.py": "aebd882dc6769b8c46349f6e729c444283d1f73c1378e259d8f160b3c805af98",
+  "operators.py": "006eccfca2d2857d21aa8f123c345bd4d9c2e2472e579e3797bee598ccb87dfd",
   "corpus.py": "e77ee22623f3e3f910a7fa61034066b3decdb5f77e23a1445f406bea7f317481",
   "trace.py": "8e664ab91859595f82c1a3d3fa105b123f661d4764aa73a7b867970a470b1f82",
-  "witness_operators.py": "8293003bc7af9c719b247dcae8f57744df824e3c9fe03feba8fb11e3cd90e8a9"
+  "witness_operators.py": "f925ad91b2a00c5c61065998832c870daf194115cb4512d2067c3748e23edd58"
  },
  "categories_with_operator": [
   "A1",
@@ -80,10 +80,10 @@
   "vocabulary": "verifier-code-names.json"
  },
  "revises": {
-  "operator_version": "3",
-  "qualification_revision": "ce684ec6147e1ec4e0daef40943aa5047e8264aa",
-  "operator_set_digest": "sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c",
-  "note": "catalogue version 3.1 changes no operator id, function or intended code; it reclassifies the H8 absent-witness-file expectation: H8.witness-file-absent is an input-error control (expected exit 2, no report; ODES decision 30-A) and the witnessed catalogue lists an expected_outcome per operator"
+  "operator_version": "3.1",
+  "qualification_revision": "f1592c374fb60e607da17c2de98bf0719ceb566d",
+  "operator_set_digest": "sha256:4ae13f234ac214a02d34d247d8b7f9a086cbf8f18156aaf166acf164b4d42a62",
+  "note": "catalogue version 3.2 changes no operator id, function, mutant or intended code; it reclassifies H4.destination-row-dropped-uncorroborated as a known-limit control (expected outcome accept, labelled post-hoc: the witness profile does not cover destination.json, ODES decision 30-A, ODES #89). Version 3.1 (H8.witness-file-absent as an input-error control) revised version 3 (qualification ce684ec6, digest sha256:86e4b43449acdf7976aaf3d091d33c2d5b4636f5e64fe3a4d22c4d8f23b9d00c, the set run 4 measured)"
  },
  "supersedes": {
   "operator_version": "2",
@@ -2192,7 +2192,7 @@
    "category": "H4",
    "variant": "destination-row-dropped-uncorroborated",
    "expected_verdict": "reject",
-   "expected_outcome": "reject",
+   "expected_outcome": "accept",
    "population": "witnessed",
    "intended_codes": [
     "witness_ledger_shrunk",
@@ -2204,7 +2204,7 @@
     "destination_ledger",
     "witness"
    ],
-   "description": "The destination ledger row of an effect nothing in the record corroborates (unknown attempt, no accepted applied or partial observation: the R6 shape) dropped in a witnessed trace. The design says: \"with a witness the same drop is H4\". The witness profile covers the run record's list-valued members only; the destination snapshot is a different file."
+   "description": "Known-limit control (ODES decision 30-A, ODES #89): the destination ledger row of an effect nothing in the record corroborates (unknown attempt, no accepted applied or partial observation: the R6 shape) dropped in a witnessed trace. The witness profile covers the run record's list-valued members only; the destination snapshot is a different file, so the drop is as undetectable as without a witness. Expected outcome accept, labelled post-hoc; an accept is the measured limit, not a missed detection."
   },
   {
    "operator_id": "H4.ledger-emptied",

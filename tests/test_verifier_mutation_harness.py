@@ -289,7 +289,8 @@ class VersionTwo(unittest.TestCase):
 
     def test_code_vocabulary_refresh_keeps_every_earlier_name_and_adds_the_witness_and_ledger_codes(self):
         names = set(json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
-        self.assertEqual(len(names), 440)  # 268 at adb8927; 5974c50 adds 14 (witness and holder-inventory report notes, profile member names); 2fcdc3e6 adds 158 (V10's 157 and profile_sidecar_semantics_only); none removed
+        self.assertEqual(len(names), 441)  # 268 at adb8927; 5974c50 adds 14 (witness and holder-inventory report notes, profile member names); 2fcdc3e6 adds 158 (V10's 157 and profile_sidecar_semantics_only); 0a43a7f0 adds reason_label_mismatch; none removed
+        self.assertIn('reason_label_mismatch', names)
         self.assertIn('profile_sidecar_semantics_only', names)
         self.assertEqual(sorted(names), json.loads((SUITE / 'verifier-code-names.json').read_text())['names'])
         # the 07c2eb8 file (246 names) is a subset: a refresh adds names, it does not drop any
@@ -311,7 +312,7 @@ class VersionTwo(unittest.TestCase):
         harness = doc['mutation_report']['extensions']['x-qualification-harness']
         self.assertEqual(doc['verifier']['source_revision'], 'adb8927fc13308370ea3b7ad3c899fd69c8fe203')
         self.assertEqual(harness['seed_corpus']['odes_revision'], 'fe705e8703ef4290aa7e6f00c31f1049b75a2bec')  # run 3's own ODES revision
-        self.assertEqual(contract['odes_commit'], '0a37180fb09af596a1d134e38b316307e12fb424')  # re-vendored (profile_sidecar_semantics_only); run 3 still validates
+        self.assertEqual(contract['odes_commit'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')  # re-vendored (README only since 0a37180f); run 3 still validates
         self.assertEqual(doc['mutation_report']['operator_set_digest'], V2_OPERATOR_SET_DIGEST)  # catalogue v2, not re-labelled
         self.assertEqual(OPERATOR_SET['supersedes']['operator_set_digest'], V2_OPERATOR_SET_DIGEST)
         self.assertEqual(harness['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
@@ -330,7 +331,7 @@ class VersionTwo(unittest.TestCase):
 
     def test_intended_codes_are_names_the_verifier_has_and_are_labelled_post_hoc(self):
         vocab = json.loads((SUITE / 'verifier-code-names.json').read_text())
-        self.assertEqual(vocab['verifier_revision'], '2fcdc3e6b8188d4a81de277b45845ad880924402')
+        self.assertEqual(vocab['verifier_revision'], '0a43a7f0216cb0300f198e69d1c2f6d3acb19c1a')
         names = set(vocab['names'])
         for o in operators.OPERATORS:
             with self.subTest(operator=o.operator_id):
@@ -349,7 +350,7 @@ class VersionTwo(unittest.TestCase):
                                                                'acknowledged_attempt_without_ledger_row', 'observation_without_ledger_row',
                                                                'acknowledgement_differs_from_ledger_row', 'observation_differs_from_ledger_row'})
         self.assertEqual(by_id['R5.drop-ledger-row-of-lost-ack-observed'], {'observation_without_ledger_row', 'acknowledged_attempt_without_ledger_row'})
-        self.assertEqual(OPERATOR_SET['operator_version'], '3.1')  # reclassification of H8.witness-file-absent only (ODES decision 30-A)
+        self.assertEqual(OPERATOR_SET['operator_version'], '3.2')  # 3.1: H8.witness-file-absent input-error control; 3.2: H4.destination-row-dropped-uncorroborated known-limit control (ODES decision 30-A)
         self.assertIn('post-hoc', OPERATOR_SET['intended_codes']['status'])
         self.assertIn('703cdde1', OPERATOR_SET['intended_codes']['status'])
         self.assertEqual(OPERATOR_SET['supersedes']['operator_version'], '2')
@@ -361,7 +362,7 @@ class VersionTwo(unittest.TestCase):
         self.assertIn('post-hoc', harness['intended_codes_status'])
         self.assertIn('not held-out', harness['definitions']['intended_code'])
         self.assertIn('any_code detection is the primary figure', harness['definitions']['intended_code'])
-        self.assertEqual(harness['operator_version'], '3.1')
+        self.assertEqual(harness['operator_version'], '3.2')
 
 
 class Corpora(unittest.TestCase):
