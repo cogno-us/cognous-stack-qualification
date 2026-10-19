@@ -45,6 +45,10 @@ DEFAULT_TEST_TIMEOUT_SECONDS = 900
 SIBLING_PROVISIONING = {
     "moltbot_safe": (("control_plane", (".[runtime-authority]", ".")),),  # runtime tests need the Control Plane local-authority-effect contract
     "odes": (("replay_bundle", (".",)),),                                  # ODES tests need the accepted Replay revision installed
+    # evidence pack tests import the pinned Replay importers and the Control Plane freshness module (33 skips without them)
+    "governance_evidence_pack": (("replay_bundle", (".",)), ("control_plane", (".[runtime-authority]", "."))),
+    # one Replay pairing test imports the pack importer (1 skip without it)
+    "replay_bundle": (("governance_evidence_pack", (".",)),),
 }
 
 
