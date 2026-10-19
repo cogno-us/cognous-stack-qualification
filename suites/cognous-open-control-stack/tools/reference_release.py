@@ -491,7 +491,12 @@ def main():
     open_env["PYTHONPATH"]=os.pathsep.join([str(cp/"src"),str(acc),open_env.get("PYTHONPATH","")])
     open_env["MOLTBOT_SAFE_ROOT"]=str(acc)
     open_xml=out/"openshell-mock.xml"
-    openshell=run([sys.executable,"-m","pytest","-q",str(acc/"tests/test_openshell_environment.py"),"--junitxml",str(open_xml)],env=open_env)
+    # The adapter test moved to the qualification package when cross-component tests were relocated
+    # (absent from runtime revisions after that move); prefer the runtime copy when it still exists.
+    openshell_test=acc/"tests/test_openshell_environment.py"
+    if not openshell_test.exists():
+        openshell_test=ROOT/"_qualification/suites/cognous-execution-runtime/tests/test_openshell_environment.py"
+    openshell=run([sys.executable,"-m","pytest","-q",str(openshell_test),"--junitxml",str(open_xml)],env=open_env)
     (out/"openshell-mock.log").write_text(openshell["output"],encoding="utf-8")
     openshell.update({"scope":"mocked adapter only","evidence_state":execution_state if openshell["returncode"]==0 else "blocked","log":"openshell-mock.log","junit":"openshell-mock.xml"})
     openshell.pop("output")
