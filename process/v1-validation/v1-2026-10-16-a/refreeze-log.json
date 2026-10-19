@@ -577,6 +577,86 @@
    "open_item": "full controller run at the re-frozen tuple (RF-2..RF-36 together; mixed generations are refused) and the r9 profile process/security-runtime-f5b-20261016-r9.json; no run has been made",
    "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
    "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-37",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-19 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "moltbot_safe",
+   "repository": "cogno-us/cognous-execution-runtime",
+   "from_sha": "c4a05883266b815f39d97cbf2240406647985147",
+   "to_sha": "6b16962db140590b808f02b5c2cb11a217aec46f",
+   "reason": "Programme 2 runtime fix for the export of a grant that changes at commit time (effective_grant_changed_at_commit): a failed or denied result reports an unknown state and a null observation, the reconciliation is retained in control_plane_evidence, and a failed result is exempted from retained-binding validation; the paired producer export names this revision",
+   "behaviour_changes": [
+    "a failed or denied result reports an unknown state and a null observation",
+    "the reconciliation is retained in control_plane_evidence",
+    "a failed result is exempted from retained-binding validation",
+    "the producer export names this revision, so Replay, the evidence pack, ODES and the exchange pin it"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-41 together; mixed generations are refused) and the r10 profile process/security-runtime-f5b-20261016-r10.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-38",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-19 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "replay_bundle",
+   "repository": "cogno-us/cognous-replay-bundle",
+   "from_sha": "2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00",
+   "to_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+   "reason": "Programme 2 pin round 2: the paired runtime constant and the producer label name runtime 6b16962d; the programme2_paired fixtures are re-captured against it with the unchanged capture script",
+   "behaviour_changes": [
+    "Replay accepts executor exports of runtime 6b16962d (the previous runtime revision is an unsupported combination)",
+    "record ids carry the label @6b16962d"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-41 together; mixed generations are refused) and the r10 profile process/security-runtime-f5b-20261016-r10.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-39",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-19 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "governance_evidence_pack",
+   "repository": "cogno-us/cognous-governance-evidence-pack",
+   "from_sha": "80e24650bb089d3a0cb9c0063c5b4bcc4a436123",
+   "to_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+   "reason": "Programme 2 pin round 2: the P2 revisions name runtime 6b16962d and Replay 6a6a4774; the installed-Replay cross-check and the p2_generation fixtures follow Replay 6a6a4774",
+   "behaviour_changes": [
+    "the P2 revisions of the pack name runtime 6b16962d and the installed Replay must name the same runtime",
+    "the replay extra of the pack depends on Replay 6a6a4774"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-41 together; mixed generations are refused) and the r10 profile process/security-runtime-f5b-20261016-r10.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-40",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-19 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "odes",
+   "repository": "cogno-us/open-decision-evidence-standard",
+   "from_sha": "4bf1212860f4d7c5d4f26758485f91402ffed426",
+   "to_sha": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+   "reason": "Programme 2 pin round 2: the P2 compatibility tuple names runtime 6b16962d and Replay 6a6a4774 (decision 42); no validator rule changed",
+   "behaviour_changes": [
+    "a package is accepted as P2 only for the tuple of runtime 6b16962d and Replay 6a6a4774; a bundle of the previous P2 tuple is no longer accepted as P2"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-41 together; mixed generations are refused) and the r10 profile process/security-runtime-f5b-20261016-r10.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
+  },
+  {
+   "id": "RF-41",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-19 (standing instruction: one batch of pin bumps at the end of Programme 2; \"you make decisions\"; \"I authorize all changes upfront\")",
+   "component": "gax_imx_transport",
+   "repository": "cogno-us/cognous-governed-exchange",
+   "from_sha": "bf314f3884e60629c844b1d6cb248f4d76b31c1a",
+   "to_sha": "fdc2a410383396553254a39ae641c88b78ee13f1",
+   "reason": "Programme 2 pin round 2: the compatibility profile security-runtime-p2-20261018 names the final tuple (control plane 2bac7875, runtime 6b16962d, Replay 6a6a4774, ODES 2893d935, evidence pack fd030615, manifest ff549082)",
+   "behaviour_changes": [
+    "the p2 exchange compatibility profile security-runtime-p2-20261018 names the current tuple; no identity check was loosened"
+   ],
+   "open_item": "full controller run at the re-frozen tuple (RF-2..RF-41 together; mixed generations are refused) and the r10 profile process/security-runtime-f5b-20261016-r10.json; no run has been made",
+   "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run)"
   }
  ]
 }
