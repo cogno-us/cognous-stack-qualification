@@ -1,0 +1,1436 @@
+{
+  "schema": "cognous.release-gate.preregistration/1",
+  "title": "Pre-registration of the publication criteria and the comparator subset",
+  "status": "pre-registration; items marked proposed need owner confirmation by amendment before the first run",
+  "document": "docs/release-gate/pre-registration.md",
+  "registration_time_rule": "The registration time is the merge time recorded by the repository host for the commit that adds this file. It is not written in the file.",
+  "recorded_before_any_run": true,
+  "derived_from_results": false,
+  "basis": {
+    "applicability_file": "scenarios/ai-security-wiki/applicability.json",
+    "applicability_version": "1.0.0",
+    "catalog_source_commit": "1a0c72de4752a1c6932172e5e7dbf14f755799c8",
+    "inventory": "process/release-gate/inventory.json",
+    "qualification_main_when_drafted": "cc219c0b4b658dfeb8068ea27a12dae2931bce67"
+  },
+  "scope_text": "Bounded synthetic profile only. The comparator applications (the OPA application and the LangGraph plus OPA application) are configured by Cognous, not vendor implementations. This is not independent certification and not production readiness; operational trust stays on HOLD. Linux only.",
+  "criteria": [
+    {
+      "id": "PC-1",
+      "text": "OCS passes 100% of its applicable suites in all three categories: synthetic individual-component tests (gate OCS-1), synthetic cross-component tests (gate OCS-2), and Wiki-derived tests split into individual-component (W-I) and cross-component (W-X) cases (gate OCS-3)."
+    },
+    {
+      "id": "PC-2",
+      "text": "Passing means green with no unexplained skips and no unexplained xfails."
+    },
+    {
+      "id": "PC-3",
+      "text": "Known-limit tests are listed separately from ordinary passes."
+    },
+    {
+      "id": "PC-4",
+      "text": "A failing applicable test blocks publication until it is fixed or reclassified. The reclassification and its reason are recorded before the result is seen."
+    },
+    {
+      "id": "PC-5",
+      "text": "The comparators (the OPA transactional application and the LangGraph plus OPA application) run only on the 19 corner scenarios, the 24 baseline scenarios and a Wiki subset pre-registered per case, with identical scoring for OCS and for each comparator."
+    },
+    {
+      "id": "PC-6",
+      "text": "All results are reported honestly, including cases where a comparator passes and OCS does not."
+    },
+    {
+      "id": "PC-7",
+      "text": "The scope text is unchanged: Bounded synthetic profile only. The comparator applications (the OPA application and the LangGraph plus OPA application) are configured by Cognous, not vendor implementations. This is not independent certification and not production readiness; operational trust stays on HOLD. Linux only."
+    },
+    {
+      "id": "PC-8",
+      "text": "A statement that one configuration scores higher is made only where both configurations were run."
+    }
+  ],
+  "definitions": [
+    {
+      "term": "pass",
+      "text": "A test that ran in the documented environment and ended in the outcome \"passed\", with no skip and no expected failure involved. For a comparison, a trial passes when the oracle in the Scoring section reports it; a case passes for a configuration when every one of its trials passes."
+    },
+    {
+      "term": "fail",
+      "text": "An applicable test that errors, fails, or is a strict expected failure that unexpectedly passes; a comparison case in which at least one trial does not pass the oracle. A failing applicable test stays in the denominator and blocks publication under PC-4."
+    },
+    {
+      "term": "known limit",
+      "text": "A stated boundary of the stack: something it does not check, record or guarantee, which the documentation says. A known-limit test passes by showing the limit as it is; the negative fact is the assertion. It is reported in the PASSING-AS-KNOWN-LIMIT column, listed apart from ordinary passes, and never counted as an ordinary pass. A strict expected failure counts as a known limit only if it is declared in this document (or in an appended amendment) before the run that could show its result."
+    },
+    {
+      "term": "not claimed",
+      "text": "A statement that the stack makes no claim about something a case asks for. The part of a case that is claimed is tested and counts; the part that is not claimed is stated in the case's not_claimed sentence in applicability.json and is not scored. In a comparison, a configuration for which a case asks for something that configuration does not claim is reported as not claimed, which is neither a pass nor a fail."
+    },
+    {
+      "term": "not applicable",
+      "text": "A capability the stack does not have or that the owner scoped out, decided from the declared scope and never from results. It is listed with a one-line reason and is outside the denominator. In applicability.json these are the cases classed NOT_APPLICABLE."
+    },
+    {
+      "term": "skipped",
+      "text": "A test that did not run: a skip mark, an in-body skip, an unset environment variable that excludes a module from collection, or a missing checkout. A skip is allowed only if inventory.json lists it with a reason and the environment it needs; a skip that is not listed fails the gate. A skip is never a pass, and a module that was not collected gives no result, which is reported as no result."
+    },
+    {
+      "term": "xfail",
+      "text": "An expected-failure mark. Every xfail in a gate suite must be strict. A strict xfail that fails as asserted is a known limit only if declared before the run; an undeclared xfail is an unexplained xfail and fails the gate; a strict xfail that passes is a failure."
+    },
+    {
+      "term": "not expressible",
+      "text": "A recorded outcome for a comparator configuration, not a pass and not a fail: the case asks a question that the configuration, as configured by Cognous, has no way to be asked or to answer. It is declared per case and per configuration before any run, with a reason from the case text and the configuration's declared interface. See the section on not-expressible cases. (PROPOSED for owner review; the pilot specification has no such outcome.)"
+    },
+    {
+      "term": "could not check",
+      "text": "A recorded outcome when a harness, adapter or trial could not complete (a crash, a timeout or an unparseable reply). It is never a pass; the reason text is kept. (PROPOSED for owner review; taken from the three-valued verdict rule of the pilot specification and applied to the comparison harness.)"
+    }
+  ],
+  "declaration_rules": [
+    {
+      "id": "DR-1",
+      "text": "A known-limit declaration names the exact test id (module, function and parameter), states the limit in one neutral sentence, and is recorded in this document or in an appended amendment before the run that could show the result. The time of recording is the time the repository host records for the change that adds it."
+    },
+    {
+      "id": "DR-2",
+      "text": "A declaration made after a result was seen has no effect on that result. The result stays as observed, the failed attempt stays in the retained evidence, and a failing applicable test still blocks publication."
+    },
+    {
+      "id": "DR-3",
+      "text": "A reclassification (known limit, not applicable, or a test that lags its component) is made only by the owner or by an owner-approved delegate, with the test id, the date and the reason in writing. It takes effect only for runs that start after it was recorded. A reclassification recorded after an earlier run showed the failure is reported as such, with the earlier run named."
+    },
+    {
+      "id": "DR-4",
+      "text": "A known-limit test is never changed to make it pass. Its assertions, fixtures and expected values stay as they are; a test that is replaced keeps the old id as a retired row with the failure text that retired it."
+    },
+    {
+      "id": "DR-5",
+      "text": "Not applicable is decided from the declared scope, not from a result. An applicable case or test stays in the denominator even if it fails."
+    },
+    {
+      "id": "DR-6",
+      "text": "A skip is declared only by inventory.json (reason and environment). A skip not listed there fails the gate. This document declares no skips."
+    },
+    {
+      "id": "DR-7",
+      "text": "A strict expected failure that is not declared as a known limit is an unexplained xfail and fails the gate. A strict expected failure that passes fails the run; its mark is then removed in a later change and the probe counts as an ordinary test from the next run."
+    },
+    {
+      "id": "DR-8",
+      "text": "A declaration is made for one named test or one named requirement selector. A declaration for a group, a directory or a pattern is not valid."
+    },
+    {
+      "id": "DR-9",
+      "text": "Anything not declared here or by amendment before a run is treated as undeclared: a test in the known-limit class that is not on a list is reported in the ordinary passing column if it passes, and a failure of it blocks publication."
+    }
+  ],
+  "gates": {
+    "categories": [
+      {
+        "gate": "OCS-1",
+        "category": "1",
+        "inventory_ids": "C1-01 to C1-15 and the rows marked a"
+      },
+      {
+        "gate": "OCS-2",
+        "category": "2",
+        "inventory_ids": "X-01 to X-17"
+      },
+      {
+        "gate": "OCS-3",
+        "category": "3I and 3X",
+        "inventory_ids": "W-I, W-X"
+      }
+    ],
+    "result_columns": [
+      "PASSING",
+      "PASSING-AS-KNOWN-LIMIT",
+      "SKIPPED-WITH-REASON"
+    ]
+  },
+  "comparator_subset": {
+    "configurations": [
+      {
+        "id": "cognous-protected-destination",
+        "role": "OCS reference"
+      },
+      {
+        "id": "opa-transactional-application",
+        "role": "comparator"
+      },
+      {
+        "id": "langgraph-opa-transactional-application",
+        "role": "comparator"
+      }
+    ],
+    "corner": {
+      "plan": "suites/cognous-open-control-stack/benchmarks/governance/corner-plan.json",
+      "plan_sha256": "35ca4ee5a2b695f3a4655f97dbd3d949055895674001fc52ec020ff286eb0162",
+      "seeds": [
+        1701,
+        1702
+      ],
+      "repetitions": 5,
+      "scenario_ids": [
+        "permitted",
+        "revoked_before_effect",
+        "changed_target",
+        "missing_verifier",
+        "budget_exhaustion",
+        "verifier_wrong_command",
+        "verifier_wrong_digest",
+        "verifier_inactive",
+        "verifier_wrong_generation",
+        "verifier_future",
+        "verifier_expiry_boundary",
+        "payload_changed_after_verification",
+        "payload_changed_without_resigning",
+        "unknown_argument",
+        "empty_effect_identifier",
+        "unknown_body_field",
+        "unknown_verifier_field",
+        "wrong_operation",
+        "exact_command_replay"
+      ]
+    },
+    "baseline": {
+      "plan": "suites/cognous-open-control-stack/benchmarks/governance/plan.json",
+      "plan_sha256": "47f28898e342f9c6448943d5d2bc3daefeac536f3dff29c50e4def73cd9d1a63",
+      "seeds": [
+        1701,
+        1702
+      ],
+      "repetitions": 10,
+      "scenario_ids": [
+        "permitted",
+        "missing_grant",
+        "revoked_before_effect",
+        "expiry_boundary",
+        "stale_generation",
+        "unissued_generation",
+        "changed_policy",
+        "changed_target",
+        "missing_verifier",
+        "stale_verifier",
+        "forged_signature",
+        "direct_agent",
+        "hard_pin_rotation",
+        "lost_ack_restart",
+        "conflicting_redelivery",
+        "budget_exhaustion",
+        "revocation_after_commit_read_receipt",
+        "revocation_after_commit_new_effect",
+        "audit_write_failure",
+        "concurrent_last_budget",
+        "stale_signed_request",
+        "captured_request_then_revocation",
+        "crash_before_commit",
+        "crash_after_commit"
+      ]
+    },
+    "policy_file": {
+      "path": "suites/cognous-open-control-stack/benchmarks/governance/policy.rego",
+      "sha256": "712b0f8cda4de050bdf72c411bf79614a46cfc47837a560fc6f8efbd4df04f62"
+    },
+    "wiki": {
+      "source": "scenarios/ai-security-wiki/applicability.json",
+      "in_scope_cases": 65,
+      "inclusion_rule": "A case is included when (R1) its own pass statement is an allow, refuse or hold on an action, or an effect count at a destination, and (R2) a generic authorization or policy engine, with application controls of the kind both comparator applications already have, could in principle be configured to express it without a component the comparators lack. A case that fails R1 or R2 is excluded.",
+      "included": [
+        {
+          "id": "TC-D09-009",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that elevated access exists only inside a 15-minute window and that expired access is refused; a time-window check on a grant is a standard policy input. Asked: effect inside the window, refusal after it. Approval modes and slow-approval timing are not asked."
+        },
+        {
+          "id": "TC-D09-011",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that an action outside a delegation's scope is blocked and that a revoked delegation stops working; scope and revocation are data a policy rule can read. Asked: in-scope and out-of-scope actions, effect after revocation. Export completeness is not asked."
+        },
+        {
+          "id": "TC-D13-003",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "execution-runtime",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that each level of nested budgets stops at its own limit while sibling levels continue; per-level counters held by the application can express it. Included as written; the owner decision on whether OCS claims this case is open (see Decisions still open)."
+        },
+        {
+          "id": "TC-L02-011",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that an exception that opened a control stops working at expiry; an expiry time on an exception record is a standard policy input."
+        },
+        {
+          "id": "TC-L05-013",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that when the protection component is stopped the application behaves as configured (fail open or fail closed); a configuration can express the fail-closed mode. Asked: effect count while the check component is unavailable. Alerting and mode switching are not asked."
+        },
+        {
+          "id": "TC-L05-022",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "control-plane"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that function-call arguments violating a schema or policy are blocked and valid calls pass; schema and argument rules are the core use of a policy engine."
+        },
+        {
+          "id": "TC-L06-008",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a tool definition changed after approval is blocked until re-approval; a digest of the approved definition compared at call time can express it. Asked: call with a changed definition. Detection interval is not asked."
+        },
+        {
+          "id": "TC-L06-009",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that identical, case-varied, look-alike and prefix-removed tool names do not reach the trusted tool's authority; exact-match allow-listing by tool identity can express the refusal. Asked: call naming each variant. Server attribution display is not asked."
+        },
+        {
+          "id": "TC-L06-011",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that every combination of agent, user and tool matches a per-tool allow or deny matrix; an allow/deny table keyed by agent, user and tool is a direct policy expression."
+        },
+        {
+          "id": "TC-L06-013",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that each agent can call only the tools on its own allow-list and that out-of-list calls are blocked; a per-agent allow-list is a direct policy expression."
+        },
+        {
+          "id": "TC-L06-014",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that tool calls violating parameter rules (recipient domain, amount limit, path, record count) are blocked and compliant calls pass; parameter-level rules are a direct policy expression."
+        },
+        {
+          "id": "TC-L06-015",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that risky actions are held for approval and that rejected or timed-out actions do not run; a hold-until-approved step can express it. Asked: effect count after approve, reject and timeout. Approver context display is not asked."
+        },
+        {
+          "id": "TC-L06-016",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "execution-runtime",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that one large action split into many small ones is treated as one aggregate and that repeated identical requests do not multiply effects; an aggregate counter and an effect identity can express both. Wording and visual-distinction items are not asked."
+        },
+        {
+          "id": "TC-L06-017",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "individual-component",
+          "components": [
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a sub-agent never holds more than its parent and that chain depth is limited; a subset check and a depth bound on a delegation chain can be expressed as rules."
+        },
+        {
+          "id": "TC-L06-019",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a standard user is denied privileged actions even when the agent's own reach is wider; a rule comparing the requesting user's entitlement with the action can express it."
+        },
+        {
+          "id": "TC-L06-022",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that no new action runs after a stop is triggered for one agent while other agents continue and the stopped state persists; a persistent stop flag read at decision time can express it. In-flight call documentation is not asked."
+        },
+        {
+          "id": "TC-L06-023",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that revoked credentials are unusable and that the list of actions taken is complete; revocation state and an audit log can express both. Rollback support is not asked."
+        },
+        {
+          "id": "TC-L06-024",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that per-window caps on updates, sends and deletes are enforced exactly and reset on schedule; counters with a time window held by the application can express it. Alert at 80 percent is not asked."
+        },
+        {
+          "id": "TC-L06-034",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a change to model, prompt, tool, data scope or owner after approval restricts the agent until re-approval; a digest of the approved configuration compared at call time can express it. Asked: call after each change. Classification of which changes are material is not asked."
+        },
+        {
+          "id": "TC-L06-039",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "governed-exchange",
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that a request from a low-privilege agent is authorised against both the calling agent and the originating user; a rule over caller, user and action can express it. Asked at the request level; the message transport between agents is not asked."
+        },
+        {
+          "id": "TC-L07-008",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a tool call that the user's request did not warrant is stopped before the action runs while legitimate calls pass; an allow-list at the destination can express the refusal. Asked: effect count for unwarranted calls. Detection of the text that prompted the call is not asked."
+        },
+        {
+          "id": "TC-L09-003",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that expired, wrong-audience and over-scope tokens are rejected; expiry, audience and scope are standard token claims a rule can check. Flagging of static long-lived keys is not asked."
+        },
+        {
+          "id": "TC-L09-004",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that calls outside a token's scope (tickets versus payroll and files) are rejected; a scope check is a direct policy expression."
+        },
+        {
+          "id": "TC-L09-006",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that downstream calls carry the end user's identity and that substitution is rejected; a rule comparing the presented identity with the authenticated one can express the rejection. Downstream recording of identity is not asked."
+        },
+        {
+          "id": "TC-L09-007",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that attempts to use tools that edit roles, read credentials or create agents are blocked; an allow-list can express the block. Identification of the escalation paths is not asked."
+        },
+        {
+          "id": "TC-L09-014",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that expired keys are rejected and revocation is immediate; expiry and revocation state are inputs a rule can check. Rotation window and usage reminders are not asked."
+        },
+        {
+          "id": "TC-L09-018",
+          "included": true,
+          "engine_could_express": "partly",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that identity claimed in text, headers or fields is rejected and identity is taken from the authenticated source; a rule that reads only the authenticated principal can express it. The result depends on how the application supplies the authenticated principal, which is part of the configuration."
+        },
+        {
+          "id": "TC-L09-019",
+          "included": true,
+          "engine_could_express": "yes",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a token or agent from a non-production environment is blocked at a production-like destination; an environment or audience claim check is a direct policy expression."
+        }
+      ],
+      "excluded": [
+        {
+          "id": "TC-D09-004",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "individual-component",
+          "components": [
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks for agreement with a reviewer on risk tiers for 15 agents and flags for agents short of tier controls; no action at a destination is observed."
+        },
+        {
+          "id": "TC-D09-016",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks for revocation to take effect within 5 minutes in four separate systems (identity provider, cloud, SaaS, gateway); the comparators have one destination and none of those systems."
+        },
+        {
+          "id": "TC-D12-004",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "replay-bundle",
+            "evidence-pack"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks for a point-in-time snapshot of model, prompt, tools and policy that is exportable and tamper-evident; a records property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-D12-007",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "replay-bundle",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks for replay of recorded incidents with a fidelity report; a records and reconstruction property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-D12-018",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "replay-bundle",
+            "evidence-pack",
+            "verifier"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that evidence items are hashed with a custody trail and that an altered item is detected; a records property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-D12-021",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "replay-bundle",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that near-misses are captured, clustered and reviewed weekly with improvements; a review process, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L02-002",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "individual-component",
+          "components": [
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that policy statements are mapped to enforcing controls and evidence; a documentation mapping, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L02-016",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "evidence-pack",
+            "replay-bundle"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that an evidence pack for a chosen framework is produced on demand; a reporting property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L02-025",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "verifier"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks for change history and tamper evidence on governance records edited by three roles; a records property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L03-022",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "replay-bundle",
+            "evidence-pack",
+            "odes"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that evidence exports in each offered format are complete and carry integrity proof; a reporting property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L05-012",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "individual-component",
+          "components": [
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a coverage report correctly shows which of four applications have protection deployed; an inventory report, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L05-028",
+          "included": false,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that an application policy can be exported, edited, re-imported and shown in a version history; policy-as-code is expressible, but the observed object is a policy round trip, not an action at a destination."
+        },
+        {
+          "id": "TC-L06-003",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "governed-exchange",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that agents run on workstations and in personal accounts are discovered; endpoint and traffic discovery, not an action at a destination."
+        },
+        {
+          "id": "TC-L06-007",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "action-manifest",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that hidden instructions in tool descriptions, parameter text and zero-width characters are detected before the model sees them; content inspection of metadata, not an authorization decision."
+        },
+        {
+          "id": "TC-L06-018",
+          "included": false,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "governed-exchange"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that forged, modified and replayed messages between two agents are rejected; signature and replay checks are expressible, but the observed object is an agent-to-agent message channel, which the comparators do not have."
+        },
+        {
+          "id": "TC-L06-020",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "governed-exchange",
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that hostile content in a three-agent chain is stopped at an inter-agent boundary and the hop is recorded; needs an agent chain and a boundary the comparators do not have."
+        },
+        {
+          "id": "TC-L06-026",
+          "included": false,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that file paths and network destinations outside an allow-list are blocked on an endpoint or container; allow-lists are expressible, but the observed object is endpoint and network behaviour, not an action at the synthetic destination."
+        },
+        {
+          "id": "TC-L06-028",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "replay-bundle",
+            "verifier"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that a 15-step task is reconstructable from logs with masking and tamper evidence; a records property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L06-038",
+          "included": false,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "governed-exchange"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that links outside a declared agent-to-agent trust map are flagged and map changes carry an approver; a map is expressible as data, but the observed object is an inter-agent call graph, which the comparators do not have."
+        },
+        {
+          "id": "TC-L06-040",
+          "included": false,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "governed-exchange"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that agent-to-agent messages are checked against a published schema, including oversized and extra-field messages; schema checks are expressible, but the observed object is a message channel between agents, which the comparators do not have."
+        },
+        {
+          "id": "TC-L06-041",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "individual-component",
+          "components": [
+            "governed-exchange"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a client agent never routes to rogue entries in an agent directory; needs a directory and discovery step the comparators do not have."
+        },
+        {
+          "id": "TC-L06-045",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "governed-exchange",
+            "control-plane",
+            "replay-bundle"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that user requests are reconstructed across four agents from one identifier; a cross-agent log correlation property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L07-009",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "governed-exchange",
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that hidden instructions in web pages are neutralised or flagged and the content origin is recorded; content inspection of fetched pages, not an authorization decision."
+        },
+        {
+          "id": "TC-L07-012",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "governed-exchange",
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that instruction text in retrieved knowledge documents is neutralised or flagged and the chunk quarantined; content inspection of a retrieval store, not an authorization decision."
+        },
+        {
+          "id": "TC-L07-013",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "governed-exchange",
+            "control-plane",
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that instruction text inside tool responses is neutralised and tool-result inspection is confirmed or its absence documented; content inspection of tool output, not an authorization decision."
+        },
+        {
+          "id": "TC-L08-033",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "individual-component",
+          "components": [
+            "execution-runtime"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that blocked content stays blocked at up to twice the expected peak load with timed recovery; a load and timing measurement, and wall times are descriptive only in the comparison."
+        },
+        {
+          "id": "TC-L08-036",
+          "included": false,
+          "engine_could_express": "partly",
+          "split": "individual-component",
+          "components": [
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a rule change takes effect on every component within a stated time and can be rolled back; rule change is expressible, but the pass statement is propagation time across components, and the comparators are single-process."
+        },
+        {
+          "id": "TC-L09-025",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "replay-bundle"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that nine of ten actions across four systems are fully attributable with integrity protection; a records property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L15-019",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "execution-runtime",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a model, vector store, prompts and policies are restored within recovery targets, with encrypted backups and regional limits; needs components and properties the comparators do not have."
+        },
+        {
+          "id": "TC-L16-007",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "individual-component",
+          "components": [
+            "replay-bundle"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a public package with an internal package's name is never selected by a build; a build and package-index property with no destination action."
+        },
+        {
+          "id": "TC-L16-015",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "individual-component",
+          "components": [
+            "replay-bundle"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that a tampered SDK release is blocked and floating versions are reported; a package-index and version-pinning property with no destination action."
+        },
+        {
+          "id": "TC-L17-002",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "odes",
+            "control-plane"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that events carry required fields with consistent names and time format; an event-schema property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L17-004",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "verifier",
+            "replay-bundle",
+            "evidence-pack"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that log edits and deletions by administrators are blocked or detected and exports are signed; a log-integrity property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L17-020",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "replay-bundle",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that scripted conversations and tool calls are reconstructed from platform records; a records and reconstruction property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L17-021",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "replay-bundle",
+            "evidence-pack",
+            "verifier"
+          ],
+          "classification": "APPLICABLE",
+          "reason": "Asks that preserved records are immune to deletion and altered copies fail verification; a records property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L17-022",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "control-plane",
+            "verifier"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that 40 events across users, agents and tools are placed in the right order with pivots and export; a timeline reconstruction property, no decision or effect is observed."
+        },
+        {
+          "id": "TC-L17-028",
+          "included": false,
+          "engine_could_express": "no",
+          "split": "cross-component",
+          "components": [
+            "execution-runtime",
+            "control-plane"
+          ],
+          "classification": "PARTLY_COVERED",
+          "reason": "Asks that six induced failures of the platform itself (agent offline, node down, ingestion stopped and similar) are alerted within 10 minutes; monitoring and alert routing, not an action at a destination."
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "oracle": {
+      "path": "suites/cognous-open-control-stack/tools/run_comparative_governance.py",
+      "function": "evaluate",
+      "function_source_sha256": "4fcd7eff77039cc0439c5324025b5ba54a35e83f3822ee5be6df6eccebb67ad5"
+    },
+    "identical_for_every_configuration": true,
+    "trial_passes_when": [
+      "decision conformance: the sequence of statuses equals the expected statuses",
+      "destination conformance: the effect count equals the expected count, every effect id is allowed, and every payload equals the expected payload",
+      "reason conformance: where the plan lists expected reason codes for the configuration, the reasons equal them",
+      "durable denial coverage: every denied call has a matching durable denial event with the request digest, a reason and an integer time"
+    ],
+    "case_passes_when": "every trial of the case passes for the configuration",
+    "reported_counts": [
+      "trials passed",
+      "unexpected effects",
+      "missing effects",
+      "false allows",
+      "false blocks",
+      "denied calls",
+      "durably recorded denials"
+    ],
+    "outcomes": [
+      "pass",
+      "fail",
+      "not expressible",
+      "not claimed",
+      "could not check"
+    ],
+    "aggregate_score": false,
+    "ranking": false,
+    "proposed": [
+      {
+        "id": "PR-1",
+        "text": "The outcome not expressible and the rules for declaring and reporting it (the pilot specification has none)."
+      },
+      {
+        "id": "PR-2",
+        "text": "The outcome could not check applied to the comparison harness, taken from the pilot specification's three-valued verdict rule."
+      },
+      {
+        "id": "PR-3",
+        "text": "For Wiki-subset scenarios, expected outcomes are written from the case text by two reviewers other than the author of the OCS code; a case on which the two disagree leaves the comparison and stays in W-I or W-X."
+      },
+      {
+        "id": "PR-4",
+        "text": "A second row for a comparator with an equivalent check added after a failure, reported separately and labelled as configured by Cognous after the failure was seen. Both rows are published."
+      },
+      {
+        "id": "PR-5",
+        "text": "Wiki-subset scenarios use the same seeds and repetitions as the corner plan (seeds 1701 and 1702, five repetitions)."
+      },
+      {
+        "id": "PR-6",
+        "text": "The per-case, per-configuration translation of each included Wiki case (inputs, expected statuses, effects and reasons) and any per-configuration not-expressible declaration go in a plan file committed and digested before the first run of any Wiki-subset scenario."
+      },
+      {
+        "id": "PR-7",
+        "text": "The comparison runs only after the three OCS gates are green and never in place of them."
+      }
+    ],
+    "pilot_specification_lacks": [
+      "a per-case pass or fail rule (it reports agreement with an expected verdict and says disagreement is a finding, not a score)",
+      "an outcome for a question the configuration cannot be asked",
+      "a rule for repeated trials and seeds",
+      "a source label for expected outcomes written from case text",
+      "a rule for a comparator reported again with an added check"
+    ]
+  },
+  "declared_known_limits": {
+    "fix2_probes": {
+      "suite": "X-02",
+      "source": "suites/fix2-probes/KNOWN_LIMITS.md",
+      "listed_in_source": 22,
+      "declared": [
+        {
+          "id": "test_journal_rules_probes.py::test_probe_a_reconciliation_dated_before_its_attempt_is_refused[verifier]",
+          "component": "Verifier, control-plane journal rules",
+          "property": "a reconciliation dated before the attempt it rests on is refused",
+          "limit": "does not compare a reconciliation stamp with the start of the attempt it rests on",
+          "suite": "X-02",
+          "path": "suites/fix2-probes/test_journal_rules_probes.py",
+          "declared_reason": "known limit: does not compare a reconciliation stamp with the start of the attempt it rests on"
+        },
+        {
+          "id": "test_journal_rules_probes.py::test_probe_a_reconciliation_dated_before_its_attempt_is_refused[odes]",
+          "component": "ODES, control-plane-journal reference validator",
+          "property": "a reconciliation dated before the attempt it rests on is refused",
+          "limit": "orders stamps within one clock domain only; a service stamp is not compared with the attempt start (evaluation time)",
+          "suite": "X-02",
+          "path": "suites/fix2-probes/test_journal_rules_probes.py",
+          "declared_reason": "known limit: orders stamps within one clock domain only; a service stamp is not compared with the attempt start (evaluation time)"
+        },
+        {
+          "id": "test_journal_rules_probes.py::test_probe_a_closeout_dated_before_its_attempt_is_refused[odes]",
+          "component": "ODES, control-plane-journal reference validator",
+          "property": "a closeout dated before the attempt it closes is refused",
+          "limit": "orders stamps within one clock domain only; a service stamp is not compared with the attempt start (evaluation time)",
+          "suite": "X-02",
+          "path": "suites/fix2-probes/test_journal_rules_probes.py",
+          "declared_reason": "known limit: orders stamps within one clock domain only; a service stamp is not compared with the attempt start (evaluation time)"
+        },
+        {
+          "id": "test_runtime_probes.py::test_failure_after_commit_reports_unknown[runtime-error]",
+          "component": "Execution runtime, atomic executor",
+          "property": "a failure after the effect commit reports status unknown with observed_state unknown and no retry",
+          "limit": "reports status unknown, retry not eligible, with observed_state applied (recovery observation); the probe expects observed_state unknown",
+          "suite": "X-02",
+          "path": "suites/fix2-probes/test_runtime_probes.py",
+          "declared_reason": "known limit: reports status unknown, retry not eligible, with observed_state applied (recovery observation); the probe expects observed_state unknown",
+          "note": "The coordinator's recorded decision is to revise this probe's expected observed state at the pin round; any such revision before the run is recorded as an amendment, not as an edit."
+        },
+        {
+          "id": "test_runtime_probes.py::test_failure_after_commit_reports_unknown[os-error]",
+          "component": "Execution runtime, atomic executor",
+          "property": "a failure after the effect commit reports status unknown with observed_state unknown and no retry",
+          "limit": "reports status unknown, retry not eligible, with observed_state applied (recovery observation); the probe expects observed_state unknown",
+          "suite": "X-02",
+          "path": "suites/fix2-probes/test_runtime_probes.py",
+          "declared_reason": "known limit: reports status unknown, retry not eligible, with observed_state applied (recovery observation); the probe expects observed_state unknown",
+          "note": "The coordinator's recorded decision is to revise this probe's expected observed state at the pin round; any such revision before the run is recorded as an amendment, not as an edit."
+        },
+        {
+          "id": "test_verifier_probes.py::test_probe_a_binding_member_changed_alone_is_refused_against_the_captured_inputs[journal-applied-effective_max_effects]",
+          "component": "Verifier, decision binding",
+          "property": "a change to binding member `effective_max_effects` alone is refused against the captured inputs, in a record verified without proposal and ledger",
+          "limit": "this member is checked against the proposal export and destination ledger only, not against the captured inputs",
+          "suite": "X-02",
+          "path": "suites/fix2-probes/test_verifier_probes.py",
+          "declared_reason": "known limit: this member is checked against the proposal export and destination ledger only, not against the captured inputs",
+          "note": "A follow-up on captured-input binding is open; if it changes this limit before the run, an amendment records it."
+        },
+        {
+          "id": "test_verifier_probes.py::test_probe_a_binding_member_changed_alone_is_refused_against_the_captured_inputs[journal-applied-requirement_id]",
+          "component": "Verifier, decision binding",
+          "property": "a change to binding member `requirement_id` alone is refused against the captured inputs, in a record verified without proposal and ledger",
+          "limit": "this member is checked against the proposal export and destination ledger only, not against the captured inputs",
+          "suite": "X-02",
+          "path": "suites/fix2-probes/test_verifier_probes.py",
+          "declared_reason": "known limit: this member is checked against the proposal export and destination ledger only, not against the captured inputs",
+          "note": "A follow-up on captured-input binding is open; if it changes this limit before the run, an amendment records it."
+        }
+      ],
+      "not_declared_resolved": {
+        "count": 15,
+        "reason": "Resolved by ODES #127 (attempt binding in the lifecycle validator). The marks are pending removal after the pin round. They are not known limits; a strict unexpected pass fails the run.",
+        "ids": [
+          "test_journal_rules_probes.py::test_probe_every_contradictory_combination_for_a_status_is_refused[odes-failed]",
+          "test_journal_rules_probes.py::test_probe_every_contradictory_combination_for_a_status_is_refused[odes-partial]",
+          "test_journal_rules_probes.py::test_probe_every_contradictory_combination_for_a_status_is_refused[odes-unknown]",
+          "test_journal_rules_probes.py::test_probe_every_contradictory_combination_for_a_status_is_refused[odes-executed]",
+          "test_journal_rules_probes.py::test_probe_every_contradictory_combination_for_a_status_is_refused[odes-reconciled]",
+          "test_journal_rules_probes.py::test_probe_a_null_attempt_id_on_an_attempt_claiming_status_is_refused[failed-odes]",
+          "test_journal_rules_probes.py::test_probe_a_null_attempt_id_on_an_attempt_claiming_status_is_refused[partial-odes]",
+          "test_journal_rules_probes.py::test_probe_a_null_attempt_id_on_an_attempt_claiming_status_is_refused[unknown-odes]",
+          "test_journal_rules_probes.py::test_probe_a_null_attempt_id_on_an_attempt_claiming_status_is_refused[executed-odes]",
+          "test_journal_rules_probes.py::test_probe_a_null_attempt_id_on_an_attempt_claiming_status_is_refused[reconciled-odes]",
+          "test_journal_rules_probes.py::test_probe_a_result_naming_no_attempt_row_is_refused[failed-odes]",
+          "test_journal_rules_probes.py::test_probe_a_result_naming_no_attempt_row_is_refused[partial-odes]",
+          "test_journal_rules_probes.py::test_probe_a_result_naming_no_attempt_row_is_refused[unknown-odes]",
+          "test_journal_rules_probes.py::test_probe_a_result_naming_no_attempt_row_is_refused[executed-odes]",
+          "test_journal_rules_probes.py::test_probe_a_result_naming_no_attempt_row_is_refused[reconciled-odes]"
+        ]
+      }
+    },
+    "authority_ra": {
+      "suite": "X-01",
+      "requirement": "ADD-AUTH-RA",
+      "selector_component": "probes-control-plane",
+      "selector_regex": "probe_addauthra_",
+      "junit_note": "The JUnit report records a strict expected failure as skipped, so the requirement is computed as inconclusive. The six probes are declared known limits before the run, reported apart from passes and never counted as a pass.",
+      "source": "suites/v1-probes/KNOWN_LIMITS.md",
+      "declared": [
+        {
+          "id": "test_authority_ra_probes.py::test_probe_addauthra_opened_event_binds_the_component_version",
+          "component": "Control plane, check journal",
+          "property": "the check-opened event names the component version",
+          "limit": "the event does not name the control plane component version",
+          "suite": "X-01",
+          "path": "suites/v1-probes/test_authority_ra_probes.py",
+          "declared_reason": "known limit (registered finding, spec gap): the event does not name the control plane component version"
+        },
+        {
+          "id": "test_authority_ra_probes.py::test_probe_addauthra_resolution_result_records_observation_time_and_age",
+          "component": "Control plane, resolution result",
+          "property": "observation time and age are recorded with the result",
+          "limit": "no explicit age value is stored (observation and evaluation times only)",
+          "suite": "X-01",
+          "path": "suites/v1-probes/test_authority_ra_probes.py",
+          "declared_reason": "known limit (registered finding, spec gap): no explicit age value is stored (observation and evaluation times only)"
+        },
+        {
+          "id": "test_authority_ra_probes.py::test_probe_addauthra_evidence_refusal_records_the_criterion_reference",
+          "component": "Control plane, evidence refusal",
+          "property": "the refusal row records the criterion reference",
+          "limit": "the evidence refusal row carries no criterion reference",
+          "suite": "X-01",
+          "path": "suites/v1-probes/test_authority_ra_probes.py",
+          "declared_reason": "known limit (registered finding, spec gap): the evidence refusal row carries no criterion reference"
+        },
+        {
+          "id": "test_authority_ra_probes.py::test_probe_addauthra_registry_declares_applicable_reopen_predicates",
+          "component": "Control plane, reason registry",
+          "property": "each code declares its applicable reopen predicates",
+          "limit": "the registry declares no reopen predicates per code",
+          "suite": "X-01",
+          "path": "suites/v1-probes/test_authority_ra_probes.py",
+          "declared_reason": "known limit (registered finding, spec gap): the registry declares no reopen predicates per code"
+        },
+        {
+          "id": "test_authority_ra_probes.py::test_probe_addauthra_refusal_trend_report_names_unmapped_codes",
+          "component": "Control plane, refusal trend report",
+          "property": "the report names codes that are not mapped",
+          "limit": "the report does not name unmapped codes",
+          "suite": "X-01",
+          "path": "suites/v1-probes/test_authority_ra_probes.py",
+          "declared_reason": "known limit (registered finding, spec gap): the report does not name unmapped codes"
+        },
+        {
+          "id": "test_authority_ra_probes.py::test_probe_addauthra_freshness_is_verified_before_the_criterion_is_evaluated",
+          "component": "Control plane, evidence gate",
+          "property": "freshness is verified strictly before the criterion is evaluated",
+          "limit": "the strict order is not observed (both reasons are reported together)",
+          "suite": "X-01",
+          "path": "suites/v1-probes/test_authority_ra_probes.py",
+          "declared_reason": "known limit (registered finding, spec gap): the strict order is not observed (both reasons are reported together)"
+        }
+      ]
+    },
+    "wiki_derived": {
+      "source": "suites/wiki-derived",
+      "naming_rule": "the test function name contains known_limit",
+      "declared": [
+        {
+          "id": "test_wp_b_identity_scope.py::test_wiki_l09_018_host_asserted_authenticated_flag_is_a_known_limit",
+          "case": "TC-L09-018",
+          "suite": "W-X",
+          "path": "suites/wiki-derived/test_wp_b_identity_scope.py",
+          "declared_reason": "known limit: The authenticated flag on the identity input is taken as asserted by the host and the record of that input carries no provenance for it; the stack authenticates nothing itself."
+        },
+        {
+          "id": "test_wp_b_identity_scope.py::test_wiki_l09_019_shared_engine_database_evidence_status_is_not_tenant_scoped_known_limit",
+          "case": "TC-L09-019",
+          "suite": "W-X",
+          "path": "suites/wiki-derived/test_wp_b_identity_scope.py",
+          "declared_reason": "known limit: Evidence status is stored once per obligation in the engine database with no tenant; tenants that share one engine database share the status. Separate environments need separate engine databases."
+        },
+        {
+          "id": "test_wp_c_budget_stop_recovery.py::test_wiki_l15_019_restore_of_an_older_backup_readmits_later_effects_known_limit",
+          "case": "TC-L15-019",
+          "suite": "W-X",
+          "path": "suites/wiki-derived/test_wp_c_budget_stop_recovery.py",
+          "declared_reason": "known limit: State lives in local files with no anchor outside them; a consistent restore of an older backup admits again the effects consumed after it was taken."
+        },
+        {
+          "id": "test_wp_d_manifest_change_control.py::test_wiki_l06_009_a_decision_alone_does_not_refuse_two_tools_of_one_name_known_limit",
+          "case": "TC-L06-009",
+          "suite": "W-X",
+          "path": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+          "declared_reason": "known limit: The decision binds the first declared tool of a name and does not run the manifest validator; the manifest validator and the executor allow-list refuse it later. A revision of this test is queued for the pin round; any revision before the run is recorded as an amendment."
+        },
+        {
+          "id": "test_wp_d_manifest_change_control.py::test_wiki_l06_034_a_grant_edited_in_place_without_a_new_revision_is_read_as_current_known_limit",
+          "case": "TC-L06-034",
+          "suite": "W-X",
+          "path": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+          "declared_reason": "known limit: Revision numbers are the resolver's to assign; a permission edited in place under the same revision is read as the current grant."
+        },
+        {
+          "id": "test_wp_e_exchange_injection.py::test_wiki_l06_020_known_limit_the_hop_where_content_was_stopped_is_not_recorded",
+          "case": "TC-L06-020",
+          "suite": "W-X",
+          "path": "suites/wiki-derived/test_wp_e_exchange_injection.py",
+          "declared_reason": "known limit: A refusal before acceptance is returned and not durably recorded; nothing records at which hop the content was stopped."
+        },
+        {
+          "id": "test_wp_e_exchange_injection.py::test_wiki_l06_038_known_limit_a_registry_holds_one_recipient_and_refusals_are_not_stored",
+          "case": "TC-L06-038",
+          "suite": "W-I",
+          "path": "suites/wiki-derived/test_wp_e_exchange_injection.py",
+          "declared_reason": "known limit: A registry holds one recipient and a sender set and no stored trust map; refusals before acceptance are not stored and a refused message does not reserve its identifier."
+        }
+      ]
+    }
+  },
+  "reporting": [
+    {
+      "id": "RP-1",
+      "text": "Gate table: for every suite and test group, three columns, PASSING, PASSING-AS-KNOWN-LIMIT and SKIPPED-WITH-REASON, plus FAILING and NO RESULT where they occur. Counts per column are given as numbers, not as a single percentage."
+    },
+    {
+      "id": "RP-2",
+      "text": "Known limits are listed apart from ordinary passes, each with its test id, the limit as declared here and a pointer to the sentence in the guarantees and limits documentation that states it."
+    },
+    {
+      "id": "RP-3",
+      "text": "The requirement ADD-AUTH-RA (selector probe_addauthra_) is reported in its own block next to its six declared known-limit probes. The six are shown as known limits, never as passes, and the requirement keeps the status the controller computes for it."
+    },
+    {
+      "id": "RP-4",
+      "text": "Comparison tables, one per set (corner, baseline, Wiki subset): one row per case, one column per configuration (OCS, the OPA application, the LangGraph plus OPA application), each cell one of pass, fail, not expressible, not claimed or could not check, with the per-case trial counts and the reason text of every refusal. There is no aggregate score across sets and no ranking."
+    },
+    {
+      "id": "RP-5",
+      "text": "Per set, the counts the oracle already reports: trials passed, unexpected effects, missing effects, false allows, false blocks, denied calls and durably recorded denials. Wall times are descriptive only."
+    },
+    {
+      "id": "RP-6",
+      "text": "A block titled \"cases where a comparator passes and OCS does not\" is always present. If there are none it says none. Each such case carries the same weight and the same prominence as any other row."
+    },
+    {
+      "id": "RP-7",
+      "text": "A comparative statement (scores higher, passes more) appears only for a set on which both configurations were run, and names the set."
+    },
+    {
+      "id": "RP-8",
+      "text": "The scope text of PC-7 appears unchanged on every gate report and every comparison report, together with the caveats of the plans: the corner plan was authored after inspection of the baseline code and is not blinded, and both plans had no independent review; the shared Cognous wire and signature helpers feed all three configurations."
+    },
+    {
+      "id": "RP-9",
+      "text": "Each report records the candidate id, the commit and sha256 of each plan file, the oracle digest, the candidate manifest digest, the commit of this pre-registration and the list of amendments in force."
+    },
+    {
+      "id": "RP-10",
+      "text": "A result that a party disputes is published together with the dispute. Neither side edits the other's column."
+    }
+  ],
+  "run_order": [
+    {
+      "id": "RO-1",
+      "text": "This pre-registration is merged. Its registration time is the merge time recorded by the repository host. No controller run and no comparator run starts before it."
+    },
+    {
+      "id": "RO-2",
+      "text": "The owner reviews the items marked PROPOSED and the entries under Decisions still open. Each confirmation or change is an appended amendment. No run starts while a PROPOSED item that the run depends on is unconfirmed."
+    },
+    {
+      "id": "RO-3",
+      "text": "Known-limit and reclassification declarations for the run are complete (DR-1 to DR-9), and the Wiki-subset plan file (PR-6) is committed, before the candidate manifest run starts."
+    },
+    {
+      "id": "RO-4",
+      "text": "One candidate manifest names the exact revisions to be run. Any change of a pin, a component revision, an inventory row or a reclassification starts a new candidate id."
+    },
+    {
+      "id": "RO-5",
+      "text": "Gate OCS-1 (Category 1), then OCS-2 (Category 2), then OCS-3 (Category 3, W-I and W-X), in the order of the inventory page."
+    },
+    {
+      "id": "RO-6",
+      "text": "The comparison runs on the three declared sets (PC-5) after the gates are green (PR-7), in this order: corner scenarios, baseline scenarios, Wiki subset. Each set is reported as its own table."
+    },
+    {
+      "id": "RO-7",
+      "text": "The qualification controller and aggregate run last, by the coordinator, after the owner's go."
+    },
+    {
+      "id": "RO-8",
+      "text": "Every run, including a failed attempt and a rerun, is retained and reported. Retained results are not edited."
+    }
+  ],
+  "amendment_rule": "Nobody edits this document or its JSON twin after the registration commit. A change is an amendment appended below, with a UTC timestamp and a reason; the earlier text stays as it was. An amendment never changes the meaning of a rule for a run that has already started, never removes a case from a comparison after a run began (a withdrawn case stays in the report with its result), and never turns a failed test into a known limit for the run in which it failed. The JSON twin carries the same amendments in its amendments array, in the same order.",
+  "decisions_open": [
+    {
+      "id": "OD-1",
+      "text": "Owner confirmation of the known-limit declarations. The criteria require a strict expected failure to be reclassified by the owner before the run. This document records the declarations on the coordinator's instruction; the owner confirms or changes them by amendment before the first run."
+    },
+    {
+      "id": "OD-2",
+      "text": "Owner confirmation of each item marked PROPOSED (PR-1 to PR-7)."
+    },
+    {
+      "id": "OD-3",
+      "text": "TC-D13-003 (nested budget hierarchy). It is included in the subset as written. Whether OCS claims this case is an open owner decision; if the owner treats it as not claimed, OCS is reported as not claimed for it and the comparator results are shown without a comparative statement."
+    },
+    {
+      "id": "OD-4",
+      "text": "Who writes and reviews the expected outcomes of the Wiki-subset scenarios (PR-3). No reviewers are named here, and independence from the authors cannot be established from inside the repository."
+    },
+    {
+      "id": "OD-5",
+      "text": "Known limits and skips of Category 1 suites are not declared here. The inventory rows C1-03, C1-05, C1-05a, C1-09 and C1-15 carry known-limit counts, and the rows C1-02 (22), C1-03 (1) and C1-05 (12) carry skips outside the declared list. Until they are declared by amendment before the run, they are unexplained under PC-2."
+    },
+    {
+      "id": "OD-6",
+      "text": "Limit-asserting tests in suites/wiki-derived that do not carry the suffix known_limit in their name, and every test added to that suite by work still in progress, are not declared. They are reported as ordinary passes unless an amendment declares them before the run."
+    },
+    {
+      "id": "OD-7",
+      "text": "The 15 attempt-identity probes in fix2-probes are not declared as known limits. Their cause is closed in ODES and their marks are to be removed after the pin round. If a mark is still present at the run, a strict unexpected pass fails the run (DR-7)."
+    },
+    {
+      "id": "OD-8",
+      "text": "Whether the owner accepts publication while ADD-AUTH-RA is inconclusive in the controller's output. The six probes are declared known limits and reported apart (RP-3); an earlier owner decision on these six concerned the earlier validation round, and whether it carries over to this gate is not stated."
+    },
+    {
+      "id": "OD-9",
+      "text": "Earlier retained observations of the corner and baseline plans may exist. This document uses none of them. Whether they are cited beside the release-gate comparison or superseded by it is open."
+    },
+    {
+      "id": "OD-10",
+      "text": "The owner-approved delegate for reclassification (DR-3) is not named."
+    },
+    {
+      "id": "OD-11",
+      "text": "The inclusion table depends on applicability.json version 1.0.0 at catalog commit 1a0c72de. A change to that file before the run needs an amendment that restates the affected rows."
+    }
+  ],
+  "amendments": [],
+  "document_frozen_sha256": "8daf8195296e33d19c2130bfcdb883fbb6cfab1e13f19ed392de909030334286",
+  "frozen_json_sha256": "f81a4313f19660c0397f777027df2a8c63da095c35d22cb199cbe38c445e5cab"
+}
