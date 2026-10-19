@@ -43,7 +43,10 @@ def make_package(mutate_record=None):
     rec["verification"]["conformance_profile"] = common.PROFILE_ID
     if mutate_record:
         mutate_record(rec)
-    pkg = {"package_type": common.PACKAGE_TYPE, "package_version": common.PACKAGE_VERSION, "record": rec,
+    # created_by and created_at are envelope members the recipient validator requires at current ODES; they are outside the
+    # package digest and ignored by the frozen pin's validator, so adding them keeps the helper valid at both revisions.
+    pkg = {"package_type": common.PACKAGE_TYPE, "package_version": common.PACKAGE_VERSION,
+           "created_by": "v1-probes/odes-probe-helper", "created_at": NOW, "record": rec,
            "profile": {"implementation_profile": common.PROFILE_ID, "implementation_profile_version": common.PROFILE_VERSION,
                        "schema_name": common.SCHEMA_NAME, "schema_version": common.SCHEMA_VERSION},
            "provenance": {"source_artifacts": [], "source_record_refs": [], "decision_facts": {}, "execution_facts": {},
