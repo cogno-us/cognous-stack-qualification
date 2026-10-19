@@ -40,6 +40,16 @@ class AdversarialBatch1Tests(unittest.TestCase):
         cases = self.batch['run']['cases']
         self.assertIn('**%d passed, %d xfailed, 0 failed, 0 skipped**' % (cases['passed'], cases['xfailed']), self.readme)
 
+    def test_scoped_titles_name_what_the_tests_cover(self):
+        titles = {b['id']: b['title'] for b in self.plan['batch_1']}
+        for tid in ('T13', 'T16'):
+            self.assertNotRegex(titles[tid], r'\bevery\b', tid)
+            self.assertIn('| %s | %s |' % (tid, titles[tid]), self.readme, tid)
+        self.assertIn('five write points', titles['T13'])
+        for name in ('work directory', 'executor result', 'Replay bundle', 'Evidence Pack', 'ODES package', 'verifier report'):
+            self.assertIn(name, titles['T16'])
+            self.assertIn(name, next(t['summary'] for t in self.batch['tests'] if t['id'] == 'T16'))
+
     def test_every_module_states_what_it_does_not_prove_and_never_skips(self):
         for t in self.batch['tests']:
             path = ADV / t['file']

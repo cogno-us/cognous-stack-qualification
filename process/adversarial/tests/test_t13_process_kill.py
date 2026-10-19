@@ -1,4 +1,4 @@
-"""T13. Real process kill at every persistence boundary (ideas C18, C19, tier 4).
+"""T13. Real process kill at five write points of the route-A sequence (ideas C18, C19, tier 4).
 
 SPDX-License-Identifier: Apache-2.0
 

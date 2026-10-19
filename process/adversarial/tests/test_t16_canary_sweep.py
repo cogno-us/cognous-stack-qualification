@@ -1,4 +1,4 @@
-"""T16. Canary-secret sweep over every artifact (idea D31, tier 6).
+"""T16. Canary-secret sweep over the work directory, executor result, Replay bundle, Evidence Pack, ODES package and verifier report (idea D31, tier 6).
 
 SPDX-License-Identifier: Apache-2.0
 

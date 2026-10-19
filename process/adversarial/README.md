@@ -63,10 +63,10 @@ classification; [`batch-1.json`](batch-1.json) carries the same table with a sum
 | T10 | Rollback of programme-2 state | B14 | detected only | undetected without a witness (known, SCN-D07) |
 | T11 | C3 chain per configuration | C22, C17, C20 | prevented | default configuration duplicates (known, F-5/F-18) |
 | T12 | Stale worker resumes after lease or deadline expiry | C23, B12 | prevented | no destination fencing token (residual) |
-| T13 | Real process kill at every persistence boundary | C18, C19 | prevented | process exit only, no power loss |
+| T13 | Real process kill at five write points of the route-A sequence | C18, C19 | prevented | process exit only, no power loss |
 | T14 | Observation field matrix | H55, H56, H58 | detected only | verifier V4; consistent rewrites pass (forgery bound) |
 | T15 | Profile-flag forwarding completeness | D32, A05 | prevented | regression guard for R1 finding 1 |
-| T16 | Canary-secret sweep over every artifact | D31 | prevented | all three paths clean |
+| T16 | Canary-secret sweep over the work directory, executor result, Replay bundle, Evidence Pack, ODES package and verifier report | D31 | prevented | all three paths clean |
 | T17 | Last-unit budget race and grant multiplication | G47, G48 | prevented | multiplication characterised (known, SCN-C16) |
 | T18 | Control-panel and results consistency checker | I74, I70 | detected only | read-only checker `consistency_check.py`; retained copies agree |
 | T19 | Rule-revision downgrade | A05, F46 | prevented | |
