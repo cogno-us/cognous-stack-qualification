@@ -312,7 +312,7 @@ class VersionTwo(unittest.TestCase):
         harness = doc['mutation_report']['extensions']['x-qualification-harness']
         self.assertEqual(doc['verifier']['source_revision'], 'adb8927fc13308370ea3b7ad3c899fd69c8fe203')
         self.assertEqual(harness['seed_corpus']['odes_revision'], 'fe705e8703ef4290aa7e6f00c31f1049b75a2bec')  # run 3's own ODES revision
-        self.assertEqual(contract['odes_commit'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')  # re-vendored (README only since 0a37180f); run 3 still validates
+        self.assertEqual(contract['odes_commit'], 'e5fe3822a2d3c3f6885fd61acccb4bb6281041be')  # re-vendored at ODES e5fe3822 (+7 invalid fixtures); run 3 still validates
         self.assertEqual(doc['mutation_report']['operator_set_digest'], V2_OPERATOR_SET_DIGEST)  # catalogue v2, not re-labelled
         self.assertEqual(OPERATOR_SET['supersedes']['operator_set_digest'], V2_OPERATOR_SET_DIGEST)
         self.assertEqual(harness['clean_traces'], {'n': 19, 'verdicts': {'reject': 0, 'accept': 19, 'abstain': 0, 'error': 0}})
