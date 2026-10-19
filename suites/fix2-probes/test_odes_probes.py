@@ -11,7 +11,7 @@ import json
 import pytest
 
 import _support
-from _support import pending, root
+from _support import root
 
 CASES = [  # contract, valid fixture, member name, the equal number
     ("bounded-deferral", "expired-deferral-refused-with-notice", "effect_withheld", 1),
@@ -48,7 +48,6 @@ def test_control_valid_fixture_with_the_boolean_is_accepted(contract, fixture, m
 
 
 @pytest.mark.parametrize("contract,fixture,member,number", CASES, ids=[c[2] for c in CASES])
-@pending()
 def test_probe_a_number_equal_to_the_boolean_constant_is_refused(contract, fixture, member, number):
     doc = _support.odes_fixture(contract, fixture)
     path = next(_paths(doc, member))

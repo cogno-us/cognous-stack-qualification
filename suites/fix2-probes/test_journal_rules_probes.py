@@ -10,11 +10,19 @@ import copy
 import pytest
 
 import _matrix
-from _support import (IMPLS, applied_base, closeout_base, effect_checks, effect_events, impl_params, odes_fixture, pending,
+from _support import (IMPLS, applied_base, closeout_base, effect_checks, effect_events, impl_params, known_limit, odes_fixture,
                       real_run, refusal_base, refusal_codes, verifier_fixture)
 
 JOURNAL, LIFECYCLE = "control-plane-journal", "execution-attempt-lifecycle"
-ALL = impl_params("verifier", "odes")
+LIMIT_ATTEMPT_IDENTITY = ("known limit: the reference validator of the execution-attempt-lifecycle contract accepts an attempt-claiming "
+                          "result that names no registered attempt row")
+LIMIT_CLOCK_DOMAINS = ("known limit: the reference journal validator orders stamps within one clock domain only; a service stamp of a "
+                       "reconciliation or closeout is not compared with the start of the attempt (evaluation time)")
+LIMIT_RECONCILIATION_ORDER = "known limit: the verifier does not compare a reconciliation stamp with the start of the attempt it rests on"
+ALL = impl_params()
+ODES_ATTEMPT_IDENTITY = impl_params("odes", reason=LIMIT_ATTEMPT_IDENTITY)
+RECONCILIATION_ORDER = impl_params("verifier", "odes", reason={"verifier": LIMIT_RECONCILIATION_ORDER, "odes": LIMIT_CLOCK_DOMAINS})
+CLOSEOUT_ORDER = impl_params("odes", reason=LIMIT_CLOCK_DOMAINS)
 
 
 def journal_refusals(impl, doc):
@@ -144,8 +152,8 @@ def test_control_every_combination_the_producer_allows_is_accepted(impl):
 
 
 FORBIDDEN_RED = {  # statuses with a contradictory combination the pinned head accepts, per implementation
-    "verifier": {"denied", "failed", "partial", "unknown", "executed", "reconciled"},
-    "odes": {"denied", "failed", "partial", "unknown", "executed", "reconciled"},
+    "verifier": set(),
+    "odes": {"failed", "partial", "unknown", "executed", "reconciled"},
 }
 
 
@@ -153,7 +161,7 @@ def _status_params():
     out = []
     for status in _matrix.STATUSES:
         for impl in IMPLS:
-            marks = [pending()] if status in FORBIDDEN_RED[impl] else []
+            marks = [known_limit(LIMIT_ATTEMPT_IDENTITY)] if status in FORBIDDEN_RED[impl] else []
             out.append(pytest.param(impl, status, id=f"{impl}-{status}", marks=marks))
     return out
 
@@ -165,7 +173,7 @@ def test_probe_every_contradictory_combination_for_a_status_is_refused(impl, sta
     assert missed == [], f"{len(missed)} contradictory combinations accepted, for example {missed[:3]}"
 
 
-@pytest.mark.parametrize("impl", ALL)
+@pytest.mark.parametrize("impl", ODES_ATTEMPT_IDENTITY)
 @pytest.mark.parametrize("status", ["failed", "partial", "unknown", "executed", "reconciled"])
 def test_probe_a_null_attempt_id_on_an_attempt_claiming_status_is_refused(impl, status):
     state = {"failed": "unknown", "partial": "partial", "unknown": "unknown", "executed": "applied", "reconciled": "applied"}[status]
@@ -177,7 +185,7 @@ def test_probe_a_null_attempt_id_on_an_attempt_claiming_status_is_refused(impl, 
     assert lifecycle_refusals(impl, doc) != []
 
 
-@pytest.mark.parametrize("impl", ALL)
+@pytest.mark.parametrize("impl", ODES_ATTEMPT_IDENTITY)
 @pytest.mark.parametrize("status", ["failed", "partial", "unknown", "executed", "reconciled"])
 def test_probe_a_result_naming_no_attempt_row_is_refused(impl, status):
     state = {"failed": "unknown", "partial": "partial", "unknown": "unknown", "executed": "applied", "reconciled": "applied"}[status]
@@ -221,7 +229,7 @@ def test_probe_an_attempt_that_starts_before_its_decision_is_refused(impl):
     assert journal_refusals(impl, doc) != []
 
 
-@pytest.mark.parametrize("impl", ALL)
+@pytest.mark.parametrize("impl", RECONCILIATION_ORDER)
 def test_probe_a_reconciliation_dated_before_its_attempt_is_refused(impl):
     doc = closeout_base(impl)
     earliest = min(a["started_at"] for a in doc["attempts"])
@@ -230,7 +238,7 @@ def test_probe_a_reconciliation_dated_before_its_attempt_is_refused(impl):
     assert journal_refusals(impl, doc) != []
 
 
-@pytest.mark.parametrize("impl", ALL)
+@pytest.mark.parametrize("impl", CLOSEOUT_ORDER)
 def test_probe_a_closeout_dated_before_its_attempt_is_refused(impl):
     doc = closeout_base(impl)
     assert doc["closeouts"], "the base record has a closeout"

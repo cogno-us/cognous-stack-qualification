@@ -16,6 +16,13 @@ import pytest
 from conftest import pin_dir
 
 
+def known_limit(finding):
+    """Strict expected failure for a probe that states a registered finding (process/v1-validation/v1-2026-10-16-a/acceptance-map-03.json,
+    severity spec gap): the pinned component does not record or order what the addendum's literal wording asks for. Listed in KNOWN_LIMITS.md.
+    Only a failed assertion is the expected failure; a probe that starts to pass fails the run."""
+    return pytest.mark.xfail(strict=True, raises=AssertionError, reason="registered finding (spec gap): " + finding)
+
+
 @pytest.fixture(autouse=True)
 def _pin(monkeypatch):
     pin_dir("PROBE_CONTROL_PLANE_DIR")
@@ -91,6 +98,7 @@ def test_probe_addauthra_effect_stage_opened_event_binds_the_stable_effect_id(tm
     assert stages["effect"]["effect_id"] == d.effect_id and stages["effect"]["decision_id"] == d.decision_id
 
 
+@known_limit("the check-opened event does not name the control plane component version")
 def test_probe_addauthra_opened_event_binds_the_component_version(tmp_path):
     """Addendum K1: CheckOpened binds 'component version'. Strict reading: the opening record names the control-plane component
     version (not merely the reason-vocabulary version) so a record can be tied to the software that wrote it."""
@@ -102,6 +110,7 @@ def test_probe_addauthra_opened_event_binds_the_component_version(tmp_path):
     assert keys, f"CheckOpened carries no component/software version field; keys={sorted(opened)}"
 
 
+@known_limit("no explicit age value is stored with the resolution result (observation and evaluation times only)")
 def test_probe_addauthra_resolution_result_records_observation_time_and_age(tmp_path):
     """Addendum K1: each completed read records 'observation time and age'. Strict reading: an explicit age value is stored."""
     p, r, f, c = make(tmp_path)
@@ -428,6 +437,7 @@ def test_probe_addauthra_criterion_change_after_approval_cannot_broaden_the_appr
     assert "evidence_criterion_unsupported" in reasons and "runtime_authority_approval_mismatch" in reasons
 
 
+@known_limit("the evidence refusal row carries no criterion reference")
 def test_probe_addauthra_evidence_refusal_records_the_criterion_reference(tmp_path):
     """Addendum K2 refusal and reporting: 'Record the reason vocabulary version and criterion reference.' Strict reading: the hold
     record carries a reference (version/digest/id) to the approval-owned criterion that was applied, beyond the aggregate approval
@@ -655,6 +665,7 @@ def test_probe_addauthra_every_vocabulary_change_kind_is_recorded_append_only_an
 
 
 # ---- strict-reading probes: places where the addendum's literal wording asks for more than the pinned component records or orders
+@known_limit("the reason registry declares no applicable reopen predicates per code")
 def test_probe_addauthra_registry_declares_applicable_reopen_predicates(tmp_path):
     """Addendum K5: 'The governed registry defines each code, meaning, reason_kind, operand schema and applicable reopen predicates.'"""
     import os
@@ -664,6 +675,7 @@ def test_probe_addauthra_registry_declares_applicable_reopen_predicates(tmp_path
         assert any("reopen" in key for key in registry["codes"][code]), f"{code}: registry entry {sorted(registry['codes'][code])} has no reopen predicate"
 
 
+@known_limit("the refusal trend report does not name unmapped codes")
 def test_probe_addauthra_refusal_trend_report_names_unmapped_codes(tmp_path):
     """Addendum K5: the window report covers 'each code's count over total refusals, record completeness and unmapped codes'."""
     from agent_control_plane.reason_vocabulary import refusal_trends
@@ -673,6 +685,7 @@ def test_probe_addauthra_refusal_trend_report_names_unmapped_codes(tmp_path):
     assert any("unmapped" in key or "unknown_code" in key for key in report), f"report keys: {sorted(report)}"
 
 
+@known_limit("the freshness check is not observed strictly before the criterion is evaluated")
 def test_probe_addauthra_freshness_is_verified_before_the_criterion_is_evaluated(tmp_path):
     """Addendum K2: 'Verify producer admission, signature, scope, subject binding and freshness before evaluating the criterion.'
     Stale evidence whose values also miss the criterion must be refused for staleness alone (the criterion is never evaluated)."""

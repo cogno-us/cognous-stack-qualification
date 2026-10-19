@@ -7,7 +7,7 @@ import json
 
 import pytest
 
-from _support import pending, real_run, refusal_codes, verifier_data
+from _support import known_limit, real_run, refusal_codes, verifier_data
 
 RUNS = ("adapter-applied", "adapter-lost-ack-then-land", "adapter-renewal-race")
 ROLES = {"run_record": "bounded-run-record.json", "proposal_export": "proposal.json", "manifest": "manifest.json"}
@@ -55,7 +55,6 @@ def test_control_the_largest_ceiling_among_a_grants_decisions_governs():
 
 
 # --------------------------------------------------------------------------------------------- ledger ceiling
-@pending()
 def test_probe_a_destination_count_above_every_ceiling_of_the_grant_is_refused():
     """Both decisions of the grant carry ceiling 1 while the destination holds two applied effects for it."""
     record = record_of("adapter-renewal-race")
@@ -90,9 +89,14 @@ def test_control_the_unchanged_authorized_record_is_accepted():
     assert refusal_codes("verifier", real_run("journal-applied"), "control-plane-journal") == []
 
 
-@pytest.mark.parametrize("member", sorted(BINDING_MEMBERS), ids=sorted(BINDING_MEMBERS))
+JOURNAL_ONLY_LIMIT = ("known limit: in a record verified without its proposal export and destination ledger, a change to this binding member "
+                      "is checked against those two documents only, not against the captured inputs")
+JOURNAL_ONLY_UNCHECKED = ("requirement_id", "effective_max_effects")
+
+
+@pytest.mark.parametrize("member", [pytest.param(m, id=m, marks=[known_limit(JOURNAL_ONLY_LIMIT)] if m in JOURNAL_ONLY_UNCHECKED else [])
+                                    for m in sorted(BINDING_MEMBERS)])
 @pytest.mark.parametrize("run", ["journal-applied"])
-@pending()
 def test_probe_a_binding_member_changed_alone_is_refused_against_the_captured_inputs(run, member):
     """One member of the decision binding changes; the inputs the decision captured still state the original value."""
     damaged = _mutated(real_run(run), member)
@@ -100,7 +104,6 @@ def test_probe_a_binding_member_changed_alone_is_refused_against_the_captured_in
 
 
 @pytest.mark.parametrize("member", sorted(BINDING_MEMBERS), ids=sorted(BINDING_MEMBERS))
-@pending()
 def test_probe_a_binding_member_changed_alone_is_refused_with_proposal_and_ledger_supplied(member):
     """The same change in a run verified with its proposal export, manifest and destination ledger."""
     overall, refuted = evaluate("adapter-applied", record=_mutated(record_of("adapter-applied"), member))

@@ -9,12 +9,11 @@ form is an expected failure only from 3.14 on). A site that already refuses them
 import copy
 import json
 import re
-import sys
 
 import pytest
 
 import _support
-from _support import pending, root
+from _support import root
 
 FORMS = {
     "hour-24": "2026-01-01T24:00:00Z",
@@ -23,18 +22,12 @@ FORMS = {
     "week-date": "2026-W01-4T00:00:00Z",
 }
 VALID = "2026-01-01T00:00:00Z"
-PY314 = sys.version_info >= (3, 14)
 
 
 def form_params(red_forms=()):
-    """One parameter per form; forms named in ``red_forms`` are strict expected failures (hour 24 only from Python 3.14)."""
-    out = []
-    for name, value in FORMS.items():
-        marks = []
-        if name in red_forms:
-            marks = [pending(condition=PY314 if name == "hour-24" else True)]
-        out.append(pytest.param(value, id=name, marks=marks))
-    return out
+    """One parameter per form. ``red_forms`` is kept for the call sites: no form is an expected failure any more (the hour-24
+    form was one only on Python 3.14 and later, where the standard parser accepts it; the checked heads now refuse it there too)."""
+    return [pytest.param(value, id=name) for name, value in FORMS.items()]
 
 
 def refuses(fn, value):
@@ -93,8 +86,7 @@ def _bad_form(stamp, form):
     return re.sub(r"^\d{4}-\d\d-\d\d", "2026-W01-4", stamp)
 
 
-@pytest.mark.parametrize("form", [pytest.param(n, id=n, marks=[pending(condition=PY314)] if n == "hour-24" else [])
-                                  for n in FORMS])
+@pytest.mark.parametrize("form", list(FORMS))
 @pytest.mark.parametrize("contract", CONTRACTS)
 def test_probe_contract_validators_refuse_a_malformed_instant_in_every_time_field(contract, form):
     """Each timestamp of the first valid fixtures is replaced, one at a time, by the form; each is refused as a timestamp."""
