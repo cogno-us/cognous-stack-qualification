@@ -22,6 +22,7 @@ the twin, never inferred from a result:
     cogno-us/<repo>:<path>::<name>   the component whose pinned repository is cogno-us/<repo> (EXTERNAL_REPO_COMPONENT)
     authority_ra declarations        the selector_component recorded in the twin (probes-control-plane)
     fix2 probes, wiki-derived        none: the controller does not collect these suites
+    process/adversarial/tests ids    none: the controller does not collect this suite (inventory row X-19)
 
 The entries are hashed (declared_set_sha256) and the hash is written into the controller report.
 """
@@ -53,7 +54,7 @@ EXTERNAL_REPO_COMPONENT = {
 
 _NAME = r"[A-Za-z_]\w*(?:\[[^\n]+\])?"
 _EXTERNAL_ID = re.compile(r"^(cogno-us/[a-z0-9][a-z0-9-]*):([\w./-]+\.py)::(" + _NAME + r")$")
-_LOCAL_ID = re.compile(r"^(suites/[\w./-]+\.py)::(" + _NAME + r")$")
+_LOCAL_ID = re.compile(r"^((?:suites|process/adversarial/tests)/[\w./-]+\.py)::(" + _NAME + r")$")
 _BARE_ID = re.compile(r"^([\w.-]+\.py)::(" + _NAME + r")$")
 _REQUIREMENT_ID = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$")
 

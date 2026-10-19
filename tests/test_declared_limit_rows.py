@@ -233,6 +233,15 @@ class DeclaredSet(unittest.TestCase):
         e = DL.normalise(twin('test_example_a'))[0]
         self.assertEqual((e['component'], e['classname'], e['name'], e['repository']), (ODES, MOD, 'test_example_a', REPO))
 
+    def test_a_local_id_in_the_adversarial_tests_is_a_test_entry_without_a_controller_component(self):
+        i = 'process/adversarial/tests/test_t05_target_equivalence.py::test_evaluators_agree_on_every_variant[namespace_prefix]'
+        doc = twin()
+        doc['amendments'].append({'timestamp': 't', 'action': 'add_known_limit', 'id': i, 'text': 't'})
+        e = DL.normalise(doc)[0]
+        self.assertEqual((e['kind'], e['component'], e['classname'], e['name']),
+                         ('test', None, 'process.adversarial.tests.test_t05_target_equivalence', 'test_evaluators_agree_on_every_variant[namespace_prefix]'))
+        self.assertEqual(DL.by_component(DL.load(_write_twin(doc))), {})
+
     def test_requirement_declarations_are_kept_but_are_not_cases(self):
         doc = twin()
         doc['amendments'].append({'timestamp': 't', 'action': 'add_known_limit', 'id': 'ADD-AUTH-RA', 'text': 't'})
