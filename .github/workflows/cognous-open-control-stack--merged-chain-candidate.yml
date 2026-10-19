@@ -100,7 +100,7 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Install qualification dependencies
       timeout-minutes: 4
-      run: python -m pip install --require-hashes -r .github/locks/jsonschema-pydantic-pytest-642a34.txt
+      run: python -m pip install --require-hashes -r _qualification/.github/locks/jsonschema-pydantic-pytest-642a34.txt
     - name: Verify gate and timeout behavior
       timeout-minutes: 1
       run: python -m pytest -q tests/test_merged_chain_qualification_gate.py

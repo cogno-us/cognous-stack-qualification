@@ -31,5 +31,5 @@ Repairs (qualification and orchestrator repositories; no pin, profile, refreeze-
 
 Residual:
 
-- **Base image digest.** `python:3.12-slim` in the OpenShell image qualification workflow is still pulled by tag; the container registry was not reachable from the environment that made these changes, so no reviewed digest could be resolved. The workflow still records the resolved digest afterwards. Pin a reviewed digest when one can be resolved.
+- **Base image digest.** `python:3.12-slim` in the OpenShell image qualification workflow is pinned by the owner-supplied index digest of `python:3.12-slim` (`sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1`); the workflow still records the digest it resolves at qualification.
 - Repository rulesets, CODEOWNERS, who may dispatch workflows and token defaults are repository settings; without them anyone with write access can still change workflow files.
