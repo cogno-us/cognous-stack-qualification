@@ -87,11 +87,13 @@ class InventoryShape(unittest.TestCase):
                 else:
                     self.assertTrue((ROOT / p).exists(), f"{row['id']}: missing {p}")
 
-    def test_probe_rows_are_marked_as_the_state_before_their_resolution(self):
+    def test_probe_rows_are_marked_as_the_state_after_the_probe_state_work_item(self):
         rows = {r["id"]: r for r in self.suites}
         for rid in ("X-01", "X-02"):
             self.assertTrue(rows[rid]["being_resolved"], rid)
-            self.assertIn("before T4a", rows[rid]["state_basis"], rid)
+            self.assertIn("after T4a", rows[rid]["state_basis"], rid)
+            self.assertTrue((ROOT / rows[rid]["known_limits_file"]).is_file(), rid)
+            self.assertIn(rows[rid]["known_limits_file"], self.doc, rid)
         blockers = {b["id"]: b for b in self.inv["blockers"]}
         self.assertEqual(len(blockers), 12)
         self.assertEqual(blockers["B-01"]["state"], "being_resolved")
