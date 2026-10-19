@@ -282,7 +282,7 @@ jobs:
         run: |
           # PROBE_EXTRA holds fixed, reviewed flags from the matrix literal above; word-splitting is intended.
           # shellcheck disable=SC2086
-          python q/tools/v1_validation.py probe-suite --component "$PROBE_NAME" --repository "$PROBE_REPO" --sha "$PROBE_SHA" --repo-dir "$RUNNER_TEMP/pin" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var "$PROBE_ENV" $PROBE_EXTRA
+          python q/tools/v1_validation.py probe-suite --component "$PROBE_NAME" --repository "$PROBE_REPO" --sha "$PROBE_SHA" --repo-dir "$RUNNER_TEMP/pin" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var "$PROBE_ENV" --timeout 900 $PROBE_EXTRA
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
@@ -312,7 +312,7 @@ jobs:
           cache: ''
       - name: SR-3 provenance scan of every pinned public source (hub, qualification closeout and all lock/subject components)
         run: |
-          python q/tools/v1_validation.py probe-suite --component provenance-scan --pins-manifest "q/$MANIFEST" --refreeze-log "q/$REFREEZE_LOG" --repo-dir "$RUNNER_TEMP/pins" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var PROBE_PINS_DIR
+          python q/tools/v1_validation.py probe-suite --component provenance-scan --pins-manifest "q/$MANIFEST" --refreeze-log "q/$REFREEZE_LOG" --repo-dir "$RUNNER_TEMP/pins" --out out --os-name ubuntu-latest --suite q/suites/v1-probes --env-var PROBE_PINS_DIR --timeout 900
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

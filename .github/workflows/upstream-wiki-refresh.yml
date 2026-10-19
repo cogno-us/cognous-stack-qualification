@@ -1,8 +1,8 @@
 name: Upstream Wiki refresh
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '17 14 * * 1' # Mondays at 14:17 UTC
+  # The weekly schedule is paused while the release gate runs, so that no pull request changes the wiki import or its lock between the
+  # freeze and the run. Run it by hand with workflow_dispatch; restore the cron '17 14 * * 1' after the gate.
 permissions:
   contents: write
   pull-requests: write
