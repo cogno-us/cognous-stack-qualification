@@ -268,16 +268,24 @@ def test_scn_c18_route_b_reminted_copy_of_a_consumed_capability_cannot_add_an_ef
         before = H.db_summary(flow.dest.path)
         copy = flow.helpers.make_claim(part.env, claim_id='claim-copy', budget_id='budget-main', max_effects=2)
         flow.dest.provision_claim(copy)
-        second = H.atomic_view(*H.execute_b(flow, part_of(part.env, copy)))
+        res2, exc2 = H.execute_b(flow, part_of(part.env, copy))
+        second = H.atomic_view(res2, exc2)
         s = H.db_summary(flow.dest.path)
         checks.equal(first['status'], 'executed', 'the original capability executes')
-        checks.equal(second['status'], 'denied', 'the re-minted copy does not execute')
+        # Runtime 93d0592c (#125): an error raised while dispatching on the atomic route is a pre-dispatch refusal ('denied') only when
+        # reconciliation establishes no durable effect for the claim ('no_durable_effect_for_claim', claim issued); otherwise it is
+        # 'unknown', never retry-eligible. The copy collides with the durable effect of the original capability (UNIQUE effect_id), so
+        # reconciliation reports the retained effect/operation binding and the result is 'unknown'. It is still not an execution.
+        checks.equal(second['status'], 'unknown', 'the re-minted copy does not execute: unresolved (unknown), not executed and not acknowledged')
+        checks.equal((second['newly_executed'], second['acknowledged'], second['attempted']), (False, False, True), 'the copy is attempted, not acknowledged, adds no execution')
+        checks.equal(second['error'], 'IntegrityError', 'the collision is surfaced as the destination integrity error')
+        checks.equal(getattr(res2, 'observation', None) and res2.observation.get('retry_eligible'), False, 'the unresolved result grants no retry permission')
         checks.equal(s['effects'], before['effects'], 'no effect is added by the copy')
         checks.equal(s['budgets'], before['budgets'], 'no budget is consumed by the copy')
         checks.equal(C.claim_state(s, 'claim-copy'), 'issued', 'the refused copy is not consumed')
         gate = H.effect_gate(s, authorized_effect_ids={part.env.effect_id})
         return {'first': first, 'copy_attempt': second, 'effects': s['effects'], 'claims': s['claims'], 'budgets': s['budgets'],
-                'refusal_kind': 'untyped integrity error (UNIQUE constraint on effects.effect_id)' if 'UNIQUE' in (second['error'] or '') else 'typed refusal', **gate}
+                'refusal_kind': 'unresolved post-dispatch integrity error (status unknown, retry_eligible false)' if second['status'] == 'unknown' else 'typed refusal', **gate}
     H.run_case(request, record_property, tmp_path, 'C18', trial)
 
 
