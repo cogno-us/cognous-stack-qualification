@@ -126,5 +126,125 @@ class Siblings(unittest.TestCase):
             self.assertEqual(res['attempts'], [])
 
 
+BACKEND = """\
+import base64, hashlib, os, zipfile
+NAME, VERSION, PKG = "agent_replay_bundle", "0.0.0", "src/agent_replay_bundle"
+
+
+def _wheel(directory, files):
+    tag = f"{NAME}-{VERSION}"
+    files = dict(files)
+    files[f"{tag}.dist-info/METADATA"] = f"Metadata-Version: 2.1\\nName: {NAME}\\nVersion: {VERSION}\\n"
+    files[f"{tag}.dist-info/WHEEL"] = "Wheel-Version: 1.0\\nGenerator: tiny\\nRoot-Is-Purelib: true\\nTag: py3-none-any\\n"
+    record = "".join(f"{n},sha256=" + base64.urlsafe_b64encode(hashlib.sha256(c.encode()).digest()).rstrip(b"=").decode() + f",{len(c.encode())}\\n" for n, c in files.items())
+    files[f"{tag}.dist-info/RECORD"] = record + f"{tag}.dist-info/RECORD,,\\n"
+    name = f"{tag}-py3-none-any.whl"
+    with zipfile.ZipFile(os.path.join(directory, name), "w") as z:
+        for n, c in files.items():
+            z.writestr(n, c)
+    return name
+
+
+def get_requires_for_build_wheel(config_settings=None):
+    return []
+
+
+get_requires_for_build_editable = get_requires_for_build_wheel
+
+
+def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
+    return _wheel(wheel_directory, {f"{NAME}/__init__.py": open(PKG + "/__init__.py").read()})
+
+
+def build_editable(wheel_directory, config_settings=None, metadata_directory=None):
+    return _wheel(wheel_directory, {f"__editable__.{NAME}.pth": os.path.abspath("src") + "\\n"})
+"""
+
+
+def _git(repo, *args):
+    return subprocess.run(['git', '-C', str(repo), '-c', 'user.name=t', '-c', 'user.email=t@example.invalid', *args], capture_output=True, text=True, check=True).stdout.strip()
+
+
+def make_replay_fixture(path):
+    """A tiny git checkout shaped like the Replay sibling (src layout, one commit) with a dependency-free build backend, so no network is needed."""
+    (path / 'src/agent_replay_bundle').mkdir(parents=True)
+    (path / 'src/agent_replay_bundle/__init__.py').write_text('VALUE = 1\n')
+    (path / 'tinybackend.py').write_text(BACKEND)
+    (path / 'pyproject.toml').write_text('[build-system]\nrequires = []\nbuild-backend = "tinybackend"\nbackend-path = ["."]\n')
+    subprocess.run(['git', 'init', '-q', str(path)], check=True)
+    _git(path, 'add', '.')
+    _git(path, 'commit', '-q', '-m', 'one')
+    (path / 'src/agent_replay_bundle/__init__.py').write_text('VALUE = 2\n')
+    _git(path, 'commit', '-q', '-am', 'two')
+    return _git(path, 'rev-parse', 'HEAD')
+
+
+# The revision detection of the ODES tests (open-decision-evidence-standard src/odes/common.py installed_replay_revision at 2893d935), run
+# unchanged inside the interpreter that received the sibling install.
+DETECT = r"""
+import importlib.metadata as metadata, importlib.util, json, re, subprocess
+from pathlib import Path
+def installed_replay_revision():
+    try:
+        spec = importlib.util.find_spec("agent_replay_bundle")
+        origin = Path(spec.origin).resolve() if spec is not None and spec.origin else None
+    except Exception:
+        origin = None
+    if origin is not None:
+        for parent in list(origin.parents)[:4]:
+            if (parent / ".git").exists():
+                try:
+                    out = subprocess.run(["git", "-C", str(parent), "rev-parse", "HEAD"], capture_output=True, text=True, check=True, timeout=20).stdout.strip()
+                except Exception:
+                    break
+                return out if re.fullmatch(r"[0-9a-f]{40}", out) else None
+    try:
+        names = metadata.packages_distributions().get("agent_replay_bundle") or []
+        if len(set(names)) != 1:
+            return None
+        raw = metadata.distribution(names[0]).read_text("direct_url.json")
+        commit = ((json.loads(raw).get("vcs_info") or {}).get("commit_id")) if raw else None
+        return commit if isinstance(commit, str) else None
+    except Exception:
+        return None
+print(json.dumps(installed_replay_revision()))
+"""
+
+
+class SiblingReplayRevision(unittest.TestCase):
+    """The Replay sibling must be installed so that ODES can name its revision; a local non-editable install gives it neither a checkout nor a VCS commit."""
+
+    def install_and_detect(self, component, editable_expected):
+        import venv
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            head = make_replay_fixture(td / 'replay')
+            venv.create(td / 'env', with_pip=True, system_site_packages=False, symlinks=True)
+            py = str(td / 'env' / ('Scripts' if os.name == 'nt' else 'bin') / ('python.exe' if os.name == 'nt' else 'python'))
+            sb = {'component': component, 'dir': str(td / 'replay')}
+            cmd = v.sibling_install_command(py, sb, '.')
+            self.assertEqual('-e' in cmd, editable_expected)
+            subprocess.run(cmd, cwd=td, check=True, capture_output=True, text=True, timeout=300)
+            found = subprocess.run([py, '-I', '-c', DETECT], cwd=td, check=True, capture_output=True, text=True, timeout=60).stdout
+            return head, json.loads(found)
+
+    def test_the_provisioned_replay_sibling_reports_its_checkout_head(self):
+        head, found = self.install_and_detect('replay_bundle', True)
+        self.assertEqual(found, head)
+
+    def test_a_plain_local_install_reports_no_revision(self):
+        # the pre-fix behaviour, kept as a control: the detection must find nothing here, or the test above proves nothing
+        _, found = self.install_and_detect('some_other_sibling', False)
+        self.assertIsNone(found)
+
+    def test_install_commands_per_sibling(self):
+        cp = {'component': 'control_plane', 'dir': '/s/cp'}
+        self.assertEqual(v.sibling_install_command('py', cp, '.[runtime-authority]'), ['py', '-m', 'pip', 'install', '-q', '/s/cp[runtime-authority]'])
+        self.assertEqual(v.sibling_install_command('py', cp, '.'), ['py', '-m', 'pip', 'install', '-q', '/s/cp'])
+        rb = {'component': 'replay_bundle', 'dir': '/s/r'}
+        self.assertEqual(v.sibling_install_command('py', rb, '.'), ['py', '-m', 'pip', 'install', '-q', '-e', '/s/r'])
+        self.assertIn(('replay_bundle', ('.',)), v.SIBLING_PROVISIONING['odes'])
+
+
 if __name__ == '__main__':
     unittest.main()
