@@ -22,6 +22,8 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
+from pathlib import Path
 
 import pytest
 
@@ -40,16 +42,36 @@ TRUTH = {'valid': ('received', 'applied'), 'lost_ack': ('unknown', 'applied'), '
 PINS = dict(_pins.C14_PINS)
 
 SEPARATE_CONSUMER = r'''
-import json, sys
+import json, os, sys
+import odes.recipient_validator as _rv
+COMPONENT_ROOTS = ('odes', 'agent_replay_bundle', 'agent_governance_evidence_pack', 'moltbot_safe',
+                   'cognous_control_plane', 'agent_governance_control_plane', 'tests', 'gax_imx', 'exchange')
+WORKER_LOG = sys.argv[3]
+# The recipient evaluator (ODES 39a3c6ce, #117) runs the Replay semantic check in a forked worker, so the
+# Replay tree is imported in the worker and not in this process. The worker's own import set is recorded before it sends its
+# result (the parent kills a live worker as soon as it has the result), so "loaded" below is the union of both processes.
+_orig_worker = _rv._worker
+def _recording_worker(fn, conn):
+    def run():
+        try:
+            return fn()
+        finally:
+            with open(WORKER_LOG, 'a') as handle:
+                handle.write(json.dumps(sorted({m.split('.')[0] for m in sys.modules} & set(COMPONENT_ROOTS))) + '\n')
+    return _orig_worker(run, conn)
+_rv._worker = _recording_worker
 from odes import evaluate_recipient_package
 pkg = json.load(open(sys.argv[1]))
 policy = json.loads(sys.argv[2])
 res = evaluate_recipient_package(pkg, policy)
-loaded = sorted({m.split('.')[0] for m in sys.modules})
+loaded = {m.split('.')[0] for m in sys.modules} & set(COMPONENT_ROOTS)
+worker = [json.loads(line) for line in open(WORKER_LOG).read().splitlines()] if os.path.exists(WORKER_LOG) else []
+for roots in worker:
+    loaded |= set(roots)
 print(json.dumps({'layers': {k: v['status'] for k, v in res.items() if isinstance(v, dict) and 'status' in v},
                   'reasons': {k: v['reasons'] for k, v in res.items() if isinstance(v, dict) and 'reasons' in v},
-                  'loaded_component_roots': [m for m in loaded if m in ('odes', 'agent_replay_bundle', 'agent_governance_evidence_pack', 'moltbot_safe',
-                                                                          'cognous_control_plane', 'agent_governance_control_plane', 'tests', 'gax_imx', 'exchange')]},
+                  'semantic_workers': len(worker),
+                  'loaded_component_roots': sorted(loaded)},
                  sort_keys=True))
 '''
 
@@ -75,7 +97,9 @@ def separate_consumer(path, policy, only=('odes',)):
     env['PYTHONPATH'] = os.pathsep.join(str(roots[k]) for k in ('odes', 'replay') if k in only or k == 'odes' and False) if False else \
         os.pathsep.join(str(roots[k]) for k in (('odes', 'replay') if 'replay' in only else ('odes',)))
     env['PYTHONDONTWRITEBYTECODE'] = '1'
-    out = subprocess.run([sys.executable, '-s', '-c', SEPARATE_CONSUMER, str(path), json.dumps(policy)], env=env, capture_output=True, text=True, timeout=120)
+    with tempfile.TemporaryDirectory() as scratch:
+        out = subprocess.run([sys.executable, '-s', '-c', SEPARATE_CONSUMER, str(path), json.dumps(policy), os.path.join(scratch, 'worker-roots.jsonl')],
+                             env=env, capture_output=True, text=True, timeout=120)
     if out.returncode != 0:
         raise RuntimeError(f'separate consumer failed: {out.stderr[-400:]}')
     return json.loads(out.stdout)
@@ -123,7 +147,8 @@ def test_scn_c14_declared_versions_validate_in_separate_consumer(request, record
         checks.equal(pkg['provenance']['pinned_revisions'], sel, 'pinned and selected revisions agree')
         checks.equal(pkg['provenance']['supported_revisions']['control_plane'], [PINS['control_plane']], 'supported Control Plane revisions')
         loaded = out['loaded_component_roots']
-        checks.equal(loaded, ['agent_replay_bundle', 'odes'], 'separate consumer loaded only the ODES and Replay trees (no producer code)')
+        checks.equal(loaded, ['agent_replay_bundle', 'odes'], 'separate consumer (this process and its semantic worker) loaded only the ODES and Replay trees (no producer code)')
+        checks.equal(out['semantic_workers'], 1, 'the Replay semantic check ran in exactly one worker of the separate consumer')
         checks.equal(C.tree_snapshot(ex['dir'] / 'producer'), before, 'reading the package left the producer tree (journal + destination) byte-identical')
         return {'case': case, 'layers': layers, 'declared': {'package_type': pkg['package_type'], 'package_version': pkg['package_version'], 'profile': PROFILE_ID},
                 'selected_revisions_are_frozen_pins': True, 'loaded_component_roots': loaded, 'producer_tree_unchanged': True, **_gate(case, ex)}
@@ -134,9 +159,11 @@ def test_scn_c14_separate_consumer_without_replay_fails_closed(request, record_p
     def trial(work, mp, checks):
         ex = runs[(_n(work), 'lost_ack')]
         out = separate_consumer(ex['objects_on_disk']['odes'], POLICY, only=('odes',))
-        checks.equal(out['layers']['replay_semantic_consistency'], 'fail', 'a consumer that lacks the pinned Replay validator fails the semantic layer closed')
-        checks.expect(any('agent_replay_bundle' in r for r in out['reasons']['replay_semantic_consistency']), 'the failure names the missing validator')
-        checks.expect(out['layers']['recipient_reliance_decision'] != 'pass', 'reliance is never pass without the semantic layer')
+        # ODES #113 (ad80fd7c): an absent Replay distribution is a dependency gap, classed 'unavailable' (not a contradiction in the package,
+        # so not 'fail'; never 'pass'); it still blocks reliance. docs/recipient-validation.md, "Replay check separates three situations".
+        checks.equal(out['layers']['replay_semantic_consistency'], 'unavailable', 'a consumer that lacks the pinned Replay validator reports the semantic layer unavailable, never pass')
+        checks.expect(any('Replay validator is unavailable' in r and 'cognous-agent-replay-bundle' in r for r in out['reasons']['replay_semantic_consistency']), 'the reason names the missing validator')
+        checks.equal(out['layers']['recipient_reliance_decision'], 'fail', 'reliance is refused (not pass, not informational) without the semantic layer')
         checks.equal(out['layers']['package_content_integrity'], 'pass', 'the independent layers still evaluate')
         return {'layers': out['layers'], 'reason': out['reasons']['replay_semantic_consistency']}
     C.run_c_case(request, record_property, tmp_path, 'C14', trial, gate=False)
@@ -354,6 +381,60 @@ def test_scn_c14_forged_authority_or_delivery_claims_are_not_validated(request, 
     C.run_c_case(request, record_property, tmp_path, 'C14', trial, gate=False)
 
 
+class _FdEvents:
+    """Event sink of a forked worker: one JSON line per event through an fd opened before the fork (os.write raises no audit event)."""
+    def __init__(self, fd):
+        self.fd = fd
+
+    def append(self, event):
+        os.write(self.fd, (json.dumps(list(event)) + '\n').encode())
+
+
+class _ObserverWithWorkers(C.Observer):
+    """C.Observer plus the events of forked children (the ODES semantic worker): the audit hook is inherited across fork but its
+    in-memory list is not shared, so each child redirects its events to a file the parent reads back as ``child_events``."""
+    _fork_hook_registered = False
+
+    def __enter__(self):
+        self._dir = tempfile.TemporaryDirectory()
+        self._path = os.path.join(self._dir.name, 'child-events.jsonl')
+        self._fd = os.open(self._path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        if not _ObserverWithWorkers._fork_hook_registered:
+            os.register_at_fork(after_in_child=_ObserverWithWorkers._in_child)
+            _ObserverWithWorkers._fork_hook_registered = True
+        return super().__enter__()
+
+    def __exit__(self, *exc):
+        super().__exit__(*exc)
+        os.close(self._fd)
+        return False
+
+    @staticmethod
+    def _in_child():
+        obs = C.Observer._current
+        if isinstance(obs, _ObserverWithWorkers):
+            child = _ObserverWithWorkers.__new__(_ObserverWithWorkers)
+            child.boundary, child.events = obs.boundary, _FdEvents(obs._fd)
+            C.Observer._current = child
+            fd = obs._fd
+
+            def full_argv(event, args):  # the base observer truncates rendered arguments; the exact argv is needed to classify a spawn
+                if event == 'subprocess.Popen' and C.Observer._current is child:
+                    os.write(fd, (json.dumps(['popen-argv', [str(a) for a in args[1]]]) + '\n').encode())
+            sys.addaudithook(full_argv)
+
+    @property
+    def child_events(self):
+        with open(self._path) as handle:
+            return [tuple(json.loads(line)) for line in handle.read().splitlines()]
+
+    def __del__(self):
+        try:
+            self._dir.cleanup()
+        except Exception:
+            pass
+
+
 def test_scn_c14_read_cannot_be_used_to_reach_the_destination(request, record_property, tmp_path, runs):
     """A reader observes no process/network/destination-write activity from the evaluator."""
     def trial(work, mp, checks):
@@ -361,10 +442,29 @@ def test_scn_c14_read_cannot_be_used_to_reach_the_destination(request, record_pr
         pkg = H2.load_copy(ex, 'odes')
         boundary = ex['dir'] / 'producer'
         before = C.tree_snapshot(boundary)
-        with C.Observer(boundary) as obs:
+        with _ObserverWithWorkers(boundary) as obs:
             in_process(pkg, _best_policy(pkg))
         rep = obs.report()
-        checks.equal(rep['process_events'], [], 'evaluator spawned no process')
+        # ODES #117 (39a3c6ce): the Replay semantic check runs in one forked worker (a deadline needs a killable process). That fork is the
+        # only process event allowed; no exec, subprocess, shell or spawn, and the worker's own events are observed too (see _ChildLog).
+        checks.equal(rep['process_events'], ['os.fork'], 'evaluator spawned no process other than the one documented semantic worker (fork only)')
+        checks.equal(sum(1 for e in obs.events if e[0] == 'os.fork'), 1, 'exactly one fork')
+        # The worker (odes.common.installed_replay_revision and installed_replay_checkout_dirty, ODES #100 and #110: 10dfd70d, 08ac0ead) asks git which commit the
+        # imported Replay comes from: `git -C <dir of the Replay checkout> rev-parse HEAD` and `git -C <dir> status --porcelain
+        # --untracked-files=no`. Those two read-only calls against the Replay tree are the only spawn allowed; any other process, any git
+        # call elsewhere (the producer tree, the destination) or any other git verb is a finding.
+        replay_tree = C.reference().paths['replay'].resolve()
+        argvs = [e[1] for e in obs.child_events if e[0] == 'popen-argv']
+        allowed = ([['git', '-C', None, 'rev-parse', 'HEAD'], ['git', '-C', None, 'status', '--porcelain', '--untracked-files=no']])
+        unexpected = [a for a in argvs if not (len(a) >= 5 and a[:2] == ['git', '-C'] and Path(a[2]).resolve().is_relative_to(replay_tree)
+                                                and [a[0], a[1], None, *a[3:]] in allowed)]
+        checks.equal(unexpected, [], 'the semantic worker spawned only read-only git queries about the Replay checkout')
+        checks.equal(sorted({e[0] for e in obs.child_events if e[0] in ('os.system', 'os.exec', 'os.posix_spawn', 'os.fork', 'os.forkpty')}), [],
+                     'the semantic worker started no shell, exec, spawn or further fork')
+        checks.equal(sum(1 for e in obs.child_events if e[0] == 'subprocess.Popen'), len(argvs), 'every worker subprocess was classified by its exact argv')
+        checks.equal(sorted({e[0] for e in obs.child_events if e[0].startswith('socket.')}), [], 'the semantic worker opened no network connection')
+        checks.equal([e for e in obs.child_events if e[0] == 'sqlite3.connect'], [], 'the semantic worker opened no SQLite database')
+        checks.equal([e for e in obs.child_events if e[0] == 'open-write'], [], 'the semantic worker opened no file for writing')
         checks.equal(rep['network_events'], [], 'evaluator opened no network connection')
         checks.equal([e for e in obs.events if e[0] == 'sqlite3.connect'], [], 'evaluator opened no SQLite database')
         checks.equal(rep['write_class_events'], 0, 'evaluator issued no write-class filesystem event')

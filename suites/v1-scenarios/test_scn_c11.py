@@ -92,6 +92,28 @@ def stricter(policy, dim):
 POLICY_DIMS = ['institution', 'authority_domain', 'adapter', 'action', 'target_prefix', 'unit', 'max_amount']
 
 
+def bind_row_to_other_principal(dest, g, p):
+    """Make the destination's credential row for the grant name another principal.
+
+    The runtime's trusted writer no longer permits this: ``set_effective_grant`` refuses to reuse a grant id for a different
+    principal ("effective grant id is already bound to another principal", runtime 62a5cc15, #121). The refusal is asserted here as
+    a control; the out-of-model state the case needs (a row that names someone else, as left by a restore, a tampered file or a
+    writer outside the model) is then written below the writer API with the same direct SQL the absent_row case uses, with the digest
+    the writer would have stored for that principal. The commit-time credential check is what is under test.
+    """
+    other = 'urn:cognous:principal:someone-else'
+    try:
+        dest.set_effective_grant(principal=other, grant_id=g.grant_id, revision=g.grant_revision, permissions=p.requested_permissions)
+    except PermissionError as exc:
+        assert 'already bound to another principal' in str(exc), f'unexpected refusal text: {exc}'
+    else:
+        raise AssertionError('the trusted writer reassigned a grant id to another principal (runtime 62a5cc15 refuses this)')
+    from engine.effective_grant import effective_grant_digest
+    digest = effective_grant_digest(principal=other, grant_id=g.grant_id, revision=g.grant_revision, permissions=p.requested_permissions, status='active')
+    with dest._connect() as conn:
+        conn.execute('UPDATE effective_grants_v1 SET principal=?, digest=? WHERE grant_id=?', (other, digest, g.grant_id))
+
+
 def set_grant_row(flow, state):
     """Make the destination's effective-grant credential absent or out of scope (trusted authority writer / setup only)."""
     g = flow.d.binding
@@ -100,7 +122,7 @@ def set_grant_row(flow, state):
         with flow.dest._connect() as conn:
             conn.execute('DELETE FROM effective_grants_v1 WHERE grant_id=?', (g.grant_id,))
     elif state == 'other_principal':
-        flow.dest.set_effective_grant(principal='urn:cognous:principal:someone-else', grant_id=g.grant_id, revision=g.grant_revision, permissions=p.requested_permissions)
+        bind_row_to_other_principal(flow.dest, g, p)
     elif state == 'narrowed_permissions':
         narrowed = list(p.requested_permissions)[:-1] if len(p.requested_permissions) > 1 else []
         flow.dest.set_effective_grant(principal=p.principal, grant_id=g.grant_id, revision=g.grant_revision, permissions=narrowed)
@@ -367,7 +389,7 @@ def test_scn_c11_route_c_exchange_with_absent_or_out_of_scope_destination_creden
             with flow.dest._connect() as conn:
                 conn.execute('DELETE FROM effective_grants_v1 WHERE grant_id=?', (g.grant_id,))
         elif state == 'other_principal':
-            flow.dest.set_effective_grant(principal='urn:cognous:principal:someone-else', grant_id=g.grant_id, revision=g.grant_revision, permissions=p.requested_permissions)
+            bind_row_to_other_principal(flow.dest, g, p)
         elif state == 'narrowed_permissions':
             flow.dest.set_effective_grant(principal=p.principal, grant_id=g.grant_id, revision=g.grant_revision, permissions=[])
         elif state == 'suspended':

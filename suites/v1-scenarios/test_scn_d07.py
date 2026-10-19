@@ -189,10 +189,33 @@ def c1_destination_effect_tables_after_consume(w):
 
 # Uses of the word "anchor" in the reference code that are not a restore/anchor concept. Programme 2 (control plane 3cd17ead) added
 # freshness.py, whose limits docstring says the deadline is "anchored" at the opening of the check (a time reference, not an external
-# restore anchor and not an input to admission). Keyed by (path under the components directory, exact stripped line).
+# restore anchor and not an input to admission). Control plane 6093aca7 (#60, freshness hardening) added the opt-in
+# ``FreshnessProfile.anchor_deadline_to_inputs`` (default False): the freshness deadline of a check may be anchored to the earliest
+# ``observed_at + bound`` of the status inputs it judged (freshness.py, bounded.py ``_fresh`` / ``_FRESH_DEADLINES``). That is a time
+# reference for staleness of authority statuses; it keeps nothing across a restore, names no external anchor and is not consulted by
+# the destination, so it is not a restore/anchor concept either. Each use is classified by its exact file and exact stripped line
+# (never by line number or pattern); any other occurrence still fails the tripwire. Keyed by (path under the components directory, line).
 NON_RESTORE_ANCHOR_USES = {
+    ('control_plane/src/agent_control_plane/bounded.py',
+     '#: Opt-in freshness anchoring: while set, ``BoundedAuthorizationWorkflow._fresh`` appends ``observed_at + bound`` of each judged input.'),
+    ('control_plane/src/agent_control_plane/bounded.py',
+     '"""The earliest deadline carried by any journal event of one check (opt-in input anchoring), or None."""'),
+    ('control_plane/src/agent_control_plane/bounded.py',
+     'if self._freshness is not None and self._freshness.anchor_deadline_to_inputs:'),
+    ('control_plane/src/agent_control_plane/bounded.py',
+     'anchors = [] if (fr is not None and fr.anchor_deadline_to_inputs) else None'),
+    ('control_plane/src/agent_control_plane/bounded.py',
+     'token = _FRESH_DEADLINES.set(anchors) if anchors is not None else None'),
+    ('control_plane/src/agent_control_plane/bounded.py',
+     'if anchors and clocks.get("deadline"):'),
+    ('control_plane/src/agent_control_plane/bounded.py',
+     'earliest = min(anchors)'),
     ('control_plane/src/agent_control_plane/freshness.py',
-     '* The deadline is anchored at the opening of the check, not at the status\'s own timestamp. A status that was already close to the'),
+     "* By default the deadline is anchored at the opening of the check, not at the status's own timestamp. A status that was already"),
+    ('control_plane/src/agent_control_plane/freshness.py',
+     '``FreshnessProfile.anchor_deadline_to_inputs=True`` the deadline is the earliest of that value and ``observed_at + own bound``'),
+    ('control_plane/src/agent_control_plane/freshness.py',
+     'anchor_deadline_to_inputs: bool = Field(default=False, exclude_if=lambda v: not v)'),
 }
 
 # name: (kind, scenario, restored, remaining_external, expectation)
@@ -225,9 +248,12 @@ SCENARIOS = {
         S(step='replay_after_destination_full_restore', status='reconciled', error=None, newly=False, effects=1, witness=1)),
     # Programme 2 (runtime 11de097c): the executor records the exception CLASS only in attempt events, so the refusal by effect
     # uniqueness now reads exactly 'IntegrityError' (it used to carry the SQL message text); exact_error pins that there is no message text.
+    # Runtime 93d0592c (#125): the executor reports a dispatch-time error as 'denied' only when reconciliation proves no durable effect for the
+    # claim; here the restored claim meets the surviving durable effect (UNIQUE effect_id), so the result is 'unknown' (not executed, no new
+    # effect, no retry permission) and not 'denied'. The effect count (1) and the witnessed commits (1) are unchanged: still no second effect.
     'c1_authority_tables_alone_after_consume_refused_by_effect_uniqueness': ('c1', c1_authority_tables_after_consume,
         'authority tables (grants/approvals/policies/evidence/claims/budgets) from pre-execution snapshot', 'effects, attempts, receipts tables',
-        S(step='replay_after_authority_tables_restore', status='denied', error='IntegrityError', exact_error=True, newly=False, effects=1, witness=1)),
+        S(step='replay_after_authority_tables_restore', status='unknown', error='IntegrityError', exact_error=True, newly=False, effects=1, witness=1)),
     # Programme 2 (runtime 11de097c, atomic-route destination grants are revoked-final): restoring the authority tables to the pre-revocation
     # snapshot no longer reopens the revoked grant; the replay is refused (this case was 'c1_authority_tables_alone_after_revoke_reopens').
     'c1_authority_tables_alone_after_revoke_refused_revocation_is_final': ('c1', c1_authority_tables_after_revoke,
@@ -239,9 +265,10 @@ SCENARIOS = {
     'c1_authority_tables_and_revocations_after_revoke_reopens': ('c1', c1_authority_tables_and_revocations_after_revoke,
         'authority tables AND the revocation table (authority_grant_revocations_v1) from pre-revocation snapshot', 'effects, attempts, receipts tables (none yet); nothing local anchors the revocation',
         S(step='replay_after_authority_tables_restore', status='executed', error=None, newly=True, effects=1, witness=1)),
+    # Same runtime 93d0592c (#125) classification as the consume case above: 'unknown', one effect, one witnessed commit.
     'c1_authority_tables_alone_after_lost_ack_refused_by_effect_uniqueness': ('c1', c1_authority_tables_after_lost_ack,
         'authority tables from pre-execution snapshot', 'effects, attempts, receipts tables (effect committed, ack lost)',
-        S(step='replay_after_authority_tables_restore', status='denied', error='IntegrityError', exact_error=True, newly=False, effects=1, witness=1)),
+        S(step='replay_after_authority_tables_restore', status='unknown', error='IntegrityError', exact_error=True, newly=False, effects=1, witness=1)),
     'c1_full_restore_before_consume_accepts_replay': ('c1', c1_full_before_consume,
         'complete store (pre-execution)', 'nothing local; no external anchor exists',
         S(step='replay_after_full_restore', status='executed', error=None, newly=True, effects=1, witness=2)),

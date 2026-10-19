@@ -49,7 +49,8 @@ ROUTES = {
     'legacy-agent-engine': ('legacy AgentEngine.execute_action shell (declared to perform no side effect)', True, None),
     'openshell-destination': ('OpenShellRefundDestination (sandbox destination, request_cancel)', False,
                               'requires a pinned OpenShell 0.1.2 gateway, Docker and an immutable OCI image; outside the bounded Linux synthetic reference'),
-    'legacy-cli': ('cli/moltbot_safe_cli.py', False, 'legacy CLI; statically asserted below to reference no destination/executor route'),
+    'legacy-cli': ('cli/moltbot_safe_cli.py (removed at runtime cad22611, #133: it did not run, ImportError)', False,
+                   'removed at the pin; asserted below to be absent, with no other CLI entry point that could reach a destination/executor route'),
     'raw-sql-by-database-holder': ('direct SQL by a holder of the SQLite file', False,
                                    'declared out of model: SQLite does not separate the file holder from the authority writer (trusted-host boundary documented by the reference)'),
 }
@@ -126,9 +127,12 @@ def test_scn_d09_route_inventory_is_complete_and_classified(request, record_prop
         checks.equal(vanished, [], 'every declared call site still exists at the pin')
         exercised = sorted(r for r, (_, ex, _) in ROUTES.items() if ex)
         checks.equal(exercised, sorted(TESTED_ROUTE_IDS), 'routes marked exercised are exactly the routes this module tests')
-        cli_text = (ref.paths['runtime'] / 'cli/moltbot_safe_cli.py').read_text()
-        checks.expect(not re.search(r'safe_executor|DurableRefundDestination|control_plane_adapter|local_authority_effect|refund_intent|openshell', cli_text),
-                      'legacy CLI references no destination or executor route')
+        # Runtime cad22611 (#133) removed the non-running legacy CLI and the four legacy shell demos. The route is gone, not reclassified:
+        # assert the removal and that no CLI entry point remains (the former text check of the CLI has nothing left to read).
+        runtime = ref.paths['runtime']
+        checks.equal((runtime / 'cli' / 'moltbot_safe_cli.py').exists(), False, 'the legacy CLI no longer exists at the pin')
+        checks.equal(sorted(p.relative_to(runtime).as_posix() for p in (runtime / 'cli').rglob('*.py')) if (runtime / 'cli').is_dir() else [], [],
+                     'no CLI entry point remains under cli/')
         return {'declared_routes': {r: {'what': w, 'exercised': ex, 'not_exercised_reason': why} for r, (w, ex, why) in ROUTES.items()},
                 'discovered_call_sites': found, 'unauthorized_effects': 0, 'excess_duplicate_effects': 0}
     H.run_case(request, record_property, tmp_path, 'D09', trial)
