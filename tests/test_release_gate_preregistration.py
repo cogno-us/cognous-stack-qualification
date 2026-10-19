@@ -296,11 +296,27 @@ class DeclaredKnownLimits(PreregistrationBase):
         self.assertIn("inconclusive", ra["junit_note"])
 
     def test_wiki_derived_declarations(self):
+        # The declared set is the registered set plus the add_known_limit amendments for suites/wiki-derived, less the
+        # withdraw_known_limit amendments. It must equal the set the inventory names (still an equality, over the larger set).
         wd = self.twin["declared_known_limits"]["wiki_derived"]
         named = set(self.inventory["wiki"]["known_limit_tests_named"])
-        ids = [r["id"] for r in wd["declared"]]
+        prefix = "suites/wiki-derived/"
+        amendments = self.twin["amendments"]
+        added = [a for a in amendments if a["action"] == "add_known_limit" and a["id"].startswith(prefix)]
+        withdrawn = {a["id"][len(prefix):] for a in amendments if a["action"] == "withdraw_known_limit" and a["id"].startswith(prefix)}
+        ids = [r["id"] for r in wd["declared"]] + [a["id"][len(prefix):] for a in added]
         self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual(set(ids), named, "the inventory and this page list different known-limit tests: record an amendment")
+        self.assertLessEqual(withdrawn, set(ids), "an amendment withdraws a test that was never declared")
+        self.assertEqual(set(ids) - withdrawn, named, "the inventory and this page list different known-limit tests: record an amendment")
+        for a in added:
+            filename, func = a["id"][len(prefix):].split("::")
+            self.assertIn("known_limit", func)
+            self.assertTrue(has_function(ROOT / "suites/wiki-derived" / filename, func), a["id"])
+            m = re.match(r"Suite (W-[IX]), case `(TC-[A-Z0-9]+-\d+)`", a["text"])
+            self.assertIsNotNone(m, a["id"])
+            self.assertIn(m.group(2), self.cases, a["id"])
+            expected = "W-I" if self.cases[m.group(2)]["split"] == "individual-component" else "W-X"
+            self.assertEqual(m.group(1), expected, a["id"])
         for r in wd["declared"]:
             self.assertIn("known_limit", base_name(r["id"]))
             self.assertTrue(has_function(ROOT / r["path"], base_name(r["id"])), r["id"])

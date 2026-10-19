@@ -14,6 +14,8 @@ Limits, asserted as limits and never as passes:
   as a whole, so a run of several actions is reconstructed one action at a time (TC-L17-020);
 * a changed policy version inside a retained decision is not refused by the importer: it shows up as a difference between two
   reconstructions (TC-D12-007);
+* decision-time input content (the values the decision recorded about its inputs) is carried as recorded and is not re-verified at
+  import (TC-D12-007);
 * policy content is read as a digest and a revision row, not as rules, in the bounded decision path (TC-L05-028, TC-L08-036);
 * a policy configuration member the model does not know is dropped on load (TC-L05-028);
 * the component revision check of the importer compares exact strings from a fixed list; hash-checked installation of
@@ -318,6 +320,46 @@ def test_wiki_d12_007_changed_policy_or_manifest_input_is_reported_as_a_differen
     assert (edited['manifest_id'], edited['manifest_version']) == (r.manifest['manifest_id'], r.manifest['manifest_version'])  # same label
     out = H2.eval_pack_from_bundle(other_id, base)
     assert out['verdict'] == 'rejected' and 'manifest_id does not match' in out['why']
+
+
+@pytest.fixture(scope='module')
+def valid_export(pinned_reference, tmp_path_factory):
+    """One producer run of the frozen harness (an applied effect), written to disk and read back."""
+    root = tmp_path_factory.mktemp('wp-f-valid')
+    built = _h2().build_exports('valid', root)
+    yield built
+    for name, expected in built['sha256'].items():
+        assert file_digest(built['dir'] / name) == expected, f'exported original valid/{name} was modified'
+
+
+@wiki_case('TC-D12-007')
+def test_wiki_d12_007_decision_time_input_content_is_carried_as_recorded_and_is_not_re_verified_at_import_known_limit(valid_export):
+    """Limit: observation state is bound to the reconciliation records, the execution result, the destination rows and the
+    reconstruction compare. Decision-time input content is carried as recorded and is not re-verified at import: a value edited in
+    the retained decision is imported, and the reconstruction shows the edited text in the decision record only."""
+    r = retained(valid_export)
+    base = reconstruct(r.journal, r.proposal, r.executor_export)
+    assert complete(base)  # control: the unedited records
+    decision_record = records_of(base, 'runtime_decision')[0]['record_id']
+    state_kinds = ('effect_observation', 'reconciliation', 'execution_result', 'destination_effect')
+    assert all(records_of(base, kind) for kind in state_kinds)
+
+    def edited(edit):
+        j = copy.deepcopy(r.journal)
+        edit(j['decisions'][0])
+        return reconstruct(j, r.proposal, r.executor_export)
+
+    def grant_input(decision):
+        return next(x for x in decision['resolution_inputs'] if x['input_type'] == 'grant')
+    in_binding = edited(lambda d: d['binding'].update(authority_context_status='edited decision-time text'))
+    in_inputs = edited(lambda d: grant_input(d)['observed'].update(status='edited decision-time text'))
+    for other in (in_binding, in_inputs):
+        assert complete(other)  # imported, not refused
+        assert bundle_diff(base, other) == [('records', decision_record)]  # only the decision record differs
+        for kind in state_kinds:
+            assert records_of(other, kind) == records_of(base, kind), kind  # the observation state is as it was
+    assert records_of(in_binding, 'runtime_decision')[0]['data']['binding']['authority_context_status'] == 'edited decision-time text'
+    assert grant_input(records_of(in_inputs, 'runtime_decision')[0]['data'])['observed']['status'] == 'edited decision-time text'
 
 
 @wiki_case('TC-D12-007')

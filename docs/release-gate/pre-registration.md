@@ -695,3 +695,183 @@ Form of an amendment: a heading `### Amendment N (YYYY-MM-DDTHH:MM:SSZ)` (UTC), 
 - **Text.** The strict expected-failure marks of the fifteen attempt-identity probes (listed as not declared in 8.1) are removed once the pin round moves the ODES pin to the revision that refuses a result naming no registered attempt. They were never declared, so no withdrawal applies; from the next run the fifteen are ordinary tests.
 - **Reason.** ODES #127 is merged. Recorded so that the removal is visible in the record before the run (OD-7).
 - **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 46 (2026-10-19T16:36:35Z)
+
+- **Action.** other
+- **Text.** Declared known limits in controller rows. For the controller's tests rows, the cases matched by a row's selectors are split into declared cases and undeclared cases. The declared cases are the tests declared in this record as known limits (declared_known_limits and add_known_limit amendments, less withdraw_known_limit amendments). A test is matched by its exact classname and test name (the repository path of the test file written with dots, the parameter included), without patterns (DR-8). The status of a row is computed over the undeclared cases: an undeclared failed case gives FAIL, and an undeclared skipped case, a strict expected failure included, gives INCONCLUSIVE. The minimum of each selector is counted over all matched cases, declared cases included. Each declared case matched by a row is listed beside the row as DECLARED-LIMIT with its outcome (passed, xfailed, skipped or failed); a declared test that is not a strict expected failure and passes is only listed. A declared strict expected failure that passes gives FAIL for the row (DR-7) and stays listed. A declared test that a selector of the row would match but that was not run is listed as NOT RUN and gives INCONCLUSIVE for the row. When every case matched by a selector is declared, the row is reported INCONCLUSIVE with that reason. Declared tests of suites that the controller does not collect do not affect any row. The requirement ADD-AUTH-RA, which is not mandatory, is computed under the same rule. The controller report records the sha256 of the declared set used, derived from the committed twin, and the aggregate does not run with a declared set that differs from it. Selectors, minimums, mandatory flags, job rows, the status table of the component jobs and the rule for the selected-V1 verdict are unchanged.
+- **Reason.** Recorded before the controller run so that declared limits are reported beside the rows they fall in and are not counted as undeclared skips or failures (DR-1, DR-9). No result had been seen.
+- **By.** the owner's decision of 19 October 2026, recorded by the coordinator
+
+### Amendment 47 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_cumulative_counters_are_per_grant_id_so_three_children_reach_their_own_cap_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: The destination counts effects per grant identifier only; grants issued independently each reach their own cap and no total of a parent is consulted on the effect path.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 48 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_a_grant_that_names_a_parent_is_not_authorized_by_this_profile_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: A grant that names a parent grant is held with the reason `delegation_profile_unsupported`; the profile has no walk over ancestors and no budget shared with them.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 49 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_week_old_authorized_decision_still_executes_when_inputs_match_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: The time of a decision is not consulted at effect time; a decision seven days old executes when the inputs read at that time still match.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 50 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_same_operation_id_with_a_different_payload_gets_the_replay_refusal_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: The destination keys the dedupe of operations on the operation identifier alone; a second request with the same identifier gets the same refusal whether its payload is identical or different.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 51 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_a_hold_has_no_binding_and_a_later_decision_carries_no_link_to_it_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: A held decision is a stored row without a binding and without a lifecycle of its own, and a later decision for the same proposal is a separate row that does not name the hold.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 52 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_action_without_authority_context_does_not_pin_the_context_ref_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: The pin of the authority context reference is compared only when the manifest action declares an authority context.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 53 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_removed_operation_rows_let_a_revision_2_decision_authorize_but_the_destination_refuses_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: The ledger of operation identities has no retention rule; with its rows removed from the run record, a revision-2 decision whose renewal is unrecorded is authorized where the intact ledger holds it, and the destination still refuses the second effect.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 54 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_claim_consumption_does_not_see_identity_or_mandate_status_change_known_limit[identities-None-authenticated]`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: With the profile `local-authority-effect`, identity authentication is read at issuance only; a store that validates a provisioned claim alone consumes it after only that status has changed to false.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 55 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_known_limits.py::test_claim_consumption_does_not_see_identity_or_mandate_status_change_known_limit[mandates-issuer:1|role:issuer-mandate_valid]`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: With the profile `local-authority-effect`, mandate validity is read at issuance only; a store that validates a provisioned claim alone consumes it after only that status has changed to false.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 56 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_minimum_count_zero_known_limit.py::test_minimum_count_zero_with_count_zero_is_accepted_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: A minimum count of 0 is an explicit declaration of the operator and passes with a count of 0.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 57 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-control-plane:tests/test_amount_substitution.py::test_numeric_forms_inside_the_payload_are_distinct_bytes_known_limit`
+- **Text.** Suite C1-03 (cognous-control-plane, revision named in the candidate manifest). Known limit: The payload is committed as canonical JSON bytes, so the numbers 10 and 10.0 inside a payload are different commitments.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-5). The test asserts the stated limit as the negative fact, sits in the component's own test file, and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 58 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-replay-bundle:tests/test_contract_lifecycle_conformance.py::test_vendored_fixture_through_replay[executor-unknown-validated-unknown-after-ambiguous-dispatch]`
+- **Text.** Suite C1-05 (cognous-replay-bundle, revision named in the candidate manifest). Known limit, declared as a strict expected failure that states the contract expectation: Replay does not accept the retained fixture in which an executor reports the result unknown with a validated unknown observation after an ambiguous dispatch; the Control Plane does not yet emit an unknown observation and its acceptance is not widened.
+- **Reason.** Recorded before the controller run so that this strict expected failure is listed as a declared limit beside the row it falls in, under the rule of the controller amendment of this record, and is never reported as an ordinary pass (DR-1, DR-7, DR-8, OD-5). The test states the contract expectation, sits in the component's own test file, and is not changed to produce a pass (DR-4). A declared strict expected failure that passes fails the row (DR-7). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 59 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-replay-bundle:tests/test_contract_lifecycle_conformance.py::test_vendored_fixture_through_replay[result-unknown-null-attempt-id]`
+- **Text.** Suite C1-05 (cognous-replay-bundle, revision named in the candidate manifest). Known limit, declared as a strict expected failure that states the contract expectation: The retained fixture in which a result is unknown, names no attempt identifier and carries a validated unknown observation is refused fail-closed at the Control Plane run before Replay reads the result; the acceptance of the Control Plane is not widened.
+- **Reason.** Recorded before the controller run so that this strict expected failure is listed as a declared limit beside the row it falls in, under the rule of the controller amendment of this record, and is never reported as an ordinary pass (DR-1, DR-7, DR-8, OD-5). The test states the contract expectation, sits in the component's own test file, and is not changed to produce a pass (DR-4). A declared strict expected failure that passes fails the row (DR-7). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 60 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-replay-bundle:tests/test_contract_lifecycle_conformance.py::test_vendored_fixture_through_replay[result-unknown-unregistered-attempt-id]`
+- **Text.** Suite C1-05 (cognous-replay-bundle, revision named in the candidate manifest). Known limit, declared as a strict expected failure that states the contract expectation: The retained fixture in which a result is unknown, names an attempt identifier that is not registered and carries a validated unknown observation is refused fail-closed at the Control Plane run before Replay reads the result; the acceptance of the Control Plane is not widened.
+- **Reason.** Recorded before the controller run so that this strict expected failure is listed as a declared limit beside the row it falls in, under the rule of the controller amendment of this record, and is never reported as an ordinary pass (DR-1, DR-7, DR-8, OD-5). The test states the contract expectation, sits in the component's own test file, and is not changed to produce a pass (DR-4). A declared strict expected failure that passes fails the row (DR-7). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 61 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-replay-bundle:tests/test_contract_lifecycle_conformance.py::test_probe_through_replay[reasons-minimum-unreadable-input-without-reason]`
+- **Text.** Suite C1-05 (cognous-replay-bundle, revision named in the candidate manifest). Known limit, declared as a strict expected failure that states the contract expectation: Replay does not derive the implied-reasons floor of a completed journal check (contract rule 39-E).
+- **Reason.** Recorded before the controller run so that this strict expected failure is listed as a declared limit beside the row it falls in, under the rule of the controller amendment of this record, and is never reported as an ordinary pass (DR-1, DR-7, DR-8, OD-5). The test states the contract expectation, sits in the component's own test file, and is not changed to produce a pass (DR-4). A declared strict expected failure that passes fails the row (DR-7). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 62 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `cogno-us/cognous-replay-bundle:tests/test_contract_lifecycle_conformance.py::test_probe_through_replay[reasons-match-extra-reason-on-check-row]`
+- **Text.** Suite C1-05 (cognous-replay-bundle, revision named in the candidate manifest). Known limit, declared as a strict expected failure that states the contract expectation: Replay binds a completion to any check whose reasons are a superset; the contract allows only the closed set of post-journal gate codes as additional reasons (contract rule 39-A).
+- **Reason.** Recorded before the controller run so that this strict expected failure is listed as a declared limit beside the row it falls in, under the rule of the controller amendment of this record, and is never reported as an ordinary pass (DR-1, DR-7, DR-8, OD-5). The test states the contract expectation, sits in the component's own test file, and is not changed to produce a pass (DR-4). A declared strict expected failure that passes fails the row (DR-7). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 63 (2026-10-19T16:36:35Z)
+
+- **Action.** other
+- **Text.** Statuses as computed, declared items listed beside them (settles OD-8 for requirements other than ADD-AUTH-RA). The controller reports the status of every requirement as computed under the rule of amendment 46 (PASS, FAIL, INCONCLUSIVE, NOT RUN or NOT APPLICABLE), together with the selected-V1 verdict and the full-catalog block. Each declared test that a requirement matches is listed beside the requirement with its outcome. Nothing else in this record changes a status: a declaration of a known limit, and a declaration of a skip through the inventory, change no selector, no minimum, no mandatory flag, no job row and no part of the rule for the selected-V1 verdict. A status is never reported as a pass unless the controller computes PASS, and a requirement that the controller computes as INCONCLUSIVE, FAIL or NOT RUN is reported with that status whether or not declared items are listed beside it.
+- **Reason.** OD-8 asked what the controller output means at the gate; this fixes how it is reported, consistently with the rule of the controller amendment, before any controller run (RP-3 extended to the other requirements). No result had been seen.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 64 (2026-10-19T16:36:35Z)
+
+- **Action.** other
+- **Text.** Requirement ADD-AUTH-RA is computed under the rule of amendment 46, as every other requirement is, although it is not mandatory. The declaration of amendment 33 and RP-3 stand as written: when the controller computes the requirement as inconclusive the requirement is listed as a known limit, next to the six declared probes. When the controller computes another status, that status is reported as computed and the six declared probes are listed beside the requirement with their outcome; DR-7 applies to a declared strict expected failure that passes.
+- **Reason.** Amendment 33 was recorded before the controller rule was; this note states that the two apply together, without changing amendment 33 or RP-3. No result had been seen.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 65 (2026-10-19T16:36:35Z)
+
+- **Action.** withdraw_known_limit
+- **Id.** `suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit`
+- **Text.** Withdrawal of the declaration of amendment 21 for `suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit` (suite W-I, case `TC-L06-040`). The exchange route at revision bf314f38 refuses a created-at member that is not a time and a sender member that is not a name, each with a typed reason code and without any effect, where the test asserts that a numeric created-at member is accepted and that a list-valued sender stops the assessment with an exception. The test no longer reflects the component. Its text is not edited (DR-4); it is no longer a declared known limit, and the limit that remains (extra members, content types and size accepted as data) is declared by amendment 66 for a new test.
+- **Reason.** The behaviour of the exchange route changed after amendment 21 was recorded. The withdrawal and the replacement are recorded before the controller run and before any release-gate run; no result of any controller or gate run had been seen (DR-2, DR-3, DR-4). The replacement test states the current behaviour as the limit and was measured to pass at the pinned exchange and runtime revisions in a scratch environment that is not a gate run.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 66 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_extra_members_content_types_and_size_are_accepted_as_data_while_mistyped_members_are_refused_known_limit`
+- **Text.** Suite W-I, case `TC-L06-040`. Known limit: The schema check of the exchange route does not reject extra members, content types or message size; such messages are accepted as data. A created-at member that is not a time and a sender that is not a name are refused with a typed reason code and without any effect. This replaces the declaration withdrawn by amendment 65.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 67 (2026-10-19T16:36:35Z)
+
+- **Action.** add_known_limit
+- **Id.** `suites/wiki-derived/test_wp_f_records_replay_policy.py::test_wiki_d12_007_decision_time_input_content_is_carried_as_recorded_and_is_not_re_verified_at_import_known_limit`
+- **Text.** Suite W-X, case `TC-D12-007`. Known limit: Observation state is bound to the reconciliation records, the execution result, the destination rows and the reconstruction compare. Decision-time input content is carried as recorded and is not re-verified at import.
+- **Reason.** Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 68 (2026-10-19T16:36:35Z)
+
+- **Action.** other
+- **Text.** Restatement of the not-claimed sentence of `TC-D12-007` (OD-11). The sentence now ends with: "Observation state is bound to the reconciliation records, the execution result, the destination rows and the reconstruction compare. Decision-time input content is carried as recorded and is not re-verified at import." The class of the case (PARTLY_COVERED), its split and its row in the comparator table are unchanged, and applicability.json stays at version 1.0.0. The page APPLICABILITY.md carries the same sentence and is edited in the same change.
+- **Reason.** OD-11 requires an amendment that restates the affected row when the file is changed; the file is changed in the same change as this amendment and before any run. No result had been seen.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
