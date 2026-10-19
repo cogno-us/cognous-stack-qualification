@@ -68,9 +68,11 @@ jobs:
       shell: bash
       run: 'set -euo pipefail
 
-        docker pull python:3.12-slim
+        BASE_REF=python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
 
-        BASE_DIGEST="$(docker image inspect python:3.12-slim --format ''{{index .RepoDigests 0}}'')"
+        docker pull "$BASE_REF"
+
+        BASE_DIGEST="$(docker image inspect "$BASE_REF" --format ''{{index .RepoDigests 0}}'')"
 
         test -n "$BASE_DIGEST"
 
@@ -102,8 +104,8 @@ jobs:
         ] = Path(\"openshell-worker-image-id.txt\").read_text().strip()\ndata[\"build_inputs\"] = {\n    \"dockerfile\"\
         : \"examples/openshell/Dockerfile\",\n    \"worker\": \"engine/openshell_worker.py\",\n    \"executor\"\
         : \"engine/safe_executor.py\",\n    \"probe\": \"examples/openshell/probe.py\",\n    \"base_reference\"\
-        : \"python:3.12-slim\",\n    \"base_identity_status\": \"resolved-at-qualification; not a repository-pinned\
-        \ reviewed digest\",\n}\ndata[\"boundaries\"] = {\n    \"host_source_contract_tests\": \"executed\",\n \
+        : \"python:3.12-slim\",\n    \"base_identity_status\": \"pinned by digest in the workflow (owner-supplied\
+        \ index digest, 2026-10-19); the recorded value is the digest resolved at qualification\",\n}\ndata[\"boundaries\"] = {\n    \"host_source_contract_tests\": \"executed\",\n \
         \   \"container_image_worker\": \"executed\",\n    \"mocked_openshell_transport\": \"not part of this workflow\"\
         ,\n    \"live_openshell_execution\": \"unexecuted\",\n    \"live_confinement_enforcement\": \"unexecuted\"\
         ,\n}\npath.write_text(json.dumps(data, indent=2, sort_keys=True) + \"\\n\")\nPY\n"
