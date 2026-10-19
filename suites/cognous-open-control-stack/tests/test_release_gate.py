@@ -26,22 +26,50 @@ def test_nonexistent_required_reference_blocks_release():
     assert len(resolved[0]["missing"])==2
 
 
+SECURITY_RUNTIME_P2="security-runtime-p2-20261018"
+
+
 def test_interface_cleanup_lock_uses_declared_revisions():
     lock=json.loads((ROOT/"component-lock.json").read_text(encoding="utf-8"))
     qualified=json.loads((ROOT/"profiles/full-release-candidate.json").read_text())
     assert lock["qualification_status"]=="accepted"
+    gax=lock["components"]["gax_imx_transport"]
+    assert gax["acceptance_status"]=="accepted_merged"
+    assert lock["qualification_evidence"]["workflow_run"]==37694032916
+    assert lock["qualification_evidence"]["matrix_scenarios"]==35
+    if lock["runtime_profile"]==SECURITY_RUNTIME_P2:
+        # Programme 2 generation: the lock has moved past the merged-producers-v1 candidate profile, so equality with
+        # profiles/full-release-candidate.json no longer describes the selected tuple. The declared revisions are pinned
+        # exactly instead, and the earlier acceptance chain is required to stay recorded one level down.
+        exact={
+            "action_manifest":("sha","ff5490828b2bf7f6a976da209f3f533701855687"),
+            "control_plane":("sha","2bac7875391cad0a431fa0d75208b7ade39743e3"),
+            "moltbot_safe":("accepted_sha","6b16962db140590b808f02b5c2cb11a217aec46f"),
+            "replay_bundle":("sha","6a6a477495ac24e813f12bb0fe314acfe8bac9cf"),
+            "governance_evidence_pack":("sha","fd030615a782a064b89c57e8e40d7f220f99ff9e"),
+            "odes":("sha","2893d935f1cb60d1854a3802cc32d739ddfd4efb"),
+            "gax_imx_transport":("sha","fdc2a410383396553254a39ae641c88b78ee13f1"),
+        }
+        for name,(key,sha) in exact.items():
+            assert lock["components"][name][key]==sha,name
+        assert lock["components"]["moltbot_safe"]["core_interop_sha"]=="6b16962db140590b808f02b5c2cb11a217aec46f"
+        assert gax["accepted_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        assert gax["merged_pr"]==55
+        assert gax["reviewed_source_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        earlier=gax["previous_acceptance"]
+        assert earlier["merged_pr"]==14
+        assert earlier["reviewed_source_sha"]=="8ba81548362c057dc7fa4f1cf7686f352188b76b"
+        assert earlier["previous_acceptance"]["sha"]=="9984d9011568ccdf3d562fa9760ad41368947b34"
+        assert "manifest/reconstruction transformation 0.3.8 (programme-2 profiles candidate)" in lock["components"]["governance_evidence_pack"]["interfaces"]
+        return
     assert lock["runtime_profile"]=="merged-producers-v1"
     for name,expected in qualified["components"].items():
         actual=lock["components"][name]
         key="core_interop_sha" if name=="moltbot_safe" else "sha"
         assert actual[key]==expected[key]
-    gax=lock["components"]["gax_imx_transport"]
-    assert gax["acceptance_status"]=="accepted_merged"
     assert gax["merged_pr"]==14
     assert gax["reviewed_source_sha"]=="8ba81548362c057dc7fa4f1cf7686f352188b76b"
     assert gax["previous_acceptance"]["sha"]=="9984d9011568ccdf3d562fa9760ad41368947b34"
-    assert lock["qualification_evidence"]["workflow_run"]==37694032916
-    assert lock["qualification_evidence"]["matrix_scenarios"]==35
     assert "manifest/reconstruction transformation 0.3.2 (merged producer pair)" in lock["components"]["governance_evidence_pack"]["interfaces"]
 
 def test_required_artifact_and_timeout_recovery_qualification_scenarios_present():
