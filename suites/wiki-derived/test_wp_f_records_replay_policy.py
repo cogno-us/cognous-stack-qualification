@@ -214,6 +214,12 @@ def retained(ex):
 # ================================================================================================ TC-D12-007
 @wiki_case('TC-D12-007')
 def test_wiki_d12_007_three_reconstructions_of_each_of_five_bundles_are_byte_identical(five):
+    """Three reconstructions of each of five bundles are byte-identical apart from the identifier and generation time.
+
+    Limit: the ODES package carries a top-level `created_at` with one-second resolution, taken from the wall clock by the
+    pinned exporter (it accepts no clock input). It is set aside exactly as `bundle_id` and `generated_at` are, and the
+    comparison covers every other member of the package, including its integrity digest.
+    """
     for case in FIVE:
         r = retained(five[case])
         runs = [reconstruct(r.journal, r.proposal, r.executor_export) for _ in range(3)]
@@ -231,7 +237,7 @@ def test_wiki_d12_007_three_reconstructions_of_each_of_five_bundles_are_byte_ide
         from agent_governance_evidence_pack.importer import import_manifest_reconstruction
         from odes import export_cognous_stack_package
         packs = {sha(import_manifest_reconstruction(r.manifest, runs[0]).model_dump(mode='json')) for _ in range(3)}
-        packages = {sha(export_cognous_stack_package(r.manifest, runs[0])) for _ in range(3)}
+        packages = {sha({k: v for k, v in export_cognous_stack_package(r.manifest, runs[0]).items() if k != 'created_at'}) for _ in range(3)}
         assert len(packs) == 1 and len(packages) == 1, case
     assert {five[c]['status'] for c in FIVE} >= {'executed', 'denied'}  # the five bundles are not five copies of one outcome
 
