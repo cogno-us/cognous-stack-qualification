@@ -17,5 +17,5 @@ jobs:
       - name: Validate scenario specifications only
         run: |
           python3 tools/validate_catalog.py
-          python3 -m pip install PyYAML==6.0.2 jsonschema==4.26.0
+          python3 -m pip install --require-hashes -r .github/locks/jsonschema-pyyaml-c943d3.txt
           python3 -m unittest discover -s tests -v
