@@ -235,10 +235,6 @@ def exchange_effects(flow):
     return H.db_summary(flow.dest.path)
 
 
-def ex_row(effect):
-    return {k: effect[k] for k in ('state', 'target', 'amount')}
-
-
 def one_effect_expected(checks, summary, label, target='urn:cognous:synthetic-account:customer-001', amount=50.0):
     checks.equal(len(summary['effects']), 1, f'{label}: exactly one durable effect')
     if summary['effects']:

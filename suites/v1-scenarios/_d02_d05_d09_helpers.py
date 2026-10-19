@@ -529,10 +529,6 @@ def atomic_view(res, exc=None):
             'newly_executed': res.newly_executed, 'error': res.error}
 
 
-def failure_reasons(flow):
-    return [(f['failure_class'], f['reason_code'], f['stage']) for f in flow.dest.failure_history()]
-
-
 def snapshot_digest(env):
     from engine.safe_executor import snapshot_envelope
     return snapshot_envelope(env).operation.digest
