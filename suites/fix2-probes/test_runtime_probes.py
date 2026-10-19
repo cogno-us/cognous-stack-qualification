@@ -15,7 +15,7 @@ import sys
 import pytest
 
 from _matrix import STATUSES, cells, producer_allows
-from _support import pending
+from _support import known_limit
 from conftest import checkout
 
 
@@ -73,7 +73,8 @@ def test_failure_before_commit_stays_denied(tmp_path):
     assert (effects, state) == (0, "issued")
 
 
-@pending()
+@known_limit("known limit: after a failure following the effect commit the executor reports status unknown, retry not eligible, with "
+             "observed_state applied (recovery observation); the probe expects observed_state unknown")
 @pytest.mark.parametrize("error", [RuntimeError("after commit"), OSError("after commit")], ids=["runtime-error", "os-error"])
 def test_failure_after_commit_reports_unknown(tmp_path, error):
     result, effects, state = run(tmp_path, "after_commit", error)

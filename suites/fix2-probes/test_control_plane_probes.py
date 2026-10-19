@@ -6,7 +6,6 @@ in test_time_grammar_probes.py.
 """
 import pytest
 
-from _support import pending
 from conftest import checkout
 
 
@@ -67,7 +66,6 @@ def test_control_returned_objects_carry_the_recorded_content():
 
 
 # ---------------------------------------------------------------------------------------------------------- probes
-@pending()
 def test_probe_changing_a_returned_decision_does_not_change_the_run_record():
     rec = recorder()
     _, (decision, _) = allowed(rec)
@@ -77,7 +75,6 @@ def test_probe_changing_a_returned_decision_does_not_change_the_run_record():
     assert snapshot(rec) == before
 
 
-@pending()
 def test_probe_changing_a_returned_blocked_action_does_not_change_the_run_record():
     rec = recorder()
     _, (_, blocked_action) = blocked(rec)
@@ -86,7 +83,6 @@ def test_probe_changing_a_returned_blocked_action_does_not_change_the_run_record
     assert snapshot(rec) == before
 
 
-@pending()
 def test_probe_changing_a_returned_reliance_record_does_not_change_the_run_record():
     rec = recorder()
     action, _ = allowed(rec)
@@ -97,7 +93,6 @@ def test_probe_changing_a_returned_reliance_record_does_not_change_the_run_recor
     assert snapshot(rec) == before
 
 
-@pending()
 def test_probe_changing_a_returned_policy_trace_does_not_change_the_run_record():
     rec = recorder()
     allowed(rec)

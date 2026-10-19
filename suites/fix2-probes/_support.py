@@ -24,14 +24,25 @@ def pending(*, raises=(AssertionError, pytest.fail.Exception), condition=True):
     return pytest.mark.xfail(condition, strict=True, raises=raises, reason=PENDING)
 
 
+def known_limit(reason, *, raises=(AssertionError, pytest.fail.Exception), condition=True):
+    """A strict expected failure that records a known limit of the component under test (see KNOWN_LIMITS.md): the probe
+    states a property the pinned head does not hold, and ``reason`` names the limit in neutral words. Same strictness as
+    ``pending``: only a failed assertion is the expected failure, and a probe that starts to pass fails the run."""
+    return pytest.mark.xfail(condition, strict=True, raises=raises, reason=reason)
+
+
 # ---------------------------------------------------------------------------- the two implementations of the rules
 IMPLS = ("verifier", "odes")
 IMPL_VAR = {"verifier": "PROBE2_VERIFIER_DIR", "odes": "PROBE2_ODES_DIR"}
 
 
-def impl_params(*red):
-    """One parameter per implementation; those named in ``red`` are strict expected failures."""
-    return [pytest.param(i, id=i, marks=[pending()] if i in red else []) for i in IMPLS]
+def impl_params(*red, reason=None):
+    """One parameter per implementation; those named in ``red`` are strict expected failures. ``reason`` (a string, or a
+    mapping from implementation to string) records the known limit; without it the mark is the plain ``pending`` one."""
+    def mark(impl):
+        text = reason.get(impl) if isinstance(reason, dict) else reason
+        return known_limit(text) if text else pending()
+    return [pytest.param(i, id=i, marks=[mark(i)] if i in red else []) for i in IMPLS]
 
 
 def root(var):

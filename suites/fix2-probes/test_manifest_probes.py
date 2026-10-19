@@ -9,7 +9,6 @@ import copy
 
 import pytest
 
-from _support import pending
 from conftest import checkout
 
 HUGE = {"amount": 1e12, "effects": 1000}
@@ -97,20 +96,17 @@ def test_control_a_huge_proposal_against_a_blocked_action_is_a_mismatch_through_
     assert mismatches(m, **HUGE) != []
 
 
-@pending()
 def test_probe_a_proposal_inside_the_limits_against_a_blocked_action_is_a_mismatch():
     m = with_action(blocked_at_action)
     assert mismatches(m) != []
 
 
-@pending()
 def test_probe_a_proposal_inside_the_limits_against_an_action_blocked_by_the_manifest_default_is_a_mismatch():
     m = copy.deepcopy(manifest())
     blocked_by_manifest_default(m)
     assert mismatches(m) != []
 
 
-@pending()
 def test_probe_a_huge_proposal_is_not_judged_by_the_limits_alone_when_the_action_is_blocked():
     """The mismatch list for a blocked action names more than the limit codes a permitted action would give."""
     m = with_action(blocked_at_action)
@@ -118,7 +114,6 @@ def test_probe_a_huge_proposal_is_not_judged_by_the_limits_alone_when_the_action
     assert set(mismatches(m, **HUGE)) - limited_only != set()
 
 
-@pending()
 def test_probe_a_huge_proposal_against_an_action_with_no_effect_limits_is_a_mismatch():
     m = with_action(read_without_limits)
     from agent_action_manifest.validator import validate_manifest
