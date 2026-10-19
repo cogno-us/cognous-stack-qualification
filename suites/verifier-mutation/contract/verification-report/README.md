@@ -1,6 +1,6 @@
 # Verification report contract (optional ODES extension profile)
 
-Version: `0.1.0-draft`. Status: draft, proposal only, OPTIONAL extension profile. Not frozen (the first freeze is deferred by the owner), not part of the ODES core or `pder-v0.1`, not referenced by any `odes` code path, and not a qualification input. See `docs/engineering/ODES-INTERCOMPONENT-CONTRACTS.md` (Appendix C, section 12 items 24 and 27) for the index and the decisions. Draft revision 2026-10-18 (decision 27) admitted tier `V3` and the input roles `witness` and `holder_inventory`; draft revision 2026-10-18 (decision 28) admitted the mutation category family H (damage to the outside-held witness and holder inventory) and the expected verdict `abstain`; see "Draft revisions". Nothing here edits another contract, the core schema or `pder-v0.1`.
+Version: `0.1.0-draft`. Status: draft, proposal only, OPTIONAL extension profile. Not frozen (the first freeze is deferred by the owner), not part of the ODES core or `pder-v0.1`, not referenced by any `odes` code path, and not an ODES-core / `pder-v0.1` input; used by the qualification contract matrix and the verifier mutation harness. See `docs/engineering/ODES-INTERCOMPONENT-CONTRACTS.md` (Appendix C, section 12 items 24 and 27) for the index and the decisions. Draft revision 2026-10-18 (decision 27) admitted tier `V3` and the input roles `witness` and `holder_inventory`; draft revision 2026-10-18 (decision 28) admitted the mutation category family H (damage to the outside-held witness and holder inventory) and the expected verdict `abstain`; see "Draft revisions". Nothing here edits another contract, the core schema or `pder-v0.1`.
 
 ## Contract statement
 
@@ -25,6 +25,8 @@ An independent verifier reads the records a run exported (run record, proposal e
 | `mutation_report` | see below |
 
 Verdicts. A check is over `n` items (at least one) and every figure is a count over that denominator: `confirmed`, `could_not_check` and `refuted` sum to `n`. The check's verdict is derived: `refuted` if any item is refuted, else `could_not_check` if any item could not be checked, else `confirmed`. `could_not_check` is not a pass: it says the input did not carry what the check needs (for example operands the record does not retain) and it never counts toward `confirmed`. A verifier crash is not a verdict and produces no report; the mutation harness counts it as `error` and never as detection. `overall_verdict(doc)` in `validate.py` derives the per-trace outcome the harness uses (`reject` if any check is refuted, `abstain` if none is refuted and some could not be checked or there is no check, `accept` if every check is confirmed). It is derived, not a member, and not a score.
+
+Decision-facing and diagnostic members. A reader decides on a check from `verdict`, `tally` and `could_not_check_reason` only: they are closed, counted and checked by the rules below. The `detail` of a finding is diagnostic text for a person; no rule reads it and no decision rests on it. Scope that the report does not state, such as a tenant, a task or an operation, is "not asserted", never "not applicable": a missing statement says nothing about that scope, and `not_applicable` is used only where a check's own precondition is not met.
 
 No composite score. There is no overall number, grade, average or rate member anywhere. Every figure is an integer count or a `{k, n}` pair. A bare number where a `{k, n}` is expected is `schema_violation`. A zero denominator is `{k: 0, n: 0}` and renders `n/a`, never a percentage (`render_fraction`).
 
@@ -83,7 +85,7 @@ Mandatory. Twelve identifiers, a closed set; `statement` is the producer's wordi
 | Id | What the report does not claim |
 |---|---|
 | `relative_to_pinned_controller` | consistency with the named controller revision, drafts and registry only; not carried to another revision |
-| `semantic_quality_not_certified` | decision correctness, policy adequacy, lawful issue of a grant |
+| `semantic_quality_not_certified` | decision correctness, policy adequacy, lawful issue of a grant. A V1 or V2 pass establishes integrity and internal consistency of the record, not that the recorded decision was the correct one |
 | `receipt_source_bounded` | the destination ledger is executor-written, unsequenced and unsigned: no claim it is complete or unforged, or that an effect occurred in the world |
 | `self_consistent_forgery_not_detected` | a record rewritten with every commitment recomputed is accepted (category F) |
 | `not_an_attestation` | not an attestation, not an Index or BitRep signature, not an authorization; never an input to a grant or decision |
@@ -96,6 +98,8 @@ Mandatory. Twelve identifiers, a closed set; `statement` is the producer's wordi
 | `profile_sidecar_semantics_only` | profile-on sidecar checks cover only the members the rules read; host-configuration rules such as signer set, extension limit and resolver capability are not checked |
 
 An `x-` extension is ignored for contract logic. A consumer must not read any extension as an attestation, a signature or a score.
+
+Two further statements apply to every tier a report can carry (`V1` to `V4`). None of them checks permission: the tiers read what the record says about a decision and its authority, and none re-derives whether the action was permitted; no tier that does so is defined. And durable inclusion is not a verification level: a record whose counts, order and bindings agree does not show that any row was durably stored or retained. The closed id set has no separate id for this; a producer states it inside the `statement` of `self_consistent_forgery_not_detected` (the independent verifier does), and a dedicated id would need a change to the enumeration first.
 
 ## Member model
 
@@ -175,7 +179,7 @@ Same model as the other drafts.
 
 Each fixture file is `{fixture_id, synthetic, expected_outcome, reason, expected_refusal, document}`. `fixtures/valid/` must be accepted. `fixtures/invalid/` must be refused with `expected_refusal` as the only violation.
 
-Valid (16) and invalid (87). Eleven valid and 75 invalid are HAND-WRITTEN and synthetic (no producer existed when the draft was written): digests are SHA-256 over placeholder labels, not over real files, and the verifier `version` is `0.0.0-handwritten-fixture`. `provenance/build_fixtures.py` regenerates them (invalid ones are single-defect mutations of the valid ones) and asserts each outcome; it leaves the `v3-*` files alone.
+Valid (16) and invalid (94). Eleven valid and 82 invalid are HAND-WRITTEN and synthetic (no producer existed when the draft was written): digests are SHA-256 over placeholder labels, not over real files, and the verifier `version` is `0.0.0-handwritten-fixture`. `provenance/build_fixtures.py` regenerates them (invalid ones are single-defect mutations of the valid ones) and asserts each outcome; it leaves the `v3-*` files alone.
 
 Five valid fixtures (`v3-*`) are captured: the unchanged JSON output of `cognous-verify` (verifier main `05afab8`, PR #10) run with `--witness` (and `--holder-inventory` where the scenario has one) over runs captured from the Control Plane at `128eaa5` (`acp witness publish`; a bounded workflow with a fixed clock for the staged and inventory runs). One of the five runs over a record from which a covered row was removed (the damage is applied to a copy). Honest limit: that verifier build predates this revision and reports V3 in `extensions["x-tier-v3"]`, so `provenance/capture_v3_reports.py` moves that section into `checks`, `subject.inputs` and `scope.tiers_run`, recomputes `inputs_digest` and `summary`, and appends the `witness_is_not_publication` non-claim (statement taken from the verifier's own limits text); nothing else is edited and `report_id` is the verifier's. No verifier has emitted the revised shape yet. Twelve invalid `v3-*` and related fixtures are single-defect mutations of those captures (`provenance/build_v3_fixtures.py`). The scripts are not tests and are not vendored.
 
@@ -190,7 +194,7 @@ PYTHONPATH=src python -m pytest -q tests/test_contract_verification_report.py
 
 ## What this does and does not show
 
-A passing run shows that a report is well formed, that its verdicts and tallies are arithmetically consistent, that its mutation tables keep their denominators apart, and that it carries the mandatory non-claims. It does not show that the verifier is correct or independent, that a corpus is representative, or that the result transfers to another controller revision. It records no behaviour the verifier lacks.
+A passing run shows that a report is well formed, that its verdicts and tallies are arithmetically consistent, that its mutation tables keep their denominators apart, and that it carries the mandatory non-claims. It does not show that the verifier is correct or independent, that a corpus is representative, that the recorded decision was the correct one or was permitted, that any row was durably stored, or that the result transfers to another controller revision. It records no behaviour the verifier lacks.
 
 ## Divergences
 
@@ -262,3 +266,13 @@ While the version is `0.x-draft` nothing is frozen and any change may break. Enu
 
 - Producer: `cognous-verify` at main `05afab8` was run on 2026-10-18 over five witnessed runs; its V3 section, moved as described under Fixtures, validates (5 of 5). Its report as emitted (V3 in `x-tier-v3`) also validates, as a report without V3. No verifier build emits the revised shape yet (see Divergences). The earlier statement that no real verifier output had been checked is superseded for V3 only; trace reports without V3 from the verifier were not re-run here.
 - Consumer: none. The qualification repository does not read the mutation report yet (design stages S5 and S6 are not built).
+
+## Input hardening (decision 32, 2026-10-18)
+
+The reference validator never raises: any parsed JSON value gets a list of typed violations. Non-finite numbers (NaN, Infinity) and text that is not valid Unicode are refused as `schema_violation`; `main()` reads files with a strict loader (duplicate members, NaN, Infinity, overflowing numbers and non-UTF-8 input are refused, exit status 2, line `input_refused`); schema patterns match the whole string (`(?!\n)$` in `schema.json`) and times are ISO-8601 with ASCII digits and a UTC offset. No code, member or accepted form changed meaning; no code was added.
+
+Invalid fixtures added: `non-ascii-digit-time`, `trailing-line-break-digest`, `trailing-line-break-time`, `unpaired-surrogate-text`.
+
+## Typed constants (decision 39-B, 2026-10-18)
+
+A schema `const` matches only the same JSON type with an equal value, as `enum` already did: the integer `1` is not `true`, `0` is not `false`, `1.0` is not `1`. The constants that were compared by value alone are now typed: `context_only` and `report_only` (the constant `true`). Invalid fixtures `context-only-written-as-integer` and `report-only-written-as-integer`. Same `0.1.0-draft` label; every valid fixture is unchanged.

@@ -477,7 +477,7 @@ class RetainedRun4(unittest.TestCase):
         self.assertEqual(doc['verifier']['source_revision'], '5974c505e8b01b529fe1852c5b5deefe78a1c677')
         self.assertEqual(h['seed_corpus']['odes_revision'], RUN4_ODES)
         self.assertEqual(h['witnessed']['seed_corpus']['odes_revision'], RUN4_ODES)
-        self.assertEqual(contract_doc['odes_commit'], '304f6cc3d59fa0cac2bfc738d74de5e10c812454')  # re-vendored after run 4 (README only since 0a37180f); run 4 still validates
+        self.assertEqual(contract_doc['odes_commit'], 'e5fe3822a2d3c3f6885fd61acccb4bb6281041be')  # re-vendored at ODES e5fe3822 (+7 invalid fixtures); run 4 still validates
         self.assertEqual(mr['operator_set_digest'], V3_OPERATOR_SET_DIGEST)  # catalogue 3, not re-labelled: the current operators.json is 3.1
         self.assertNotEqual(mr['operator_set_digest'], jsonio.digest((SUITE / 'operators.json').read_bytes()))
         self.assertEqual(h['operator_version'], '3')
