@@ -79,7 +79,7 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Install bounded qualification dependencies
       timeout-minutes: 4
-      run: python -m pip install -e '.[dev]' -e upstream/replay -e upstream/control-plane pyyaml
+      run: python -m pip install --require-hashes -r .github/locks/pyyaml-ebb0e1.txt && python -m pip install -e '.[dev]' -e upstream/replay -e upstream/control-plane
     - name: Qualify exact merged producer pair
       timeout-minutes: 3
       env:

@@ -60,7 +60,7 @@ jobs:
       with:
         python-version: '3.12'
     - name: Install focused test dependencies
-      run: python -m pip install pytest==8.3.5 pydantic==2.11.9
+      run: python -m pip install --require-hashes -r .github/locks/pydantic-pytest-f8aeba.txt
     - name: Host source contract checks
       run: pytest -q tests/test_openshell_worker_contract.py
     - name: Resolve immutable base image identity

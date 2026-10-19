@@ -103,7 +103,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: Check aggregate gate behavior
-      run: 'python -m pip install pytest
+      run: 'python -m pip install --require-hashes -r .github/locks/pytest-2b0121.txt
 
         python -m pytest -q tests/test_full_candidate_gate.py
 
