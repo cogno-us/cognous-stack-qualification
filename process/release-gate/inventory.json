@@ -3,7 +3,7 @@
   "inventory_date": "2026-10-19",
   "basis": "Counts for Category 1 and the probe and scenario suites come from the release test inventory run of 18 to 19 Oct 2026 (Python 3.12, Linux, shared machine) unless count_basis says collected_at_main, which was measured at qualification main e6b20bd504c4a6aadfc3b142ab0c7b632dbd3c46. No count is a gate result. Estimated or unmeasured values are null with a count_basis that says why.",
   "qualification_main_at_inventory": "e6b20bd504c4a6aadfc3b142ab0c7b632dbd3c46",
-  "gate": "OCS-1 (category 1), OCS-2 (category 2), OCS-3 (category 3, rows W-I and W-X): 100% of applicable suites, no unexplained skip or xfail, known-limit tests listed separately.",
+  "gate": "OCS-1 (category 1) and OCS-2 (category 2): 100% of applicable suites, no unexplained skip or xfail, known-limit tests listed separately. OCS-3 (category 3, rows W-I and W-X) is run in full and reported and is not a gate by itself (amendments 77 to 79 of the pre-registration, owner decision of 19 October 2026); a major defect among its failures still blocks.",
   "scope_text": "Bounded synthetic profile only. Comparator applications are configured by Cognous, not vendor implementations. This is not independent certification and not production readiness; operational trust stays on HOLD.",
   "wiki": {
     "upstream_cases": 656,
@@ -1228,7 +1228,7 @@
       "expected_count": 64,
       "count_basis": "collected_at_main",
       "status": "NOT_RUN",
-      "state_note": "17 in-scope cases (2 APPLICABLE, 15 PARTLY_COVERED); 14 have tests in suites/wiki-derived (64 tests). The cases stay NOT RUN until the controller runs. Local runs of the packages pass at the pinned reference; these are material for the controller run, not a recorded verdict. Known-limit tests named: 6 (declared at registration or by amendments; the list is in section 5 of this page). The test `test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit`, withdrawn as a known limit by amendment 65 and replaced by amendment 66, is still in the suite and still fails at the current exchange pin (recorded in amendment 73); whether it is retired from the gate set is for the owner to decide.",
+      "state_note": "17 in-scope cases (2 APPLICABLE, 15 PARTLY_COVERED); 14 have tests in suites/wiki-derived (64 tests). The cases stay NOT RUN until the controller runs. Local runs of the packages pass at the pinned reference; these are material for the controller run, not a recorded verdict. Known-limit tests named: 6 (declared at registration or by amendments; the list is in section 5 of this page). The test `test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit`, withdrawn as a known limit by amendment 65 and replaced by amendment 66, is still in the suite and still fails at the current exchange pin (recorded in amendment 73); whether it is retired from the gate set is for the owner to decide. Gate status: reported, not gating (amendments 77 to 79 of the pre-registration); failures are listed with their case ids under FAILING (NON-GATING) and triaged for major defects.",
       "known_limit": true,
       "known_limit_count": 6,
       "wiki": {
@@ -1256,7 +1256,7 @@
       "expected_count": 217,
       "count_basis": "collected_at_main",
       "status": "NOT_RUN",
-      "state_note": "48 in-scope cases (18 APPLICABLE, 30 PARTLY_COVERED); 47 have tests in suites/wiki-derived (217 tests). All 18 APPLICABLE cross-component cases have a wiki-derived test; 16 of the 20 APPLICABLE cases have partial existing tests named in applicability.json and 4 need new implementation. Cases stay NOT RUN until the controller runs. Known-limit tests named: 29 (declared at registration or by amendments; the list is in section 5 of this page).",
+      "state_note": "48 in-scope cases (18 APPLICABLE, 30 PARTLY_COVERED); 47 have tests in suites/wiki-derived (217 tests). All 18 APPLICABLE cross-component cases have a wiki-derived test; 16 of the 20 APPLICABLE cases have partial existing tests named in applicability.json and 4 need new implementation. Cases stay NOT RUN until the controller runs. Known-limit tests named: 29 (declared at registration or by amendments; the list is in section 5 of this page). Gate status: reported, not gating (amendments 77 to 79 of the pre-registration); failures are listed with their case ids under FAILING (NON-GATING) and triaged for major defects.",
       "known_limit": true,
       "known_limit_count": 29,
       "wiki": {
