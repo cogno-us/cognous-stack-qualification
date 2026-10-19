@@ -22,7 +22,8 @@ import threading
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from tools.optional_execution_profile import validate_checkout
+from tools.optional_execution_profile import (
+    historical_fixture_workflow, strict_source_paths, validate_checkout)
 
 PROFILE = 'protected-local-worker/0.1.0'
 NAMES = ('action_manifest', 'control_plane', 'gax_imx_transport', 'moltbot_safe', 'replay_bundle')
@@ -55,6 +56,8 @@ def checkouts(work, *, clone=False):
             subprocess.run(['git', '-C', str(path), 'checkout', '-q', '--detach', sha], check=True)
         validate_checkout(path, sha)
         pins[name] = sha
+    # Strict-source runtime profiles also verify Replay Bundle, ODES and the Evidence Pack at their lock shas.
+    strict_source_paths(lock, work, clone=clone)
     return pins
 
 
@@ -63,6 +66,9 @@ def runtime_paths(work):
     os.environ["GAX_RUNTIME_COMPATIBILITY_PROFILE"]=lock.get("runtime_profile","persistence-v1")
     for path in (work / 'control_plane/src', work / 'moltbot_safe', work / 'gax_imx_transport'):
         sys.path.insert(0, str(path))
+    for path in strict_source_paths(lock, work):
+        sys.path.insert(0, path)
+    os.environ['UPSTREAM_MANIFEST_EXAMPLE'] = str(work / 'action_manifest/examples/refund_integration_v1_1.manifest.json')
     os.environ['MOLTBOT_SAFE_CONTROL_PLANE_ROOT'] = str(work / 'control_plane')
     os.environ['MOLTBOT_SAFE_ROOT'] = str(work / 'moltbot_safe')
     sys.dont_write_bytecode = True
@@ -77,7 +83,7 @@ def setup(work, case):
     proposal = runtime_proposal_model(json.loads((work / 'replay_bundle/examples/bounded_success_reconstruction_v0_2.json').read_text()))
     resolver = build_synthetic_resolver(proposal, now=NOW)
     destination = rt['DurableRefundDestination'](case / 'destination')
-    workflow = cp.BoundedAuthorizationWorkflow(manifest=manifest, resolver=resolver,
+    workflow = historical_fixture_workflow(cp.BoundedAuthorizationWorkflow, manifest=manifest, resolver=resolver,
         destination=destination, records=cp.BoundedRecordStore(case / 'records.json', 'protected-qualification'),
         observation_policy=synthetic_observation_policy())
     decision = workflow.decide(proposal, now=NOW)
@@ -92,7 +98,7 @@ def setup(work, case):
         proposal_commitment=binding.proposal_commitment, grant_id=binding.grant_id,
         grant_revision=binding.grant_revision, effective_max_effects=binding.effective_max_effects,
         requested_permissions=tuple(proposal.requested_permissions))
-    operation = rt['ExecutionOperation'](**{f.name: values[f.name] for f in dataclasses.fields(rt['ExecutionOperation'])})
+    operation = rt['ExecutionOperation'](**{f.name: values[f.name] for f in dataclasses.fields(rt['ExecutionOperation']) if f.name in values})
     envelope = rt['ExecutionEnvelope'](version='0.2.0', decision_id=decision.decision_id,
         effect_id=decision.effect_id, operation=operation)
     executor = rt['PinnedControlPlaneExecutor'](workflow=workflow, destination=destination,

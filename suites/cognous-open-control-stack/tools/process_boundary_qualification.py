@@ -11,6 +11,8 @@ MATRIX_PATH=ROOT/"scenarios/process-boundary-matrix.json"
 WORK=ROOT/".process-boundary-work"
 NAMES=("action_manifest","control_plane","gax_imx_transport","moltbot_safe","replay_bundle")
 PASS_CLASSIFICATION="supported invariant passed"
+sys.path.insert(0,str(ROOT))
+from tools.optional_execution_profile import strict_source_paths  # noqa: E402
 
 
 def run(cmd, *, cwd=None, env=None):
@@ -114,9 +116,13 @@ def main():
     if dep["returncode"]: raise RuntimeError(dep["output"])
     cp=components["control_plane"]; gax=components["gax_imx_transport"]; molt=components["moltbot_safe"]
     manifest=components["action_manifest"]; replay=components["replay_bundle"]
+    # Strict-source runtime profiles verify Replay Bundle, ODES and the Evidence Pack (and jsonschema) before import.
+    strict_paths=strict_source_paths(LOCK,WORK,clone=True)
     env=os.environ.copy()
     env["GAX_RUNTIME_COMPATIBILITY_PROFILE"]=LOCK.get("runtime_profile","persistence-v1")
-    env["PYTHONPATH"]=os.pathsep.join([str(ROOT),str(cp/"src"),str(gax),str(molt),env.get("PYTHONPATH","")])
+    env["PYTHONDONTWRITEBYTECODE"]="1"
+    env["PYTHONPATH"]=os.pathsep.join([str(ROOT),str(cp/"src"),str(gax),str(molt),*strict_paths,env.get("PYTHONPATH","")])
+    env["UPSTREAM_MANIFEST_EXAMPLE"]=str(manifest/"examples/refund_integration_v1_1.manifest.json")
     env["MOLTBOT_SAFE_CONTROL_PLANE_ROOT"]=str(cp)
     env["MOLTBOT_SAFE_ROOT"]=str(molt)
     env["MOLTBOT_SAFE_MANIFEST_FIXTURE"]=str(manifest/"examples/refund_integration_v1_1.manifest.json")

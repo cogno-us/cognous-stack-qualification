@@ -3,6 +3,7 @@
 from __future__ import annotations
 import argparse
 import hashlib
+import inspect
 import json
 import os
 from pathlib import Path
@@ -11,6 +12,10 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 COMPONENTS = ("control_plane", "moltbot_safe", "action_manifest", "gax_imx_transport", "replay_bundle")
+# Importable source roots a strict-source runtime profile verifies besides the Control Plane and runtime checkouts.
+STRICT_SOURCE_COMPONENTS = (("replay_bundle", "src"), ("odes", "src"), ("governance_evidence_pack", "src"))
+# Adds jsonschema (and PyYAML) only; the pytest and pydantic versions a suite already installed from its own lock are untouched.
+JSONSCHEMA_LOCK = "jsonschema-pyyaml-c943d3.txt"
 
 
 def validate_checkout(path, sha):
@@ -31,6 +36,83 @@ def validate_checkout(path, sha):
             if not target.resolve().is_relative_to(path.resolve()):
                 raise RuntimeError(f'{path.name}: escaping tracked symlink')
     return actual
+
+
+def strict_sources_required(lock):
+    """True for the runtime profiles that verify every candidate source before import (gax_ref_runtime STRICT_SOURCE_PROFILES)."""
+    profile = lock.get("runtime_profile", "")
+    return profile.startswith("security-runtime-") or profile == "typed-refusal-candidate-20261015"
+
+
+def ensure_jsonschema():
+    """The Replay Bundle importer imports jsonschema. Install the hash-locked set when it is missing; never an unpinned one.
+
+    The lock is looked up in this checkout and in the canonical qualification checkout placed beside it by the workflows.
+    """
+    try:
+        import jsonschema  # noqa: F401
+        return
+    except ImportError:
+        pass
+    for base in (ROOT, ROOT / "_qualification"):
+        lock = base / ".github/locks" / JSONSCHEMA_LOCK
+        if lock.is_file():
+            subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "--require-hashes", "-r", str(lock)],
+                           check=True, timeout=300)
+            return
+    raise RuntimeError("jsonschema is required by the selected runtime profile; install the hash-locked set " + JSONSCHEMA_LOCK)
+
+
+def strict_source_paths(lock, work, *, clone=False):
+    """PYTHONPATH entries for the extra sources a strict-source runtime profile needs, each at its lock sha.
+
+    Replay Bundle, ODES and the Governance Evidence Pack are cloned (when ``clone``) and verified pristine, including ignored
+    files, exactly like the other pinned checkouts. Returns an empty list for profiles that do not verify them.
+    """
+    if not strict_sources_required(lock):
+        return []
+    ensure_jsonschema()
+    paths = []
+    for name, subdir in STRICT_SOURCE_COMPONENTS:
+        spec = lock["components"][name]
+        sha = spec.get("sha") or spec["accepted_sha"]
+        dest = work / name
+        if not dest.exists() and clone:
+            subprocess.run(["git", "clone", "--quiet", "--no-checkout", "https://github.com/" + spec["repository"] + ".git", str(dest)],
+                           check=True, timeout=180)
+            subprocess.run(["git", "checkout", "--quiet", "--detach", sha], cwd=dest, check=True, timeout=60)
+        validate_checkout(dest, sha)
+        paths.append(str(dest / subdir))
+    return paths
+
+
+def historical_fixture_workflow(workflow_class, /, **kwargs):
+    """Build a Control Plane workflow whose caller-supplied evaluation time is honoured, for fixtures dated 2026-08-08.
+
+    Since the service-time change the Control Plane evaluates every decision at its own clock unless the workflow is built with
+    ``allow_test_time=True`` (records then carry ``time_source: test_override``). These fixtures were authored for caller-supplied
+    time, so their evidence is evaluable only under that documented opt-in. The pinned runtime adapter forwards the flag to the
+    per-call workflow view it builds at effect time only when a runtime authority profile is configured; these fixtures use none,
+    so the flag is forwarded here, otherwise decide() would authorise and execute() would then refuse every effect against the
+    wall clock. Nothing else changes: the caller still supplies every ``now`` and every expected decision is untouched.
+    """
+    if "allow_test_time" in inspect.signature(workflow_class.__init__).parameters:
+        kwargs.setdefault("allow_test_time", True)
+    # A Control Plane that predates the option always evaluated at the caller-supplied time, so nothing is needed there.
+    try:
+        from engine import control_plane_adapter as adapter
+    except ImportError:
+        adapter = None
+    original = getattr(adapter, "workflow_view_profile_kwargs", None)
+    if original is not None and not getattr(original, "forwards_test_time", False):
+        def forwarding(workflow):
+            out = original(workflow)
+            if getattr(workflow, "allow_test_time", False):
+                out["allow_test_time"] = True
+            return out
+        forwarding.forwards_test_time = True
+        adapter.workflow_view_profile_kwargs = forwarding
+    return workflow_class(**kwargs)
 
 
 def qualification_environment():

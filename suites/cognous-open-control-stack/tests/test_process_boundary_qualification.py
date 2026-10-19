@@ -20,6 +20,7 @@ from pathlib import Path
 
 import pytest
 
+from tools.optional_execution_profile import historical_fixture_workflow
 from tools.process_boundary_qualification import evaluate_required_scenarios
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,7 +102,7 @@ def _build_envelope(runtime, proposal, resolver, decision):
         "effective_max_effects": binding.effective_max_effects,
         "requested_permissions": tuple(proposal.requested_permissions),
     })
-    op = runtime["ExecutionOperation"](**{f.name: values[f.name] for f in dataclasses.fields(runtime["ExecutionOperation"])})
+    op = runtime["ExecutionOperation"](**{f.name: values[f.name] for f in dataclasses.fields(runtime["ExecutionOperation"]) if f.name in values})
     return runtime["ExecutionEnvelope"]("0.2.0", decision.decision_id, decision.effect_id, op)
 
 
@@ -110,7 +111,7 @@ def _prepare_case(case_root: Path, *, record_name: str, variation: str | None = 
     runtime, cp, manifest, proposal, resolver, observation_policy = _runtime_inputs(variation, max_effects=max_effects)
     destination = runtime["DurableRefundDestination"](case_root / "destination")
     records = cp.BoundedRecordStore(case_root / record_name, "process-boundary")
-    workflow = cp.BoundedAuthorizationWorkflow(manifest=manifest, resolver=resolver, destination=destination, records=records, observation_policy=observation_policy)
+    workflow = historical_fixture_workflow(cp.BoundedAuthorizationWorkflow, manifest=manifest, resolver=resolver, destination=destination, records=records, observation_policy=observation_policy)
     decision = workflow.decide(proposal, now=NOW)
     assert decision.result == "authorized", decision.reasons
     envelope = _build_envelope(runtime, proposal, resolver, decision)
@@ -134,7 +135,7 @@ def _open_case(spec: dict):
         raise RuntimeError("persisted authorized decision unavailable")
     envelope = _build_envelope(runtime, proposal, resolver, decision)
     policy = dataclasses.replace(synthetic_refund_policy(envelope.operation), max_effects=decision.binding.effective_max_effects)
-    workflow = cp.BoundedAuthorizationWorkflow(manifest=manifest, resolver=resolver, destination=destination, records=records, observation_policy=observation_policy)
+    workflow = historical_fixture_workflow(cp.BoundedAuthorizationWorkflow, manifest=manifest, resolver=resolver, destination=destination, records=records, observation_policy=observation_policy)
     executor = runtime["PinnedControlPlaneExecutor"](workflow=workflow, destination=destination, policy=policy, observation_clock=lambda: NOW)
     return runtime, cp, proposal, resolver, destination, workflow, decision, envelope, executor
 

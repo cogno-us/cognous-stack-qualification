@@ -15,6 +15,7 @@ def setup(root, work):
     from experiments.odex_gax_imx_reference.synthetic_fixture import build_synthetic_resolver
     from experiments.odex_gax_imx_reference.synthetic_fixture import synthetic_observation_policy, synthetic_refund_policy
     from engine.safe_executor import commitment
+    from tools.optional_execution_profile import historical_fixture_workflow
     runtime = load_executor_runtime()
     cp = runtime["cp"]
     manifest = json.loads(
@@ -30,7 +31,8 @@ def setup(root, work):
     context = resolver.contexts[proposal.authority_context_ref]
     context["requirement"]["permissions"][0]["max_effects"] = 3
     context["grant"]["permissions"][0]["max_effects"] = 3
-    workflow = cp.BoundedAuthorizationWorkflow(
+    workflow = historical_fixture_workflow(
+        cp.BoundedAuthorizationWorkflow,
         manifest=manifest,
         resolver=resolver,
         destination=cp.LocalRefundDestination(root / "control-plane-destination.json"),
@@ -54,7 +56,7 @@ def setup(root, work):
         "requested_permissions": tuple(proposal.requested_permissions),
     })
     operation = runtime["ExecutionOperation"](**{
-        f.name: values[f.name] for f in dataclasses.fields(runtime["ExecutionOperation"])
+        f.name: values[f.name] for f in dataclasses.fields(runtime["ExecutionOperation"]) if f.name in values
     })
     envelope = runtime["ExecutionEnvelope"](
         version="0.2.0",
