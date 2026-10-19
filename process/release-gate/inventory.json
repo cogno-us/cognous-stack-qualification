@@ -1,0 +1,1124 @@
+{
+  "schema_version": 1,
+  "inventory_date": "2026-10-19",
+  "basis": "Counts for Category 1 and the probe and scenario suites come from the release test inventory run of 18 to 19 Oct 2026 (Python 3.12, Linux, shared machine) unless count_basis says collected_at_main, which was measured at qualification main e6b20bd504c4a6aadfc3b142ab0c7b632dbd3c46. No count is a gate result. Estimated or unmeasured values are null with a count_basis that says why.",
+  "qualification_main_at_inventory": "e6b20bd504c4a6aadfc3b142ab0c7b632dbd3c46",
+  "gate": "OCS-1 (category 1), OCS-2 (category 2), OCS-3 (category 3, rows W-I and W-X): 100% of applicable suites, no unexplained skip or xfail, known-limit tests listed separately.",
+  "scope_text": "Bounded synthetic profile only. Comparator applications are configured by Cognous, not vendor implementations. This is not independent certification and not production readiness; operational trust stays on HOLD.",
+  "wiki": {
+    "upstream_cases": 656,
+    "applicable": 20,
+    "partly_covered": 45,
+    "not_applicable": 591,
+    "wiki_commit": "1a0c72de4752a1c6932172e5e7dbf14f755799c8",
+    "in_scope_cases": 65,
+    "applicable_existing_partial": 16,
+    "applicable_needs_new": 4,
+    "partly_existing_partial": 45,
+    "in_scope_without_wiki_derived_test": [
+      "TC-D09-004",
+      "TC-D12-004",
+      "TC-D12-018",
+      "TC-D13-003",
+      "TC-L02-002",
+      "TC-L02-016",
+      "TC-L02-025",
+      "TC-L03-022",
+      "TC-L05-013",
+      "TC-L05-022",
+      "TC-L06-003",
+      "TC-L06-013",
+      "TC-L06-014",
+      "TC-L06-015",
+      "TC-L06-018",
+      "TC-L06-026",
+      "TC-L06-028",
+      "TC-L06-039",
+      "TC-L06-040",
+      "TC-L06-045",
+      "TC-L08-033",
+      "TC-L09-004",
+      "TC-L09-025",
+      "TC-L17-002",
+      "TC-L17-004",
+      "TC-L17-021"
+    ],
+    "wiki_derived_total_tests": 181,
+    "known_limit_tests_named": [
+      "test_wp_b_identity_scope.py::test_wiki_l09_018_host_asserted_authenticated_flag_is_a_known_limit",
+      "test_wp_b_identity_scope.py::test_wiki_l09_019_shared_engine_database_evidence_status_is_not_tenant_scoped_known_limit",
+      "test_wp_c_budget_stop_recovery.py::test_wiki_l15_019_restore_of_an_older_backup_readmits_later_effects_known_limit",
+      "test_wp_d_manifest_change_control.py::test_wiki_l06_009_a_decision_alone_does_not_refuse_two_tools_of_one_name_known_limit",
+      "test_wp_d_manifest_change_control.py::test_wiki_l06_034_a_grant_edited_in_place_without_a_new_revision_is_read_as_current_known_limit",
+      "test_wp_e_exchange_injection.py::test_wiki_l06_020_known_limit_the_hop_where_content_was_stopped_is_not_recorded",
+      "test_wp_e_exchange_injection.py::test_wiki_l06_038_known_limit_a_registry_holds_one_recipient_and_refusals_are_not_stored"
+    ]
+  },
+  "wiki_packages": [
+    {
+      "package": "WP-0",
+      "file": "suites/wiki-derived/test_wiki_skeleton.py",
+      "scope": "skeleton, registry checks, route smoke tests",
+      "merged_in_pr": 130,
+      "tests": 9,
+      "tests_individual": 0,
+      "tests_cross": 0,
+      "tests_without_case": 9,
+      "case_ids": [],
+      "cases_individual": [],
+      "cases_cross": []
+    },
+    {
+      "package": "WP-A",
+      "file": "suites/wiki-derived/test_wp_a_grant_lifecycle.py",
+      "scope": "grant expiry, revocation and rotation",
+      "merged_in_pr": 132,
+      "tests": 23,
+      "tests_individual": 0,
+      "tests_cross": 23,
+      "tests_without_case": 0,
+      "case_ids": [
+        "TC-D09-009",
+        "TC-D09-016",
+        "TC-L02-011",
+        "TC-L06-023",
+        "TC-L09-003",
+        "TC-L09-014"
+      ],
+      "cases_individual": [],
+      "cases_cross": [
+        "TC-D09-009",
+        "TC-D09-016",
+        "TC-L02-011",
+        "TC-L06-023",
+        "TC-L09-003",
+        "TC-L09-014"
+      ]
+    },
+    {
+      "package": "WP-B",
+      "file": "suites/wiki-derived/test_wp_b_identity_scope.py",
+      "scope": "identity, principal binding and privilege scope",
+      "merged_in_pr": 131,
+      "tests": 28,
+      "tests_individual": 7,
+      "tests_cross": 21,
+      "tests_without_case": 0,
+      "case_ids": [
+        "TC-D09-011",
+        "TC-L05-012",
+        "TC-L06-019",
+        "TC-L09-006",
+        "TC-L09-007",
+        "TC-L09-018",
+        "TC-L09-019"
+      ],
+      "cases_individual": [
+        "TC-D09-011",
+        "TC-L05-012"
+      ],
+      "cases_cross": [
+        "TC-L06-019",
+        "TC-L09-006",
+        "TC-L09-007",
+        "TC-L09-018",
+        "TC-L09-019"
+      ]
+    },
+    {
+      "package": "WP-C",
+      "file": "suites/wiki-derived/test_wp_c_budget_stop_recovery.py",
+      "scope": "budgets, stop, approval binding, restore and failure behaviour",
+      "merged_in_pr": 134,
+      "tests": 39,
+      "tests_individual": 8,
+      "tests_cross": 31,
+      "tests_without_case": 0,
+      "case_ids": [
+        "TC-D12-021",
+        "TC-L06-016",
+        "TC-L06-022",
+        "TC-L06-024",
+        "TC-L15-019",
+        "TC-L17-028"
+      ],
+      "cases_individual": [
+        "TC-L06-022",
+        "TC-L06-024"
+      ],
+      "cases_cross": [
+        "TC-D12-021",
+        "TC-L06-016",
+        "TC-L15-019",
+        "TC-L17-028"
+      ]
+    },
+    {
+      "package": "WP-D",
+      "file": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+      "scope": "manifest, tool binding, allow-list and change control",
+      "merged_in_pr": 133,
+      "tests": 24,
+      "tests_individual": 4,
+      "tests_cross": 20,
+      "tests_without_case": 0,
+      "case_ids": [
+        "TC-L06-007",
+        "TC-L06-008",
+        "TC-L06-009",
+        "TC-L06-011",
+        "TC-L06-017",
+        "TC-L06-034"
+      ],
+      "cases_individual": [
+        "TC-L06-017"
+      ],
+      "cases_cross": [
+        "TC-L06-007",
+        "TC-L06-008",
+        "TC-L06-009",
+        "TC-L06-011",
+        "TC-L06-034"
+      ]
+    },
+    {
+      "package": "WP-E",
+      "file": "suites/wiki-derived/test_wp_e_exchange_injection.py",
+      "scope": "exchange route and injected-text corpora",
+      "merged_in_pr": 136,
+      "tests": 25,
+      "tests_individual": 6,
+      "tests_cross": 19,
+      "tests_without_case": 0,
+      "case_ids": [
+        "TC-L06-020",
+        "TC-L06-038",
+        "TC-L06-041",
+        "TC-L07-008",
+        "TC-L07-009",
+        "TC-L07-012",
+        "TC-L07-013"
+      ],
+      "cases_individual": [
+        "TC-L06-038",
+        "TC-L06-041"
+      ],
+      "cases_cross": [
+        "TC-L06-020",
+        "TC-L07-008",
+        "TC-L07-009",
+        "TC-L07-012",
+        "TC-L07-013"
+      ]
+    },
+    {
+      "package": "WP-F",
+      "file": "suites/wiki-derived/test_wp_f_records_replay_policy.py",
+      "scope": "records, replay, policy revision, pin and digest refusal",
+      "merged_in_pr": 135,
+      "tests": 33,
+      "tests_individual": 22,
+      "tests_cross": 11,
+      "tests_without_case": 0,
+      "case_ids": [
+        "TC-D12-007",
+        "TC-L05-028",
+        "TC-L08-036",
+        "TC-L16-007",
+        "TC-L16-015",
+        "TC-L17-020",
+        "TC-L17-022"
+      ],
+      "cases_individual": [
+        "TC-L05-028",
+        "TC-L08-036",
+        "TC-L16-007",
+        "TC-L16-015"
+      ],
+      "cases_cross": [
+        "TC-D12-007",
+        "TC-L17-020",
+        "TC-L17-022"
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "id": "C1-01",
+      "category": "1",
+      "name": "ODES: contracts, validators, recipient and exporter profiles, fixtures, time and number semantics",
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests",
+      "env_vars": [],
+      "expected_count": 2882,
+      "count_basis": "measured_native",
+      "status": "ENV",
+      "state_note": "2,874 pass and 8 are conditional (1 needs rfc8785, 7 need an accepted Replay revision). With a plain dev install the 8 skip. With rfc8785 plus the Replay revision named as accepted they pass; with a second accepted Replay revision 4 fail; Replay main is not in the accepted list (B-03).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "requires": [
+        "rfc8785",
+        "an accepted Replay revision installed"
+      ]
+    },
+    {
+      "id": "C1-02",
+      "category": "1",
+      "name": "Verifier: independent verification of retained records",
+      "repository": "cogno-us/cognous-open-control-stack-verifier",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "make check",
+      "env_vars": [],
+      "expected_count": 1519,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "1,497 pass and 22 skip. The skips are in-body skips inside parametrized tests with data-dependent reasons; they are explained but not declared as marks (B-07). Coverage 97.2%.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "skips_outside_declared_list": 22
+    },
+    {
+      "id": "C1-03",
+      "category": "1",
+      "name": "Control plane: authorization, freshness, operation identity, journal, record store, runtime authority",
+      "repository": "cogno-us/cognous-control-plane",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest && python tools/adversarial_mutations.py",
+      "env_vars": [],
+      "expected_count": 934,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "933 pass and 1 skip (real third-party SDK test; the SDK is installed only by one workflow, B-02). Mutation controls: 3 of 3 detected.",
+      "known_limit": true,
+      "known_limit_count": 11,
+      "skips_outside_declared_list": 1
+    },
+    {
+      "id": "C1-03a",
+      "category": "1",
+      "name": "Control plane: Microsoft AGT adapter tests",
+      "repository": "cogno-us/cognous-control-plane",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests/test_microsoft_agt.py",
+      "env_vars": [],
+      "expected_count": 14,
+      "count_basis": "measured_native",
+      "status": "ENV",
+      "state_note": "13 pass and 1 skip with the dev extra installed. Without pytest-asyncio 14 fail with an environment error. Counts in the gate; the gate environment must check that the plugin is importable (B-02).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "parent": "C1-03",
+      "requires": [
+        "pytest-asyncio"
+      ]
+    },
+    {
+      "id": "C1-04",
+      "category": "1",
+      "name": "Runtime: engine, atomic route, operation identity, recovery resolution, producer contract",
+      "repository": "cogno-us/cognous-execution-runtime",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests",
+      "env_vars": [],
+      "expected_count": 487,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "486 passed and 1 failed once under heavy machine load (a 30 s subprocess limit); it passes alone (B-09).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "flaky": true
+    },
+    {
+      "id": "C1-04a",
+      "category": "1",
+      "name": "Runtime plus relocated overlay suites",
+      "repository": "cogno-us/cognous-execution-runtime",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests (after tools/install_suite.py overlay)",
+      "env_vars": [
+        "MOLTBOT_SAFE_CONTROL_PLANE_ROOT",
+        "MOLTBOT_SAFE_MANIFEST_FIXTURE"
+      ],
+      "expected_count": 786,
+      "count_basis": "measured_overlay",
+      "status": "ENV",
+      "state_note": "Unconfigured measurement: 739 pass, 46 skip, 1 fail. 44 skips need a pinned control plane checkout and a manifest fixture; 2 need a live gateway. With control plane main as the pinned checkout 11 helper tests fail and 1 overlay test fails because the tests lag the component (B-04).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "parent": "C1-04",
+      "requires": [
+        "pinned control plane checkout"
+      ]
+    },
+    {
+      "id": "C1-05",
+      "category": "1",
+      "name": "Replay bundle: reconstruction, importers, redaction, signing, refusal journal, scan bounds",
+      "repository": "cogno-us/cognous-replay-bundle",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q",
+      "env_vars": [],
+      "expected_count": 1009,
+      "count_basis": "measured_native",
+      "status": "FAIL",
+      "state_note": "995 pass, 12 skip (data-driven in-body skips), 1 strict xfail (known limit), 1 fail: the Replay to pack pairing test skips or fails depending on which pack and Replay are installed (B-05). Contains wall-clock assertions (B-09).",
+      "known_limit": true,
+      "known_limit_count": 1,
+      "skips_outside_declared_list": 12
+    },
+    {
+      "id": "C1-05a",
+      "category": "1",
+      "name": "Replay plus relocated overlay suites",
+      "repository": "cogno-us/cognous-replay-bundle",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q (after overlay)",
+      "env_vars": [],
+      "expected_count": 1105,
+      "count_basis": "measured_overlay",
+      "status": "ENV",
+      "state_note": "Unconfigured measurement: 996 pass, 107 skip (producer checkouts not configured), 1 xfail, 1 fail (the pairing test of C1-05).",
+      "known_limit": true,
+      "known_limit_count": 1,
+      "parent": "C1-05",
+      "requires": [
+        "pinned producer checkouts"
+      ]
+    },
+    {
+      "id": "C1-06",
+      "category": "1",
+      "name": "Governance evidence pack: importer, rendering, producer v2, freshness, Replay pairing",
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests && agep check-examples",
+      "env_vars": [],
+      "expected_count": 362,
+      "count_basis": "measured_native",
+      "status": "ENV",
+      "state_note": "362 pass with the Replay revision the importer pins; with Replay main 351 pass and 11 error by design (revision not the pinned one). The pack cannot be gated against Replay main until the pin round (B-03, B-12).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "requires": [
+        "the Replay revision pinned by the importer"
+      ]
+    },
+    {
+      "id": "C1-06a",
+      "category": "1",
+      "name": "Pack plus relocated overlay suites",
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "pytest --ignore=tests/test_producer_v2.py tests; pytest tests/test_producer_v2.py; qualify_producer_v2.py",
+      "env_vars": [
+        "UPSTREAM_MANIFEST_EXAMPLE",
+        "UPSTREAM_REPLAY_SUCCESS_EXAMPLE",
+        "UPSTREAM_GAX_ROOT",
+        "AGEP_PINNED_CONTROL_PLANE_ROOT",
+        "AGEP_V2_ODES_ROOT"
+      ],
+      "expected_count": 483,
+      "count_basis": "measured_overlay",
+      "status": "ENV",
+      "state_note": "Unconfigured measurement: 440 + 43 collected; 366 pass and 74 skip in the first run; the producer v2 file has 1 fail and 42 errors because dependency checkouts are not configured.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "parent": "C1-06"
+    },
+    {
+      "id": "C1-07",
+      "category": "1",
+      "name": "Governed exchange: generation fence, effect ownership, redelivery, recovery separation",
+      "repository": "cogno-us/cognous-governed-exchange",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests",
+      "env_vars": [],
+      "expected_count": 234,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "234 pass. Thread and fence tests use short fixed waits (B-09).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "flaky": true
+    },
+    {
+      "id": "C1-07a",
+      "category": "1",
+      "name": "Exchange plus relocated overlay suites",
+      "repository": "cogno-us/cognous-governed-exchange",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests (after overlay)",
+      "env_vars": [
+        "UPSTREAM_MANIFEST_EXAMPLE",
+        "UPSTREAM_REPLAY_SUCCESS_EXAMPLE"
+      ],
+      "expected_count": 312,
+      "count_basis": "measured_overlay",
+      "status": "ENV",
+      "state_note": "Unconfigured measurement: 239 pass, 3 skip, 70 fail because the upstream example files and producer checkouts are not present.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "parent": "C1-07"
+    },
+    {
+      "id": "C1-08",
+      "category": "1",
+      "name": "Ergonomics (cognous-ocs): validate, demo, passthrough, runner, lock freshness, packaging",
+      "repository": "cogno-us/cognous-open-control-stack-ergonomics",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "make check",
+      "env_vars": [],
+      "expected_count": 545,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "545 pass; coverage 95.7%; all gates ok; wheel builds.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "C1-09",
+      "category": "1",
+      "name": "Institutional governance: authority context, lineage, tier delay limit, reviewed digest, bootstrap",
+      "repository": "cogno-us/cognous-institutional-governance",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m unittest discover -s tests -v; python testing/harness/run_authority_lineage.py",
+      "env_vars": [],
+      "expected_count": 469,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "469 tests (165 subtests) pass. Its CI runs only a subset (B-11).",
+      "known_limit": true,
+      "known_limit_count": 1
+    },
+    {
+      "id": "C1-10",
+      "category": "1",
+      "name": "Action manifest: schema, models, validator, text validation",
+      "repository": "cogno-us/cognous-action-manifest",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest; aam check-examples",
+      "env_vars": [],
+      "expected_count": 245,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "245 tests and 5 examples pass.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "C1-11",
+      "category": "1",
+      "name": "Evidence attestation: signatures, verification, API, custody profile",
+      "repository": "cogno-us/cognous-evidence-attestation",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests",
+      "env_vars": [],
+      "expected_count": 95,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "95 pass. Its CI runs 1 of the 95 (B-11).",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "C1-12",
+      "category": "1",
+      "name": "Evidence registry: claims, evidence, governance, invariants, link attestation",
+      "repository": "cogno-us/cognous-evidence-registry",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests",
+      "env_vars": [],
+      "expected_count": 124,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "124 pass; deprecation warnings only. Its CI runs a delegated chain qualification instead (B-11).",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "C1-13",
+      "category": "1",
+      "name": "Orchestrator local checks: contract schema, adapters, mappings, matrices, composed sandboxes, documentation links",
+      "repository": null,
+      "location": "private_repository",
+      "paths": [],
+      "run_command": "the 14 unittest discover steps and documentation checks of the local chain script",
+      "env_vars": [],
+      "expected_count": 257,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "257 (5 + 252) pass with 0 skips when run from a private checkout; the repository is private and not part of the public hub.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "C1-14",
+      "category": "1",
+      "name": "Qualification repository tooling tests: catalog, migrations, install overlay, pins, dashboard, matched-refund verifier, verifier-mutation harness, wiki import, scope, contract matrix",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "tests",
+        "tools"
+      ],
+      "run_command": "python -m pytest -q --ignore=tests/native tests",
+      "env_vars": [
+        "VERIFIER_CLONE"
+      ],
+      "expected_count": 292,
+      "count_basis": "collected_at_main",
+      "status": "PASS",
+      "state_note": "At qualification main e6b20bd: 292 collected, 291 pass and 1 skip (the verifier-mutation harness test that needs VERIFIER_CLONE). The count was 286 in the earlier inventory; the difference comes from tests added by work packages since. tests/native (1 test, NATIVE_HUB_ROOT) is excluded here and runs in the pilot workflows. The inventory consistency test added with this inventory also lives here and raises the count by its own tests.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "skips_outside_declared_list": 0,
+      "declared_skips": [
+        "VERIFIER_CLONE not set"
+      ]
+    },
+    {
+      "id": "C1-15",
+      "category": "1",
+      "name": "Hub (cognous-open-control-stack) tests: protected destination, ingress, budgets, integrated assurance, federated governance, research assurance, publication inventory, release preflight, negative controls",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python -m pytest -q tests (needs full git history)",
+      "env_vars": [],
+      "expected_count": 653,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "653 pass with full history (3 tests need commit history). Some multi-process tests use short fixed timeouts (B-09).",
+      "known_limit": true,
+      "known_limit_count": 3,
+      "flaky": true
+    },
+    {
+      "id": "C1-15a",
+      "category": "1",
+      "name": "Hub qualification tools (qualify twice at exact source plus mutation controls)",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "location": "other_repository",
+      "paths": [],
+      "run_command": "python tools/destination_admission_qualification.py (and the other qualification and check tools of the hub)",
+      "env_vars": [],
+      "expected_count": null,
+      "count_basis": "tool_reported",
+      "status": "NOT_RUN_HERE",
+      "state_note": "The tools report their own denominators; not counted by the inventory. The unit-level parts are inside C1-15.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "parent": "C1-15"
+    },
+    {
+      "id": "X-01",
+      "category": "2",
+      "name": "v1-probes: per-component probes recorded against frozen pins",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/v1-probes"
+      ],
+      "run_command": "PROBE_<X>_DIR=<checkout> python -m pytest -q suites/v1-probes/<module>",
+      "env_vars": [
+        "PROBE_ACTION_MANIFEST_DIR",
+        "PROBE_AUTHORITY_DIR",
+        "PROBE_BITREP_DIR",
+        "PROBE_CONTROL_PLANE_DIR",
+        "PROBE_EVIDENCE_PACK_DIR",
+        "PROBE_INDEX_DIR",
+        "PROBE_ODES_DIR",
+        "PROBE_REPLAY_DIR",
+        "PROBE_RUNTIME_DIR",
+        "PROBE_PINS_DIR"
+      ],
+      "expected_count": 223,
+      "count_basis": "collected_at_inventory",
+      "status": "FAIL",
+      "state_note": "At qualification main as inventoried: 203 pass, 16 fail, 4 error. 12 fail by design (probes that state desired properties and register findings; red at the pinned revision and at main, B-06). 4 fail only because the checkout was shallow and 4 error because the index package install was missing (B-10, environment). State at main before T4a; being resolved.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "requires": [
+        "full git history",
+        "npm ci for the index supersession probes"
+      ],
+      "state_basis": "state at main before T4a; being resolved by a separate work item",
+      "being_resolved": true
+    },
+    {
+      "id": "X-02",
+      "category": "2",
+      "name": "fix2-probes: evidence-check hardening probes (controls plus strict pending-hardening xfail probes)",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/fix2-probes"
+      ],
+      "run_command": "PROBE2_*_DIR=... python -m pytest -q suites/fix2-probes",
+      "env_vars": [
+        "PROBE2_CONTROL_PLANE_DIR",
+        "PROBE2_ERGONOMICS_DIR",
+        "PROBE2_EXCHANGE_DIR",
+        "PROBE2_MANIFEST_DIR",
+        "PROBE2_ODES_DIR",
+        "PROBE2_PACK_DIR",
+        "PROBE2_REPLAY_DIR",
+        "PROBE2_RUNTIME_DIR",
+        "PROBE2_VERIFIER_DIR"
+      ],
+      "expected_count": 213,
+      "count_basis": "collected_at_inventory",
+      "status": "FAIL",
+      "state_note": "As inventoried: 191 run and 22 xfail. Against current heads 135 pass (controls); 56 strict-xfail probes now pass, which strict mode reports as failures (the designed signal to remove the mark); 22 remain xfail (B-01). State at main before T4a; being resolved.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "state_basis": "state at main before T4a; being resolved by a separate work item",
+      "being_resolved": true
+    },
+    {
+      "id": "X-03",
+      "category": "2",
+      "name": "security-runtime: merged-source cases, each run twice with fresh stores",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/security-runtime",
+        "tools/run_security_runtime.py",
+        "tools/summarize_security_runtime.py"
+      ],
+      "run_command": "python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016-r8.json --prepare-work --components DIR --out OUT (twice), then python -I tools/summarize_security_runtime.py OUT/run-N",
+      "env_vars": [],
+      "expected_count": null,
+      "count_basis": "workflow_defined",
+      "status": "NOT_RUN_HERE",
+      "state_note": "Builds the pinned components; count is in the run output. Collection fails without the built components.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "requires": [
+        "built pinned components"
+      ]
+    },
+    {
+      "id": "X-04",
+      "category": "2",
+      "name": "runtime-authority candidate suite",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/runtime-authority",
+        "tools/run_runtime_authority.py"
+      ],
+      "run_command": "python tools/run_runtime_authority.py --components components --out results/runtime-authority",
+      "env_vars": [],
+      "expected_count": null,
+      "count_basis": "workflow_defined",
+      "status": "NOT_RUN_HERE",
+      "state_note": "Count is in the run output; needs the component checkouts.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "requires": [
+        "component checkouts"
+      ]
+    },
+    {
+      "id": "X-05",
+      "category": "2",
+      "name": "v1-scenarios: catalog scenarios executed twice and compared",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/v1-scenarios"
+      ],
+      "run_command": "SCN_COMPONENTS_DIR=... SCN_HUB_DIR=... python -m pytest -q suites/v1-scenarios",
+      "env_vars": [
+        "SCN_COMPONENTS_DIR",
+        "SCN_HUB_DIR",
+        "SCN_INDEX_DIR",
+        "SCN_INDEX_CHAIN_DIR",
+        "SCN_EVIDENCE_DIR",
+        "SCN_BITREP_DIR"
+      ],
+      "expected_count": 1093,
+      "count_basis": "collected_at_main",
+      "status": "NOT_RUN_HERE",
+      "state_note": "1,093 tests collected at qualification main. Not run by the inventory; needs the built components, the hub, the index and attestation packages and node. Race cases join threads for 30 s (B-09).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "flaky": true
+    },
+    {
+      "id": "X-06",
+      "category": "2",
+      "name": "operation-identity profile: dedupe, reversibility, escalation deadline, refund flow",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/operation-identity"
+      ],
+      "run_command": "OI_CONTROL_PLANE_DIR=... OI_RUNTIME_DIR=... python -m pytest -q suites/operation-identity",
+      "env_vars": [
+        "OI_CONTROL_PLANE_DIR",
+        "OI_RUNTIME_DIR"
+      ],
+      "expected_count": 50,
+      "count_basis": "collected_at_main",
+      "status": "PASS",
+      "state_note": "50 pass at main in the inventory run.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-07",
+      "category": "2",
+      "name": "outside-holder profile: witness digest rewrite and drop, holder inventory",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/outside-holder"
+      ],
+      "run_command": "OH_CONTROL_PLANE_DIR=... OH_RUNTIME_DIR=... python -m pytest -q suites/outside-holder",
+      "env_vars": [
+        "OH_CONTROL_PLANE_DIR",
+        "OH_RUNTIME_DIR"
+      ],
+      "expected_count": 17,
+      "count_basis": "collected_at_main",
+      "status": "PASS",
+      "state_note": "17 pass at main in the inventory run.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-08",
+      "category": "2",
+      "name": "Verifier mutation report: every verifier rule is mutated and each mutation must be detected",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/verifier-mutation"
+      ],
+      "run_command": "python -m unittest tests.test_verifier_mutation_harness tests.test_verifier_mutation_witnessed, then python -m verifier_mutation report --odes ... --jobs 4 --verifier-cmd ...",
+      "env_vars": [
+        "VERIFIER_CLONE"
+      ],
+      "expected_count": null,
+      "count_basis": "workflow_defined",
+      "status": "NOT_RUN_HERE",
+      "state_note": "The harness tests pass (inside C1-14); the report run needs the verifier and ODES checkouts and was not run by the inventory.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-09",
+      "category": "2",
+      "name": "Relocated component integration suites (overlay) run against pinned producers",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "suites/cognous-execution-runtime",
+        "suites/cognous-replay-bundle",
+        "suites/cognous-governance-evidence-pack",
+        "suites/cognous-governed-exchange",
+        "suites/open-decision-evidence-standard",
+        "suites/cognous-open-control-stack",
+        "suites/cognous-evidence-registry"
+      ],
+      "run_command": "the component workflows delegated to the qualification repository (see C1-04a, C1-05a, C1-06a, C1-07a, C1-01)",
+      "env_vars": [
+        "MOLTBOT_SAFE_CONTROL_PLANE_ROOT",
+        "MOLTBOT_SAFE_MANIFEST_FIXTURE",
+        "UPSTREAM_MANIFEST_EXAMPLE",
+        "UPSTREAM_REPLAY_SUCCESS_EXAMPLE",
+        "UPSTREAM_GAX_ROOT",
+        "AGEP_PINNED_CONTROL_PLANE_ROOT",
+        "AGEP_V2_ODES_ROOT"
+      ],
+      "expected_count": 5763,
+      "count_basis": "collected_at_inventory",
+      "status": "ENV",
+      "state_note": "5,763 collected across the overlays; these include each component's own tests, so they overlap Category 1. Measured unconfigured: about 300 environment skips and 70 environment failures. Needs an environment builder that materialises the pinned producers (B-08).",
+      "known_limit": false,
+      "known_limit_count": null,
+      "overlaps_category_1": true
+    },
+    {
+      "id": "X-10",
+      "category": "2",
+      "name": "Orchestrator chain at its own pins: control, runtime, evidence, connected handoff and Replay, contract matrix",
+      "repository": null,
+      "location": "private_repository",
+      "paths": [],
+      "run_command": "the local chain script of the private orchestrator checkout (mirrors its workflows)",
+      "env_vars": [],
+      "expected_count": 417,
+      "count_basis": "measured_native",
+      "status": "PASS",
+      "state_note": "160 live cases plus the 257 local cases of C1-13: pass with 0 skips once the environment is set. This shows the chain at its own recorded revisions, not at main; the tests assert the revisions and refuse main by design until the pin round (B-12).",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-11",
+      "category": "2",
+      "name": "Orchestrator candidate overlay: candidate matrix at main (baseline byte identity, pin-move delta, journal profiles, races, holder inventory, Replay and pack outcomes)",
+      "repository": null,
+      "location": "private_repository",
+      "paths": [],
+      "run_command": "COGNOUS_OVERLAY_* environment, python -m pytest -q -p no:cacheprovider tests/overlay",
+      "env_vars": [],
+      "expected_count": 38,
+      "count_basis": "measured_native",
+      "status": "FAIL",
+      "state_note": "35 pass and 3 fail at main in the inventory run: pack versus Replay main revision, Replay reader versus control plane main label, and a verifier test that expects exactly one could_not_check where main now reports one more (B-04). Dispatch only in CI.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-12",
+      "category": "2",
+      "name": "Vendored-contract drift and contract matrix",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "tools/contract_matrix.py",
+        "tests/test_contract_matrix.py",
+        "docs/contract-matrix.md"
+      ],
+      "run_command": "python tools/contract_matrix.py check --components DIR (plus the contract tests of C1-01, C1-02, C1-03, C1-04, C1-05, C1-14)",
+      "env_vars": [],
+      "expected_count": 261,
+      "count_basis": "collected_at_inventory",
+      "status": "PARTIAL",
+      "state_note": "Unit tests pass. Matrix check at main: 2 of 2 boundaries conform; 4 components stay on the digest-pin gate because no contract is declared for their boundaries. Recorded item: several contract copies carry more than one content under one 0.1.0-draft label (a freeze item; the matrix refuses version strings alone).",
+      "known_limit": true,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-13",
+      "category": "2",
+      "name": "Candidate matrix: old producer with new reader and new producer with old reader",
+      "repository": null,
+      "location": "not_yet_in_repository",
+      "paths": [],
+      "run_command": "no single command today; assembled from X-11, the Replay accepted-label tests, ODES accepted Replay revisions (C1-01), the pack importer pin check (C1-06) and X-12",
+      "env_vars": [],
+      "expected_count": null,
+      "count_basis": "plan",
+      "status": "PLAN",
+      "state_note": "Partial. Today it exposes three real incompatibilities at main (X-11, C1-06, C1-01) instead of a passing matrix; the pin round has to resolve them first.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-14",
+      "category": "2",
+      "name": "Exact-chain consistency check: every pin in every holder versus the lock and versus main",
+      "repository": null,
+      "location": "not_yet_in_repository",
+      "paths": [],
+      "run_command": "python -I pin_check.py --clones DIR --json OUT --md OUT (read only, stdlib)",
+      "env_vars": [],
+      "expected_count": null,
+      "count_basis": "plan",
+      "status": "PLAN",
+      "state_note": "Exists as a preparation tool that is not yet in a repository (planned for qualification tools/). At the time of the inventory no pin site for four components was at head. Must be re-run after the pin round.",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-15",
+      "category": "2",
+      "name": "Controller and aggregate: plan, freeze-verify, component-suite, probe-suite, native-f5b, harness-and-hub-tests, scenarios, matched-refund, aggregate",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "tools/v1_validation.py",
+        ".github/workflows/v1-validation.yml",
+        "docs/v1-known-limits.md"
+      ],
+      "run_command": "gh workflow run v1-validation.yml -f validation_id=<id> -f label=<label> (dispatch only)",
+      "env_vars": [],
+      "expected_count": 131,
+      "count_basis": "declared",
+      "status": "NOT_RUN_HERE",
+      "state_note": "131 declared requirements (81 tests, 26 gaps, 20 not applicable, 4 jobs). Described only: the controller is run by the coordinator after the owner's go, never by workers. It runs at frozen pins, so on its own it does not test main. docs/v1-known-limits.md records the scope reduction of the V1 claim.",
+      "known_limit": true,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-16",
+      "category": "2",
+      "name": "Supported refund-style flow end to end, including the matched refund battery",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "tools/run_matched_refund.py",
+        "tools/verify_matched_refund.py",
+        "tests/test_matched_refund.py"
+      ],
+      "run_command": "orchestrator steps (see X-10) and python tools/run_matched_refund.py (needs the retained common stimulus)",
+      "env_vars": [],
+      "expected_count": 84,
+      "count_basis": "measured_native",
+      "status": "PARTIAL",
+      "state_note": "84 orchestrator cases pass at their pins; the 20-trial matched refund battery verifier unit tests pass (C1-14); the 20-trial re-execution was not run. At main the flow runs only through the overlay (X-11, 3 failures).",
+      "known_limit": false,
+      "known_limit_count": null
+    },
+    {
+      "id": "X-17",
+      "category": "2",
+      "name": "Hub delegated cross-component workflows (21)",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        ".github/workflows/cognous-open-control-stack--*.yml"
+      ],
+      "run_command": "the delegated workflows cognous-open-control-stack--*.yml (dispatch or pull request)",
+      "env_vars": [],
+      "expected_count": null,
+      "count_basis": "workflow_defined",
+      "status": "NOT_RUN_HERE",
+      "state_note": "Count per workflow comes from the run. Some need a Rust toolchain, node, docker or a live gateway.",
+      "known_limit": false,
+      "known_limit_count": null,
+      "workflow_glob_expected": 21
+    },
+    {
+      "id": "W-I",
+      "category": "3I",
+      "name": "AI Security Wiki derived tests, individual-component cases (one component's interface satisfies the procedure)",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "scenarios/ai-security-wiki/applicability.json",
+        "suites/wiki-derived"
+      ],
+      "run_command": "SCN_COMPONENTS_DIR=DIR python -m pytest -q -p no:cacheprovider suites/wiki-derived",
+      "env_vars": [
+        "SCN_COMPONENTS_DIR"
+      ],
+      "expected_count": 47,
+      "count_basis": "collected_at_main",
+      "status": "NOT_RUN",
+      "state_note": "17 in-scope cases (2 APPLICABLE, 15 PARTLY_COVERED); 11 have tests in suites/wiki-derived (47 tests). The cases stay NOT RUN until the controller runs. Local runs of the packages pass at the pinned reference; these are material for the controller run, not a recorded verdict.",
+      "known_limit": true,
+      "known_limit_count": null,
+      "wiki": {
+        "cases": 17,
+        "applicable": 2,
+        "partly_covered": 15,
+        "cases_with_wiki_derived_tests": 11,
+        "tests": 47
+      }
+    },
+    {
+      "id": "W-X",
+      "category": "3X",
+      "name": "AI Security Wiki derived tests, cross-component cases (the observable is the assembled chain)",
+      "repository": "cogno-us/cognous-stack-qualification",
+      "location": "this_repository",
+      "paths": [
+        "scenarios/ai-security-wiki/applicability.json",
+        "suites/wiki-derived"
+      ],
+      "run_command": "SCN_COMPONENTS_DIR=DIR python -m pytest -q -p no:cacheprovider suites/wiki-derived",
+      "env_vars": [
+        "SCN_COMPONENTS_DIR"
+      ],
+      "expected_count": 125,
+      "count_basis": "collected_at_main",
+      "status": "NOT_RUN",
+      "state_note": "48 in-scope cases (18 APPLICABLE, 30 PARTLY_COVERED); 28 have tests in suites/wiki-derived (125 tests). None of the 18 APPLICABLE cross-component cases has a wiki-derived test yet; 16 of the 20 APPLICABLE cases have partial existing tests named in applicability.json and 4 need new implementation. Cases stay NOT RUN until the controller runs.",
+      "known_limit": true,
+      "known_limit_count": null,
+      "wiki": {
+        "cases": 48,
+        "applicable": 18,
+        "partly_covered": 30,
+        "cases_with_wiki_derived_tests": 28,
+        "tests": 125
+      }
+    }
+  ],
+  "blockers": [
+    {
+      "id": "B-01",
+      "summary": "fix2-probes: strict-xfail probes that now pass are reported as failures; some still xfail",
+      "state": "being_resolved"
+    },
+    {
+      "id": "B-02",
+      "summary": "Control plane real-SDK test skips without the pinned third-party SDK; the AGT test file needs pytest-asyncio",
+      "state": "open"
+    },
+    {
+      "id": "B-03",
+      "summary": "ODES and Replay accepted-revision graph does not include Replay main",
+      "state": "open"
+    },
+    {
+      "id": "B-04",
+      "summary": "Some tests and helpers lag component changes at main (runtime helper tests, one overlay test, three orchestrator overlay tests)",
+      "state": "open"
+    },
+    {
+      "id": "B-05",
+      "summary": "Replay to pack pairing test depends on which pack and Replay are installed",
+      "state": "open"
+    },
+    {
+      "id": "B-06",
+      "summary": "v1-probes: 12 probes are red by design and need a known-limit or resolved classification",
+      "state": "being_resolved"
+    },
+    {
+      "id": "B-07",
+      "summary": "In-body skips (verifier 22, Replay 12) and conditional skips (ODES 8) are not declared",
+      "state": "open"
+    },
+    {
+      "id": "B-08",
+      "summary": "Overlay and delegated suites skip or fail unless pinned producer checkouts and variables are set; no environment builder yet",
+      "state": "open"
+    },
+    {
+      "id": "B-09",
+      "summary": "Load-sensitive tests with short fixed timeouts",
+      "state": "open"
+    },
+    {
+      "id": "B-10",
+      "summary": "Shallow checkouts and missing node install affect several probes and hub tests",
+      "state": "open"
+    },
+    {
+      "id": "B-11",
+      "summary": "Native tests of three repositories are not all run by their own CI",
+      "state": "open"
+    },
+    {
+      "id": "B-12",
+      "summary": "Pin graph: component pins are behind main; orchestrator suites assert their older pins",
+      "state": "open"
+    }
+  ]
+}
