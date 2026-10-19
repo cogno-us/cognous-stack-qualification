@@ -29,7 +29,7 @@ A known limit is a stated boundary of the stack: something it does not check, re
 |---|---|---|---|
 | 1. Synthetic individual-component | OCS-1 | C1-01 to C1-15 (plus overlay rows marked "a") | 10,107 native test cases across the 15 component rows; about 710 further relocated overlay cases run inside component trees and are counted under X-09 |
 | 2. Synthetic cross-component | OCS-2 | X-01 to X-17 | about 1,800 directly countable cases (X-01 223, X-02 213, X-05 1,093, X-06 50, X-07 17, X-11 38, X-10 160 live); the workflow-defined suites (X-03, X-04, X-08, X-15, X-17) take their counts from their runs |
-| 3. AI Security Wiki derived | OCS-3 | W-I, W-X | 656 upstream cases classified; 65 in scope (20 APPLICABLE and 45 PARTLY_COVERED); 218 tests in `suites/wiki-derived` collected at main |
+| 3. AI Security Wiki derived | OCS-3 | W-I, W-X | 656 upstream cases classified; 65 in scope (20 APPLICABLE and 45 PARTLY_COVERED); 232 tests in `suites/wiki-derived` collected at main |
 
 The gate is not met today. The inventory run found 12 blockers (section 6): environment-gated skips and failures, tests that lag component changes, load-sensitive tests, probe marks that need cleaning up, and a pin graph that is behind main. Probe states in this page are the state after the probe-state work item (T4a, #140) and its follow-ups (#141, governance #55); rows and blockers whose resolution is not complete are marked "being resolved".
 
@@ -107,11 +107,11 @@ The 65 in-scope cases (APPLICABLE plus PARTLY_COVERED) split into individual-com
 | Subdivision | Rule | In-scope cases | APPLICABLE | PARTLY_COVERED | Cases with tests in `suites/wiki-derived` | Tests |
 |---|---|---:|---:|---:|---:|---:|
 | W-I (individual-component) | one component's interface alone can satisfy the procedure | 17 | 2 | 15 | 11 | 47 |
-| W-X (cross-component) | the observable is the assembled chain; two or more components | 48 | 18 | 30 | 35 | 162 |
+| W-X (cross-component) | the observable is the assembled chain; two or more components | 48 | 18 | 30 | 38 | 176 |
 
 The 591 NOT_APPLICABLE cases each carry a one-line reason in `applicability.json` (capabilities the stack does not have, such as red-team tooling, training, fleet or browser features, or scope the owner excluded) and are outside the denominator but listed there.
 
-**The suite.** `suites/wiki-derived` holds 218 tests collected at main: 9 skeleton and registry tests that carry no case id (5 registry and count checks, 4 route smoke tests that skip without the pinned reference), plus the 209 tests of work packages A to F and G1 to G2 listed below. Every package was run locally at the pinned reference and passed with none skipped or marked as expected failures; the cases still stay NOT RUN until the controller runs. Package WP-H (the published not-claimed sentences for the 45 PARTLY_COVERED cases) adds a registry test and wording in `applicability.json`, not further cases.
+**The suite.** `suites/wiki-derived` holds 232 tests collected at main: 9 skeleton and registry tests that carry no case id (5 registry and count checks, 4 route smoke tests that skip without the pinned reference), plus the 223 tests of work packages A to F and G1 to G3 listed below. Every package was run locally at the pinned reference and passed with none skipped or marked as expected failures; the cases still stay NOT RUN until the controller runs. Package WP-H (the published not-claimed sentences for the 45 PARTLY_COVERED cases) adds a registry test and wording in `applicability.json`, not further cases.
 
 | Package | File | Scope | PR | Tests | W-I tests | W-X tests | Cases (W-I) | Cases (W-X) |
 |---|---|---|---:|---:|---:|---:|---|---|
@@ -124,14 +124,15 @@ The 591 NOT_APPLICABLE cases each carry a one-line reason in `applicability.json
 | WP-F | `suites/wiki-derived/test_wp_f_records_replay_policy.py` | records, replay, policy revision, pin and digest refusal | #135 | 33 | 22 | 11 | TC-L05-028, TC-L08-036, TC-L16-007, TC-L16-015 | TC-D12-007, TC-L17-020, TC-L17-022 |
 | WP-G1 | `suites/wiki-derived/test_wp_g1_integrity_and_export.py` | tamper evidence and export: retained records, the outside-held digest, planted-defect catalogues, signed and unsigned copies | #149 | 26 | - | 26 | - | TC-D12-018, TC-L02-025, TC-L03-022, TC-L17-004, TC-L17-021 |
 | WP-G2 | `suites/wiki-derived/test_wp_g2_pack_on_demand_and_decision_state.py` | evidence pack on demand and the state at decision time | #150 | 11 | - | 11 | - | TC-D12-004, TC-L02-016 |
-| Total | | | | 218 | 47 | 162 | | |
+| WP-G3 | `suites/wiki-derived/test_wp_g3_traces_attribution_and_event_fields.py` | replayable traces, identity attribution and event fields | #151 | 14 | - | 14 | - | TC-L06-028, TC-L09-025, TC-L17-002 |
+| Total | | | | 232 | 47 | 176 | | |
 
 The two suite rows of this category (they share the files in `suites/wiki-derived`; each test is attributed to W-I or W-X by the `split` of the case it checks):
 
 | ID | Suite | Command | Count | Environment | State | Notes and known limits |
 |---|---|---|---:|---|---|---|
 | W-I | AI Security Wiki derived tests, individual-component cases (one component's interface satisfies the procedure) | `SCN_COMPONENTS_DIR=DIR python -m pytest -q -p no:cacheprovider suites/wiki-derived` | 47 (collected at main) | `SCN_COMPONENTS_DIR` | NOT_RUN | 17 in-scope cases (2 APPLICABLE, 15 PARTLY_COVERED); 11 have tests in suites/wiki-derived (47 tests). The cases stay NOT RUN until the controller runs. Local runs of the packages pass at the pinned reference; these are material for the controller run, not a recorded verdict. Known-limit tests: present, not enumerated. |
-| W-X | AI Security Wiki derived tests, cross-component cases (the observable is the assembled chain) | `SCN_COMPONENTS_DIR=DIR python -m pytest -q -p no:cacheprovider suites/wiki-derived` | 162 (collected at main) | `SCN_COMPONENTS_DIR` | NOT_RUN | 48 in-scope cases (18 APPLICABLE, 30 PARTLY_COVERED); 35 have tests in suites/wiki-derived (162 tests). 7 of the 18 APPLICABLE cross-component cases have a wiki-derived test; 16 of the 20 APPLICABLE cases have partial existing tests named in applicability.json and 4 need new implementation. Cases stay NOT RUN until the controller runs. Known-limit tests: present, not enumerated. |
+| W-X | AI Security Wiki derived tests, cross-component cases (the observable is the assembled chain) | `SCN_COMPONENTS_DIR=DIR python -m pytest -q -p no:cacheprovider suites/wiki-derived` | 176 (collected at main) | `SCN_COMPONENTS_DIR` | NOT_RUN | 48 in-scope cases (18 APPLICABLE, 30 PARTLY_COVERED); 38 have tests in suites/wiki-derived (176 tests). 10 of the 18 APPLICABLE cross-component cases have a wiki-derived test; 16 of the 20 APPLICABLE cases have partial existing tests named in applicability.json and 4 need new implementation. Cases stay NOT RUN until the controller runs. Known-limit tests: present, not enumerated. |
 
 **How to run.** The registry tests need only the checkout. Tests that use a route need the pinned reference built with `python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016-r8.json --prepare-work --components DIR --out OUT`; without `SCN_COMPONENTS_DIR` they are skipped, never passed.
 

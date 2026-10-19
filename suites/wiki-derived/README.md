@@ -76,6 +76,7 @@ is the source for current counts.
 | F | `test_wp_f_records_replay_policy.py` | 33 | Records, replay, policy revision and pin and digest refusal |
 | G1 | `test_wp_g1_integrity_and_export.py`, `_wp_g_common.py` | 26 | Tamper evidence and export (D12-018, L17-021, L17-004, L02-025, L03-022): retained records, the outside-held digest, planted-defect catalogues, signed and unsigned copies |
 | G2 | `test_wp_g2_pack_on_demand_and_decision_state.py` | 11 | Evidence pack on demand and the state at decision time (L02-016, D12-004) |
+| G3 | `test_wp_g3_traces_attribution_and_event_fields.py` | 14 | Replayable traces, identity attribution and event fields (L06-028, L09-025, L17-002) |
 
 Each package module states, in its docstring, the cases it checks, the limits it asserts as limits and what it does not claim. Further
 packages are added separately; a package is listed here only after its files are on `main`.
@@ -84,7 +85,7 @@ packages are added separately; a package is listed here only after its files are
 
 - The four route smoke tests (routes A, B, C and `run_twice`) ran green against the pinned reference when package B landed. They
   still skip, and never pass, without `SCN_COMPONENTS_DIR`. This README does not record a fresh run.
-- 7 of the 20 APPLICABLE cases have a test in this suite so far (packages G1 to G2); the inventory names the partial existing
+- 10 of the 20 APPLICABLE cases have a test in this suite so far (packages G1 to G3); the inventory names the partial existing
   tests for 16 of them and the four that need new implementation. The 39 in-scope cases that had tests before the G packages are all
   PARTLY_COVERED.
 - No workflow collects this suite. The workflows that run `python -m unittest discover -s tests` do not reach it. The step
