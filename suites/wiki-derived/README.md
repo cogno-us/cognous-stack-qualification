@@ -79,6 +79,7 @@ is the source for current counts.
 | G3 | `test_wp_g3_traces_attribution_and_event_fields.py` | 14 | Replayable traces, identity attribution and event fields (L06-028, L09-025, L17-002) |
 | G4 | `test_wp_g4_tool_call_and_approval_controls.py` | 27 | Tool-call arguments, allow-lists, scopes, approval and fail-closed behaviour (L05-022, L06-014, L06-013, L09-004, L06-015, L05-013) |
 | G5 | `test_wp_g5_exchange_messages_and_correlation.py` | 23 | Exchange messages, request authorization and correlation (L06-018, L06-040, L06-039, L06-045) |
+| G6 | `test_wp_g6_partly_covered_fragments.py` | 6 | The in-scope fragments of two PARTLY_COVERED cases (L06-003, L06-026) |
 
 Each package module states, in its docstring, the cases it checks, the limits it asserts as limits and what it does not claim. Further
 packages are added separately; a package is listed here only after its files are on `main`.
@@ -89,7 +90,8 @@ packages are added separately; a package is listed here only after its files are
   still skip, and never pass, without `SCN_COMPONENTS_DIR`. This README does not record a fresh run.
 - Every one of the 20 APPLICABLE cases has at least one case-linked test. Where the stack does not have the behaviour that a case asks
   for, the test asserts that as a limit (the name of such a test contains `known_limit`), and it is not a pass of the case. The 39
-  in-scope cases that had tests before the G packages are all PARTLY_COVERED.
+  in-scope cases that had tests before the G packages are all PARTLY_COVERED. The two fragments added in G6 are limited to what the
+  `not_claimed` sentence of each case leaves in scope.
 - No workflow collects this suite. The workflows that run `python -m unittest discover -s tests` do not reach it. The step
   needed is `python -m pytest -q -p no:cacheprovider suites/wiki-derived`, with `SCN_COMPONENTS_DIR` set to the same prepared
   components directory as the `suites/v1-scenarios` step of `v1-validation.yml`. No workflow was edited by this documentation change.
