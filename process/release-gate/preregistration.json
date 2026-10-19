@@ -1997,6 +1997,27 @@
       "text": "Note on the retired test of amendment 65. The test `suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit` was withdrawn as a known limit by amendment 65. It is still in the suite `suites/wiki-derived`, unchanged (DR-4), and at the exchange revision pinned for the release gate it still fails. This note records the fact only; whether the test is retired from the gate set is for the owner to decide, by amendment, before the run.",
       "reason": "Recorded with the declarations of the adversarial batch so that the state of the retired test is on the record before the controller run (DR-3, DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
       "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T18:48:29Z",
+      "action": "other",
+      "text": "Confirmation of the proposed rules PR-1 to PR-7 (OD-2). The owner confirms PR-1, PR-2, PR-3, PR-4, PR-5, PR-6 and PR-7 as written on this page, with PR-3 restated for the Wiki subset by amendment 75, and with two refinements that become part of them. (a) Outcomes are declared per scenario in the plan file of PR-6, and the row of a case shows how many of its scenarios were asked, in the form `asked k of n`. (b) A scenario that can technically be run but is declared not claimed for a configuration is still run; its observation is retained, is printed apart from the scored results, is never counted in a pass fraction and is never dropped. Nothing in PR-1 to PR-7 is otherwise changed, and no inclusion or exclusion of a case in the Wiki subset is changed.",
+      "reason": "RO-2 allows no run while a proposed item that the run depends on is unconfirmed. The owner confirmed the items on 19 October 2026. Recorded before any run of the controller or of any comparison, and before any result of either was seen.",
+      "by": "the owner's decision of 19 October 2026, recorded by the coordinator"
+    },
+    {
+      "timestamp": "2026-10-19T18:48:29Z",
+      "action": "other",
+      "text": "Authorship and checking of the expected outcomes of the Wiki subset (OD-4), which changes PR-3 for the Wiki subset only. The expected outcomes of the Wiki-subset scenarios are written from the case text by one author and are checked by one checker, not by two as PR-3 states; the author and the checker are other than the author of the OCS code, and each outcome carries the label `from case text`. A case on which the checker does not agree with the author leaves the comparison and stays in W-I or W-X, as PR-3 provides. The author and the checker are identified by role, not by name. Independence of the author and the checker from the Cognous team, and from the OCS code, is not demonstrable inside this repository; the record states only the roles that were assigned and does not prove them. A single check is a weaker control than the two checks that PR-3 registered, and results are reported with this stated beside them (RP-8). For the corner and baseline sets this amendment changes nothing.",
+      "reason": "OD-4 asked who writes and checks the expected outcomes and said independence cannot be established from inside the repository. The owner chose one author and one checker on 19 October 2026. Recorded before the plan file of PR-6 is written and before any run.",
+      "by": "the owner's decision of 19 October 2026, recorded by the coordinator"
+    },
+    {
+      "timestamp": "2026-10-19T18:48:29Z",
+      "action": "other",
+      "text": "Which OCS configuration answers the Wiki-subset scenarios (decision D1). The comparison for the Wiki subset scores the registered OCS reference configuration, the protected destination, and the two comparator applications, with the same oracle and the same rules. No further OCS configuration and no OCS adapter is added to the comparison, and the list of registered configurations is unchanged. A scenario that asks for something the protected destination does not claim or cannot be asked carries the outcome not claimed or not expressible for that configuration, with a citation, as the rules of PR-1 and amendment 39 provide. For each such cell the report adds a separate column that names the OCS test ids that cover the case at the component that claims it and the gate status of those tests. The column is labelled `different harness, not scored by this oracle`; it is never added to a pass fraction and no mixed scoring is made. The outcomes of OCS tests are not shown in the scored columns. No OCS component, test, probe or verdict is changed by this amendment.",
+      "reason": "The protected destination takes a fixed set of fields and has no concept of several of the questions in the Wiki subset, which are claimed by OCS elsewhere. The owner decided on 19 October 2026 on a destination-only comparison with a cross-reference column so that the table does not state that OCS claims less than it does and does not re-score anything. Recorded before the plan file is written and before any run.",
+      "by": "the owner's decision of 19 October 2026, recorded by the coordinator"
     }
   ],
   "document_frozen_sha256": "8daf8195296e33d19c2130bfcdb883fbb6cfab1e13f19ed392de909030334286",
