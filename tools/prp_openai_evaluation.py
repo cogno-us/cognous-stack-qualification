@@ -8,7 +8,6 @@ import json
 import math
 import os
 from pathlib import Path
-import subprocess
 import time
 from openai_agent_pilot import OpenAIHTTP, OpenAILedger, MODEL
 from claude_agent_pilot import PilotError

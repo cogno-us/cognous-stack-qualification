@@ -12,7 +12,6 @@ import platform
 import signal
 from pathlib import Path
 import subprocess
-import sys
 import tempfile
 import uuid
 from install_suite import install, git

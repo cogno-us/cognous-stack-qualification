@@ -5,7 +5,6 @@ Standard library only. Nothing here changes a target checkout.
 import copy
 import importlib.util
 import json
-import os
 import sys
 from pathlib import Path
 

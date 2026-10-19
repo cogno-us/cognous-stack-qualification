@@ -28,8 +28,6 @@ import copy
 import hashlib
 import json
 import os
-import platform
-import sqlite3
 import subprocess
 import sys
 from pathlib import Path

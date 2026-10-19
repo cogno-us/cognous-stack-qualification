@@ -12,7 +12,6 @@ import http.client
 import json
 import os
 from pathlib import Path
-import sqlite3
 import uuid
 from claude_agent_pilot import NativeCase, Ledger, PilotError, SYSTEM, TOOLS, micros
 from trajectory_contract import ROOT, digest

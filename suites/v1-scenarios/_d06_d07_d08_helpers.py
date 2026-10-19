@@ -307,7 +307,6 @@ class Meter:
 # ----------------------------------------------------------------------------------------------
 # D08: export the reference's own artifacts, plant defects in COPIES, and evaluate with its consumers
 # ----------------------------------------------------------------------------------------------
-import re  # noqa: E402
 
 D08_CASES = ('valid', 'lost_ack', 'revoked', 'unreadable')
 from _reason_norm import normalise_reason  # noqa: E402,F401  (shared normaliser; re-exported for existing callers)
@@ -641,7 +640,6 @@ def apply_mutation(base, fn, rehash=False):
 # ----------------------------------------------------------------------------------------------
 # D07: restore boundary worlds (frozen F5b chain + frozen C1 atomic claim profile)
 # ----------------------------------------------------------------------------------------------
-import shutil  # noqa: E402
 
 
 def sqlite_backup(source, target):
