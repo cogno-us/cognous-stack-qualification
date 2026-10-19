@@ -20,21 +20,12 @@ way at the frozen pin and at the current head. Each mark is `xfail(strict=True, 
 | `test_authority_ra_probes.py::test_probe_addauthra_refusal_trend_report_names_unmapped_codes` | Control plane, refusal trend report | the report names codes that are not mapped | the report does not name unmapped codes |
 | `test_authority_ra_probes.py::test_probe_addauthra_freshness_is_verified_before_the_criterion_is_evaluated` | Control plane, evidence gate | freshness is verified strictly before the criterion is evaluated | the strict order is not observed (both reasons are reported together) |
 
-## Open items, not marked
+## Former open items, now resolved
 
-These are red at the current heads and are neither registered findings nor decided known limits. They are left unchanged.
+These two groups were red at the heads measured by T4a and were neither registered findings nor known limits. Neither was marked; each was a lag of a helper or of a document, and both are corrected without changing any assertion.
 
-- `test_odes_probes.py` (6 probes, run against ODES, `PROBE_ODES_DIR`; the other 2 probes of the module and the 5 of
-  `test_odes_extension_probes.py` pass). They pass at the frozen ODES pin and fail at current main in the layer
-  `package_content_integrity`: the module's helper `make_package` builds packages without the top-level members `created_by` and
-  `created_at`, which the recipient validator now requires of a package envelope (decision 39-M). In a scratch copy with those two
-  members added to the helper, all 8 probes of the module pass. This is a lag of the helper, not a finding about the component, so
-  it is not recorded as a known limit; the choice (update the helper, or record it) is the owner's.
-- `test_authority_probes.py::test_probe_er031_profile_is_labelled_proposed_and_not_adopted_and_makes_no_ratification_claim` (1 probe,
-  `PROBE_AUTHORITY_DIR`). At current main it fails on `process/implementation/public-stack-v0.1/AUTHORITY_CONTEXT.md` line 99,
-  where the sentence "Nothing here is ratified." is wrapped so that the line starts with `is ratified.`; the probe reads line by
-  line and does not see the negation on the previous line. It asserts document wording rather than the guarantee (see
-  `docs/authority-probe-rebaseline.md`).
+- `test_odes_probes.py` (6 probes, run against ODES, `PROBE_ODES_DIR`). The module's helper `make_package` built packages without the top-level members `created_by` and `created_at`, which the recipient validator at ODES main requires. The helper now sets both (they are outside the package digest and ignored by the frozen pin's validator); the module passes at the frozen ODES pin and at ODES main (8 passed each). Qualification #141.
+- `test_authority_probes.py::test_probe_er031_profile_is_labelled_proposed_and_not_adopted_and_makes_no_ratification_claim` (1 probe, `PROBE_AUTHORITY_DIR`). The sentence "Nothing here is ratified." in `process/implementation/public-stack-v0.1/AUTHORITY_CONTEXT.md` was wrapped so that a line began with `is ratified.`, and the probe reads line by line. The sentence now sits on one line (governance #55); the probe is unchanged and passes against governance main. Checkouts of the governance repository from before that change still show the wrapped line.
 
 ## Conditions that depend on the environment (documented, nothing edited)
 

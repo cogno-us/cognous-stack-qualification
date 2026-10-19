@@ -651,17 +651,18 @@
         "PROBE_PINS_DIR"
       ],
       "expected_count": 223,
-      "count_basis": "collected_at_inventory",
-      "status": "FAIL",
-      "state_note": "At qualification main as inventoried: 203 pass, 16 fail, 4 error. 12 fail by design (probes that state desired properties and register findings; red at the pinned revision and at main, B-06). 4 fail only because the checkout was shallow and 4 error because the index package install was missing (B-10, environment). State at main before T4a; being resolved.",
-      "known_limit": false,
-      "known_limit_count": null,
+      "count_basis": "collected_at_main",
+      "status": "PARTIAL",
+      "state_note": "Probe-state work item (T4a, #140) and its follow-ups (#141 and governance #55), measured with full git history and the index node install: 223 collected in 17 modules (the provenance probes are collected only with PROBE_PINS_DIR). Before T4a: 210 pass, 13 fail. Now: 6 authority-ra probes are strict expected failures recorded as registered findings (known limits, listed in suites/v1-probes/KNOWN_LIMITS.md). The 6 ODES probes failed only because the probe helper lagged the package envelope; the helper was corrected in #141 and the module passes at the frozen ODES pin and at ODES main. The authority wording probe failed on one wrapped line of a governance document; the line was reflowed in governance #55 and the probe, which is unchanged, passes against governance main. A recount of the whole suite after these two changes has not been run; the other modules are as T4a measured them. A strict expected failure is reported as skipped, so a requirement that selects those 6 cases stays inconclusive until its known-limit status is declared before a run.",
+      "known_limit": true,
+      "known_limit_count": 6,
       "requires": [
         "full git history",
         "npm ci for the index supersession probes"
       ],
-      "state_basis": "state at main before T4a; being resolved by a separate work item",
-      "being_resolved": true
+      "state_basis": "state at main after T4a and T4a-2; the recount of the whole suite and the controller handling of known limits remain",
+      "being_resolved": true,
+      "known_limits_file": "suites/v1-probes/KNOWN_LIMITS.md"
     },
     {
       "id": "X-02",
@@ -685,13 +686,14 @@
         "PROBE2_VERIFIER_DIR"
       ],
       "expected_count": 213,
-      "count_basis": "collected_at_inventory",
-      "status": "FAIL",
-      "state_note": "As inventoried: 191 run and 22 xfail. Against current heads 135 pass (controls); 56 strict-xfail probes now pass, which strict mode reports as failures (the designed signal to remove the mark); 22 remain xfail (B-01). State at main before T4a; being resolved.",
-      "known_limit": false,
-      "known_limit_count": null,
-      "state_basis": "state at main before T4a; being resolved by a separate work item",
-      "being_resolved": true
+      "count_basis": "collected_at_main",
+      "status": "PASS",
+      "state_note": "Measured twice at qualification main after T4a (#140): 191 passed, 22 xfailed, 0 failed (213 collected). The 56 marks that covered passing probes were removed, so those probes now run as controls. The 22 remaining probes are strict expected failures with a `known limit:` reason, listed with component and property in suites/fix2-probes/KNOWN_LIMITS.md (known-limit count 22). A decision per group (keep as known limit, revise the expectation, or harden the component) is pending; none of the 22 is a pass.",
+      "known_limit": true,
+      "known_limit_count": 22,
+      "state_basis": "state at main after T4a; the decision per known-limit group is pending",
+      "being_resolved": true,
+      "known_limits_file": "suites/fix2-probes/KNOWN_LIMITS.md"
     },
     {
       "id": "X-03",
@@ -1062,7 +1064,7 @@
   "blockers": [
     {
       "id": "B-01",
-      "summary": "fix2-probes: strict-xfail probes that now pass are reported as failures; some still xfail",
+      "summary": "fix2-probes: the 56 marks that covered passing probes were removed (T4a); 22 probes remain as recorded known limits, with a decision per group pending (keep, revise the expectation, or harden)",
       "state": "being_resolved"
     },
     {
@@ -1087,7 +1089,7 @@
     },
     {
       "id": "B-06",
-      "summary": "v1-probes: 12 probes are red by design and need a known-limit or resolved classification",
+      "summary": "v1-probes: 6 registered-finding probes are recorded as known limits; the 6 ODES probes and 1 wording probe were lags of a helper and of a document and are corrected; controller handling of known-limit results is pending",
       "state": "being_resolved"
     },
     {
