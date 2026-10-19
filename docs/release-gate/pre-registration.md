@@ -680,3 +680,18 @@ Form of an amendment: a heading `### Amendment N (YYYY-MM-DDTHH:MM:SSZ)` (UTC), 
 - **Text.** applicability.json stays at version 1.0.0 at catalog commit 1a0c72de (OD-11). The class of four cases (TC-L06-040, TC-L06-039, TC-L06-018, TC-L17-002) is restated by the reclassification amendments of this record; the effective class for the gate is the class of the file with those amendments applied.
 - **Reason.** OD-11 requires an amendment that restates affected rows before the file is changed; the file is not changed here.
 - **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 44 (2026-10-19T12:18:05Z)
+
+- **Action.** withdraw_known_limit
+- **Id.** `test_verifier_probes.py::test_probe_a_binding_member_changed_alone_is_refused_against_the_captured_inputs[journal-applied-requirement_id]`
+- **Text.** Withdrawal of the declaration for the verifier probe on the member `requirement_id`. The verifier now compares `binding.requirement_id` with the input id of every successful conflict read, so the limit as declared (checked against the proposal export and the destination ledger only) no longer describes the component. The strict expected-failure mark and the row in suites/fix2-probes/KNOWN_LIMITS.md are removed in the same change as this amendment; from the next run the probe is an ordinary test. The declaration for `effective_max_effects` is unchanged.
+- **Reason.** The verifier change is merged (verifier #32). The declaration of 8.1 anticipated this case (a follow-up on captured-input binding was open). The withdrawal is recorded before the mark is removed (DR-3, DR-7) and before the run; the probe is not changed.
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
+
+### Amendment 45 (2026-10-19T12:18:05Z)
+
+- **Action.** other
+- **Text.** The strict expected-failure marks of the fifteen attempt-identity probes (listed as not declared in 8.1) are removed once the pin round moves the ODES pin to the revision that refuses a result naming no registered attempt. They were never declared, so no withdrawal applies; from the next run the fifteen are ordinary tests.
+- **Reason.** ODES #127 is merged. Recorded so that the removal is visible in the record before the run (OD-7).
+- **By.** the coordinator, owner-approved delegate for declarations (decision OD-10)
