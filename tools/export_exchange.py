@@ -14,7 +14,7 @@ import sys
 from xml.etree import ElementTree
 
 from trajectory_contract import ROOT, validate_record
-from safe_paths import assert_plain_tree, resolve_regular_file, safe_relative_name
+from safe_paths import assert_plain_tree, resolve_regular_file
 from pristine_checkout import require_pristine
 from verify_exchange import verify
 

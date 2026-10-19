@@ -10,7 +10,6 @@ import argparse
 from collections import Counter
 from datetime import datetime, timezone
 from decimal import Decimal
-import hashlib
 import http.client
 import json
 import os
@@ -18,9 +17,8 @@ from pathlib import Path
 import sqlite3
 import subprocess
 import sys
-import time
 import uuid
-from trajectory_contract import ROOT, digest, file_digest
+from trajectory_contract import ROOT, digest
 from run_serial_qualification import git, source, load_fixture, native_events
 
 MODEL='claude-opus-5-5'

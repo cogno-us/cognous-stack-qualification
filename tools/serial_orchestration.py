@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 import subprocess
-from trajectory_contract import ROOT, digest, file_digest, validate_record
+from trajectory_contract import ROOT, file_digest, validate_record
 
 STATUSES={'PLANNED','READY','IN PROGRESS','BLOCKED','IN REVIEW','ACCEPTED','INTEGRATED'}
 
