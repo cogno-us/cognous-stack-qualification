@@ -12,9 +12,9 @@ Cross-component test scenarios, executable test suites and qualification evidenc
 
 - **696 specifications, all NOT RUN:** 40 Cognous cases (9 deterministic, 6 agent-behavior, 2 human-oversight, 23 supplemental) and 656 AI Security Wiki reference cases. They stay NOT RUN until the controller runs and a result is mapped to executed evidence.
 - **Wiki applicability is classified:** all 656 Wiki cases are assessed against the declared scope in [`scenarios/ai-security-wiki/applicability.json`](scenarios/ai-security-wiki/APPLICABILITY.md): 20 APPLICABLE, 45 PARTLY_COVERED and 591 NOT_APPLICABLE. 65 cases are in scope. A classification is not a verdict. A case added by a later upstream refresh has no classification until it is assessed.
-- **Executable suites:** 16 suite directories under [`suites/`](suites/README.md): seven relocated from component repositories and nine written here. [`suites/wiki-derived`](suites/wiki-derived/README.md) holds 288 collected tests for 61 of the 65 in-scope cases (20 of the 20 APPLICABLE and 41 PARTLY_COVERED).
+- **Executable suites:** 16 suite directories under [`suites/`](suites/README.md): seven relocated from component repositories and nine written here. [`suites/wiki-derived`](suites/wiki-derived/README.md) holds 290 collected tests for 61 of the 65 in-scope cases (20 of the 20 APPLICABLE and 41 PARTLY_COVERED).
 - **Release test inventory:** [docs/test-inventory.md](docs/test-inventory.md) (machine-readable twin [process/release-gate/inventory.json](process/release-gate/inventory.json)) lists every suite of the release test gate with command, count, environment, state and known limits. It is an inventory, not a result; it states that the gate is not met today and lists the blockers.
-<!-- pin-round: the counts above (suite directories, 288 tests, 61 of 65) change when suites land; refresh them with the inventory -->
+<!-- pin-round: the counts above (suite directories, 290 tests, 61 of 65) change when suites land; refresh them with the inventory -->
 
 ## Where this repository sits in the stack
 
@@ -80,14 +80,14 @@ python -m pytest -q -p no:cacheprovider suites/wiki-derived
 5 passed, 176 skipped
 ```
 
-**3. Run the repository's own tests** (about a minute and a half; this is what the catalog-validation workflow runs):
+**3. Run the repository's own tests** (under two minutes; this is what the catalog-validation workflow runs):
 
 ```bash
 python -m unittest discover -s tests
 ```
 
 ```text
-Ran 302 tests in 94.302s
+Ran 410 tests in 107.294s
 
 OK (skipped=1)
 ```
