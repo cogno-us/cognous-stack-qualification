@@ -30,8 +30,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "suites"))
 import _pins  # noqa: E402  (the one source of pins: freeze manifest + refreeze overlay)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import declared_limits as DL  # noqa: E402  (declared known limits, read from the committed pre-registration twin)
 STATUSES = ("PASS", "FAIL", "INCONCLUSIVE", "NOT RUN", "NOT APPLICABLE")
 MAX_RETAINED_LOG = 5 * 1024 * 1024  # bytes of gzip retained per log
+# Per-component pytest timeout. A timeout is INCONCLUSIVE, so it must sit well above the slowest suite: measured on a
+# development host, gax_imx_transport takes about 167 s, constitutional_authority about 131 s and ODES runs about 3000
+# tests; a shared runner can be several times slower. 900 s leaves a factor of five over the slowest measured suite.
+# A freeze-manifest entry may still set its own test_timeout_seconds. The job-level limit of the workflow (40 minutes)
+# covers one 900 s attempt plus setup; a timed-out attempt is not retried.
+DEFAULT_TEST_TIMEOUT_SECONDS = 900
+# Components whose own tests skip unless a pinned sibling component is installed (skips are INCONCLUSIVE rows).
+# component key -> ((sibling key, pip targets tried in order, relative to the sibling checkout), ...)
+SIBLING_PROVISIONING = {
+    "moltbot_safe": (("control_plane", (".[runtime-authority]", ".")),),  # runtime tests need the Control Plane local-authority-effect contract
+    "odes": (("replay_bundle", (".",)),),                                  # ODES tests need the accepted Replay revision installed
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -83,7 +97,7 @@ def cmd_plan(args):
             for py in pys:
                 include.append({"component": key, "group": group, "repository": spec["repository"],
                                 "sha": spec["sha"], "os": os_name, "python": py,
-                                "timeout": int(spec.get("test_timeout_seconds", 300))})
+                                "timeout": int(spec.get("test_timeout_seconds", DEFAULT_TEST_TIMEOUT_SECONDS))})
     out = {"include": include}
     text = json.dumps(out, separators=(",", ":"))
     if args.out_file:
@@ -249,6 +263,44 @@ def retain_log(text: str, dest: Path):
     return info
 
 
+def _resolve_pin_file(explicit, env_name):
+    value = explicit or os.environ.get(env_name)
+    if not value:
+        return None
+    path = Path(value)
+    if not path.is_absolute():
+        path = ROOT / path
+    if not path.is_file():
+        raise RuntimeError(f"{env_name or 'pins file'} names {value}, which is not a file")
+    return path
+
+
+def provision_siblings(component, siblings_root, manifest_path, refreeze_log, fetch=None):
+    """Fetch the exact pinned sibling components a component's tests need and return their records (pins in force: manifest plus overlay).
+
+    Raises RuntimeError when a sibling cannot be resolved or fetched at its pin; nothing is installed here."""
+    fetch = fetch or fetch_exact
+    wanted = SIBLING_PROVISIONING.get(component, ())
+    if not wanted:
+        return []
+    if manifest_path is None:
+        raise RuntimeError("no freeze manifest for the sibling pins (pass --pins-manifest or set MANIFEST)")
+    manifest, _ = load_resolved(manifest_path, refreeze_log)
+    specs = {key: spec for _, key, spec in all_components(manifest)}
+    records = []
+    for key, targets in wanted:
+        if key not in specs:
+            raise RuntimeError(f"sibling {key} is not in the freeze manifest")
+        spec = specs[key]
+        dest = Path(siblings_root) / key
+        actual = fetch(dest, spec["repository"], spec["sha"])
+        if actual != spec["sha"]:
+            raise RuntimeError(f"sibling {key} resolved to {actual}, not its pin {spec['sha']}")
+        records.append({"component": key, "repository": spec["repository"], "pinned_sha": spec["sha"], "actual_sha": actual,
+                        "dir": str(dest), "targets": list(targets)})
+    return records
+
+
 def cmd_component_suite(args):
     repo = Path(args.repo_dir).resolve()
     if args.fetch:
@@ -265,6 +317,20 @@ def cmd_component_suite(args):
         result.update(status="FAIL", classification="setup/harness defect", reason="checked-out commit differs from pin")
         (out / "result.json").write_text(json.dumps(result, indent=2) + "\n")
         sys.exit(1)
+    siblings = []
+    if args.component in SIBLING_PROVISIONING:
+        if args.no_siblings:
+            result["siblings"] = "disabled by --no-siblings"
+        else:
+            try:
+                manifest_path = _resolve_pin_file(args.pins_manifest, "MANIFEST")
+                log_path = _resolve_pin_file(args.refreeze_log, "REFREEZE_LOG")
+                siblings = provision_siblings(args.component, repo.parent / (repo.name + "-siblings"), manifest_path, log_path)
+                result["siblings"] = [{k: v for k, v in sb.items() if k != "targets"} for sb in siblings]
+            except Exception as exc:  # noqa: BLE001 - recorded, never hidden
+                result.update(status="FAIL", classification="setup/harness defect", reason=f"sibling provisioning failed: {str(exc)[:500]}")
+                (out / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+                sys.exit(1)
     # inventory (independent of whether tests can run)
     tests_dirs = [str(p.relative_to(repo)).replace("\\", "/") for p in repo.rglob("test*") if p.is_dir() and ".git" not in p.parts and "node_modules" not in p.parts][:50]
     test_files = sorted(str(p.relative_to(repo)).replace("\\", "/") for p in repo.rglob("test_*.py") if ".git" not in p.parts and "node_modules" not in p.parts)
@@ -287,6 +353,18 @@ def cmd_component_suite(args):
             installs = []
             fh.write(f"==== attempt {attempt}\n")
             run([py, "-m", "pip", "install", "-q", "pytest"], repo, 600, fh)
+            sibling_installs = []
+            for sb in siblings:  # pinned siblings first: the component's own requirements are installed afterwards and keep precedence
+                installed = False
+                for target in sb["targets"]:
+                    rc, _, _, _ = run([py, "-m", "pip", "install", "-q", f"{sb['dir']}{'' if target == '.' else target[1:]}"], repo, 900, fh)
+                    sibling_installs.append({"sibling": sb["component"], "target": target, "rc": rc})
+                    installed = rc == 0
+                    if installed:
+                        break
+                setup_ok = setup_ok and installed
+            if sibling_installs:
+                rec["sibling_installs"] = sibling_installs
             if (repo / "pyproject.toml").exists() or (repo / "setup.py").exists():
                 for extra in (".[dev,test]", ".[dev]", ".[test]", "."):
                     rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-e", extra], repo, 900, fh)
@@ -467,8 +545,24 @@ def scope_reduction_block(requirements):
                       "final_status": r["status"], "declared_final_status": r["scope_reduction"].get("final_status"), "mandatory": bool(r.get("mandatory", True))} for r in moved]}
 
 
-def load_junit_index(inputs: Path, results):
-    """component -> list of (classname, name, outcome). Only Linux/3.12 component runs plus single-instance jobs count as selector evidence."""
+def _case_info(tc):
+    """The detailed outcome of one JUnit testcase: passed, failed, skipped, or xfailed (a strict or plain expected failure that failed).
+
+    A strict xfail that passes is written by pytest as a failure with an XPASS(strict) message; it is kept as failed and flagged."""
+    fail = tc.find("failure") if tc.find("failure") is not None else tc.find("error")
+    if fail is not None:
+        unexpected = "XPASS(strict)" in (fail.get("message") or "")
+        return {"kind": "failed", "unexpected_pass": unexpected}
+    sk = tc.find("skipped")
+    if sk is not None:
+        return {"kind": "xfailed" if sk.get("type") == "pytest.xfail" else "skipped", "unexpected_pass": False}
+    return {"kind": "passed", "unexpected_pass": False}
+
+
+def load_junit_index(inputs: Path, results, detail=False):
+    """component -> list of (classname, name, outcome). Only Linux/3.12 component runs plus single-instance jobs count as selector evidence.
+
+    With detail=True each tuple carries a fourth member, the _case_info dict (xfailed vs skipped, unexpected strict pass)."""
     index = {}
     for r in results:
         comp = r.get("component")
@@ -483,41 +577,98 @@ def load_junit_index(inputs: Path, results):
                 continue
             for tc in root.iter("testcase"):
                 out = "failed" if (tc.find("failure") is not None or tc.find("error") is not None) else "skipped" if tc.find("skipped") is not None else "passed"
-                index.setdefault(comp, []).append((tc.get("classname", ""), tc.get("name", ""), out))
+                row = (tc.get("classname", ""), tc.get("name", ""), out)
+                index.setdefault(comp, []).append(row + (_case_info(tc),) if detail else row)
     return index
 
 
-def evaluate_requirements(doc, index, job_status):
-    """Compute each requirement's status from executed evidence. A requirement is PASS only when adequate evidence executed and passed."""
+def _kind(t):
+    return t[3]["kind"] if len(t) > 3 else t[2]
+
+
+def evaluate_requirements(doc, index, job_status, declared=None):
+    """Compute each requirement's status from executed evidence. A requirement is PASS only when adequate evidence executed and passed.
+
+    declared: the record of declared_limits.load() or None. With a record, a `tests` row is computed over the matched cases that are NOT
+    declared known limits: an undeclared failure is FAIL, an undeclared skip (a strict xfail counts as skipped) is INCONCLUSIVE.
+    The minimum of every selector is still measured over ALL matched cases. Declared cases matched by the row are listed with their
+    actual outcome (DECLARED-LIMIT); a declared test the row's selector would match but that was not run is listed as NOT RUN.
+    When every case a selector matched is declared (zero undeclared cases remain) the row is INCONCLUSIVE, never PASS.
+    A declared strict expected failure that passes (XPASS) makes the row FAIL; a declared test the row would select that was not run makes it INCONCLUSIVE.
+    Without a record (declared=None) nothing is declared and the rule is the one in force before declared limits were reported.
+    """
+    dmap = DL.by_component(declared) if declared is not None else {}
     evaluated = []
     for r in doc.get("requirements", []):
         r = dict(r)
         kind = r.get("kind", "tests")
         r.setdefault("mandatory", True)
         if kind == "tests":
-            hits, fails, skips, detail = 0, 0, 0, []
+            hits, fails, skips, undeclared_total, detail = 0, 0, 0, 0, []
+            listed, not_run, conditions, zero_undeclared, xpassed = {}, {}, [], [], []
             for sel in r.get("selectors", []):
                 rx = re.compile(sel["re"], re.I)
-                m = [t for t in index.get(sel["component"], []) if rx.search(f"{t[0]}::{t[1]}")]
-                f = [t for t in m if t[2] == "failed"]
-                k = [t for t in m if t[2] == "skipped"]
-                hits += len(m); fails += len(f); skips += len(k)
-                detail.append({"component": sel["component"], "re": sel["re"], "matched": len(m), "failed": len(f), "skipped": len(k), "min": sel.get("min", 1),
-                               "failed_tests": [f"{t[0]}::{t[1]}" for t in f][:10]})
+                comp = sel["component"]
+                cases = index.get(comp, [])
+                declared_here = dmap.get(comp, {})
+                m = [t for t in cases if rx.search(f"{t[0]}::{t[1]}")]
+                dm = [t for t in m if (t[0], t[1]) in declared_here]
+                um = [t for t in m if (t[0], t[1]) not in declared_here]
+                f = [t for t in um if t[2] == "failed"]
+                k = [t for t in um if t[2] == "skipped"]
+                hits += len(m); fails += len(f); skips += len(k); undeclared_total += len(um)
+                row_detail = {"component": comp, "re": sel["re"], "matched": len(m), "failed": len(f), "skipped": len(k), "min": sel.get("min", 1),
+                              "failed_tests": [f"{t[0]}::{t[1]}" for t in f][:10]}
+                if declared is not None:
+                    row_detail.update(declared_matched=len(dm), undeclared_matched=len(um))
+                detail.append(row_detail)
+                if dm and not um:
+                    zero_undeclared.append(f"{comp}/{sel['re']}")
+                for t in dm:
+                    info = t[3] if len(t) > 3 else {"kind": t[2], "unexpected_pass": False}
+                    entry = declared_here[(t[0], t[1])]
+                    listed[(comp, t[0], t[1])] = {"label": "DECLARED-LIMIT", "component": comp, "test": f"{t[0]}::{t[1]}", "declaration_id": entry["id"],
+                                                  "outcome": info["kind"], "unexpected_pass": bool(info.get("unexpected_pass"))}
+                    if info.get("unexpected_pass"):
+                        xpassed.append(f"{t[0]}::{t[1]}")
+                        conditions.append(f"declared test passed unexpectedly (strict expected failure XPASS): {t[0]}::{t[1]}")
+                present = {(t[0], t[1]) for t in cases}
+                for key, entry in declared_here.items():
+                    if key not in present and rx.search(f"{key[0]}::{key[1]}"):
+                        not_run[(comp, key[0], key[1])] = {"label": "DECLARED-LIMIT", "component": comp, "test": f"{key[0]}::{key[1]}",
+                                                           "declaration_id": entry["id"], "outcome": "NOT RUN"}
             short = any(d["matched"] < d["min"] for d in detail)
             r["selector_results"] = detail
             r["executed_cases"] = hits
+            if declared is not None:
+                r["undeclared_cases"] = undeclared_total
+                r["declared_limit_cases"] = sorted(listed.values(), key=lambda x: x["test"])
+                r["declared_not_run"] = sorted(not_run.values(), key=lambda x: x["test"])
+                conditions += [f"declared test not run: {x['test']}" for x in r["declared_not_run"]]
             if fails:
                 r["status"] = "FAIL"; r.setdefault("classification", "product defect")
+            elif xpassed:
+                r["status"] = "FAIL"; r.setdefault("classification", "declared strict expected failure passed")
+                r["reason"] = "a declared strict expected failure passed unexpectedly (DR-7): " + ", ".join(xpassed)
             elif short:
                 r["status"] = "INCONCLUSIVE"; r["reason"] = "selector matched fewer executed cases than required (job missing or selector defective)"
             elif skips:
                 r["status"] = "INCONCLUSIVE"; r["reason"] = "matched cases were skipped"
+            elif r.get("declared_not_run"):
+                r["status"] = "INCONCLUSIVE"
+                r["reason"] = "a declared test that a selector of the row would match was not run: " + ", ".join(x["test"] for x in r["declared_not_run"])
+            elif zero_undeclared:
+                r["status"] = "INCONCLUSIVE"
+                r["reason"] = ("every case matched by selector " + ", ".join(zero_undeclared) + " is a declared known limit: zero undeclared cases remain, "
+                               "so the row is not reported as PASS")
+                conditions.append("zero undeclared cases remain for selector " + ", ".join(zero_undeclared))
             elif r.get("adequacy", "adequate") == "adequate":
                 r["status"] = "PASS"; r["provenance"] = r.get("provenance", "NEW EXECUTION")
             else:
                 r["status"] = "INCONCLUSIVE"
                 r["reason"] = "matched cases passed but are declared inadequate for the full requirement: " + r.get("adequacy_note", "partial coverage")
+            if declared is not None:
+                r["reportable_conditions"] = conditions
         elif kind == "job":
             st = job_status.get(r["component"])
             r["status"] = st if st in ("PASS", "FAIL") else "INCONCLUSIVE"
@@ -539,6 +690,43 @@ def requirements_markdown(reqs):
         note = (r.get("reason") or r.get("not_applicable_reason") or r.get("classification") or "")[:160].replace("|", "/")
         lines.append(f"| {r['id']} | {r.get('source','')} | {r['status']} | {'yes' if r['mandatory'] else 'no'} | {r.get('provenance','')} | {r.get('executed_cases','')} | {note} |")
     return "\n".join(lines) + "\n"
+
+
+def declared_limit_rows(reqs):
+    """Rows that carry declared known limits (matched or NOT RUN) or a reportable condition, in matrix order."""
+    return [r for r in reqs if r.get("declared_limit_cases") or r.get("declared_not_run") or r.get("reportable_conditions")]
+
+
+def declared_limits_markdown(reqs):
+    lines = []
+    for r in declared_limit_rows(reqs):
+        lines.append(f"- **{r['id']}** ({r['status']}, mandatory: {'yes' if r['mandatory'] else 'no'}; {r.get('undeclared_cases', 0)} undeclared case(s) counted)")
+        for c in r.get("declared_limit_cases", []):
+            lines.append(f"  - DECLARED-LIMIT `{c['test']}` ({c['component']}): {c['outcome']}" + (" - UNEXPECTED PASS of a strict expected failure" if c["unexpected_pass"] else ""))
+        for c in r.get("declared_not_run", []):
+            lines.append(f"  - DECLARED-LIMIT `{c['test']}` ({c['component']}): NOT RUN")
+        for cond in r.get("reportable_conditions", []):
+            lines.append(f"  - reportable condition: {cond}")
+    return "\n".join(lines) + ("\n" if lines else "")
+
+
+def declared_limits_block(record, reqs, index):
+    """Report block: the declared set that was used (with its hash), the state of every declaration the controller can match, and the rows."""
+    states = []
+    for e in record["entries"]:
+        if e["kind"] == "test" and e["component"]:
+            cases = [t for t in index.get(e["component"], []) if t[0] == e["classname"] and t[1] == e["name"]]
+            outcome = ",".join(sorted({(t[3]["kind"] if len(t) > 3 else t[2]) for t in cases})) if cases else "NOT RUN"
+            states.append({"id": e["id"], "component": e["component"], "test": f"{e['classname']}::{e['name']}", "outcome": outcome})
+    rows = declared_limit_rows(reqs)
+    return {"note": "declared known limits are listed beside the rows they fall in; a tests row is computed over the matched cases that are not declared, "
+                    "selector minimums are measured over all matched cases, and a row whose selector matched only declared cases is INCONCLUSIVE",
+            "declared_set_sha256": record["declared_set_sha256"], "twin": record["twin"], "match_rule": record["match_rule"], "counts": record["counts"],
+            "entries": record["entries"], "matchable_states": states,
+            "rows": [{"id": r["id"], "status": r["status"], "mandatory": r["mandatory"], "undeclared_cases": r.get("undeclared_cases"),
+                      "declared_limit_cases": r.get("declared_limit_cases", []), "declared_not_run": r.get("declared_not_run", []),
+                      "reportable_conditions": r.get("reportable_conditions", [])} for r in rows],
+            "reportable_conditions": [{"id": r["id"], "condition": c} for r in rows for c in r.get("reportable_conditions", [])]}
 
 
 VALIDATION_ID_RE = re.compile(r"^v1-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$")
@@ -596,6 +784,11 @@ def cmd_aggregate(args):
     if not VALIDATION_ID_RE.fullmatch(str(args.validation_id)):
         raise SystemExit("invalid validation id")
     inputs = Path(args.inputs)
+    try:
+        declared = DL.load(getattr(args, "declared_twin", None), require_committed=getattr(args, "require_committed_twin", False),
+                           declared_set_file=getattr(args, "declared_set", None))
+    except (DL.DeclaredSetError, OSError, ValueError, KeyError) as exc:
+        raise SystemExit(f"refusing to aggregate: declared known limits cannot be taken from the committed twin: {exc}")
     results, freeze, expected = collect_control_records(inputs)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -619,9 +812,12 @@ def cmd_aggregate(args):
     if args.requirements and Path(args.requirements).exists():
         req_doc = json.loads(Path(args.requirements).read_text(encoding="utf-8"))
         job_status = {r.get("component"): r.get("status") for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
-        requirements = evaluate_requirements(req_doc, load_junit_index(inputs, results), job_status)
-        (out / "requirements-matrix.json").write_text(json.dumps({"schema": "cognous.v1-validation-matrix/1", "validation_id": args.validation_id, "requirements": requirements}, indent=2) + "\n", encoding="utf-8")
-        (out / "requirements-matrix.md").write_text(requirements_markdown(requirements), encoding="utf-8")
+        junit_index = load_junit_index(inputs, results, detail=True)
+        requirements = evaluate_requirements(req_doc, junit_index, job_status, declared)
+        (out / "requirements-matrix.json").write_text(json.dumps({"schema": "cognous.v1-validation-matrix/1", "validation_id": args.validation_id,
+                                                                  "declared_set_sha256": declared["declared_set_sha256"], "requirements": requirements}, indent=2) + "\n", encoding="utf-8")
+        (out / "requirements-matrix.md").write_text(requirements_markdown(requirements) + "\nDeclared set sha256: `" + declared["declared_set_sha256"] + "`\n"
+                                                    + ("\n### Declared known limits beside their rows\n\n" + declared_limits_markdown(requirements) if declared_limit_rows(requirements) else ""), encoding="utf-8")
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
                "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": (freeze or {}).get("status", "NOT RUN"),
                "job_status_counts": counts, "expected_jobs": len(expected), "missing_jobs": len(missing), "jobs": rows,
@@ -631,6 +827,7 @@ def cmd_aggregate(args):
                "requirement_status_by_source_class": {sc: {st: sum(1 for r in requirements if r.get("source_class", "docx-or-catalog") == sc and r["status"] == st) for st in STATUSES} for sc in sorted({r.get("source_class", "docx-or-catalog") for r in requirements})},
                "mandatory_requirement_status_counts": {st: sum(1 for r in requirements if r["status"] == st and r["mandatory"]) for st in STATUSES}}
     if requirements:
+        summary["declared_limits"] = declared_limits_block(declared, requirements, junit_index)
         summary["full_catalog_status"] = full_catalog_status(requirements)
         summary["scope_reduction"] = scope_reduction_block(requirements)
     if freeze is None or freeze.get("status") != "PASS":
@@ -655,12 +852,31 @@ def cmd_aggregate(args):
             lines += [f"| {x['id']} | {x['decision']} | {x['category']} | {x['final_status']} |" for x in sr["rows"]]
         else:
             lines += ["No rows are scope-reduced."]
+    if requirements:
+        dl = summary["declared_limits"]
+        lines += ["", f"### Declared known limits (declared set sha256 `{dl['declared_set_sha256']}`; twin sha256 `{dl['twin']['sha256']}`, {dl['twin']['source']}; "
+                      f"{dl['counts']['entries']} declarations, {dl['counts']['matchable_by_controller']} matchable by the controller)", ""]
+        lines += [declared_limits_markdown(requirements).rstrip() or "No row carries a declared known limit.", ""]
+        if dl["reportable_conditions"]:
+            lines += [f"Reportable conditions: {len(dl['reportable_conditions'])} (listed above per row)."]
     md = "\n".join(lines) + "\n"
     (out / "summary.md").write_text(md, encoding="utf-8")
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:
             fh.write(md)
     print(md)
+
+
+def cmd_declared_set(args):
+    try:
+        record = DL.load(args.declared_twin, require_committed=not args.allow_uncommitted_twin)
+    except (DL.DeclaredSetError, OSError, ValueError, KeyError) as exc:
+        raise SystemExit(f"declared set cannot be derived: {exc}")
+    text = json.dumps(record, indent=2) + "\n"
+    if args.out:
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(text, encoding="utf-8")
+    print(text)
 
 
 def main():
@@ -677,8 +893,11 @@ def main():
     p = sub.add_parser("component-suite")
     for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name"):
         p.add_argument(a, required=True)
-    p.add_argument("--timeout", type=int, default=300)
+    p.add_argument("--timeout", type=int, default=DEFAULT_TEST_TIMEOUT_SECONDS)
     p.add_argument("--fetch", action="store_true", help="fetch the exact pinned commit into --repo-dir first")
+    p.add_argument("--pins-manifest", default=None, help="freeze manifest that names the sibling pins (default: $MANIFEST, relative to the checkout of this tool)")
+    p.add_argument("--refreeze-log", default=None, help="overlay for the sibling pins (default: $REFREEZE_LOG; the file must exist when the variable is set)")
+    p.add_argument("--no-siblings", action="store_true", help="local use: do not provision pinned sibling components (the row skips they cause stay INCONCLUSIVE)")
     p.set_defaults(fn=cmd_component_suite)
     p = sub.add_parser("probe-suite")
     for a in ("--component", "--repo-dir", "--out", "--os-name", "--suite"):
@@ -696,8 +915,16 @@ def main():
     p = sub.add_parser("aggregate")
     p.add_argument("--inputs", required=True); p.add_argument("--out", required=True)
     p.add_argument("--validation-id", required=True); p.add_argument("--requirements")
+    p.add_argument("--declared-twin", default=None, help="pre-registration twin to read declared known limits from (default: the repository twin)")
+    p.add_argument("--declared-set", default=None, help="a declared-set record written by the declared-set subcommand; the aggregate refuses to run if it differs from the set derived from the twin")
+    p.add_argument("--allow-uncommitted-twin", action="store_true", help="local use only: accept a twin that differs from its copy at git HEAD (the default refuses)")
     p.set_defaults(fn=cmd_aggregate)
+    p = sub.add_parser("declared-set", help="print the declared-set record (entries and sha256) derived from the committed twin; reads no results")
+    p.add_argument("--declared-twin", default=None); p.add_argument("--out", default=None); p.add_argument("--allow-uncommitted-twin", action="store_true")
+    p.set_defaults(fn=cmd_declared_set)
     args = ap.parse_args()
+    if args.cmd == "aggregate":
+        args.require_committed_twin = not args.allow_uncommitted_twin
     args.fn(args)
 
 
