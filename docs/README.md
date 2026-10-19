@@ -16,6 +16,7 @@ Back to the [repository README](../README.md).
 |---|---|---|
 | [Release test inventory](test-inventory.md) | Every suite of the release test gate: command, count, environment, state, known limits, blockers. Twin: [`process/release-gate/inventory.json`](../process/release-gate/inventory.json) | current (an inventory, not a result) |
 | [Release gate pre-registration](release-gate/pre-registration.md) | The publication criteria, definitions, comparator subset, scoring, declared known limits, reporting format and run order, recorded before any run. Twin: [`process/release-gate/preregistration.json`](../process/release-gate/preregistration.json) | current (registered before any run; changed only by appended amendments) |
+| [Release gate environment](release-gate/environment.md) | How `tools/rc_env.py` rebuilds the pinned producer environment of a delegated workflow (checkouts at exact commits, suite overlay, virtual environments, variables) and checks it against the pins; what it removes from the skip and failure counts | current |
 | [Execution and evidence contract](execution-contract.md) | What a run must pin and record; gates and metrics | proposed |
 | [Source provenance](sources.md) | Where the catalog came from and what its scope is | current |
 | [Serial qualification packet](serial-qualification.md) | The T0 program of named deterministic variants; human oversight is NOT EVALUATED | current |
