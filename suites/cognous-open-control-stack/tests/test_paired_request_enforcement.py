@@ -17,6 +17,8 @@ from pathlib import Path
 
 import pytest
 
+from tools.optional_execution_profile import historical_fixture_workflow
+
 ROOT = Path(__file__).resolve().parents[1]
 NOW = datetime(2026, 8, 8, 1, tzinfo=timezone.utc)
 LATE = datetime(2026, 8, 10, 1, tzinfo=timezone.utc)
@@ -323,7 +325,8 @@ def _accepted(
 
     destination = runtime["DurableRefundDestination"](root / "destination")
     records = cp.BoundedRecordStore(root / record_name, "worker22-" + norm["operation_identity"])
-    workflow = cp.BoundedAuthorizationWorkflow(
+    workflow = historical_fixture_workflow(
+        cp.BoundedAuthorizationWorkflow,
         manifest=manifest,
         resolver=resolver,
         destination=destination,
@@ -436,6 +439,24 @@ def _accepted(
     }
 
 
+#: Reasons a decision takes when every status read is judged against a clock that does not match the 2026-08-08 fixtures.
+_FIXTURE_CLOCK_MISMATCH = ("grant_outside_validity",)
+
+
+def _require_fixture_clock(case_id, accepted_result):
+    """A deny case must not pass because the whole scenario was held on a stale clock rather than for its own reason.
+
+    Every decision here is taken at NOW, when every fixture is valid (expired-grant-or-evidence is refused later, at effect
+    time), so it must carry the caller-supplied (test) clock and must not cite a stale-or-future status.
+    """
+    decision = ((accepted_result or {}).get("authorization") or {}).get("decision") or {}
+    if not decision:
+        return
+    assert decision.get("time_source") != "control_plane", (case_id, decision.get("time_source"))
+    stale = [r for r in decision.get("reasons", []) if r.endswith("_stale_or_future") or r in _FIXTURE_CLOCK_MISMATCH]
+    assert not stale, (case_id, stale)
+
+
 def _write_case(
     case_id,
     raw,
@@ -457,6 +478,7 @@ def _write_case(
         error = str(exc)
 
     pairing = verify_pairing(raw, baseline_result, accepted_result) if schema_valid else None
+    _require_fixture_clock(case_id, accepted_result)
     record = {
         "case_id": case_id,
         "scheduled": True,

@@ -63,6 +63,7 @@ def notification_case(root, work):
     from engine.safe_executor import commitment
     from experiments.odex_gax_imx_reference.synthetic_fixture import build_synthetic_resolver, synthetic_observation_policy
     from agent_control_plane.bounded import BoundedAuthorizationWorkflow, BoundedRecordStore
+    from tools.optional_execution_profile import historical_fixture_workflow
     workflow, resolver, proposal, decision, envelope, policy = setup(root, work)
     refund = AtomicAuthorityEffectDestination(root / 'refund', clock=lambda: BASE)
     executor = AtomicLocalControlPlaneExecutor(workflow=workflow, destination=refund, policy=policy)
@@ -108,7 +109,7 @@ def notification_case(root, work):
     for key,value in authority.conflicts.items():
         authority.conflicts[key] = value.model_copy(update=dict(conflict_refs=[policy_ref]))
     destination = NotificationOutbox(root / 'outbox.sqlite3', refund_database=refund.path, clock=lambda: BASE)
-    notification = BoundedAuthorizationWorkflow(manifest=manifest,resolver=authority,destination=destination,
+    notification = historical_fixture_workflow(BoundedAuthorizationWorkflow,manifest=manifest,resolver=authority,destination=destination,
         records=BoundedRecordStore(root / 'notification-records.json','notification-run'),observation_policy=synthetic_observation_policy())
     d = notification.decide(p, now=BASE)
     if d.result != 'authorized': raise RuntimeError(str(d.reasons))

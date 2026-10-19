@@ -21,12 +21,15 @@ NAMES = ("action_manifest", "control_plane", "gax_imx_transport", "moltbot_safe"
 EXPECTED_BASELINE = "f801546d5272104b02a240e1126b3f92f26486f2"
 
 EXPECTED_PINS = {
-    "action_manifest": "46c950bed37fe3812000895430bc0312d29e37ce",
-    "control_plane": "d3dadee70bd319812b207389ab1e0f6efe511916",
-    "gax_imx_transport": "a1cbc7b28f702283b0e4f3192bb43e4a9e618ebf",
-    "moltbot_safe": "c3c3ee7188b9367cf70b08074b9c40a5c70c94ac",
-    "replay_bundle": "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa",
+    "action_manifest": "ff5490828b2bf7f6a976da209f3f533701855687",
+    "control_plane": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+    "gax_imx_transport": "bf314f3884e60629c844b1d6cb248f4d76b31c1a",
+    "moltbot_safe": "c4a05883266b815f39d97cbf2240406647985147",
+    "replay_bundle": "2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00",
 }
+# The only matrix case that is not evaluable by design (it submits an invalid request). Every other scheduled case must
+# produce an evaluable record, so a deny case cannot pass because the whole scenario was held for an unrelated reason.
+NON_EVALUABLE_BY_DESIGN = frozenset({"malformed-input"})
 
 
 def validate_selected_pins(lock):
@@ -38,6 +41,10 @@ def validate_selected_pins(lock):
     }
     if selected != EXPECTED_PINS:
         raise RuntimeError("selected baseline pins changed; qualify a new baseline explicitly")
+
+
+sys.path.insert(0, str(ROOT))
+from tools.optional_execution_profile import strict_source_paths  # noqa: E402
 
 
 def run(cmd, *, cwd=None, env=None, timeout=180):
@@ -143,14 +150,19 @@ def main():
     if dependency_install["returncode"]:
         raise RuntimeError(dependency_install["output"])
 
+    # Strict-source runtime profiles verify Replay Bundle, ODES and the Evidence Pack (and jsonschema) before import.
+    strict_paths = strict_source_paths(LOCK, WORK, clone=True)
+
     env = os.environ.copy()
     env["GAX_RUNTIME_COMPATIBILITY_PROFILE"] = LOCK["runtime_profile"]
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
     env["PYTHONPATH"] = os.pathsep.join(
         [
             str(ROOT),
             str(components["control_plane"] / "src"),
             str(components["gax_imx_transport"]),
             str(components["moltbot_safe"]),
+            *strict_paths,
             env.get("PYTHONPATH", ""),
         ]
     )
@@ -209,6 +221,8 @@ def main():
         if case.get("scheduled") is True and case.get("qualification_passed") is False
     ]
     evaluable = sum(1 for case in cases if case.get("evaluable") is True)
+    evaluable_ids = {case.get("case_id") for case in cases if case.get("evaluable") is True}
+    expected_evaluable_ids = scheduled_ids - NON_EVALUABLE_BY_DESIGN
 
     summary = {
         "schema_version": "1.1.0",
@@ -221,6 +235,7 @@ def main():
         "matrix": "scenarios/paired-request-enforcement-matrix.v2.json",
         "scheduled_cases": len(matrix["cases"]),
         "evaluable_cases": evaluable,
+        "expected_evaluable_cases": len(expected_evaluable_ids),
         "case_records": cases,
         "missing_case_records": missing,
         "unexpected_case_records": unexpected,
@@ -231,6 +246,7 @@ def main():
             and not missing
             and not unexpected
             and not failed_records
+            and evaluable_ids == expected_evaluable_ids
         ),
         "claim_limits": [
             "constructed unsafe requests are not observed model compromise",

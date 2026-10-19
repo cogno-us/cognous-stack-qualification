@@ -83,6 +83,32 @@ def install(suite, source_root, *, evidence, historical_only=False, manifest=MAN
     return report
 
 
+def provision_dependency_locks(source_root, qualification_root=ROOT):
+    """Make the qualification repository's hash-locked dependency sets available to the workflows' install steps.
+
+    The delegating workflows install with ``pip install --require-hashes -r .github/locks/<set>.txt`` relative to the checkout
+    they run in. A source repository has no such directory, so the sets are copied beside the overlaid suite files, byte for
+    byte, and recorded. Nothing is generated and no dependency is chosen here; an existing file with different bytes is refused.
+    """
+    source_root = source_root.resolve()
+    origin = qualification_root / '.github/locks'
+    if not origin.is_dir():
+        return []
+    destination = checked_path(source_root, '.github/locks')
+    destination.mkdir(parents=True, exist_ok=True)
+    copied = []
+    for path in sorted(origin.iterdir()):
+        if not path.is_file() or path.suffix not in {'.txt', '.in'}:
+            continue
+        target = checked_path(source_root, '.github/locks/' + path.name)
+        if target.exists() and digest(target) != digest(path):
+            raise ValueError('Dependency lock differs from the qualification lock; refusing to overwrite: ' + path.name)
+        target.write_bytes(path.read_bytes())
+        target.chmod(0o644)
+        copied.append({'path': '.github/locks/' + path.name, 'sha256': digest(target)})
+    return copied
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--suite', required=True)
@@ -91,6 +117,9 @@ def main():
     parser.add_argument('--historical-only', action='store_true')
     args = parser.parse_args()
     result = install(args.suite, args.source_root, evidence=args.evidence, historical_only=args.historical_only)
+    if not args.historical_only:
+        result['dependency_locks'] = provision_dependency_locks(args.source_root)
+        args.evidence.write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps({'source_commit':result['owning_source_commit'], 'qualification_commit':result['qualification_commit'], 'installed_files':len(result['overlay']), 'qualification_claim':'NONE'}))
 
 

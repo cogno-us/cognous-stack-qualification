@@ -72,5 +72,29 @@ class SuiteInstall(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'already exists'):self.run_install()
         self.assertEqual(self.evidence.read_text(),'prior evidence')
 
+    def test_dependency_locks_are_copied_byte_for_byte_and_recorded(self):
+        locks=self.qual/'.github/locks';locks.mkdir(parents=True)
+        (locks/'tools-aaaaaa.txt').write_text('pytest==9.0.0 \\\n    --hash=sha256:00\n');(locks/'tools-aaaaaa.in').write_text('pytest\n');(locks/'notes.md').write_text('ignored\n')
+        copied=module.provision_dependency_locks(self.source,self.qual)
+        self.assertEqual([x['path'] for x in copied],['.github/locks/tools-aaaaaa.in','.github/locks/tools-aaaaaa.txt'])
+        for item in copied:
+            self.assertEqual(hashlib.sha256((self.source/item['path']).read_bytes()).hexdigest(),item['sha256'])
+            self.assertEqual((self.source/item['path']).read_bytes(),(self.qual/item['path']).read_bytes())
+        self.assertFalse((self.source/'.github/locks/notes.md').exists())
+        self.assertEqual(module.provision_dependency_locks(self.source,self.qual),copied)
+    def test_dependency_lock_with_different_bytes_is_never_overwritten(self):
+        locks=self.qual/'.github/locks';locks.mkdir(parents=True);(locks/'tools-aaaaaa.txt').write_text('canonical\n')
+        existing=self.source/'.github/locks';existing.mkdir(parents=True);(existing/'tools-aaaaaa.txt').write_text('other\n')
+        with self.assertRaisesRegex(ValueError,'differs from the qualification lock'):module.provision_dependency_locks(self.source,self.qual)
+        self.assertEqual((existing/'tools-aaaaaa.txt').read_text(),'other\n')
+    def test_dependency_locks_absent_is_a_no_op(self):
+        self.assertEqual(module.provision_dependency_locks(self.source,self.qual),[])
+        self.assertFalse((self.source/'.github').exists())
+    def test_dependency_locks_refuse_a_symlinked_destination(self):
+        locks=self.qual/'.github/locks';locks.mkdir(parents=True);(locks/'tools-aaaaaa.txt').write_text('canonical\n')
+        outside=self.root/'outside';outside.mkdir();(self.source/'.github').symlink_to(outside,target_is_directory=True)
+        with self.assertRaisesRegex(ValueError,'Symlink'):module.provision_dependency_locks(self.source,self.qual)
+        self.assertEqual(list(outside.iterdir()),[])
+
 
 if __name__=='__main__':unittest.main()
