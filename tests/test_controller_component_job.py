@@ -79,9 +79,34 @@ class Siblings(unittest.TestCase):
 
     def test_other_components_get_no_siblings(self):
         calls = []
-        for comp in ('bitrep', 'control_plane', 'replay_bundle', 'governance_evidence_pack', 'gax_imx_transport'):
+        for comp in ('bitrep', 'control_plane', 'gax_imx_transport', 'action_manifest', 'the_index'):
             self.assertEqual(v.provision_siblings(comp, '/x', MANIFEST, LOG, fetch=self.fetch(calls)), [])
         self.assertEqual(calls, [])
+
+    def test_the_evidence_pack_gets_the_pinned_replay_then_control_plane_and_replay_gets_the_pinned_pack(self):
+        pins = pins_in_force()
+        for component, siblings in (('governance_evidence_pack', ['replay_bundle', 'control_plane']), ('replay_bundle', ['governance_evidence_pack'])):
+            calls = []
+            recs = v.provision_siblings(component, '/nonexistent/sib', MANIFEST, LOG, fetch=self.fetch(calls))
+            self.assertEqual([r['component'] for r in recs], siblings)
+            self.assertEqual(calls, [(key, *pins[key]) for key in siblings])
+            self.assertTrue(all(r['pinned_sha'] == r['actual_sha'] for r in recs))
+            self.assertNotIn(component, siblings)
+
+    def test_provisioned_siblings_are_installed_the_way_the_suites_were_measured(self):
+        # evidence pack suite: Replay editable (its importer names the installed Replay commit), Control Plane plain with the extra
+        # Replay suite: the pack plain
+        recs = {c: {r['component']: r for r in v.provision_siblings(c, '/s', MANIFEST, LOG, fetch=self.fetch([]))} for c in ('governance_evidence_pack', 'replay_bundle')}
+        pack_cmds = {k: v.sibling_install_command('py', {**r, 'dir': '/s/' + k}, r['targets'][0]) for k, r in recs['governance_evidence_pack'].items()}
+        self.assertEqual(pack_cmds['replay_bundle'], ['py', '-m', 'pip', 'install', '-q', '-e', '/s/replay_bundle'])
+        self.assertEqual(pack_cmds['control_plane'], ['py', '-m', 'pip', 'install', '-q', '/s/control_plane[runtime-authority]'])
+        pack = recs['replay_bundle']['governance_evidence_pack']
+        self.assertEqual(v.sibling_install_command('py', {**pack, 'dir': '/s/p'}, '.'), ['py', '-m', 'pip', 'install', '-q', '/s/p'])
+        self.assertEqual(recs['governance_evidence_pack']['control_plane']['targets'], ['.[runtime-authority]', '.'])
+
+    def test_the_sibling_graph_has_no_component_that_is_its_own_sibling(self):
+        for comp, wanted in v.SIBLING_PROVISIONING.items():
+            self.assertNotIn(comp, [key for key, _ in wanted])
 
     def test_a_sibling_that_resolves_to_another_commit_is_an_error(self):
         with self.assertRaises(RuntimeError):

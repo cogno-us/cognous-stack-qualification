@@ -412,6 +412,9 @@
       "requires": [
         "rfc8785",
         "an accepted Replay revision installed"
+      ],
+      "declared_skips": [
+        "tests/test_jcs_canonicalization.py::test_independent_implementation_agrees_on_random_values: could not import 'rfc8785': No module named 'rfc8785' (optional package, not a dependency or extra of the component)"
       ]
     },
     {
@@ -429,7 +432,10 @@
       "state_note": "1,497 pass and 22 skip. The skips are in-body skips inside parametrized tests with data-dependent reasons; they are explained but not declared as marks (B-07). Coverage 97.2%.",
       "known_limit": false,
       "known_limit_count": null,
-      "skips_outside_declared_list": 22
+      "skips_outside_declared_list": 0,
+      "declared_skips": [
+        "13 x tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[<pair with attempted on either side>] and 9 x tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[<pair with attempted on either side>]: attempted only opens an attempt (start rules) (parameter-driven in-body skip; no environment needed)"
+      ]
     },
     {
       "id": "C1-03",
@@ -446,7 +452,10 @@
       "state_note": "933 pass and 1 skip (real third-party SDK test; the SDK is installed only by one workflow, B-02). Mutation controls: 3 of 3 detected. The 11 known-limit tests are declared by amendments 47 to 57; each passes by asserting the limit as a negative fact (checked by name at revision 2bac7875).",
       "known_limit": true,
       "known_limit_count": 11,
-      "skips_outside_declared_list": 1
+      "skips_outside_declared_list": 0,
+      "declared_skips": [
+        "tests/test_microsoft_agt.py::test_real_sdk_types_are_supported_when_installed: could not import 'agent_control_specification': No module named 'agent_control_specification' (optional third-party package, not in the component lock)"
+      ]
     },
     {
       "id": "C1-03a",
@@ -523,7 +532,10 @@
       "state_note": "995 pass, 12 skip (data-driven in-body skips), 1 strict xfail (known limit), 1 fail: the Replay to pack pairing test skips or fails depending on which pack and Replay are installed (B-05). Contains wall-clock assertions (B-09). At the pinned revision 2a7963b1 the suite holds 5 strict expected failures (the figures above were measured at an older main); all five are declared as known limits by amendments 58 to 62.",
       "known_limit": true,
       "known_limit_count": 5,
-      "skips_outside_declared_list": 12
+      "skips_outside_declared_list": 0,
+      "declared_skips": [
+        "12 x tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[{atomic-default,atomic-operation-key}-{target,amount,unit,payload,grant_id,effect_id}]: this capture carries no destination_state in the journal (fixture content; no environment needed)"
+      ]
     },
     {
       "id": "C1-05a",
