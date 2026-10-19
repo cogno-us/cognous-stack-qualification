@@ -209,10 +209,10 @@ Selection: tier order first, then the planning score, with at most one test per 
 | T10 | Rollback of programme-2 state | 3 | B14 | none |
 | T11 | C3 chain per configuration | 4 | C22, C17, C20 | none |
 | T12 | Stale worker resumes after lease or deadline expiry | 4 | C23, B12 | none |
-| T13 | Real process kill at every persistence boundary | 4 | C18, C19 | none |
+| T13 | Real process kill at five write points of the route-A sequence | 4 | C18, C19 | none |
 | T14 | Observation field matrix | 5 | H55, H56, H58 | S2 verifier red team |
 | T15 | Profile-flag forwarding completeness | 6 | D32, A05 | none |
-| T16 | Canary-secret sweep over every artifact | 6 | D31 | S1 code attacks |
+| T16 | Canary-secret sweep over the work directory, executor result, Replay bundle, Evidence Pack, ODES package and verifier report | 6 | D31 | S1 code attacks |
 | T17 | Last-unit budget race and grant multiplication | 7 | G47, G48 | none |
 | T18 | Control-panel and results consistency checker | 8 | I74, I70 | S3 supply chain |
 | T19 | Rule-revision downgrade | 2 | A05, F46 | none |
@@ -374,7 +374,7 @@ Selection: tier order first, then the planning score, with at most one test per 
 - **Residual limits:** Same-host flock only; no cross-host fencing
 - **Overlap with deferred streams:** none
 
-### T13. Real process kill at every persistence boundary
+### T13. Real process kill at five write points of the route-A sequence
 
 - **ID / hypothesis:** T13; ideas C18, C19 (tier 4, Duplicate effects after unknown delivery)
 - **Attacker capability:** Operator or fault killing the process
@@ -414,7 +414,7 @@ Selection: tier order first, then the planning score, with at most one test per 
 - **Residual limits:** Fix is in stream F1; this test is its regression guard
 - **Overlap with deferred streams:** none
 
-### T16. Canary-secret sweep over every artifact
+### T16. Canary-secret sweep over the work directory, executor result, Replay bundle, Evidence Pack, ODES package and verifier report
 
 - **ID / hypothesis:** T16; ideas D31 (tier 6, Credential and isolation boundaries)
 - **Attacker capability:** Reader of any produced file, log or exception
