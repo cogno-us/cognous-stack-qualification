@@ -42,7 +42,7 @@ This repository is in the **Tooling and qualification** side group. It is not in
 | If you want to | Read |
 |---|---|
 | **Understand** what is tested and why | [Release test inventory](docs/test-inventory.md) · [Execution and evidence contract](docs/execution-contract.md) · [Source provenance and scope](docs/sources.md) · [Serial qualification packet](docs/serial-qualification.md) |
-| **Run** tests | [Quick start](#quick-start) below · [Suites index](suites/README.md) · [Testing process](process/testing/README.md) · [What ships](#what-ships) |
+| **Run** tests | [Quick start](#quick-start) below · [Suites index](suites/README.md) · [What ships](#what-ships) |
 | **Read results** | [Qualification dashboard](docs/qualification-dashboard.md) (generated) · [Results and retention rules](results/README.md) · [Result commentary index](results/readme-commentary/index.md) · [V1 known limits](docs/v1-known-limits.md) |
 | **Review limits** | [Security repairs and residual limits](docs/security-residuals-20261016.md) · [Adversarial test plan](docs/adversarial-test-plan.md) and [batch-1 results](process/adversarial/README.md) · [Known limits of the probe suites](suites/fix2-probes/KNOWN_LIMITS.md) and [of the V1 probes](suites/v1-probes/KNOWN_LIMITS.md) |
 | **Extend** the catalog or suites | [Browse the scenario catalog](scenarios/README.md) · [Machine-readable Cognous scenarios](scenarios/catalog.json) · [AI Security Wiki scenarios](scenarios/ai-security-wiki/README.md) · [Upstream refresh through GitHub](docs/upstream-sync.md) · [Refusal-test template](docs/refusal-test-template.md) · [Dashboard operating guide](docs/qualification-dashboard-guide.md) |
