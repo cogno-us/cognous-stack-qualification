@@ -227,7 +227,13 @@ def test_asw_a03_malformed_proposal_is_rejected_by_the_schema(request, record_pr
 
 @pytest.mark.parametrize('malformation', sorted(MALFORMED_PROPOSAL))
 def test_asw_a03_unvalidated_malformed_proposal_never_authorizes_or_executes(request, record_property, tmp_path, malformation):
-    """Defence in depth: a malformed proposal that bypassed construction (model_copy skips validation) is still held or raises."""
+    """A changed or malformed proposal that bypassed construction (model_copy skips validation) and that the approval does not cover is held or raises, and is never dispatched.
+
+    The hold comes from approval binding (the approval commitment covers the whole proposal), not from validating the
+    value: payload and field values are not validated at decision time. That limit is shown by the L05-022 / L06-014
+    tests in suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py and listed in docs/v1-known-limits.md.
+    The test ids are kept unchanged because retained evidence is keyed by them.
+    """
     def trial(work, mp, checks):
         flow = C.flow_a_pre(work, mp)
         p2 = flow.p.model_copy(update=MALFORMED_PROPOSAL[malformation])
@@ -253,12 +259,21 @@ PAYLOADS = {
     'missing_required': ({'customer_id': 'customer-001'}, 'missing_required_payload_field'),
     'undeclared_field': ({'customer_id': 'customer-001', 'refund_reason': 'duplicate', 'cmd': 'rm -rf /'}, 'undeclared_payload_field'),
     'empty': ({}, 'missing_required_payload_field'),
-    'nested_object': ({'customer_id': {'a': 1}, 'refund_reason': 'duplicate'}, None),
+    # The reason below is approval binding, not value validation: the nested customer_id is not checked at decision time.
+    'nested_object': ({'customer_id': {'a': 1}, 'refund_reason': 'duplicate'}, 'approval_operation_binding_mismatch'),
 }
 
 
 @pytest.mark.parametrize('shape', sorted(PAYLOADS))
 def test_asw_a03_payload_schema_violation_is_held_and_never_dispatched(request, record_property, tmp_path, shape):
+    """A changed payload that the approval does not cover is held and never dispatched.
+
+    For the missing, empty and undeclared shapes the decision names the payload-field reason. For nested_object the
+    reason is approval binding (approval_operation_binding_mismatch), not value validation: payload values are not
+    validated at decision time (known limit, see the L05-022 / L06-014 tests in
+    suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py). The test id is kept because retained evidence
+    is keyed by it.
+    """
     payload, reason = PAYLOADS[shape]
 
     def trial(work, mp, checks):
