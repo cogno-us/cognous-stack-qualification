@@ -24,9 +24,9 @@ Limits, asserted as limits and never as passes:
   a sender, so the rights of a request are those of the actor and the user it names, never those of a sender or a callee
   (TC-L06-039);
 * the message schema is checked for the required members, the identifier shape, the profile version and the commitments. An extra
-  top-level member, an extra member of a reference, a non-text content member, a very large content member and a created-at value
-  of any type are accepted, and a sender of a type that cannot be compared stops the assessment with an uncontrolled exception
-  before any effect (TC-L06-040);
+  top-level member, an extra member of a reference, a non-text content member and a very large content member are accepted; a
+  created-at member that is not a time and a sender that is not a name are refused with a typed reason code before any effect
+  (TC-L06-040);
 * the free-text content is data: an instruction in it changes nothing, but it is not stripped or flagged (TC-L06-040);
 * a refusal before acceptance is returned to the caller and is not stored (the exchange store keeps accepted messages); the store
   keeps the identifiers of an accepted message and its decision, and not its sender or recipient (TC-L06-018, TC-L06-039,
@@ -371,6 +371,30 @@ def test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_typ
     flow = routes.flow()
     res, exc = attempt(flow, E.resign(flow.gax, E.make_msg(flow, 'sender-list'), sender=['refund-sender']))
     assert res is None and exc.startswith('TypeError') and effects(flow) == []  # fail closed by exception, no typed refusal
+
+
+@wiki_case('TC-L06-040')
+def test_wiki_l06_040_extra_members_content_types_and_size_are_accepted_as_data_while_mistyped_members_are_refused_known_limit(routes):
+    """Replaces the declaration of the test above, whose last two assertions describe the exchange route before it refused a
+    created-at member and a sender member of a type that cannot be compared (that test is kept unchanged and is withdrawn by an
+    appended amendment of the pre-registration). This test states the behaviour of the pinned exchange as the limit."""
+    # five of the twelve are rejected, so the criterion of at least eleven is not met; the seven that are accepted are accepted as data
+    outcomes = {}
+    for name in INVALID_TWELVE:
+        flow = routes.flow()
+        res, exc = attempt(flow, invalid_message(flow, name))
+        assert exc is None, (name, exc)
+        outcomes[name] = 'rejected' if handling(res) != 'ACCEPT_FOR_ASSESSMENT' else 'accepted_as_data'
+    assert outcomes == {name: kind for name, (_, kind) in INVALID_TWELVE.items()}
+    assert sum(v == 'rejected' for v in outcomes.values()) == 5 and sum(v == 'rejected' for v in outcomes.values()) < 11
+    # a created-at member that is not a time and a sender that is not a name are refused with a typed reason code before any effect
+    for label, change, handled, code in (('created-number', {'created_at': 5}, 'NOT_UNDERSTOOD', 'GAX-SCHEMA-MISSING-REQUIRED'),
+                                         ('sender-list', {'sender': ['refund-sender']}, 'REFUSE', 'GAX-IDENTITY-SENDER-UNTRUSTED')):
+        flow = routes.flow()
+        res, exc = attempt(flow, E.resign(flow.gax, E.make_msg(flow, label), **change))
+        assert exc is None, (label, exc)
+        assert (handling(res), errors(res)) == (handled, [code]) and E.GAX_CODE.match(code), (label, res['assessment'])
+        assert not_dispatched(res) and effects(flow) == [], label
 
 
 @wiki_case('TC-L06-040')
