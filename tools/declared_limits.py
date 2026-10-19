@@ -39,6 +39,8 @@ TWIN_REL = "process/release-gate/preregistration.json"
 SCHEMA = "cognous.v1-validation-declared-set/1"
 
 # Repository -> controller component key (the freeze-manifest keys; a unit test compares this table with the manifest).
+SCENARIOS_COMPONENT = "scenarios"
+
 EXTERNAL_REPO_COMPONENT = {
     "cogno-us/cognous-control-plane": "control_plane",
     "cogno-us/cognous-execution-runtime": "moltbot_safe",
@@ -85,7 +87,9 @@ def _from_amendment_id(id_, source):
     m = _LOCAL_ID.match(id_)
     if m:
         path, name = m.groups()
-        return _test_entry(id_, source, None, path, name, None)
+        # the controller collects suites/v1-scenarios as the job component `scenarios`; other local suites are not collected by it
+        comp = SCENARIOS_COMPONENT if path.startswith("suites/v1-scenarios/") else None
+        return _test_entry(id_, source, None, path, name, comp)
     if _REQUIREMENT_ID.match(id_):
         return {"id": id_, "kind": "requirement", "source": source, "repository": None, "path": None, "classname": None, "name": None, "component": None}
     raise DeclaredSetError(f"declaration {id_!r} is neither <repo>:<path>::<test>, suites/<path>::<test> nor a requirement id")
