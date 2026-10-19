@@ -23,7 +23,7 @@ python tools/build_dashboard.py --check-markdown
 
 `record.json` retains native admission responses, complete native audit chains, independent readbacks, effect occurrence counts, stable effect and separate attempt IDs, scenario commitments and exact loaded source identities. `plan.json` is committed by hash; summary counts are recomputed. Failed or inconclusive runs return nonzero and their native records remain available. Do not overwrite previous result directories.
 
-New runs also retain `trials/<variant>-<trial>/initial.db`, `destination.db` and `trial.json`; D04 includes `post_commit.db` and pre-retry readback. SQLite backup incorporates committed WAL state and produces standalone DELETE-journal snapshots. Native requests and public registries are retained; private signing/HMAC keys are not exported. Use the [reciprocal package exporter](../process/testing/return-evidence-format.md#native-local-export-tooling) for recipient-style inspection.
+New runs also retain `trials/<variant>-<trial>/initial.db`, `destination.db` and `trial.json`; D04 includes `post_commit.db` and pre-retry readback. SQLite backup incorporates committed WAL state and produces standalone DELETE-journal snapshots. Native requests and public registries are retained; private signing/HMAC keys are not exported. Use the [export tool](../tools/export_exchange.py) for recipient-style inspection.
 
 ## Configuration and boundary checkpoint
 

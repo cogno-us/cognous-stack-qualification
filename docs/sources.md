@@ -10,7 +10,7 @@ The initial catalog was prepared from user-supplied engineering documents A and 
 
 A supplied filename: `Cognous_Agentic_Testing_Engineering_Addendum_2026-10-15(1).docx`. B supplied filename: `01-Cognous_Consolidated_Engineering_Recommendations.docx`.
 
-C supplied filename: `Cognous_Bounded_Comparison_Testing_Addendum_2026-10-15(1).docx`. Its [process adaptation](../process/testing/bounded-comparison.md) requires configuration and native-evidence confirmation before D01/D03, with D04 as a later separate trajectory. Historical pins, correspondence-derived requirements and hypothetical bundle checks in C are design inputs, not freshly verified facts. The underlying correspondence, D04 bundle and external methodology source were not supplied or imported with this adaptation.
+C supplied filename: `Cognous_Bounded_Comparison_Testing_Addendum_2026-10-15(1).docx`. Historical pins, correspondence-derived requirements and hypothetical bundle checks in C are design inputs, not freshly verified facts. The original DOCX and the material it refers to were not supplied or imported.
 
 D01–D09, A01–A06 and H01–H02 preserve A's case identifiers, stimuli and required observations. C01–C22 operationalize additional public-interface acceptance requirements in B; C23 captures evaluator calibration in A. Related IDs map overlap without implying extra executed coverage. The catalog uses section headings because DOCX pagination can vary.
 

@@ -6,7 +6,6 @@ The repository is a collection with explicitly scoped licenses. The root Apache-
 |---|---|
 | Original tooling, workflow and original documentation | Apache-2.0 under the root LICENSE |
 | 40 Cognous scenario adaptations in `scenarios/catalog.json` and `scenarios/README.md` | Apache-2.0; derived from user-supplied engineering documents under the user's explicit publication instruction; see `sources/documents.json` for source-document terms and limits |
-| Bounded-comparison process adaptation in `process/testing/` | Apache-2.0; user-authorized adaptation of source C in `sources/documents.json`; original DOCX, correspondence, synthetic bundle and external methodology source are not redistributed or relicensed |
 | Content and adaptations in `scenarios/ai-security-wiki/` | CC BY-SA 4.0, with nested LICENSE; source author and per-page credits retained |
 | Wiki-derived title lists and provenance metadata in `sources/ai-security-wiki.lock.json` | CC BY-SA 4.0 for material derived from the Wiki; the record identifies its source and license |
 

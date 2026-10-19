@@ -32,7 +32,6 @@ Back to the [repository README](../README.md).
 | [Dashboard operations](qualification-dashboard-guide.md) | How the dashboard is captured and built | current |
 | [Results and retention rules](../results/README.md) | Layout of `results/`, append-only rules | current |
 | [Result commentary index](../results/readme-commentary/index.md) | Relocated component reporting with source references | current |
-| [Testing process](../process/testing/README.md) | Configuration checkpoint, D01/D03 comparison and D04 recovery | current |
 
 ## Known limits and residuals
 
@@ -62,5 +61,4 @@ Back to the [repository README](../README.md).
 
 [`suites/wiki-derived/`](../suites/wiki-derived/README.md), [`suites/fix2-probes/`](../suites/fix2-probes/README.md),
 [`suites/operation-identity/`](../suites/operation-identity/README.md), [`suites/outside-holder/`](../suites/outside-holder/README.md),
-[`suites/verifier-mutation/`](../suites/verifier-mutation/README.md), [`process/adversarial/`](../process/adversarial/README.md),
-[`process/testing/`](../process/testing/README.md).
+[`suites/verifier-mutation/`](../suites/verifier-mutation/README.md), [`process/adversarial/`](../process/adversarial/README.md).
