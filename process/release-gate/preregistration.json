@@ -1430,7 +1430,341 @@
       "text": "The inclusion table depends on applicability.json version 1.0.0 at catalog commit 1a0c72de. A change to that file before the run needs an amendment that restates the affected rows."
     }
   ],
-  "amendments": [],
+  "amendments": [
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Delegate for declarations (settles OD-10). The coordinator is the owner-approved delegate under DR-3 for known-limit declarations and for reclassifications recorded before a run. Any reclassification made after a result has been seen is made by the owner only, and is reported as such with the run it follows.",
+      "reason": "OD-10 named no delegate; the declarations below need one. Recorded before any run.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_d12_018_each_item_names_its_time_when_it_has_one_and_eleven_applied_run_items_have_none_known_limit",
+      "text": "Suite W-X, case `TC-D12-018`. Known limit: Not every item of the exported records carries a time; an item without one is ordered by its sequence number only, and the clocks of the journal and of the executor are independent, so no order between them is stated.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_d12_018_no_custody_log_handler_identity_or_access_log_is_carried_known_limit",
+      "text": "Suite W-X, case `TC-D12-018`. Known limit: The package names one fixed exporter label as its maker and carries no custody log, no handler identity and no access log.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_l17_021_the_artifacts_offer_no_hold_retention_or_access_log_known_limit",
+      "text": "Suite W-X, case `TC-L17-021`. Known limit: The artifacts are plain files with no legal hold, retention rule or access log, and nothing prevents deletion of a copy; an altered copy is detected by verification.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_l17_004_removing_every_event_of_one_whole_check_is_read_as_given_by_the_consumers_known_limit",
+      "text": "Suite W-X, case `TC-L17-004`. Known limit: The consumers do not cross-check the check events against the decision and check lists, so completeness of a record is shown only by a digest held outside it.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_l17_004_rows_after_the_latest_digest_and_the_witness_holder_are_outside_the_check_known_limit",
+      "text": "Suite W-X, case `TC-L17-004`. Known limit: A row added after the latest witness digest is reported as not witnessed, and the check covers what the witness covers; the party that holds the witness is outside the check.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_l02_025_a_backdated_revision_row_is_accepted_and_kept_in_append_order_known_limit",
+      "text": "Suite W-X, case `TC-L02-025`. Known limit: Revision rows are kept in append order and their stated times are not verified against that order.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_l02_025_an_edit_to_the_source_journal_before_export_is_read_as_given_known_limit",
+      "text": "Suite W-X, case `TC-L02-025`. Known limit: A source journal edited before it is exported is read as given; integrity is that of the export from the moment it exists.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g1_integrity_and_export.py::test_wiki_l03_022_a_redacted_derivative_is_refused_by_the_pack_and_package_exporters_known_limit",
+      "text": "Suite W-X, case `TC-L03-022`. Known limit: A redacted derivative of a bundle is refused by the pack and package exporters, so no redacted pack or package is offered.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g2_pack_on_demand_and_decision_state.py::test_wiki_l02_016_no_framework_or_period_input_and_no_redaction_known_limit",
+      "text": "Suite W-X, case `TC-L02-016`. Known limit: The pack takes no compliance framework or reporting period as input and does not redact; a period is the caller's selection of retained runs, one pack per run.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g2_pack_on_demand_and_decision_state.py::test_wiki_d12_004_model_prompt_guardrail_retrieval_and_feature_flag_are_not_recorded_known_limit",
+      "text": "Suite W-X, case `TC-D12-004`. Known limit: The model, prompt, guardrail, retrieval source and feature-flag state of an agent are not recorded; the record states that the machine role has no model identifier or version.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g3_traces_attribution_and_event_fields.py::test_wiki_l06_028_the_payload_is_not_masked_in_the_logs_and_redaction_does_not_reach_the_metadata_copy_known_limit",
+      "text": "Suite W-X, case `TC-L06-028`. Known limit: Payload values are carried as recorded and are not masked in the logs; the redaction options of the bundle do not reach its metadata copy, and the pack and package exporters refuse redacted derivatives.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g3_traces_attribution_and_event_fields.py::test_wiki_l09_025_a_held_decision_has_no_binding_so_its_attribution_comes_from_the_proposal_known_limit",
+      "text": "Suite W-X, case `TC-L09-025`. Known limit: A held decision names the identity it resolved but carries no principal, tool, resource or grant revision of its own; attribution of a held request comes from its proposal.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g3_traces_attribution_and_event_fields.py::test_wiki_l17_002_the_required_field_list_is_mapped_ten_of_fourteen_carried_and_four_not_carried_known_limit",
+      "text": "Suite W-X, case `TC-L17-002`. Known limit: Of the fourteen fields the case lists, ten are carried by the records; tenant, device, model and severity are not carried.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g3_traces_attribution_and_event_fields.py::test_wiki_l17_002_the_schema_is_documented_with_versions_and_sensitive_values_are_not_masked_known_limit",
+      "text": "Suite W-X, case `TC-L17-002`. Known limit: The record schema is documented with versions; sensitive values such as the payload are written as recorded and are not masked.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py::test_wiki_l06_014_payload_values_and_zero_amount_are_not_policy_checked_known_limit",
+      "text": "Suite W-X, case `TC-L06-014`. Known limit: The payload policy checks member names; the type and size of a value, its consistency with the target and a lower bound on the amount are not part of the policy.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py::test_wiki_l06_015_every_outcome_is_retained_with_the_approval_state_read_and_no_rejection_record_exists_known_limit",
+      "text": "Suite W-X, case `TC-L06-015`. Known limit: An approval has the states active, revoked and unknown; a refusal by the approver and a request nobody answered are not told apart by a rejection record.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py::test_wiki_l05_013_there_is_no_configurable_fail_open_mode_known_limit",
+      "text": "Suite W-X, case `TC-L05-013`. Known limit: The stack has a fail-closed branch only; there is no configurable fail-open mode.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_forged_message_claiming_a_registered_agent_is_accepted_when_consistent_known_limit",
+      "text": "Suite W-I, case `TC-L06-018`. Known limit: Sender authentication by signature or mutual authentication is not part of the exchange route; the message digest binds content, not origin, and a message consistent with its digest is read as given.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_refusals_before_acceptance_are_returned_and_not_stored_known_limit",
+      "text": "Suite W-I, case `TC-L06-018`. Known limit: A refusal before acceptance is returned to the caller and is not durably stored.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit",
+      "text": "Suite W-I, case `TC-L06-040`. Known limit: The schema check of the exchange route does not reject extra members, content types or message size; such messages are accepted as data.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_every_rejection_carries_a_typed_reason_code_and_none_is_stored_known_limit",
+      "text": "Suite W-I, case `TC-L06-040`. Known limit: Every rejection carries a typed reason code and no rejection is durably stored.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_the_sender_label_is_not_bound_to_the_actor_so_a_listed_low_trust_sender_has_the_rights_of_the_named_actor_known_limit",
+      "text": "Suite W-X, case `TC-L06-039`. Known limit: The sender label is checked against a list of trusted senders and is not bound to the actor named in the request; the request is judged on the rights of the named actor.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_a_held_request_is_retained_with_the_proposal_of_the_actor_and_the_user_and_not_the_sender_known_limit",
+      "text": "Suite W-X, case `TC-L06-039`. Known limit: A held request is retained with the proposal of the actor and the user and not with the sender.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_the_hop_names_the_actor_the_user_the_payload_commitment_and_the_decision_but_not_the_caller_and_callee_known_limit",
+      "text": "Suite W-X, case `TC-L06-045`. Known limit: The retained hop names the actor, the user, the payload commitment and the decision, and does not name a caller agent and a callee agent.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_the_correlation_identifier_is_not_a_member_of_the_message_known_limit",
+      "text": "Suite W-X, case `TC-L06-045`. Known limit: The correlation identifier is not a member of the message; a search by conversation identifier finds the message, the workflow row and the successor packet, and no decision, effect or bundle record.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g6_partly_covered_fragments.py::test_wiki_l06_003_the_registry_is_a_set_of_names_and_not_an_inventory_known_limit",
+      "text": "Suite W-X, case `TC-L06-003`. Known limit: The registry that refuses undeclared parties is a set of names; it records no discovery, no state of an agent and no history of a refusal.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "suites/wiki-derived/test_wp_g6_partly_covered_fragments.py::test_wiki_l06_026_the_confinement_covers_the_database_path_only_known_limit",
+      "text": "Suite W-I, case `TC-L06-026`. Known limit: The confinement check covers the destination database path only; file reads and network destinations of an agent are not restricted, and the host configures the root.",
+      "reason": "Recorded before the controller run so that the assertion of this limit is reported in the PASSING-AS-KNOWN-LIMIT column and never as an ordinary pass (DR-1, DR-8, OD-6). The test asserts the stated limit as the negative fact and is not changed to produce a pass (DR-4). No result of the controller or of any release-gate run had been seen when this was recorded.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "cogno-us/open-decision-evidence-standard:tests/test_restriction_semantics.py::test_control_legacy_export_is_digest_identical_to_the_retained_example",
+      "text": "Suite C1-01 (open-decision-evidence-standard, pinned revision of the release candidate). Known limit, declared as a test that ends in failure: with the Replay bundle installed at the accepted revision, Replay does not import the retained producer-v2 examples `lost_ack` and `prior_absence` that this test uses, with the reason that an unknown result cannot carry a validated applied or partial observation. The retained examples, the export path and the test are unchanged. Without the accepted Replay revision the test is skipped, with the reason listed in inventory row C1-01.",
+      "reason": "The four failures were seen while moving the Programme 2 tuple (ODES decision 41) and are not caused by it; they are skipped in the component's own CI, where Replay is not installed. This is a test that ends in failure and not a strict expected failure, so it is reported in its own list of declared known limits that end in failure, apart from the passes and apart from the strict expected failures, and never as a pass (PC-3, PC-4). Whether the retained examples or the export path should change is left to a later planned change and is not made before the run. Recorded before the controller run; no result of it had been seen.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "cogno-us/open-decision-evidence-standard:tests/test_restriction_semantics.py::test_explicit_export_end_to_end",
+      "text": "Suite C1-01 (open-decision-evidence-standard, pinned revision of the release candidate). Known limit, declared as a test that ends in failure: with the Replay bundle installed at the accepted revision, Replay does not import the retained producer-v2 examples `lost_ack` and `prior_absence` that this test uses, with the reason that an unknown result cannot carry a validated applied or partial observation. The retained examples, the export path and the test are unchanged. Without the accepted Replay revision the test is skipped, with the reason listed in inventory row C1-01.",
+      "reason": "The four failures were seen while moving the Programme 2 tuple (ODES decision 41) and are not caused by it; they are skipped in the component's own CI, where Replay is not installed. This is a test that ends in failure and not a strict expected failure, so it is reported in its own list of declared known limits that end in failure, apart from the passes and apart from the strict expected failures, and never as a pass (PC-3, PC-4). Whether the retained examples or the export path should change is left to a later planned change and is not made before the run. Recorded before the controller run; no result of it had been seen.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "cogno-us/open-decision-evidence-standard:tests/test_result_classification.py::test_control_producer_v2_examples_pass_the_semantic_layer[lost_ack.package.json]",
+      "text": "Suite C1-01 (open-decision-evidence-standard, pinned revision of the release candidate). Known limit, declared as a test that ends in failure: with the Replay bundle installed at the accepted revision, Replay does not import the retained producer-v2 examples `lost_ack` and `prior_absence` that this test uses, with the reason that an unknown result cannot carry a validated applied or partial observation. The retained examples, the export path and the test are unchanged. Without the accepted Replay revision the test is skipped, with the reason listed in inventory row C1-01.",
+      "reason": "The four failures were seen while moving the Programme 2 tuple (ODES decision 41) and are not caused by it; they are skipped in the component's own CI, where Replay is not installed. This is a test that ends in failure and not a strict expected failure, so it is reported in its own list of declared known limits that end in failure, apart from the passes and apart from the strict expected failures, and never as a pass (PC-3, PC-4). Whether the retained examples or the export path should change is left to a later planned change and is not made before the run. Recorded before the controller run; no result of it had been seen.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "cogno-us/open-decision-evidence-standard:tests/test_result_classification.py::test_control_producer_v2_examples_pass_the_semantic_layer[prior_absence.package.json]",
+      "text": "Suite C1-01 (open-decision-evidence-standard, pinned revision of the release candidate). Known limit, declared as a test that ends in failure: with the Replay bundle installed at the accepted revision, Replay does not import the retained producer-v2 examples `lost_ack` and `prior_absence` that this test uses, with the reason that an unknown result cannot carry a validated applied or partial observation. The retained examples, the export path and the test are unchanged. Without the accepted Replay revision the test is skipped, with the reason listed in inventory row C1-01.",
+      "reason": "The four failures were seen while moving the Programme 2 tuple (ODES decision 41) and are not caused by it; they are skipped in the component's own CI, where Replay is not installed. This is a test that ends in failure and not a strict expected failure, so it is reported in its own list of declared known limits that end in failure, apart from the passes and apart from the strict expected failures, and never as a pass (PC-3, PC-4). Whether the retained examples or the export path should change is left to a later planned change and is not made before the run. Recorded before the controller run; no result of it had been seen.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "add_known_limit",
+      "id": "ADD-AUTH-RA",
+      "text": "Requirement ADD-AUTH-RA (selector: component `probes-control-plane`, pattern `probe_addauthra_`). Known limit: if the controller computes this requirement as inconclusive because its six declared probes are strict expected failures (a strict expected failure is recorded as skipped in the JUnit report), the requirement is listed as a known limit, reported in its own block (RP-3) next to the six declared probes. The status the controller computes is reported unchanged and is never reported as a pass. This declaration does not cover any other status of the requirement: a failure, an error or an unexpected pass of one of the probes is reported as computed and DR-7 applies.",
+      "reason": "Settles OD-8 as the owner decided on 19 October 2026: when ADD-AUTH-RA is inconclusive at the gate it is listed as a known limit. Declared before the run, for one named requirement selector (DR-8), and not reclassified after any result (DR-2, DR-3).",
+      "by": "the owner's decision of 19 October 2026, recorded by the coordinator"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Reclassification of `TC-L06-040` from APPLICABLE to PARTLY_COVERED (suite W-I). Claimed and tested (counts): messages whose identity, recipient, time, message-type or reference members are missing, of the wrong type or not trusted are refused with a typed reason code before any handler runs. Not claimed (not scored): validation of extra members, of free-text or list content and of message size, and detection of an instruction embedded in free text; the stack makes no content-detection claim, and a message cannot authorize an effect by itself. Basis: The case expects at least 11 of 12 invalid messages rejected, and its invalid set is 4 messages with extra fields, 3 with wrong types, 3 oversized and 2 with an embedded instruction. Extra members, size and free-text content are outside the declared checks of the exchange route, so at most the 3 wrong-type messages are within what the stack claims; the expected detection cannot be met in full by design.",
+      "reason": "Decided from the text of the case and from the declared design of the stack, as recorded in the decision register of 19 October 2026, before any result of the controller or of any release-gate run was seen; no result was used (PC-4, DR-3, DR-5). The case stays in scope and in the denominator for its claimed part; it is not moved to NOT_APPLICABLE. The tests that assert the not-claimed parts as limits are declared as known limits in this record and are not changed. The case stays in the comparator table with its inclusion unchanged (R1 and R2 were judged from the case text); only the class column of its row is restated here (OD-11). applicability.json is not edited by this amendment.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Reclassification of `TC-L06-039` from APPLICABLE to PARTLY_COVERED (suite W-X). Claimed and tested (counts): requests are judged on the rights of the named actor and the originating user through the trusted resolver, and in-scope and out-of-scope requests are allowed and refused or held accordingly; an unlisted sender is refused. Not claimed (not scored): binding of the sender label to the calling agent, and a denial record that names both agent identities. Basis: Procedure step 5 asks that each decision uses the rights of the caller and step 6 that each denial is logged with both agent identities. The exchange route checks a sender label against a trusted-sender list and does not bind it to the actor, and refusals on that route are returned and not durably stored, so neither expectation is part of the declared design; the scope note of the case already limits it to a subset with fixture identities.",
+      "reason": "Decided from the text of the case and from the declared design of the stack, as recorded in the decision register of 19 October 2026, before any result of the controller or of any release-gate run was seen; no result was used (PC-4, DR-3, DR-5). The case stays in scope and in the denominator for its claimed part; it is not moved to NOT_APPLICABLE. The tests that assert the not-claimed parts as limits are declared as known limits in this record and are not changed. The case stays in the comparator table with its inclusion unchanged (R1 and R2 were judged from the case text); only the class column of its row is restated here (OD-11). applicability.json is not edited by this amendment.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Reclassification of `TC-L06-018` from APPLICABLE to PARTLY_COVERED (suite W-I). Claimed and tested (counts): a modified message (digest mismatch) is refused, and a replayed or redelivered message does not produce a second effect. Not claimed (not scored): authentication of the sending agent by signature or mutual authentication, and a durable record of refusals. Basis: The case expects forged messages rejected or flagged and asks whether message signing or mutual authentication is available (procedure step 6). The exchange route defines neither: its message digest binds content, not origin, as the guarantees and limits page states. The forged-message expectation cannot be met in full by design.",
+      "reason": "Decided from the text of the case and from the declared design of the stack, as recorded in the decision register of 19 October 2026, before any result of the controller or of any release-gate run was seen; no result was used (PC-4, DR-3, DR-5). The case stays in scope and in the denominator for its claimed part; it is not moved to NOT_APPLICABLE. The tests that assert the not-claimed parts as limits are declared as known limits in this record and are not changed. The case stays in the comparator table with its inclusion unchanged (R1 and R2 were judged from the case text); only the class column of its row is restated here (OD-11). applicability.json is not edited by this amendment.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Reclassification of `TC-L17-002` from APPLICABLE to PARTLY_COVERED (suite W-X). Claimed and tested (counts): presence, naming and time format of the fields that the record contracts define (the ODES package and the control-plane journal), and a documented schema with versions. Not claimed (not scored): the case's full required-field list (tenant, device, model and severity are not fields of these records), masking of sensitive values, and events from SIEM or third-party sources. Basis: The case lists fourteen required fields and expects at least 95 percent present and sensitive values masked. The record contracts define ten of the fourteen and write values as recorded, so the expected detection cannot be met in full by design; the scope note of the case already limits it to the ODES and journal schema.",
+      "reason": "Decided from the text of the case and from the declared design of the stack, as recorded in the decision register of 19 October 2026, before any result of the controller or of any release-gate run was seen; no result was used (PC-4, DR-3, DR-5). The case stays in scope and in the denominator for its claimed part; it is not moved to NOT_APPLICABLE. The tests that assert the not-claimed parts as limits are declared as known limits in this record and are not changed. The case stays in the comparator table with its inclusion unchanged (R1 and R2 were judged from the case text); only the class column of its row is restated here (OD-11). applicability.json is not edited by this amendment.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Confirmation of the known-limit declarations (OD-1). The declarations of section 8 and the declarations appended above are confirmed by the coordinator as owner-approved delegate. The owner's review remains open as a record item and does not gate the run.",
+      "reason": "OD-1 asked for confirmation before the first run; the register records the coordinator's decision as taken under the owner's delegation, for review at the end.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "TC-D13-003 (nested budget hierarchy) is not claimed by OCS (OD-3). It stays in the comparator subset as written; OCS is reported as not claimed for it, the per-budget cap and sibling-independence tests stay as ordinary tests, and the comparator results for it are shown without a comparative statement.",
+      "reason": "The owner decided on 18 October 2026 that this case is not claimed; the parent-budget design is a later-release item.",
+      "by": "the owner's decision of 18 October 2026, recorded by the coordinator"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Limit-asserting tests in suites/wiki-derived (OD-6). The known-limit tests named in section 8.3 and in the declarations appended above are declared. No other test in the suite is declared: a test that states a limit in a comment inside otherwise ordinary assertions is an ordinary test, and its failure blocks publication.",
+      "reason": "Section 4 (DR-8, DR-9): a declaration names one test; anything not declared is undeclared.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "The fifteen attempt-identity probes of fix2-probes stay not declared (OD-7). Removal of their strict expected-failure marks needs no withdrawal, because they were never declared; a mark still present at the run that unexpectedly passes fails the run (DR-7).",
+      "reason": "Confirms OD-7 as registered; it is recorded here so that the removal of the marks after the pin round is not read as a change of a declaration.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "Earlier retained observations of the corner and baseline plans are superseded by the release-gate comparison and are not cited beside it (OD-9).",
+      "reason": "OD-9 asked whether earlier observations are cited or superseded; the comparison of this gate runs under this pre-registration only.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    },
+    {
+      "timestamp": "2026-10-19T11:18:16Z",
+      "action": "other",
+      "text": "applicability.json stays at version 1.0.0 at catalog commit 1a0c72de (OD-11). The class of four cases (TC-L06-040, TC-L06-039, TC-L06-018, TC-L17-002) is restated by the reclassification amendments of this record; the effective class for the gate is the class of the file with those amendments applied.",
+      "reason": "OD-11 requires an amendment that restates affected rows before the file is changed; the file is not changed here.",
+      "by": "the coordinator, owner-approved delegate for declarations (decision OD-10)"
+    }
+  ],
   "document_frozen_sha256": "8daf8195296e33d19c2130bfcdb883fbb6cfab1e13f19ed392de909030334286",
   "frozen_json_sha256": "f81a4313f19660c0397f777027df2a8c63da095c35d22cb199cbe38c445e5cab"
 }
