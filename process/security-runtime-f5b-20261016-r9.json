@@ -1,0 +1,107 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "profile_id": "security-runtime-f5b-20261016-r9",
+  "supersedes_profile": "process/security-runtime-f5b-20261016-r8.json",
+  "refreeze_ids": [
+    "RF-2",
+    "RF-3",
+    "RF-4",
+    "RF-5",
+    "RF-6",
+    "RF-7",
+    "RF-8",
+    "RF-9",
+    "RF-10",
+    "RF-11",
+    "RF-12",
+    "RF-13",
+    "RF-14",
+    "RF-15",
+    "RF-16",
+    "RF-17",
+    "RF-18",
+    "RF-19",
+    "RF-20",
+    "RF-21",
+    "RF-22",
+    "RF-23",
+    "RF-24",
+    "RF-25",
+    "RF-26",
+    "RF-27",
+    "RF-28",
+    "RF-29",
+    "RF-30",
+    "RF-31",
+    "RF-32",
+    "RF-33",
+    "RF-34",
+    "RF-35",
+    "RF-36"
+  ],
+  "note": "Owner-authorised re-freeze (process/v1-validation/v1-2026-10-16-a/refreeze-log.json RF-2..RF-36): r9 is r8 with eight further component pins moved to the current mains (control plane 3cd17ead to 2bac7875, runtime 11de097c to c4a05883, Replay 46e8bd7c to 2a7963b1, evidence pack 4fbbd344 to 80e24650, ODES cdf704c8 to 4bf12128, exchange 8721e8d3 to bf314f38, action manifest 2c36bcd0 to ff549082, constitutional authority cbc39e79 to 0124adcd). The exchange compatibility profile security-runtime-p2-20261018 at bf314f38 pins the same control plane, runtime, Replay, ODES, evidence pack and manifest revisions. The constitutional authority is a pinned commit (a descendant of d40522af), not the repository head. The suite generation stays p2. r9 supersedes r8. The original profile, r1..r8 and freeze-manifest.json are retained unedited. A verdict applies to this profile only after a full controller run at these pins; none has been run.",
+  "predecessor_profile": "process/security-runtime-candidate-20261016.json",
+  "suite_generation": "p2",
+  "exchange_compatibility_profile": "security-runtime-p2-20261018",
+  "additional_source_hashes": [
+    ".github/workflows/security-runtime-f5b-qualification.yml",
+    "tools/summarize_security_runtime.py"
+  ],
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "2bac7875391cad0a431fa0d75208b7ade39743e3"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "c4a05883266b815f39d97cbf2240406647985147"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "80e24650bb089d3a0cb9c0063c5b4bcc4a436123"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "4bf1212860f4d7c5d4f26758485f91402ffed426"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "bf314f3884e60629c844b1d6cb248f4d76b31c1a"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "ff5490828b2bf7f6a976da209f3f533701855687"
+    }
+  },
+  "constitutional_authority": {
+    "repository": "cogno-us/cognous-institutional-governance",
+    "revision": "0124adcdceb8cee973f0631adb2639f14472df63",
+    "previous_revision": "cbc39e79a1328a74b6cb1aba0cd1e5149164865d"
+  },
+  "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+  "limitations": [
+    "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+    "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+    "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement",
+    "r2 re-freezes four further component pins (replay, odes, evidence_pack, exchange) relative to r1; evidence retained at the original F5b pins or at the r1 pins is historical and is not transferred to r2",
+    "r3 moves six component pins to the P4 generation relative to r2; evidence retained at the original F5b pins, the r1 pins or the r2 pins is historical and is not transferred to r3",
+    "r4 moves only the constitutional authority pin (fb3d9793 to cbc39e79) relative to r3; evidence retained at the r3 or earlier pins is historical and is not transferred to r4, and the authority probe revisions of 2026-10-17 apply only from r4",
+    "r5 moves five component pins to the Programme 2 generation relative to r4; evidence retained at earlier pins is historical and is not transferred to r5",
+    "r6 moves two component pins (ODES, exchange) relative to r5 to add the Programme 2 compatibility tuple and profile; evidence retained at earlier pins is historical and is not transferred to r6",
+    "r7 moves two component pins (ODES, exchange) relative to r6 to document the P4 and P2 profile versions and to align the exchange compatibility profile's ODES pin; evidence retained at earlier pins is historical and is not transferred to r7",
+    "r8 moves two component pins (ODES, exchange) relative to r7 for an ODES documentation cleanup and to align the exchange compatibility profile's ODES pin; evidence retained at earlier pins is historical and is not transferred to r8",
+    "r9 moves eight component pins (control plane, runtime, Replay, evidence pack, ODES, exchange, action manifest, constitutional authority) relative to r8 to the current mains; evidence retained at earlier pins is historical and is not transferred to r9"
+  ]
+}
