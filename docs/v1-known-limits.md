@@ -203,3 +203,13 @@ Five further pins moved (refreeze entries RF-37 to RF-41, profile `process/secur
 - The declared-limit lists and measured counts of the suites that use the commit-time-race export were taken at the r9 pins and are not re-measured by this change.
 - The README table of the hardening probe suite `suites/fix2-probes` still names the r9 heads; the suite was not re-measured at the r10 pins and carries no controller verdict.
 - Adversarial batch 1 (`process/adversarial/components.json`) still names the r9 revisions of the runtime, Replay, evidence pack and ODES as a record of the 2026-10-19 run; batch 1 was not re-run for r10.
+
+### Update 2026-10-19 (representative reference run at the Programme 2 profile)
+
+At the compatibility profile `security-runtime-p2-20261018` the representative reference run is a declared known limit. `tools/reference_release.py` sets `GAX_RUNTIME_COMPATIBILITY_PROFILE` from the hub lock. The exchange (fdc2a410) function `_workflow_options` in `gax_ref_runtime.py` requires a trusted `runtime_authority_profile` under every `security-runtime-*` profile, and `AcceptedGaxRecipientAdapter.handle` calls `run_exchange` without one. This is the exchange's own documented limitation (`experiments/governed_message_transport/profile.md`, F5b).
+
+- The representative step of `reference-release` and the authority batch (and its aggregate) of the `full-candidate-release` matrix are expected to fail at this profile. No component change is made.
+- The earlier profile `merged-producers-v1` is not a substitute: its older pins make the retained bundle reconstruction partial.
+- The result is not claimed as a pass. It is listed here, separately from the passing suites.
+- Decision: owner, 19 October 2026 (declare as known limit, no component change).
+- No qualification-controller run has been made for this entry, and the pins are unchanged from r10.
