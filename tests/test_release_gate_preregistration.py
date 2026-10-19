@@ -258,9 +258,18 @@ class DeclaredKnownLimits(PreregistrationBase):
         declared = {r["id"] for r in fx["declared"]}
         self.assertEqual(len(declared), 7)
         self.assertFalse(declared & set(fx["not_declared_resolved"]["ids"]))
+        # A declaration withdrawn by an appended amendment (the probe now passes and its mark was removed) is no longer
+        # listed in KNOWN_LIMITS.md; the original entry stays in the record and the test function must still exist.
+        withdrawn = {a["id"] for a in self.twin["amendments"] if a["action"] == "withdraw_known_limit"}
+        every_declared = set(declared)
+        every_declared |= {r["id"] for r in self.twin["declared_known_limits"]["wiki_derived"]["declared"]}
+        added = {a["id"] for a in self.twin["amendments"] if a["action"] == "add_known_limit" and a.get("id")}
+        self.assertLessEqual(withdrawn, every_declared | added, "an amendment withdraws a test that was never declared")
         for r in fx["declared"]:
             path = ROOT / r["path"]
             self.assertTrue(has_function(path, base_name(r["id"])), r["id"])
+            if r["id"] in withdrawn:
+                continue
             self.assertIn(f"`{r['id']}`", known_limits_md, r["id"])
             self.assertTrue(r["declared_reason"].startswith("known limit:"), r["id"])
             self.assertIn(r["suite"], {s["id"] for s in self.inventory["suites"]})

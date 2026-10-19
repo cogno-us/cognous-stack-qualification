@@ -91,7 +91,7 @@ def test_control_the_unchanged_authorized_record_is_accepted():
 
 JOURNAL_ONLY_LIMIT = ("known limit: in a record verified without its proposal export and destination ledger, a change to this binding member "
                       "is checked against those two documents only, not against the captured inputs")
-JOURNAL_ONLY_UNCHECKED = ("requirement_id", "effective_max_effects")
+JOURNAL_ONLY_UNCHECKED = ("effective_max_effects",)
 
 
 @pytest.mark.parametrize("member", [pytest.param(m, id=m, marks=[known_limit(JOURNAL_ONLY_LIMIT)] if m in JOURNAL_ONLY_UNCHECKED else [])

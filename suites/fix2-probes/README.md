@@ -24,15 +24,15 @@ two-implementation modules need at least one of theirs), so a missing checkout g
 
 | Variable | Component | Pinned head | Module |
 |---|---|---|---|
-| `PROBE2_ODES_DIR` | open-decision-evidence-standard | `bff8307c` | journal rules, const typing, time grammar |
-| `PROBE2_VERIFIER_DIR` | cognous-open-control-stack-verifier | `31708c33` | journal rules, ledger and binding probes, time grammar |
-| `PROBE2_REPLAY_DIR` | cognous-replay-bundle | `c8e665bd` | folds, bounded scan, time grammar |
-| `PROBE2_CONTROL_PLANE_DIR` | cognous-control-plane | `6093aca7` | stored copies, time grammar, runtime flow |
-| `PROBE2_MANIFEST_DIR` | cognous-action-manifest | `f9ae8527` | proposal limits |
-| `PROBE2_RUNTIME_DIR` | cognous-execution-runtime | `62a5cc15` | result consistency after commit, matrix statement |
-| `PROBE2_ERGONOMICS_DIR` | cognous-open-control-stack-ergonomics | `09502afa` | diagnostics file |
-| `PROBE2_PACK_DIR` | cognous-governance-evidence-pack | `cde3f1f1` | installed distribution check |
-| `PROBE2_EXCHANGE_DIR` | cognous-governed-exchange | `cf5aa6ad` | strict source check |
+| `PROBE2_ODES_DIR` | open-decision-evidence-standard | `4bf12128` | journal rules, const typing, time grammar |
+| `PROBE2_VERIFIER_DIR` | cognous-open-control-stack-verifier | `dc09a98f` | journal rules, ledger and binding probes, time grammar |
+| `PROBE2_REPLAY_DIR` | cognous-replay-bundle | `2a7963b1` | folds, bounded scan, time grammar |
+| `PROBE2_CONTROL_PLANE_DIR` | cognous-control-plane | `2bac7875` | stored copies, time grammar, runtime flow |
+| `PROBE2_MANIFEST_DIR` | cognous-action-manifest | `ff549082` | proposal limits |
+| `PROBE2_RUNTIME_DIR` | cognous-execution-runtime | `c4a05883` | result consistency after commit, matrix statement |
+| `PROBE2_ERGONOMICS_DIR` | cognous-open-control-stack-ergonomics | `e996a53f` | diagnostics file |
+| `PROBE2_PACK_DIR` | cognous-governance-evidence-pack | `80e24650` | installed distribution check |
+| `PROBE2_EXCHANGE_DIR` | cognous-governed-exchange | `bf314f38` | strict source check |
 
 ```bash
 export PROBE2_ODES_DIR=/path/to/open-decision-evidence-standard   # and so on
