@@ -11,11 +11,11 @@
   "listed": "behaviour that is out of the attacked boundary by design is recorded as not applicable, never hidden"
  },
  "run": {
-  "date": "2026-10-18",
-  "kind": "local run (python 3.13, pytest 8.3.5, pydantic 2.13.5, cryptography 50.0.0, jsonschema 4.26.0); not a CI run",
+  "date": "2026-10-19",
+  "kind": "local run (python 3.13, pytest 8.3.5, pydantic 2.13.5, cryptography 50.0.0, jsonschema 4.26.0); not a CI run; run without ADV_ALLOW_REVISION_DRIFT",
   "components": "process/adversarial/components.json",
   "cases": {"passed": 132, "xfailed": 4, "failed": 0, "skipped": 0},
-  "note": "re-run against the final component revisions in components.json after the programme-2 fixes; the first run (126 passed, 7 xfailed, 133 cases) was against control plane 3755c71a and runtime 7170da59; re-run again against the final verifier, Replay, evidence pack and ODES revisions then in components.json (same counts: 131 passed, 4 xfailed; that run named ODES 81979784 and the ODES e2cbc0dc difference is documentation only); the recorded run of this file is the latest one, 2026-10-18 at control plane 3cd17ead, runtime 11de097c, verifier f99a6543, Replay 46e8bd7c, evidence pack 4fbbd344, ODES e2cbc0dc and hub afca5bbd, 132 passed, 4 xfailed, the one added case being the T05 exact-mode agreement test; components.json now names ODES cdf704c8, which differs from e2cbc0dc by documentation only (ODES #99), and batch 1 was not re-run for it"
+  "note": "re-run on 2026-10-19 at the current component revisions in components.json (control plane 2bac7875, runtime c4a05883, verifier dc09a98f, Replay 2a7963b1, evidence pack 80e24650, ODES 4bf12128, hub afca5bbd); same counts and the same four strict xfails as the run of 2026-10-18. The batch was first run on 2026-10-18: the first run (126 passed, 7 xfailed, 133 cases) was against control plane 3755c71a and runtime 7170da59; later runs that day were against the then-final verifier, Replay, evidence pack and ODES revisions (131 passed, 4 xfailed at ODES 81979784), and the last of them at control plane 3cd17ead, runtime 11de097c, verifier f99a6543, Replay 46e8bd7c, evidence pack 4fbbd344, ODES e2cbc0dc and hub afca5bbd (132 passed, 4 xfailed, the one added case being the T05 exact-mode agreement test)"
  },
  "tests": [
   {"id": "T01", "file": "tests/test_t01_direct_call_matrix.py", "status": "prevented", "summary": "authority-enforcing destination classes refuse every direct call without a valid grant or claim, including setting a revoked grant revision back to another status; five non-enforcing classes and the control plane JSON destination accept by design and are listed"},
