@@ -29,7 +29,7 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
   MANIFEST: process/v1-validation/${{ inputs.validation_id }}/freeze-manifest.json
   REFREEZE_LOG: process/v1-validation/${{ inputs.validation_id }}/refreeze-log.json
-  V1_PROFILE: process/security-runtime-f5b-20261016-r8.json
+  V1_PROFILE: process/security-runtime-f5b-20261016-r9.json
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -256,13 +256,13 @@ jobs:
         include:
           - {name: probes-index, repo: cogno-us/cognous-evidence-registry, sha: d17b8ac2b8445d385fbf51185a35914b2d8b835c, env: PROBE_INDEX_DIR, extra: '--npm-dir chain'}
           - {name: probes-bitrep, repo: cogno-us/cognous-evidence-attestation, sha: 5b5077dafde232a7801cb425c4efddcffb468723, env: PROBE_BITREP_DIR, extra: ''}
-          - {name: probes-moltbot-safe, repo: cogno-us/cognous-execution-runtime, sha: 11de097c450d3ad4d89f9add41b00e38e7cc2c7c, env: PROBE_RUNTIME_DIR, extra: ''}
-          - {name: probes-replay-bundle, repo: cogno-us/cognous-replay-bundle, sha: 46e8bd7c263f5075cac3a7a9defcb265384f40e9, env: PROBE_REPLAY_DIR, extra: ''}
-          - {name: probes-evidence-pack, repo: cogno-us/cognous-governance-evidence-pack, sha: 4fbbd34418f8dce7a536879d7bd0378737179f47, env: PROBE_EVIDENCE_PACK_DIR, extra: ''}
-          - {name: probes-odes, repo: cogno-us/open-decision-evidence-standard, sha: cdf704c88bb6542e3f1121a5ceb6cb03fc7d6a52, env: PROBE_ODES_DIR, extra: ''}
-          - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: 3cd17ead6b24301290ad1e50ae4b22bbd93c12fb, env: PROBE_CONTROL_PLANE_DIR, extra: '--extras runtime-authority'}
-          - {name: probes-authority, repo: cogno-us/cognous-institutional-governance, sha: cbc39e79a1328a74b6cb1aba0cd1e5149164865d, env: PROBE_AUTHORITY_DIR, extra: '--full-history --harness-requirements'}
-          - {name: probes-action-manifest, repo: cogno-us/cognous-action-manifest, sha: 2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e, env: PROBE_ACTION_MANIFEST_DIR, extra: '--full-history'}
+          - {name: probes-moltbot-safe, repo: cogno-us/cognous-execution-runtime, sha: c4a05883266b815f39d97cbf2240406647985147, env: PROBE_RUNTIME_DIR, extra: ''}
+          - {name: probes-replay-bundle, repo: cogno-us/cognous-replay-bundle, sha: 2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00, env: PROBE_REPLAY_DIR, extra: ''}
+          - {name: probes-evidence-pack, repo: cogno-us/cognous-governance-evidence-pack, sha: 80e24650bb089d3a0cb9c0063c5b4bcc4a436123, env: PROBE_EVIDENCE_PACK_DIR, extra: ''}
+          - {name: probes-odes, repo: cogno-us/open-decision-evidence-standard, sha: 4bf1212860f4d7c5d4f26758485f91402ffed426, env: PROBE_ODES_DIR, extra: ''}
+          - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: 2bac7875391cad0a431fa0d75208b7ade39743e3, env: PROBE_CONTROL_PLANE_DIR, extra: '--extras runtime-authority'}
+          - {name: probes-authority, repo: cogno-us/cognous-institutional-governance, sha: 0124adcdceb8cee973f0631adb2639f14472df63, env: PROBE_AUTHORITY_DIR, extra: '--full-history --harness-requirements'}
+          - {name: probes-action-manifest, repo: cogno-us/cognous-action-manifest, sha: ff5490828b2bf7f6a976da209f3f533701855687, env: PROBE_ACTION_MANIFEST_DIR, extra: '--full-history'}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -417,13 +417,13 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-execution-runtime
-          ref: 11de097c450d3ad4d89f9add41b00e38e7cc2c7c
+          ref: c4a05883266b815f39d97cbf2240406647985147
           path: runtime
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-control-plane
-          ref: 3cd17ead6b24301290ad1e50ae4b22bbd93c12fb
+          ref: 2bac7875391cad0a431fa0d75208b7ade39743e3
           path: control
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
