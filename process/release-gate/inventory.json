@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "inventory_date": "2026-10-19",
-  "basis": "Counts for Category 1 and the probe and scenario suites come from the release test inventory run of 18 to 19 Oct 2026 (Python 3.12, Linux, shared machine) unless count_basis says collected_at_main, which was measured at qualification main e6b20bd504c4a6aadfc3b142ab0c7b632dbd3c46. No count is a gate result. Estimated or unmeasured values are null with a count_basis that says why.",
-  "qualification_main_at_inventory": "e6b20bd504c4a6aadfc3b142ab0c7b632dbd3c46",
+  "basis": "Counts for Category 1 are the counts of the component suites at the Programme 2 r10 pins, measured outside the controller on 19 Oct 2026 (Python 3.12, Linux, shared machine), except where a row's state note says that the count was not re-measured and keeps the earlier value. Counts for the probe and scenario suites and for this repository's own suites come from the same runs, or are collected at qualification main bf8656327561d6a570377f7c81146f140998b411 where count_basis says collected_at_main. No count is a gate result. Estimated or unmeasured values are null with a count_basis that says why.",
+  "qualification_main_at_inventory": "bf8656327561d6a570377f7c81146f140998b411",
   "gate": "OCS-1 (category 1) and OCS-2 (category 2): 100% of applicable suites, no unexplained skip or xfail, known-limit tests listed separately. OCS-3 (category 3, rows W-I and W-X) is run in full and reported and is not a gate by itself (amendments 77 to 79 of the pre-registration, owner decision of 19 October 2026); a major defect among its failures still blocks.",
   "scope_text": "Bounded synthetic profile only. Comparator applications are configured by Cognous, not vendor implementations. This is not independent certification and not production readiness; operational trust stays on HOLD.",
   "wiki": {
@@ -403,10 +403,10 @@
       "paths": [],
       "run_command": "python -m pytest -q tests",
       "env_vars": [],
-      "expected_count": 2882,
+      "expected_count": 3071,
       "count_basis": "measured_native",
       "status": "ENV",
-      "state_note": "2,874 pass and 8 are conditional (1 needs rfc8785, 7 need an accepted Replay revision). With a plain dev install the 8 skip. With rfc8785 plus the Replay revision named as accepted they pass; with a second accepted Replay revision 4 fail; Replay main is not in the accepted list (B-03). Four tests end in failure when an accepted Replay revision is installed; they are declared as known limits by amendments 29 to 32 and are listed apart, never as passes.",
+      "state_note": "At the r10 pin 2893d935, measured outside the controller with the Replay revision 6a6a4774 installed from its git checkout (an editable install, as the controller provisions it since #174): 3,071 collected, 3,066 pass, 4 fail and 1 skip; the Replay revision is detected, so no test skips for want of an accepted Replay revision. The 4 failing tests are the known-limit tests declared by amendments 29 to 32; they end in failure when the accepted Replay revision is installed and are listed apart, never as passes. The 1 skip needs rfc8785 and is declared by amendment 83; it is unmeasured with the package installed. With Replay installed as a plain copy the revision cannot be detected and 7 more tests skip, 4 of them the declared ones; that is not how the controller installs it. Replay main is not among the accepted revisions (B-03).",
       "known_limit": true,
       "known_limit_count": 4,
       "requires": [
@@ -414,7 +414,13 @@
         "an accepted Replay revision installed"
       ],
       "declared_skips": [
-        "tests/test_jcs_canonicalization.py::test_independent_implementation_agrees_on_random_values: could not import 'rfc8785': No module named 'rfc8785' (optional package, not a dependency or extra of the component)"
+        {
+          "test_id": "tests/test_jcs_canonicalization.py::test_independent_implementation_agrees_on_random_values",
+          "reason": "could not import 'rfc8785': No module named 'rfc8785'",
+          "environment": "the optional package `rfc8785`, which is neither a dependency nor an extra of the component and which the workflow of the component does not install",
+          "amendment": 83,
+          "note": "Unmeasured with the package installed: the package could not be installed in the measurement environment, so the outcome of this test with the package present is not recorded."
+        }
       ]
     },
     {
@@ -426,15 +432,146 @@
       "paths": [],
       "run_command": "make check",
       "env_vars": [],
-      "expected_count": 1519,
+      "expected_count": 1611,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "1,497 pass and 22 skip. The skips are in-body skips inside parametrized tests with data-dependent reasons; they are explained but not declared as marks (B-07). Coverage 97.2%.",
+      "state_note": "At revision dc09a98f, measured outside the controller with `pip install -e .[dev]` and the repository's own options: 1,611 collected, 1,589 pass and 22 skip, none fail. The 22 skips are in-body skips inside two parametrized pair-product tests; they depend on the parameter values only and are declared by amendment 84, by exact test id and reason. The coverage floor of the repository (80) held; the earlier coverage figure of 97.2% was not re-measured.",
       "known_limit": false,
       "known_limit_count": null,
       "skips_outside_declared_list": 0,
       "declared_skips": [
-        "13 x tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[<pair with attempted on either side>] and 9 x tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[<pair with attempted on either side>]: attempted only opens an attempt (start rules) (parameter-driven in-body skip; no environment needed)"
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[attempted-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[attempted-executed]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[attempted-partial]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[attempted-failed]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[attempted-unknown]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[attempted-denied]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[attempted-reconciled]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[executed-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[partial-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[failed-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[unknown-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[denied-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_executor_events_follow_the_table_over_every_pair[reconciled-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[attempted-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[attempted-acknowledged]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[attempted-partial]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[attempted-failed]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[attempted-unknown]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[acknowledged-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[partial-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[failed-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        },
+        {
+          "test_id": "tests/test_result_rules.py::test_control_plane_rows_follow_the_odes_table_over_every_pair[unknown-attempted]",
+          "reason": "attempted only opens an attempt (start rules)",
+          "environment": "none; the skip depends only on the parameter values of the pair and not on any installed component, variable or revision",
+          "amendment": 84
+        }
       ]
     },
     {
@@ -446,15 +583,21 @@
       "paths": [],
       "run_command": "python -m pytest && python tools/adversarial_mutations.py",
       "env_vars": [],
-      "expected_count": 934,
+      "expected_count": 952,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "933 pass and 1 skip (real third-party SDK test; the SDK is installed only by one workflow, B-02). Mutation controls: 3 of 3 detected. The 11 known-limit tests are declared by amendments 47 to 57; each passes by asserting the limit as a negative fact (checked by name at revision 2bac7875).",
+      "state_note": "At the r10 pin 2bac7875, measured outside the controller: 952 collected, 951 pass and 1 skip. The skip is the real third-party SDK test, declared by amendment 82; it is unmeasured with the package installed (the SDK is installed only by one workflow of the component, B-02). The 11 known-limit tests are declared by amendments 47 to 57 and all 11 pass, each by asserting the limit as a negative fact (checked by name at this revision). The mutation controls (3 of 3 detected) were not re-measured at the r10 pin.",
       "known_limit": true,
       "known_limit_count": 11,
       "skips_outside_declared_list": 0,
       "declared_skips": [
-        "tests/test_microsoft_agt.py::test_real_sdk_types_are_supported_when_installed: could not import 'agent_control_specification': No module named 'agent_control_specification' (optional third-party package, not in the component lock)"
+        {
+          "test_id": "tests/test_microsoft_agt.py::test_real_sdk_types_are_supported_when_installed",
+          "reason": "could not import 'agent_control_specification': No module named 'agent_control_specification'",
+          "environment": "the optional third-party package `agent_control_specification`, which the profile document of the component (`docs/microsoft-agt-compatibility.md`) describes as an optional surface that is not part of the core component lock; the component installs it, at a commit-pinned source, only in its own workflow `w5-microsoft-agt.yml`; the controller does not install it for this suite",
+          "amendment": 82,
+          "note": "Unmeasured with the package installed: the package could not be installed in the measurement environment, so the outcome of this test with the package present is not recorded."
+        }
       ]
     },
     {
@@ -469,7 +612,7 @@
       "expected_count": 14,
       "count_basis": "measured_native",
       "status": "ENV",
-      "state_note": "13 pass and 1 skip with the dev extra installed. Without pytest-asyncio 14 fail with an environment error. Counts in the gate; the gate environment must check that the plugin is importable (B-02).",
+      "state_note": "13 pass and 1 skip with the dev extra installed. Without pytest-asyncio 14 fail with an environment error. Counts in the gate; the gate environment must check that the plugin is importable (B-02). Not re-measured at the r10 pin; the earlier value is kept.",
       "known_limit": false,
       "known_limit_count": null,
       "parent": "C1-03",
@@ -486,10 +629,10 @@
       "paths": [],
       "run_command": "python -m pytest -q tests",
       "env_vars": [],
-      "expected_count": 487,
+      "expected_count": 512,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "486 passed and 1 failed once under heavy machine load (a 30 s subprocess limit); it passes alone (B-09).",
+      "state_note": "At the r10 pin 6b16962d, measured outside the controller with the control plane installed next to it as the controller provisions it: 512 collected, 512 pass, 0 skip. One test failed once under heavy machine load in an earlier run (a 30 s subprocess limit) and passed alone (B-09).",
       "known_limit": false,
       "known_limit_count": null,
       "flaky": true
@@ -509,7 +652,7 @@
       "expected_count": 786,
       "count_basis": "measured_overlay",
       "status": "ENV",
-      "state_note": "Unconfigured measurement: 739 pass, 46 skip, 1 fail. 44 skips need a pinned control plane checkout and a manifest fixture; 2 need a live gateway. With control plane main as the pinned checkout 11 helper tests fail and 1 overlay test fails because the tests lag the component (B-04).",
+      "state_note": "Unconfigured measurement: 739 pass, 46 skip, 1 fail. 44 skips need a pinned control plane checkout and a manifest fixture; 2 need a live gateway. With control plane main as the pinned checkout 11 helper tests fail and 1 overlay test fails because the tests lag the component (B-04). Not re-measured at the r10 pin; the earlier overlay value is kept.",
       "known_limit": false,
       "known_limit_count": null,
       "parent": "C1-04",
@@ -526,15 +669,89 @@
       "paths": [],
       "run_command": "python -m pytest -q",
       "env_vars": [],
-      "expected_count": 1009,
+      "expected_count": 1183,
       "count_basis": "measured_native",
-      "status": "FAIL",
-      "state_note": "995 pass, 12 skip (data-driven in-body skips), 1 strict xfail (known limit), 1 fail: the Replay to pack pairing test skips or fails depending on which pack and Replay are installed (B-05). Contains wall-clock assertions (B-09). At the pinned revision 2a7963b1 the suite holds 5 strict expected failures (the figures above were measured at an older main); all five are declared as known limits by amendments 58 to 62.",
+      "status": "ENV",
+      "state_note": "At the r10 pin 6a6a4774, measured outside the controller: 1,183 collected. With no sibling installed: 1,165 pass, 13 skip and 5 strict expected failures. With the evidence pack installed next to it, as the controller provisions it since #175: 1,166 pass, 12 skip and 5 strict expected failures, and the Replay to pack pairing test passes (B-05). The 12 remaining skips are in-body skips declared by amendment 81; the 5 strict expected failures are declared as known limits by amendments 58 to 62. Contains wall-clock assertions (B-09).",
       "known_limit": true,
       "known_limit_count": 5,
       "skips_outside_declared_list": 0,
       "declared_skips": [
-        "12 x tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[{atomic-default,atomic-operation-key}-{target,amount,unit,payload,grant_id,effect_id}]: this capture carries no destination_state in the journal (fixture content; no environment needed)"
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-default-target]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-default-amount]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-default-unit]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-default-payload]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-default-grant_id]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-default-effect_id]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-operation-key-target]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-operation-key-amount]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-operation-key-unit]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-operation-key-payload]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-operation-key-grant_id]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        },
+        {
+          "test_id": "tests/test_journal_observation_content.py::test_a_changed_destination_state_member_is_refused_without_an_export[atomic-operation-key-effect_id]",
+          "reason": "this capture carries no destination_state in the journal",
+          "environment": "none; the skip does not depend on any installed component or variable",
+          "amendment": 81
+        }
+      ],
+      "requires": [
+        "the evidence pack installed next to it (one pairing test)"
       ]
     },
     {
@@ -549,7 +766,7 @@
       "expected_count": 1105,
       "count_basis": "measured_overlay",
       "status": "ENV",
-      "state_note": "Unconfigured measurement: 996 pass, 107 skip (producer checkouts not configured), 1 xfail, 1 fail (the pairing test of C1-05). At the pinned revision 2a7963b1 the suite holds 5 strict expected failures (the figures above were measured at an older main); all five are declared as known limits by amendments 58 to 62.",
+      "state_note": "Unconfigured measurement: 996 pass, 107 skip (producer checkouts not configured), 1 xfail, 1 fail (the pairing test of C1-05); measured at an older main and not re-measured at the r10 pin, so the count is kept. At the r10 pin 6a6a4774 the native suite holds 5 strict expected failures, all declared as known limits by amendments 58 to 62.",
       "known_limit": true,
       "known_limit_count": 5,
       "parent": "C1-05",
@@ -566,10 +783,10 @@
       "paths": [],
       "run_command": "python -m pytest -q tests && agep check-examples",
       "env_vars": [],
-      "expected_count": 362,
+      "expected_count": 366,
       "count_basis": "measured_native",
       "status": "ENV",
-      "state_note": "362 pass with the Replay revision the importer pins; with Replay main 351 pass and 11 error by design (revision not the pinned one). The pack cannot be gated against Replay main until the pin round (B-03, B-12).",
+      "state_note": "At the r10 pin fd030615, measured outside the controller: 346 collected with no sibling installed (314 pass and 33 skip, import skips for the Replay, control plane and pack packages). With the Replay revision (installed from its git checkout, editable) and the control plane installed next to it, as the controller provisions them since #175: 366 collected, 366 pass, 0 skip. With Replay installed as a plain copy 13 tests fail or error because the importer requires the installed Replay code to be the code of its checkout. The row declares no skip (amendment 80). The pack runs against the Replay revision it pins; it is not gated against Replay main (B-03).",
       "known_limit": false,
       "known_limit_count": null,
       "requires": [
@@ -594,7 +811,7 @@
       "expected_count": 483,
       "count_basis": "measured_overlay",
       "status": "ENV",
-      "state_note": "Unconfigured measurement: 440 + 43 collected; 366 pass and 74 skip in the first run; the producer v2 file has 1 fail and 42 errors because dependency checkouts are not configured.",
+      "state_note": "Unconfigured measurement: 440 + 43 collected; 366 pass and 74 skip in the first run; the producer v2 file has 1 fail and 42 errors because dependency checkouts are not configured. Not re-measured at the r10 pin; the earlier overlay value is kept.",
       "known_limit": false,
       "known_limit_count": null,
       "parent": "C1-06"
@@ -608,10 +825,10 @@
       "paths": [],
       "run_command": "python -m pytest -q tests",
       "env_vars": [],
-      "expected_count": 234,
+      "expected_count": 311,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "234 pass. Thread and fence tests use short fixed waits (B-09).",
+      "state_note": "At the r10 pin fdc2a410, measured outside the controller: 311 collected, 311 pass. Thread and fence tests use short fixed waits (B-09).",
       "known_limit": false,
       "known_limit_count": null,
       "flaky": true
@@ -631,7 +848,7 @@
       "expected_count": 312,
       "count_basis": "measured_overlay",
       "status": "ENV",
-      "state_note": "Unconfigured measurement: 239 pass, 3 skip, 70 fail because the upstream example files and producer checkouts are not present.",
+      "state_note": "Unconfigured measurement: 239 pass, 3 skip, 70 fail because the upstream example files and producer checkouts are not present. Not re-measured at the r10 pin; the earlier overlay value is kept.",
       "known_limit": false,
       "known_limit_count": null,
       "parent": "C1-07"
@@ -648,7 +865,7 @@
       "expected_count": 545,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "545 pass; coverage 95.7%; all gates ok; wheel builds.",
+      "state_note": "545 pass; coverage 95.7%; all gates ok; wheel builds. Not re-measured at the r10 pins; the earlier value is kept.",
       "known_limit": false,
       "known_limit_count": null
     },
@@ -661,10 +878,10 @@
       "paths": [],
       "run_command": "python -m unittest discover -s tests -v; python testing/harness/run_authority_lineage.py",
       "env_vars": [],
-      "expected_count": 469,
+      "expected_count": 491,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "469 tests (165 subtests) pass. Its CI runs only a subset (B-11). The earlier known-limit count of 1 cannot be traced to a test: no test of the repository carries a known-limit, expected-failure or xfail mark or name (491 tests collected at revision 0124adcd, checked by name), and no test is named as the limit; the evidence supports 0 named known-limit tests. The repository's lineage notes state the limits of its date checks in prose that no test asserts. No known limit is declared for this row.",
+      "state_note": "At the pinned revision 0124adcd, measured outside the controller: 491 collected, 491 pass, 0 skip. The earlier value of 469 was recorded before the count was taken at this revision. Its CI runs only a subset (B-11). The earlier known-limit count of 1 cannot be traced to a test: no test of the repository carries a known-limit, expected-failure or xfail mark or name (checked by name at this revision), and no test is named as the limit; the evidence supports 0 named known-limit tests. The repository's lineage notes state the limits of its date checks in prose that no test asserts. No known limit is declared for this row.",
       "known_limit": false,
       "known_limit_count": 0
     },
@@ -680,7 +897,7 @@
       "expected_count": 245,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "245 tests and 5 examples pass.",
+      "state_note": "At the r10 pin ff549082, measured outside the controller: 245 collected, 245 pass. The 5 examples were checked in the earlier run.",
       "known_limit": false,
       "known_limit_count": null
     },
@@ -693,10 +910,10 @@
       "paths": [],
       "run_command": "python -m pytest -q tests",
       "env_vars": [],
-      "expected_count": 95,
+      "expected_count": 81,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "95 pass. Its CI runs 1 of the 95 (B-11).",
+      "state_note": "At the pin 5b5077da, measured outside the controller: 81 collected, 81 pass (the earlier value was 95). Its CI runs 1 of the tests (B-11).",
       "known_limit": false,
       "known_limit_count": null
     },
@@ -709,10 +926,10 @@
       "paths": [],
       "run_command": "python -m pytest -q tests",
       "env_vars": [],
-      "expected_count": 124,
+      "expected_count": 121,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "124 pass; deprecation warnings only. Its CI runs a delegated chain qualification instead (B-11).",
+      "state_note": "At the pin d17b8ac2, measured outside the controller: 121 collected, 121 pass (the earlier value was 124). Its CI runs a delegated chain qualification instead (B-11). The editable and plain installs of the package fail on its flat layout; the suite runs from its requirements files.",
       "known_limit": false,
       "known_limit_count": null
     },
@@ -728,7 +945,7 @@
       "expected_count": 257,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "257 (5 + 252) pass with 0 skips when run from a private checkout; the repository is private and not part of the public hub.",
+      "state_note": "257 (5 + 252) pass with 0 skips when run from a private checkout; the repository is private and not part of the public hub. Not re-measured at the r10 pins; the earlier value is kept.",
       "known_limit": false,
       "known_limit_count": null
     },
@@ -746,10 +963,10 @@
       "env_vars": [
         "VERIFIER_CLONE"
       ],
-      "expected_count": 292,
+      "expected_count": 413,
       "count_basis": "collected_at_main",
       "status": "PASS",
-      "state_note": "At qualification main e6b20bd: 292 collected, 291 pass and 1 skip (the verifier-mutation harness test that needs VERIFIER_CLONE). The count was 286 in the earlier inventory; the difference comes from tests added by work packages since. tests/native is excluded here and has its own row (X-18). The inventory consistency test added with this inventory also lives here and raises the count by its own tests.",
+      "state_note": "At qualification main bf865632: 413 collected with tests/native excluded. 1 skip (the verifier-mutation harness test that needs VERIFIER_CLONE), declared in this row. tests/native is excluded here and has its own row (X-18).",
       "known_limit": false,
       "known_limit_count": null,
       "skips_outside_declared_list": 0,
@@ -769,7 +986,7 @@
       "expected_count": 653,
       "count_basis": "measured_native",
       "status": "PASS",
-      "state_note": "653 pass with full history. Three tests need commit history (`tests.test_publication_inventory.InventoryTests::test_actual_source_digest_substitution`, `::test_real_frozen_package`, `::test_source_partition_omission`): they fail on a depth-1 checkout of the same revision and pass with full history. This is an environment requirement (B-10) and not a known limit: no test of the hub carries a known-limit, xfail or skip mark, and none is declared. A run of this row needs a full-history checkout. Some multi-process tests use short fixed timeouts (B-09).",
+      "state_note": "At the r10 hub pin 8517818f, measured outside the controller with full history: 653 collected, 653 pass (128 subtests). Three tests need commit history (`tests.test_publication_inventory.InventoryTests::test_actual_source_digest_substitution`, `::test_real_frozen_package`, `::test_source_partition_omission`): they fail on a depth-1 checkout of the same revision and pass with full history. This is an environment requirement (B-10) and not a known limit: no test of the hub carries a known-limit, xfail or skip mark, and none is declared. A run of this row needs a full-history checkout. Some multi-process tests use short fixed timeouts (B-09).",
       "known_limit": false,
       "known_limit_count": 0,
       "flaky": true,
@@ -819,7 +1036,7 @@
       "expected_count": 223,
       "count_basis": "collected_at_main",
       "status": "PARTIAL",
-      "state_note": "Probe-state work item (T4a, #140) and its follow-ups (#141 and governance #55), measured with full git history and the index node install: 223 collected in 17 modules (the provenance probes are collected only with PROBE_PINS_DIR). Before T4a: 210 pass, 13 fail. Now: 6 authority-ra probes are strict expected failures recorded as registered findings (known limits, listed in suites/v1-probes/KNOWN_LIMITS.md). The 6 ODES probes failed only because the probe helper lagged the package envelope; the helper was corrected in #141 and the module passes at the frozen ODES pin and at ODES main. The authority wording probe failed on one wrapped line of a governance document; the line was reflowed in governance #55 and the probe, which is unchanged, passes against governance main. A recount of the whole suite after these two changes has not been run; the other modules are as T4a measured them. A strict expected failure is reported as skipped, so a requirement that selects those 6 cases stays inconclusive until its known-limit status is declared before a run.",
+      "state_note": "Probe-state work item (T4a, #140) and its follow-ups (#141 and governance #55), measured with full git history and the index node install: 223 collected in 17 modules (the provenance probes are collected only with PROBE_PINS_DIR). Before T4a: 210 pass, 13 fail. Now: 6 authority-ra probes are strict expected failures recorded as registered findings (known limits, listed in suites/v1-probes/KNOWN_LIMITS.md). The 6 ODES probes failed only because the probe helper lagged the package envelope; the helper was corrected in #141 and the module passes at the frozen ODES pin and at ODES main. The authority wording probe failed on one wrapped line of a governance document; the line was reflowed in governance #55 and the probe, which is unchanged, passes against governance main. At the r10 pins the nine probe jobs of the controller matrix, run outside the controller, gave 223 test cases: 217 pass and 6 strict expected failures (the 6 authority-ra probes of probes-control-plane), none fail. A strict expected failure is reported as skipped, so a requirement that selects those 6 cases stays inconclusive unless the case is declared (amendments 46 and 63).",
       "known_limit": true,
       "known_limit_count": 6,
       "requires": [
@@ -854,7 +1071,7 @@
       "expected_count": 213,
       "count_basis": "collected_at_main",
       "status": "PASS",
-      "state_note": "Measured at the main heads of the nine components on 2026-10-19 (after #162): 207 passed, 6 xfailed, 0 failed (213 collected). The 56 marks that covered passing probes were removed after T4a, and so were the marks of 16 probes that now pass (the 15 ODES attempt-identity rows and the verifier row for `requirement_id`); those run as controls. The 6 remaining probes are strict expected failures with a `known limit:` reason, listed with component and property in suites/fix2-probes/KNOWN_LIMITS.md (known-limit count 6). A decision per group (keep as known limit, revise the expectation, or harden the component) is pending for the groups that remain; none of the 6 is a pass.",
+      "state_note": "Measured at the main heads of the nine components on 2026-10-19 (after #162), and again at the r10 pins with the verifier and ergonomics revisions of the suite README: 207 passed, 6 xfailed, 0 failed (213 collected) both times. The 56 marks that covered passing probes were removed after T4a, and so were the marks of 16 probes that now pass (the 15 ODES attempt-identity rows and the verifier row for `requirement_id`); those run as controls. The 6 remaining probes are strict expected failures with a `known limit:` reason, listed with component and property in suites/fix2-probes/KNOWN_LIMITS.md (known-limit count 6). A decision per group (keep as known limit, revise the expectation, or harden the component) is pending for the groups that remain; none of the 6 is a pass.",
       "known_limit": true,
       "known_limit_count": 6,
       "state_basis": "state at main after T4a; the decision per known-limit group is pending",
@@ -872,12 +1089,12 @@
         "tools/run_security_runtime.py",
         "tools/summarize_security_runtime.py"
       ],
-      "run_command": "python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016-r8.json --prepare-work --components DIR --out OUT (twice), then python -I tools/summarize_security_runtime.py OUT/run-N",
+      "run_command": "python tools/run_security_runtime.py --profile process/security-runtime-f5b-20261016-r10.json --prepare-work --components DIR --out OUT (twice), then python -I tools/summarize_security_runtime.py OUT/run-N",
       "env_vars": [],
       "expected_count": null,
       "count_basis": "workflow_defined",
       "status": "NOT_RUN_HERE",
-      "state_note": "Builds the pinned components; count is in the run output. Collection fails without the built components.",
+      "state_note": "Builds the pinned components of the r10 profile (the exchange compatibility profile security-runtime-p2-20261018 at fdc2a410 pins the same revisions); the count is in the run output. Collection fails without the built components. Run twice outside the controller at the r10 pins: 36 test cases each time, 36 pass, 0 skip, 0 failure; the runner expects 36.",
       "known_limit": false,
       "known_limit_count": null,
       "requires": [
@@ -927,9 +1144,9 @@
       "expected_count": 1093,
       "count_basis": "collected_at_main",
       "status": "NOT_RUN_HERE",
-      "state_note": "1,093 tests collected at qualification main. Not run by the inventory; needs the built components, the hub, the index and attestation packages and node. Race cases join threads for 30 s (B-09).",
-      "known_limit": false,
-      "known_limit_count": null,
+      "state_note": "1,093 tests collected at qualification main. Not run by the inventory; needs the built components, the hub, the index and attestation packages and node. Race cases join threads for 30 s (B-09). A measurement outside the controller at the r10 pins found 23 failing tests of 1,093. 19 were stale expectations after intended component changes and were updated in #176 (no test id renamed; the assertions of no second effect and of an unconsumed claim are kept). The other 4 are the SCN-C04 copy cases (`test_scn_c04_index_api_copied_evidence_is_not_counted_as_independent_corroboration` with the variants `five_copies_of_one_source_distinct_metadata`, `five_exact_duplicate_submissions`, `five_copies_attested_by_five_attestors` and `one_evidence_record_linked_five_times`), declared as the known limit F-19 by amendments 85 to 88 and classified with the rest by amendment 89; they are listed apart and never as passes. Nothing else is declared for this suite.",
+      "known_limit": true,
+      "known_limit_count": 4,
       "flaky": true
     },
     {
@@ -1216,7 +1433,7 @@
       "expected_count": 136,
       "count_basis": "collected_at_main",
       "status": "NOT_RUN_HERE",
-      "state_note": "136 tests collected without any environment variable (T01 11, T02 4, T03 15, T04 4, T05 5, T06 2, T07 13, T08 14, T09 3, T10 5, T11 4, T12 5, T13 11, T14 5, T15 17, T16 5, T17 4, T18 2, T19 5, T20 2); no skip mark. 4 are strict expected failures (`test_t05_target_equivalence.py::test_evaluators_agree_on_every_variant[namespace_prefix]` and `[exact_target_as_prefix]`, `test_t07_authority_aba.py::test_route_a_unspent_decision_after_recreation[identical]` and `[new_status_version]`). By design nothing skips: a missing checkout fails. The seven checkouts are named in process/adversarial/components.json; the suite has no recipe in the controller's default recipes. The 4 strict expected failures are declared as known limits by amendments 69 to 72 of the pre-registration (local ids in process/adversarial/tests) and are listed apart, never as passes; the controller does not collect this suite, so the declarations affect no controller row. Run outcomes were not re-measured for this entry.",
+      "state_note": "136 tests collected without any environment variable (T01 11, T02 4, T03 15, T04 4, T05 5, T06 2, T07 13, T08 14, T09 3, T10 5, T11 4, T12 5, T13 11, T14 5, T15 17, T16 5, T17 4, T18 2, T19 5, T20 2); no skip mark. 4 are strict expected failures (`test_t05_target_equivalence.py::test_evaluators_agree_on_every_variant[namespace_prefix]` and `[exact_target_as_prefix]`, `test_t07_authority_aba.py::test_route_a_unspent_decision_after_recreation[identical]` and `[new_status_version]`). By design nothing skips: a missing checkout fails. The seven checkouts are named in process/adversarial/components.json; the suite has no recipe in the controller's default recipes. The 4 strict expected failures are declared as known limits by amendments 69 to 72 of the pre-registration (local ids in process/adversarial/tests) and are listed apart, never as passes; the controller does not collect this suite, so the declarations affect no controller row. Measured outside the controller at the r10 pins with ADV_ALLOW_REVISION_DRIFT=1 (components.json names earlier revisions for four components): 132 pass, 4 expected failures, 0 fail.",
       "known_limit": true,
       "known_limit_count": 4,
       "requires": [
@@ -1240,7 +1457,7 @@
       "expected_count": 64,
       "count_basis": "collected_at_main",
       "status": "NOT_RUN",
-      "state_note": "17 in-scope cases (2 APPLICABLE, 15 PARTLY_COVERED); 14 have tests in suites/wiki-derived (64 tests). The cases stay NOT RUN until the controller runs. Local runs of the packages pass at the pinned reference; these are material for the controller run, not a recorded verdict. Known-limit tests named: 6 (declared at registration or by amendments; the list is in section 5 of this page). The test `test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit`, withdrawn as a known limit by amendment 65 and replaced by amendment 66, is still in the suite and still fails at the current exchange pin (recorded in amendment 73); whether it is retired from the gate set is for the owner to decide. Gate status: reported, not gating (amendments 77 to 79 of the pre-registration); failures are listed with their case ids under FAILING (NON-GATING) and triaged for major defects.",
+      "state_note": "17 in-scope cases (2 APPLICABLE, 15 PARTLY_COVERED); 14 have tests in suites/wiki-derived (64 tests). The cases stay NOT RUN until the controller runs. A local run of the whole suite at the r10 pins, outside the controller, is not a recorded verdict or a gate result: it collected 64 tests for this row, 63 passed and 1 failed, the retired test named below. Known-limit tests named: 6 (declared at registration or by amendments; the list is in section 5 of this page). The test `test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit`, withdrawn as a known limit by amendment 65 and replaced by amendment 66, is still in the suite, unchanged, and still fails at the exchange pin (amendment 73); it stays failing and non-gating, reported under FAILING (NON-GATING) with the label UNDECLARED, and is not deselected (amendments 73, 77 and 78). Gate status: reported and non-gating (amendments 77 to 79 of the pre-registration); the suite is run in full, and failures are listed with their case ids under FAILING (NON-GATING) and triaged for major defects.",
       "known_limit": true,
       "known_limit_count": 6,
       "wiki": {
@@ -1268,7 +1485,7 @@
       "expected_count": 217,
       "count_basis": "collected_at_main",
       "status": "NOT_RUN",
-      "state_note": "48 in-scope cases (18 APPLICABLE, 30 PARTLY_COVERED); 47 have tests in suites/wiki-derived (217 tests). All 18 APPLICABLE cross-component cases have a wiki-derived test; 16 of the 20 APPLICABLE cases have partial existing tests named in applicability.json and 4 need new implementation. Cases stay NOT RUN until the controller runs. Known-limit tests named: 29 (declared at registration or by amendments; the list is in section 5 of this page). Gate status: reported, not gating (amendments 77 to 79 of the pre-registration); failures are listed with their case ids under FAILING (NON-GATING) and triaged for major defects.",
+      "state_note": "48 in-scope cases (18 APPLICABLE, 30 PARTLY_COVERED); 47 have tests in suites/wiki-derived (217 tests). All 18 APPLICABLE cross-component cases have a wiki-derived test; 16 of the 20 APPLICABLE cases have partial existing tests named in applicability.json and 4 need new implementation. Cases stay NOT RUN until the controller runs. Known-limit tests named: 29 (declared at registration or by amendments; the list is in section 5 of this page). A local run of the whole suite at the r10 pins, outside the controller, is not a recorded verdict or a gate result: it collected 217 tests for this row, 213 passed and 4 failed; the run report lists any failure with its case id and label (amendment 78). Gate status: reported and non-gating (amendments 77 to 79 of the pre-registration); the suite is run in full, and failures are listed with their case ids under FAILING (NON-GATING) and triaged for major defects.",
       "known_limit": true,
       "known_limit_count": 29,
       "wiki": {
@@ -1283,18 +1500,18 @@
   "blockers": [
     {
       "id": "B-01",
-      "summary": "fix2-probes: the 56 marks that covered passing probes were removed (T4a) and 16 more after the component changes; 6 probes remain as recorded known limits, with a decision per group pending (keep, revise the expectation, or harden)",
+      "summary": "fix2-probes: the 56 marks that covered passing probes were removed (T4a) and 16 more after the component changes; 6 probes remain as recorded known limits (207 pass and 6 expected failures at the r10 pins), with a decision per group pending (keep, revise the expectation, or harden)",
       "state": "being_resolved"
     },
     {
       "id": "B-02",
-      "summary": "Control plane real-SDK test skips without the pinned third-party SDK; the AGT test file needs pytest-asyncio",
+      "summary": "Control plane real-SDK test skips without the third-party SDK; the skip is declared by amendment 82 and unmeasured with the package installed; the AGT test file needs pytest-asyncio",
       "state": "open"
     },
     {
       "id": "B-03",
-      "summary": "ODES and Replay accepted-revision graph does not include Replay main",
-      "state": "open"
+      "summary": "ODES and Replay accepted-revision graph: at the r10 pins the ODES and evidence pack suites run with the pinned Replay revision 6a6a4774 installed from its git checkout, with no accepted-revision skip or error (qualification #169 moved the pins, #174 and #175 changed how the controller installs the siblings); Replay main is not among the accepted revisions",
+      "state": "resolved for the r10 pins; open for Replay main"
     },
     {
       "id": "B-04",
@@ -1303,18 +1520,18 @@
     },
     {
       "id": "B-05",
-      "summary": "Replay to pack pairing test depends on which pack and Replay are installed",
-      "state": "open"
+      "summary": "Replay to pack pairing test depended on which pack and Replay are installed; with the pack installed next to Replay, as the controller provisions it since #175, the test passes at the r10 pins",
+      "state": "resolved by #175"
     },
     {
       "id": "B-06",
-      "summary": "v1-probes: 6 registered-finding probes are recorded as known limits; the 6 ODES probes and 1 wording probe were lags of a helper and of a document and are corrected; controller handling of known-limit results is pending",
+      "summary": "v1-probes: 6 registered-finding probes are recorded as known limits; the 6 ODES probes and 1 wording probe were lags of a helper and of a document and are corrected; the nine probe jobs ran 223 cases at the r10 pins with 217 passes and the 6 expected failures; the controller reports declared known limits beside their rows (#166, amendments 46 and 63) and its run has not been made",
       "state": "being_resolved"
     },
     {
       "id": "B-07",
-      "summary": "In-body skips (verifier 22, Replay 12) and conditional skips (ODES 8) are not declared",
-      "state": "open"
+      "summary": "In-body skips (verifier 22, Replay 12) and conditional skips (control plane 1, ODES 1) are declared by amendments 80 to 84 and listed as declared_skips; the 7 ODES skips that needed an accepted Replay revision no longer occur with Replay installed from its git checkout (#174)",
+      "state": "resolved by #174 and #175"
     },
     {
       "id": "B-08",
@@ -1338,7 +1555,7 @@
     },
     {
       "id": "B-12",
-      "summary": "Pin graph: component pins are behind main; orchestrator suites assert their older pins",
+      "summary": "Pin graph: the qualification pins were moved to the r10 tuple by #169 (r9 by #161); the pins do not select later documentation-only descendants of the components (decision of 19 October 2026); the orchestrator suites assert their own pins and were not re-measured",
       "state": "open"
     }
   ],
