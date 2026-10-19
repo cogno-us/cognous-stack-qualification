@@ -1,6 +1,6 @@
-# Adversarial test plan (hypotheses and plan only)
+# Adversarial test plan (hypotheses and plan; batch 1 implemented)
 
-> **Status.** This is a hypothesis backlog and a build plan. Nothing here is a finding. No test described below has been executed or written; every batch result is `not tested`. Retained existing tests are cited as evidence from their own earlier runs, not as newly executed work. Failing to reproduce an attack would not prove safety, and nothing here is a production-readiness claim. Prepared 2026-10-18 under programme 2 (tracker cogno-us/cognous-control-plane#43).
+> **Status.** This is a hypothesis backlog and a build plan; the mapping of the 75 ideas (sections 4 to 6) is unchanged. Nothing here is a finding. Batch 1 (T01 to T20) has since been implemented under [`process/adversarial/tests`](../process/adversarial/tests); its recorded results are in [`process/adversarial/README.md`](../process/adversarial/README.md) and [`batch-1.json`](../process/adversarial/batch-1.json). The per-test `Current result: not tested` fields in section 7 and the `result` fields of the JSON twin are the state at the time the plan was written and are superseded by those results for the tests of batch 1; ideas and chains that no batch-1 test covers remain `not tested`. Retained existing tests are cited as evidence from their own earlier runs, not as newly executed work. Failing to reproduce an attack would not prove safety, and nothing here is a production-readiness claim. Prepared 2026-10-18 under programme 2 (tracker cogno-us/cognous-control-plane#43).
 
 The input is an external brainstorm of 75 numbered attack hypotheses (groups A to I) and 8 compound chains. The 5 October 2026 recommendations it descends from are historical; each idea was mapped by reading current component code and the retained suites, not by trusting them. 'Moltbot Safe' in older text means the current `cognous-execution-runtime`. Machine-readable twin: [`process/adversarial/ideas.json`](../process/adversarial/ideas.json).
 
@@ -385,6 +385,7 @@ Selection: tier order first, then the planning score, with at most one test per 
 - **Positive control:** No kill yields one effect
 - **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
 - **Residual limits:** Machine crash and fsync loss are not modelled
+- **Implemented scope (batch 1):** five route-A persistence boundaries (decision, attempted row, inside the destination call, after the destination commit before the acknowledgement, after the acknowledged row), with the operation-identity join row and operation key inside the same points. Route C, the witness write and kills inside SQLite or the JSON store's own write are not covered; see the module docstring of `process/adversarial/tests/test_t13_process_kill.py`.
 - **Overlap with deferred streams:** none
 
 ### T14. Observation field matrix
@@ -424,6 +425,7 @@ Selection: tier order first, then the planning score, with at most one test per 
 - **Positive control:** Scanner finds a canary planted deliberately
 - **Result vocabulary:** prevented, detected only, reproduced failure, inconclusive, not applicable, not tested. Current result: `not tested`.
 - **Residual limits:** Subprocess environment of live OpenShell untested
+- **Implemented scope (batch 1):** the artifacts of the component set under test, searched in four forms (plain, base64, hex, JSON-escaped); the live OpenShell subprocess environment, other encodings and components outside that set are not covered; see the module docstring of `process/adversarial/tests/test_t16_canary_sweep.py`.
 - **Overlap with deferred streams:** S1 code attacks
 
 ### T17. Last-unit budget race and grant multiplication
@@ -534,4 +536,4 @@ Hypotheses that touch these are preserved, classed as needing a capability or as
 
 ## 12. Process notes
 
-This file and its JSON twin are the only deliverables of the mapping phase. No attack or exploit probe was run, no pins were moved, and no controller run was made. A guard test, `tests/test_adversarial_plan.py`, checks identifiers, vocabulary, counts against this document, the batch size limit, that every result is `not tested`, and that qualification-repo citations exist.
+This file and its JSON twin are the only deliverables of the mapping phase (the statements in this section describe that phase; batch 1 was implemented afterwards, see the status note at the top). No attack or exploit probe was run, no pins were moved, and no controller run was made. A guard test, `tests/test_adversarial_plan.py`, checks identifiers, vocabulary, counts against this document, the batch size limit, that every result is `not tested`, and that qualification-repo citations exist.

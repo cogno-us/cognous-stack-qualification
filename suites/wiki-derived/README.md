@@ -5,6 +5,11 @@ Tests derived from the cases of the AI Security Wiki scenario catalog that
 that falls inside the declared scope of the stack, against the synthetic bounded reference. The suite adds tests only: it
 changes no component, pin, profile, result file or workflow.
 
+The [release test inventory](../../docs/test-inventory.md) (section 5) states how many cases are in scope, which cases have tests, the
+individual-component and cross-component split (W-I and W-X) and which applicable cases have no test yet. Its machine-readable twin is
+[`process/release-gate/inventory.json`](../../process/release-gate/inventory.json). This README describes the suite; the inventory is
+the source for counts.
+
 ## Status
 
 The cases stay **NOT RUN** until the owner runs the qualification controller. A green local run of this suite is material for
@@ -55,10 +60,30 @@ they are skipped, never passed.
 SCN_COMPONENTS_DIR=DIR python -m pytest -q -p no:cacheprovider suites/wiki-derived
 ```
 
-## Known gaps at this commit
+## Packages
 
-- The four route smoke tests (routes A, B, C and `run_twice`) are **unverified**: they were never run against the pinned
-  reference. They skip, and never pass, without `SCN_COMPONENTS_DIR`.
+The suite was added in work packages. Collected counts are those of `main` at the time of writing (181 tests in all); the inventory
+is the source for current counts.
+
+| Package | File | Tests | Covers |
+|---|---|---:|---|
+| WP-0 | `test_wiki_skeleton.py`, `_wiki_helpers.py`, `conftest.py` | 9 | The registry checks and one smoke test per route (A, B, C) plus the `run_twice` helper; the helpers and the `wiki_case` marker |
+| A | `test_wp_a_grant_lifecycle.py` | 23 | Grant lifetime, expiry, revocation and rotation (routes A and B) |
+| B | `test_wp_b_identity_scope.py` | 28 | Identity, principal binding, privilege scope and the coverage report |
+| C | `test_wp_c_budget_stop_recovery.py` | 39 | Budgets, stop, approval binding, restore and failure behaviour |
+| D | `test_wp_d_manifest_change_control.py` | 24 | Manifest, tool binding, allow-list and change control |
+| E | `test_wp_e_exchange_injection.py` | 25 | Exchange route C and injected-text corpora |
+| F | `test_wp_f_records_replay_policy.py` | 33 | Records, replay, policy revision and pin and digest refusal |
+
+Each package module states, in its docstring, the cases it checks, the limits it asserts as limits and what it does not claim. Further
+packages are added separately; a package is listed here only after its files are on `main`.
+
+## Known gaps
+
+- The four route smoke tests (routes A, B, C and `run_twice`) ran green against the pinned reference when package B landed. They
+  still skip, and never pass, without `SCN_COMPONENTS_DIR`. This README does not record a fresh run.
+- None of the 20 APPLICABLE cases has a test in this suite yet; the inventory names the partial existing tests for 16 of them and the
+  four that need new implementation. The 39 in-scope cases that do have tests are all PARTLY_COVERED.
 - No workflow collects this suite. The workflows that run `python -m unittest discover -s tests` do not reach it. The step
   needed is `python -m pytest -q -p no:cacheprovider suites/wiki-derived`, with `SCN_COMPONENTS_DIR` set to the same prepared
-  components directory as the `suites/v1-scenarios` step of `v1-validation.yml`. No workflow was edited here.
+  components directory as the `suites/v1-scenarios` step of `v1-validation.yml`. No workflow was edited by this documentation change.

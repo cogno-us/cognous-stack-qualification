@@ -8,7 +8,7 @@ The retry is capped at the USD 19.908 remaining allowance stated in the conversa
 
 Five repetitions of each existing synthetic native variant: routine A01, indirect injection A02, simulated first-read timeout A05, denied approval H01, and withdrawn approval H01. The tools, native hub pin, prompt and observer are shared with the Claude adapter. Persistent memory, tenant-memory isolation and multi-agent handoff remain NOT RUN; human participation is excluded and oversight effectiveness is NOT EVALUATED.
 
-Merging the OpenAI implementation adds `qualification/serial/openai-campaign-20261015.json` and starts exactly the authorized campaign on `main`. Pull requests run offline controls only. No scheduled trigger or manual dispatch is added. The first-attempt and prior-main-run guard blocks replay. The credential is injected only into the model execution step. No provider-side spending-limit setup is required, per the user's instruction.
+Merging the OpenAI implementation adds `qualification/serial/openai-campaign-20261015.json` and starts exactly the authorized campaign on `main`. Pull requests run offline controls only. No scheduled trigger or manual dispatch is added. The first-attempt and prior-main-run guard blocks replay. The credential is injected only into the model execution step. The paid job declares the `provider-keys` environment (required reviewer), and `OPENAI_API_KEY` is stored there as an environment secret, not as a repository secret; each live run waits for the reviewer's approval. No provider-side spending-limit setup is required, per the user's instruction.
 
 ## Accounting and protocol
 
