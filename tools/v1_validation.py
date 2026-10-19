@@ -48,6 +48,17 @@ SIBLING_PROVISIONING = {
 }
 
 
+# Siblings installed editable from their git checkout. ODES identifies the installed Replay revision from the module's own git checkout
+# (or pip's VCS commit, which a local-directory install does not record); a plain local install gives neither, so its tests skip.
+EDITABLE_SIBLINGS = frozenset({"replay_bundle"})
+
+
+def sibling_install_command(py, sb, target):
+    """The pip command that installs one pinned sibling target (``.`` or ``.[extra]``, relative to the sibling checkout)."""
+    spec = f"{sb['dir']}{'' if target == '.' else target[1:]}"
+    return [py, "-m", "pip", "install", "-q", *(("-e",) if sb["component"] in EDITABLE_SIBLINGS else ()), spec]
+
+
 def sha256_file(path: Path) -> str:
     h = hashlib.sha256()
     with open(path, "rb") as fh:
@@ -357,7 +368,7 @@ def cmd_component_suite(args):
             for sb in siblings:  # pinned siblings first: the component's own requirements are installed afterwards and keep precedence
                 installed = False
                 for target in sb["targets"]:
-                    rc, _, _, _ = run([py, "-m", "pip", "install", "-q", f"{sb['dir']}{'' if target == '.' else target[1:]}"], repo, 900, fh)
+                    rc, _, _, _ = run(sibling_install_command(py, sb, target), repo, 900, fh)
                     sibling_installs.append({"sibling": sb["component"], "target": target, "rc": rc})
                     installed = rc == 0
                     if installed:
