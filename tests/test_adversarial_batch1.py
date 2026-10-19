@@ -71,8 +71,8 @@ class AdversarialBatch1Tests(unittest.TestCase):
             self.assertIn('mark.xfail(', src, tid)
 
     def test_components_are_full_revisions(self):
-        expected = {'control_plane': '2bac7875', 'runtime': 'c4a05883', 'verifier': 'dc09a98f', 'replay': '2a7963b1',
-                    'evidence_pack': '80e24650', 'odes': '4bf12128', 'hub': 'afca5bbd'}
+        expected = {'control_plane': '2bac7875', 'runtime': '6b16962d', 'verifier': 'dc09a98f', 'replay': '6a6a4774',
+                    'evidence_pack': 'fd030615', 'odes': '2893d935', 'hub': 'afca5bbd'}
         for key, prefix in expected.items():
             rev = self.components[key]['revision']
             self.assertRegex(rev, r'^[0-9a-f]{40}$', key)
