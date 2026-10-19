@@ -160,20 +160,6 @@ def digest(value) -> str:
     return 'sha256:' + hashlib.sha256(canonical(value)).hexdigest()
 
 
-def run_twice(fn, tmp_path):
-    """Run ``fn(workdir)`` twice in two fresh, identical, independent work directories.
-
-    Returns (run1, run2). ``fn`` returns a dict with a deterministic ``outcome`` (compared) and optional
-    report-only ``metrics`` (never compared, never thresholded).
-    """
-    out = []
-    for n in (1, 2):
-        work = tmp_path / f'run-{n}'
-        work.mkdir()
-        out.append(fn(work))
-    return out[0], out[1]
-
-
 def compare_runs(run1, run2):
     d1, d2 = digest(run1['outcome']), digest(run2['outcome'])
     return {'assertion': 'outcome digest of run 1 equals run 2 under unchanged conditions',
@@ -454,13 +440,6 @@ def _swap(lst, i, j):
     lst[i], lst[j] = lst[j], lst[i]
 
 
-def _first_index(lst, pred=lambda x: True):
-    for i, x in enumerate(lst):
-        if pred(x):
-            return i
-    raise KeyError('no such element')
-
-
 def _list_mutations(prefix, target, getter, klass_names=('drop', 'reorder', 'duplicate')):
     """drop / reorder / duplicate mutations over one list inside the artifact."""
     def drop(obj, which):
@@ -734,9 +713,6 @@ class ChainWorld:
     def journal_counts(self):
         rec = self.f.records.load()
         return {k: len(getattr(rec, k)) for k in ('decisions', 'refusals', 'attempts', 'observations', 'reconciliations', 'closeouts', 'check_events')}
-
-    def destination_counts(self):
-        return {t: len(rows) for t, rows in sqlite_rows(self.dest.path).items()}
 
     # --- authority-side snapshot/restore: resolver statuses + Control Plane journal file
     def authority_snapshot(self):
