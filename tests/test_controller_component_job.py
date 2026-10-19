@@ -271,5 +271,44 @@ class SiblingReplayRevision(unittest.TestCase):
         self.assertIn(('replay_bundle', ('.',)), v.SIBLING_PROVISIONING['odes'])
 
 
+class ProbeSuiteTimeout(unittest.TestCase):
+    """A probe suite that outlives --timeout leaves an INCONCLUSIVE result.json, never an unhandled exception and never a pass."""
+
+    def run_probe(self, script_body):
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            fake = td / 'fakepy'
+            fake.write_text('#!/bin/sh\n' + script_body)
+            fake.chmod(0o755)
+            (td / 'repo').mkdir(); (td / 'suite').mkdir()
+            args = argparse.Namespace(component='c', repo_dir=str(td / 'repo'), out=str(td / 'out'), os_name='linux', suite=str(td / 'suite'),
+                                      repository='o/r', sha='a' * 40, refreeze_log=None, pins_manifest=None, full_history=False, timeout=1,
+                                      env_var='PROBE_INDEX_DIR', npm_dir=None, extras=None, harness_requirements=False)
+            with mock.patch.object(v, 'fetch_exact', return_value='a' * 40), mock.patch.object(v, 'run', return_value=(0, '', 0.0, False)), \
+                    mock.patch.object(sys, 'executable', str(fake)), mock.patch('builtins.print'):
+                v.cmd_probe_suite(args)
+            return json.loads((td / 'out' / 'result.json').read_text())
+
+    def test_timeout_is_inconclusive_with_the_reason(self):
+        result = self.run_probe('exec sleep 30\n')
+        self.assertEqual(result['status'], 'INCONCLUSIVE')
+        self.assertEqual(result['reason'], 'probe suite timed out after 1 s')
+        self.assertEqual(result['attempts'][0]['outcome'], 'INCONCLUSIVE')
+        self.assertEqual(result['attempts'][0]['returncode'], 124)
+
+    def test_a_partial_junit_is_kept_but_never_makes_a_timeout_a_pass(self):
+        body = ('for a in "$@"; do case "$a" in --junitxml=*) f="${a#--junitxml=}";; esac; done\n'
+                'printf \'<testsuite><testcase classname="a" name="b"/></testsuite>\' > "$f"\nexec sleep 30\n')
+        result = self.run_probe(body)
+        self.assertEqual(result['status'], 'INCONCLUSIVE')
+        self.assertEqual(result['reason'], 'probe suite timed out after 1 s')
+        self.assertEqual(result['attempts'][0]['counts']['testcases'], 1)
+
+    def test_a_suite_that_finishes_in_time_still_passes(self):
+        body = ('for a in "$@"; do case "$a" in --junitxml=*) f="${a#--junitxml=}";; esac; done\n'
+                'printf \'<testsuite><testcase classname="a" name="b"/></testsuite>\' > "$f"\n')
+        self.assertEqual(self.run_probe(body)['status'], 'PASS')
+
+
 if __name__ == '__main__':
     unittest.main()

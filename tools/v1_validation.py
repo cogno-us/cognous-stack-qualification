@@ -506,15 +506,25 @@ def cmd_probe_suite(args):
                 env["PROBE_REFREEZE_LOG"] = str(Path(args.refreeze_log).resolve())  # the probe applies the same overlay
         suite = Path(args.suite).resolve()
         start = time.monotonic()
-        proc = subprocess.run([py, "-m", "pytest", "-q", "-p", "no:cacheprovider", f"--junitxml={junit}", str(suite)], cwd=suite, env=env,
-                              capture_output=True, text=True, timeout=args.timeout, errors="replace")
-        fh.write(proc.stdout + proc.stderr + f"[exit {proc.returncode}]\n")
-    counts = junit_counts(junit)
-    ran = bool(counts and counts["testcases"] > 0)
-    result["attempts"].append({"attempt": 1, "returncode": proc.returncode, "counts": counts, "execution_seconds": round(time.monotonic() - start, 2),
+        timed_out = False
+        try:
+            proc = subprocess.run([py, "-m", "pytest", "-q", "-p", "no:cacheprovider", f"--junitxml={junit}", str(suite)], cwd=suite, env=env,
+                                  capture_output=True, text=True, timeout=args.timeout, errors="replace")
+            returncode = proc.returncode
+            fh.write(proc.stdout + proc.stderr + f"[exit {proc.returncode}]\n")
+        except subprocess.TimeoutExpired as exc:
+            timed_out, returncode = True, 124
+            partial = [x.decode("utf-8", "replace") if isinstance(x, bytes) else (x or "") for x in (exc.stdout, exc.stderr)]
+            fh.write("".join(partial) + f"[TIMEOUT after {args.timeout}s]\n")
+    counts = junit_counts(junit)  # partial junit, if any, is kept and counted; it never turns a timeout into a pass
+    ran = bool(counts and counts["testcases"] > 0) and not timed_out
+    result["attempts"].append({"attempt": 1, "returncode": returncode, "counts": counts, "execution_seconds": round(time.monotonic() - start, 2),
                                "outcome": "PASS" if ran else "INCONCLUSIVE"})
     result["status"] = "PASS" if ran else "INCONCLUSIVE"
-    result["reason"] = "probe harness executed; individual probe outcomes are in junit.xml" if ran else "no probe results produced"
+    if timed_out:
+        result["reason"] = f"probe suite timed out after {args.timeout} s"
+    else:
+        result["reason"] = "probe harness executed; individual probe outcomes are in junit.xml" if ran else "no probe results produced"
     result["log"] = retain_log((out / "job.log").read_text(encoding="utf-8", errors="replace"), out / "job.log.gz")
     (out / "job.log").unlink()
     (out / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
