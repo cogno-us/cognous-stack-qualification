@@ -287,7 +287,8 @@
    "new_implementation_needed": false,
    "scope_note": "authority tiers T0-T4 exist; agent population tiering does not",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS does not tier, classify or inventory agent identities and does not flag agents that fall short of a tier's controls. The T0 to T4 tiers in the Authority Context describe the consequence of an action requirement, not the privilege class of an agent."
   },
   {
    "id": "TC-D09-005",
@@ -347,7 +348,8 @@
    "new_implementation_needed": false,
    "scope_note": "grant expiry at use time only; no elevation workflow",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS enforces a grant's validity window at use time and holds when an approval is missing or no longer active; an approval has no validity date of its own. OCS does not request, approve, issue or extend an elevation, and has no automatic or nested elevation mode."
   },
   {
    "id": "TC-D09-010",
@@ -378,7 +380,8 @@
    "new_implementation_needed": false,
    "scope_note": "bounded delegation only; consent evidence export not claimed",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS records and enforces the permission scope, validity window and revocation of a grant. It does not capture consent wording, channel or conditions, does not end grants when a delegating user leaves, does not support delegation by one holder to another (a grant naming a parent is refused with a typed reason), and does not export evidence per user."
   },
   {
    "id": "TC-D09-012",
@@ -439,7 +442,8 @@
    "new_implementation_needed": false,
    "scope_note": "local grant revocation before dispatch/commit; cross-system propagation excluded",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS reads a grant's status at each decision and at the destination commit. It does not propagate revocation to, or measure revocation time in, other systems, token caches, sessions or identity providers."
   },
   {
    "id": "TC-D09-017",
@@ -971,7 +975,8 @@
    "new_implementation_needed": false,
    "scope_note": "replay reconstructs the record and does not re-execute or re-evaluate",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "Replay reconstructs the recorded run from retained records; it does not re-execute or re-evaluate, and OCS records no model version, prompt, sampling setting or retrieved content. Reconstructions are identical only after bundle_id and generated_at are set aside. A changed policy version, ref or role mapping inside a retained decision is shown as a difference, not refused (a changed manifest is refused)."
   },
   {
    "id": "TC-D12-008",
@@ -1129,7 +1134,8 @@
    "new_implementation_needed": false,
    "scope_note": "refusal evidence retention only; clustering and improvement loop out of scope",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS retains refusals as typed records; it does not cluster them, run a review cycle, convert them into policy changes or produce trend reports. A refusal on the exchange route before a message is accepted is returned but not stored."
   },
   {
    "id": "TC-D12-022",
@@ -1180,7 +1186,8 @@
    "new_implementation_needed": false,
    "scope_note": "effect budgets, not model spend budgets",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS enforces a cumulative effect count per budget identifier and keeps sibling budgets independent. It has no nested budget hierarchy, no parent ceiling over child budgets and no model-spend budgets, so organisation, team, application, user and key levels are not enforced as a hierarchy."
   },
   {
    "id": "TC-D13-004",
@@ -1553,7 +1560,8 @@
    "new_implementation_needed": false,
    "scope_note": "ER031 provision-to-control mapping rows",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS carries a provision-to-control mapping document with owner, evidence and implementation-status columns and makes no enforcement claim from it. It does not decompose policies into statements, test a control against a statement, update the mapping when a control changes, or export a traceability matrix."
   },
   {
    "id": "TC-L02-003",
@@ -1649,7 +1657,8 @@
    "new_implementation_needed": false,
    "scope_note": "grant expiry is the only exception-like control",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS enforces grant expiry and requires a fresh decision after a grant is extended. It has no exception register, no approval workflow for exceptions and no mechanism that bypasses an approval requirement."
   },
   {
    "id": "TC-L02-012",
@@ -2606,7 +2615,8 @@
    "new_implementation_needed": false,
    "scope_note": "static discovery of destination-mutating routes",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS reports coverage_unknown, not \"unprotected\", for an enumerated holder with no witnessed refusal, and cannot see a destination that nobody listed; it does not scan for applications or destinations that lack protection."
   },
   {
    "id": "TC-L05-013",
@@ -2793,7 +2803,8 @@
    "new_implementation_needed": false,
    "scope_note": "policy revision signing and digest checks",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS stores a policy as a versioned, digest-pinned configuration with append-only signed revision rows. It has no export or import console, no diff view and no per-application policy catalogue, the signer is an asserted name, and a policy configuration keeps only its known members when loaded."
   },
   {
    "id": "TC-L05-029",
@@ -2897,7 +2908,8 @@
    "new_implementation_needed": false,
    "scope_note": "unregistered agent refused; discovery sensor not claimed",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS does not discover agents. A proposal or message from an actor or recipient that is not declared to it is refused; unregistered agents are not found through endpoint, network or API telemetry and OCS keeps no inventory of agents or of their active or inactive state."
   },
   {
    "id": "TC-L06-004",
@@ -2947,7 +2959,8 @@
    "new_implementation_needed": false,
    "scope_note": "descriptions stay data; no MCP server in scope",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS treats tool, requirement and free-text manifest descriptions as data: they do not change authority, and a description changed after approval is refused by digest. It does not scan, strip, quarantine or flag instructions in descriptions, and it includes no MCP server or registry."
   },
   {
    "id": "TC-L06-008",
@@ -2972,7 +2985,8 @@
    "new_implementation_needed": false,
    "scope_note": "manifest version/digest change refused; MCP rug-pull itself not modelled",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS refuses a changed manifest version or digest until the change is re-approved. It does not model an MCP server and cannot detect a change in server-side behaviour that leaves the declared definition identical."
   },
   {
    "id": "TC-L06-009",
@@ -2995,7 +3009,8 @@
    "new_implementation_needed": false,
    "scope_note": "adapter binding must match; no MCP registry",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS binds an action to one declared adapter identifier by exact match and refuses a look-alike; the presented look-alike value is not retained in the failure row. A decision alone does not refuse a manifest that declares two tools of one name (it binds the first declared); the manifest validator and the executor allow-list refuse it, so no effect occurs. OCS has no registry of tool servers, no namespacing and no mechanism for choosing between colliding tools."
   },
   {
    "id": "TC-L06-010",
@@ -3028,7 +3043,8 @@
    "new_implementation_needed": false,
    "scope_note": "manifest and executor allow-list, not an MCP gateway",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS applies a per-action allow-list through the manifest, policy and executor allow-list for the actions declared to it. It is not an MCP gateway, applies no per-tool rules at a proxy, and does not resolve aliases or batched requests. A held decision identifies the request by its proposal commitment, not in clear."
   },
   {
    "id": "TC-L06-012",
@@ -3135,7 +3151,8 @@
    "new_implementation_needed": false,
    "scope_note": "aggregate effect budget and missing-approval refusal; fatigue is human and excluded",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS binds an approval to one proposal commitment, counts effects against a shared effect budget and applies one operation identity to repeated requests. It does not enforce an aggregate amount across effects (the budget record holds an identifier, a limit and a used count only), control how approval requests are presented to or grouped for a human, rewrite descriptions, or measure approver workload."
   },
   {
    "id": "TC-L06-017",
@@ -3157,7 +3174,8 @@
    "new_implementation_needed": false,
    "scope_note": "delegated grant naming a parent is refused; no ancestor walk",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "Delegation is not supported in this release: a grant that names a parent is refused with a typed reason, and a self-reference or cycle is refused as a parent without a cycle-specific reason. OCS does not walk an ancestor chain, attenuate authority along a chain, enforce a chain depth limit, or share a budget across a parent and its children."
   },
   {
    "id": "TC-L06-018",
@@ -3205,7 +3223,8 @@
    "new_implementation_needed": false,
    "scope_note": "authority from trusted resolver, not from the request",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS takes authority from the trusted resolver's grant for the requesting principal, not from the actor's own reach or from request text; it does not infer a user's intent or know what a document contained."
   },
   {
    "id": "TC-L06-020",
@@ -3229,7 +3248,8 @@
    "new_implementation_needed": false,
    "scope_note": "hostile message content cannot authorize an effect; propagation between agents not modelled",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS assesses each exchange message on its own sender, recipient, commitments and current authority, so message text cannot authorize an effect. It does not model a multi-agent chain (each hop is a separate registry and store), does not inspect or neutralize message content, does not record at which hop content was stopped, and does not store refusals made before a message is accepted."
   },
   {
    "id": "TC-L06-021",
@@ -3262,7 +3282,8 @@
    "new_implementation_needed": false,
    "scope_note": "local stop journal only; generalized all-path stop excluded",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS stops further effects for a grant that is suspended or revoked and keeps a local stop journal for a controlled local process; the requester and reason in that journal are supplied by the caller and are not authenticated. It has no general stop for agents outside the routed path, no fleet stop, and no time bound on how soon an unmanaged agent halts."
   },
   {
    "id": "TC-L06-023",
@@ -3286,7 +3307,8 @@
    "new_implementation_needed": false,
    "scope_note": "local grant revocation only; rollback excluded",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS refuses new effects after a grant is revoked and lists the effects it recorded. It revokes no credential in any other system and offers no rollback."
   },
   {
    "id": "TC-L06-024",
@@ -3309,7 +3331,8 @@
    "new_implementation_needed": false,
    "scope_note": "cumulative effect budget; no alert at 80 percent",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS enforces a cumulative effect count per budget identifier. A budget record holds no window, scheduled reset, alert or amount (a new window needs a new budget identifier chosen by the host), so no alert is raised at a threshold and actions that are not effects are not limited."
   },
   {
    "id": "TC-L06-025",
@@ -3341,7 +3364,8 @@
    "new_implementation_needed": false,
    "scope_note": "database-path confinement; egress assurance excluded",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS confines the destination database path to its configured root and refuses traversal and link escapes. It does not restrict an agent's file reads, network destinations, domains or DNS lookups, and it gives no egress or credential-isolation assurance."
   },
   {
    "id": "TC-L06-027",
@@ -3444,7 +3468,8 @@
    "new_implementation_needed": false,
    "scope_note": "manifest/policy revision refused until signed; agent component change control not claimed",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS refuses a changed manifest, policy or grant until it is re-approved or re-signed. A grant permission edited in place under the same revision is read as current, because revision numbers are assigned by the resolver. OCS does not observe an agent's model, system prompt or owner and cannot tell when those change."
   },
   {
    "id": "TC-L06-035",
@@ -3493,7 +3518,8 @@
    "new_implementation_needed": false,
    "scope_note": "recipient/registry binding in the local registry",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS refuses a message whose sender is not trusted by the receiving registry, whose recipient is not that registry's recipient, or whose purpose is unsupported. A registry holds one recipient and a sender set; OCS keeps no map of permitted agent-to-agent relationships with owners, builds no observed graph, reports no path, records no approver for registry changes, and does not store these refusals."
   },
   {
    "id": "TC-L06-039",
@@ -3559,7 +3585,8 @@
    "new_implementation_needed": false,
    "scope_note": "rogue sender/recipient refused by local registry; directory discovery not claimed",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS checks the sender and recipient of a message against a host-declared local registry. It has no agent directory, performs no discovery by name or capability, and does not verify directory entries or agent cards."
   },
   {
    "id": "TC-L06-042",
@@ -3704,7 +3731,8 @@
    "new_implementation_needed": false,
    "scope_note": "only the part where injected instructions cannot authorize an effect; content neutralisation and detection are not claimed",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS ensures that text in a request, message or payload field cannot authorize an effect for each action with a granted authority path: authority comes from the resolver and the proposal commitments. A high-consequence action declared in the manifest without a complete authority path is held, not executed; that is a limit, not coverage. OCS does not inspect prompts, tool calls or results for injected instructions, and does not strip, flag or score content."
   },
   {
    "id": "TC-L07-009",
@@ -3729,7 +3757,8 @@
    "new_implementation_needed": false,
    "scope_note": "only the part where injected instructions cannot authorize an effect; content neutralisation and detection are not claimed",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS ensures that text arriving in a payload field or message narrative cannot authorize an effect. It does not detect, neutralize or flag hidden instructions in fetched content and does not record a content origin such as a URL."
   },
   {
    "id": "TC-L07-010",
@@ -3772,7 +3801,8 @@
    "new_implementation_needed": false,
    "scope_note": "only the part where injected instructions cannot authorize an effect; content neutralisation and detection are not claimed",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS ensures that retrieved text arriving in a payload field or message narrative cannot authorize an effect or move it to another target. It does not scan or exclude retrieved documents, judge their truth, or record a document identifier."
   },
   {
    "id": "TC-L07-013",
@@ -3797,7 +3827,8 @@
    "new_implementation_needed": false,
    "scope_note": "only the part where injected instructions cannot authorize an effect; content neutralisation and detection are not claimed",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS does not inspect tool or destination responses: response text is retained as data and cannot authorize a further effect, and provider error text for some error classes stays verbatim in destination attempt events. Whether a model acts on a response is outside OCS."
   },
   {
    "id": "TC-L07-014",
@@ -4359,7 +4390,8 @@
    "new_implementation_needed": false,
    "scope_note": "ingress pressure on OCS surfaces, not gateway throughput",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS makes no throughput, latency, peak-load, alerting or recovery-time claim and has no ingress limiter or gateway. The only load evidence is the report-only ingress-pressure scenario (D06), which is not a performance claim."
   },
   {
    "id": "TC-L08-034",
@@ -4400,7 +4432,8 @@
    "new_implementation_needed": false,
    "scope_note": "policy revision effect and unsigned-revision refusal; cross-component propagation timing not claimed",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS applies a policy revision at the next decision of a component that reads the record store and refuses an unsigned revision. It has no distribution to multiple enforcement nodes, so propagation time across components, offline endpoints and change under load are not claimed."
   },
   {
    "id": "TC-L08-037",
@@ -4495,7 +4528,8 @@
    "new_implementation_needed": false,
    "scope_note": "grant validity window, not credential issuance",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS enforces a grant's validity window, audience (tenant and adapter) and permission set at use time. It does not issue, refresh or inspect credentials, flag long-lived keys, or log credential issuance."
   },
   {
    "id": "TC-L09-004",
@@ -4551,7 +4585,8 @@
    "new_implementation_needed": false,
    "scope_note": "actor/principal binding on the proposal",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS binds the actor and principal named on a proposal to the decision, the execution envelope and the effect record through the grant, the operation digest and the decision binding; the effect row itself has no actor or principal column. It does not issue or forward a delegated token to downstream systems and cannot show what identity an external system received."
   },
   {
    "id": "TC-L09-007",
@@ -4575,7 +4610,8 @@
    "new_implementation_needed": false,
    "scope_note": "permission widening in request refused",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS refuses a request for permissions, actions, actors or tenants outside the grant it is evaluated against, and refuses a grant that names a parent (delegation is not supported in this release). It does not map escalation paths between tools, report them, or control what a tool does outside a routed effect."
   },
   {
    "id": "TC-L09-008",
@@ -4652,7 +4688,8 @@
    "new_implementation_needed": false,
    "scope_note": "grant expiry and revocation as analogue of key lifecycle",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS treats a grant's revision, expiry, revocation and effect budget as its lifecycle; on route B a claim for a new grant revision is shown only as a refusal at provisioning. It does not manage model provider API keys, rotation reminders, key inventories or a lifecycle audit of keys."
   },
   {
    "id": "TC-L09-015",
@@ -4703,7 +4740,8 @@
    "new_implementation_needed": false,
    "scope_note": "identity taken from the resolver binding",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS takes identity from the trusted resolver's binding and refuses a proposal whose actor or principal does not match it. The resolver's authenticated flag is asserted by the host and its provenance is not recorded, and OCS does not authenticate any user or agent itself."
   },
   {
    "id": "TC-L09-019",
@@ -4726,7 +4764,8 @@
    "new_implementation_needed": false,
    "scope_note": "tenant boundary only; prod/non-prod environments not modelled",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS separates tenants, not environments: a request, grant or claim for another tenant is refused, and production and non-production are separated only if the host models them as separate tenants with one engine database each. Evidence status is not scoped by tenant (one stale status refuses both tenants' effects in a shared engine database), and OCS reports no cross-environment findings."
   },
   {
    "id": "TC-L09-020",
@@ -6222,7 +6261,8 @@
    "new_implementation_needed": false,
    "scope_note": "restore of authority state and destination state; external anchor not claimed",
    "close_call": false,
-   "close_call_note": null
+   "close_call_note": null,
+   "not_claimed": "OCS keeps authority state, claims and effects in local SQLite files whose consistent restore preserves them; partial restores are refused. Restoring an older full backup re-admits effects consumed after it was taken because there is no external anchor, and OCS does not back up or restore models, vector stores, prompts, keys or regional placement."
   },
   {
    "id": "TC-L15-020",
@@ -6307,7 +6347,8 @@
    "new_implementation_needed": false,
    "scope_note": "pin drift and unaccepted revisions refused; package index not modelled",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS refuses a component revision or artifact digest that does not match its pin. It does not model package indexes, resolve names between indexes or detect look-alike packages, and hash-checked installation of dependencies is not claimed."
   },
   {
    "id": "TC-L16-008",
@@ -6392,7 +6433,8 @@
    "new_implementation_needed": false,
    "scope_note": "digest mismatch and revision refusal; SDK supply chain not modelled",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS refuses an artifact whose digest or component revision differs from the one it was pinned to. The component-lock check here is the runner's exact-revision check plus the pin generation classifier; the hub component lock file is not part of the pinned reference and hash-checked installs are not claimed. OCS does not model agent SDK releases, IDE extension updates or transitive updates, and reports no finding for a floating version beyond refusing it."
   },
   {
    "id": "TC-L16-016",
@@ -6719,7 +6761,8 @@
    "new_implementation_needed": false,
    "scope_note": "tool-call/effect reconstruction only; conversation turns not recorded",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS reconstructs the proposed action, decision, attempt, effect and refusal per proposal from retained records; there is no run-level reconstruction, because Replay imports one proposal per bundle and refuses a store holding decisions for several proposals. Reconstruction is byte-identical only after bundle_id and generated_at are set aside. OCS records no conversation turns, model responses, system prompts or retrieved chunks, offers no masking or unmask audit, and keeps no custody log of who handled an export."
   },
   {
    "id": "TC-L17-021",
@@ -6767,7 +6810,8 @@
    "new_implementation_needed": false,
    "scope_note": "ordering and duplicate detection of recorded events",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS orders recorded events by their sequence within one record store and detects duplicates and out-of-sequence events; a timestamp moving backwards is refused, not re-sorted. It has no ordering across stores, does not build a cross-system timeline, offer pivots or filters by actor or tool, correct for clock differences between systems, or include events from systems it does not record. The verifier is not part of the pinned reference."
   },
   {
    "id": "TC-L17-023",
@@ -6836,7 +6880,8 @@
    "new_implementation_needed": false,
    "scope_note": "failures surface as typed refusal or unknown; no alerting",
    "close_call": true,
-   "close_call_note": "nearest-mapped or partial analogue; owner review"
+   "close_call_note": "nearest-mapped or partial analogue; owner review",
+   "not_claimed": "OCS fails closed or reports unknown when an input, state row or destination is unavailable, and keeps a typed record (an unreadable destination leaves no durable record). After the missing input returns, the same request executes once for four of six modelled failures; for the two that fail inside the commit (grant row missing, permission set unavailable) a prior attempt is recorded and the same request stays refused until a new request is made, which then executes once. OCS has no heartbeat, health model, alert routing or recovery notice, and does not detect an agent, gateway node, ingestion pipeline, classifier or expiring credential outside its own checks."
   },
   {
    "id": "TC-L17-029",

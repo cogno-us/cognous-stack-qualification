@@ -50,6 +50,27 @@ def test_wiki_applicability_file_is_loaded_with_the_published_counts():
     assert counts == data['counts']
 
 
+def test_wiki_every_partly_covered_entry_states_what_is_not_claimed():
+    """Each PARTLY_COVERED entry carries a non-empty not_claimed sentence worded as a limit (no 'fixed' or 'certified')."""
+    import re
+    partly = [c for c in W.load_applicability()['cases'] if c['classification'] == 'PARTLY_COVERED']
+    assert partly
+    problems = []
+    for case in partly:
+        text = case.get('not_claimed')
+        if not isinstance(text, str) or not text.strip():
+            problems.append(f"{case['id']}: not_claimed missing or empty")
+            continue
+        if re.search(r'\b(fixed|certified)\b', text, re.I):
+            problems.append(f"{case['id']}: not_claimed uses a word that is not allowed")
+        if not re.search(r'not claimed|does not|do not|is not|has no|no ', text):
+            problems.append(f"{case['id']}: not_claimed does not state a limit")
+    assert problems == [], problems
+    for case in W.load_applicability()['cases']:
+        if case['classification'] != 'PARTLY_COVERED':
+            assert 'not_claimed' not in case, case['id']
+
+
 # ------------------------------------------------------------------------------------------------ smoke (routes A, B, C)
 def test_wiki_smoke_route_a_effective_grant_destination_executes_once(pinned_reference, tmp_path, monkeypatch):
     flow = W.route_a(tmp_path, monkeypatch)
