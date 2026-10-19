@@ -242,6 +242,16 @@ class DeclaredSet(unittest.TestCase):
                          ('test', None, 'process.adversarial.tests.test_t05_target_equivalence', 'test_evaluators_agree_on_every_variant[namespace_prefix]'))
         self.assertEqual(DL.by_component(DL.load(_write_twin(doc))), {})
 
+    def test_a_local_id_in_the_scenarios_suite_maps_to_the_scenarios_component(self):
+        i = 'suites/v1-scenarios/test_scn_c04.py::test_example[a_b]'
+        doc = twin()
+        doc['amendments'].append({'timestamp': 't', 'action': 'add_known_limit', 'id': i, 'text': 't'})
+        e = DL.normalise(doc)[0]
+        self.assertEqual((e['component'], e['classname'], e['name']), ('scenarios', 'suites.v1-scenarios.test_scn_c04', 'test_example[a_b]'))
+        w = 'suites/wiki-derived/test_wp_x.py::test_example_known_limit'
+        doc['amendments'].append({'timestamp': 't', 'action': 'add_known_limit', 'id': w, 'text': 't'})
+        self.assertIsNone([x for x in DL.normalise(doc) if x['id'] == w][0]['component'])
+
     def test_requirement_declarations_are_kept_but_are_not_cases(self):
         doc = twin()
         doc['amendments'].append({'timestamp': 't', 'action': 'add_known_limit', 'id': 'ADD-AUTH-RA', 'text': 't'})
