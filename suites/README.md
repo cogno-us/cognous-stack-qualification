@@ -1,6 +1,6 @@
 # Executable cross component suites
 
-These suites were relocated from seven public Cognous repositories. Original source hashes, dependency pins, assertions and per-file licenses are retained; execution-location and provenance adaptations are explicitly marked in the manifest. This is a refactor of ownership, not fresh production qualification. The 696 scenario-catalog entries retain their own NOT RUN statuses until explicitly mapped to executed evidence.
+These suites were relocated from seven public Cognous repositories. Original source hashes, dependency pins, assertions and per-file licenses are retained; execution-location and provenance adaptations are explicitly marked in the manifest. This is a refactor of ownership, not fresh production qualification. The first table lists the seven relocated suites; a second table lists the suites written in this repository, and the [release test inventory](../docs/test-inventory.md) states command, count, environment and state for every suite. The 696 scenario-catalog entries retain their own NOT RUN statuses until explicitly mapped to executed evidence.
 
 | Owning repository | Moved tests and harness files | Delegated workflows | Source commit |
 |---|---:|---:|---|
@@ -11,6 +11,24 @@ These suites were relocated from seven public Cognous repositories. Original sou
 | [cognous-governed-exchange](cognous-governed-exchange/README.md) | 12 | 3 | `9de2d438ed03531bb960c896f541a6a2da1b2315` |
 | [open-decision-evidence-standard](open-decision-evidence-standard/README.md) | 8 | 3 | `25c7ad608c2e6fd9f450e075db6bbf3ee4091a49` |
 | [cognous-evidence-registry](cognous-evidence-registry/README.md) | 2 | 1 | `650903fd6db1d68810dd377ba09e801a76682935` |
+
+## Suites written in this repository
+
+The directories below were written here, not relocated. They have no source commit column because they have no source repository. The [release test inventory](../docs/test-inventory.md) is the page that states, per suite, the command, the case count, the environment, the state and the known limits; its machine-readable twin is [`process/release-gate/inventory.json`](../process/release-gate/inventory.json). Counts below are collected counts at the time of the inventory; the inventory is the source for them. A suite that needs component checkouts is skipped or fails without them, as its own README says; nothing here is a verdict.
+
+| Directory | Purpose | Inventory row | Command (needs the named checkouts) |
+|---|---|---|---|
+| [`v1-scenarios/`](v1-scenarios/) | Catalog scenarios executed twice from fresh stores against the pinned synthetic reference, with normalised observations compared; includes the ASW core families (`test_asw_*.py`) | X-05 | `SCN_COMPONENTS_DIR=... SCN_HUB_DIR=... python -m pytest -q -p no:cacheprovider suites/v1-scenarios` (more `SCN_*` variables are listed in the inventory row) |
+| [`v1-probes/`](v1-probes/) | Per-component probes recorded against frozen pins; known limits kept as strict expected failures in [`KNOWN_LIMITS.md`](v1-probes/KNOWN_LIMITS.md) | X-01 | `PROBE_<X>_DIR=<checkout> python -m pytest -q suites/v1-probes/<module>`; a module whose variable is unset is not collected |
+| [`fix2-probes/`](fix2-probes/README.md) | Evidence-check hardening probes: controls plus strict expected failures; the 22 known limits are listed in [`KNOWN_LIMITS.md`](fix2-probes/KNOWN_LIMITS.md) | X-02 | `PROBE2_*_DIR=... python -m pytest -q -p no:cacheprovider suites/fix2-probes` |
+| [`wiki-derived/`](wiki-derived/README.md) | Tests derived from the AI Security Wiki cases classified APPLICABLE or PARTLY_COVERED | W-I, W-X | `SCN_COMPONENTS_DIR=DIR python -m pytest -q -p no:cacheprovider suites/wiki-derived` |
+| [`operation-identity/`](operation-identity/README.md) | Opt-in operation identity, freshness and related profiles (addendum items N1 to N3) with the control plane and runtime | X-06 | `OI_CONTROL_PLANE_DIR=... OI_RUNTIME_DIR=... python -m pytest -q suites/operation-identity` |
+| [`outside-holder/`](outside-holder/README.md) | Witness digest and holder probe scenarios (addendum items M3 and L5); not part of the V1 validation controller | X-07 | `OH_CONTROL_PLANE_DIR=... OH_RUNTIME_DIR=... python -m pytest -q suites/outside-holder` |
+| [`verifier-mutation/`](verifier-mutation/README.md) | Report-only measurement of the independent verifier against damaged traces; includes a vendored copy of the verification-report contract in `contract/` (do not edit) | X-08 | `python -m unittest tests.test_verifier_mutation_harness` for the harness proof; the report command is in its README |
+| [`security-runtime/`](security-runtime/) | Merged-source chain cases, each run twice from fresh stores; no README, driven by the runner | X-03 | `python tools/run_security_runtime.py --profile <profile> --prepare-work --components DIR --out OUT` (see the inventory row) |
+| [`runtime-authority/`](runtime-authority/) | Runtime-authority candidate chain (control plane, runtime, Replay, Evidence Pack); a candidate, never selected; no README | X-04 | `python tools/run_runtime_authority.py --components components --out results/runtime-authority` |
+
+Probe suites report known limits as strict expected failures; a strict expected failure is shown as skipped or xfailed by pytest, never as a pass. The suites above do not select component revisions, grant authority or authorize production.
 
 ## Inventory and boundaries
 
