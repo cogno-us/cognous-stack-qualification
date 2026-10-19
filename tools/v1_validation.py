@@ -594,6 +594,7 @@ def evaluate_requirements(doc, index, job_status, declared=None):
     The minimum of every selector is still measured over ALL matched cases. Declared cases matched by the row are listed with their
     actual outcome (DECLARED-LIMIT); a declared test the row's selector would match but that was not run is listed as NOT RUN.
     When every case a selector matched is declared (zero undeclared cases remain) the row is INCONCLUSIVE, never PASS.
+    A declared strict expected failure that passes (XPASS) makes the row FAIL; a declared test the row would select that was not run makes it INCONCLUSIVE.
     Without a record (declared=None) nothing is declared and the rule is the one in force before declared limits were reported.
     """
     dmap = DL.by_component(declared) if declared is not None else {}
@@ -604,7 +605,7 @@ def evaluate_requirements(doc, index, job_status, declared=None):
         r.setdefault("mandatory", True)
         if kind == "tests":
             hits, fails, skips, undeclared_total, detail = 0, 0, 0, 0, []
-            listed, not_run, conditions, zero_undeclared = {}, {}, [], []
+            listed, not_run, conditions, zero_undeclared, xpassed = {}, {}, [], [], []
             for sel in r.get("selectors", []):
                 rx = re.compile(sel["re"], re.I)
                 comp = sel["component"]
@@ -629,6 +630,7 @@ def evaluate_requirements(doc, index, job_status, declared=None):
                     listed[(comp, t[0], t[1])] = {"label": "DECLARED-LIMIT", "component": comp, "test": f"{t[0]}::{t[1]}", "declaration_id": entry["id"],
                                                   "outcome": info["kind"], "unexpected_pass": bool(info.get("unexpected_pass"))}
                     if info.get("unexpected_pass"):
+                        xpassed.append(f"{t[0]}::{t[1]}")
                         conditions.append(f"declared test passed unexpectedly (strict expected failure XPASS): {t[0]}::{t[1]}")
                 present = {(t[0], t[1]) for t in cases}
                 for key, entry in declared_here.items():
@@ -645,10 +647,16 @@ def evaluate_requirements(doc, index, job_status, declared=None):
                 conditions += [f"declared test not run: {x['test']}" for x in r["declared_not_run"]]
             if fails:
                 r["status"] = "FAIL"; r.setdefault("classification", "product defect")
+            elif xpassed:
+                r["status"] = "FAIL"; r.setdefault("classification", "declared strict expected failure passed")
+                r["reason"] = "a declared strict expected failure passed unexpectedly (DR-7): " + ", ".join(xpassed)
             elif short:
                 r["status"] = "INCONCLUSIVE"; r["reason"] = "selector matched fewer executed cases than required (job missing or selector defective)"
             elif skips:
                 r["status"] = "INCONCLUSIVE"; r["reason"] = "matched cases were skipped"
+            elif r.get("declared_not_run"):
+                r["status"] = "INCONCLUSIVE"
+                r["reason"] = "a declared test that a selector of the row would match was not run: " + ", ".join(x["test"] for x in r["declared_not_run"])
             elif zero_undeclared:
                 r["status"] = "INCONCLUSIVE"
                 r["reason"] = ("every case matched by selector " + ", ".join(zero_undeclared) + " is a declared known limit: zero undeclared cases remain, "
