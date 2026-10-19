@@ -34,6 +34,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import declared_limits as DL  # noqa: E402  (declared known limits, read from the committed pre-registration twin)
 STATUSES = ("PASS", "FAIL", "INCONCLUSIVE", "NOT RUN", "NOT APPLICABLE")
 MAX_RETAINED_LOG = 5 * 1024 * 1024  # bytes of gzip retained per log
+# Per-component pytest timeout. A timeout is INCONCLUSIVE, so it must sit well above the slowest suite: measured on a
+# development host, gax_imx_transport takes about 167 s, constitutional_authority about 131 s and ODES runs about 3000
+# tests; a shared runner can be several times slower. 900 s leaves a factor of five over the slowest measured suite.
+# A freeze-manifest entry may still set its own test_timeout_seconds. The job-level limit of the workflow (40 minutes)
+# covers one 900 s attempt plus setup; a timed-out attempt is not retried.
+DEFAULT_TEST_TIMEOUT_SECONDS = 900
+# Components whose own tests skip unless a pinned sibling component is installed (skips are INCONCLUSIVE rows).
+# component key -> ((sibling key, pip targets tried in order, relative to the sibling checkout), ...)
+SIBLING_PROVISIONING = {
+    "moltbot_safe": (("control_plane", (".[runtime-authority]", ".")),),  # runtime tests need the Control Plane local-authority-effect contract
+    "odes": (("replay_bundle", (".",)),),                                  # ODES tests need the accepted Replay revision installed
+}
 
 
 def sha256_file(path: Path) -> str:
@@ -85,7 +97,7 @@ def cmd_plan(args):
             for py in pys:
                 include.append({"component": key, "group": group, "repository": spec["repository"],
                                 "sha": spec["sha"], "os": os_name, "python": py,
-                                "timeout": int(spec.get("test_timeout_seconds", 300))})
+                                "timeout": int(spec.get("test_timeout_seconds", DEFAULT_TEST_TIMEOUT_SECONDS))})
     out = {"include": include}
     text = json.dumps(out, separators=(",", ":"))
     if args.out_file:
@@ -251,6 +263,44 @@ def retain_log(text: str, dest: Path):
     return info
 
 
+def _resolve_pin_file(explicit, env_name):
+    value = explicit or os.environ.get(env_name)
+    if not value:
+        return None
+    path = Path(value)
+    if not path.is_absolute():
+        path = ROOT / path
+    if not path.is_file():
+        raise RuntimeError(f"{env_name or 'pins file'} names {value}, which is not a file")
+    return path
+
+
+def provision_siblings(component, siblings_root, manifest_path, refreeze_log, fetch=None):
+    """Fetch the exact pinned sibling components a component's tests need and return their records (pins in force: manifest plus overlay).
+
+    Raises RuntimeError when a sibling cannot be resolved or fetched at its pin; nothing is installed here."""
+    fetch = fetch or fetch_exact
+    wanted = SIBLING_PROVISIONING.get(component, ())
+    if not wanted:
+        return []
+    if manifest_path is None:
+        raise RuntimeError("no freeze manifest for the sibling pins (pass --pins-manifest or set MANIFEST)")
+    manifest, _ = load_resolved(manifest_path, refreeze_log)
+    specs = {key: spec for _, key, spec in all_components(manifest)}
+    records = []
+    for key, targets in wanted:
+        if key not in specs:
+            raise RuntimeError(f"sibling {key} is not in the freeze manifest")
+        spec = specs[key]
+        dest = Path(siblings_root) / key
+        actual = fetch(dest, spec["repository"], spec["sha"])
+        if actual != spec["sha"]:
+            raise RuntimeError(f"sibling {key} resolved to {actual}, not its pin {spec['sha']}")
+        records.append({"component": key, "repository": spec["repository"], "pinned_sha": spec["sha"], "actual_sha": actual,
+                        "dir": str(dest), "targets": list(targets)})
+    return records
+
+
 def cmd_component_suite(args):
     repo = Path(args.repo_dir).resolve()
     if args.fetch:
@@ -267,6 +317,20 @@ def cmd_component_suite(args):
         result.update(status="FAIL", classification="setup/harness defect", reason="checked-out commit differs from pin")
         (out / "result.json").write_text(json.dumps(result, indent=2) + "\n")
         sys.exit(1)
+    siblings = []
+    if args.component in SIBLING_PROVISIONING:
+        if args.no_siblings:
+            result["siblings"] = "disabled by --no-siblings"
+        else:
+            try:
+                manifest_path = _resolve_pin_file(args.pins_manifest, "MANIFEST")
+                log_path = _resolve_pin_file(args.refreeze_log, "REFREEZE_LOG")
+                siblings = provision_siblings(args.component, repo.parent / (repo.name + "-siblings"), manifest_path, log_path)
+                result["siblings"] = [{k: v for k, v in sb.items() if k != "targets"} for sb in siblings]
+            except Exception as exc:  # noqa: BLE001 - recorded, never hidden
+                result.update(status="FAIL", classification="setup/harness defect", reason=f"sibling provisioning failed: {str(exc)[:500]}")
+                (out / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+                sys.exit(1)
     # inventory (independent of whether tests can run)
     tests_dirs = [str(p.relative_to(repo)).replace("\\", "/") for p in repo.rglob("test*") if p.is_dir() and ".git" not in p.parts and "node_modules" not in p.parts][:50]
     test_files = sorted(str(p.relative_to(repo)).replace("\\", "/") for p in repo.rglob("test_*.py") if ".git" not in p.parts and "node_modules" not in p.parts)
@@ -289,6 +353,18 @@ def cmd_component_suite(args):
             installs = []
             fh.write(f"==== attempt {attempt}\n")
             run([py, "-m", "pip", "install", "-q", "pytest"], repo, 600, fh)
+            sibling_installs = []
+            for sb in siblings:  # pinned siblings first: the component's own requirements are installed afterwards and keep precedence
+                installed = False
+                for target in sb["targets"]:
+                    rc, _, _, _ = run([py, "-m", "pip", "install", "-q", f"{sb['dir']}{'' if target == '.' else target[1:]}"], repo, 900, fh)
+                    sibling_installs.append({"sibling": sb["component"], "target": target, "rc": rc})
+                    installed = rc == 0
+                    if installed:
+                        break
+                setup_ok = setup_ok and installed
+            if sibling_installs:
+                rec["sibling_installs"] = sibling_installs
             if (repo / "pyproject.toml").exists() or (repo / "setup.py").exists():
                 for extra in (".[dev,test]", ".[dev]", ".[test]", "."):
                     rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-e", extra], repo, 900, fh)
@@ -809,8 +885,11 @@ def main():
     p = sub.add_parser("component-suite")
     for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name"):
         p.add_argument(a, required=True)
-    p.add_argument("--timeout", type=int, default=300)
+    p.add_argument("--timeout", type=int, default=DEFAULT_TEST_TIMEOUT_SECONDS)
     p.add_argument("--fetch", action="store_true", help="fetch the exact pinned commit into --repo-dir first")
+    p.add_argument("--pins-manifest", default=None, help="freeze manifest that names the sibling pins (default: $MANIFEST, relative to the checkout of this tool)")
+    p.add_argument("--refreeze-log", default=None, help="overlay for the sibling pins (default: $REFREEZE_LOG; the file must exist when the variable is set)")
+    p.add_argument("--no-siblings", action="store_true", help="local use: do not provision pinned sibling components (the row skips they cause stay INCONCLUSIVE)")
     p.set_defaults(fn=cmd_component_suite)
     p = sub.add_parser("probe-suite")
     for a in ("--component", "--repo-dir", "--out", "--os-name", "--suite"):
