@@ -51,7 +51,7 @@ How to read this table:
 - In 23 cases the comparator applications pass and the OCS cell is not expressible or not claimed. They are listed in the generated report with their reasons and are not scored.
 - The 16 scenarios not asked of any configuration, and the 11 not expressible for every configuration, are listed with their reasons in the plan file `comparators/wiki/plans/wiki-subset-plan.json`.
 - Not expressible and not claimed describe what the configured application can be asked and the claims of the stack as configured. They say nothing about what OPA or LangGraph could do in other hands.
-- The cross-reference for the OCS cells that are not scored here is the run of the Wiki-derived tests against the whole stack (290 tests, 285 passing, five failing and reported as non-gating under amendments 78 and 79; none is classified as a major defect). That run uses a different harness and is not scored by this oracle. Details are in `docs/v1-known-limits.md`.
+- The cross-reference for the OCS cells that are not scored here is the run of the Wiki-derived tests against the whole stack (290 tests, 285 passing, five failing and reported as non-gating under amendments 78 and 79; none is classified as a major defect). That run uses a different harness and is not scored by this oracle. Details are in `docs/v1-known-limits.md` (entry of 2026-10-20, measured state). That entry also records the controller run at the same pins.
 
 ## What the results support
 
