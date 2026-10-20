@@ -46,10 +46,11 @@ The whole `reference_profiles` tree of that revision is listed in `digests.json`
 | `expected_outcomes` | `2ca5997fdf1f79e2964986fa9dabc1c10f27edd26540a461bc91bc32aa9629b9` | 4 |
 | `opa_rule_file` | `36c8089933986d9a29b163a25784b4e6c9b0c2b6c24b64b186ec084297f9804e` | 1 |
 | `comparator_modules` | `8ca224c638efc882c785b6948be8613c24cec8b242177bb8444012ba9c55f922` | 6 |
-| `runner_modules` | `7f817b6f97c40186a1e80bd4a10da1f03da96694baf28f062b7dec46d1a1823a` | 8 |
+| `runner_modules` | `9bf531ffce814d99ccc03a7534dc13fed5d7acf30c8f341a2dd84f1f6db77d2a` | 8 |
 | `declared_interfaces` | `e80588e9a2ec65de1c3e0d97300875aec2d1b4a4feb4a1f13ee99bbfa4aef8cf` | 2 |
 | `dependency_lock` | `83f047acd6742093b5ae8a539a4a920521b211668bebf28db97b3fcb22d70202` | 2 |
 | `ocs_crossref` | `988f14f83ff64008bc213cd068a472b43c609d6e2059eec4d1f2892465358dc2` | 1 |
+| `runner` | `ba379a9fd1c781e428ebc99057063a0eeba47ebde8ea5ad232234f1c0d605dab` | 23 |
 | `package_tests` | `49c42758dbbe93784078aaf4844cfbb3bb5ed8d203ac200f1db73457b707545e` | 13 |
 
 ## Every file
@@ -59,6 +60,29 @@ The whole `reference_profiles` tree of that revision is listed in `digests.json`
 | `comparators/__init__.py` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | `comparators/deps/requirements-comparator.lock` | `602818a3ec65589554023375bf4e9c5a546e2aa17abd47cf2128aba8b79636e0` |
 | `comparators/deps/requirements.pinned.txt` | `affe2fce90ea7f0ebc15ca4fa4e33439c198acabd81140be98c16bf88270e095` |
+| `comparators/runner/DECISIONS.md` | `97f6f4350445899b01e53f2206e24137ea12c12a0213438a1a5cece6db28d845` |
+| `comparators/runner/README.md` | `4c86dc8e9e67394dd6012cfc9ba2382fd066b83669f2946cc14b04173cd125f8` |
+| `comparators/runner/__init__.py` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `comparators/runner/cells.py` | `609e92befe288949c1281b5841f808d636e6b124a86a384f21eeb30097552427` |
+| `comparators/runner/compute_digests.py` | `f6196ab792569da68b63bcf3d57d0cb56346a18358da562bd7cfd805ecdd5d4d` |
+| `comparators/runner/contract_check.py` | `5c8f26f5e96eae499cc63ca629dc1cf66978f7b184a6d50cc3e84e04d6f5def8` |
+| `comparators/runner/declare_ocs_column.py` | `c51c5d5c97cd4477fd013921bb7ca8cef6c2ba2ef4788751641f192149509a45` |
+| `comparators/runner/digests.json` | `5f87c69c59a7695eaa57a1b1f789d894c9d639366900e2e3c9a12eae2933bb40` |
+| `comparators/runner/ocs-column-declarations.json` | `4168efee24c95622be6f7a58827a8542f8ab845c3ec69517424c93237b05e09b` |
+| `comparators/runner/ocs-column-declarations.md` | `4a8d93f234c06bf848583ce571ed9e52fda4938d7e59586e64e0db81c171f5b6` |
+| `comparators/runner/ocs_column.py` | `1402ca11d8be79e253bf370bc7912d1d64e5f65ca8a7f8fe38a4e3ed37db8d44` |
+| `comparators/runner/report.py` | `e12f4b73a3ae86bed96f6f2a721d1105b373ddb472adbf8529e680a97bc45ce3` |
+| `comparators/runner/run_comparison.py` | `df78a6e7346deb12d17d7e6fa278dfa9dc5b64acb9ef285eedbea1f28f725477` |
+| `comparators/runner/run_core.py` | `e83a080164bd96b902b17b80936e72380cb60b6229a62505367783089d7bc803` |
+| `comparators/runner/run_wiki_subset.py` | `5d5fd25b300166d7852a97df639e484fc645584abfc8ecbd162f15b6c6b57707` |
+| `comparators/runner/stubs.py` | `6673c614ad6ee95bf6984391ad7b28b5ed2dab64ad9ac34536ce64003974fd10` |
+| `comparators/runner/tests/conftest.py` | `de573ff30ee21bffd7ba5cbd4698994db5be15fd3c8fafcd440bfd5c263f7d87` |
+| `comparators/runner/tests/test_runner_cells.py` | `8a563c99b236a743264d5748f2ed91d220a7d62546ca38a5c988071ec4019bc4` |
+| `comparators/runner/tests/test_runner_contract.py` | `f61783e4a20676bc8be217449befa5b7699a73ddce723d47b73509c9a0e93885` |
+| `comparators/runner/tests/test_runner_entry_points.py` | `da900daf5335e1c70ebfea10c5cc3604f605a2732f772e0b9542248284c0ae78` |
+| `comparators/runner/tests/test_runner_ocs_column.py` | `974336b1520b6759f1ea98ad3a09cdfe4dae91cbca870260f42bd3a7af7cdcc4` |
+| `comparators/runner/tests/test_runner_package.py` | `6b8b220870568711d520b21f4385cf6cdf53bf778c57877edd0e7b849f84d58f` |
+| `comparators/runner/tests/test_runner_report.py` | `e1ce75435589ca2741bb537066bb623c521f13f66581977e1ebdde52e77626dd` |
 | `comparators/tests/conftest.py` | `d9b667fb3d6facca997627538495a6aef5dba44d46802c65329e1d157b0b2377` |
 | `comparators/tests/support/synthetic_base.py` | `4e53330104ac557cae97fee08724d34ebec2ff3229d846a84ed514a7619d8aa2` |
 | `comparators/tests/test_ablations.py` | `c3784ed27be97b4e66c2643b8203bfa5eb813986543110988282722dba22eab1` |
@@ -86,7 +110,7 @@ The whole `reference_profiles` tree of that revision is listed in `digests.json`
 | `comparators/wiki/harness/__init__.py` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | `comparators/wiki/harness/_base.py` | `b9c89791c1d340b092976faab644b356773df057fc293ede17a6ba0b24f6f06d` |
 | `comparators/wiki/harness/author_plan.py` | `bfd0fbad098b3c6235af811f8713c2d182bd672fbbccf47fd317400896fe61f9` |
-| `comparators/wiki/harness/compute_digests.py` | `3ca5b9270481131dabe0a7a4e25fc4876678d75853cf19324431b02b1a861639` |
+| `comparators/wiki/harness/compute_digests.py` | `cd14d61d3ff138b9c2bb780d389e5a97a00d176c9648af710ec0b1e0a8352587` |
 | `comparators/wiki/harness/gen_crossref.py` | `4b4d157944d1499f06b731f613eb5178506d27f448e3b05ac7181231d2f6ee5c` |
 | `comparators/wiki/harness/plumbing_twin.py` | `9591d79a93b4f044299a031cc8e7931c83f82bda499a1b204dcf54f34375ee06` |
 | `comparators/wiki/harness/registered_sets.py` | `c8c6a8476af5a01bd994cce544d712c1dd7279aa901e25c67e0acf09e10b8cb6` |
