@@ -1,0 +1,336 @@
+{
+ "note": "Mechanical listing of test names whose source mentions the case id in qualification main 5027aff9. Different harness, not scored by this oracle; never added to a pass fraction. gate_status is filled from the OCS-3 gate report at report time, not here. (module-level) means the id appears outside a test function (a table or docstring); the mapping is confirmed when the report is made.",
+ "source_commit": "5027aff9eaf6c78bc26e990a7b140cb8dbc5f8ca",
+ "cases": {
+  "TC-D09-009": [
+   {
+    "file": "suites/wiki-derived/test_wp_a_grant_lifecycle.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_d09_009_decision_and_refusal_records_name_grant_id_and_revision",
+     "test_wiki_d09_009_effect_inside_grant_window_executes_and_after_window_close_is_refused",
+     "test_wiki_d09_009_missing_or_expired_approval_holds_without_effect",
+     "test_wiki_d09_009_task_longer_than_window_keeps_the_first_effect_and_refuses_the_next"
+    ]
+   }
+  ],
+  "TC-D09-011": [
+   {
+    "file": "suites/wiki-derived/test_wp_b_identity_scope.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_d09_011_four_in_scope_requests_authorized_and_four_out_of_scope_requests_refused",
+     "test_wiki_d09_011_grant_naming_a_parent_is_refused_with_a_typed_reason",
+     "test_wiki_d09_011_grant_record_carries_principal_permission_scope_and_validity_window",
+     "test_wiki_d09_011_revoked_grant_is_refused_on_the_next_decision_and_the_revocation_is_retained"
+    ]
+   }
+  ],
+  "TC-D13-003": [],
+  "TC-L02-011": [
+   {
+    "file": "suites/wiki-derived/test_wp_a_grant_lifecycle.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l02_011_decision_taken_before_expiry_is_refused_at_commit_after_expiry",
+     "test_wiki_l02_011_expiry_refusal_is_retained_with_its_reason",
+     "test_wiki_l02_011_extended_grant_revision_needs_a_fresh_decision_and_approval_stays_required",
+     "test_wiki_l02_011_grant_allows_before_expiry_and_refuses_after_with_an_injected_clock"
+    ]
+   }
+  ],
+  "TC-L05-013": [
+   {
+    "file": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l05_013_each_single_read_that_fails_holds_the_decision_and_denies_the_effect_when_it_fails_later",
+     "test_wiki_l05_013_the_behaviour_is_the_same_for_every_request_and_returns_when_the_component_is_restored",
+     "test_wiki_l05_013_there_is_no_configurable_fail_open_mode_known_limit",
+     "test_wiki_l05_013_with_the_authority_source_stopped_ten_requests_are_held_and_none_has_an_effect"
+    ]
+   }
+  ],
+  "TC-L05-022": [
+   {
+    "file": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l05_022_each_blocked_call_is_a_retained_decision_with_time_rule_and_commitment_and_no_attempt",
+     "test_wiki_l05_022_five_valid_calls_execute_and_five_invalid_calls_are_blocked_without_effect",
+     "test_wiki_l05_022_the_schema_is_declared_in_the_manifest_and_a_change_of_it_applies_to_the_next_call"
+    ]
+   }
+  ],
+  "TC-L06-008": [
+   {
+    "file": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_008_each_of_five_post_approval_manifest_changes_is_refused_until_reapproved",
+     "test_wiki_l06_008_reverting_the_change_restores_acceptance_only_for_the_approved_digest",
+     "test_wiki_l06_008_the_change_is_refused_at_the_next_decision"
+    ]
+   }
+  ],
+  "TC-L06-009": [
+   {
+    "file": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_009_a_decision_alone_does_not_refuse_two_tools_of_one_name_known_limit",
+     "test_wiki_l06_009_an_action_naming_a_look_alike_of_a_declared_tool_is_not_bound_to_it",
+     "test_wiki_l06_009_collision_introduced_after_approval_is_refused_by_digest",
+     "test_wiki_l06_009_identical_and_near_identical_tool_names_in_one_manifest_never_receive_the_effect",
+     "test_wiki_l06_009_refusal_names_the_adapter_identifier_for_attribution"
+    ]
+   }
+  ],
+  "TC-L06-011": [
+   {
+    "file": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_011_allow_list_change_applies_to_the_next_call",
+     "test_wiki_l06_011_denied_actions_are_refused_before_dispatch_by_the_executor_allow_list",
+     "test_wiki_l06_011_each_decision_record_names_action_actor_principal_and_result",
+     "test_wiki_l06_011_ten_actions_three_actors_two_principals_thirty_decisions_match_the_matrix"
+    ]
+   }
+  ],
+  "TC-L06-013": [
+   {
+    "file": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_013_each_attempt_leaves_a_decision_record_with_agent_tool_and_result",
+     "test_wiki_l06_013_out_of_scope_requests_carrying_injected_instructions_are_refused_like_direct_ones",
+     "test_wiki_l06_013_removing_a_tool_takes_effect_at_the_next_decision_and_at_the_next_call",
+     "test_wiki_l06_013_thirty_six_attempts_by_three_agents_over_twelve_tools_match_the_allow_lists"
+    ]
+   }
+  ],
+  "TC-L06-014": [
+   {
+    "file": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_014_encoding_and_look_alike_evasion_attempts_are_all_blocked",
+     "test_wiki_l06_014_payload_values_and_zero_amount_are_not_policy_checked_known_limit",
+     "test_wiki_l06_014_the_executor_refuses_altered_arguments_by_itself_after_an_authorized_decision",
+     "test_wiki_l06_014_the_reason_of_a_blocked_call_names_the_parameter_that_matched",
+     "test_wiki_l06_014_twenty_compliant_calls_are_allowed_and_each_executes_once_with_its_own_amount",
+     "test_wiki_l06_014_twenty_non_compliant_calls_are_all_blocked_with_no_destination_effect"
+    ]
+   }
+  ],
+  "TC-L06-015": [
+   {
+    "file": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_015_an_approval_does_not_carry_over_when_the_operation_grant_or_policy_changed",
+     "test_wiki_l06_015_an_approval_that_is_older_than_the_freshness_window_times_out_to_a_hold",
+     "test_wiki_l06_015_every_outcome_is_retained_with_the_approval_state_read_and_no_rejection_record_exists_known_limit",
+     "test_wiki_l06_015_the_approver_cannot_be_the_requesting_actor_or_principal",
+     "test_wiki_l06_015_twelve_high_risk_tasks_are_held_until_approved_six_run_four_rejected_and_two_ignored_do_not"
+    ]
+   }
+  ],
+  "TC-L06-016": [
+   {
+    "file": "suites/wiki-derived/test_wp_c_budget_stop_recovery.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_016_fifty_approved_low_risk_operations_do_not_carry_to_one_high_risk_operation",
+     "test_wiki_l06_016_missing_approval_holds_the_high_risk_operation_regardless_of_prior_approvals",
+     "test_wiki_l06_016_repeated_identical_requests_yield_one_effect",
+     "test_wiki_l06_016_ten_split_effects_stop_at_the_shared_effect_budget"
+    ]
+   }
+  ],
+  "TC-L06-017": [
+   {
+    "file": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_017_cyclic_and_self_referencing_parent_is_refused",
+     "test_wiki_l06_017_grant_naming_a_parent_is_refused_at_every_depth_of_a_four_level_chain",
+     "test_wiki_l06_017_refusal_record_names_the_parent_identifier",
+     "test_wiki_l06_017_request_for_a_permission_outside_the_grant_is_refused"
+    ]
+   }
+  ],
+  "TC-L06-019": [
+   {
+    "file": "suites/wiki-derived/test_wp_b_identity_scope.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_019_decision_and_effect_records_name_actor_and_principal",
+     "test_wiki_l06_019_instruction_bearing_text_does_not_lend_the_actors_broader_reach",
+     "test_wiki_l06_019_principal_rights_withdrawn_during_the_task_are_seen_before_the_effect",
+     "test_wiki_l06_019_ten_privileged_permissions_allowed_for_admin_principal_and_refused_for_standard_principal_with_same_actor"
+    ]
+   }
+  ],
+  "TC-L06-022": [
+   {
+    "file": "suites/wiki-derived/test_wp_c_budget_stop_recovery.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_022_call_already_committed_is_reported_applied_and_not_rolled_back",
+     "test_wiki_l06_022_stop_journal_retains_requester_and_reason_in_order",
+     "test_wiki_l06_022_suspended_grant_refuses_the_next_effect_of_one_holder_while_a_second_holder_executes",
+     "test_wiki_l06_022_suspension_persists_across_restart"
+    ]
+   }
+  ],
+  "TC-L06-023": [
+   {
+    "file": "suites/wiki-derived/test_wp_a_grant_lifecycle.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_023_effect_list_from_the_run_record_matches_the_destination_rows_sixty_of_sixty",
+     "test_wiki_l06_023_no_rollback_is_offered_and_applied_effects_remain",
+     "test_wiki_l06_023_sixty_effects_then_revocation_refuses_the_sixty_first_and_every_later_effect"
+    ]
+   }
+  ],
+  "TC-L06-024": [
+   {
+    "file": "suites/wiki-derived/test_wp_c_budget_stop_recovery.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_024_budget_state_reports_used_and_maximum_for_each_budget",
+     "test_wiki_l06_024_cap_of_twenty_is_exact_under_one_hundred_attempts_route_a",
+     "test_wiki_l06_024_cap_of_twenty_is_exact_under_one_hundred_attempts_route_b",
+     "test_wiki_l06_024_three_budgets_for_three_action_classes_are_independent"
+    ]
+   }
+  ],
+  "TC-L06-034": [
+   {
+    "file": "suites/wiki-derived/test_wp_d_manifest_change_control.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_034_a_grant_edited_in_place_without_a_new_revision_is_read_as_current_known_limit",
+     "test_wiki_l06_034_added_tool_in_the_manifest_is_refused_until_a_revised_manifest_is_approved",
+     "test_wiki_l06_034_changed_grant_principal_or_permissions_need_a_fresh_decision",
+     "test_wiki_l06_034_requests_while_a_revision_is_pending_hold_without_effect",
+     "test_wiki_l06_034_widened_scope_in_the_policy_is_not_effective_until_a_signed_revision"
+    ]
+   }
+  ],
+  "TC-L06-039": [
+   {
+    "file": "suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l06_039_a_held_request_is_retained_with_the_proposal_of_the_actor_and_the_user_and_not_the_sender_known_limit",
+     "test_wiki_l06_039_six_in_scope_requests_are_allowed_and_each_executes_once",
+     "test_wiki_l06_039_six_out_of_scope_requests_are_denied_in_both_phrasings_with_no_effect",
+     "test_wiki_l06_039_the_decision_names_the_scope_of_the_actor_and_the_user_of_the_request_not_the_senders",
+     "test_wiki_l06_039_the_sender_label_is_not_bound_to_the_actor_so_a_listed_low_trust_sender_has_the_rights_of_the_named_actor_known_limit"
+    ]
+   }
+  ],
+  "TC-L07-008": [
+   {
+    "file": "suites/wiki-derived/test_wp_e_exchange_injection.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l07_008_altered_arguments_after_approval_are_refused_by_commitment",
+     "test_wiki_l07_008_legitimate_request_for_each_registered_action_executes_once",
+     "test_wiki_l07_008_thirty_instruction_bearing_exchange_narratives_for_three_unlisted_actions_produce_no_effect_route_c",
+     "test_wiki_l07_008_thirty_instruction_bearing_proposals_for_three_unlisted_actions_produce_no_effect_route_a"
+    ]
+   }
+  ],
+  "TC-L09-003": [
+   {
+    "file": "suites/wiki-derived/test_wp_a_grant_lifecycle.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l09_003_deadline_and_window_boundaries_follow_the_documented_time_semantics",
+     "test_wiki_l09_003_expired_grant_is_refused_at_use",
+     "test_wiki_l09_003_grant_for_another_tenant_or_adapter_is_refused",
+     "test_wiki_l09_003_request_beyond_the_grants_permissions_is_refused_at_decision_and_at_commit"
+    ]
+   }
+  ],
+  "TC-L09-004": [
+   {
+    "file": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l09_004_a_scope_violation_is_retained_with_the_grant_identifier_and_revision",
+     "test_wiki_l09_004_elevation_needs_a_new_grant_revision_and_a_fresh_approval_bound_to_it",
+     "test_wiki_l09_004_requests_through_injected_text_for_wider_access_are_refused",
+     "test_wiki_l09_004_the_destination_credential_is_narrower_than_the_decision_and_refuses_an_out_of_scope_commit",
+     "test_wiki_l09_004_thirty_calls_twenty_in_scope_and_ten_out_of_scope_by_scope_and_by_resource"
+    ]
+   }
+  ],
+  "TC-L09-006": [
+   {
+    "file": "suites/wiki-derived/test_wp_b_identity_scope.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l09_006_actor_and_principal_reach_the_envelope_and_the_effect_record",
+     "test_wiki_l09_006_proposal_without_a_principal_cannot_use_principal_authority",
+     "test_wiki_l09_006_same_task_for_two_principals_with_different_grants_gives_different_outcomes",
+     "test_wiki_l09_006_substituted_principal_in_the_envelope_is_refused"
+    ]
+   }
+  ],
+  "TC-L09-007": [
+   {
+    "file": "suites/wiki-derived/test_wp_b_identity_scope.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l09_007_cross_tenant_request_is_refused",
+     "test_wiki_l09_007_registered_actor_cannot_obtain_an_unregistered_action_that_edits_roles_or_reads_credentials",
+     "test_wiki_l09_007_request_for_permissions_outside_the_grant_is_refused_at_decision_and_at_commit",
+     "test_wiki_l09_007_request_naming_a_parent_grant_or_another_actor_is_refused"
+    ]
+   }
+  ],
+  "TC-L09-014": [
+   {
+    "file": "suites/wiki-derived/test_wp_a_grant_lifecycle.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l09_014_decisions_taken_after_rotation_execute_once",
+     "test_wiki_l09_014_effect_budget_acts_as_the_usage_cap",
+     "test_wiki_l09_014_revoked_grant_is_refused_immediately_and_expired_grant_after_its_deadline",
+     "test_wiki_l09_014_rotated_grant_revision_refuses_a_decision_taken_on_the_prior_revision_at_commit"
+    ]
+   }
+  ],
+  "TC-L09-018": [
+   {
+    "file": "suites/wiki-derived/test_wp_b_identity_scope.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l09_018_host_asserted_authenticated_flag_is_a_known_limit",
+     "test_wiki_l09_018_identity_comes_from_the_resolver_binding_and_a_mismatch_is_refused",
+     "test_wiki_l09_018_refusals_are_retained_with_reason_codes",
+     "test_wiki_l09_018_ten_identity_claims_in_text_fields_and_proposal_members_are_not_accepted_as_identity",
+     "test_wiki_l09_018_valid_actor_with_a_mismatched_claimed_principal_is_refused"
+    ]
+   }
+  ],
+  "TC-L09-019": [
+   {
+    "file": "suites/wiki-derived/test_wp_b_identity_scope.py",
+    "tests": [
+     "(module-level)",
+     "test_wiki_l09_019_grant_identifier_reused_by_a_second_principal_is_refused",
+     "test_wiki_l09_019_non_production_tenant_request_against_production_grant_is_refused_route_a",
+     "test_wiki_l09_019_production_tenant_claim_presented_in_the_non_production_tenant_is_refused_route_b",
+     "test_wiki_l09_019_shared_engine_database_evidence_status_is_not_tenant_scoped_known_limit"
+    ]
+   }
+  ]
+ }
+}
