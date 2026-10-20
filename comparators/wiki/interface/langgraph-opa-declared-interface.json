@@ -1,0 +1,41 @@
+{
+ "configuration": "langgraph-opa-transactional-application (Wiki)",
+ "scope_text": "Bounded synthetic profile only. The comparator applications (the OPA application and the LangGraph plus OPA application) are configured by Cognous, not vendor implementations. This is not independent certification and not production readiness; operational trust stays on HOLD. Linux only.",
+ "status": "Declared interface of the LangGraph plus OPA application of the Wiki comparator. The graph layer adds no policy logic; the base application's declaration (declared-interface-opa-app.json) applies to every request it passes on. Source references are verified by comparators/tests/test_interface_declarations.py.",
+ "request_fields_read": "none by this layer; the graph reads only request.body.id (thread id) and passes the signed request unchanged to the base OPA application",
+ "operations": [
+  "execute (via approval node, then effect node or deny node)"
+ ],
+ "zero_argument_step_methods": [
+  "revoke",
+  "fence",
+  "rotate",
+  "reopen",
+  "break_audit (base)",
+  "require_approval",
+  "release_approval",
+  "approve",
+  "reject",
+  "timeout (graph layer)"
+ ],
+ "state": [
+  "destination.sqlite (base)",
+  "checkpoints.sqlite (LangGraph SqliteSaver)",
+  "approvals.sqlite (pending approvals, graph layer)"
+ ],
+ "decision_reasons_added": [
+  "APPROVAL_PENDING",
+  "APPROVAL_REJECTED",
+  "APPROVAL_TIMED_OUT"
+ ],
+ "event_shape_for_graph_denials": "events(body) JSON, same keys and order as the Wiki OPA application's denied-execute rows: operation, command, request_digest (full signed request), status, reason, at, command_authenticated, threshold_alert (False), hold (True only for APPROVAL_PENDING), policy_skipped (False), reasons ([reason]); written by WikiOpaApp.record_denial",
+ "known_absences": [
+  "no policy logic in the graph layer",
+  "no user, tool or window concept of its own",
+  "approval is an explicit step method, no real time or human"
+ ],
+ "source": "comparators/wiki/apps/wiki_langgraph_app.py:225",
+ "base_application": "comparators/wiki/apps/wiki_opa_app.py WikiOpaApp (real subclass relation; graph class WikiLangGraphOPA built by make_wiki_langgraph_app)",
+ "mutation_grammar": "graph_<name> optionally combined with base families: graph_x+family+family; at most one graph_ part; unknown names raise",
+ "marker": "def make_wiki_langgraph_app"
+}
