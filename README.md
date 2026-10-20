@@ -6,11 +6,11 @@ Cross-component test scenarios, executable test suites and qualification evidenc
 
 **Who it is for.** Reviewers who want to see what the stack is tested against, maintainers who run or extend the suites, and the hub's release process, which links evidence from here. It is not an install target for stack users.
 
-**What it does not do.** It does not select component revisions, grant authority, clear publication gates or authorize production. Validating the catalog is not qualification. A green local run of a suite is material for the qualification controller, not a recorded verdict. The controller (`tools/v1_validation.py`, run through the dispatch-only `v1-validation.yml`) has not been run for the release test gate.
+**What it does not do.** It does not select component revisions, grant authority, clear publication gates or authorize production. Validating the catalog is not qualification. A green local run of a suite is material for the qualification controller, not a recorded verdict. The controller (`tools/v1_validation.py`, run through the dispatch-only `v1-validation.yml`) has been run at the r10 tuple: the first attempt (run 39345693648) stopped at the aggregate step and is retained as an aborted attempt, and the second run (39349033320, after the artifact split of #182) completed; its results are retained under [`results/v1-validation/v1-2026-10-16-a/g2-r10-39349033320`](results/v1-validation/v1-2026-10-16-a/g2-r10-39349033320) and summarised in [V1 known limits](docs/v1-known-limits.md). A retained result describes one tuple; it is not a release decision.
 
-**Current status** (counts as of `main` on 19 October 2026; the [release test inventory](docs/test-inventory.md) and the generated Wiki index are the sources if they differ):
+**Current status** (counts as of `main` on 20 October 2026; the [release test inventory](docs/test-inventory.md) and the generated Wiki index are the sources if they differ):
 
-- **696 specifications, all NOT RUN:** 40 Cognous cases (9 deterministic, 6 agent-behavior, 2 human-oversight, 23 supplemental) and 656 AI Security Wiki reference cases. They stay NOT RUN until the controller runs and a result is mapped to executed evidence.
+- **696 specifications, all NOT RUN:** 40 Cognous cases (9 deterministic, 6 agent-behavior, 2 human-oversight, 23 supplemental) and 656 AI Security Wiki reference cases. The catalog itself records no result: a controller result is recorded per requirement row in the retained V1 validation files, not per catalog case.
 - **Wiki applicability is classified:** all 656 Wiki cases are assessed against the declared scope in [`scenarios/ai-security-wiki/applicability.json`](scenarios/ai-security-wiki/APPLICABILITY.md): 20 APPLICABLE, 45 PARTLY_COVERED and 591 NOT_APPLICABLE. 65 cases are in scope. A classification is not a verdict. A case added by a later upstream refresh has no classification until it is assessed.
 - **Executable suites:** 16 suite directories under [`suites/`](suites/README.md): seven relocated from component repositories and nine written here. [`suites/wiki-derived`](suites/wiki-derived/README.md) holds 290 collected tests for 61 of the 65 in-scope cases (20 of the 20 APPLICABLE and 41 PARTLY_COVERED).
 - **Release test inventory:** [docs/test-inventory.md](docs/test-inventory.md) (machine-readable twin [process/release-gate/inventory.json](process/release-gate/inventory.json)) lists every suite of the release test gate with command, count, environment, state and known limits. It is an inventory, not a result; it states that the gate is not met today and lists the blockers.
@@ -43,7 +43,7 @@ This repository is in the **Tooling and qualification** side group. It is not in
 |---|---|
 | **Understand** what is tested and why | [Release test inventory](docs/test-inventory.md) · [Execution and evidence contract](docs/execution-contract.md) · [Source provenance and scope](docs/sources.md) · [Serial qualification packet](docs/serial-qualification.md) |
 | **Run** tests | [Quick start](#quick-start) below · [Suites index](suites/README.md) · [What ships](#what-ships) |
-| **Read results** | [Qualification dashboard](docs/qualification-dashboard.md) (generated) · [Results and retention rules](results/README.md) · [Result commentary index](results/readme-commentary/index.md) · [V1 known limits](docs/v1-known-limits.md) |
+| **Read results** | [Qualification dashboard](docs/qualification-dashboard.md) (generated) · [Results and retention rules](results/README.md) · [Latest retained controller results (r10)](results/v1-validation/v1-2026-10-16-a/g2-r10-39349033320/summary.md) · [Result commentary index](results/readme-commentary/index.md) · [V1 known limits](docs/v1-known-limits.md) |
 | **Review limits** | [Security repairs and residual limits](docs/security-residuals-20261016.md) · [Adversarial test plan](docs/adversarial-test-plan.md) and [batch-1 results](process/adversarial/README.md) · [Known limits of the probe suites](suites/fix2-probes/KNOWN_LIMITS.md) and [of the V1 probes](suites/v1-probes/KNOWN_LIMITS.md) |
 | **Extend** the catalog or suites | [Browse the scenario catalog](scenarios/README.md) · [Machine-readable Cognous scenarios](scenarios/catalog.json) · [AI Security Wiki scenarios](scenarios/ai-security-wiki/README.md) · [Upstream refresh through GitHub](docs/upstream-sync.md) · [Refusal-test template](docs/refusal-test-template.md) · [Dashboard operating guide](docs/qualification-dashboard-guide.md) |
 | **Check licensing** | [License and attribution boundaries](THIRD_PARTY_NOTICES.md) |
@@ -77,17 +77,17 @@ python -m pytest -q -p no:cacheprovider suites/wiki-derived
 ```
 
 ```text
-5 passed, 176 skipped
+5 passed, 285 skipped
 ```
 
-**3. Run the repository's own tests** (under two minutes; this is what the catalog-validation workflow runs):
+**3. Run the repository's own tests** (a few minutes, depending on the machine; this is what the catalog-validation workflow runs):
 
 ```bash
 python -m unittest discover -s tests
 ```
 
 ```text
-Ran 410 tests in 107.294s
+Ran 413 tests in 208.113s
 
 OK (skipped=1)
 ```
