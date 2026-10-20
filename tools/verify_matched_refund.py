@@ -1,6 +1,6 @@
 """Portable stdlib-only verification of the matched monetary refund evidence.
 
-Apache-2.0. Snapshot consistency is not signer authentication or rerun SCQOS.
+Apache-2.0. Snapshot consistency is not signer authentication or rerun of the assessed architecture.
 """
 from contextlib import closing
 import hashlib
@@ -110,7 +110,7 @@ def verify(root):
     return {'integrity':'PASS','matched_business_trials':20,'state_and_native_receipt_checks':'PASS',
             'lost_ack':'UNKNOWN preserved; distinct native recovery attempt; one effect',
             'scope':'nonselected local atomic profile with test-only account adapter; same-host observer',
-            'scqos_reexecution':'NOT RUN','signer_authentication':'NOT VERIFIED BY THIS PORTABLE VERIFIER'}
+            'assessed_architecture_reexecution':'NOT RUN','signer_authentication':'NOT VERIFIED BY THIS PORTABLE VERIFIER'}
 
 
 if __name__=='__main__':

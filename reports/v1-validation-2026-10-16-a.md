@@ -69,7 +69,7 @@ Evidence is from executed tests and probes at the pinned commits on Linux, Pytho
 - Windows and macOS (Linux only, D2). Results from the earlier all-platform runs are retained and not claimed.
 - Extension families (D4), governed memory (D6), PRP and TFA (D8), the deferred runtime-authority addendum (ADD-AUTH-RA, D10), the refund-intent profile with route A (D12).
 - The 40 native runtime regressions from PR #29 were not re-executed from the overlay; the runtime's own suite and the 36-case native F5b suite pass.
-- The Drive addenda folder could not be read; the matrix covers the attached recommendations document and repository matrices. Evelyne-Claudia's material was read-only and not reconciled.
+- The Drive addenda folder could not be read; the matrix covers the attached recommendations document and repository matrices. The counterparty's material was read-only and not reconciled.
 
 ## Known limitations
 
