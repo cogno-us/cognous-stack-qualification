@@ -805,6 +805,21 @@ def collect_control_records(inputs: Path):
     return results, freeze, expected
 
 
+def job_counts(record, inputs: Path):
+    """Test counts of one job record for the summary.
+
+    Component and probe jobs carry them in their last attempt. A single-instance job (for example the scenario suite) writes them at the
+    top level of its record and has no attempts; when a record carries neither, they are read from the job's own junit.xml (None when absent).
+    Reporting only: no status or verdict is derived from this value.
+    """
+    att = record["attempts"][-1] if record.get("attempts") else {}
+    if att.get("counts") is not None:
+        return att["counts"]
+    if isinstance(record.get("counts"), dict):
+        return record["counts"]
+    return junit_counts(inputs / record["_dir"] / "junit.xml")
+
+
 def cmd_aggregate(args):
     if not VALIDATION_ID_RE.fullmatch(str(args.validation_id)):
         raise SystemExit("invalid validation id")
@@ -823,7 +838,7 @@ def cmd_aggregate(args):
         counts[r.get("status", "INCONCLUSIVE")] = counts.get(r.get("status", "INCONCLUSIVE"), 0) + 1
         att = r["attempts"][-1] if r.get("attempts") else {}
         rows.append({"job": r["_dir"], "component": r.get("component"), "os": r.get("os"), "python": r.get("python"),
-                     "status": r.get("status"), "reason": r.get("reason"), "counts": att.get("counts"),
+                     "status": r.get("status"), "reason": r.get("reason"), "counts": job_counts(r, inputs),
                      "attempts": len(r.get("attempts", []))})
     seen = {(r.get("component"), r.get("os"), str(r.get("python"))[:4]) for r in results}
     missing = []
