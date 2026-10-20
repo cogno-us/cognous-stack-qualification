@@ -73,7 +73,7 @@ def export(run, output, hub, log):
         if case['result']['verdict'] != 'PASS':
             ElementTree.SubElement(test,'failure',message=case['result']['verdict']).text=json.dumps(case['result'])
     ElementTree.ElementTree(suite).write(output/'test-results.xml', encoding='utf-8', xml_declaration=True)
-    (output/'README_FOR_JERRY.md').write_text('''# Cognous bounded native-local test evidence
+    (output/'README_FOR_COUNTERPARTY.md').write_text('''# Cognous bounded native-local test evidence
 
 This package contains actual synthetic SQLite executions: 18 named variants, two diagnostic repetitions each. See manifest.json for exact commits and the frozen profile. No paid model calls or production actions were made.
 
@@ -91,9 +91,9 @@ Reproduction produces new keys and signatures, so identical output-byte hashes a
 
 D04: the first acknowledgement is deliberately discarded after synchronous apply returned and a committed snapshot was read. The store is reopened, a distinct request/attempt is submitted for the same logical effect, and native admission returns duplicate with one effect retained. This is NOT writer-free reconciliation. Private writer entry is not instrumented. No process kill, power-loss, external financial settlement or delayed writer is exercised.
 
-Important asymmetry: this Cognous fixture inserts the payload "synthetic" as one local effect. It is not Jerry's USD 100 to USD 90 refund fixture. No account balance/version mapping or matched-request comparative verdict is claimed. The same OS account remains trusted, despite the separate read-only observer process. Operational observer independence and full selected-stack acceptance are unestablished.
+Important asymmetry: this Cognous fixture inserts the payload "synthetic" as one local effect. It is not the counterparty's USD 100 to USD 90 refund fixture. No account balance/version mapping or matched-request comparative verdict is claimed. The same OS account remains trusted, despite the separate read-only observer process. Operational observer independence and full selected-stack acceptance are unestablished.
 
-Replay and Evidence Pack exports for these native local receipt families are unsupported/NOT RUN. The native/ files are original records and a qualification sidecar, not renamed Replay or Evidence Pack records. Authority belongs to local synthetic fixture grants and keys; no institutional authority, SCQOS execution, production readiness, or release approval follows.
+Replay and Evidence Pack exports for these native local receipt families are unsupported/NOT RUN. The native/ files are original records and a qualification sidecar, not renamed Replay or Evidence Pack records. Authority belongs to local synthetic fixture grants and keys; no institutional authority, assessed-architecture execution, production readiness, or release approval follows.
 
 All raw state is synthetic. No private signing keys are exported; public Ed25519 registries and signed requests are retained where available. Approval-fixture HMAC keys are deliberately absent. Native audit hashes verify consistency, not signer authenticity. No external bundle/source has been copied into this archive. Public source retains original Apache-2.0 license and notices in evidence/source. Do not send this package automatically: owner review precedes any transmission.
 ''')
@@ -114,7 +114,7 @@ All raw state is synthetic. No private signing keys are exported; public Ed25519
 
 Canonicalization: qualification digest uses UTF-8 JSON, sorted keys, compact separators, ensure_ascii=True and allow_nan=False. Native audit hash uses ensure_ascii=False over {seq,body,previous}; original native source is retained. State commitments cover {objects: business_objects, effects: effects}, excluding command/admin-sequence/checkpoint objects as documented in the runner. Request commitments cover the entire retained signed request. Native effects.request is the separate runtime projection of execute arguments excluding verifier_status and issuer_claims. Do not equate those two request digests. Hashes are unkeyed; signatures and legitimate authority are separate checks.
 
-Each architecture establishes its own findings before comparison. The provided format supports reciprocal inspection; no SCQOS validator or REACHABLE assessment has been executed here. Missing native fields and mismatched action semantics remain explicit gaps.
+Each architecture establishes its own findings before comparison. The provided format supports reciprocal inspection; no validator of the assessed architecture or external comparison assessment has been executed here. Missing native fields and mismatched action semantics remain explicit gaps.
 ''')
     manifest = {'format_version':'cognous-reciprocal-evidence/1', 'architecture':'Cognous native local hub fixtures',
                 'run_id':output.name, 'created_at':datetime.now(timezone.utc).isoformat(), 'sources':record['sources'],

@@ -105,7 +105,7 @@ def run(runtime,control,fixture_path,output):
     helpers.BASE=base
     output.mkdir(parents=True,exist_ok=False)
     write(output/'fixture.json',{'common_stimulus':common,'source_fixture_sha256':hashlib.sha256(fixture_path.read_bytes()).hexdigest(),
-          'authority':'Cognous local claim fixture, not SCQOS PERMIT or institutional adoption','adapter':'test-only SQLite triggers over native effects; same transaction',
+          'authority':'Cognous local claim fixture, not an assessed-architecture permit or institutional adoption','adapter':'test-only SQLite triggers over native effects; same transaction',
           'native_profile':'local-authority-effect:0.1.0-proposed; opt-in, nonselected'})
     (output/'account-adapter.sql').write_text(ADAPTER_SQL)
     cases=[]
@@ -208,7 +208,7 @@ def run(runtime,control,fixture_path,output):
     loaded['qualification/tools/run_matched_refund.py']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     for name,path in [('runtime',runtime),('control_plane',control),('qualification',ROOT)]:require_pristine(path,sources[name]['commit'],name)
     summary={'profile':'matched-synthetic-refund/1; native local atomic profile, nonselected','sources':sources,'loaded_files':loaded,'common_stimulus':common,
-             'cases':cases,'counts':{'PASS':len(cases)},'comparison':'matched business stimulus and fault; SCQOS arm supplied, not rerun',
+             'cases':cases,'counts':{'PASS':len(cases)},'comparison':'matched business stimulus and fault; assessed-architecture arm supplied, not rerun',
              'limits':['Test-only SQL account adapter; not built-in production account management','Same-host cooperating authority/SQLite only','Observer separate read-only process, same trusted OS account',
                        'Authority claims issued by trusted test fixture, not live institutional workflow','D04 native executor immediately observes after timeout; transport acknowledgement still UNKNOWN',
                        'Second recovery attempt journal created by harness via native begin_attempt/transition APIs; native reconcile creates no attempt automatically',
