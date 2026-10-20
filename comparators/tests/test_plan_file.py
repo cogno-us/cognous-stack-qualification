@@ -26,7 +26,8 @@ def test_the_28_registered_cases_are_covered_exactly():
 def test_counts_are_as_recorded():
     assert OUT['scenarios_total'] == 121 and PLAN['scenarios_total'] == 121 and len(SUB['cases']) == 28
     assert OUT['counts_per_state'] == {'ASKED': 94, 'NOT-EXPRESSIBLE': 11, 'NOT-CLAIMED': 0, 'UNASKED': 16}
-    assert PLAN['counts_per_state'] == {'ASKED': 86, 'NOT-EXPRESSIBLE': 19, 'NOT-CLAIMED': 0, 'UNASKED': 16}
+    assert PLAN['counts_per_state'] == {'ASKED': 94, 'NOT-EXPRESSIBLE': 11, 'NOT-CLAIMED': 0, 'UNASKED': 16}
+    assert PLAN['counts_per_state'] == OUT['counts_per_state']        # every scenario asked in the outcome files is executable
     assert len(PLAN['cases']) + len(PLAN['non_executed']) == 121
     assert len({c['id'] for c in PLAN['cases']} | {x['id'] for x in PLAN['non_executed']}) == 121
 
@@ -61,11 +62,8 @@ def test_expected_outcomes_of_the_executable_scenarios_equal_the_outcome_file():
         assert c['expected_statuses'] == o['expected_statuses'] and c['expected_effects'] == o['expected_effects'], c['id']
     for x in PLAN['non_executed']:
         o = by[x['id']]
-        if x['origin'].startswith('plan authoring'):
-            assert o['state'] == 'ASKED' and x['outcome_expected_statuses'] == o['expected_statuses'] and x['expected_outcome_unchanged']
-            assert x['interface_items'] and x['citations']
-        else:
-            assert o['state'] == x['state']
+        assert not x['origin'].startswith('plan authoring')        # no scenario asked in the outcome files is set aside by plan authoring
+        assert o['state'] == x['state'] and o['state'] != 'ASKED'
 
 
 def test_the_ten_tool_case_covers_all_ten_tools_for_three_agents_and_two_users():
@@ -101,3 +99,39 @@ def test_outcome_files_and_plan_are_reproduced_byte_for_byte_by_the_scripts(tmp_
 def test_no_unscored_cell_is_hidden_every_unasked_or_not_expressible_scenario_has_a_reason_and_a_citation():
     for x in PLAN['non_executed']:
         assert x['reason'] and x['citations'] and x['state'] in ('NOT-EXPRESSIBLE', 'UNASKED'), x['id']
+
+
+EXTENDED = ['TC-D09-011-S4', 'TC-D13-003-S6', 'TC-L06-013-S4', 'TC-L06-014-S1', 'TC-L07-008-S1', 'TC-L07-008-S2', 'TC-L09-004-S5', 'TC-L09-019-S2']
+
+
+def test_the_eight_scenarios_that_were_set_aside_are_executable_with_their_outcome_unchanged():
+    by_case = {c['id']: c for c in PLAN['cases']}
+    by_out = {s['scenario']: s for s in OUT['scenarios']}
+    assert all(sid in by_case for sid in EXTENDED) and not {x['id'] for x in PLAN['non_executed']} & set(EXTENDED)
+    for sid in EXTENDED:
+        c, o = by_case[sid], by_out[sid]
+        assert c['expected_statuses'] == o['expected_statuses'] and c['expected_effects'] == o['expected_effects'], sid
+        assert c['world_extension']['interface_items'] and c['world_extension']['decision'].startswith('DECISIONS.md C-'), sid
+    assert PLAN['status'].startswith('EXECUTABLE STEPS AUTHORED')
+
+
+def test_every_interface_item_cited_by_a_scenario_exists_in_the_declared_interface():
+    d = json.loads((PKG / 'interface/declared-interface-opa-app.json').read_text())
+    for c in PLAN['cases']:
+        for item in c.get('world_extension', {}).get('interface_items', []):
+            node = d
+            for part in item.strip('/').split('/'):
+                node = node[part]
+    cited = {i for c in PLAN['cases'] for i in c.get('world_extension', {}).get('interface_items', [])}
+    assert {'/world_extensions/' + k for k in d['world_extensions'] if not k.startswith('_')} <= cited     # every extension is used by a scenario
+
+
+def test_the_extended_scenarios_use_only_the_declared_request_fields_and_controls():
+    from comparators.wiki.apps.wiki_opa_app import WikiOpaApp
+    for c in PLAN['cases']:
+        if c['id'] not in EXTENDED: continue
+        for st in c['steps']:
+            if st['action'] == 'execute':
+                assert set(st['args']) <= {'grant', 'effect', 'generation', 'policy', 'target', 'payload', 'verifier_status', 'issuer_claims'}
+            elif st['action'] != 'clock':
+                assert ':' not in st['action'] or hasattr(WikiOpaApp, '_verb_' + st['action'].split(':')[0]), st

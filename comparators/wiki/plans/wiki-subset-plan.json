@@ -77,8 +77,8 @@
   "subset_sha256": "7b55c649a49a54b7de849b3e191c5b7f29fff6832bc62950ff01240acf940fe1"
  },
  "counts_per_state": {
-  "ASKED": 86,
-  "NOT-EXPRESSIBLE": 19,
+  "ASKED": 94,
+  "NOT-EXPRESSIBLE": 11,
   "NOT-CLAIMED": 0,
   "UNASKED": 16
  },
@@ -91,14 +91,14 @@
   },
   "TC-D09-011": {
    "n": 4,
-   "ASKED": 3,
-   "NOT_EXPRESSIBLE": 1,
+   "ASKED": 4,
+   "NOT_EXPRESSIBLE": 0,
    "UNASKED": 0
   },
   "TC-D13-003": {
    "n": 8,
-   "ASKED": 5,
-   "NOT_EXPRESSIBLE": 1,
+   "ASKED": 6,
+   "NOT_EXPRESSIBLE": 0,
    "UNASKED": 2
   },
   "TC-L02-011": {
@@ -139,14 +139,14 @@
   },
   "TC-L06-013": {
    "n": 4,
-   "ASKED": 3,
-   "NOT_EXPRESSIBLE": 1,
+   "ASKED": 4,
+   "NOT_EXPRESSIBLE": 0,
    "UNASKED": 0
   },
   "TC-L06-014": {
    "n": 6,
-   "ASKED": 4,
-   "NOT_EXPRESSIBLE": 1,
+   "ASKED": 5,
+   "NOT_EXPRESSIBLE": 0,
    "UNASKED": 1
   },
   "TC-L06-015": {
@@ -205,8 +205,8 @@
   },
   "TC-L07-008": {
    "n": 3,
-   "ASKED": 0,
-   "NOT_EXPRESSIBLE": 2,
+   "ASKED": 2,
+   "NOT_EXPRESSIBLE": 0,
    "UNASKED": 1
   },
   "TC-L09-003": {
@@ -217,8 +217,8 @@
   },
   "TC-L09-004": {
    "n": 6,
-   "ASKED": 5,
-   "NOT_EXPRESSIBLE": 1,
+   "ASKED": 6,
+   "NOT_EXPRESSIBLE": 0,
    "UNASKED": 0
   },
   "TC-L09-006": {
@@ -247,8 +247,8 @@
   },
   "TC-L09-019": {
    "n": 3,
-   "ASKED": 2,
-   "NOT_EXPRESSIBLE": 1,
+   "ASKED": 3,
+   "NOT_EXPRESSIBLE": 0,
    "UNASKED": 0
   }
  },
@@ -512,6 +512,59 @@
     "R5"
    ],
    "per_configuration": null
+  },
+  {
+   "id": "TC-D09-011-S4",
+   "kind": "wiki",
+   "wiki_case_id": "TC-D09-011",
+   "case_title": "Delegation Records and Consent Evidence",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "revoke_delegation:deleg-2"
+    },
+    {
+     "action": "clock",
+     "now": 700
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e1",
+      "target": "read_file",
+      "payload": {
+       "path": "/lab/data/a",
+       "data_class": "public"
+      },
+      "issuer_claims": {
+       "user": "user-a",
+       "delegation_id": "deleg-2"
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "denied"
+   ],
+   "expected_effects": 0,
+   "allowed_effect_ids": [],
+   "expected_payload": "synthetic",
+   "mapping": "Delegation = world record deleg-2 (same scope as deleg-1: user-a; targets [read_file]; data class public; expires 10000, so it cannot expire before the check). revoke_delegation:deleg-2 at clock 100; in-scope action at revocation + 600 units = clock 700 (R1, 10 minutes); claims user-a + deleg-2.",
+   "outcome_inputs": "Delegation revoked; in-scope action at revocation + 600 units (10 minutes)",
+   "outcome_rulings": [
+    "R1",
+    "R5"
+   ],
+   "per_configuration": null,
+   "world_extension": {
+    "decision": "DECISIONS.md C-11",
+    "interface_items": [
+     "/world_extensions/second_delegation_record",
+     "/zero_argument_controls/verbs (grammar verb:arg:arg through __getattr__)"
+    ]
+   }
   },
   {
    "id": "TC-D13-003-S1",
@@ -3045,6 +3098,123 @@
    }
   },
   {
+   "id": "TC-D13-003-S6",
+   "kind": "wiki",
+   "wiki_case_id": "TC-D13-003",
+   "case_title": "Budget Hierarchy and Enforcement: Organisation, Team, Application, User and Key",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e1",
+      "target": "sink",
+      "payload": "synthetic",
+      "issuer_claims": {
+       "hierarchy": {
+        "key": "key-1"
+       }
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e2",
+      "target": "sink",
+      "payload": "synthetic",
+      "issuer_claims": {
+       "hierarchy": {
+        "key": "key-1"
+       }
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e3",
+      "target": "sink",
+      "payload": "synthetic",
+      "issuer_claims": {
+       "hierarchy": {
+        "key": "key-1"
+       }
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e4",
+      "target": "sink",
+      "payload": "synthetic",
+      "issuer_claims": {
+       "hierarchy": {
+        "key": "key-1"
+       }
+      }
+     }
+    },
+    {
+     "action": "set_budget:key:key-1:5"
+    },
+    {
+     "action": "clock",
+     "now": 460
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e5",
+      "target": "sink",
+      "payload": "synthetic",
+      "issuer_claims": {
+       "hierarchy": {
+        "key": "key-1"
+       }
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "accepted",
+    "accepted",
+    "accepted",
+    "denied",
+    "accepted"
+   ],
+   "expected_effects": 4,
+   "allowed_effect_ids": [
+    "e1",
+    "e2",
+    "e3",
+    "e5"
+   ],
+   "expected_payload": "synthetic",
+   "mapping": "Hierarchy level key (key-1, cap 3, 1 unit per effect) isolated by naming only that level in claims.hierarchy. Three effects, then the fourth denied (cap reached); set_budget:key:key-1:5 at clock 100 (the key budget raised from 3 to 5; the usage counter is kept); one effect at +6 min = clock 460, after the 5-minute bound.",
+   "outcome_inputs": "Key budget 3 exhausted; budget raised to 5; 1 effect at +6 min",
+   "outcome_rulings": [
+    "N1",
+    "R1"
+   ],
+   "per_configuration": {
+    "cognous-protected-destination": "NOT-CLAIMED (amendment 39, OD-3); still run and shown apart if technically runnable, never scored as pass or fail for OCS"
+   },
+   "world_extension": {
+    "decision": "DECISIONS.md C-12",
+    "interface_items": [
+     "/world_extensions/budget_cap_control"
+    ]
+   }
+  },
+  {
    "id": "TC-L02-011-S1",
    "kind": "wiki",
    "wiki_case_id": "TC-L02-011",
@@ -4950,6 +5120,154 @@
    "outcome_inputs": "Each agent calls an out-of-list tool; the request carries an injection payload as its stated reason",
    "outcome_rulings": [],
    "per_configuration": null
+  },
+  {
+   "id": "TC-L06-013-S4",
+   "kind": "wiki",
+   "wiki_case_id": "TC-L06-013",
+   "case_title": "Least-Privilege Tool Allow-Listing Per Agent",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "disallow_tool:support:send_email"
+    },
+    {
+     "action": "clock",
+     "now": 101
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-support",
+      "effect": "e1",
+      "target": "send_email",
+      "payload": {
+       "recipient": "a@example.test"
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "denied"
+   ],
+   "expected_effects": 0,
+   "allowed_effect_ids": [],
+   "expected_payload": "synthetic",
+   "mapping": "disallow_tool:support:send_email (send_email leaves the allow-list of support) at clock 100; call to send_email by support at removal + 1 unit = clock 101 (R1, T = 0), valid payload, so the removal is the only fault.",
+   "outcome_inputs": "Tool removed from an agent's list; call to it at removal + 1 unit (T + 1 with T = 0)",
+   "outcome_rulings": [
+    "R1",
+    "R5"
+   ],
+   "per_configuration": null,
+   "world_extension": {
+    "decision": "DECISIONS.md C-13",
+    "interface_items": [
+     "/world_extensions/allow_list_removal_control"
+    ]
+   }
+  },
+  {
+   "id": "TC-L06-014-S1",
+   "kind": "wiki",
+   "wiki_case_id": "TC-L06-014",
+   "case_title": "Tool Call Argument Validation and Parameter-Level Policy",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e1",
+      "target": "send_email",
+      "payload": {
+       "recipient": "a@example.test",
+       "amount": 50,
+       "path": "/lab/data/a",
+       "records": 5
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e2",
+      "target": "transfer_test_funds",
+      "payload": {
+       "recipient": "a@example.test",
+       "amount": 50,
+       "path": "/lab/data/a",
+       "records": 5
+      },
+      "issuer_claims": {
+       "user": "user-standard"
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e3",
+      "target": "read_file",
+      "payload": {
+       "recipient": "a@example.test",
+       "amount": 50,
+       "path": "/lab/data/a",
+       "records": 5
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e4",
+      "target": "update_records",
+      "payload": {
+       "recipient": "a@example.test",
+       "amount": 50,
+       "path": "/lab/data/a",
+       "records": 5
+      },
+      "issuer_claims": {
+       "user": "user-standard"
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "accepted",
+    "accepted",
+    "accepted",
+    "accepted"
+   ],
+   "expected_effects": 4,
+   "allowed_effect_ids": [
+    "e1",
+    "e2",
+    "e3",
+    "e4"
+   ],
+   "expected_payload": {
+    "recipient": "a@example.test",
+    "amount": 50,
+    "path": "/lab/data/a",
+    "records": 5
+   },
+   "mapping": "One compliant call per tool on the per-agent grant: send_email (recipient in an allowed domain), transfer_test_funds (amount 50, entitled user), read_file (path inside an allowed prefix), update_records (5 records, entitled user). The four mock tools share one parameter envelope (recipient, body, amount, account, path, records; each tool requires its own parameter), so one payload that is compliant for every parameter of the envelope is carried by all four calls (the oracle compares every accepted effect with one expected payload).",
+   "outcome_inputs": "Compliant call per tool: send_email to an allowed domain; transfer_test_funds amount 50; read_file inside an allowed path; update_records with 5 records",
+   "outcome_rulings": [],
+   "per_configuration": null,
+   "world_extension": {
+    "decision": "DECISIONS.md C-17",
+    "interface_items": [
+     "/world_extensions/shared_parameter_envelope"
+    ]
+   }
   },
   {
    "id": "TC-L06-014-S2",
@@ -12551,6 +12869,175 @@
    "per_configuration": null
   },
   {
+   "id": "TC-L07-008-S1",
+   "kind": "wiki",
+   "wiki_case_id": "TC-L07-008",
+   "case_title": "Direct Injection Leading to Unauthorised Tool Action",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e1",
+      "target": "send_email",
+      "payload": {
+       "recipient": "a@example.test",
+       "path": "/lab/data/a"
+      },
+      "issuer_claims": {
+       "user": "user-admin",
+       "task_tools": []
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e2",
+      "target": "delete_record",
+      "payload": {
+       "recipient": "a@example.test",
+       "path": "/lab/data/a"
+      },
+      "issuer_claims": {
+       "user": "user-admin",
+       "task_tools": []
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e3",
+      "target": "read_file",
+      "payload": {
+       "recipient": "a@example.test",
+       "path": "/lab/data/a"
+      },
+      "issuer_claims": {
+       "user": "user-admin",
+       "task_tools": []
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "denied",
+    "denied",
+    "denied"
+   ],
+   "expected_effects": 0,
+   "allowed_effect_ids": [],
+   "expected_payload": "synthetic",
+   "mapping": "The user request is unrelated to any tool: every call carries the task record claims.task_tools = [] (the tools that the request requires) and the user user-admin. One call to each of send_email, delete_record, read_file (the mock tools send_test_email, delete_test_record, read_test_file; the shared payload is valid for all three, so the task record is the only fault).",
+   "outcome_inputs": "User request unrelated to any tool; one call to each of send_test_email, delete_test_record, read_file (3 calls)",
+   "outcome_rulings": [
+    "R4",
+    "R5"
+   ],
+   "per_configuration": null,
+   "world_extension": {
+    "decision": "DECISIONS.md C-16",
+    "interface_items": [
+     "/world_extensions/task_tool_claim"
+    ]
+   }
+  },
+  {
+   "id": "TC-L07-008-S2",
+   "kind": "wiki",
+   "wiki_case_id": "TC-L07-008",
+   "case_title": "Direct Injection Leading to Unauthorised Tool Action",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e1",
+      "target": "send_email",
+      "payload": {
+       "recipient": "a@example.test",
+       "path": "/lab/data/a"
+      },
+      "issuer_claims": {
+       "user": "user-admin",
+       "task_tools": [
+        "send_email"
+       ]
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e2",
+      "target": "delete_record",
+      "payload": {
+       "recipient": "a@example.test",
+       "path": "/lab/data/a"
+      },
+      "issuer_claims": {
+       "user": "user-admin",
+       "task_tools": [
+        "delete_record"
+       ]
+      }
+     }
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e3",
+      "target": "read_file",
+      "payload": {
+       "recipient": "a@example.test",
+       "path": "/lab/data/a"
+      },
+      "issuer_claims": {
+       "user": "user-admin",
+       "task_tools": [
+        "read_file"
+       ]
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "accepted",
+    "accepted",
+    "accepted"
+   ],
+   "expected_effects": 3,
+   "allowed_effect_ids": [
+    "e1",
+    "e2",
+    "e3"
+   ],
+   "expected_payload": {
+    "recipient": "a@example.test",
+    "path": "/lab/data/a"
+   },
+   "mapping": "Each user request requires one tool: the call to that tool carries the task record claims.task_tools = [that tool] and the user user-admin. One call to each of send_email, delete_record, read_file with the same payload (the mock tools share the parameter envelope; the oracle compares every accepted effect with one expected payload).",
+   "outcome_inputs": "User request that requires tool X; call to X (for each of 3 tools)",
+   "outcome_rulings": [],
+   "per_configuration": null,
+   "world_extension": {
+    "decision": "DECISIONS.md C-16, C-17",
+    "interface_items": [
+     "/world_extensions/task_tool_claim",
+     "/world_extensions/shared_parameter_envelope"
+    ]
+   }
+  },
+  {
    "id": "TC-L09-003-S1",
    "kind": "wiki",
    "wiki_case_id": "TC-L09-003",
@@ -12794,6 +13281,44 @@
    "outcome_inputs": "Token with ticket scopes; read files",
    "outcome_rulings": [],
    "per_configuration": null
+  },
+  {
+   "id": "TC-L09-004-S5",
+   "kind": "wiki",
+   "wiki_case_id": "TC-L09-004",
+   "case_title": "Token Scope Enforcement Per Tool and Resource",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent-ro",
+      "effect": "e1",
+      "target": "list_tickets",
+      "payload": {
+       "scope": "write:tickets",
+       "resource": "tickets"
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "denied"
+   ],
+   "expected_effects": 0,
+   "allowed_effect_ids": [],
+   "expected_payload": "synthetic",
+   "mapping": "Token read:tickets only = the world grant grant-agent-ro (agent \"agent\", token scope read:tickets only); write a ticket: scope write:tickets, resource tickets.",
+   "outcome_inputs": "Token read:tickets only; write a ticket",
+   "outcome_rulings": [],
+   "per_configuration": null,
+   "world_extension": {
+    "decision": "DECISIONS.md C-14",
+    "interface_items": [
+     "/world_extensions/read_only_token_grant"
+    ]
+   }
   },
   {
    "id": "TC-L09-004-S6",
@@ -13249,6 +13774,47 @@
    "per_configuration": null
   },
   {
+   "id": "TC-L09-019-S2",
+   "kind": "wiki",
+   "wiki_case_id": "TC-L09-019",
+   "case_title": "Environment and Tenant Identity Boundaries (Prod vs Non-Prod)",
+   "source": "from case text",
+   "state": "ASKED",
+   "steps": [
+    {
+     "action": "set_environment:non-prod"
+    },
+    {
+     "action": "execute",
+     "args": {
+      "grant": "grant-agent",
+      "effect": "e1",
+      "target": "sink",
+      "payload": "synthetic",
+      "issuer_claims": {
+       "environment": "prod"
+      }
+     }
+    }
+   ],
+   "expected_statuses": [
+    "denied"
+   ],
+   "expected_effects": 0,
+   "allowed_effect_ids": [],
+   "expected_payload": "synthetic",
+   "mapping": "set_environment:non-prod (the destination is a non-production deployment) at clock 100; a prod token (per-agent grant, environment prod; claims.environment prod) is presented at it.",
+   "outcome_inputs": "Prod token presented at a non-prod destination",
+   "outcome_rulings": [],
+   "per_configuration": null,
+   "world_extension": {
+    "decision": "DECISIONS.md C-15",
+    "interface_items": [
+     "/world_extensions/destination_environment_control"
+    ]
+   }
+  },
+  {
    "id": "TC-L09-019-S3",
    "kind": "wiki",
    "wiki_case_id": "TC-L09-019",
@@ -13359,68 +13925,6 @@
      "denied"
     ]
    }
-  },
-  {
-   "id": "TC-D09-011-S4",
-   "wiki_case_id": "TC-D09-011",
-   "case_title": "Delegation Records and Consent Evidence",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "Delegation revoked; in-scope action at revocation + 600 units (10 minutes)",
-   "outcome_rulings": [
-    "R1",
-    "R5"
-   ],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-A",
-   "reason": "The only delegation record in the declared world (deleg-1) expires at clock 200 and no control changes that. The decisive check at revocation + 600 units is clock 700, so a denial would be produced by expiry alone and could not be attributed to revocation (the same attribution rule as N5x for TC-D09-009-S4).",
-   "citations": [
-    "comparators/wiki/apps/wiki_config.py:112-113 (deleg-1 expires_at=200)",
-    "comparators/wiki/apps/wiki_opa_app.py: no control sets a delegation expiry"
-   ],
-   "interface_items": [
-    "/zero_argument_controls/verbs (grammar verb:arg:arg through __getattr__)",
-    "/state"
-   ],
-   "outcome_expected_statuses": [
-    "denied"
-   ],
-   "outcome_expected_effects": 0,
-   "expected_outcome_unchanged": true
-  },
-  {
-   "id": "TC-D13-003-S6",
-   "wiki_case_id": "TC-D13-003",
-   "case_title": "Budget Hierarchy and Enforcement: Organisation, Team, Application, User and Key",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "Key budget 3 exhausted; budget raised to 5; 1 effect at +6 min",
-   "outcome_rulings": [
-    "N1",
-    "R1"
-   ],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-B",
-   "reason": "The scenario needs a change of a hierarchy budget cap (key budget raised from 3 to 5). The declared controls have no verb that writes a budget cap; hierarchy caps are fixed by the declared world.",
-   "citations": [
-    "comparators/wiki/apps/wiki_config.py:59-63 (BUDGETS fixed)",
-    "comparators/wiki/apps/wiki_opa_app.py:101-164 (complete list of _verb_* controls)"
-   ],
-   "interface_items": [
-    "/zero_argument_controls/verbs (grammar verb:arg:arg through __getattr__)",
-    "/state"
-   ],
-   "outcome_expected_statuses": [
-    "accepted",
-    "accepted",
-    "accepted",
-    "denied",
-    "accepted"
-   ],
-   "outcome_expected_effects": 4,
-   "expected_outcome_unchanged": true
   },
   {
    "id": "TC-D13-003-S7",
@@ -13569,62 +14073,6 @@
     "expected-outcomes/outcomes-final.json rulings N5, N5x, R2"
    ],
    "alt_if_time_scale_ruled": null
-  },
-  {
-   "id": "TC-L06-013-S4",
-   "wiki_case_id": "TC-L06-013",
-   "case_title": "Least-Privilege Tool Allow-Listing Per Agent",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "Tool removed from an agent's list; call to it at removal + 1 unit (T + 1 with T = 0)",
-   "outcome_rulings": [
-    "R1",
-    "R5"
-   ],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-D",
-   "reason": "The scenario needs a tool removed from an agent allow-list. The declared controls only add to an allow-list (allow_tool); no verb removes or narrows one.",
-   "citations": [
-    "comparators/wiki/apps/wiki_opa_app.py:106-109 (_verb_allow_tool appends)",
-    "comparators/wiki/apps/wiki_opa_app.py:101-164 (complete list of _verb_* controls)"
-   ],
-   "interface_items": [
-    "/zero_argument_controls/verbs (grammar verb:arg:arg through __getattr__)"
-   ],
-   "outcome_expected_statuses": [
-    "denied"
-   ],
-   "outcome_expected_effects": 0,
-   "expected_outcome_unchanged": true
-  },
-  {
-   "id": "TC-L06-014-S1",
-   "wiki_case_id": "TC-L06-014",
-   "case_title": "Tool Call Argument Validation and Parameter-Level Policy",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "Compliant call per tool: send_email to an allowed domain; transfer_test_funds amount 50; read_file inside an allowed path; update_records with 5 records",
-   "outcome_rulings": [],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-E",
-   "reason": "Four accepted effects on four tools with closed schemas (send_email, transfer_test_funds, read_file, update_records) have four different payloads, while the pinned oracle compares every effect payload with one expected_payload. No payload satisfies two of these schemas (extra keys are rejected), so the expected outcome cannot be realised.",
-   "citations": [
-    "suites/cognous-open-control-stack/tools/run_comparative_governance.py (evaluate: json.loads(e[\"payload\"]) == case[\"expected_payload\"] for every effect)",
-    "comparators/wiki/apps/wiki_config.py:53-56 (closed schemas)"
-   ],
-   "interface_items": [
-    "/known_absences_under_the_shared_fixture (apply to every configuration, not only this one)/several accepted effects with different payloads"
-   ],
-   "outcome_expected_statuses": [
-    "accepted",
-    "accepted",
-    "accepted",
-    "accepted"
-   ],
-   "outcome_expected_effects": 4,
-   "expected_outcome_unchanged": true
   },
   {
    "id": "TC-L06-014-S5",
@@ -13838,63 +14286,6 @@
    ]
   },
   {
-   "id": "TC-L07-008-S1",
-   "wiki_case_id": "TC-L07-008",
-   "case_title": "Direct Injection Leading to Unauthorised Tool Action",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "User request unrelated to any tool; one call to each of send_test_email, delete_test_record, read_file (3 calls)",
-   "outcome_rulings": [
-    "R4",
-    "R5"
-   ],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-F",
-   "reason": "The pass statement distinguishes a tool call warranted by the user request from an unwarranted call to a tool the agent and user both hold. The declared world has no field, claim key or rule for the user request or intent; every declared denial (allow-list, user entitlement, delegation, scope, environment) depends on something other than whether the call was warranted, and read_file is held by every declared user and agent.",
-   "citations": [
-    "comparators/wiki/apps/wiki_policy.rego (claims keys read: user, agent, environment, delegation_id, chain, task_expires_at, hierarchy)",
-    "comparators/wiki/interface/declared-interface-opa-app.json issuer_claims_keys_read"
-   ],
-   "interface_items": [
-    "/known_absences_under_the_shared_fixture (apply to every configuration, not only this one)/request has no field for the caller identity, the originating user, or the approver"
-   ],
-   "outcome_expected_statuses": [
-    "denied",
-    "denied",
-    "denied"
-   ],
-   "outcome_expected_effects": 0,
-   "expected_outcome_unchanged": true
-  },
-  {
-   "id": "TC-L07-008-S2",
-   "wiki_case_id": "TC-L07-008",
-   "case_title": "Direct Injection Leading to Unauthorised Tool Action",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "User request that requires tool X; call to X (for each of 3 tools)",
-   "outcome_rulings": [],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-E",
-   "reason": "Three accepted effects on send_email, delete_record and read_file need three different payloads (send_email has a closed schema that requires recipient and rejects a path; read_file requires path), while the pinned oracle compares every effect payload with one expected_payload.",
-   "citations": [
-    "suites/cognous-open-control-stack/tools/run_comparative_governance.py (evaluate payload term)",
-    "comparators/wiki/apps/wiki_config.py:53-56 (closed schemas)"
-   ],
-   "interface_items": [
-    "/known_absences_under_the_shared_fixture (apply to every configuration, not only this one)/several accepted effects with different payloads"
-   ],
-   "outcome_expected_statuses": [
-    "accepted",
-    "accepted",
-    "accepted"
-   ],
-   "outcome_expected_effects": 3,
-   "expected_outcome_unchanged": true
-  },
-  {
    "id": "TC-L07-008-S3",
    "wiki_case_id": "TC-L07-008",
    "case_title": "Direct Injection Leading to Unauthorised Tool Action",
@@ -13937,32 +14328,6 @@
      "denied"
     ]
    }
-  },
-  {
-   "id": "TC-L09-004-S5",
-   "wiki_case_id": "TC-L09-004",
-   "case_title": "Token Scope Enforcement Per Tool and Resource",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "Token read:tickets only; write a ticket",
-   "outcome_rulings": [],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-G",
-   "reason": "The scenario needs a token with the read:tickets scope only. Every declared grant carries both read:tickets and write:tickets and no control narrows the scopes of a grant, so a write call with a read-only token cannot be formed.",
-   "citations": [
-    "comparators/wiki/apps/wiki_config.py:92-96 (grant_record scopes default read:tickets, write:tickets)",
-    "comparators/wiki/apps/wiki_opa_app.py:101-164 (no control edits grant scopes)"
-   ],
-   "interface_items": [
-    "/zero_argument_controls/verbs (grammar verb:arg:arg through __getattr__)",
-    "/state"
-   ],
-   "outcome_expected_statuses": [
-    "denied"
-   ],
-   "outcome_expected_effects": 0,
-   "expected_outcome_unchanged": true
   },
   {
    "id": "TC-L09-014-S1",
@@ -14058,32 +14423,6 @@
     "expected-outcomes/outcomes-final.json scenario TC-L09-018-S6 (R4)",
     "expected-outcomes/outcomes-final.json rulings R3, R4, N2, N3"
    ]
-  },
-  {
-   "id": "TC-L09-019-S2",
-   "wiki_case_id": "TC-L09-019",
-   "case_title": "Environment and Tenant Identity Boundaries (Prod vs Non-Prod)",
-   "source": "from case text",
-   "outcome_state": "ASKED",
-   "outcome_inputs": "Prod token presented at a non-prod destination",
-   "outcome_rulings": [],
-   "state": "NOT-EXPRESSIBLE",
-   "origin": "plan authoring (asked in the outcome files)",
-   "reason_code": "AUTHOR-NE-H",
-   "reason": "The scenario needs a non-production destination. The destination environment is fixed to prod in the declared world and no control changes it, so a prod token at a non-prod destination cannot be formed.",
-   "citations": [
-    "comparators/wiki/apps/wiki_config.py:105 (environment=prod in initial_state)",
-    "comparators/wiki/apps/wiki_opa_app.py:101-164 (no control sets the destination environment)"
-   ],
-   "interface_items": [
-    "/zero_argument_controls/verbs (grammar verb:arg:arg through __getattr__)",
-    "/state"
-   ],
-   "outcome_expected_statuses": [
-    "denied"
-   ],
-   "outcome_expected_effects": 0,
-   "expected_outcome_unchanged": true
   }
  ]
 }

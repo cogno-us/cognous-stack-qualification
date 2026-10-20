@@ -4,35 +4,35 @@
  "status": "Declared interface of the OPA transactional application of the Wiki comparator. Each source reference is a file and line plus a marker text that the cited line must contain; comparators/tests/test_interface_declarations.py checks every reference. This file states what the application reads and offers. It is not a declaration of asked, not expressible or not claimed for any scenario: those declarations are in the plan file, each with a citation to an item of this file.",
  "request_fields_read": {
   "grant": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:184",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:207",
    "marker": "args['grant']"
   },
   "effect": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:207",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:230",
    "marker": "args['effect']"
   },
   "generation": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:207",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:230",
    "marker": "args['generation']"
   },
   "policy": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:208",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:231",
    "marker": "args['policy']"
   },
   "target": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:185",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:208",
    "marker": "args['target']"
   },
   "payload": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:186",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:209",
    "marker": "args['payload']"
   },
   "verifier_status": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:253",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:278",
    "marker": "args['verifier_status']"
   },
   "issuer_claims": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:184",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:207",
    "marker": "args['issuer_claims']"
   }
  },
@@ -50,11 +50,11 @@
    "marker": "has(claims, \"environment\")"
   },
   "delegation_id": {
-   "source": "comparators/wiki/apps/wiki_policy.rego:120",
+   "source": "comparators/wiki/apps/wiki_policy.rego:126",
    "marker": "has(claims, \"delegation_id\")"
   },
   "chain": {
-   "source": "comparators/wiki/apps/wiki_policy.rego:132",
+   "source": "comparators/wiki/apps/wiki_policy.rego:138",
    "marker": "object.get(claims, \"chain\""
   },
   "task_expires_at": {
@@ -62,25 +62,29 @@
    "marker": "claims.task_expires_at"
   },
   "hierarchy": {
-   "source": "comparators/wiki/apps/wiki_opa_app.py:203",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:226",
    "marker": "claims.get('hierarchy')"
+  },
+  "task_tools": {
+   "source": "comparators/wiki/apps/wiki_policy.rego:120",
+   "marker": "claims.task_tools"
   }
  },
  "payload_keys_read_when_payload_is_an_object": {
   "recipient": {
-   "source": "comparators/wiki/apps/wiki_policy.rego:181",
+   "source": "comparators/wiki/apps/wiki_policy.rego:187",
    "marker": "recipient_ok(payload.recipient)"
   },
   "path": {
-   "source": "comparators/wiki/apps/wiki_policy.rego:185",
+   "source": "comparators/wiki/apps/wiki_policy.rego:191",
    "marker": "path_ok(payload.path)"
   },
   "amount": {
-   "source": "comparators/wiki/apps/wiki_policy.rego:189",
+   "source": "comparators/wiki/apps/wiki_policy.rego:195",
    "marker": "amount_ok(payload.amount)"
   },
   "records": {
-   "source": "comparators/wiki/apps/wiki_policy.rego:193",
+   "source": "comparators/wiki/apps/wiki_policy.rego:199",
    "marker": "records_ok(payload.records)"
   },
   "scope": {
@@ -104,7 +108,7 @@
    "marker": "payload.data_owner != claims.user"
   },
   "data_class": {
-   "source": "comparators/wiki/apps/wiki_policy.rego:128",
+   "source": "comparators/wiki/apps/wiki_policy.rego:134",
    "marker": "payload.data_class in input.delegation.data_classes"
   }
  },
@@ -141,7 +145,10 @@
    "reapprove_agent:<agent>",
    "approve:<effect>:<approver>",
    "reject:<effect>",
-   "timeout:<effect>"
+   "timeout:<effect>",
+   "disallow_tool:<agent>:<tool>",
+   "set_budget:<level>:<id>:<cap>",
+   "set_environment:<prod|non-prod>"
   ],
   "unknown verb or argument": "raises (AttributeError / KeyError); never a silent no-op"
  },
@@ -153,8 +160,8 @@
  ],
  "faults_unknown": "raises ValueError",
  "state": {
-  "source": "comparators/wiki/apps/wiki_config.py:99",
-  "world": "one deployed configuration: tools (14 named tools plus the 10 gateway tools gw_read_1..4, gw_write_1..3, gw_delete_1..2, gw_exec_1), agents (including gw-a1, gw-a2, gw-a3 whose allow-lists carry the per-tool rule of the gateway case), per-agent grants (grant-<agent>), users, one delegation record, budget hierarchy; named from the Wiki case text",
+  "source": "comparators/wiki/apps/wiki_config.py:109",
+  "world": "one deployed configuration: tools (14 named tools plus the 10 gateway tools gw_read_1..4, gw_write_1..3, gw_delete_1..2, gw_exec_1), agents (including gw-a1, gw-a2, gw-a3 whose allow-lists carry the per-tool rule of the gateway case), per-agent grants (grant-<agent>) and one grant of agent \"agent\" whose token carries the read scope only (grant-agent-ro), users, two delegation records (deleg-1 expires at 200, deleg-2 at 10000), budget hierarchy; the destination environment is prod until set_environment changes it; named from the Wiki case text",
   "marker": "def initial_state"
  },
  "event_fields": [
@@ -176,7 +183,7 @@
   "request has no field for the caller identity, the originating user, or the approver": "carried only in issuer_claims, which the registered protected destination never reads (stated here for the comparator; the protected destination's own interface is declared separately)",
   "tool behaviour that changes with an identical definition": "no field exposes behaviour; the application sees definitions only (TC-L06-008 variant \"server-side behaviour only\")",
   "alerts": "an alert is recorded as an event field (threshold_alert) only; no delivery channel",
-  "several accepted effects with different payloads": "the scoring function compares the payload of every effect with the single expected_payload of the case; scenarios whose accepted effects need different payloads are unaskable"
+  "several accepted effects with different payloads": "the scoring function compares the payload of every effect with the single expected_payload of the case; a scenario whose accepted effects go to different tools can only carry one payload when every tool accepts it: the four mock tools of the parameter-policy case share one parameter envelope for that reason (world_extensions/shared_parameter_envelope); any other tool with a closed schema does not"
  },
  "known_absences_in_this_application": {
   "mode switching and alerting of a failed policy engine": "fail_open / fail_closed switch exists; the failure itself is not alerted anywhere (event only)",
@@ -199,5 +206,43 @@
   ],
   "source": "comparators/wiki/apps/wiki_policy.rego:55",
   "marker": "exception_ok if"
+ },
+ "world_extensions": {
+  "_note": "Items added to the declared world so that scenarios asked in the outcome files can be built. Each is small, is available to both comparator applications alike, and changes no expected outcome (comparators/DECISIONS.md C-11 to C-17). Source references are checked by comparators/tests/test_interface_declarations.py.",
+  "second_delegation_record": {
+   "description": "delegation record deleg-2: same scope as deleg-1 (user-a, read_file, data class public), expires at 10000; revoked only by revoke_delegation:deleg-2",
+   "source": "comparators/wiki/apps/wiki_config.py:128",
+   "marker": "'deleg-2'"
+  },
+  "budget_cap_control": {
+   "description": "set_budget:<level>:<id>:<cap> writes the cap of one existing budget record (usage kept); unknown level or id raises KeyError, a cap that is not a non-negative integer raises ValueError",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:123",
+   "marker": "def _verb_set_budget"
+  },
+  "allow_list_removal_control": {
+   "description": "disallow_tool:<agent>:<tool> removes a tool from the allow-list of one agent (and from its read class); a tool that is not on the list raises KeyError",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:113",
+   "marker": "def _verb_disallow_tool"
+  },
+  "read_only_token_grant": {
+   "description": "grant-agent-ro: a grant of agent \"agent\" (environment prod, valid to 10000) whose token scopes are read:tickets only",
+   "source": "comparators/wiki/apps/wiki_config.py:114",
+   "marker": "grants['grant-agent-ro']"
+  },
+  "destination_environment_control": {
+   "description": "set_environment:<prod|non-prod> sets the environment of the destination (default prod); any other value raises KeyError",
+   "source": "comparators/wiki/apps/wiki_opa_app.py:128",
+   "marker": "def _verb_set_environment"
+  },
+  "task_tool_claim": {
+   "description": "issuer claim task_tools (list of strings): the tools that the user's request requires; a call to another tool is denied (TASK_TOOL_NOT_WARRANTED, family task_scope); an empty list means no tool is warranted; no claim means no task limit; a value that is not a list of strings is CLAIMS_INVALID",
+   "source": "comparators/wiki/apps/wiki_policy.rego:124",
+   "marker": "not req.target in claims.task_tools"
+  },
+  "shared_parameter_envelope": {
+   "description": "send_email, transfer_test_funds, read_file and update_records share one parameter envelope (recipient, body, amount, account, path, records): each requires its own parameter, the others are optional keys checked by type and by the parameter rules; a key outside the envelope is an unknown argument (SCHEMA_VIOLATION)",
+   "source": "comparators/wiki/apps/wiki_config.py:42",
+   "marker": "def tool_schema"
+  }
  }
 }

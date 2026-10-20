@@ -35,6 +35,7 @@ def v_scope(a): return ex(a, grant=A, payload={'scope': 'read:tickets', 'resourc
 def v_user_entitlement(a): return ex(a, grant=A, target='delete_record', claims={'user': 'user-standard'}, payload='x')
 def v_claims_consistency(a): return ex(a, grant=A, claims={'user': 'user-admin'}, payload={'user': 'user-standard'})
 def v_task_expiry(a): return ex(a, grant=A, claims={'task_expires_at': 100})
+def v_task_scope(a): return ex(a, grant=A, target='read_file', payload={'path': '/lab/data/a'}, claims={'task_tools': []})
 def v_delegation_record(a): a.__getattr__('revoke_delegation:deleg-1')(); return ex(a, grant=A, target='read_file', claims={'user': 'user-a', 'delegation_id': 'deleg-1'}, payload={'path': '/lab/data/a'})
 def v_delegation_chain(a): return ex(a, grant='grant-agent-b', target='read_file', payload={'path': '/lab/data/a'}, claims={'chain': ['parent', 'child-1', 'child-3', 'agent-b']})
 def v_schema(a): return ex(a, grant='grant-helpdesk', target='update_records', payload={'records': 1, 'extra': 1}, claims=ADMIN)
@@ -63,7 +64,8 @@ PROBES = {
     'environment': (v_environment, 'ENVIRONMENT_MISMATCH', ()), 'scope': (v_scope, 'SCOPE_NOT_GRANTED', ()),
     'user_entitlement': (v_user_entitlement, 'USER_NOT_ENTITLED', ()),
     'claims_consistency': (v_claims_consistency, 'IDENTITY_SUBSTITUTION', ()),
-    'task_expiry': (v_task_expiry, 'TASK_EXPIRED', ()), 'delegation_record': (v_delegation_record, 'DELEGATION_INVALID', ('user_entitlement',)),
+    'task_expiry': (v_task_expiry, 'TASK_EXPIRED', ()), 'task_scope': (v_task_scope, 'TASK_TOOL_NOT_WARRANTED', ()),
+    'delegation_record': (v_delegation_record, 'DELEGATION_INVALID', ('user_entitlement',)),
     'delegation_chain': (v_delegation_chain, 'DELEGATION_DEPTH', ('allow_list',)), 'schema': (v_schema, 'SCHEMA_VIOLATION', ()),
     'parameter': (v_parameter, 'PARAMETER_RULE_VIOLATION', ()), 'window': (v_window, 'WINDOW_CAP_EXCEEDED', ()),
     'aggregate': (v_aggregate, 'AGGREGATE_CAP_EXCEEDED', ()), 'hierarchy': (v_hierarchy, 'BUDGET_LEVEL_EXHAUSTED', ()),
