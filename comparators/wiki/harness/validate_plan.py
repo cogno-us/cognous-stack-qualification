@@ -36,8 +36,9 @@ BASE_CONTROLS = {'revoke', 'fence', 'rotate', 'reopen', 'break_audit', 'opa_down
 VERB_ARITY = {'revoke_grant': (1, 1), 'stop': (1, 1), 'unstop': (1, 1), 'remove_user': (1, 1), 'revoke_delegation': (1, 1),
               'allow_tool': (2, 2), 'grant_exception': (3, 3), 'mutate_tool': (2, 2), 'reapprove_tool': (1, 1),
               'add_tool': (2, 3), 'pend_tool': (1, 1), 'change_agent': (2, 2), 'reapprove_agent': (1, 1),
-              'approve': (2, 2), 'reject': (1, 1), 'timeout': (1, 1)}
-CLAIM_KEYS = {'user', 'agent', 'environment', 'delegation_id', 'chain', 'task_expires_at', 'hierarchy'}
+              'approve': (2, 2), 'reject': (1, 1), 'timeout': (1, 1),
+              'disallow_tool': (2, 2), 'set_budget': (3, 3), 'set_environment': (1, 1)}
+CLAIM_KEYS = {'user', 'agent', 'environment', 'delegation_id', 'chain', 'task_expires_at', 'hierarchy', 'task_tools'}
 PAYLOAD_KEYS_READ = {'recipient', 'path', 'amount', 'records', 'scope', 'resource', 'operation', 'user', 'claimed_user', 'on_behalf_of',
                      'data_owner', 'data_class'}
 FAULTS = {None, 'missing_verifier', 'stale_verifier', 'forged_signature', 'wrong_actor'}
@@ -95,7 +96,7 @@ def new_world():
     return dict(tools={k: dict(trusted=v['trusted']) for k, v in st['tools'].items()},
                 allow={a: list(r['allowed_targets']) for a, r in st['agents'].items()},
                 exceptions={a: [] for a in st['agents']}, grants=st['grants'], users=st['users'], delegations=st['delegations'],
-                hierarchy=st['budgets'], used={}, pend={})
+                hierarchy=st['budgets'], used={}, pend={}, environment=st['environment'])
 
 
 NEEDS_APPROVAL = set(W.CONFIG['approval_required_targets'])
@@ -117,6 +118,18 @@ def check_control(sid, name, world):
         if a[0] not in world['allow']: err(sid, 'unknown agent %s' % a[0])
         if not a[2].isdigit(): err(sid, 'ttl must be an integer')
         else: world['exceptions'][a[0]].append((a[1], world['clock'] + int(a[2])))
+    if verb == 'disallow_tool':
+        if a[0] not in world['allow']: err(sid, 'unknown agent %s' % a[0])
+        elif a[1] not in world['allow'][a[0]]: err(sid, 'disallow_tool: %s is not on the allow-list of %s at this point' % (a[1], a[0]))
+        else: world['allow'][a[0]] = [t for t in world['allow'][a[0]] if t != a[1]]
+    if verb == 'set_budget':
+        rec = world['hierarchy'].get(a[0], {}).get(a[1])
+        if rec is None: err(sid, 'set_budget: unknown budget %s/%s' % (a[0], a[1]))
+        elif not a[2].isdigit(): err(sid, 'set_budget: cap must be a non-negative integer')
+        else: rec['cap'] = int(a[2])
+    if verb == 'set_environment':
+        if a[0] not in ('prod', 'non-prod'): err(sid, 'set_environment: unknown environment %s' % a[0])
+        else: world['environment'] = a[0]
     if verb == 'revoke_grant':
         if a[0] not in world['grants']: err(sid, 'unknown grant %s' % a[0])
         else: world['grants'][a[0]]['revoked'] = True
@@ -179,7 +192,9 @@ def lint_accepted(sid, world, args, now):
                 if k in p and p[k] != cl['user']: err(sid, 'lint: identity key differs from claims.user')
             if 'data_owner' in p and p['data_owner'] != cl['user']: err(sid, 'lint: data_owner differs')
     if 'agent' in cl and cl['agent'] != ag: err(sid, 'lint: claims.agent differs from the grant agent')
-    if cl.get('environment', 'prod') != 'prod': err(sid, 'lint: claims.environment differs from the destination')
+    if g['environment'] != world['environment']: err(sid, 'lint: grant environment differs from the destination')
+    if cl.get('environment', world['environment']) != world['environment']: err(sid, 'lint: claims.environment differs from the destination')
+    if 'task_tools' in cl and tg not in cl['task_tools']: err(sid, 'lint: target not among claims.task_tools')
     if 'delegation_id' in cl:
         d = world['delegations'].get(cl['delegation_id'])
         if d is None or d['revoked'] or now >= d['expires_at'] or d['user'] != cl.get('user') or tg not in d['targets'] \

@@ -31,7 +31,7 @@ PROFILE_ID = W.PROFILE_ID
 
 FAMILIES = ('revocation', 'budget', 'expiry', 'verifier', 'credential_pin', 'clock', 'stop', 'tool_registry',
             'tool_definition', 'name_collision', 'allow_list', 'elevation', 'escalation', 'agent_change',
-            'operation', 'environment', 'scope', 'user_entitlement', 'claims_consistency', 'task_expiry',
+            'operation', 'environment', 'scope', 'user_entitlement', 'claims_consistency', 'task_expiry', 'task_scope',
             'delegation_record', 'delegation_chain', 'schema', 'parameter', 'window', 'aggregate',
             'hierarchy', 'approval')
 KNOWN_FAULTS = (None, 'missing_verifier', 'stale_verifier', 'forged_signature', 'wrong_actor')
@@ -40,6 +40,7 @@ REASON_ORDER = ('CREDENTIAL_BINDING_CLOSED', 'CREDENTIAL_EXPIRED', 'CLOCK_REGRES
                 'TOOL_NAME_COLLISION', 'TOOL_NOT_ALLOWED', 'PRIVILEGE_ELEVATION_REQUIRED', 'ESCALATION_BLOCKED',
                 'AGENT_PENDING_REAPPROVAL', 'OPERATION_NOT_PERMITTED', 'ENVIRONMENT_MISMATCH', 'SCOPE_NOT_GRANTED',
                 'USER_REQUIRED', 'USER_NOT_ENTITLED', 'IDENTITY_SUBSTITUTION', 'CROSS_USER_DATA', 'TASK_EXPIRED',
+                'TASK_TOOL_NOT_WARRANTED',
                 'DELEGATION_INVALID', 'DELEGATION_DEPTH', 'DELEGATION_CYCLE', 'DELEGATION_CHAIN_INVALID',
                 'DELEGATION_WIDENING', 'SCHEMA_VIOLATION', 'PARAMETER_RULE_VIOLATION', 'WINDOW_CAP_EXCEEDED',
                 'AGGREGATE_CAP_EXCEEDED', 'BUDGET_LEVEL_EXHAUSTED', 'APPROVAL_REJECTED', 'APPROVAL_TIMED_OUT',
@@ -107,6 +108,28 @@ class WikiOpaApp(adapters.Conventional):
         def f(s):
             if tool not in s['tools']: raise KeyError(tool)
             s['agents'][agent]['allowed_targets'].append(tool)
+        self.mutate(f)
+
+    def _verb_disallow_tool(self, agent, tool):
+        # the inverse of allow_tool: the tool leaves the agent's allow-list (and its read class); a tool that is not on
+        # the list raises, never a silent no-op
+        def f(s):
+            a = s['agents'][agent]
+            if tool not in a['allowed_targets']: raise KeyError(tool)
+            a['allowed_targets'] = [t for t in a['allowed_targets'] if t != tool]
+            a['read_targets'] = [t for t in a['read_targets'] if t != tool]
+        self.mutate(f)
+
+    def _verb_set_budget(self, level, ident, cap):
+        # a budget owner changes the cap of one existing budget record; the usage counter is kept
+        if not cap.isdigit(): raise ValueError('budget cap must be a non-negative integer: ' + cap)
+        self.mutate(lambda s: s['budgets'][level][ident].update(cap=int(cap)))
+
+    def _verb_set_environment(self, environment):
+        # the environment of the destination itself (the deployment the application guards)
+        def f(s):
+            if environment not in ('prod', 'non-prod'): raise KeyError(environment)
+            s['environment'] = environment
         self.mutate(f)
 
     def _verb_grant_exception(self, agent, target, ttl):
@@ -217,6 +240,8 @@ class WikiOpaApp(adapters.Conventional):
         if not isinstance(c, dict): return False
         chain = c.get('chain', [])
         if not (isinstance(chain, list) and all(isinstance(a, str) for a in chain)): return False
+        tools = c.get('task_tools', [])
+        if not (isinstance(tools, list) and all(isinstance(t, str) for t in tools)): return False
         h = c.get('hierarchy', {})
         return isinstance(h, dict) and all(isinstance(k, str) and isinstance(v, str) for k, v in h.items())
 

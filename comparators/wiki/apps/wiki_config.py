@@ -32,6 +32,18 @@ RESTRICTED = {  # allow-lists below 'everything' (L06-013, L06-039, L06-017)
     'gw-a1': GW_TOOLS['read'] + GW_TOOLS['write'], 'gw-a2': list(GW_TOOLS['read']), 'gw-a3': list(GW_TOOLS['read'])}
 READ_ONLY_AGENTS = {'research'}
 
+# Parameter envelope shared by the four mock tools of the parameter-policy case (send_email, transfer_test_funds,
+# read_file, update_records). Each tool requires its own parameter; the others are optional keys of the same envelope,
+# validated by type and by the parameter rules when present. A key outside the envelope is still an unknown argument.
+ENVELOPE_PARAMS = {'recipient': 'string', 'body': 'string', 'amount': 'number', 'account': 'string', 'path': 'string',
+                   'records': 'number'}
+
+
+def tool_schema(required):
+    return {'required': {k: ENVELOPE_PARAMS[k] for k in required},
+            'optional': {k: t for k, t in ENVELOPE_PARAMS.items() if k not in required}}
+
+
 CONFIG = {
     'allowed_domains': ['example.test', 'corp.test'],
     'allowed_path_prefixes': ['/lab/data/', '/lab/public/'],
@@ -50,10 +62,8 @@ CONFIG = {
                 'delete_record': {'cap': 1, 'seconds': 3600}},
     'aggregate_amount': {'transfer_test_funds': {'cap': 300, 'seconds': 3600}},
     'alert_fraction': 0.8,
-    'schemas': {'send_email': {'required': {'recipient': 'string'}, 'optional': {'body': 'string'}},
-                'transfer_test_funds': {'required': {'amount': 'number'}, 'optional': {'account': 'string'}},
-                'read_file': {'required': {'path': 'string'}, 'optional': {}},
-                'update_records': {'required': {'records': 'number'}, 'optional': {}}},
+    'schemas': {'send_email': tool_schema(['recipient']), 'transfer_test_funds': tool_schema(['amount']),
+                'read_file': tool_schema(['path']), 'update_records': tool_schema(['records'])},
 }
 
 BUDGETS = {'org': {'org-1': 100},
@@ -100,6 +110,8 @@ def initial_state():
     grants = {'grant': grant_record('agent', 1)}
     for a in AGENT_IDS:
         grants['grant-' + a] = grant_record(a, 1000, expires_at=10000)
+    # a token of agent "agent" that carries the read scope only (token-scope case: a write with a read-only token)
+    grants['grant-agent-ro'] = grant_record('agent', 1000, token_scopes=['read:tickets'], expires_at=10000)
     non_priv = [t for t in TOOLS if t not in ('delete_record', 'purge_record', 'transfer_large_funds', 'elevated_task')]
     state = dict(
         environment='prod', generation=7, last_now=100, opa_available=True, fail_mode='closed',
@@ -110,7 +122,11 @@ def initial_state():
                'user-a': dict(active=True, allowed_targets=['read_file']),
                'user-b': dict(active=True, allowed_targets=['read_file'])},
         delegations={'deleg-1': dict(user='user-a', targets=['read_file'], data_classes=['public'],
-                                     expires_at=200, revoked=False)},
+                                     expires_at=200, revoked=False),
+                     # same scope as deleg-1 but valid beyond the latest clock reading of a scenario, so that a check
+                     # long after a revocation can only be decided by the revocation
+                     'deleg-2': dict(user='user-a', targets=['read_file'], data_classes=['public'],
+                                     expires_at=10000, revoked=False)},
         budgets={lv: {k: dict(cap=c, used=0) for k, c in ids.items()} for lv, ids in BUDGETS.items()},
         windows={}, aggregates={}, approvals={}, pending={})
     return state

@@ -32,9 +32,9 @@ The whole `reference_profiles` tree of that revision is listed in `digests.json`
 ## Wiki-subset plan file
 
 - path: `comparators/wiki/plans/wiki-subset-plan.json`
-- sha256: `a16b01051cfae69d8b20c82072e0b3523a70010b531a7651ca204c67d7546589`
-- scenarios: 121 in 28 cases; executable (asked) scenarios: 86
-- counts per state in the plan file: {"ASKED": 86, "NOT-EXPRESSIBLE": 19, "NOT-CLAIMED": 0, "UNASKED": 16}
+- sha256: `985759b701b5bb41638a650de582d86bf669d054ceddcb2809d3efa588988c0f`
+- scenarios: 121 in 28 cases; executable (asked) scenarios: 94
+- counts per state in the plan file: {"ASKED": 94, "NOT-EXPRESSIBLE": 11, "NOT-CLAIMED": 0, "UNASKED": 16}
 - counts per state in the outcome files (before plan authoring): {"ASKED": 94, "NOT-CLAIMED": 0, "NOT-EXPRESSIBLE": 11, "UNASKED": 16}
 - seeds [1701, 1702], repetitions 5
 
@@ -42,15 +42,15 @@ The whole `reference_profiles` tree of that revision is listed in `digests.json`
 
 | Group | Group sha256 | Files |
 |---|---|---|
-| `wiki_plan_file` | `4f19ee1a424407c925e7b87ada446db1e78835a3f4141f0f09b43ed2e9dc65f7` | 1 |
+| `wiki_plan_file` | `1624aa6d11025d7d36e9e582bdc385e5e3941d4d34d3c8cbda1151b50d608c1b` | 1 |
 | `expected_outcomes` | `2ca5997fdf1f79e2964986fa9dabc1c10f27edd26540a461bc91bc32aa9629b9` | 4 |
-| `opa_rule_file` | `bf244c3805905f361f8fa3386b69aafd00a81ac345a56e7ee87d303ab55e3c80` | 1 |
-| `comparator_modules` | `8b6c14e11245a143ad191e05ee169fcc13ede79a2f7387cb761ac9e986dda945` | 6 |
-| `runner_modules` | `299de05a04b12f94ddbbbb82dba34cfe72c692a5fd5e9f94d31b6151ad53acb9` | 8 |
-| `declared_interfaces` | `629bf7905a4c1affe89ac26af4beb2dcbae9c82f635638da9efe578f7fec7507` | 2 |
+| `opa_rule_file` | `36c8089933986d9a29b163a25784b4e6c9b0c2b6c24b64b186ec084297f9804e` | 1 |
+| `comparator_modules` | `8ca224c638efc882c785b6948be8613c24cec8b242177bb8444012ba9c55f922` | 6 |
+| `runner_modules` | `7f817b6f97c40186a1e80bd4a10da1f03da96694baf28f062b7dec46d1a1823a` | 8 |
+| `declared_interfaces` | `e80588e9a2ec65de1c3e0d97300875aec2d1b4a4feb4a1f13ee99bbfa4aef8cf` | 2 |
 | `dependency_lock` | `83f047acd6742093b5ae8a539a4a920521b211668bebf28db97b3fcb22d70202` | 2 |
 | `ocs_crossref` | `988f14f83ff64008bc213cd068a472b43c609d6e2059eec4d1f2892465358dc2` | 1 |
-| `package_tests` | `e53dc14bce7ef1eb69ea8526a565970d9ea1f549e2b816c2a8591d4c73431652` | 12 |
+| `package_tests` | `49c42758dbbe93784078aaf4844cfbb3bb5ed8d203ac200f1db73457b707545e` | 13 |
 
 ## Every file
 
@@ -61,22 +61,23 @@ The whole `reference_profiles` tree of that revision is listed in `digests.json`
 | `comparators/deps/requirements.pinned.txt` | `affe2fce90ea7f0ebc15ca4fa4e33439c198acabd81140be98c16bf88270e095` |
 | `comparators/tests/conftest.py` | `d9b667fb3d6facca997627538495a6aef5dba44d46802c65329e1d157b0b2377` |
 | `comparators/tests/support/synthetic_base.py` | `4e53330104ac557cae97fee08724d34ebec2ff3229d846a84ed514a7619d8aa2` |
-| `comparators/tests/test_ablations.py` | `addae73c91785a6ed54842ee486b26836df47a5ee615099a30d80d7c75a73e09` |
+| `comparators/tests/test_ablations.py` | `c3784ed27be97b4e66c2643b8203bfa5eb813986543110988282722dba22eab1` |
 | `comparators/tests/test_integration_langgraph_wiki.py` | `ec3ff6429399a3f52a427337aa8873fe36dfc79765cdc39f2ab2b655e674a129` |
 | `comparators/tests/test_interface_contract.py` | `c3b9545512544f7996a6b5af282cda449688f7540507a5c57cddaf6cfabbd6c4` |
-| `comparators/tests/test_interface_declarations.py` | `77e98633529251a488859c583309ad1ad58500076d27782e369d184c29d48e71` |
+| `comparators/tests/test_interface_declarations.py` | `fdf65f24b25a1a0acb7eee6b0c471dd22528b47a1d95b9aba2531e21d57151bc` |
 | `comparators/tests/test_package_digests.py` | `c6c9c50b06e2817ac3232aee701d6101b0d9125b78f5bc7c52c315f3f55fbf80` |
 | `comparators/tests/test_package_scope_and_wording.py` | `573d158e95ff55fc6fb14813bd1e18f6dc30db1cd34f5f467cc8f7e84a60f766` |
-| `comparators/tests/test_plan_file.py` | `8b722f78cae4b84249fc26366f371985d9f325eca1d8df04d7b4942dce6aee56` |
+| `comparators/tests/test_plan_file.py` | `c38b6d0f11fb1ddac5c602cb744ed6cf25393d0a6aaab5f89ffe93ef28b2bd4c` |
 | `comparators/tests/test_registered_plans_static.py` | `88fa22382217c9800d7109b3e0a7656382dc08d1ca0e0133a5f0e75485028cd5` |
 | `comparators/tests/test_wiki_langgraph_app.py` | `2f3c3b18eb6a29855d60dc4a35263b90d47dd28a6d127ecd853e9e579b9e24e4` |
 | `comparators/tests/test_wiki_opa_app.py` | `a3e7c58f44fd41c4f1db8e11f29e219ed6a951453bbf8f9e5086f0128aa9e638` |
+| `comparators/tests/test_world_extensions.py` | `8ab4bf6acb4c631ba9d88cc2007e0348dcfd92cee406166a06cf5fd74f45e1ad` |
 | `comparators/wiki/__init__.py` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | `comparators/wiki/apps/__init__.py` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
-| `comparators/wiki/apps/wiki_config.py` | `957dc7c4cdf0769db942fea19f02931779b8eab35ef2e2f9a81aebd45135b56f` |
+| `comparators/wiki/apps/wiki_config.py` | `586cd717cf85d32ce32eb3a232b360683392e847dd6b0dcb050f2e445720eb57` |
 | `comparators/wiki/apps/wiki_langgraph_app.py` | `f910d78f00e95ae2ed2c0c3b88fd9f93e6958868435fc9afc0cfd4a6e9c339c3` |
-| `comparators/wiki/apps/wiki_opa_app.py` | `9e17ac1bf764f8668830b9d0fdd915960d39e9e734a697313223292696b7736e` |
-| `comparators/wiki/apps/wiki_policy.rego` | `50d697533d2e7db791f01fbd22e0f1ce3cd3c44944cbd61db0f186f673c13331` |
+| `comparators/wiki/apps/wiki_opa_app.py` | `8e186c53e410774438f79084f1051ce1a6b714661c8084d7a654b2f519074cf2` |
+| `comparators/wiki/apps/wiki_policy.rego` | `10d8b2663a94d12237995db49dd22a7618e6e4e33b8194bcc2d1da044d6a5b55` |
 | `comparators/wiki/crossref/wiki-ocs-crossref.json` | `bcdc08d87207b15c5d0ca3e26ccd554663c18abaea2864b608ffd64f1b19409a` |
 | `comparators/wiki/expected-outcomes/author_draft.py` | `78a63f4461c024b86a6c7a2d245407b86623454e6372fa6db6a0ca1a413b714b` |
 | `comparators/wiki/expected-outcomes/build_outcomes.py` | `b9918aa902606a303018edb825b16fb3e8aa8760c7878e490fff5ab09f2b3505` |
@@ -84,15 +85,15 @@ The whole `reference_profiles` tree of that revision is listed in `digests.json`
 | `comparators/wiki/expected-outcomes/scenario-outcomes.json` | `7b55c649a49a54b7de849b3e191c5b7f29fff6832bc62950ff01240acf940fe1` |
 | `comparators/wiki/harness/__init__.py` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
 | `comparators/wiki/harness/_base.py` | `b9c89791c1d340b092976faab644b356773df057fc293ede17a6ba0b24f6f06d` |
-| `comparators/wiki/harness/author_plan.py` | `a7427481ad529c9fe1e482a6f8991610c61c1bc75dd635a45fc4b535ea417edb` |
+| `comparators/wiki/harness/author_plan.py` | `bfd0fbad098b3c6235af811f8713c2d182bd672fbbccf47fd317400896fe61f9` |
 | `comparators/wiki/harness/compute_digests.py` | `3ca5b9270481131dabe0a7a4e25fc4876678d75853cf19324431b02b1a861639` |
 | `comparators/wiki/harness/gen_crossref.py` | `4b4d157944d1499f06b731f613eb5178506d27f448e3b05ac7181231d2f6ee5c` |
 | `comparators/wiki/harness/plumbing_twin.py` | `9591d79a93b4f044299a031cc8e7931c83f82bda499a1b204dcf54f34375ee06` |
 | `comparators/wiki/harness/registered_sets.py` | `c8c6a8476af5a01bd994cce544d712c1dd7279aa901e25c67e0acf09e10b8cb6` |
-| `comparators/wiki/harness/validate_plan.py` | `bedddc59747cdbe19fd132207e4ad33c0f95bcfcef13bd5d94b7b68f77387c59` |
-| `comparators/wiki/interface/declared-interface-opa-app.json` | `d1153732d8f179e8fe0ebb49edc4b441ba0832deb9af5dc03b8750af69fc6475` |
-| `comparators/wiki/interface/langgraph-opa-declared-interface.json` | `faf7c39b73639284283471b03b603dfb5d605ecac40a9777696a3de09625667b` |
-| `comparators/wiki/plans/wiki-subset-plan.json` | `a16b01051cfae69d8b20c82072e0b3523a70010b531a7651ca204c67d7546589` |
+| `comparators/wiki/harness/validate_plan.py` | `10f21f7ac200eb0641363430afdf182d2229cfacb327ab747558de36db55c1e0` |
+| `comparators/wiki/interface/declared-interface-opa-app.json` | `ce52bbf41b316ac5729c9ee131e49d2c293a18896e80c0df8ae5261ff1d16d57` |
+| `comparators/wiki/interface/langgraph-opa-declared-interface.json` | `ab9d85741cc302124344a92f19dd7370e231e3fe843baef8cfb7d370306a66ac` |
+| `comparators/wiki/plans/wiki-subset-plan.json` | `985759b701b5bb41638a650de582d86bf669d054ceddcb2809d3efa588988c0f` |
 
 ## Records held by the owner (not in this repository)
 

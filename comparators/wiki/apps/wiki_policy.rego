@@ -117,6 +117,12 @@ reasons contains "CROSS_USER_DATA" if {
 reasons contains "TASK_EXPIRED" if {
     not skip("task_expiry"); has(claims, "task_expires_at"); input.now >= claims.task_expires_at
 }
+# A task record (claims.task_tools: the tools that the user's request requires, as stated by the issuer) limits the
+# calls of that task to those tools; an empty list means the request needs no tool. No claim, no task limit.
+reasons contains "TASK_TOOL_NOT_WARRANTED" if {
+    not skip("task_scope"); has(claims, "task_tools")
+    not req.target in claims.task_tools
+}
 reasons contains "DELEGATION_INVALID" if { not skip("delegation_record"); has(claims, "delegation_id"); input.delegation == null }
 reasons contains "DELEGATION_INVALID" if { not skip("delegation_record"); input.delegation != null; input.delegation.revoked == true }
 reasons contains "DELEGATION_INVALID" if { not skip("delegation_record"); input.delegation != null; input.now >= input.delegation.expires_at }
