@@ -14,3 +14,5 @@ Retained output of one run of the pre-registered comparison (corner, baseline an
 | `SHA256SUMS` | Digests of the files above (the README is not listed) |
 
 The run is retained as it ran (RO-8). Nothing was edited after the run. A regenerated report from these files is made with `comparators/runner/run_comparison.py --report-only`.
+
+The written report for this run is `reports/comparison-g2-r10-2026-10-20.md`. The measured state of the whole stack at the same pins is in `docs/v1-known-limits.md` (entry of 2026-10-20).
