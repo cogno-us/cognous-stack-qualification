@@ -239,11 +239,18 @@ jobs:
               json.dump({'schema':'cognous.v1-validation-job/1','component':name,'status':st,'workflow_run':os.environ['GITHUB_RUN_ID'],
                          'attempts':[{'outcome':st,'counts':c}],'os':'ubuntu-latest','python':'3.12'},open(d+'/result.json','w'),indent=2)
           EOF
+      # One artifact per record: the aggregate accepts a result.json only at the top level of its own v1v-* artifact.
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: v1v-harness-hub
-          path: out
+          name: v1v-qual-tooling
+          path: out/qual-tooling
+          if-no-files-found: error
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v1v-hub-tests
+          path: out/hub-tests
           if-no-files-found: error
 
   probes:
