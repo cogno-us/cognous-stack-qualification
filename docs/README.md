@@ -31,19 +31,20 @@ Back to the [repository README](../README.md).
 | [Qualification dashboard](qualification-dashboard.md) | Scenario mappings, workflow outcomes and gaps | generated (by `tools/build_dashboard.py`) |
 | [Dashboard operations](qualification-dashboard-guide.md) | How the dashboard is captured and built | current |
 | [Results and retention rules](../results/README.md) | Layout of `results/`, append-only rules | current |
+| [Latest retained controller results (r10)](../results/v1-validation/v1-2026-10-16-a/g2-r10-39349033320/summary.md) | Job table and requirement matrix of run 39349033320; the first attempt is retained as an aborted attempt (see V1 known limits) | historical (retained record, append-only) |
 | [Result commentary index](../results/readme-commentary/index.md) | Relocated component reporting with source references | current |
 
 ## Known limits and residuals
 
 | Page | What it is | State |
 |---|---|---|
-| [V1 known limits](v1-known-limits.md) | The narrowed V1 claim and the limits kept visible | known limit |
+| [V1 known limits](v1-known-limits.md) | The narrowed V1 claim and the limits kept visible, with dated updates through the r10 measured state of 2026-10-20 | known limit |
 | [Security repairs and residual limits (16 October)](security-residuals-20261016.md) | Repairs to qualification tooling, with an update of 2026-10-18, and the residual limits | known limit |
 | [Security coverage corrections (15 October)](security-coverage-addendum.md) | Bounded coverage work for hub issues 138 to 140; grants no clearance | historical |
 | [Security remediation compatibility (16 October)](security-remediation-compatibility-20261016.md) | Compatibility corrections after the remediation PRs | historical |
 | [Authority probe re-baseline](authority-probe-rebaseline.md) | Re-baseline of the authority probes at the r4 pin | historical |
 | [Runtime authority implementation dashboard](runtime-authority-2026-10-15.md) | A nonselected candidate for addendum items K1 to K6 | historical |
-| [Adversarial test plan](adversarial-test-plan.md) | Hypothesis backlog mapped to existing tests; batch 1 (T01 to T20) is implemented, results in [`process/adversarial/README.md`](../process/adversarial/README.md) | proposed (plan), batch 1 implemented |
+| [Adversarial test plan](adversarial-test-plan.md) | Hypothesis backlog mapped to existing tests (its component table shows the pins as selected when the plan was written); batch 1 (T01 to T20) is implemented, results in [`process/adversarial/README.md`](../process/adversarial/README.md) | proposed (plan), batch 1 implemented |
 
 ## Extend or maintain
 

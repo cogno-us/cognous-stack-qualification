@@ -12,7 +12,7 @@ The input is an external brainstorm of 75 numbered attack hypotheses (groups A t
 - **Classification** is one of: covered by existing test; partially covered; not covered but testable offline; needs a capability that does not exist; not applicable to V1 scope. 'Covered' means a retained test asserts the invariant for the cases it names, not that the attack class is closed. Uncovered hypotheses are kept.
 - **Result vocabulary for future tests:** `prevented`, `detected only`, `reproduced failure`, `inconclusive`, `not applicable`, `not tested`. It is separate from the scenario-catalogue statuses (PASS, FAIL, INCONCLUSIVE, NOT RUN, NOT APPLICABLE) and must not feed the `v1_validation` verdict.
 
-## 2. Component commits
+## 2. Component commits (V1 pins as selected when the plan was written; current pins are in the profile)
 
 Three layers matter and they differ. The hub `component-lock.json` pins, the V1 profile r4 pins (resolved through `suites/_pins.py`), and the component mains at the time of writing. Programme-2 opt-in profiles exist only on mains, so their tests are red at the V1 pins by design.
 

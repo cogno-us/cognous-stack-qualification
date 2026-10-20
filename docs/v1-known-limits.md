@@ -213,3 +213,40 @@ At the compatibility profile `security-runtime-p2-20261018` the representative r
 - The result is not claimed as a pass. It is listed here, separately from the passing suites.
 - Decision: owner, 19 October 2026 (declare as known limit, no component change).
 - No qualification-controller run has been made for this entry, and the pins are unchanged from r10.
+
+
+### Update 2026-10-20 (Programme 2 r10 tuple: measured state)
+
+This entry records what was measured at the r10 pins (profile `process/security-runtime-f5b-20261016-r10.json`: runtime 6b16962d, Replay 6a6a4774, evidence pack fd030615, ODES 2893d935, exchange fdc2a410, control plane 2bac7875, action manifest ff549082, constitutional authority 0124adcd, verifier dc09a98f). It adds to the entries above and does not rewrite them. Where the entry of 2026-10-19 (r10, runtime fix) says that the declared-limit lists and the counts of the suites that use the commit-time-race export were taken at r9 and not re-measured, the measurements below replace those counts for the suites named here. No status of an earlier finding is changed by this entry, and no assertion, fixture or expected value was changed to obtain a count.
+
+**Declared set.** The declared set in force is derived from the committed twin (`tools/declared_limits.py`): 76 entries (75 tests and 1 requirement), `declared_set_sha256` `1ba741d7e71a7c3fb49c6bbc995b41503608e5232cb1cee93c0684563e19c087`. A direct measurement of 19 October used a set of 72 entries (hash `bde46adc...`); the four entries added since are the four SCN-C04 copy cases of `suites/v1-scenarios` (amendments 85 to 88).
+
+| Where the entries live | Entries | Collected by the controller |
+|---|---:|---|
+| control plane tests | 11 | yes |
+| Replay tests | 5 | yes |
+| ODES tests | 4 | yes |
+| `suites/v1-probes` (control plane probes) | 6 | yes |
+| `suites/v1-scenarios` (SCN-C04 copy cases) | 4 | yes |
+| `suites/wiki-derived` | 35 | no |
+| `suites/fix2-probes` | 6 | no |
+| `process/adversarial/tests` | 4 | no |
+| requirement `ADD-AUTH-RA` | 1 | not a test |
+
+**Controller run at the r10 pins.** Run 39349033320 (label `g2-r10`, harness revision cbe7ba03; results retained under `results/v1-validation/v1-2026-10-16-a/g2-r10-39349033320`). The job table has 33 PASS, 3 FAIL, 2 NOT RUN and 0 INCONCLUSIVE jobs. Freeze check PASS. The requirement matrix for the selected V1 scope reports 39 mandatory rows PASS and 0 others; the full-catalog block reports 56 PASS, 0 FAIL, 35 INCONCLUSIVE, 20 NOT RUN and 20 NOT APPLICABLE rows, and the verdict rule applied to the rows that were mandatory before the D15 scope reduction reports INCOMPLETE. None of the 36 moved rows is counted as PASS. None of this is a release decision.
+
+- The 3 FAIL jobs are exactly the declared failing tests: ODES on Python 3.11 and 3.12 (3071 test cases, 4 failures, 1 skip; the four declared ODES retained-example tests) and the scenarios job (1093 test cases, 4 failures; the four declared SCN-C04 copy cases). No undeclared test failed in either job.
+- The declared control plane tests (11) ended as asserted on both Python versions. The 5 declared Replay tests and the 6 declared control plane probes are recorded as skipped (strict expected failures).
+- The 2 NOT RUN jobs are the optional components that have no tests at the pinned commit.
+- Other job counts (test cases, failures, errors, skipped): control plane 952/0/0/1, runtime 512/0/0/0, Replay 1183/0/0/17, evidence pack 366/0/0/0, exchange 311/0/0/0, action manifest 245/0/0/0, BitRep 81/0/0/0, Index 121/0/0/0, constitutional authority 491/0/0/0, optional research component 13/0/0/0, hub tests 653/0/0/0, qualification tooling 416/0/0/1, native-f5b suite 36/0/0/0, matched-refund rerun 20/0/0/0 (20 of 20 trials PASS).
+
+**First attempt and artifact split.** The first dispatch (run 39345693648) completed all jobs and then stopped at the aggregate step, which refused a control record found in a nested location (`v1v-harness-hub/hub-tests/result.json`). The rule that refuses nested control records had been added earlier and the workflow had not been adapted to it. That attempt is retained as an aborted attempt (RO-8) and no result of it is used. A second dispatch (run 39348963707) was made before the fix was merged and was cancelled. The fix (#182) uploads the qualification tooling tests and the hub tests as two separate artifacts (`v1v-qual-tooling` and `v1v-hub-tests`) instead of one nested artifact; it changes no test, selector or verdict rule. The retained run above is the next dispatch with the same label, made after #182 was merged, and its results were retained by #183.
+
+**Suites outside the controller, measured by direct runs on 19 and 20 October at the same pins** (no test was changed, selected or deselected; these runs carry no controller verdict):
+
+- `suites/wiki-derived`: 290 collected, 285 passed, 5 failed, 0 errors, 0 skipped. The split is W-I 64 collected (63 passed, 1 failed), W-X 217 collected (213 passed, 4 failed) and 9 infrastructure tests (9 passed). Of the 35 declared tests of this suite, 34 end as asserted and 1 fails because its component has changed since the limit was declared. Each failing test failed again on a single re-run and in a second environment; each is reported as FAILING (NON-GATING) under amendments 78 and 79, and none was classified as a major defect. The five are tests whose expectations lag an intended change of their component; one of them is the test withdrawn by amendment 65.
+- `suites/fix2-probes`: 213 collected, 207 passed, 6 expected failures, 0 failed; the six are the six declared entries. The README of the suite still names the r9 heads.
+- `process/adversarial/tests`: 136 collected, 132 passed, 4 expected failures, 0 failed, run with `ADV_ALLOW_REVISION_DRIFT=1` because `process/adversarial/components.json` still names the r9 revisions of the runtime, Replay, evidence pack and ODES. The four expected failures are the four declared entries.
+- `suites/v1-scenarios`: the controller job above (1093 cases, 4 failures, all declared) is the recorded result. A direct local run on 19 October, made before declared entries existed for this suite, recorded 23 failures in the same 1093 cases (the four SCN-C04 cases plus 19 others, some reported as harness exceptions of that local environment). The difference is the nineteen test expectations updated for intended component behaviour (qualification pull request 176) and the declaration of the four SCN-C04 cases (amendments 85 to 88).
+
+**Still open.** The refreeze log status text and the inventory pair are not changed by this entry. The representative reference run remains a declared known limit (entry of 2026-10-19). The README of `suites/fix2-probes` and `process/adversarial/components.json` still name r9 revisions and are not edited here.

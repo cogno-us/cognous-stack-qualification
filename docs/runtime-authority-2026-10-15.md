@@ -13,7 +13,7 @@ set and remaining closeout order are recorded in
 | K5 and lossless Replay | Implemented and tested | [Replay PR 27](https://github.com/cogno-us/cognous-replay-bundle/pull/27) |
 | Evidence Pack mapping and reason reporting | Implemented and tested | [Evidence Pack PR 27](https://github.com/cogno-us/cognous-governance-evidence-pack/pull/27) |
 | Actual component qualification | 20 local cases pass | New suite and exact-source runner in this PR; hosted results are separate evidence |
-| K6 paired scorer | Implemented and arithmetically tested | [PRP PR 9](https://github.com/cogno-us/portable-reasoning-protocol/pull/9); behavioral runs UNEXECUTED |
+| K6 paired scorer | Implemented and arithmetically tested | PRP PR 9 (link removed; see D8 in the V1 known limits); behavioral runs UNEXECUTED |
 | Integration of approved PRs | Pending | Control Plane, runtime, Replay, Evidence Pack, then qualification; requalify actual merged revisions |
 | Final security safety and IP review | Deferred | After engineering integration and final tests, before final publication acceptance |
 
