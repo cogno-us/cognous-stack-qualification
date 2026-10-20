@@ -46,6 +46,8 @@ GROUPS = {   # name -> (description, rule for membership: list of paths or globs
     'declared_interfaces': ('declared interface of each comparator application', ['wiki/interface/*']),
     'dependency_lock': ('hash-locked requirements and the direct pins they come from', ['deps/*']),
     'ocs_crossref': ('cross-reference listing of test names (different harness, not scored)', ['wiki/crossref/*']),
+    'runner': ('comparison runner and the declarations of the protected-destination column (includes its own digests.json and its tests)',
+               ['runner/*', 'runner/tests/*']),
     'package_tests': ('tests of this package (informational: not part of the frozen run)', ['tests/*', 'tests/support/*']),
 }
 SELF = {'digests.json', 'DIGESTS.md'}

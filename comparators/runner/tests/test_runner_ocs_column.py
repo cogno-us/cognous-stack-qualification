@@ -98,11 +98,18 @@ def test_revoke_grant_needs_a_grant_of_the_declared_world_and_an_unknown_control
 
 # ---------------------------------------------------------------- declarations
 def test_a_scenario_with_a_blocked_step_is_not_expressible_whatever_else_it_holds():
-    r = O.declare(case('S1', [dict(action='stop:support'), ex()], 'TC-D13-003'), grant_ids=GRANTS)
+    r = O.declare(case('S1', [dict(action='stop:support'), ex()], 'TC-L09-019'), grant_ids=GRANTS)
     assert r['status'] == O.STATUS_NE and r['run_anyway'] is False
     assert r['blocking_steps'][0]['action'] == 'stop:support'
     kinds = {c['kind'] for c in r['citations']}
     assert {'interface', 'case_text', 'amendment', 'rule'} <= kinds
+
+
+def test_the_case_of_amendment_39_stays_not_claimed_when_a_step_has_no_counterpart():
+    r = O.declare(case('S1', [dict(action='stop:support'), ex()], 'TC-D13-003'), grant_ids=GRANTS)
+    assert r['status'] == O.STATUS_NC and r['run_anyway'] is True and r['reason_code'] == 'NC-AMENDMENT-39'
+    assert 'blocking_steps' not in r and 'stop:support' in r['reason']
+    assert {'39', '74', '76'} <= {c['ref'] for c in r['citations'] if c['kind'] == 'amendment'}
 
 
 def test_the_calls_to_other_targets_are_named_once_in_the_reason():

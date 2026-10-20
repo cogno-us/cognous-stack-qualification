@@ -38,8 +38,8 @@ and a test shows that changing expected outcomes does not change the declaration
 11. **Amendment numbering.** The repository's amendment 79 is a different text (major defects). The citation rule for not-expressible and
     not-claimed records is cited as "79-draft" until its number is settled.
 12. **Cross-reference** column is read from comparators/wiki/crossref and labelled "different harness, not scored by this oracle".
-13. **Unlisted-files check.** The package digest tool of `comparators/` does not know the `runner` group, so its unlisted-file check reports
-    these files until its owner adds the group. This directory keeps its own `digests.json`; `run_comparison.py` verifies it.
+13. **Unlisted-files check.** The package digest tool of `comparators/` lists this directory as the group `runner` (files and tests, including
+    this directory's own `digests.json`). This directory also keeps its own `digests.json`, which `run_comparison.py` verifies.
 14. **Declarations are generated from the plan file** and checked against its digest. If the plan gains or loses scenarios the entry points
     stop with exit status 2 until `declare_ocs_column.py --write` has been run and the output reviewed.
 15. **Candidate manifest digest** follows amendment 91 (the three listed manifest files); a missing file is recorded as not available.

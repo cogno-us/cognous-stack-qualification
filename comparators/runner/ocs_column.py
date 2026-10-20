@@ -124,6 +124,12 @@ NOT_EXPRESSIBLE_CONTROLS = {
                                            'parent field', ['DEST-OPERATIONS', 'DEST-GRANT-FIELDS']),
     'allow_tool': ('NE-TOOL-SET', 'adding a tool to an agent allow-list: a grant pins one target and the destination has no allow-list',
                    ['DEST-TARGET-PIN', 'DEST-GRANT-FIELDS']),
+    'disallow_tool': ('NE-TOOL-SET', 'removing a tool from an agent allow-list: a grant pins one target and the destination has no allow-list',
+                      ['DEST-TARGET-PIN', 'DEST-GRANT-FIELDS']),
+    'set_budget': ('NE-BUDGET', 'changing the cap of a budget record: a grant carries max_effects fixed when it is provisioned, there is one '
+                                'budget level per grant and no operation changes a cap', ['DEST-OPERATIONS', 'DEST-BUDGET', 'DEST-GRANT-FIELDS']),
+    'set_environment': ('NE-ENVIRONMENT', 'setting the environment of the destination: a grant has no environment field and the destination '
+                                          'holds no environment state', ['DEST-OPERATIONS', 'DEST-GRANT-FIELDS']),
     'grant_exception': ('NE-EXCEPTION', 'recording a time-bound exception: the destination has no exception record',
                         ['DEST-OPERATIONS', 'DEST-GRANT-FIELDS']),
     'mutate_tool': ('NE-TOOL-DEFINITION', 'changing a tool definition: the destination has no tool registry or definition',
@@ -290,6 +296,18 @@ def declare(case, applicability=None, grant_ids=None):
     record = dict(scenario=case['id'], case=wiki_case, configuration=OCS_PROFILE, scenario_sha256=scenario_digest(case),
                   scenario_inputs=case.get('outcome_inputs'), steps=len(case['steps']),
                   executes=sum(1 for s in case['steps'] if s['action'] == 'execute'))
+    if wiki_case == 'TC-D13-003' and blocking:
+        # Amendment 39 is a rule of the whole case and the plan file states not claimed for the destination; it takes precedence over a
+        # control that has no counterpart. The record carries no blocking step: that step raises when the scenario is run and the trial is
+        # retained as could not check, apart from the scored results.
+        sentence = applicability_sentence(wiki_case, applicability)
+        record.update(status=STATUS_NC, run_anyway=True, reason_code='NC-AMENDMENT-39',
+                      reason='the case is not claimed by OCS (amendment 39: nested budget hierarchy) and the plan file says so for the destination; '
+                             'the scenario also contains a control with no counterpart at the destination (%s), which raises when the scenario is run, '
+                             'so the observation is retained as could not check, apart from the scored results' % ', '.join(b['action'] for b in blocking),
+                      interface_items=['DEST-CLAIMS-DIGEST', 'DEST-BUDGET'],
+                      citations=_citations(['DEST-CLAIMS-DIGEST', 'DEST-BUDGET'], case, ['39', '74', '76', '79-draft'], sentence=sentence))
+        return record
     if blocking:
         items = []
         for b in blocking:
