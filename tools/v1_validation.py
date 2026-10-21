@@ -210,12 +210,12 @@ def cmd_freeze_verify(args):
         check(f"hub lock pin {key} equals manifest", lock["components"][key]["sha"] == spec["sha"], spec["sha"], lock["components"][key]["sha"])
     # fetch every pinned component exactly
     work = Path(args.work)
-    resolved = {}
+    fetched = {}  # key -> record; never shadows `resolved` (the manifest-plus-overlay pins that are iterated)
     for group, key, spec in all_components(resolved):
         try:
             got = fetch_exact(work / key, spec["repository"], spec["sha"])
             tree = git(work / key, "rev-parse", "HEAD^{tree}")
-            resolved[key] = {"repository": spec["repository"], "commit": got, "tree": tree, "group": group}
+            fetched[key] = {"repository": spec["repository"], "commit": got, "tree": tree, "group": group}
             check(f"component {key} resolves to pinned commit", got == spec["sha"], spec["sha"], got)
         except Exception as exc:  # noqa: BLE001 - record, never hide
             check(f"component {key} resolves to pinned commit", False, spec["sha"], None, str(exc)[:500])
@@ -223,7 +223,8 @@ def cmd_freeze_verify(args):
            "refreeze_applied": [{"id": e, "component": k, "from_sha": f, "to_sha": t} for e, _, k, f, t in applied],
            "harness_revision": os.environ.get("GITHUB_SHA") or git(qual, "rev-parse", "HEAD"),
            "workflow_run": os.environ.get("GITHUB_RUN_ID"), "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
-           "python": sys.version, "platform": platform.platform(), "components": resolved, "checks": checks,
+           "python": sys.version, "platform": platform.platform(), "components": fetched,
+           "components_expected": sorted(key for _, key, _ in all_components(resolved)), "checks": checks,
            "status": "PASS" if all(c["status"] == "PASS" for c in checks) else "FAIL"}
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
@@ -532,6 +533,31 @@ def cmd_probe_suite(args):
 
 
 # -------------------------------------------------------------- aggregate
+def freeze_record_problem(freeze, expected_jobs):
+    """Why a freeze-verification record cannot count as PASS proof of the pinned components, or None.
+
+    A record that carries ``components_expected`` (written by freeze-verify since the E1 fix) must list exactly those components, at least one,
+    and, when a plan is present, exactly the plan's component set. A record without the field is legacy: it is read as before (its status is
+    kept) but it is not proof that any pinned component was fetched; see ``freeze_components_proof``."""
+    if not freeze or "components_expected" not in freeze:
+        return None
+    exp, got = freeze.get("components_expected"), freeze.get("components")
+    if not isinstance(exp, list) or not exp or not isinstance(got, dict):
+        return "freeze record lists no expected components"
+    if set(exp) != set(got) or len(exp) != len(set(exp)):
+        return f"freeze record components {sorted(got)} differ from its expected set {sorted(exp)}"
+    plan_set = {e["component"] for e in expected_jobs}
+    if plan_set and plan_set != set(exp):
+        return f"freeze record components differ from the plan's component set ({sorted(plan_set ^ set(exp))})"
+    return None
+
+
+def freeze_components_proof(freeze):
+    if not freeze:
+        return "no freeze record"
+    return "verified" if "components_expected" in freeze else "legacy record without components_expected: not proof that pinned components were fetched"
+
+
 def verdict(requirements):
     """Selected-V1 verdict. Never promotes missing, failed or skipped mandatory coverage."""
     mandatory = [r for r in requirements if r.get("mandatory", True)]
@@ -858,8 +884,10 @@ def cmd_aggregate(args):
                                                                   "declared_set_sha256": declared["declared_set_sha256"], "requirements": requirements}, indent=2) + "\n", encoding="utf-8")
         (out / "requirements-matrix.md").write_text(requirements_markdown(requirements) + "\nDeclared set sha256: `" + declared["declared_set_sha256"] + "`\n"
                                                     + ("\n### Declared known limits beside their rows\n\n" + declared_limits_markdown(requirements) if declared_limit_rows(requirements) else ""), encoding="utf-8")
+    freeze_problem = freeze_record_problem(freeze, expected)
+    freeze_status = "FAIL" if freeze_problem else (freeze or {}).get("status", "NOT RUN")
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
-               "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": (freeze or {}).get("status", "NOT RUN"),
+               "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": freeze_status, "freeze_components_proof": freeze_components_proof(freeze),
                "job_status_counts": counts, "expected_jobs": len(expected), "missing_jobs": len(missing), "jobs": rows,
                "selected_v1_verdict": "INCOMPLETE" if not requirements else verdict(requirements),
                "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix",
@@ -870,9 +898,9 @@ def cmd_aggregate(args):
         summary["declared_limits"] = declared_limits_block(declared, requirements, junit_index)
         summary["full_catalog_status"] = full_catalog_status(requirements)
         summary["scope_reduction"] = scope_reduction_block(requirements)
-    if freeze is None or freeze.get("status") != "PASS":
+    if freeze is None or freeze.get("status") != "PASS" or freeze_problem:
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
-        summary["verdict_note"] = "freeze verification did not pass; no result may be promoted"
+        summary["verdict_note"] = "freeze verification did not pass; no result may be promoted" + (f" ({freeze_problem})" if freeze_problem else "")
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     lines = [f"## V1 validation {args.validation_id}", "", f"Freeze: **{summary['freeze_status']}** · Verdict: **{summary['selected_v1_verdict']}** ({summary['verdict_basis']})", "",
              "| Status | Jobs |", "|---|---|"] + [f"| {k} | {v} |" for k, v in counts.items()] + ["",
