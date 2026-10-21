@@ -6,7 +6,7 @@ import json
 import unittest
 from pathlib import Path
 
-from agg_util import GOOD_FREEZE, aggregate, job, plan_entry, selector_row, v
+from agg_util import GOOD_FREEZE, VID, aggregate, job, plan_entry, selector_row, v
 
 ROW = [selector_row('R-1', 'alpha', 'test_selected')]
 OK = [('t', 'test_selected', 'passed')]
@@ -23,15 +23,16 @@ class LegacyFreezeRecord(unittest.TestCase):
         self.assertEqual((s['freeze_status'], s['selected_v1_verdict']), ('PASS', 'PASS'))
 
     def test_record_without_components_expected_is_a_freeze_problem_and_incomplete(self):
-        for rec in ({'status': 'PASS'}, {'status': 'PASS', 'components': {}}, {'status': 'PASS', 'components': {'alpha': {}}}):
+        for rec in ({'status': 'PASS', 'validation_id': VID}, {'status': 'PASS', 'validation_id': VID, 'components': {}},
+                    {'status': 'PASS', 'validation_id': VID, 'components': {'alpha': {}}}):
             s = run(rec)
             self.assertEqual(s['freeze_status'], 'FAIL', rec)
             self.assertEqual(s['selected_v1_verdict'], 'INCOMPLETE', rec)
             self.assertIn('components_expected', s['verdict_note'])
 
     def test_components_that_differ_from_components_expected_are_a_problem(self):
-        self.assertEqual(run({'status': 'PASS', 'components': {'alpha': {}, 'beta': {}}, 'components_expected': ['alpha']})['freeze_status'], 'FAIL')
-        self.assertEqual(run({'status': 'PASS', 'components': {'alpha': {}}, 'components_expected': ['alpha', 'beta']})['freeze_status'], 'FAIL')
+        self.assertEqual(run({'status': 'PASS', 'validation_id': VID, 'components': {'alpha': {}, 'beta': {}}, 'components_expected': ['alpha']})['freeze_status'], 'FAIL')
+        self.assertEqual(run({'status': 'PASS', 'validation_id': VID, 'components': {'alpha': {}}, 'components_expected': ['alpha', 'beta']})['freeze_status'], 'FAIL')
 
     def test_a_failed_check_under_a_pass_status_is_a_problem(self):
         rec = dict(GOOD_FREEZE, checks=[{'check': 'x', 'status': 'FAIL'}])

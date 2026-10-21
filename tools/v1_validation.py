@@ -593,7 +593,7 @@ def cmd_probe_suite(args):
 
 
 # -------------------------------------------------------------- aggregate
-def freeze_record_problem(freeze, expected_jobs):
+def freeze_record_problem(freeze, expected_jobs, validation_id=None):
     """Why a freeze-verification record cannot count as PASS proof of the pinned components, or None.
 
     The record must carry ``components_expected`` (written by freeze-verify), at least one component, a ``components`` map that lists exactly
@@ -602,6 +602,8 @@ def freeze_record_problem(freeze, expected_jobs):
     component was fetched. No record at all is not a record problem here; the caller reads it as NOT RUN."""
     if not freeze:
         return None
+    if validation_id is not None and freeze.get("validation_id") != validation_id:
+        return f"freeze record is for validation id {freeze.get('validation_id')!r}, not {validation_id!r}"
     if "components_expected" not in freeze:
         return "freeze record lacks components_expected (legacy record): it is not proof that the pinned components were fetched"
     exp, got = freeze.get("components_expected"), freeze.get("components")
@@ -1038,6 +1040,31 @@ def job_blockers(results, expected, missing, declared, inputs: Path, requirement
     return blockers
 
 
+def record_binding_problems(results, freeze, expected, run_id=None):
+    """[(job dir, message)] for job records that are not bound to this run, the plan and the freeze record (E-11).
+
+    run_id: the aggregate's own GITHUB_RUN_ID; without it the freeze record's workflow_run is the reference (no reference: no run check).
+    Every job record must carry that workflow_run; a component job whose plan entry names a repository and sha must record the same
+    repository, pinned_sha and actual_sha; and the commit the freeze record fetched for the component must equal the job's actual_sha."""
+    ref = str(run_id) if run_id else (str(freeze["workflow_run"]) if freeze and freeze.get("workflow_run") else None)
+    plan = {(e["component"], e["os"], str(e["python"])[:4]): e for e in expected}
+    fetched = (freeze or {}).get("components") or {}
+    problems = []
+    for r in results:
+        where = r["_dir"]
+        if ref is not None and str(r.get("workflow_run")) != ref:
+            problems.append((where, f"workflow_run {r.get('workflow_run')!r} is not the run {ref}"))
+        e = plan.get((r.get("component"), r.get("os"), str(r.get("python"))[:4]))
+        if e and e.get("sha"):
+            for field, want in (("pinned_sha", e["sha"]), ("actual_sha", e["sha"]), ("repository", e.get("repository"))):
+                if want and r.get(field) != want:
+                    problems.append((where, f"{field} {r.get(field)!r} differs from the plan ({want})"))
+        rec = fetched.get(r.get("component"))
+        if isinstance(rec, dict) and rec.get("commit") and r.get("actual_sha") and rec["commit"] != r["actual_sha"]:
+            problems.append((where, f"actual_sha {r['actual_sha']} differs from the commit the freeze record fetched ({rec['commit']})"))
+    return problems
+
+
 def cmd_aggregate(args):
     if not VALIDATION_ID_RE.fullmatch(str(args.validation_id)):
         raise SystemExit("invalid validation id")
@@ -1083,7 +1110,7 @@ def cmd_aggregate(args):
                                                                   "declared_set_sha256": declared["declared_set_sha256"], "requirements": requirements}, indent=2) + "\n", encoding="utf-8")
         (out / "requirements-matrix.md").write_text(requirements_markdown(requirements) + "\nDeclared set sha256: `" + declared["declared_set_sha256"] + "`\n"
                                                     + ("\n### Declared known limits beside their rows\n\n" + declared_limits_markdown(requirements) if declared_limit_rows(requirements) else ""), encoding="utf-8")
-    freeze_problem = freeze_record_problem(freeze, expected)
+    freeze_problem = freeze_record_problem(freeze, expected, args.validation_id)
     freeze_status = "FAIL" if freeze_problem else (freeze or {}).get("status", "NOT RUN")
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
                "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": freeze_status, "freeze_components_proof": freeze_components_proof(freeze),
@@ -1100,6 +1127,11 @@ def cmd_aggregate(args):
         summary["full_catalog_status"] = full_catalog_status(requirements)
         summary["scope_reduction"] = scope_reduction_block(requirements)
     blockers = job_blockers(results, expected, missing, declared, inputs, requirements) if requirements else []
+    binding = record_binding_problems(results, freeze, expected, os.environ.get("GITHUB_RUN_ID"))
+    summary["record_binding_problems"] = [{"job": j, "problem": m} for j, m in binding]
+    if requirements:
+        blockers += [{"job": j, "component": next((x.get("component") for x in results if x["_dir"] == j), None), "os": None, "python": None,
+                      "status": "UNBOUND", "kind": "INCOMPLETE", "reason": m} for j, m in binding]
     summary["blocking_jobs"] = blockers
     if blockers and summary["selected_v1_verdict"] != "FAIL":
         summary["selected_v1_verdict"] = "FAIL" if any(b["kind"] == "FAIL" for b in blockers) else "INCOMPLETE"

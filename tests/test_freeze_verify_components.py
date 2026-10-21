@@ -105,11 +105,11 @@ class AggregateRefusesEmptyFreeze(unittest.TestCase):
         self.assertNotEqual(aggregate({'status': 'PASS', 'components': {}, 'components_expected': []})['freeze_status'], 'PASS')
 
     def test_components_differing_from_the_plan_are_not_pass(self):
-        rec = {'status': 'PASS', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
+        rec = {'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
         self.assertNotEqual(aggregate(rec, ['alpha', 'beta'])['freeze_status'], 'PASS')
 
     def test_complete_record_passes(self):
-        rec = {'status': 'PASS', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
+        rec = {'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
         s = aggregate(rec, ['alpha'])
         self.assertEqual((s['freeze_status'], s['freeze_components_proof']), ('PASS', 'verified'))
 

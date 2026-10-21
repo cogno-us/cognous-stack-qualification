@@ -5,7 +5,7 @@ matches used to leave the verdict PASS even though the job status was FAIL.
 """
 import unittest
 
-from agg_util import aggregate, job, plan_entry, selector_row
+from agg_util import VID, aggregate, job, plan_entry, selector_row
 
 ROW = [selector_row('R-1', 'alpha', 'test_selected')]
 OK = [('t', 'test_selected', 'passed'), ('t', 'test_other', 'passed')]
@@ -27,14 +27,14 @@ class JobVerdictGate(unittest.TestCase):
     def test_failure_declared_as_known_limit_does_not_block(self):
         odes = [('tests.test_restriction_semantics', 'test_explicit_export_end_to_end', 'failed'), ('tests.test_x', 'test_selected', 'passed')]
         s = aggregate([job('odes', 'FAIL', odes)], [selector_row('R-1', 'odes', 'test_selected')],
-                      freeze={'status': 'PASS', 'components': {'odes': {}}, 'components_expected': ['odes']}, plan=[plan_entry('odes')])
+                      freeze={'status': 'PASS', 'validation_id': VID, 'components': {'odes': {}}, 'components_expected': ['odes']}, plan=[plan_entry('odes')])
         self.assertEqual(s['selected_v1_verdict'], 'PASS')
 
     def test_declared_failure_plus_an_undeclared_one_blocks(self):
         odes = [('tests.test_restriction_semantics', 'test_explicit_export_end_to_end', 'failed'), ('tests.test_x', 'test_selected', 'passed'),
                 ('tests.test_x', 'test_new_defect', 'failed')]
         s = aggregate([job('odes', 'FAIL', odes)], [selector_row('R-1', 'odes', 'test_selected')],
-                      freeze={'status': 'PASS', 'components': {'odes': {}}, 'components_expected': ['odes']}, plan=[plan_entry('odes')])
+                      freeze={'status': 'PASS', 'validation_id': VID, 'components': {'odes': {}}, 'components_expected': ['odes']}, plan=[plan_entry('odes')])
         self.assertEqual(s['selected_v1_verdict'], 'FAIL')
 
     def test_failed_job_without_any_failing_case_in_its_junit_blocks(self):
@@ -54,10 +54,10 @@ class JobVerdictGate(unittest.TestCase):
     def test_not_run_blocks_unless_the_component_is_optional(self):
         base = [job('alpha', 'PASS', OK)]
         s = aggregate(base + [job('beta', 'NOT RUN')], ROW, plan=[plan_entry('alpha'), plan_entry('beta')],
-                      freeze={'status': 'PASS', 'components': {'alpha': {}, 'beta': {}}, 'components_expected': ['alpha', 'beta']})
+                      freeze={'status': 'PASS', 'validation_id': VID, 'components': {'alpha': {}, 'beta': {}}, 'components_expected': ['alpha', 'beta']})
         self.assertEqual(s['selected_v1_verdict'], 'INCOMPLETE')
         s = aggregate(base + [job('beta', 'NOT RUN')], ROW, plan=[plan_entry('alpha'), plan_entry('beta', group='components_optional')],
-                      freeze={'status': 'PASS', 'components': {'alpha': {}, 'beta': {}}, 'components_expected': ['alpha', 'beta']})
+                      freeze={'status': 'PASS', 'validation_id': VID, 'components': {'alpha': {}, 'beta': {}}, 'components_expected': ['alpha', 'beta']})
         self.assertEqual(s['selected_v1_verdict'], 'PASS')
 
     def test_a_job_behind_a_non_mandatory_job_row_does_not_block(self):

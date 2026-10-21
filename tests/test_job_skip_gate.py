@@ -12,7 +12,7 @@ def aggregate(skipped):
     with tempfile.TemporaryDirectory() as td:
         td = Path(td); inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
-        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'components': {'x': {}}, 'components_expected': ['x']}))
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {'x': {}}, 'components_expected': ['x']}))
         (inp / 'v1v-hub-tests').mkdir()
         counts = {'testcases': 10, 'failures': 0, 'errors': 0, 'skipped': skipped}
         (inp / 'v1v-hub-tests' / 'result.json').write_text(json.dumps({'component': 'hub-tests', 'status': 'PASS', 'os': 'ubuntu-latest', 'python': '3.12',
