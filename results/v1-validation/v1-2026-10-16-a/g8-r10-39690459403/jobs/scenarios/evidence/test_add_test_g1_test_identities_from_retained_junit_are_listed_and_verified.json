@@ -1,0 +1,256 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:918ac7fb22e64b63c808fc73a0a4325e2d9ff5dc84dcb26e835642977aade25b",
+    "run2_digest": "sha256:918ac7fb22e64b63c808fc73a0a4325e2d9ff5dc84dcb26e835642977aade25b",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "tested_revision_match": true,
+        "tree": "ea5c10fc6918fb7546574cf001cf734b745e891b"
+      },
+      "evidence_pack": {
+        "commit": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "tested_revision_match": true,
+        "tree": "3d0450e3ec1679e1473096a21b4e33eee7a2b58e"
+      },
+      "exchange": {
+        "commit": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "tested_revision_match": true,
+        "tree": "136f273e89bbab4ab4d26facb56318d8919d1eac"
+      },
+      "manifest": {
+        "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "tested_revision_match": true,
+        "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be"
+      },
+      "odes": {
+        "commit": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "tested_revision_match": true,
+        "tree": "979971e196d5228d2ebb0e33e168c91c87ec63ec"
+      },
+      "replay": {
+        "commit": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "tested_revision_match": true,
+        "tree": "0b8332192d2d934cd36620c3c7cfdff0469da2ce"
+      },
+      "runtime": {
+        "commit": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "tested_revision_match": true,
+        "tree": "875e56103ecfd2875fde82c6e168ca5ced93cae3"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "frozen_pins_asserted": {
+      "control_plane": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "ec728da6dc301a664b331ac8986afd6e850a1273"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r13.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "current_pin_generation": "RF-60",
+      "excess_duplicate_effects": 0,
+      "identities_by_module": {
+        "test_add_c2c_bi": 7,
+        "test_add_c2c_c1doc": 8,
+        "test_add_c2c_evid": 46,
+        "test_add_molt_verify": 13,
+        "test_add_test_g1": 9,
+        "test_asw_a": 91,
+        "test_asw_i": 27,
+        "test_asw_p": 13,
+        "test_asw_r": 10,
+        "test_asw_s": 90,
+        "test_n4_refusal_template": 4,
+        "test_scn_c01": 18,
+        "test_scn_c02": 22,
+        "test_scn_c03": 87,
+        "test_scn_c04": 10,
+        "test_scn_c06": 11,
+        "test_scn_c07": 47,
+        "test_scn_c08": 12,
+        "test_scn_c09": 12,
+        "test_scn_c10": 69,
+        "test_scn_c11": 55,
+        "test_scn_c12": 57,
+        "test_scn_c13": 39,
+        "test_scn_c14": 28,
+        "test_scn_c16": 18,
+        "test_scn_c17": 34,
+        "test_scn_c18": 60,
+        "test_scn_c22": 25,
+        "test_scn_c23": 12,
+        "test_scn_d02": 58,
+        "test_scn_d05": 12,
+        "test_scn_d06": 8,
+        "test_scn_d07": 17,
+        "test_scn_d08": 32,
+        "test_scn_d09": 32
+      },
+      "identities_sha256": "b45f1c70d3f932488932485c509e207d04d584de27e83cb937898a2fa79ca23c",
+      "identity_count": 1093,
+      "retained_cases_without_any_evidence_property_listed_not_asserted": [
+        "suites.v1-scenarios.test_n4_refusal_template::test_n4_example_change_that_does_not_refuse_fails_leg_a",
+        "suites.v1-scenarios.test_n4_refusal_template::test_n4_example_missing_provenance_label_is_refused_before_any_run",
+        "suites.v1-scenarios.test_n4_refusal_template::test_n4_example_wrong_expected_reason_fails_leg_b",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[lost_ack]",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[revoked]",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[unreadable]",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[valid]"
+      ],
+      "retained_failing_count": 0,
+      "retained_failing_identities_listed_not_asserted": [],
+      "retained_junit": "results/v1-validation/v1-2026-10-16-a/g7-r10-39642578239/jobs/scenarios/junit.xml",
+      "retained_junit_is_current_generation": false,
+      "retained_junit_pin_generation": "RF-53",
+      "unauthorized_effects": 0
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "current_pin_generation": "RF-60",
+      "excess_duplicate_effects": 0,
+      "identities_by_module": {
+        "test_add_c2c_bi": 7,
+        "test_add_c2c_c1doc": 8,
+        "test_add_c2c_evid": 46,
+        "test_add_molt_verify": 13,
+        "test_add_test_g1": 9,
+        "test_asw_a": 91,
+        "test_asw_i": 27,
+        "test_asw_p": 13,
+        "test_asw_r": 10,
+        "test_asw_s": 90,
+        "test_n4_refusal_template": 4,
+        "test_scn_c01": 18,
+        "test_scn_c02": 22,
+        "test_scn_c03": 87,
+        "test_scn_c04": 10,
+        "test_scn_c06": 11,
+        "test_scn_c07": 47,
+        "test_scn_c08": 12,
+        "test_scn_c09": 12,
+        "test_scn_c10": 69,
+        "test_scn_c11": 55,
+        "test_scn_c12": 57,
+        "test_scn_c13": 39,
+        "test_scn_c14": 28,
+        "test_scn_c16": 18,
+        "test_scn_c17": 34,
+        "test_scn_c18": 60,
+        "test_scn_c22": 25,
+        "test_scn_c23": 12,
+        "test_scn_d02": 58,
+        "test_scn_d05": 12,
+        "test_scn_d06": 8,
+        "test_scn_d07": 17,
+        "test_scn_d08": 32,
+        "test_scn_d09": 32
+      },
+      "identities_sha256": "b45f1c70d3f932488932485c509e207d04d584de27e83cb937898a2fa79ca23c",
+      "identity_count": 1093,
+      "retained_cases_without_any_evidence_property_listed_not_asserted": [
+        "suites.v1-scenarios.test_n4_refusal_template::test_n4_example_change_that_does_not_refuse_fails_leg_a",
+        "suites.v1-scenarios.test_n4_refusal_template::test_n4_example_missing_provenance_label_is_refused_before_any_run",
+        "suites.v1-scenarios.test_n4_refusal_template::test_n4_example_wrong_expected_reason_fails_leg_b",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[lost_ack]",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[revoked]",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[unreadable]",
+        "suites.v1-scenarios.test_scn_d08::test_scn_d08_catalogue_covers_every_stimulus_class[valid]"
+      ],
+      "retained_failing_count": 0,
+      "retained_failing_identities_listed_not_asserted": [],
+      "retained_junit": "results/v1-validation/v1-2026-10-16-a/g7-r10-39642578239/jobs/scenarios/junit.xml",
+      "retained_junit_is_current_generation": false,
+      "retained_junit_pin_generation": "RF-53",
+      "unauthorized_effects": 0
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "ADD-TEST-G1",
+  "test": "test_add_test_g1_test_identities_from_retained_junit_are_listed_and_verified",
+  "verdict": "PASS"
+}
