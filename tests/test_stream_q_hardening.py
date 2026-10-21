@@ -37,7 +37,7 @@ def res(component, st='PASS', os_='ubuntu-latest', py='3.12'):
 
 
 class AggregateLocations(unittest.TestCase):
-    base = {'v1v-freeze/freeze-verification.json': {'status': 'PASS'},
+    base = {'v1v-freeze/freeze-verification.json': {'status': 'PASS', 'components': {'a': {}}, 'components_expected': ['a']},
             'v1v-plan/plan.json': {'include': [{'component': 'a', 'os': 'ubuntu-latest', 'python': '3.12'}]},
             'v1v-comp-a/result.json': res('a')}
 

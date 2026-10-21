@@ -28,7 +28,7 @@ def aggregate(reqs_doc, jobs):
         td = Path(td)
         inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
-        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS'}))
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'components': {'x': {}}, 'components_expected': ['x']}))
         for name, st in jobs.items():
             (inp / ('v1v-' + name)).mkdir()
             (inp / ('v1v-' + name) / 'result.json').write_text(json.dumps({'component': name, 'status': st, 'os': 'ubuntu-latest', 'python': '3.12'}))

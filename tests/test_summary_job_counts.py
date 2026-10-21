@@ -30,7 +30,7 @@ def summarise(jobs):
         td = Path(td)
         inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
-        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS'}))
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'components': {'x': {}}, 'components_expected': ['x']}))
         for name, (record, junit_name) in jobs.items():
             (inp / name).mkdir()
             (inp / name / 'result.json').write_text(json.dumps(record))

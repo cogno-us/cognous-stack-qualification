@@ -536,16 +536,22 @@ def cmd_probe_suite(args):
 def freeze_record_problem(freeze, expected_jobs):
     """Why a freeze-verification record cannot count as PASS proof of the pinned components, or None.
 
-    A record that carries ``components_expected`` (written by freeze-verify since the E1 fix) must list exactly those components, at least one,
-    and, when a plan is present, exactly the plan's component set. A record without the field is legacy: it is read as before (its status is
-    kept) but it is not proof that any pinned component was fetched; see ``freeze_components_proof``."""
-    if not freeze or "components_expected" not in freeze:
+    The record must carry ``components_expected`` (written by freeze-verify), at least one component, a ``components`` map that lists exactly
+    those components, no failed check under a PASS status and, when a plan is present, exactly the plan's component set. A record without
+    ``components_expected`` (the legacy shape, for example the retained g6-r10 record with 0 components) is a problem: it proves no pinned
+    component was fetched. No record at all is not a record problem here; the caller reads it as NOT RUN."""
+    if not freeze:
         return None
+    if "components_expected" not in freeze:
+        return "freeze record lacks components_expected (legacy record): it is not proof that the pinned components were fetched"
     exp, got = freeze.get("components_expected"), freeze.get("components")
     if not isinstance(exp, list) or not exp or not isinstance(got, dict):
         return "freeze record lists no expected components"
     if set(exp) != set(got) or len(exp) != len(set(exp)):
         return f"freeze record components {sorted(got)} differ from its expected set {sorted(exp)}"
+    bad = [c.get("check") for c in freeze.get("checks") or [] if isinstance(c, dict) and c.get("status") != "PASS"]
+    if bad:
+        return f"freeze record has failed checks under its status: {bad[:3]}"
     plan_set = {e["component"] for e in expected_jobs}
     if plan_set and plan_set != set(exp):
         return f"freeze record components differ from the plan's component set ({sorted(plan_set ^ set(exp))})"

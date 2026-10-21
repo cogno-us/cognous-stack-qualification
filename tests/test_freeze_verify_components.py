@@ -102,9 +102,10 @@ class AggregateRefusesEmptyFreeze(unittest.TestCase):
         s = aggregate(rec, ['alpha'])
         self.assertEqual((s['freeze_status'], s['freeze_components_proof']), ('PASS', 'verified'))
 
-    def test_legacy_record_is_readable_but_flagged_not_proof(self):
+    def test_legacy_record_is_flagged_not_proof_and_not_pass(self):
+        # E-2: this test used to expect freeze_status PASS for a record without components_expected (it encoded the bug)
         s = aggregate({'status': 'PASS', 'components': {}})
-        self.assertEqual(s['freeze_status'], 'PASS')
+        self.assertEqual(s['freeze_status'], 'FAIL')
         self.assertIn('not proof', s['freeze_components_proof'])
 
 

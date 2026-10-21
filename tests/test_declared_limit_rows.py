@@ -326,9 +326,9 @@ def aggregate(junit_text, twin_doc, requirement, declared_set=None, comp=ODES, r
         td = Path(td)
         inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
-        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS'}))
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'components': {comp: {}}, 'components_expected': [comp]}))
         (inp / ('v1v-' + comp)).mkdir()
-        (inp / ('v1v-' + comp) / 'result.json').write_text(json.dumps({'component': comp, 'status': 'FAIL', 'os': 'ubuntu-latest', 'python': '3.12'}))
+        (inp / ('v1v-' + comp) / 'result.json').write_text(json.dumps({'component': comp, 'status': 'FAIL' if '<failure' in junit_text or '<error' in junit_text else 'PASS', 'os': 'ubuntu-latest', 'python': '3.12'}))
         (inp / ('v1v-' + comp) / 'junit-attempt1.xml').write_text(junit_text)
         rq = td / 'requirements.json'
         rq.write_text(json.dumps({'requirements': [requirement]}))
