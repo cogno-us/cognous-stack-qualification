@@ -3,11 +3,11 @@
 SPDX-License-Identifier: Apache-2.0
 
 Pins resolve as   freeze-manifest.json  (original, never edited)
-             overridden by   refreeze-log.json  entries whose status starts with "APPLIED".
+             overridden by   refreeze-log.json  entries whose status matches STATUS_APPLIED_RE (APPLIED or APPLIED-IN-WORKFLOW, optional parenthesised note).
 
 Each entry carries component / from_sha / to_sha.  Entries apply in file order; an entry whose from_sha is not the pin in force
-at that point (manifest value or the previous entry's to_sha) raises ``RefreezeError``.  Entries whose status does not start with
-"APPLIED" (for example PROPOSED, AUTHORISED, WITHDRAWN) are ignored.  Re-freeze steps are therefore data edits to the log
+at that point (manifest value or the previous entry's to_sha) raises ``RefreezeError``.  Entries whose status does not match it
+(for example PROPOSED, AUTHORISED, WITHDRAWN) are ignored.  Re-freeze steps are therefore data edits to the log
 (plus the r1 profile named by ``V1_PROFILE``); no literal in the helpers has to change.
 
 Importable without side effects other than reading the two JSON files (lazily).  tools/ adds this directory to sys.path.
@@ -18,6 +18,7 @@ from __future__ import annotations
 import copy
 import json
 import os
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,7 +26,10 @@ GROUPS = ("components_subject", "components_lock_remainder", "components_optiona
 ORIGINAL_PROFILE = "process/security-runtime-f5b-20261016.json"
 R1_PROFILE = "process/security-runtime-f5b-20261016-r1.json"  # the qualification profile of RF-2..RF-6 (profile components re-frozen)
 R2_PROFILE = "process/security-runtime-f5b-20261016-r2.json"  # the qualification profile of RF-2..RF-10 (supersedes r1)
-STATUS_APPLIED_PREFIX = "APPLIED"
+# An entry is applied only when its status is exactly "APPLIED" or "APPLIED-IN-WORKFLOW", optionally followed by one parenthesised
+# note (all forms used in the retained refreeze log). Anything else (APPLIED-REVERTED, APPLIEDX, ...) is not applied.
+STATUS_APPLIED_RE = re.compile(r"APPLIED(?:-IN-WORKFLOW)?(?: \([^\n]*\))?")
+SHA_RE = re.compile(r"[0-9a-f]{40}")
 
 # Explicit mapping of a refreeze-log "component" to the freeze-manifest (section, key).  The log uses the manifest key
 # (e.g. 'the_index'); the profile / suite names (runtime, replay, evidence_pack, exchange, manifest) are accepted as aliases.
@@ -77,7 +81,7 @@ def load_refreeze_log(path=None):
 
 
 def is_applied(entry):
-    return str(entry.get("status", "")).startswith(STATUS_APPLIED_PREFIX)
+    return STATUS_APPLIED_RE.fullmatch(str(entry.get("status", ""))) is not None
 
 
 def _locate(manifest, component):
@@ -109,6 +113,8 @@ def apply_overlay(manifest, log):
         frm, to = entry.get("from_sha"), entry.get("to_sha")
         if not frm or not to:
             raise RefreezeError(f"refreeze entry {eid} lacks from_sha/to_sha")
+        if not isinstance(to, str) or not SHA_RE.fullmatch(to):
+            raise RefreezeError(f"refreeze entry {eid}: to_sha {to!r} is not a 40-character lowercase hex commit")
         if frm != spec["sha"]:
             raise RefreezeError(f"refreeze entry {eid} ({entry.get('component')}): from_sha {frm} does not equal the pin in force {spec['sha']}")
         if entry.get("repository") not in (None, spec["repository"]):

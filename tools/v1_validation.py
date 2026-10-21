@@ -210,12 +210,12 @@ def cmd_freeze_verify(args):
         check(f"hub lock pin {key} equals manifest", lock["components"][key]["sha"] == spec["sha"], spec["sha"], lock["components"][key]["sha"])
     # fetch every pinned component exactly
     work = Path(args.work)
-    resolved = {}
+    fetched = {}  # key -> record; never shadows `resolved` (the manifest-plus-overlay pins that are iterated)
     for group, key, spec in all_components(resolved):
         try:
             got = fetch_exact(work / key, spec["repository"], spec["sha"])
             tree = git(work / key, "rev-parse", "HEAD^{tree}")
-            resolved[key] = {"repository": spec["repository"], "commit": got, "tree": tree, "group": group}
+            fetched[key] = {"repository": spec["repository"], "commit": got, "tree": tree, "group": group}
             check(f"component {key} resolves to pinned commit", got == spec["sha"], spec["sha"], got)
         except Exception as exc:  # noqa: BLE001 - record, never hide
             check(f"component {key} resolves to pinned commit", False, spec["sha"], None, str(exc)[:500])
@@ -223,7 +223,8 @@ def cmd_freeze_verify(args):
            "refreeze_applied": [{"id": e, "component": k, "from_sha": f, "to_sha": t} for e, _, k, f, t in applied],
            "harness_revision": os.environ.get("GITHUB_SHA") or git(qual, "rev-parse", "HEAD"),
            "workflow_run": os.environ.get("GITHUB_RUN_ID"), "run_attempt": os.environ.get("GITHUB_RUN_ATTEMPT"),
-           "python": sys.version, "platform": platform.platform(), "components": resolved, "checks": checks,
+           "python": sys.version, "platform": platform.platform(), "components": fetched,
+           "components_expected": sorted(key for _, key, _ in all_components(resolved)), "checks": checks,
            "status": "PASS" if all(c["status"] == "PASS" for c in checks) else "FAIL"}
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8")
@@ -532,6 +533,31 @@ def cmd_probe_suite(args):
 
 
 # -------------------------------------------------------------- aggregate
+def freeze_record_problem(freeze, expected_jobs):
+    """Why a freeze-verification record cannot count as PASS proof of the pinned components, or None.
+
+    A record that carries ``components_expected`` (written by freeze-verify since the E1 fix) must list exactly those components, at least one,
+    and, when a plan is present, exactly the plan's component set. A record without the field is legacy: it is read as before (its status is
+    kept) but it is not proof that any pinned component was fetched; see ``freeze_components_proof``."""
+    if not freeze or "components_expected" not in freeze:
+        return None
+    exp, got = freeze.get("components_expected"), freeze.get("components")
+    if not isinstance(exp, list) or not exp or not isinstance(got, dict):
+        return "freeze record lists no expected components"
+    if set(exp) != set(got) or len(exp) != len(set(exp)):
+        return f"freeze record components {sorted(got)} differ from its expected set {sorted(exp)}"
+    plan_set = {e["component"] for e in expected_jobs}
+    if plan_set and plan_set != set(exp):
+        return f"freeze record components differ from the plan's component set ({sorted(plan_set ^ set(exp))})"
+    return None
+
+
+def freeze_components_proof(freeze):
+    if not freeze:
+        return "no freeze record"
+    return "verified" if "components_expected" in freeze else "legacy record without components_expected: not proof that pinned components were fetched"
+
+
 def verdict(requirements):
     """Selected-V1 verdict. Never promotes missing, failed or skipped mandatory coverage."""
     mandatory = [r for r in requirements if r.get("mandatory", True)]
@@ -611,7 +637,13 @@ def _kind(t):
     return t[3]["kind"] if len(t) > 3 else t[2]
 
 
-def evaluate_requirements(doc, index, job_status, declared=None):
+# Job-kind rows whose job must have run with zero skipped tests (the same fail-closed rule the native-f5b job applies to itself).
+# Component-suite rows keep their own semantics: retained component suites carry skips (control_plane 1, replay_bundle 17), and
+# qual-tooling (non-mandatory, 1 skip) and matched-refund are not listed.
+JOB_ZERO_SKIP_COMPONENTS = frozenset({"hub-tests"})
+
+
+def evaluate_requirements(doc, index, job_status, declared=None, job_counts_by_component=None):
     """Compute each requirement's status from executed evidence. A requirement is PASS only when adequate evidence executed and passed.
 
     declared: the record of declared_limits.load() or None. With a record, a `tests` row is computed over the matched cases that are NOT
@@ -621,6 +653,9 @@ def evaluate_requirements(doc, index, job_status, declared=None):
     When every case a selector matched is declared (zero undeclared cases remain) the row is INCONCLUSIVE, never PASS.
     A declared strict expected failure that passes (XPASS) makes the row FAIL; a declared test the row would select that was not run makes it INCONCLUSIVE.
     Without a record (declared=None) nothing is declared and the rule is the one in force before declared limits were reported.
+    A declared case observed as passed or skipped (not failed or xfailed) is listed as a reportable condition; a skipped one also makes the row INCONCLUSIVE.
+    job_counts_by_component: component -> junit counts of the job; when given, a job row of JOB_ZERO_SKIP_COMPONENTS is PASS only with
+    testcases > 0 and skipped == 0 (missing counts are not PASS). None leaves job rows as before.
     """
     dmap = DL.by_component(declared) if declared is not None else {}
     evaluated = []
@@ -630,7 +665,7 @@ def evaluate_requirements(doc, index, job_status, declared=None):
         r.setdefault("mandatory", True)
         if kind == "tests":
             hits, fails, skips, undeclared_total, detail = 0, 0, 0, 0, []
-            listed, not_run, conditions, zero_undeclared, xpassed = {}, {}, [], [], []
+            listed, not_run, conditions, zero_undeclared, xpassed, unmet = {}, {}, [], [], [], []
             for sel in r.get("selectors", []):
                 rx = re.compile(sel["re"], re.I)
                 comp = sel["component"]
@@ -657,6 +692,13 @@ def evaluate_requirements(doc, index, job_status, declared=None):
                     if info.get("unexpected_pass"):
                         xpassed.append(f"{t[0]}::{t[1]}")
                         conditions.append(f"declared test passed unexpectedly (strict expected failure XPASS): {t[0]}::{t[1]}")
+                    elif info["kind"] not in ("failed", "xfailed"):
+                        # a declared known limit is expected to be observed failing (or xfailing); a pass or a skip is reported, never silent.
+                        # A skip is also not coverage (row INCONCLUSIVE). A plain pass only adds the condition: the retained g6-r10 control_plane
+                        # known-limit tests document their limit by passing, and turning those rows INCONCLUSIVE would flip the retained verdict.
+                        if info["kind"] == "skipped":
+                            unmet.append(f"{t[0]}::{t[1]} ({info['kind']})")
+                        conditions.append(f"declared test did not fail as declared (observed {info['kind']}): {t[0]}::{t[1]}")
                 present = {(t[0], t[1]) for t in cases}
                 for key, entry in declared_here.items():
                     if key not in present and rx.search(f"{key[0]}::{key[1]}"):
@@ -679,6 +721,9 @@ def evaluate_requirements(doc, index, job_status, declared=None):
                 r["status"] = "INCONCLUSIVE"; r["reason"] = "selector matched fewer executed cases than required (job missing or selector defective)"
             elif skips:
                 r["status"] = "INCONCLUSIVE"; r["reason"] = "matched cases were skipped"
+            elif unmet:
+                r["status"] = "INCONCLUSIVE"
+                r["reason"] = "a declared known-limit test was skipped instead of failing as declared: " + ", ".join(unmet)
             elif r.get("declared_not_run"):
                 r["status"] = "INCONCLUSIVE"
                 r["reason"] = "a declared test that a selector of the row would match was not run: " + ", ".join(x["test"] for x in r["declared_not_run"])
@@ -697,6 +742,11 @@ def evaluate_requirements(doc, index, job_status, declared=None):
         elif kind == "job":
             st = job_status.get(r["component"])
             r["status"] = st if st in ("PASS", "FAIL") else "INCONCLUSIVE"
+            if r["status"] == "PASS" and job_counts_by_component is not None and r["component"] in JOB_ZERO_SKIP_COMPONENTS:
+                c = job_counts_by_component.get(r["component"]) or {}
+                if not c.get("testcases") or c.get("skipped") != 0:
+                    r["status"] = "INCONCLUSIVE"
+                    r["reason"] = f"job passed with skipped tests or without counts (counts: {c or 'none'}); a skip is not coverage for this row"
             if r["status"] != "PASS":
                 r.setdefault("reason", f"job status {st}")
         elif kind == "not_applicable":
@@ -853,13 +903,17 @@ def cmd_aggregate(args):
         req_doc = json.loads(Path(args.requirements).read_text(encoding="utf-8"))
         job_status = {r.get("component"): r.get("status") for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
         junit_index = load_junit_index(inputs, results, detail=True)
-        requirements = evaluate_requirements(req_doc, junit_index, job_status, declared)
+        job_counts_by_component = {r.get("component"): job_counts(r, inputs) for r in results
+                                   if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
+        requirements = evaluate_requirements(req_doc, junit_index, job_status, declared, job_counts_by_component)
         (out / "requirements-matrix.json").write_text(json.dumps({"schema": "cognous.v1-validation-matrix/1", "validation_id": args.validation_id,
                                                                   "declared_set_sha256": declared["declared_set_sha256"], "requirements": requirements}, indent=2) + "\n", encoding="utf-8")
         (out / "requirements-matrix.md").write_text(requirements_markdown(requirements) + "\nDeclared set sha256: `" + declared["declared_set_sha256"] + "`\n"
                                                     + ("\n### Declared known limits beside their rows\n\n" + declared_limits_markdown(requirements) if declared_limit_rows(requirements) else ""), encoding="utf-8")
+    freeze_problem = freeze_record_problem(freeze, expected)
+    freeze_status = "FAIL" if freeze_problem else (freeze or {}).get("status", "NOT RUN")
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
-               "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": (freeze or {}).get("status", "NOT RUN"),
+               "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": freeze_status, "freeze_components_proof": freeze_components_proof(freeze),
                "job_status_counts": counts, "expected_jobs": len(expected), "missing_jobs": len(missing), "jobs": rows,
                "selected_v1_verdict": "INCOMPLETE" if not requirements else verdict(requirements),
                "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix",
@@ -870,9 +924,9 @@ def cmd_aggregate(args):
         summary["declared_limits"] = declared_limits_block(declared, requirements, junit_index)
         summary["full_catalog_status"] = full_catalog_status(requirements)
         summary["scope_reduction"] = scope_reduction_block(requirements)
-    if freeze is None or freeze.get("status") != "PASS":
+    if freeze is None or freeze.get("status") != "PASS" or freeze_problem:
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
-        summary["verdict_note"] = "freeze verification did not pass; no result may be promoted"
+        summary["verdict_note"] = "freeze verification did not pass; no result may be promoted" + (f" ({freeze_problem})" if freeze_problem else "")
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     lines = [f"## V1 validation {args.validation_id}", "", f"Freeze: **{summary['freeze_status']}** · Verdict: **{summary['selected_v1_verdict']}** ({summary['verdict_basis']})", "",
              "| Status | Jobs |", "|---|---|"] + [f"| {k} | {v} |" for k, v in counts.items()] + ["",
