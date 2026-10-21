@@ -112,15 +112,17 @@ class RowRule(unittest.TestCase):
         self.assertEqual([c['outcome'] for c in r['declared_limit_cases']], ['failed'])
         self.assertEqual(r['selector_results'][0]['failed'], 0)
 
-    def test_declared_skip_is_listed_as_skipped_and_does_not_make_the_row_inconclusive(self):
+    def test_declared_skip_is_listed_as_skipped_and_makes_the_row_inconclusive_with_a_condition(self):
         r = evaluate(junit(case('test_example_a'), case('test_example_decl', 'skipped')), ['test_example_decl'])
-        self.assertEqual(r['status'], 'PASS')
+        self.assertEqual(r['status'], 'INCONCLUSIVE')
         self.assertEqual([c['outcome'] for c in r['declared_limit_cases']], ['skipped'])
+        self.assertEqual(r['reportable_conditions'], [f'declared test did not fail as declared (observed skipped): {MOD}::test_example_decl'])
 
-    def test_declared_pass_is_listed_as_passed(self):
+    def test_declared_pass_is_listed_as_passed_with_a_condition_and_keeps_the_row_status(self):
         r = evaluate(junit(case('test_example_a'), case('test_example_decl')), ['test_example_decl'])
         self.assertEqual(r['status'], 'PASS')
         self.assertEqual([c['outcome'] for c in r['declared_limit_cases']], ['passed'])
+        self.assertEqual(r['reportable_conditions'], [f'declared test did not fail as declared (observed passed): {MOD}::test_example_decl'])
 
     def test_unexpected_pass_of_a_declared_strict_xfail_fails_the_row_and_is_listed(self):
         r = evaluate(junit(case('test_example_a'), case('test_example_decl', 'xpass')), ['test_example_decl'])
@@ -130,11 +132,10 @@ class RowRule(unittest.TestCase):
         self.assertTrue(r['declared_limit_cases'][0]['unexpected_pass'])
         self.assertEqual(r['reportable_conditions'], [f'declared test passed unexpectedly (strict expected failure XPASS): {MOD}::test_example_decl'])
 
-    def test_a_declared_test_that_passes_without_being_a_strict_xfail_is_only_listed(self):
+    def test_a_declared_test_that_passes_without_being_a_strict_xfail_is_a_condition_not_an_unexpected_pass(self):
         r = evaluate(junit(case('test_example_a'), case('test_example_decl')), ['test_example_decl'])
-        self.assertEqual(r['status'], 'PASS')
         self.assertFalse(r['declared_limit_cases'][0]['unexpected_pass'])
-        self.assertEqual(r['reportable_conditions'], [])
+        self.assertEqual(len(r['reportable_conditions']), 1)
 
     def test_declared_test_not_found_is_listed_as_not_run_and_makes_the_row_inconclusive(self):
         r = evaluate(junit(case('test_example_a'), case('test_example_b')), ['test_example_missing'])
@@ -151,13 +152,22 @@ class RowRule(unittest.TestCase):
         self.assertEqual(r['reportable_conditions'], [])
 
     def test_zero_undeclared_remaining_is_inconclusive_with_a_reason_and_a_condition(self):
-        r = evaluate(junit(case('test_example_d1'), case('test_example_d2', 'xfailed')), ['test_example_d1', 'test_example_d2'],
+        r = evaluate(junit(case('test_example_d1', 'failed'), case('test_example_d2', 'xfailed')), ['test_example_d1', 'test_example_d2'],
                      req(selectors=[selector(min_=2)]))
         self.assertEqual(r['status'], 'INCONCLUSIVE')
         self.assertIn('zero undeclared cases remain', r['reason'])
         self.assertEqual(r['undeclared_cases'], 0)
         self.assertEqual(len(r['declared_limit_cases']), 2)
         self.assertTrue(any(c.startswith('zero undeclared cases remain') for c in r['reportable_conditions']))
+
+    def test_hub_tests_job_row_needs_zero_skips(self):
+        row = {'id': 'J', 'kind': 'job', 'component': 'hub-tests', 'mandatory': True}
+        ev = lambda counts: v.evaluate_requirements({'requirements': [row]}, {}, {'hub-tests': 'PASS'}, None, {'hub-tests': counts})[0]  # noqa: E731
+        self.assertEqual(ev({'testcases': 10, 'skipped': 0})['status'], 'PASS')
+        self.assertEqual(ev({'testcases': 10, 'skipped': 1})['status'], 'INCONCLUSIVE')
+        self.assertEqual(ev(None)['status'], 'INCONCLUSIVE')
+        other = {'id': 'J2', 'kind': 'job', 'component': 'qual-tooling', 'mandatory': False}
+        self.assertEqual(v.evaluate_requirements({'requirements': [other]}, {}, {'qual-tooling': 'PASS'}, None, {'qual-tooling': {'testcases': 3, 'skipped': 1}})[0]['status'], 'PASS')
 
     def test_zero_undeclared_is_judged_per_selector(self):
         r = evaluate(junit(case('test_example_d1'), case('test_other_a')), ['test_example_d1'],
@@ -361,7 +371,7 @@ class AggregateReport(unittest.TestCase):
     def test_a_declared_test_of_an_uncollected_suite_does_not_affect_rows(self):
         doc = twin('test_example_a')
         doc['declared_known_limits']['wiki_derived']['declared'].append({'id': 'test_w.py::test_wiki_known_limit', 'path': 'suites/wiki-derived/test_w.py'})
-        r = v.evaluate_requirements({'requirements': [req()]}, index_from(junit(case('test_example_a'), case('test_example_b'))), {}, DL.load(_write_twin(doc)))[0]
+        r = v.evaluate_requirements({'requirements': [req()]}, index_from(junit(case('test_example_a', 'failed'), case('test_example_b'))), {}, DL.load(_write_twin(doc)))[0]
         self.assertEqual(r['status'], 'PASS')
         self.assertEqual(r['declared_not_run'], [])
 
