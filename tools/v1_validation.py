@@ -439,13 +439,14 @@ def cmd_component_suite(args):
                 setup_ok = setup_ok and installed
             if sibling_installs:
                 rec["sibling_installs"] = sibling_installs
+                rec["sibling_install_ok"] = setup_ok  # visible on its own: the project install below cannot overwrite it
             if (repo / "pyproject.toml").exists() or (repo / "setup.py").exists():
                 for extra in (".[dev,test]", ".[dev]", ".[test]", "."):
                     rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-e", extra], repo, 900, fh)
                     installs.append({"target": extra, "rc": rc})
                     if rc == 0:
                         break
-                setup_ok = bool(installs) and installs[-1]["rc"] == 0
+                setup_ok = setup_ok and bool(installs) and installs[-1]["rc"] == 0
             for req in sorted(repo.glob("requirements*.txt")):
                 rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-r", req.name], repo, 900, fh)
                 installs.append({"target": req.name, "rc": rc})
@@ -489,8 +490,9 @@ def cmd_component_suite(args):
     result["reason"] = final.get("reason")
     if len(result["attempts"]) > 1:
         result["retry_note"] = "one automatic retry after a plausible setup/transient cause; both attempts preserved"
+        result["attempt_outcomes"] = [a.get("outcome") for a in result["attempts"]]
         if final["outcome"] == "PASS" and result["attempts"][0]["outcome"] != "PASS":
-            result["flaky_or_setup"] = True
+            result["flaky_or_setup"] = True  # reported by the job row, the summary and the markdown; it does not block the verdict
     result["log"] = retain_log(log.read_text(encoding="utf-8", errors="replace"), out / "job.log.gz")
     log.unlink()
     (out / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
@@ -1055,7 +1057,8 @@ def cmd_aggregate(args):
         att = r["attempts"][-1] if r.get("attempts") else {}
         rows.append({"job": r["_dir"], "component": r.get("component"), "os": r.get("os"), "python": r.get("python"),
                      "status": r.get("status"), "reason": r.get("reason"), "counts": job_counts(r, inputs),
-                     "attempts": len(r.get("attempts", []))})
+                     "attempts": len(r.get("attempts", [])), "flaky_or_setup": bool(r.get("flaky_or_setup")),
+                     "attempt_outcomes": r.get("attempt_outcomes") or [a.get("outcome") for a in r.get("attempts", [])]})
     seen = {(r.get("component"), r.get("os"), str(r.get("python"))[:4]) for r in results}
     missing = []
     for e in expected:
@@ -1084,6 +1087,8 @@ def cmd_aggregate(args):
     freeze_status = "FAIL" if freeze_problem else (freeze or {}).get("status", "NOT RUN")
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
                "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": freeze_status, "freeze_components_proof": freeze_components_proof(freeze),
+               "flaky_or_setup_jobs": [{"job": x["job"], "component": x["component"], "os": x["os"], "python": x["python"], "attempt_outcomes": x["attempt_outcomes"]}
+                                       for x in rows if x.get("flaky_or_setup")],
                "job_status_counts": counts, "expected_jobs": len(expected), "missing_jobs": len(missing), "jobs": rows,
                "selected_v1_verdict": "INCOMPLETE" if not requirements else verdict(requirements),
                "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix",
@@ -1110,7 +1115,8 @@ def cmd_aggregate(args):
              "| Component | OS | Python | Status | Testcases/fail/err/skip | Reason |", "|---|---|---|---|---|---|"]
     for row in rows:
         c = row["counts"] or {}
-        lines.append(f"| {row['component']} | {row['os']} | {row['python']} | {row['status']} | {c.get('testcases','-')}/{c.get('failures','-')}/{c.get('errors','-')}/{c.get('skipped','-')} | {row['reason'] or ''} |")
+        note = (row['reason'] or '') + (f" RETRIED: attempts {' -> '.join(map(str, row['attempt_outcomes']))} (first attempt did not pass; reported, not blocking)" if row.get('flaky_or_setup') else '')
+        lines.append(f"| {row['component']} | {row['os']} | {row['python']} | {row['status']} | {c.get('testcases','-')}/{c.get('failures','-')}/{c.get('errors','-')}/{c.get('skipped','-')} | {note.strip()} |")
     if requirements:
         fc, sr = summary["full_catalog_status"], summary["scope_reduction"]
         lines += ["", "### Full-catalog status (all rows, real statuses; reporting only, not the verdict basis)", "",
