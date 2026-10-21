@@ -285,8 +285,8 @@ def test_probe_n2_declared_recomputable_without_operands_is_derivation_unavailab
     import agent_control_plane
     registry = json.loads((Path(agent_control_plane.__file__).resolve().parents[2] / "schemas" / "runtime_authority_reasons_0_2.json").read_text())
     kinds = [v["reason_kind"] for v in registry["codes"].values()]
-    # tracker #42 code check: exactly one recomputable code. Registry 0.2 is the 158-code superset (0.1 stays the original 121; 157 at control plane 3755c71a, 158 from the terminal-revocation code added at 6b8fb627)
-    assert kinds.count("recomputable") == 1 and kinds.count("typed_only") == len(kinds) - 1 and len(kinds) == 158
+    # tracker #42 code check: exactly one recomputable code. Registry 0.2 is the 163-code superset (0.1 stays the original 121; 157 at control plane 3755c71a, 158 from the terminal-revocation code added at 6b8fb627, 163 from the five codes of control plane #79 at 5c474ba8, unchanged at e77fe0ee)
+    assert kinds.count("recomputable") == 1 and kinds.count("typed_only") == len(kinds) - 1 and len(kinds) == 163
     bare = {"reasons": ["grant_revoked"], "resolution_inputs": []}
 
     def negative(_tp):
