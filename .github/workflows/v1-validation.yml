@@ -152,17 +152,22 @@ jobs:
           python -m pip install pytest
           rm -rf _hub
       - name: Repeat exact F5b merged-source cases twice with fresh stores
+        id: repeat
         working-directory: q
         run: |
           python tools/run_security_runtime.py --profile "$V1_PROFILE" --prepare-work --components "$RUNNER_TEMP/_components" --out "$RUNNER_TEMP/native/run-1"
           python tools/run_security_runtime.py --profile "$V1_PROFILE" --components "$RUNNER_TEMP/_components" --out "$RUNNER_TEMP/native/run-2"
       - name: Re-verify both repetitions and audit native rows
+        id: audit
         working-directory: q
         run: |
           python -I tools/summarize_security_runtime.py "$RUNNER_TEMP/native/run-1"
           python -I tools/summarize_security_runtime.py "$RUNNER_TEMP/native/run-2"
       - name: Collect result record
         if: always()
+        env:
+          AUDIT_OUTCOME: ${{ steps.audit.outcome }}
+          REPEAT_OUTCOME: ${{ steps.repeat.outcome }}
         run: |
           mkdir -p out
           cp -r "$RUNNER_TEMP/native" out/native
@@ -179,8 +184,14 @@ jobs:
                       c['errors']+=tc.find('error') is not None
                       c['skipped']+=tc.find('skipped') is not None
               rows[run]=c
-          ok=all(c['testcases']>0 and c['failures']==c['errors']==c['skipped']==0 for c in rows.values())
-          json.dump({'schema':'cognous.v1-validation-job/1','component':'native-f5b-suite','status':'PASS' if ok else 'FAIL','repetitions':rows,
+          counts_ok=all(c['testcases']>0 and c['failures']==c['errors']==c['skipped']==0 for c in rows.values())
+          audit=os.environ.get('AUDIT_OUTCOME','missing'); repeat=os.environ.get('REPEAT_OUTCOME','missing')
+          ok=counts_ok and audit=='success' and repeat=='success'
+          reason=None if ok else ('; '.join(x for x in (None if counts_ok else 'JUnit counts of a repetition are not clean (zero cases, failure, error or skip)',
+                                                         None if audit=='success' else f'audit step (summarize_security_runtime.py) outcome {audit}',
+                                                         None if repeat=='success' else f'repetition step outcome {repeat}') if x))
+          json.dump({'schema':'cognous.v1-validation-job/1','component':'native-f5b-suite','status':'PASS' if ok else 'FAIL','reason':reason,'repetitions':rows,
+                     'audit_outcome':audit,'repeat_outcome':repeat,
                      'workflow_run':os.environ['GITHUB_RUN_ID'],'attempts':[{'outcome':'PASS' if ok else 'FAIL','counts':rows['run-1']}],'os':'ubuntu-latest','python':'3.12'},
                     open('out/result.json','w'),indent=2)
           EOF

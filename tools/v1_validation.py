@@ -701,6 +701,20 @@ def _kind(t):
     return t[3]["kind"] if len(t) > 3 else t[2]
 
 
+# Job records that carry the outcome of a gating audit step: PASS only when the record says the audit step succeeded (E-8). A record without
+# the field (written before the field existed) is not PASS proof for these components.
+JOB_AUDIT_COMPONENTS = {"native-f5b-suite": "audit_outcome"}
+
+
+def effective_job_status(record):
+    """The status of a job record as the requirement rows read it: PASS is kept only when the record's audit field, where one is required, is 'success'."""
+    st = record.get("status")
+    field = JOB_AUDIT_COMPONENTS.get(record.get("component"))
+    if st == "PASS" and field and record.get(field) != "success":
+        return "INCONCLUSIVE"
+    return st
+
+
 # Job-kind rows whose job must have run with zero skipped tests (the same fail-closed rule the native-f5b job applies to itself).
 # Component-suite rows keep their own semantics: retained component suites carry skips (control_plane 1, replay_bundle 17), and
 # qual-tooling (non-mandatory, 1 skip) and matched-refund are not listed.
@@ -1023,7 +1037,7 @@ def cmd_aggregate(args):
     requirements = []
     if args.requirements and Path(args.requirements).exists():
         req_doc = json.loads(Path(args.requirements).read_text(encoding="utf-8"))
-        job_status = {r.get("component"): r.get("status") for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
+        job_status = {r.get("component"): effective_job_status(r) for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
         junit_index = load_junit_index(inputs, results, detail=True)
         job_counts_by_component = {r.get("component"): job_counts(r, inputs) for r in results
                                    if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
