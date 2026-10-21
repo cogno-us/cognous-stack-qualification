@@ -148,7 +148,7 @@ def git_info(repo=REPO):
 def candidate_manifest_digest(repo=REPO):
     """Digest of the candidate manifest as amendment 91 defines it: one line per file (profile, freeze manifest, refreeze log), each line the
     path, one space and the sha256 of the file bytes, followed by a line feed; the digest is the sha256 of that text. None when a file is absent."""
-    files = ['process/security-runtime-f5b-20261016-r10.json', 'process/v1-validation/v1-2026-10-16-a/freeze-manifest.json',
+    files = ['process/security-runtime-f5b-20261016-r11.json', 'process/v1-validation/v1-2026-10-16-a/freeze-manifest.json',
              'process/v1-validation/v1-2026-10-16-a/refreeze-log.json']
     if not all((Path(repo) / f).is_file() for f in files):
         return None
