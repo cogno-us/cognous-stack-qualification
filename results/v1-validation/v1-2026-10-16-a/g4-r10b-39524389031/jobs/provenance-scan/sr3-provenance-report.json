@@ -1,0 +1,503 @@
+{
+ "schema": "cognous.v1-sr3-provenance-scan/1",
+ "method": "for every git-tracked file of every pinned checkout (git ls-files; .git excluded), scan the path and the\ncontent for marker terms. Text files are decoded as UTF-8 (errors replaced); files with a NUL byte in the first 8 KiB are\ntreated as binary and scanned as bytes (never skipped silently); .zip archives are opened (up to 2 nesting levels) and each\nmember is scanned as its own file, reported as `archive.zip!member` and counted in files scanned. Every hit is recorded, never suppressed.",
+ "terms": {
+  "ISS": "\\bISS\\b",
+  "IGPG": "\\bIGPG\\b",
+  "AoM": "\\bAoM\\b"
+ },
+ "term_evidence": {
+  "ISS": {
+   "repo": "hub",
+   "file": "README.md",
+   "statement": "ISS, Navalia and private research remain outside this public integration"
+  },
+  "IGPG": {
+   "repo": "hub",
+   "file": "docs/private-evaluator/README.md",
+   "statement": "private ISS/IGPG implementations"
+  },
+  "AoM": {
+   "repo": "hub",
+   "file": "docs/engineering-register.md",
+   "statement": "without exposing private AoM or ISS mechanisms"
+  }
+ },
+ "false_positive_handling": "hits in a paragraph containing exclusion/boundary language are classified boundary-statement, listed, and not failing; everything else (incl. path and binary hits) is unclassified and fails",
+ "limits": "lexical screen of pinned public trees only; no private corpus; optional components (prp, research_intelligence, tfa) not in scope",
+ "repositories": {
+  "action_manifest": {
+   "repository": "cogno-us/cognous-action-manifest",
+   "sha": "ff5490828b2bf7f6a976da209f3f533701855687",
+   "files_scanned": 62,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "bitrep": {
+   "repository": "cogno-us/cognous-evidence-attestation",
+   "sha": "981036c315856c71207984797b0c4e48d3b3921d",
+   "files_scanned": 71,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "constitutional_authority": {
+   "repository": "cogno-us/cognous-institutional-governance",
+   "sha": "0124adcdceb8cee973f0631adb2639f14472df63",
+   "files_scanned": 346,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "control_plane": {
+   "repository": "cogno-us/cognous-control-plane",
+   "sha": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+   "files_scanned": 245,
+   "binary_files_scanned_as_bytes": 1,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "gax_imx_transport": {
+   "repository": "cogno-us/cognous-governed-exchange",
+   "sha": "fdc2a410383396553254a39ae641c88b78ee13f1",
+   "files_scanned": 45,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "governance_evidence_pack": {
+   "repository": "cogno-us/cognous-governance-evidence-pack",
+   "sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+   "files_scanned": 153,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "hub": {
+   "repository": "cogno-us/cognous-open-control-stack",
+   "sha": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+   "files_scanned": 1024,
+   "binary_files_scanned_as_bytes": 19,
+   "archives_expanded": 2,
+   "hits": 33
+  },
+  "moltbot_safe": {
+   "repository": "cogno-us/cognous-execution-runtime",
+   "sha": "6b16962db140590b808f02b5c2cb11a217aec46f",
+   "files_scanned": 234,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "odes": {
+   "repository": "cogno-us/open-decision-evidence-standard",
+   "sha": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+   "files_scanned": 1484,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "qualification": {
+   "repository": "cogno-us/cognous-stack-qualification",
+   "sha": "af9f5843b9188ee5c6dc0648206d1e92e41a73ef",
+   "files_scanned": 2584,
+   "binary_files_scanned_as_bytes": 130,
+   "archives_expanded": 2,
+   "hits": 8
+  },
+  "replay_bundle": {
+   "repository": "cogno-us/cognous-replay-bundle",
+   "sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+   "files_scanned": 258,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  },
+  "the_index": {
+   "repository": "cogno-us/cognous-evidence-registry",
+   "sha": "704f55ea08a2e97a36166f387895e8f5678bdad4",
+   "files_scanned": 94,
+   "binary_files_scanned_as_bytes": 0,
+   "archives_expanded": 0,
+   "hits": 0
+  }
+ },
+ "files_scanned_total": 6600,
+ "hits_total": 41,
+ "hits_by_class": {
+  "boundary-statement": 41,
+  "unclassified": 0
+ },
+ "hits": [
+  {
+   "repo": "hub",
+   "file": "LICENSING.md",
+   "line": 37,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "- ISS, Navalia and private repositories are outside this public-stack change. The separate company website repository is outside this module inventory."
+  },
+  {
+   "repo": "hub",
+   "file": "README.md",
+   "line": 183,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Developed by [Cognous](https://cogno.us). See [LICENSE](LICENSE), [NOTICE](NOTICE) and [licensing inventory](LICENSING.md). ISS, Navalia and private research remain outside this public integration."
+  },
+  {
+   "repo": "hub",
+   "file": "docs/engineering-register.md",
+   "line": 100,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/engineering-register.md",
+   "line": 100,
+   "term": "AoM",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/engineering-register.md",
+   "line": 159,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| CR16 \u2014 IGPG Practice System | Practice offering; no runtime dependency is introduced. |"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/integrations/openappa-interoperability-profile.md",
+   "line": 103,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Non-goals: adding OpenAPPA to the default runtime/lock, substituting APPA for Institutional Governance, permitting automatic policy/authority expansion, making ODES a runtime control, duplicating IF01"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/private-evaluator/README.md",
+   "line": 52,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "- **No confidential attachments by default.** Do not share private ISS/IGPG implementations, unpublished research, customer materials, internal security reports or raw suspected secrets. Screen any ex"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/private-evaluator/README.md",
+   "line": 52,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "- **No confidential attachments by default.** Do not share private ISS/IGPG implementations, unpublished research, customer materials, internal security reports or raw suspected secrets. Screen any ex"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/private-evaluator/invitation-template.md",
+   "line": 11,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "This is **not** a software release or access grant. We will use approved documentation and existing synthetic evidence. No credentials, customer data, production effects, unrestricted repository packa"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-20261016/cognous-source-review-c996a41.zip!LICENSING.md",
+   "line": 37,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "- ISS, Navalia and private repositories are outside this public-stack change. The separate company website repository is outside this module inventory."
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-20261016/cognous-source-review-c996a41.zip!README.md",
+   "line": 201,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Developed by [Cognous](https://cogno.us). See [LICENSE](LICENSE), [NOTICE](NOTICE) and [licensing inventory](LICENSING.md). ISS, Navalia and private research remain outside this public integration."
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-20261016/cognous-source-review-c996a41.zip!docs/engineering-register.md",
+   "line": 100,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-20261016/cognous-source-review-c996a41.zip!docs/engineering-register.md",
+   "line": 100,
+   "term": "AoM",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-20261016/cognous-source-review-c996a41.zip!docs/engineering-register.md",
+   "line": 159,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| CR16 \u2014 IGPG Practice System | Practice offering; no runtime dependency is introduced. |"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-20261016/cognous-source-review-c996a41.zip!docs/integrations/openappa-interoperability-profile.md",
+   "line": 103,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Non-goals: adding OpenAPPA to the default runtime/lock, substituting APPA for Institutional Governance, permitting automatic policy/authority expansion, making ODES a runtime control, duplicating IF01"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-f5b-20261016/cognous-source-review-f7fe1bc.zip!LICENSING.md",
+   "line": 37,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "- ISS, Navalia and private repositories are outside this public-stack change. The separate company website repository is outside this module inventory."
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-f5b-20261016/cognous-source-review-f7fe1bc.zip!README.md",
+   "line": 183,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Developed by [Cognous](https://cogno.us). See [LICENSE](LICENSE), [NOTICE](NOTICE) and [licensing inventory](LICENSING.md). ISS, Navalia and private research remain outside this public integration."
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-f5b-20261016/cognous-source-review-f7fe1bc.zip!docs/engineering-register.md",
+   "line": 100,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-f5b-20261016/cognous-source-review-f7fe1bc.zip!docs/engineering-register.md",
+   "line": 100,
+   "term": "AoM",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-f5b-20261016/cognous-source-review-f7fe1bc.zip!docs/engineering-register.md",
+   "line": 159,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| CR16 \u2014 IGPG Practice System | Practice offering; no runtime dependency is introduced. |"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/releases/security-review-freeze-f5b-20261016/cognous-source-review-f7fe1bc.zip!docs/integrations/openappa-interoperability-profile.md",
+   "line": 103,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Non-goals: adding OpenAPPA to the default runtime/lock, substituting APPA for Institutional Governance, permitting automatic policy/authority expansion, making ODES a runtime control, duplicating IF01"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/verification/operational-acceptance-checklist-2026-10-15.md",
+   "line": 172,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "credentials, personal/customer data and private Cognous/ISS material; keep"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/verification/pv-final-security-2026-10-10.md",
+   "line": 37,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| Proprietary ISS/IGPG implementation disclosure | No complete public/private exclusion comparison; no private reference corpus accessed | **UNKNOWN \u2014 no clearance** |"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/verification/pv-final-security-2026-10-10.md",
+   "line": 37,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| Proprietary ISS/IGPG implementation disclosure | No complete public/private exclusion comparison; no private reference corpus accessed | **UNKNOWN \u2014 no clearance** |"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/verification/pv-final-security-2026-10-10.md",
+   "line": 51,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "An authorized security-capable environment must freeze exact preview source and **all** public repository refs, enumerate the full reachable/unreachable object scope with explicit limits, collect rele"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/verification/pv-final-security-2026-10-10.md",
+   "line": 51,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "An authorized security-capable environment must freeze exact preview source and **all** public repository refs, enumerate the full reachable/unreachable object scope with explicit limits, collect rele"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/workstreams/public-readmes-collateral-checkpoint.md",
+   "line": 12,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "proprietary ISS mechanism is used. No self-merge or deployment."
+  },
+  {
+   "repo": "hub",
+   "file": "docs/workstreams/pv-safety-publication-audit.md",
+   "line": 21,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| Public private-IP boundary | `README.md:138`, `CONTRIBUTING.md:7-9` prohibit private material | No actual private ISS/IGPG exposure identified **in inspected text**; full evidence/artifact/history s"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/workstreams/pv-safety-publication-audit.md",
+   "line": 21,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| Public private-IP boundary | `README.md:138`, `CONTRIBUTING.md:7-9` prohibit private material | No actual private ISS/IGPG exposure identified **in inspected text**; full evidence/artifact/history s"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/workstreams/pv-sec-public-distribution-screening.md",
+   "line": 9,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Read-only lexical screening of the six fetched collateral/security/architecture files was performed for credential vocabulary (`password`, `secret`, `token`, `api_key`, `private_key`), private-method "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/workstreams/pv-sec-public-distribution-screening.md",
+   "line": 9,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Read-only lexical screening of the six fetched collateral/security/architecture files was performed for credential vocabulary (`password`, `secret`, `token`, `api_key`, `private_key`), private-method "
+  },
+  {
+   "repo": "hub",
+   "file": "docs/workstreams/pv-sec-public-distribution-screening.md",
+   "line": 24,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| Private ISS/IGPG | No private mechanism detected in inspected text; term-count absence in several sampled documents is not sufficient IP clearance | **Unknown beyond sample**. |"
+  },
+  {
+   "repo": "hub",
+   "file": "docs/workstreams/pv-sec-public-distribution-screening.md",
+   "line": 24,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| Private ISS/IGPG | No private mechanism detected in inspected text; term-count absence in several sampled documents is not sufficient IP clearance | **Unknown beyond sample**. |"
+  },
+  {
+   "repo": "qualification",
+   "file": "docs/serial-qualification.md",
+   "line": 63,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "After current engineering/testing finishes, before final publication: inspect exact proposed package bytes for credentials, personal/customer data and proprietary Cognous/ISS content; verify owner-app"
+  },
+  {
+   "repo": "qualification",
+   "file": "qualification/orchestration-state.json",
+   "line": 125,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "\"After current testing and engineering, before final publication: inspect exact package bytes for credentials, PII and proprietary ISS content; verify owner-approved exclusions and notices; reconcile "
+  },
+  {
+   "repo": "qualification",
+   "file": "results/security-runtime-merged-20261016/cognous-source-review-c996a41.zip!LICENSING.md",
+   "line": 37,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "- ISS, Navalia and private repositories are outside this public-stack change. The separate company website repository is outside this module inventory."
+  },
+  {
+   "repo": "qualification",
+   "file": "results/security-runtime-merged-20261016/cognous-source-review-c996a41.zip!README.md",
+   "line": 201,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Developed by [Cognous](https://cogno.us). See [LICENSE](LICENSE), [NOTICE](NOTICE) and [licensing inventory](LICENSING.md). ISS, Navalia and private research remain outside this public integration."
+  },
+  {
+   "repo": "qualification",
+   "file": "results/security-runtime-merged-20261016/cognous-source-review-c996a41.zip!docs/engineering-register.md",
+   "line": 100,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "qualification",
+   "file": "results/security-runtime-merged-20261016/cognous-source-review-c996a41.zip!docs/engineering-register.md",
+   "line": 100,
+   "term": "AoM",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| GC 6 and 7 \u2014 Carry context lineage through consumers | Deployment-dependent; Context adapter, Control Plane and hub | Source proposal; implementation coverage not established in this review. Extend "
+  },
+  {
+   "repo": "qualification",
+   "file": "results/security-runtime-merged-20261016/cognous-source-review-c996a41.zip!docs/engineering-register.md",
+   "line": 159,
+   "term": "IGPG",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "| CR16 \u2014 IGPG Practice System | Practice offering; no runtime dependency is introduced. |"
+  },
+  {
+   "repo": "qualification",
+   "file": "results/security-runtime-merged-20261016/cognous-source-review-c996a41.zip!docs/integrations/openappa-interoperability-profile.md",
+   "line": 103,
+   "term": "ISS",
+   "where": "content",
+   "class": "boundary-statement",
+   "text": "Non-goals: adding OpenAPPA to the default runtime/lock, substituting APPA for Institutional Governance, permitting automatic policy/authority expansion, making ODES a runtime control, duplicating IF01"
+  }
+ ]
+}
