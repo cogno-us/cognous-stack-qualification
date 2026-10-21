@@ -29,6 +29,10 @@ R2_PROFILE = "process/security-runtime-f5b-20261016-r2.json"  # the qualificatio
 # An entry is applied only when its status is exactly "APPLIED" or "APPLIED-IN-WORKFLOW", optionally followed by one parenthesised
 # note (all forms used in the retained refreeze log). Anything else (APPLIED-REVERTED, APPLIEDX, ...) is not applied.
 STATUS_APPLIED_RE = re.compile(r"APPLIED(?:-IN-WORKFLOW)?(?: \([^\n]*\))?")
+# A note that says the entry is NOT in force contradicts the status; such an entry is not applied (E-5).
+STATUS_NOTE_CONTRADICTION_RE = re.compile(
+    r"revert|withdr[ae]w|rolled[ -]?back|rollback|do[ -]?not[ -]?appl|not[ -]?applied|not[ -]?authori[sz]ed|unauthori[sz]ed|propos|reject|cancel|void|invalid",
+    re.I)
 SHA_RE = re.compile(r"[0-9a-f]{40}")
 
 # Explicit mapping of a refreeze-log "component" to the freeze-manifest (section, key).  The log uses the manifest key
@@ -81,7 +85,8 @@ def load_refreeze_log(path=None):
 
 
 def is_applied(entry):
-    return STATUS_APPLIED_RE.fullmatch(str(entry.get("status", ""))) is not None
+    status = str(entry.get("status", ""))
+    return STATUS_APPLIED_RE.fullmatch(status) is not None and STATUS_NOTE_CONTRADICTION_RE.search(status) is None
 
 
 def _locate(manifest, component):
@@ -103,8 +108,13 @@ def apply_overlay(manifest, log):
     ``applied`` lists (entry_id, group, key, from_sha, to_sha) in application order.  Only component ``sha`` fields change;
     identities.*, hub and qualification identities and every file hash stay as frozen."""
     resolved = copy.deepcopy(manifest)
-    if log is not None and log.get("validation_id") not in (None, manifest.get("validation_id")):
-        raise RefreezeError(f"refreeze log is for {log.get('validation_id')!r}, manifest for {manifest.get('validation_id')!r}")
+    if log is not None:
+        if log.get("validation_id") != manifest.get("validation_id"):
+            raise RefreezeError(f"refreeze log is for {log.get('validation_id')!r} (validation_id is required), manifest for {manifest.get('validation_id')!r}")
+        ids = [e.get("id") for e in log.get("entries", [])]
+        dup = sorted({i for i in ids if ids.count(i) > 1}, key=str)
+        if dup or None in ids:
+            raise RefreezeError(f"refreeze log has duplicate or missing entry ids: {dup or 'missing id'}")
     applied = []
     for entry in applied_entries(log):
         eid = entry.get("id", "?")
