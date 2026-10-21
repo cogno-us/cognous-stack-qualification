@@ -44,6 +44,7 @@ DEFAULT_TEST_TIMEOUT_SECONDS = 900
 # Components whose own tests skip unless a pinned sibling component is installed (skips are INCONCLUSIVE rows).
 # component key -> ((sibling key, pip targets tried in order, relative to the sibling checkout), ...)
 SIBLING_PROVISIONING = {
+    "control_plane": (("action_manifest", (".",)),),  # the control plane parity tests (test_scan6_manifest_validator_*) skip without the pinned action manifest
     "moltbot_safe": (("control_plane", (".[runtime-authority]", ".")),),  # runtime tests need the Control Plane local-authority-effect contract
     "odes": (("replay_bundle", (".",)),),                                  # ODES tests need the accepted Replay revision installed
     # evidence pack tests import the pinned Replay importers and the Control Plane freshness module (33 skips without them)

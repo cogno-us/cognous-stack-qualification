@@ -42,7 +42,7 @@ def make(tmp_path, **kw):
 
 
 def _reasons_registry():
-    """The reason registry of the checkout under test: 0.2 (the 163-code superset a current control plane emits; 158 before control plane 5c474ba8). It is read directly;
+    """The reason registry of the checkout under test: 0.2 (the 164-code superset a current control plane emits; 163 from control plane 5c474ba8 to e77fe0ee, 158 before). It is read directly;
     there is no fallback to 0.1 (a checkout without the 0.2 file fails this probe)."""
     import os
     from pathlib import Path

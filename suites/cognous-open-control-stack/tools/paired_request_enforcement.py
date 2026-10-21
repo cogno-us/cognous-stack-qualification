@@ -22,10 +22,10 @@ EXPECTED_BASELINE = "f801546d5272104b02a240e1126b3f92f26486f2"
 
 EXPECTED_PINS = {
     "action_manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",
-    "control_plane": "e77fe0ee8714617899592528e660a80fbb2e864a",
-    "gax_imx_transport": "81b0877e1a9a82c2a61b1bafe631a4691556355f",
-    "moltbot_safe": "cab4d9abc651c7efbafb429798d2c908f048bf5c",
-    "replay_bundle": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6",
+    "control_plane": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+    "gax_imx_transport": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+    "moltbot_safe": "ec728da6dc301a664b331ac8986afd6e850a1273",
+    "replay_bundle": "028f63d1c001f99580583888fa4b4e46d77a267b",
 }
 # The only matrix case that is not evaluable by design (it submits an invalid request). Every other scheduled case must
 # produce an evaluable record, so a deny case cannot pass because the whole scenario was held for an unrelated reason.

@@ -79,9 +79,21 @@ class Siblings(unittest.TestCase):
 
     def test_other_components_get_no_siblings(self):
         calls = []
-        for comp in ('bitrep', 'control_plane', 'gax_imx_transport', 'action_manifest', 'the_index'):
+        for comp in ('bitrep', 'gax_imx_transport', 'action_manifest', 'the_index'):
             self.assertEqual(v.provision_siblings(comp, '/x', MANIFEST, LOG, fetch=self.fetch(calls)), [])
         self.assertEqual(calls, [])
+
+    def test_the_control_plane_gets_the_pinned_action_manifest_for_its_parity_tests(self):
+        # the control plane parity tests (test_scan6_manifest_validator_gate and _parity, 138 cases at CP 0a41faa9) skip without the pinned validator
+        pins = pins_in_force()
+        calls = []
+        recs = v.provision_siblings('control_plane', '/nonexistent/sib', MANIFEST, LOG, fetch=self.fetch(calls))
+        self.assertEqual([r['component'] for r in recs], ['action_manifest'])
+        self.assertEqual(calls, [('action_manifest', *pins['action_manifest'])])
+        self.assertEqual(recs[0]['pinned_sha'], recs[0]['actual_sha'])
+        self.assertEqual(v.sibling_install_command('py', {**recs[0], 'dir': '/s/am'}, recs[0]['targets'][0]), ['py', '-m', 'pip', 'install', '-q', '/s/am'])
+        # no cycle: the runtime gets the control plane, which gets the action manifest, which gets nothing
+        self.assertEqual(v.provision_siblings('action_manifest', '/x', MANIFEST, LOG, fetch=self.fetch([])), [])
 
     def test_the_evidence_pack_gets_the_pinned_replay_then_control_plane_and_replay_gets_the_pinned_pack(self):
         pins = pins_in_force()

@@ -179,12 +179,19 @@ R9_PINS = {'control_plane': '2bac7875391cad0a431fa0d75208b7ade39743e3', 'runtime
 # Programme 2 runtime-fix tuple (r10): five pins move together (RF-37..RF-41); control plane and manifest stay at r9's
 R10_PINS = dict(R9_PINS, runtime='6b16962db140590b808f02b5c2cb11a217aec46f', replay='6a6a477495ac24e813f12bb0fe314acfe8bac9cf', evidence_pack='fd030615a782a064b89c57e8e40d7f220f99ff9e',
            odes='2893d935f1cb60d1854a3802cc32d739ddfd4efb', exchange='fdc2a410383396553254a39ae641c88b78ee13f1')
-# Scan 3 and 4 current mains (r12): all seven pins move together (RF-47..RF-53); the registry moves outside the profile (RF-54)
-NEW = {'control_plane': 'e77fe0ee8714617899592528e660a80fbb2e864a', 'runtime': 'cab4d9abc651c7efbafb429798d2c908f048bf5c',
+# Scan 3 and 4 current mains (r12): all seven pins moved together (RF-47..RF-53); the registry moved outside the profile (RF-54)
+R12_PINS = {'control_plane': 'e77fe0ee8714617899592528e660a80fbb2e864a', 'runtime': 'cab4d9abc651c7efbafb429798d2c908f048bf5c',
        'replay': '53c0cd60d565ea1797ed0be87a2310c5b68b24f6', 'odes': 'dc5cf19d405ce885b287cde2f78519d3109b9ae6',
        'evidence_pack': '99ba3211450b25a18007b4b62907b072fe05c964', 'exchange': '81b0877e1a9a82c2a61b1bafe631a4691556355f',
        'manifest': 'fa170815ef96a54c233d0dd9da821b60debabf8b'}
-INDEX_PIN = '8e10387f8b7808e5dd1965fea38b74141761d7a6'  # RF-54: registry main after scan 4; the index pin of the r12 candidate
+# Scan 5 and 6 and wave 7 current mains with the Programme 2 re-ties (r13): six pins move together (RF-55..RF-60); the manifest stays at r12's (RF-48);
+# the registry moves outside the profile (RF-61)
+NEW = {'control_plane': '0a41faa972699f7ec3063967a14cd9bdd3e67d27', 'runtime': 'ec728da6dc301a664b331ac8986afd6e850a1273',
+       'replay': '028f63d1c001f99580583888fa4b4e46d77a267b', 'odes': 'e86a25a1d660e74533337d38744e2934200a50ae',
+       'evidence_pack': 'a3ebbb90559a44a88855139a182649d3792bb1ca', 'exchange': '7f7569b02666b99669a9fca61117ca1f4bce5f0d',
+       'manifest': 'fa170815ef96a54c233d0dd9da821b60debabf8b'}
+INDEX_PIN = 'b2485998b88256c2b322493800d1fba076814cbd'  # RF-61: registry main after scans 5 and 6 and wave 7; the index pin of the r13 candidate
+INDEX_R12 = '8e10387f8b7808e5dd1965fea38b74141761d7a6'  # RF-54: the registry pin of g7-r10
 INDEX_R10 = 'd25afe601454d60c561a4726e31c31d1ec40d99b'  # RF-44: the registry pin of g5-r10 and g6-r10
 R8_MANIFEST = '2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e'  # the action manifest pin of the original freeze, unchanged through r8
 R1_PINS = {'runtime': '4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f', 'replay': '0cfe7a6319930bccad3e9027a1dfbe3d6e29d657',
@@ -202,15 +209,16 @@ R9 = 'process/security-runtime-f5b-20261016-r9.json'
 R10 = 'process/security-runtime-f5b-20261016-r10.json'
 R11 = 'process/security-runtime-f5b-20261016-r11.json'
 R12 = 'process/security-runtime-f5b-20261016-r12.json'
+R13 = 'process/security-runtime-f5b-20261016-r13.json'
 AUTH_OLD = 'fb3d97938969a89e149e8ff8db2756091d1233fc'
 AUTH_R4 = 'cbc39e79a1328a74b6cb1aba0cd1e5149164865d'  # RF-17: institutional-governance main with the F-15 fix (#51); the authority pin of r4..r8
 AUTH_R10 = '0124adcdceb8cee973f0631adb2639f14472df63'  # RF-36: institutional-governance commit before docs-only #59 (a descendant of d40522af); the authority pin of r9 and r10
 AUTH_R11 = 'd4462697197d6eb4e76bbfc3d712c8c1dab27884'  # RF-45: merge commit of institutional-governance #60 (lineage validator fixes); the authority pin of r11
-AUTH_NEW = '9b5ab721ae0684150e466c01e9d0d59ec61c3e00'  # RF-46: merge commit of institutional-governance #63 (scan 3 and 4 lineage hardening); the authority pin of r12
+AUTH_NEW = '9b5ab721ae0684150e466c01e9d0d59ec61c3e00'  # RF-46: merge commit of institutional-governance #63 (scan 3 and 4 lineage hardening); the authority pin of r12 and r13
 
 
 class CurrentPins(unittest.TestCase):
-    """Resolved pins equal the pins in force: the freeze manifest plus RF-1 (Index), RF-2..RF-16 (the P4 generation of the decoupling plan), RF-17 (the constitutional authority, F-15), RF-18..RF-22 (the Programme 2 generation), RF-23, RF-24 (the ODES and exchange compatibility gap fixes) and RF-25, RF-26 (the ODES documentation fix and the exchange pin alignment) and RF-27, RF-28 (the ODES documentation cleanup and the second exchange pin alignment) and RF-29..RF-36 (the eight current mains: control plane, runtime, Replay, evidence pack, ODES, exchange, action manifest and the constitutional authority) and RF-37..RF-41 (the runtime fix and the four pins that follow it: Replay, evidence pack, ODES, exchange) and RF-45 (the authority lineage fixes) and RF-46..RF-53 (the scan 3 and 4 mains of the authority and the seven components) and RF-54 (the registry, outside the profile)."""
+    """Resolved pins equal the pins in force: the freeze manifest plus RF-1 (Index), RF-2..RF-16 (the P4 generation of the decoupling plan), RF-17 (the constitutional authority, F-15), RF-18..RF-22 (the Programme 2 generation), RF-23, RF-24 (the ODES and exchange compatibility gap fixes) and RF-25, RF-26 (the ODES documentation fix and the exchange pin alignment) and RF-27, RF-28 (the ODES documentation cleanup and the second exchange pin alignment) and RF-29..RF-36 (the eight current mains: control plane, runtime, Replay, evidence pack, ODES, exchange, action manifest and the constitutional authority) and RF-37..RF-41 (the runtime fix and the four pins that follow it: Replay, evidence pack, ODES, exchange) and RF-45 (the authority lineage fixes) and RF-46..RF-53 (the scan 3 and 4 mains of the authority and the seven components) and RF-54 (the registry, outside the profile) and RF-55..RF-60 (the scan 5 and 6 and wave 7 mains and the Programme 2 re-ties of six components) and RF-61 (the registry, outside the profile)."""
     def test_resolved_pins_equal_todays_literals(self):
         self.assertEqual(_pins.FROZEN_HUB, '8517818fbf817897aacfb6fe7898c22aea46fd95')
         self.assertEqual(_pins.FROZEN_RUNTIME, NEW['runtime'])
@@ -223,16 +231,16 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.ORIGINAL_MANIFEST['components_subject']['action_manifest']['sha'], R8_MANIFEST)  # the original freeze is never edited
         self.assertEqual(_pins.FROZEN_BITREP, '981036c315856c71207984797b0c4e48d3b3921d')  # RF-43 applied through the overlay
         self.assertEqual(_pins.OLD_INDEX_PIN, 'd5e45d275cb301d9684b543e93b05997991d1cf2')
-        self.assertEqual(_pins.FROZEN_INDEX, INDEX_PIN)  # RF-1, RF-42, RF-44 and RF-54 applied through the overlay
+        self.assertEqual(_pins.FROZEN_INDEX, INDEX_PIN)  # RF-1, RF-42, RF-44, RF-54 and RF-61 applied through the overlay
         self.assertEqual(_pins.REFROZEN_INDEX_PIN, INDEX_PIN)
         self.assertEqual(_pins.C14_PINS, {'control_plane': NEW['control_plane'],
                                           'moltbot_safe': NEW['runtime'], 'replay': NEW['replay']})
-        self.assertEqual(_pins.PROFILE_RELPATH, R12)  # the newest profile whose refreeze_ids are all applied
+        self.assertEqual(_pins.PROFILE_RELPATH, R13)  # the newest profile whose refreeze_ids are all applied
         self.assertEqual(_pins.RESOLVED_MANIFEST['components_lock_remainder']['constitutional_authority']['sha'], AUTH_NEW)  # RF-17, RF-36, RF-45 and RF-46 through the overlay
         self.assertEqual(_pins.ORIGINAL_MANIFEST['components_lock_remainder']['constitutional_authority']['sha'], AUTH_OLD)
 
-    def test_profile_pins_equal_the_r12_qualification_profile(self):
-        prof = json.loads((ROOT / R12).read_text())
+    def test_profile_pins_equal_the_r13_qualification_profile(self):
+        prof = json.loads((ROOT / R13).read_text())
         self.assertEqual(_pins.PROFILE_PINS, {k: v['revision'] for k, v in prof['components'].items()})
 
     def test_controller_workflow_v1_profile_equals_the_profile_the_overlay_selects(self):
@@ -434,6 +442,10 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.select_profile(ids(52)), R11)
         self.assertEqual(_pins.select_profile(ids(53)), R12)         # RF-54 (the registry) is outside the profile
         self.assertEqual(_pins.select_profile(ids(54)), R12)
+        self.assertEqual(_pins.select_profile(ids(55)), R12)         # r13 needs RF-55..RF-60 too
+        self.assertEqual(_pins.select_profile(ids(59)), R12)
+        self.assertEqual(_pins.select_profile(ids(60)), R13)         # RF-61 (the registry) is outside the profile
+        self.assertEqual(_pins.select_profile(ids(61)), R13)
         partial = ids(10); partial['entries'][-1]['status'] = 'PROPOSED'
         self.assertEqual(_pins.select_profile(partial), R1)
         partial = ids(16); partial['entries'][-1]['status'] = 'PROPOSED'
@@ -454,6 +466,8 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.select_profile(partial), R9)
         partial = ids(53); partial['entries'][-1]['status'] = 'PROPOSED'
         self.assertEqual(_pins.select_profile(partial), R11)
+        partial = ids(60); partial['entries'][-1]['status'] = 'PROPOSED'
+        self.assertEqual(_pins.select_profile(partial), R12)
 
     def test_r10_profile_is_r9_with_only_the_five_component_pins_changed(self):
         r9 = json.loads((ROOT / R9).read_text())
@@ -511,37 +525,87 @@ class CurrentPins(unittest.TestCase):
                                                            'revision': AUTH_NEW, 'previous_revision': AUTH_R11})
         self.assertEqual(r12['constitutional_authority']['revision'],
                          _pins.RESOLVED_MANIFEST['components_lock_remainder']['constitutional_authority']['sha'])  # E-3: equal to the pin in force
-        self.assertEqual(set(r12['components']), set(NEW))  # every subject component is listed
-        for name, rev in NEW.items():
+        self.assertEqual(set(r12['components']), set(R12_PINS))  # every subject component is listed
+        for name, rev in R12_PINS.items():
             self.assertEqual(r12['components'][name]['revision'], rev)
             self.assertNotEqual(r11['components'][name]['revision'], rev)
-        self.assertEqual({k: v['revision'] for k, v in r12['components'].items()}, _pins.PROFILE_PINS)
+        self.assertEqual({k: v['revision'] for k, v in r12['components'].items()}, {k: v for k, v in R12_PINS.items()})  # retained unedited; r13 is the profile in force
         self.assertEqual(r12['limitations'][:-1], r11['limitations'])  # r12 only appends one statement
         for key in ('profile_id', 'supersedes_profile', 'refreeze_ids', 'note', 'limitations', 'constitutional_authority'):
             r11.pop(key); r12.pop(key)
-        for name in NEW:
+        for name in R12_PINS:
             r12['components'][name]['revision'] = r11['components'][name]['revision']
         self.assertEqual(r12, r11)  # the suite generation, the exchange compatibility profile and every other member are r11's
+
+    def test_r13_profile_moves_six_components_keeps_the_manifest_and_the_authority_and_lists_every_subject(self):
+        r12 = json.loads((ROOT / R12).read_text())
+        r13 = json.loads((ROOT / R13).read_text())
+        self.assertEqual(r13['profile_id'], 'security-runtime-f5b-20261016-r13')
+        self.assertEqual(r13['supersedes_profile'], R12)
+        # RF-47 and RF-49..RF-53 are superseded by RF-55..RF-60; RF-46 (authority) and RF-48 (manifest) stay in force; RF-54 and RF-61 move the registry outside the profile
+        self.assertEqual(r13['refreeze_ids'], ['RF-%d' % i for i in range(2, 42)] + ['RF-45', 'RF-46', 'RF-48'] + ['RF-%d' % i for i in range(55, 61)])
+        self.assertEqual((r13['suite_generation'], r13['exchange_compatibility_profile']), ('p2', 'security-runtime-p2-20261018'))
+        for key in ('selected', 'reference_release_authorized', 'production_deployment_authorized'):
+            self.assertIs(r13[key], False)
+        self.assertEqual(r13['constitutional_authority'], r12['constitutional_authority'])  # unchanged: RF-46 stays the authority pin
+        self.assertEqual(r13['constitutional_authority']['revision'], AUTH_NEW)
+        self.assertEqual(r13['constitutional_authority']['revision'],
+                         _pins.RESOLVED_MANIFEST['components_lock_remainder']['constitutional_authority']['sha'])  # E-3: equal to the pin in force
+        self.assertEqual(set(r13['components']), set(NEW))  # every subject component is listed
+        for name, rev in NEW.items():
+            self.assertEqual(r13['components'][name]['revision'], rev)
+            if name == 'manifest':
+                self.assertEqual(r12['components'][name]['revision'], rev)  # RF-48 stays: the manifest does not move
+            else:
+                self.assertNotEqual(r12['components'][name]['revision'], rev)
+        self.assertEqual({k: v['revision'] for k, v in r13['components'].items()}, _pins.PROFILE_PINS)
+        self.assertEqual(r13['limitations'][:-1], r12['limitations'])  # r13 only appends one statement
+        for key in ('profile_id', 'supersedes_profile', 'refreeze_ids', 'note', 'limitations'):
+            r12.pop(key); r13.pop(key)
+        for name in NEW:
+            r13['components'][name]['revision'] = r12['components'][name]['revision']
+        self.assertEqual(r13, r12)  # the suite generation, the exchange compatibility profile, the authority and every other member are r12's
 
     def test_registry_move_is_outside_the_profile_and_the_attestation_pin_is_unchanged(self):
         log = _pins.load_refreeze_log()
         rf = {e['id']: e for e in log['entries']}
-        self.assertEqual((rf['RF-54']['component'], rf['RF-54']['from_sha'], rf['RF-54']['to_sha']), ('the_index', INDEX_R10, INDEX_PIN))
+        self.assertEqual((rf['RF-54']['component'], rf['RF-54']['from_sha'], rf['RF-54']['to_sha']), ('the_index', INDEX_R10, INDEX_R12))
+        self.assertEqual((rf['RF-61']['component'], rf['RF-61']['from_sha'], rf['RF-61']['to_sha']), ('the_index', INDEX_R12, INDEX_PIN))
         self.assertEqual(_pins.FROZEN_BITREP, '981036c315856c71207984797b0c4e48d3b3921d')  # RF-43 stays in force
         self.assertEqual([e['id'] for e in log['entries'] if e['component'] == 'bitrep'], ['RF-43'])
 
     def test_r12_entries_carry_the_owner_authority_and_the_pins_in_force_at_the_previous_head(self):
         rf = {e['id']: e for e in _pins.load_refreeze_log()['entries']}
-        expect = {'RF-46': ('constitutional_authority', AUTH_R11, AUTH_NEW), 'RF-47': ('control_plane', R10_PINS['control_plane'], NEW['control_plane']),
-                  'RF-48': ('action_manifest', R10_PINS['manifest'], NEW['manifest']), 'RF-49': ('moltbot_safe', R10_PINS['runtime'], NEW['runtime']),
-                  'RF-50': ('gax_imx_transport', R10_PINS['exchange'], NEW['exchange']), 'RF-51': ('replay_bundle', R10_PINS['replay'], NEW['replay']),
-                  'RF-52': ('governance_evidence_pack', R10_PINS['evidence_pack'], NEW['evidence_pack']), 'RF-53': ('odes', R10_PINS['odes'], NEW['odes']),
-                  'RF-54': ('the_index', INDEX_R10, INDEX_PIN)}
+        expect = {'RF-46': ('constitutional_authority', AUTH_R11, AUTH_NEW), 'RF-47': ('control_plane', R10_PINS['control_plane'], R12_PINS['control_plane']),
+                  'RF-48': ('action_manifest', R10_PINS['manifest'], R12_PINS['manifest']), 'RF-49': ('moltbot_safe', R10_PINS['runtime'], R12_PINS['runtime']),
+                  'RF-50': ('gax_imx_transport', R10_PINS['exchange'], R12_PINS['exchange']), 'RF-51': ('replay_bundle', R10_PINS['replay'], R12_PINS['replay']),
+                  'RF-52': ('governance_evidence_pack', R10_PINS['evidence_pack'], R12_PINS['evidence_pack']), 'RF-53': ('odes', R10_PINS['odes'], R12_PINS['odes']),
+                  'RF-54': ('the_index', INDEX_R10, INDEX_R12)}
         for eid, (comp, frm, to) in expect.items():
             e = rf[eid]
             self.assertEqual((e['component'], e['from_sha'], e['to_sha']), (comp, frm, to), eid)
             self.assertIn('do the fixes and merge. Then do all the refreeze etc.', e['authorised'], eid)
-            self.assertEqual(e['status'], 'APPLIED-IN-WORKFLOW (pending full controller run g7-r10)', eid)
+            self.assertIn('probed', e['status'], eid)  # g7-r10 (run 39642578239) probed them; restated by the r13 refreeze (RF-45 precedent: not marked qualified)
+            self.assertIn('not marked qualified', e['status'], eid)
+            self.assertIn('39642578239', e['status'], eid)
+            self.assertEqual(e['status'].startswith('APPLIED-IN-WORKFLOW (pending full controller run g8-r10;'), eid in ('RF-46', 'RF-48'), eid)  # authority and manifest stay in force in r13
+
+    def test_r13_entries_carry_the_owner_authority_and_the_pins_in_force_at_the_previous_head(self):
+        rf = {e['id']: e for e in _pins.load_refreeze_log()['entries']}
+        expect = {'RF-55': ('control_plane', R12_PINS['control_plane'], NEW['control_plane']), 'RF-56': ('moltbot_safe', R12_PINS['runtime'], NEW['runtime']),
+                  'RF-57': ('replay_bundle', R12_PINS['replay'], NEW['replay']), 'RF-58': ('governance_evidence_pack', R12_PINS['evidence_pack'], NEW['evidence_pack']),
+                  'RF-59': ('odes', R12_PINS['odes'], NEW['odes']), 'RF-60': ('gax_imx_transport', R12_PINS['exchange'], NEW['exchange']),
+                  'RF-61': ('the_index', INDEX_R12, INDEX_PIN)}
+        for eid, (comp, frm, to) in expect.items():
+            e = rf[eid]
+            self.assertEqual((e['component'], e['from_sha'], e['to_sha']), (comp, frm, to), eid)
+            self.assertIn("don't refreeze anything. I want engineering fixes, then spot checks, then refreeze, then release.", e['authorised'], eid)
+            self.assertEqual(e['status'], 'APPLIED-IN-WORKFLOW (pending full controller run g8-r10)', eid)
+            for key in ('reason', 'behaviour_changes', 'open_item', 'historical_results_at_from_sha'):
+                self.assertTrue(e[key], (eid, key))
+            self.assertIn('39642578239', e['historical_results_at_from_sha'], eid)  # g7-r10 at the earlier pin is historical, not transferred
+        self.assertEqual([e['id'] for e in rf.values() if 'pending' in e['status']], ['RF-46', 'RF-48'] + ['RF-%d' % i for i in range(55, 62)])
+        self.assertIn('164 codes', rf['RF-55']['behaviour_changes'][1])  # invalid_manifest joins the 0.2 registry (CP #81)
 
     def test_original_profile_and_freeze_manifest_are_unedited(self):
         import hashlib
@@ -552,7 +616,7 @@ class CurrentPins(unittest.TestCase):
     def test_repo_log_applies_cleanly_and_changes_the_index_the_authority_and_the_seven_components(self):
         m = manifest()
         r, applied = _pins.apply_overlay(m, _pins.load_refreeze_log())
-        self.assertEqual([a[0] for a in applied], ['RF-%d' % i for i in range(1, 55)])
+        self.assertEqual([a[0] for a in applied], ['RF-%d' % i for i in range(1, 62)])
         changed = {(g, k) for g in _pins.GROUPS for k in m.get(g, {}) if m[g][k]['sha'] != r[g][k]['sha']}
         self.assertEqual(changed, {('components_lock_remainder', 'the_index'), ('components_lock_remainder', 'bitrep'), ('components_subject', 'moltbot_safe'),
                                    ('components_subject', 'control_plane'),
@@ -560,8 +624,8 @@ class CurrentPins(unittest.TestCase):
                                    ('components_subject', 'governance_evidence_pack'), ('components_subject', 'gax_imx_transport'),
                                    ('components_subject', 'action_manifest'),
                                    ('components_lock_remainder', 'constitutional_authority')})
-        self.assertEqual(len(_pins.GENERATIONS), 46)  # original + RF-2..RF-16 + RF-18..RF-35 + RF-37..RF-41 + RF-47..RF-53; RF-1, RF-42, RF-44 and RF-54 (Index), RF-43 (bitrep), RF-17, RF-36, RF-45 and RF-46 (authority) are not seven-component profile generations
-        self.assertEqual([g[0] for g in _pins.GENERATIONS], ["original-freeze"] + ["RF-%d" % i for i in range(2, 17)] + ["RF-%d" % i for i in range(18, 36)] + ["RF-%d" % i for i in range(37, 42)] + ["RF-%d" % i for i in range(47, 54)])
+        self.assertEqual(len(_pins.GENERATIONS), 52)  # original + RF-2..RF-16 + RF-18..RF-35 + RF-37..RF-41 + RF-47..RF-53 + RF-55..RF-60; RF-1, RF-42, RF-44, RF-54 and RF-61 (Index), RF-43 (bitrep), RF-17, RF-36, RF-45 and RF-46 (authority) are not seven-component profile generations
+        self.assertEqual([g[0] for g in _pins.GENERATIONS], ["original-freeze"] + ["RF-%d" % i for i in range(2, 17)] + ["RF-%d" % i for i in range(18, 36)] + ["RF-%d" % i for i in range(37, 42)] + ["RF-%d" % i for i in range(47, 54)] + ["RF-%d" % i for i in range(55, 61)])
 
     def test_no_pin_literal_left_in_helpers(self):
         pinned = {s['sha'] for g in _pins.GROUPS for s in manifest().get(g, {}).values()} | {manifest()['identities']['hub']['head'],
@@ -601,8 +665,8 @@ class ToolOverlay(unittest.TestCase):
         self.assertEqual(shas['control_plane'], NEW['control_plane'])
         self.assertEqual(shas['action_manifest'], NEW['manifest'])
         self.assertNotEqual(shas['action_manifest'], manifest()['components_subject']['action_manifest']['sha'])  # RF-35 moved it
-        self.assertNotEqual(shas['action_manifest'], R9_PINS['manifest'])  # RF-48 moves it on from RF-29..RF-36
-        self.assertEqual(shas['constitutional_authority'], AUTH_NEW)  # RF-46
+        self.assertNotEqual(shas['action_manifest'], R9_PINS['manifest'])  # RF-48 moves it on from RF-29..RF-36 (and stays in r13)
+        self.assertEqual(shas['constitutional_authority'], AUTH_NEW)  # RF-46 (unchanged in r13)
 
     def test_plan_with_inconsistent_log_fails_loudly(self, tmp=None):
         import tempfile

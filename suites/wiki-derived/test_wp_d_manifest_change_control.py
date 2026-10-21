@@ -486,15 +486,18 @@ COLLISIONS = {
 @wiki_case('TC-L06-009')
 def test_wiki_l06_009_identical_and_near_identical_tool_names_in_one_manifest_never_receive_the_effect(tmp_path, patches):
     """An action binds to the tool of its exact name. The manifest validator refuses two tools of one name, and the executor
-    allow-list holds the effect to the declared adapter in every variant."""
+    allow-list holds the effect to the declared adapter in every variant. Since control plane #81 (0a41faa9) the decision gate
+    applies the validator rules itself, so a manifest that declares two tools of one name holds every request of that manifest
+    (adapter_mismatch and invalid_manifest) in both declaration orders; the positive control stays for the four other variants."""
     ch = _chain()
     for name, (edit, identical) in COLLISIONS.items():
         flow = build(sub(tmp_path, name), patches, manifest=edit)
         valid, errors = manifest_report(flow.f.manifest)
         assert valid is (not identical) and (('duplicate_tool_name' in errors) is identical), (name, valid, errors)
-        if identical and name == 'identical_name_declared_before':
-            # the first declared tool of a name is the one that binds: the request for the later one is held
-            assert_not_authorized(flow.d, 'adapter_mismatch')
+        if identical:
+            # control plane 0a41faa9 (#81): the decision gate refuses a manifest with a validator error with invalid_manifest, so the request
+            # is held whichever of the two tools of the name is declared first (adapter_mismatch was already reported at the earlier pin)
+            assert_not_authorized(flow.d, 'adapter_mismatch', 'invalid_manifest')
         else:
             # positive control: the request for the declared adapter executes once
             assert flow.d.result == 'authorized', (name, flow.d.reasons)
@@ -508,6 +511,8 @@ def test_wiki_l06_009_identical_and_near_identical_tool_names_in_one_manifest_ne
         d_shadow = flow.f.decide(shadow, now=ch.NOW)
         if name != 'identical_name_declared_before':
             assert_not_authorized(d_shadow, 'adapter_mismatch')
+        if identical:
+            assert_not_authorized(d_shadow, 'invalid_manifest')
         res, exc = execute_for(flow, shadow, d_shadow, allowed_adapters={ROUTINE_ADAPTER})
         assert refused_before_dispatch(res, exc), name
         assert effects(flow) == before, name
@@ -515,14 +520,16 @@ def test_wiki_l06_009_identical_and_near_identical_tool_names_in_one_manifest_ne
 
 @wiki_case('TC-L06-009')
 def test_wiki_l06_009_a_decision_alone_does_not_refuse_two_tools_of_one_name_known_limit(tmp_path, patches):
-    """Known limit: the decision binds the first declared tool of a name and does not run the manifest validator, so with the
-    shadow tool declared first the request that names the shadow adapter is authorized at the decision. The manifest validator
-    refuses that manifest and the executor allow-list refuses the adapter; both are outside the decision."""
+    """Revised for control plane 0a41faa9 (pre-registration amendment 124). The declared limit (the decision binds the first declared
+    tool of a name and does not run the manifest validator, so with the shadow tool declared first the shadow request is authorized) no
+    longer holds: control plane #81 runs the validator rules in the decision gate, so the decision holds with adapter_mismatch and
+    invalid_manifest. The test keeps its name, which is the declaration id, and now records the refusal at the decision; the manifest
+    validator still reports the duplicate and the executor allow-list still refuses the adapter outside the decision."""
     flow = build(sub(tmp_path, 'first'), patches, manifest=_with_tool('first', None))
     shadow = flow.p.model_copy(update={'adapter_id': SHADOW_ADAPTER})
     rebind_approval(flow, shadow)
     decision = flow.f.decide(shadow, now=_chain().NOW)
-    assert decision.result == 'authorized' and decision.binding.adapter_id == SHADOW_ADAPTER
+    assert_not_authorized(decision, 'adapter_mismatch', 'invalid_manifest')
     assert manifest_report(flow.f.manifest) == (False, ['duplicate_tool_name'])
     res, exc = execute_for(flow, shadow, decision, allowed_adapters={ROUTINE_ADAPTER})
     assert refused_before_dispatch(res, exc)
