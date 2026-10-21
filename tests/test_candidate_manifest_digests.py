@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FILES = ['process/security-runtime-f5b-20261016-r10.json', 'process/v1-validation/v1-2026-10-16-a/freeze-manifest.json',
+FILES = ['process/security-runtime-f5b-20261016-r11.json', 'process/v1-validation/v1-2026-10-16-a/freeze-manifest.json',
          'process/v1-validation/v1-2026-10-16-a/refreeze-log.json']
 
 

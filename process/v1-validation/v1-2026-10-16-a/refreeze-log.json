@@ -18,7 +18,7 @@
    ],
    "open_item": "link profile index.link.v1 and issuer enrollment still need governor approval; BitRep contract remains proposed",
    "historical_results_at_from_sha": "final-38962759690 and later runs through full1-39005768983",
-   "status": "APPLIED (qualified at this pin: full controller runs g2-r10 and g3-r10; superseded by RF-42, which no controller run has qualified yet)"
+   "status": "APPLIED (qualified at this pin: full controller runs g2-r10 and g3-r10; superseded by RF-42 and then RF-44)"
   },
   {
    "id": "RF-2",
@@ -670,9 +670,9 @@
     "a repeated link of one evidence record with the same relation counts once, at the strongest link, in compute_epistemic_status",
     "six unreferenced methods removed from the store and registry layers"
    ],
-   "open_item": "superseded by RF-44; full controller run g5-r10 at the re-frozen tuple (RF-43 and RF-44)",
+   "open_item": "superseded by RF-44",
    "historical_results_at_from_sha": "g2-r10 (run 39349033320) and g3-r10 (run 39481839420)",
-   "status": "APPLIED-IN-WORKFLOW (superseded by RF-44; the runs g4-r10 and g4-r10b probed this revision and none qualified it; pending full controller run g5-r10 at RF-44)"
+   "status": "APPLIED (superseded by RF-44; the runs g4-r10 and g4-r10b probed this revision and neither qualified it)"
   },
   {
    "id": "RF-43",
@@ -686,9 +686,9 @@
     "new profile profiles/authority_digest_custody.py with its schema, fixture and test",
     "requirements are hash-locked and workflow actions are pinned by commit"
    ],
-   "open_item": "full controller run g5-r10 at the re-frozen tuple (RF-43 and RF-44)",
+   "open_item": "re-run at the tuple with RF-45 in candidate g6-r10",
    "historical_results_at_from_sha": "g2-r10 (run 39349033320) and g3-r10 (run 39481839420)",
-   "status": "APPLIED-IN-WORKFLOW (pending full controller run g5-r10; g4-r10 stopped at its install step and g4-r10b failed SCN-C03 on a registry pin that did not match this revision)"
+   "status": "APPLIED (qualified: full controller run g5-r10, run 39531760987, verdict PASS at the pins of that run)"
   },
   {
    "id": "RF-44",
@@ -702,9 +702,26 @@
     "chain/python/bitrep_adapter.py PIN is 981036c315856c71207984797b0c4e48d3b3921d (was 5b5077dafde232a7801cb425c4efddcffb468723)",
     "header, protocol and documentation references to the pin follow; chain qualification wrapper repointed; no change to registry API behaviour"
    ],
-   "open_item": "full controller run g5-r10 at the re-frozen tuple (RF-43 and RF-44)",
+   "open_item": "re-run at the tuple with RF-45 in candidate g6-r10",
    "historical_results_at_from_sha": "g4-r10 (run 39522462997, scenarios INCONCLUSIVE) and g4-r10b (run 39524389031, 14 SCN-C03 cases INCONCLUSIVE on the BitRep pin check)",
-   "status": "APPLIED-IN-WORKFLOW (pending full controller run g5-r10)"
+   "status": "APPLIED (qualified: full controller run g5-r10, run 39531760987, verdict PASS at the pins of that run)"
+  },
+  {
+   "id": "RF-45",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent static review reported two lineage validator false accepts)",
+   "component": "constitutional_authority",
+   "repository": "cogno-us/cognous-institutional-governance",
+   "from_sha": "0124adcdceb8cee973f0631adb2639f14472df63",
+   "to_sha": "d4462697197d6eb4e76bbfc3d712c8c1dab27884",
+   "reason": "Move to the revision that fixes two false accepts of the synthetic authority-lineage validator found by an independent static review and reproduced locally (governance #60): a delegation under a parent edge that forbids redelegation, or whose remaining_depth does not decrease below its parent's, is refused; more than one origin for one authority is refused. The Authority Context schema generations, the lineage fixture, schema and ten qualification cases are unchanged. The institutional-governance main is documentation-only ahead of 0124adcd (#59), and d4462697 is the merge commit of #60",
+   "behaviour_changes": [
+    "testing/harness/run_authority_lineage.py refuses redelegation that the parent edge does not permit (may_redelegate false, remaining_depth below 1) and a remaining_depth that does not decrease below the parent edge's",
+    "testing/harness/run_authority_lineage.py refuses more than one origin for one authority",
+    "tests/test_authority_lineage.py gains AuthorityLineageRestrictionTests"
+   ],
+   "open_item": "full controller run g6-r10 at the re-frozen tuple (profile r11, RF-43, RF-44 and RF-45)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420) and g5-r10 (run 39531760987) at 0124adcd; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g6-r10)"
   }
  ]
 }

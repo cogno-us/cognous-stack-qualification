@@ -267,3 +267,12 @@ This entry adds to the entries above and does not rewrite them. The registry (`t
 - The registry change that counts a repeated link of one evidence record once is the behaviour behind the pass. The other three copy cases still show copied evidence raising supporting weight (F-19, D14).
 
 Scope: bounded synthetic profile only. This is not independent certification and not production readiness; operational trust, publication and production stay on HOLD. The hub component lock lists the registry at a revision that this run did not probe until the lock is updated.
+
+
+### Update 2026-10-21 (candidate g6-r10: constitutional authority d4462697, profile r11)
+
+This entry adds to the entries above and does not rewrite them. An independent static review of the lock revision of the institutional-governance repository (0124adcd) reported two false accepts of the synthetic authority-lineage validator, a non-authorizing evidence profile that nothing else in the stack consumes: a delegation under a parent edge that forbids redelegation (or whose remaining depth does not decrease below its parent's) was accepted, and a bundle with more than one origin for one authority was accepted. Both were reproduced locally and fixed in institutional-governance #60 (merge commit `d4462697197d6eb4e76bbfc3d712c8c1dab27884`), with negative cases and valid controls; the lineage fixture, schema and ten qualification cases are unchanged. Neither was a declared known limit.
+
+The refreeze entry RF-45 moves the constitutional authority to that commit and the profile `process/security-runtime-f5b-20261016-r11.json` is r10 with only that pin changed. The controller run g5-r10 (entry of 2026-10-21 above) was made at the earlier authority revision and is not transferred. The candidate g6-r10 is the run at the new tuple; its expected state is recorded before the run in the pre-registration (amendment 112). No run of g6-r10 had been made when this entry was written.
+
+Scope: bounded synthetic profile only. This is not independent certification and not production readiness; operational trust, publication and production stay on HOLD.

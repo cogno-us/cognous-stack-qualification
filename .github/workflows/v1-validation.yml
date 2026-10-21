@@ -29,7 +29,7 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
   MANIFEST: process/v1-validation/${{ inputs.validation_id }}/freeze-manifest.json
   REFREEZE_LOG: process/v1-validation/${{ inputs.validation_id }}/refreeze-log.json
-  V1_PROFILE: process/security-runtime-f5b-20261016-r10.json
+  V1_PROFILE: process/security-runtime-f5b-20261016-r11.json
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -268,7 +268,7 @@ jobs:
           - {name: probes-evidence-pack, repo: cogno-us/cognous-governance-evidence-pack, sha: fd030615a782a064b89c57e8e40d7f220f99ff9e, env: PROBE_EVIDENCE_PACK_DIR, extra: ''}
           - {name: probes-odes, repo: cogno-us/open-decision-evidence-standard, sha: 2893d935f1cb60d1854a3802cc32d739ddfd4efb, env: PROBE_ODES_DIR, extra: ''}
           - {name: probes-control-plane, repo: cogno-us/cognous-control-plane, sha: 2bac7875391cad0a431fa0d75208b7ade39743e3, env: PROBE_CONTROL_PLANE_DIR, extra: '--extras runtime-authority'}
-          - {name: probes-authority, repo: cogno-us/cognous-institutional-governance, sha: 0124adcdceb8cee973f0631adb2639f14472df63, env: PROBE_AUTHORITY_DIR, extra: '--full-history --harness-requirements'}
+          - {name: probes-authority, repo: cogno-us/cognous-institutional-governance, sha: d4462697197d6eb4e76bbfc3d712c8c1dab27884, env: PROBE_AUTHORITY_DIR, extra: '--full-history --harness-requirements'}
           - {name: probes-action-manifest, repo: cogno-us/cognous-action-manifest, sha: ff5490828b2bf7f6a976da209f3f533701855687, env: PROBE_ACTION_MANIFEST_DIR, extra: '--full-history'}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
