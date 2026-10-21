@@ -42,24 +42,28 @@ def test_interface_cleanup_lock_uses_declared_revisions():
         # profiles/full-release-candidate.json no longer describes the selected tuple. The declared revisions are pinned
         # exactly instead, and the earlier acceptance chain is required to stay recorded one level down.
         exact={
-            "action_manifest":("sha","ff5490828b2bf7f6a976da209f3f533701855687"),
-            "control_plane":("sha","2bac7875391cad0a431fa0d75208b7ade39743e3"),
-            "moltbot_safe":("accepted_sha","6b16962db140590b808f02b5c2cb11a217aec46f"),
-            "replay_bundle":("sha","6a6a477495ac24e813f12bb0fe314acfe8bac9cf"),
-            "governance_evidence_pack":("sha","fd030615a782a064b89c57e8e40d7f220f99ff9e"),
-            "odes":("sha","2893d935f1cb60d1854a3802cc32d739ddfd4efb"),
-            "gax_imx_transport":("sha","fdc2a410383396553254a39ae641c88b78ee13f1"),
+            "action_manifest":("sha","fa170815ef96a54c233d0dd9da821b60debabf8b"),
+            "control_plane":("sha","e77fe0ee8714617899592528e660a80fbb2e864a"),
+            "moltbot_safe":("accepted_sha","cab4d9abc651c7efbafb429798d2c908f048bf5c"),
+            "replay_bundle":("sha","53c0cd60d565ea1797ed0be87a2310c5b68b24f6"),
+            "governance_evidence_pack":("sha","99ba3211450b25a18007b4b62907b072fe05c964"),
+            "odes":("sha","dc5cf19d405ce885b287cde2f78519d3109b9ae6"),
+            "gax_imx_transport":("sha","81b0877e1a9a82c2a61b1bafe631a4691556355f"),
         }
         for name,(key,sha) in exact.items():
             assert lock["components"][name][key]==sha,name
-        assert lock["components"]["moltbot_safe"]["core_interop_sha"]=="6b16962db140590b808f02b5c2cb11a217aec46f"
-        assert gax["accepted_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
-        assert gax["merged_pr"]==55
-        assert gax["reviewed_source_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        assert lock["components"]["moltbot_safe"]["core_interop_sha"]=="cab4d9abc651c7efbafb429798d2c908f048bf5c"
+        assert gax["accepted_sha"]=="81b0877e1a9a82c2a61b1bafe631a4691556355f"
+        assert gax["merged_pr"]==60
+        assert gax["reviewed_source_sha"]=="81b0877e1a9a82c2a61b1bafe631a4691556355f"
         earlier=gax["previous_acceptance"]
-        assert earlier["merged_pr"]==14
-        assert earlier["reviewed_source_sha"]=="8ba81548362c057dc7fa4f1cf7686f352188b76b"
-        assert earlier["previous_acceptance"]["sha"]=="9984d9011568ccdf3d562fa9760ad41368947b34"
+        assert earlier["accepted_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        assert earlier["merged_pr"]==55
+        assert earlier["reviewed_source_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        earliest=earlier["previous_acceptance"]
+        assert earliest["merged_pr"]==14
+        assert earliest["reviewed_source_sha"]=="8ba81548362c057dc7fa4f1cf7686f352188b76b"
+        assert earliest["previous_acceptance"]["sha"]=="9984d9011568ccdf3d562fa9760ad41368947b34"
         assert "manifest/reconstruction transformation 0.3.8 (programme-2 profiles candidate)" in lock["components"]["governance_evidence_pack"]["interfaces"]
         return
     assert lock["runtime_profile"]=="merged-producers-v1"
