@@ -1,0 +1,116 @@
+{
+  "schema": "cognous.v1-validation-job/1",
+  "component": "governance_evidence_pack",
+  "repository": "cogno-us/cognous-governance-evidence-pack",
+  "pinned_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+  "actual_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+  "os": "ubuntu-latest",
+  "python": "3.11.17",
+  "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+  "workflow_run": "39531760987",
+  "run_attempt": "1",
+  "job": "components",
+  "attempts": [
+    {
+      "attempt": 1,
+      "sibling_installs": [
+        {
+          "sibling": "replay_bundle",
+          "target": ".",
+          "rc": 0
+        },
+        {
+          "sibling": "control_plane",
+          "target": ".[runtime-authority]",
+          "rc": 0
+        }
+      ],
+      "installs": [
+        {
+          "target": ".[dev,test]",
+          "rc": 0
+        }
+      ],
+      "returncode": 0,
+      "execution_seconds": 6.43,
+      "timed_out": false,
+      "counts": {
+        "testcases": 366,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "setup_ok": true,
+      "outcome": "PASS"
+    }
+  ],
+  "timeout_seconds": 900,
+  "siblings": [
+    {
+      "component": "replay_bundle",
+      "repository": "cogno-us/cognous-replay-bundle",
+      "pinned_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+      "actual_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+      "dir": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/c-siblings/replay_bundle"
+    },
+    {
+      "component": "control_plane",
+      "repository": "cogno-us/cognous-control-plane",
+      "pinned_sha": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "actual_sha": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "dir": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/c-siblings/control_plane"
+    }
+  ],
+  "inventory": {
+    "ci_runs_on": {
+      "tests.yml": [
+        "ubuntu-latest"
+      ]
+    },
+    "test_dirs": [
+      "tests"
+    ],
+    "test_files": [
+      "tests/test_cli.py",
+      "tests/test_evidence_check_hardening.py",
+      "tests/test_examples.py",
+      "tests/test_f5b_generation.py",
+      "tests/test_freshness_block.py",
+      "tests/test_input_admission.py",
+      "tests/test_loader.py",
+      "tests/test_models.py",
+      "tests/test_p2_generation.py",
+      "tests/test_p4_generation.py",
+      "tests/test_recovery_inspection_code_check.py",
+      "tests/test_renderer.py",
+      "tests/test_replay_recovery_report_revalidation.py",
+      "tests/test_replay_semantic_comparison.py",
+      "tests/test_security_cloud_regressions.py",
+      "tests/test_security_review_hardening.py",
+      "tests/test_summary.py",
+      "tests/test_validator.py",
+      "tests/test_w3_atomic_evidence.py",
+      "tests/test_w3_c8_lineage.py"
+    ],
+    "test_file_count": 20,
+    "ci_workflows": [
+      "merged-producers.yml",
+      "recovery-inspection.yml",
+      "tests.yml",
+      "typed-refusal.yml",
+      "w3-actual-producer.yml",
+      "w3-c8-actual.yml",
+      "w3-composed.yml"
+    ],
+    "has_pyproject": true,
+    "has_requirements": []
+  },
+  "status": "PASS",
+  "reason": null,
+  "log": {
+    "sha256_uncompressed": "1952c5f2b48559af76056bc67d5ffb03ddd42661983d550fbc0b26334633cfe7",
+    "bytes_uncompressed": 2577,
+    "retained": true,
+    "file": "job.log.gz"
+  }
+}
