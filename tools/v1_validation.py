@@ -721,6 +721,34 @@ def effective_job_status(record):
 JOB_ZERO_SKIP_COMPONENTS = frozenset({"hub-tests"})
 
 
+def validate_requirements(doc):
+    """Refuse a malformed requirements document (E-10). Raises ValueError naming the row.
+
+    A `tests` row needs at least one selector; every selector needs a component, a compilable non-empty regular expression and an integer
+    min of at least 1 (min defaults to 1), so a row can never be PASS with zero executed cases by construction. Row ids must be unique."""
+    seen = set()
+    for r in doc.get("requirements", []):
+        rid = r.get("id")
+        if not rid or rid in seen:
+            raise ValueError(f"requirement row id {rid!r} is missing or duplicated")
+        seen.add(rid)
+        if r.get("kind", "tests") != "tests":
+            continue
+        sels = r.get("selectors")
+        if not isinstance(sels, list) or not sels:
+            raise ValueError(f"requirement {rid}: a tests row needs at least one selector")
+        for sel in sels:
+            mn = sel.get("min", 1)
+            if not sel.get("component") or not isinstance(sel.get("re"), str) or not sel["re"]:
+                raise ValueError(f"requirement {rid}: selector needs a component and a non-empty re: {sel}")
+            if isinstance(mn, bool) or not isinstance(mn, int) or mn < 1:
+                raise ValueError(f"requirement {rid}: selector min must be an integer of at least 1 (got {mn!r})")
+            try:
+                re.compile(sel["re"])
+            except re.error as exc:
+                raise ValueError(f"requirement {rid}: selector re does not compile: {exc}") from exc
+
+
 def evaluate_requirements(doc, index, job_status, declared=None, job_counts_by_component=None):
     """Compute each requirement's status from executed evidence. A requirement is PASS only when adequate evidence executed and passed.
 
@@ -810,6 +838,8 @@ def evaluate_requirements(doc, index, job_status, declared=None, job_counts_by_c
                 r["reason"] = ("every case matched by selector " + ", ".join(zero_undeclared) + " is a declared known limit: zero undeclared cases remain, "
                                "so the row is not reported as PASS")
                 conditions.append("zero undeclared cases remain for selector " + ", ".join(zero_undeclared))
+            elif hits == 0:
+                r["status"] = "INCONCLUSIVE"; r["reason"] = "zero executed cases matched: a tests row is never PASS without executed evidence"
             elif r.get("adequacy", "adequate") == "adequate":
                 r["status"] = "PASS"; r["provenance"] = r.get("provenance", "NEW EXECUTION")
             else:
@@ -1037,6 +1067,10 @@ def cmd_aggregate(args):
     requirements = []
     if args.requirements and Path(args.requirements).exists():
         req_doc = json.loads(Path(args.requirements).read_text(encoding="utf-8"))
+        try:
+            validate_requirements(req_doc)
+        except ValueError as exc:
+            raise SystemExit(f"refusing to aggregate: malformed requirements: {exc}")
         job_status = {r.get("component"): effective_job_status(r) for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
         junit_index = load_junit_index(inputs, results, detail=True)
         job_counts_by_component = {r.get("component"): job_counts(r, inputs) for r in results
