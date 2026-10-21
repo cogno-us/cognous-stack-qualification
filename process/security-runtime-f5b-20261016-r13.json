@@ -1,0 +1,125 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "profile_id": "security-runtime-f5b-20261016-r13",
+  "supersedes_profile": "process/security-runtime-f5b-20261016-r12.json",
+  "refreeze_ids": [
+    "RF-2",
+    "RF-3",
+    "RF-4",
+    "RF-5",
+    "RF-6",
+    "RF-7",
+    "RF-8",
+    "RF-9",
+    "RF-10",
+    "RF-11",
+    "RF-12",
+    "RF-13",
+    "RF-14",
+    "RF-15",
+    "RF-16",
+    "RF-17",
+    "RF-18",
+    "RF-19",
+    "RF-20",
+    "RF-21",
+    "RF-22",
+    "RF-23",
+    "RF-24",
+    "RF-25",
+    "RF-26",
+    "RF-27",
+    "RF-28",
+    "RF-29",
+    "RF-30",
+    "RF-31",
+    "RF-32",
+    "RF-33",
+    "RF-34",
+    "RF-35",
+    "RF-36",
+    "RF-37",
+    "RF-38",
+    "RF-39",
+    "RF-40",
+    "RF-41",
+    "RF-45",
+    "RF-46",
+    "RF-48",
+    "RF-55",
+    "RF-56",
+    "RF-57",
+    "RF-58",
+    "RF-59",
+    "RF-60"
+  ],
+  "note": "Owner-authorised re-freeze (process/v1-validation/v1-2026-10-16-a/refreeze-log.json RF-2..RF-41, RF-45, RF-46, RF-48 and RF-55..RF-60): r13 moves six of the seven component pins of r12 to the current merged mains after the independent scan 5 and 6 and wave 7 fixes and the Programme 2 re-ties (control plane 0a41faa9, runtime ec728da6, Replay 028f63d1, evidence pack a3ebbb90, ODES e86a25a1, exchange 7f7569b0). The action manifest (fa170815) and the constitutional authority (9b5ab721) are unchanged. The suite generation stays p2 and the exchange compatibility profile stays security-runtime-p2-20261018, whose constants at exchange 7f7569b0 name the same tuple. r13 supersedes r12. The original profile, r1..r12 and freeze-manifest.json are retained unedited. A verdict applies to this profile only after a full controller run at these pins; none has been run.",
+  "predecessor_profile": "process/security-runtime-candidate-20261016.json",
+  "suite_generation": "p2",
+  "exchange_compatibility_profile": "security-runtime-p2-20261018",
+  "additional_source_hashes": [
+    ".github/workflows/security-runtime-f5b-qualification.yml",
+    "tools/summarize_security_runtime.py"
+  ],
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "0a41faa972699f7ec3063967a14cd9bdd3e67d27"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "ec728da6dc301a664b331ac8986afd6e850a1273"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "028f63d1c001f99580583888fa4b4e46d77a267b"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "a3ebbb90559a44a88855139a182649d3792bb1ca"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "e86a25a1d660e74533337d38744e2934200a50ae"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "fa170815ef96a54c233d0dd9da821b60debabf8b"
+    }
+  },
+  "constitutional_authority": {
+    "repository": "cogno-us/cognous-institutional-governance",
+    "revision": "9b5ab721ae0684150e466c01e9d0d59ec61c3e00",
+    "previous_revision": "d4462697197d6eb4e76bbfc3d712c8c1dab27884"
+  },
+  "scope": "Synthetic runtime-authority local SQLite; exact producer migration; no live effects or paid model calls",
+  "limitations": [
+    "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+    "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+    "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement",
+    "r2 re-freezes four further component pins (replay, odes, evidence_pack, exchange) relative to r1; evidence retained at the original F5b pins or at the r1 pins is historical and is not transferred to r2",
+    "r3 moves six component pins to the P4 generation relative to r2; evidence retained at the original F5b pins, the r1 pins or the r2 pins is historical and is not transferred to r3",
+    "r4 moves only the constitutional authority pin (fb3d9793 to cbc39e79) relative to r3; evidence retained at the r3 or earlier pins is historical and is not transferred to r4, and the authority probe revisions of 2026-10-17 apply only from r4",
+    "r5 moves five component pins to the Programme 2 generation relative to r4; evidence retained at earlier pins is historical and is not transferred to r5",
+    "r6 moves two component pins (ODES, exchange) relative to r5 to add the Programme 2 compatibility tuple and profile; evidence retained at earlier pins is historical and is not transferred to r6",
+    "r7 moves two component pins (ODES, exchange) relative to r6 to document the P4 and P2 profile versions and to align the exchange compatibility profile's ODES pin; evidence retained at earlier pins is historical and is not transferred to r7",
+    "r8 moves two component pins (ODES, exchange) relative to r7 for an ODES documentation cleanup and to align the exchange compatibility profile's ODES pin; evidence retained at earlier pins is historical and is not transferred to r8",
+    "r9 moves eight component pins (control plane, runtime, Replay, evidence pack, ODES, exchange, action manifest, constitutional authority) relative to r8 to the current mains; evidence retained at earlier pins is historical and is not transferred to r9",
+    "r10 moves five component pins (runtime, Replay, evidence pack, ODES, exchange) relative to r9 to the Programme 2 runtime-fix tuple; evidence retained at earlier pins is historical and is not transferred to r10",
+    "r11 moves only the constitutional authority pin (0124adcd to d4462697) relative to r10; evidence retained at the r10 or earlier pins is historical and is not transferred to r11",
+    "r12 moves all seven component pins and the constitutional authority pin (control plane, runtime, Replay, evidence pack, ODES, exchange, action manifest, authority) relative to r11 to the current mains; evidence retained at the r11 or earlier pins is historical and is not transferred to r12",
+    "r13 moves six component pins (control plane, runtime, Replay, evidence pack, ODES, exchange) relative to r12 to the current mains; the action manifest and the constitutional authority stay at the r12 pins; evidence retained at the r12 or earlier pins is historical and is not transferred to r13"
+  ]
+}

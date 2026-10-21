@@ -47,7 +47,7 @@ class WorkflowPinLiterals(unittest.TestCase):
         self.assertTrue(any('cognous-open-control-stack' in b for b in v.workflow_pin_mismatches(TEXT, res)))
 
     def test_a_non_sha_ref_for_a_pinned_repository_is_reported(self):
-        text = TEXT.replace('ref: 8e10387f8b7808e5dd1965fea38b74141761d7a6', 'ref: main', 1)
+        text = TEXT.replace('ref: b2485998b88256c2b322493800d1fba076814cbd', 'ref: main', 1)
         self.assertTrue(any('main' in b for b in v.workflow_pin_mismatches(text, RESOLVED)))
 
     def test_the_plan_job_runs_the_check_before_planning(self):

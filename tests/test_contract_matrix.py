@@ -241,6 +241,7 @@ class RealMatrixFile(unittest.TestCase):
         # r12: the reference moves from e5fe3822 to ODES 59ca4c79 (lifecycle missing-attempts rule, ODES #136, decision 44). The three file hashes are
         # the content of contracts/execution-attempt-lifecycle at ODES 59ca4c79 and at the r12 ODES pin dc5cf19d, and of the vendored copies of the
         # control plane, runtime and Replay at their r12 pins (schema.json is unchanged from the earlier reference).
+        # r13: unchanged. The same three files were re-hashed at ODES e86a25a1 and in the vendored copies of the control plane 0a41faa9, runtime ec728da6 and Replay 028f63d1 and are equal.
         ref = M.load_matrix()['contracts']['execution-attempt-lifecycle']['versions']['0.1.0-draft']
         self.assertEqual(ref['reference_odes_commit'], '59ca4c797b4c0700b581815a53b113a60bda1c67')
         self.assertEqual(ref['files'], {
@@ -250,7 +251,7 @@ class RealMatrixFile(unittest.TestCase):
 
     def test_every_profile_component_has_a_gate(self):
         m = M.load_matrix()
-        profile = json.loads((ROOT / 'process/security-runtime-f5b-20261016-r12.json').read_text())
+        profile = json.loads((ROOT / 'process/security-runtime-f5b-20261016-r13.json').read_text())
         self.assertEqual(set(profile['components']), set(M.governed_components(m)) | set(M.sha_pinned_components(m)))
 
 
