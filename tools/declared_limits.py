@@ -61,6 +61,14 @@ _BARE_ID = re.compile(r"^([\w.-]+\.py)::(" + _NAME + r")$")
 _REQUIREMENT_ID = re.compile(r"^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$")
 
 
+# Every amendment action the twin may carry. Only the first two change the declared set; the others are recorded decisions that do not.
+# An action outside this list is an error: it is never silently ignored. (derived from process/release-gate/preregistration.json:
+# add_known_limit, withdraw_known_limit, other; confirm_proposed is the documented non-declaration action)
+DECLARATION_ACTIONS = frozenset({"add_known_limit", "withdraw_known_limit"})
+NON_DECLARATION_ACTIONS = frozenset({"confirm_proposed", "other"})
+KNOWN_ACTIONS = DECLARATION_ACTIONS | NON_DECLARATION_ACTIONS
+
+
 class DeclaredSetError(Exception):
     """The twin cannot be read as a declared set, or a supplied declared set differs from it."""
 
@@ -125,6 +133,8 @@ def normalise(twin: dict) -> list:
         put(_test_entry(r["id"], "declared_known_limits.wiki_derived", None, r["path"], m.group(2), None))
     for n, a in enumerate(twin.get("amendments", []), start=1):
         act = a.get("action")
+        if act not in KNOWN_ACTIONS:
+            raise DeclaredSetError(f"amendment {n} has unknown action {act!r}; expected one of {sorted(KNOWN_ACTIONS)}")
         if act == "add_known_limit":
             put(_from_amendment_id(a["id"], f"amendment {n} ({a['timestamp']})"))
         elif act == "withdraw_known_limit":
