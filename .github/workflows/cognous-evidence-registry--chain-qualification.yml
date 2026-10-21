@@ -33,7 +33,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
         repository: cogno-us/cognous-evidence-attestation
-        ref: 5b5077dafde232a7801cb425c4efddcffb468723
+        ref: 981036c315856c71207984797b0c4e48d3b3921d
         path: pinned/bitrep
         persist-credentials: false
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -52,7 +52,9 @@ jobs:
       with:
         node-version: '24'
     - name: Install exact-source test dependencies
-      run: 'python -m pip install -r requirements-dev.txt -r pinned/bitrep/requirements.txt
+      run: 'python -m pip install --require-hashes -r pinned/bitrep/requirements.txt
+
+        python -m pip install -r requirements-dev.txt
 
         npm ci --ignore-scripts --no-audit --no-fund --prefix chain'
     - name: Verify clean pinned BitRep and exercise synthetic chain binding
@@ -60,7 +62,7 @@ jobs:
       env:
         BITREP_ROOT: ${{ github.workspace }}/pinned/bitrep
         PYTHONDONTWRITEBYTECODE: '1'
-      run: 'test "$(git -C ../pinned/bitrep rev-parse HEAD)" = 5b5077dafde232a7801cb425c4efddcffb468723
+      run: 'test "$(git -C ../pinned/bitrep rev-parse HEAD)" = 981036c315856c71207984797b0c4e48d3b3921d
 
         python python/test_bitrep.py
 
