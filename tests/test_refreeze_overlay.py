@@ -177,10 +177,10 @@ class CurrentPins(unittest.TestCase):
         self.assertEqual(_pins.FROZEN_EXCHANGE, NEW['exchange'])
         self.assertEqual(_pins.FROZEN_MANIFEST_COMPONENT, NEW['manifest'])
         self.assertEqual(_pins.ORIGINAL_MANIFEST['components_subject']['action_manifest']['sha'], R8_MANIFEST)  # the original freeze is never edited
-        self.assertEqual(_pins.FROZEN_BITREP, '5b5077dafde232a7801cb425c4efddcffb468723')
+        self.assertEqual(_pins.FROZEN_BITREP, '981036c315856c71207984797b0c4e48d3b3921d')  # RF-43 applied through the overlay
         self.assertEqual(_pins.OLD_INDEX_PIN, 'd5e45d275cb301d9684b543e93b05997991d1cf2')
-        self.assertEqual(_pins.FROZEN_INDEX, 'd17b8ac2b8445d385fbf51185a35914b2d8b835c')  # RF-1 applied through the overlay
-        self.assertEqual(_pins.REFROZEN_INDEX_PIN, 'd17b8ac2b8445d385fbf51185a35914b2d8b835c')
+        self.assertEqual(_pins.FROZEN_INDEX, '704f55ea08a2e97a36166f387895e8f5678bdad4')  # RF-1 and RF-42 applied through the overlay
+        self.assertEqual(_pins.REFROZEN_INDEX_PIN, '704f55ea08a2e97a36166f387895e8f5678bdad4')
         self.assertEqual(_pins.C14_PINS, {'control_plane': NEW['control_plane'],
                                           'moltbot_safe': NEW['runtime'], 'replay': NEW['replay']})
         self.assertEqual(_pins.PROFILE_RELPATH, R10)  # the newest profile whose refreeze_ids are all applied
@@ -439,20 +439,20 @@ class CurrentPins(unittest.TestCase):
     def test_repo_log_applies_cleanly_and_changes_the_index_the_authority_and_the_seven_components(self):
         m = manifest()
         r, applied = _pins.apply_overlay(m, _pins.load_refreeze_log())
-        self.assertEqual([a[0] for a in applied], ['RF-%d' % i for i in range(1, 42)])
+        self.assertEqual([a[0] for a in applied], ['RF-%d' % i for i in range(1, 44)])
         changed = {(g, k) for g in _pins.GROUPS for k in m.get(g, {}) if m[g][k]['sha'] != r[g][k]['sha']}
-        self.assertEqual(changed, {('components_lock_remainder', 'the_index'), ('components_subject', 'moltbot_safe'),
+        self.assertEqual(changed, {('components_lock_remainder', 'the_index'), ('components_lock_remainder', 'bitrep'), ('components_subject', 'moltbot_safe'),
                                    ('components_subject', 'control_plane'),
                                    ('components_subject', 'replay_bundle'), ('components_subject', 'odes'),
                                    ('components_subject', 'governance_evidence_pack'), ('components_subject', 'gax_imx_transport'),
                                    ('components_subject', 'action_manifest'),
                                    ('components_lock_remainder', 'constitutional_authority')})
-        self.assertEqual(len(_pins.GENERATIONS), 39)  # original + RF-2..RF-16 + RF-18..RF-35 + RF-37..RF-41; RF-1 (Index), RF-17 and RF-36 (authority) are not seven-component profile generations
+        self.assertEqual(len(_pins.GENERATIONS), 39)  # original + RF-2..RF-16 + RF-18..RF-35 + RF-37..RF-41; RF-1 and RF-42 (Index), RF-43 (bitrep), RF-17 and RF-36 (authority) are not seven-component profile generations
         self.assertEqual([g[0] for g in _pins.GENERATIONS], ["original-freeze"] + ["RF-%d" % i for i in range(2, 17)] + ["RF-%d" % i for i in range(18, 36)] + ["RF-%d" % i for i in range(37, 42)])
 
     def test_no_pin_literal_left_in_helpers(self):
         pinned = {s['sha'] for g in _pins.GROUPS for s in manifest().get(g, {}).values()} | {manifest()['identities']['hub']['head'],
-                                                                                              'd17b8ac2b8445d385fbf51185a35914b2d8b835c'} | set(NEW.values())
+                                                                                              '704f55ea08a2e97a36166f387895e8f5678bdad4', '981036c315856c71207984797b0c4e48d3b3921d'} | set(NEW.values())
         import re
         for f in ('_d02_d05_d09_helpers.py', '_d06_d07_d08_helpers.py', '_c_2b_helpers.py', '_index_signing.py', 'test_scn_c14.py', 'test_add_test_g1.py', 'test_asw_s.py'):
             src = (ROOT / 'suites/v1-scenarios' / f).read_text()
@@ -479,7 +479,7 @@ class ToolOverlay(unittest.TestCase):
 
     def test_plan_with_overlay_uses_applied_entries(self):
         shas = self.plan('--refreeze-log', str(VAL / 'refreeze-log.json'))
-        self.assertEqual(shas['the_index'], 'd17b8ac2b8445d385fbf51185a35914b2d8b835c')
+        self.assertEqual(shas['the_index'], '704f55ea08a2e97a36166f387895e8f5678bdad4')
         self.assertEqual(shas['moltbot_safe'], NEW['runtime'])
         self.assertEqual(shas['replay_bundle'], NEW['replay'])
         self.assertEqual(shas['odes'], NEW['odes'])
