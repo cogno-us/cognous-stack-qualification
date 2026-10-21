@@ -870,6 +870,64 @@ def job_counts(record, inputs: Path):
     return junit_counts(inputs / record["_dir"] / "junit.xml")
 
 
+def _job_junit_failures(record, inputs: Path):
+    """(classname, name) of every failed or errored case in the last JUnit report of one job, and whether a report was readable."""
+    d = inputs / record["_dir"]
+    files = sorted(d.glob("junit-attempt*.xml"))[-1:] or sorted(d.rglob("junit.xml"))[:1]
+    failed, readable = [], False
+    for f in files:
+        try:
+            root = ET.parse(f).getroot()
+        except ET.ParseError:
+            continue
+        readable = True
+        for tc in root.iter("testcase"):
+            if tc.find("failure") is not None or tc.find("error") is not None:
+                failed.append((tc.get("classname", ""), tc.get("name", "")))
+    return failed, readable
+
+
+def job_blockers(results, expected, missing, declared, inputs: Path, requirements):
+    """Jobs that stop the verdict from being PASS whatever the requirement rows say (E-1).
+
+    The requirement rows see only the cases their selectors match, so an undeclared failure elsewhere in a pinned component's own suite would
+    leave the verdict PASS with the job status FAIL. A blocker is, for every collected job record: FAIL (unless every failed case of its JUnit
+    report is a declared known limit of that component and at least one is present), INCONCLUSIVE or any other status that is not PASS, NOT RUN
+    (unless the plan marks the component optional); and every expected job that produced no result. A job whose component is the subject of a
+    non-mandatory job row (scope reduced: qualification tooling, matched-refund rerun) is not a blocker. Returns a list of
+    {job, component, os, python, status, kind (FAIL|INCOMPLETE), reason}; FAIL blockers make the verdict FAIL, the others INCOMPLETE.
+    """
+    dmap = DL.by_component(declared) if declared is not None else {}
+    reduced = {r.get("component") for r in requirements if r.get("kind") == "job" and not r.get("mandatory", True)}
+    optional = {(e["component"], e["os"], str(e["python"])[:4]) for e in expected if e.get("group") == "components_optional"}
+    blockers = []
+
+    def add(rec, kind, reason, job):
+        blockers.append({"job": job, "component": rec.get("component"), "os": rec.get("os"), "python": rec.get("python"),
+                         "status": rec.get("status"), "kind": kind, "reason": reason})
+
+    for r in results:
+        st = r.get("status")
+        if st == "PASS" or r.get("component") in reduced:
+            continue
+        if st == "NOT RUN" and (r.get("component"), r.get("os"), str(r.get("python"))[:4]) in optional:
+            continue
+        if st == "FAIL":
+            failed, _ = _job_junit_failures(r, inputs)
+            declared_here = dmap.get(r.get("component"), {})
+            undeclared = [f"{c}::{n}" for c, n in failed if (c, n) not in declared_here]
+            if failed and not undeclared:
+                continue  # every failed case is a declared known limit of this component
+            add(r, "FAIL", "job FAIL with undeclared failing case(s): " + ", ".join(undeclared[:5]) if undeclared else
+                "job FAIL without a failing case in its JUnit report (setup, collection or harness failure)", r["_dir"])
+        else:
+            add(r, "INCOMPLETE", f"job status {st}", r["_dir"])
+    for m in missing:
+        if m["component"] not in reduced:
+            add(m, "INCOMPLETE", m["reason"], "(missing)")
+    return blockers
+
+
 def cmd_aggregate(args):
     if not VALIDATION_ID_RE.fullmatch(str(args.validation_id)):
         raise SystemExit("invalid validation id")
@@ -924,9 +982,16 @@ def cmd_aggregate(args):
         summary["declared_limits"] = declared_limits_block(declared, requirements, junit_index)
         summary["full_catalog_status"] = full_catalog_status(requirements)
         summary["scope_reduction"] = scope_reduction_block(requirements)
+    blockers = job_blockers(results, expected, missing, declared, inputs, requirements) if requirements else []
+    summary["blocking_jobs"] = blockers
+    if blockers and summary["selected_v1_verdict"] != "FAIL":
+        summary["selected_v1_verdict"] = "FAIL" if any(b["kind"] == "FAIL" for b in blockers) else "INCOMPLETE"
+        summary["verdict_note"] = "job(s) not covered by a declared known limit: " + "; ".join(
+            f"{b['component']} {b['os']} py{b['python']} ({b['job']}): {b['reason']}" for b in blockers)
     if freeze is None or freeze.get("status") != "PASS" or freeze_problem:
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
-        summary["verdict_note"] = "freeze verification did not pass; no result may be promoted" + (f" ({freeze_problem})" if freeze_problem else "")
+        summary["verdict_note"] = ((summary["verdict_note"] + " | ") if summary.get("verdict_note") else "") + (
+            "freeze verification did not pass; no result may be promoted" + (f" ({freeze_problem})" if freeze_problem else ""))
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     lines = [f"## V1 validation {args.validation_id}", "", f"Freeze: **{summary['freeze_status']}** · Verdict: **{summary['selected_v1_verdict']}** ({summary['verdict_basis']})", "",
              "| Status | Jobs |", "|---|---|"] + [f"| {k} | {v} |" for k, v in counts.items()] + ["",
