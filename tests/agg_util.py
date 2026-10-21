@@ -44,7 +44,7 @@ def job(component, status='PASS', cases=(), os_='ubuntu-latest', python='3.12', 
                                                                         'attempts': [{'outcome': status}]}, **(extra or {})), 'cases': list(cases)}
 
 
-def aggregate(jobs, requirements=None, freeze=GOOD_FREEZE, plan=None, declared_twin=None, vid=VID, env=None):
+def aggregate(jobs, requirements=None, freeze=GOOD_FREEZE, plan=None, declared_twin=None, vid=VID, env=None, no_plan_record=None):
     """Run cmd_aggregate; returns (summary dict, td-independent). plan: list of plan include entries (None: no plan record)."""
     with tempfile.TemporaryDirectory() as td:
         td = Path(td)
@@ -68,6 +68,8 @@ def aggregate(jobs, requirements=None, freeze=GOOD_FREEZE, plan=None, declared_t
             Path(req).write_text(json.dumps({'requirements': requirements}))
         ns = argparse.Namespace(inputs=str(inp), out=str(td / 'out'), validation_id=vid, requirements=req,
                                 declared_twin=declared_twin, declared_set=None, require_committed_twin=False)
+        if no_plan_record is not None:
+            ns.no_plan_record = no_plan_record
         with contextlib.redirect_stdout(io.StringIO()):
             cmd_aggregate(ns, **(env or {}))
         return json.loads((td / 'out' / 'summary.json').read_text())

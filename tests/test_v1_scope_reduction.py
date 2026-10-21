@@ -29,7 +29,9 @@ def aggregate(reqs_doc, jobs):
         td = Path(td)
         inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
-        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {'x': {}}, 'components_expected': ['x']}))
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {n: {} for n in jobs}, 'components_expected': list(jobs)}))
+        (inp / 'v1v-plan').mkdir()  # F-T2-1: an aggregate needs a plan record to reach PASS
+        (inp / 'v1v-plan' / 'plan.json').write_text(json.dumps({'include': [{'component': n, 'os': 'ubuntu-latest', 'python': '3.12'} for n in jobs]}))
         for name, st in jobs.items():
             (inp / ('v1v-' + name)).mkdir()
             (inp / ('v1v-' + name) / 'result.json').write_text(json.dumps({'component': name, 'status': st, 'os': 'ubuntu-latest', 'python': '3.12'}))
