@@ -719,9 +719,167 @@
     "testing/harness/run_authority_lineage.py refuses more than one origin for one authority",
     "tests/test_authority_lineage.py gains AuthorityLineageRestrictionTests"
    ],
-   "open_item": "full controller run g6-r10 at the re-frozen tuple (profile r11, RF-43, RF-44 and RF-45)",
+   "open_item": "superseded by RF-46",
    "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420) and g5-r10 (run 39531760987) at 0124adcd; results at the earlier pin are historical and are not transferred",
-   "status": "APPLIED-IN-WORKFLOW (pending full controller run g6-r10)"
+   "status": "APPLIED (superseded by RF-46; probed by the full controller run g6-r10, run 39563114678, whose PASS is the result of the controller that produced it and reads INCOMPLETE when the record is re-aggregated by the hardened controller, E-2)"
+  },
+  {
+   "id": "RF-46",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "constitutional_authority",
+   "repository": "cogno-us/cognous-institutional-governance",
+   "from_sha": "d4462697197d6eb4e76bbfc3d712c8c1dab27884",
+   "to_sha": "9b5ab721ae0684150e466c01e9d0d59ec61c3e00",
+   "reason": "Move to the institutional-governance main after the independent scans 3 and 4 of the synthetic authority-lineage validator (institutional-governance #61 wording, #62 and #63; 9b5ab721 is the merge commit of #63): mutation scopes must stay inside the effective parent scope or the origin base scope, delegation edges are checked against the parent edge effective scope and revision at delegated_at, the commitment lineage_record_ids must contain the origin and every edge on the chain, an amend must not change status, self-succession and succession inside the predecessor's own delegation chain are refused, and timestamps must be RFC 3339 date-time with an explicit offset. The lineage evidence profile is non-authorizing and nothing else in the stack consumes it",
+   "behaviour_changes": [
+    "testing/harness/run_authority_lineage.py refuses a mutation whose scope is not inside the effective parent scope (delegate) or the origin base scope (origin) and checks delegation edges against the parent edge effective scope and revision at delegated_at (#62)",
+    "the commitment lineage_record_ids must contain the origin and every edge on the chain (#62)",
+    "an amend mutation must not change status; self-succession and a successor that is a delegate or an ancestor of the predecessor are refused (#63)",
+    "the harness enforces RFC 3339 date-time with an explicit offset as the schema format checker and as the timestamp parser; a naive and aware mix is a typed refusal (#63)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-47",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "control_plane",
+   "repository": "cogno-us/cognous-control-plane",
+   "from_sha": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+   "to_sha": "e77fe0ee8714617899592528e660a80fbb2e864a",
+   "reason": "Move to the control plane main with the scan-3 default-path fixes (control plane #79; #78 is documentation) and the scan-4 holds on malformed or ambiguous inputs (#80, CP-1 to CP-5): the manifest gate refuses a default-blocked action or a tool that is not allowed and a manifest without effect limits or an amount limit, limits are no longer coerced, a non-boolean required, an ambiguous action name, an unrecognised review mode or evidence vocabulary and a non-integer evidence age bound hold, and the vendored execution-attempt-lifecycle contract is re-synchronised to ODES 59ca4c79",
+   "behaviour_changes": [
+    "the manifest gate refuses action_blocked, missing_effect_limits and missing_amount_limit; manifest and context limits must be a finite JSON number (max_amount) or an exact JSON integer (max_effects) or are refused with effect_limit_malformed or authority_limit_malformed (#79)",
+    "five codes are registered in the 0.2 reason registry (163 codes in total; 0.1 stays at 121) (#79)",
+    "a non-boolean authority_required.required counts as required; an action_name declared twice, an unrecognised review mode, evidence kind or unknown_behavior, a non-integer max_age_seconds, a delegation that is not an object and a permission without unit hold with codes that already existed (#80)",
+    "the vendored execution-attempt-lifecycle contract (validate.py 405812fe, README.md 336cab61, schema.json unchanged) is the ODES 59ca4c79 copy (#80)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-48",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "action_manifest",
+   "repository": "cogno-us/cognous-action-manifest",
+   "from_sha": "ff5490828b2bf7f6a976da209f3f533701855687",
+   "to_sha": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+   "reason": "Move to the action manifest main with strict input (action manifest #28; #27 is documentation) and the refusal of ambiguous identifiers and targets (#29, AM-1 and AM-2): duplicate JSON members are refused, the runtime proposal and the boolean members are not coerced, blank, padded, control-character and duplicate identifiers and targets are refused, and export is treated as effectful",
+   "behaviour_changes": [
+    "load_manifest refuses a duplicate object member at every nesting level; RuntimeActionProposal and the boolean members are strict (#28)",
+    "blank, padded, control-character and duplicate identifiers and targets are refused (E024, E025) (#29)",
+    "an export action is treated as effectful for the rules E008 and E014 (#29)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-49",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "moltbot_safe",
+   "repository": "cogno-us/cognous-execution-runtime",
+   "from_sha": "6b16962db140590b808f02b5c2cb11a217aec46f",
+   "to_sha": "cab4d9abc651c7efbafb429798d2c908f048bf5c",
+   "reason": "Move to the runtime main that closes the lifecycle-validator and export gaps of scan 3 (runtime #141) and adopts the upstreamed lifecycle contract with an ordered and bound local stop journal (#142, RT-2): the lifecycle rules run when the attempts member is absent, a failed or denied export result is refused while a destination effect row exists, permission grants are matched exactly, and the vendored lifecycle contract is the ODES 59ca4c79 copy with no local divergence",
+   "behaviour_changes": [
+    "a missing attempts member is read as an empty row list, so a ghost executed result or reordered events no longer validate (#141)",
+    "export refuses a failed or denied result while a destination effect row exists; a bare string permission entry grants nothing (#141)",
+    "the vendored execution-attempt-lifecycle contract is re-synchronised from ODES 59ca4c79 (validate.py 405812fe, README.md 336cab61) and the local divergence record is replaced by a record of the adoption (#142)",
+    "the local stop journal requires an exact integer sequence that strictly increases per journal, binds a lifecycle to one effect_id and needs a prior stop_requested for the other events (#142)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-50",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "gax_imx_transport",
+   "repository": "cogno-us/cognous-governed-exchange",
+   "from_sha": "fdc2a410383396553254a39ae641c88b78ee13f1",
+   "to_sha": "81b0877e1a9a82c2a61b1bafe631a4691556355f",
+   "reason": "Move to the exchange main with the scan-3 and scan-4 corrections (exchange #56, #59) and the Programme 2 re-ties (#57, #58, #60): requested_action is compared type-exactly, created_at is bounded, a non-string message_type, a non-finite digest and a missing authority reference are typed refusals, and the compatibility profile security-runtime-p2-20261018 names the merged tuple (control plane e77fe0ee, runtime cab4d9ab, manifest fa170815, Replay 53c0cd60, ODES dc5cf19d, evidence pack 99ba3211). The constants of the earlier re-tie #57 named two commits that were not merged (corrected by #58); at 81b0877e all six named revisions are merged mains",
+   "behaviour_changes": [
+    "requested_action is compared on canonical JSON bytes; created_at must not follow expires_at or the evaluation time (#56)",
+    "a non-string message_type, non-finite digests and missing authority refs are refused with typed reasons (GX-1, GX-2) (#59)",
+    "the p2 exchange compatibility profile security-runtime-p2-20261018 names control plane e77fe0ee, runtime cab4d9ab, manifest fa170815, Replay 53c0cd60, ODES dc5cf19d and evidence pack 99ba3211; no identity check was loosened (#60)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-51",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "replay_bundle",
+   "repository": "cogno-us/cognous-replay-bundle",
+   "from_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+   "to_sha": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6",
+   "reason": "Move to the Replay main with the scan-3 and scan-4 input refusals (Replay #71, #73) and the re-ties of the Programme 2 generation (#72, #74): repeated members, unsigned members, unknown versions and unbound envelopes are refused by default, 0.2.0 reconstruction bundles are verified on the raw JSON with a scalar-exact unretained check, an unknown control plane decision result is refused, the lifecycle contract is re-vendored at ODES 59ca4c79, and the P2 constants and fixtures name control plane e77fe0ee, runtime cab4d9ab and manifest fa170815",
+   "behaviour_changes": [
+    "load_json_bounded rejects duplicate object members by default; arb verify refuses a signed file with members the signature does not cover; an unknown bundle_version is refused (E002); verify_signed_replay_bundle defaults allow_unbound_envelope to False (#71)",
+    "unretained_members compares scalar type and value; 0.2.0 reconstruction bundles get raw-JSON verifiers and arb verify-reconstruction; an unknown Control Plane decision result is refused (#73)",
+    "the execution-attempt-lifecycle contract is re-vendored at ODES 59ca4c79 (#73)",
+    "CONTROL_PLANE_P2_REVISION, MOLTBOT_P2_REVISION and MANIFEST_P2_REVISION name e77fe0ee, cab4d9ab and fa170815; the paired and profile fixtures are re-captured with the unchanged capture scripts; no contract changes (#72, #74)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-52",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "governance_evidence_pack",
+   "repository": "cogno-us/cognous-governance-evidence-pack",
+   "from_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+   "to_sha": "99ba3211450b25a18007b4b62907b072fe05c964",
+   "reason": "Move to the evidence pack main that states whether a validated pack is hand-authored or an import (evidence pack #59) and re-ties the Programme 2 tuple (#60, #61) to control plane e77fe0ee, runtime cab4d9ab, manifest fa170815 and Replay 53c0cd60",
+   "behaviour_changes": [
+    "agep validate states whether the pack is hand-authored or an import (#59)",
+    "P2_REVISIONS and the replay extra name control plane e77fe0ee, runtime cab4d9ab, manifest fa170815 and Replay 53c0cd60; the paired P2 fixtures are re-copied byte for byte from Replay 53c0cd60 (#61)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-53",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "odes",
+   "repository": "cogno-us/open-decision-evidence-standard",
+   "from_sha": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+   "to_sha": "dc5cf19d405ce885b287cde2f78519d3109b9ae6",
+   "reason": "Move to the ODES main with the lifecycle missing-attempts rule and the 42-code 0.2 label list (ODES #136), the rule_identity digest pattern (#134), the package_digest-only trusted anchor (#136) and the Programme 2 tuple re-ties (#135, #137) to control plane e77fe0ee, runtime cab4d9ab, manifest fa170815 and Replay 53c0cd60. The execution-attempt-lifecycle contract content at this revision is README.md 336cab61, schema.json 1fc55d6f and validate.py 405812fe, the content of the vendored copies of the control plane, runtime and Replay (declared odes_commit 59ca4c79)",
+   "behaviour_changes": [
+    "the lifecycle result and event rules run when the attempts member is absent (decision 44); validate.py and README.md equal the vendored copies of the producers",
+    "CODES_ADDED_IN_0_2 lists all 42 codes added in reason registry 0.2 (163 less 121), so a row labelled 0.1 that carries one of the five codes of control plane #79 is reason_label_mismatch",
+    "the recipient trusted-digest set anchors package_digest only; a set holding only the record digest gives unavailable with a reason that says it does not cover provenance (decision 45)",
+    "the rule-revision schema requires rule_identity to be a sha256 commitment or null (#134)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
+  },
+  {
+   "id": "RF-54",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (\"do the fixes and merge. Then do all the refreeze etc.\", after the independent scans 3 and 4 and the merge of their fixes; the run order is the owner's)",
+   "component": "the_index",
+   "repository": "cogno-us/cognous-evidence-registry",
+   "from_sha": "d25afe601454d60c561a4726e31c31d1ec40d99b",
+   "to_sha": "8e10387f8b7808e5dd1965fea38b74141761d7a6",
+   "reason": "Move to the registry main after the independent scan 4 (registry #33 and #34): the BitRep checkout is verified against the pinned blobs, claim status weights count each distinct normalised source once per relation, DOI and arXiv spellings fold to one source key, and a link to a nonexistent claim or evidence is refused with 404. The registry still pins BitRep 981036c3 (the attestation pin of RF-43 is unchanged). The registry is outside the profile; the move is made in the workflow pins and the log",
+   "behaviour_changes": [
+    "chain/python/bitrep_checkout.py checks that HEAD equals the pin, no skip-worktree or assume-unchanged flag is set, every tracked file hashes to its HEAD blob and no untracked importable file exists (#33)",
+    "compute_epistemic_status weights a claim by distinct normalised source (a source contributes its strongest record once per relation); the source key uses NFKC, strips format characters and combining marks, collapses whitespace, casefolds and folds doi: and arXiv spellings (#33, #34)",
+    "POST /evidence/links returns 404 for a nonexistent claim or evidence (#34)",
+    "the verify_proof placeholder fails closed (#33)"
+   ],
+   "open_item": "full controller run g7-r10 at the re-frozen tuple (profile r12, RF-46 to RF-53; the registry RF-54 moves in the workflow only)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320), g3-r10 (run 39481839420), g5-r10 (run 39531760987) and g6-r10 (run 39563114678) at the earlier pin; results at the earlier pin are historical and are not transferred",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g7-r10)"
   }
  ]
 }
