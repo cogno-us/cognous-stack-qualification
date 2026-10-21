@@ -26,13 +26,16 @@ MANIFEST = {
 }
 
 
-def run_freeze(td, fetch):
+FULL_PROFILE = {'components': {k: {'repository': spec['repository'], 'revision': spec['sha']} for k, spec in MANIFEST['components_subject'].items()}}
+
+
+def run_freeze(td, fetch, profile=FULL_PROFILE, qprofile=FULL_PROFILE):
     td = Path(td)
     (td / 'hub').mkdir(); (td / 'q').mkdir()
     (td / 'manifest.json').write_text(json.dumps(MANIFEST))
-    (td / 'hub' / 'profile.json').write_text(json.dumps({'components': {}}))
+    (td / 'hub' / 'profile.json').write_text(json.dumps(profile))
     (td / 'hub' / 'component-lock.json').write_text(json.dumps({'components': {'gamma': {'sha': SHA_C}}}))
-    (td / 'q' / 'qprofile.json').write_text(json.dumps({'components': {}}))
+    (td / 'q' / 'qprofile.json').write_text(json.dumps(qprofile))
 
     def fake_git(path, *a, **k):
         return {'diff': 'x', 'merge-base': ''}.get(a[0], HEAD if a[:2] == ('rev-parse', 'HEAD') else 'tree')
@@ -64,6 +67,14 @@ class FreezeVerifyFetchesComponents(unittest.TestCase):
         self.assertEqual(sorted(names), [f'component {k} resolves to pinned commit' for k in ('alpha', 'beta', 'gamma')])
         self.assertEqual([c['check'] for c in rec['checks'] if c['status'] != 'PASS'], [])
         self.assertEqual(rec['status'], 'PASS')
+
+    def test_an_empty_or_incomplete_profile_fails_the_record(self):
+        # E-3: the profile checks used to run profile -> manifest only, so these passed with zero checks
+        partial = {'components': {'alpha': FULL_PROFILE['components']['alpha']}}
+        for kw in ({'profile': {'components': {}}}, {'qprofile': {'components': {}}}, {'profile': partial}, {'qprofile': partial}):
+            with tempfile.TemporaryDirectory() as td:
+                rec = run_freeze(td, lambda d, repo, sha: sha, **kw)
+            self.assertEqual(rec['status'], 'FAIL', kw)
 
     def test_a_component_that_resolves_to_another_commit_fails_the_record(self):
         with tempfile.TemporaryDirectory() as td:

@@ -149,6 +149,33 @@ def ls_remote_tag(repository: str, tag: str):
     return peeled or direct
 
 
+def profile_pin_checks(prof, manifest, label, suffix="", require_authority=False):
+    """[(check name, ok, expected, actual)] that a profile and a (resolved) manifest agree in BOTH directions (E-3).
+
+    profile -> manifest: every profile component names a manifest repository at the manifest revision (as before).
+    manifest -> profile: the profile lists at least one component, and every pinned subject component appears in it (by its profile_key)
+    with its repository and the manifest (overlay) revision. A profile ``constitutional_authority`` section must equal the pinned authority
+    (repository and revision); with ``require_authority`` the section must be present."""
+    comps = prof.get("components")
+    if not isinstance(comps, dict) or not comps:
+        return [(f"{label} profile lists its components", False, "at least one component", comps)]
+    byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(manifest)}
+    checks = [(f"{label} profile pin {name} equals manifest{suffix}", byrepo.get(spec.get("repository")) == spec.get("revision"), spec.get("revision"),
+               byrepo.get(spec.get("repository"))) for name, spec in comps.items()]
+    for key, spec in manifest["components_subject"].items():
+        pk = spec.get("profile_key", key)
+        entry = comps.get(pk) or {}
+        checks.append((f"{label} profile lists pinned subject component {pk} at its manifest revision{suffix}",
+                       entry.get("repository") == spec["repository"] and entry.get("revision") == spec["sha"], spec["sha"], entry.get("revision")))
+    auth = manifest.get("components_lock_remainder", {}).get("constitutional_authority")
+    section = prof.get("constitutional_authority")
+    if auth is not None and (section is not None or require_authority):
+        section = section if isinstance(section, dict) else {}
+        checks.append((f"{label} profile constitutional_authority equals the pinned authority{suffix}",
+                       section.get("repository") == auth["repository"] and section.get("revision") == auth["sha"], auth["sha"], section.get("revision")))
+    return checks
+
+
 def cmd_freeze_verify(args):
     m = load_manifest(args.manifest)  # ORIGINAL freeze: hub/profile/lock/tag identities are checked against what was frozen
     resolved, applied = load_resolved(args.manifest, args.refreeze_log)  # components that are fetched and qualified
@@ -189,9 +216,8 @@ def cmd_freeze_verify(args):
     check("runtime quarantine tag exists", ls_remote_tag(rt["repository"], rt["quarantine_tag"]) is not None)
     # profile pins agree with manifest
     prof = json.loads((hub / m["profile"]["path"]).read_text())
-    byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(m)}
-    for name, spec in prof["components"].items():
-        check(f"hub profile pin {name} equals manifest", byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], byrepo.get(spec["repository"]))
+    for name, ok, exp, act in profile_pin_checks(prof, m, "hub"):
+        check(name, ok, exp, act)
     in_force = {}  # pin in force before each entry: the manifest pin, then the previous entry's to_sha (chained re-freezes)
     for eid, group, key, frm, to in applied:
         before = in_force.get((group, key), m[group][key]["sha"])
@@ -199,12 +225,11 @@ def cmd_freeze_verify(args):
               before == frm and re.fullmatch(r"[0-9a-f]{40}", to) is not None and to != frm, before, to)
         in_force[(group, key)] = to
     # the qualification profile (the original, or the r1 profile via --qual-profile) must equal manifest + overlay
-    resolved_byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(resolved)}
     qprof_path = qual / (args.qual_profile or m["profile"]["qualification_profile"])
     qprof = json.loads(qprof_path.read_text())
-    for name, spec in qprof["components"].items():
-        check(f"qualification profile pin {name} equals manifest" + (" + refreeze overlay" if applied else ""),
-              resolved_byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], resolved_byrepo.get(spec["repository"]))
+    auth_moved = any(k == "constitutional_authority" for _, _, k, _, _ in applied)
+    for name, ok, exp, act in profile_pin_checks(qprof, resolved, "qualification", " + refreeze overlay" if applied else "", require_authority=auth_moved):
+        check(name, ok, exp, act)
     lock = json.loads((hub / "component-lock.json").read_text())
     for key, spec in {**m["components_lock_remainder"], **m["components_optional"]}.items():  # hub lock is frozen: original pins
         check(f"hub lock pin {key} equals manifest", lock["components"][key]["sha"] == spec["sha"], spec["sha"], lock["components"][key]["sha"])
