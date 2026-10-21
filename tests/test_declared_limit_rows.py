@@ -328,6 +328,8 @@ def aggregate(junit_text, twin_doc, requirement, declared_set=None, comp=ODES, r
         inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
         (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {comp: {}}, 'components_expected': [comp]}))
+        (inp / 'v1v-plan').mkdir()  # F-T2-1: an aggregate needs a plan record to reach PASS
+        (inp / 'v1v-plan' / 'plan.json').write_text(json.dumps({'include': [{'component': comp, 'os': 'ubuntu-latest', 'python': '3.12'}]}))
         (inp / ('v1v-' + comp)).mkdir()
         (inp / ('v1v-' + comp) / 'result.json').write_text(json.dumps({'component': comp, 'status': 'FAIL' if '<failure' in junit_text or '<error' in junit_text else 'PASS', 'os': 'ubuntu-latest', 'python': '3.12'}))
         (inp / ('v1v-' + comp) / 'junit-attempt1.xml').write_text(junit_text)

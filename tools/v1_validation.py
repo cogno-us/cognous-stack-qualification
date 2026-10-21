@@ -260,25 +260,121 @@ def cmd_freeze_verify(args):
 
 
 # ----------------------------------------------------- workflow pin literals
-_WF_CHECKOUT_RE = re.compile(r"repository:\s*(cogno-us/[\w.-]+)[ \t]*\n[ \t]+ref:[ \t]*(\S+)")
-_WF_MATRIX_RE = re.compile(r"repo:\s*(cogno-us/[\w.-]+),\s*sha:\s*(\S+?)\s*[,}]")
+# F-T3-1: the workflow is read as YAML structure (PyYAML, hash-locked in .github/locks/jsonschema-pyyaml-c943d3.txt), not with regular
+# expressions over its text, so key order, comments, quoting, CRLF, block or flow style and multi-line matrix entries do not matter.
+_HEX40_RE = re.compile(r"(?<![0-9A-Za-z])[0-9A-Fa-f]{40}(?![0-9A-Za-z])")
+_REPO_KEYS = ("repository", "repo")
+_REF_KEYS = ("ref", "sha")
 
 
-def workflow_pin_literals(text):
-    """[(repository, ref literal)] of every checkout ``repository``/``ref`` pair and probes-matrix ``repo``/``sha`` pair in a workflow text."""
-    return [(m.group(1), m.group(2)) for rx in (_WF_CHECKOUT_RE, _WF_MATRIX_RE) for m in rx.finditer(text)]
+def _yaml_module():
+    try:
+        import yaml
+    except ImportError as exc:  # fail closed: a check that cannot parse the workflow must not pass it
+        raise SystemExit("PyYAML is required to check the workflow pins (python -m pip install --require-hashes -r .github/locks/jsonschema-pyyaml-c943d3.txt)") from exc
+    return yaml
+
+
+def _load_workflow_yaml(text):
+    """Parse a workflow as YAML with every plain scalar kept as a string (a 40-digit sha is not an integer) and duplicate mapping keys refused."""
+    yaml = _yaml_module()
+
+    class _Loader(yaml.SafeLoader):
+        pass
+
+    _Loader.yaml_implicit_resolvers = {k: [(t, r) for t, r in v if t == "tag:yaml.org,2002:null"] for k, v in yaml.SafeLoader.yaml_implicit_resolvers.items()}
+
+    def construct_mapping(loader, node, deep=False):
+        seen = set()
+        for k, _ in node.value:
+            key = loader.construct_object(k, deep=True)
+            if key in seen:
+                raise yaml.YAMLError(f"duplicate mapping key {key!r} (line {k.start_mark.line + 1})")
+            seen.add(key)
+        return yaml.SafeLoader.construct_mapping(loader, node, deep)
+
+    _Loader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping)
+    try:
+        return yaml.load(text, Loader=_Loader)
+    except yaml.YAMLError as exc:  # refuse, never skip
+        raise SystemExit(f"workflow is not valid YAML for the pin check: {exc}") from exc
+
+
+def _norm_repo(value):
+    """owner/name of a repository reference (lower case; URL prefix, .git suffix and quotes dropped), or None."""
+    if not isinstance(value, str):
+        return None
+    v = value.strip().strip("'\"")
+    v = re.sub(r"^(?:https?://|git@)?(?:www\.)?github\.com[/:]", "", v, flags=re.I)
+    v = re.sub(r"\.git$", "", v)
+    return v.lower() if re.fullmatch(r"[\w.-]+/[\w.-]+", v) else None
+
+
+def _walk_yaml(node):
+    """Yield every mapping and every string (keys included) of a parsed YAML document."""
+    if isinstance(node, dict):
+        yield node
+        for k, v in node.items():
+            yield from _walk_yaml(k)
+            yield from _walk_yaml(v)
+    elif isinstance(node, list):
+        for v in node:
+            yield from _walk_yaml(v)
+    elif isinstance(node, str):
+        yield node
+
+
+def _name_hits(string, pinned):
+    return sorted((m.start(), p) for p in pinned for m in re.finditer(r"(?<![\w.-])" + re.escape(p) + r"(?:\.git)?(?![\w.-])", string, re.I))
+
+
+def workflow_pin_literals(text, pinned=()):
+    """[(repository (lower case), ref literal)] for every pairing in a workflow text, read as YAML structure.
+
+    1. A mapping with a ``repository`` or ``repo`` key naming ``owner/name`` pairs that repository with every ``ref`` and ``sha`` of the same
+       mapping (whatever the key order or style: a checkout ``with:`` block, a one-line or multi-line matrix entry) and with every 40-hex
+       literal in its other string values.
+    2. With ``pinned`` (repository names in force), every 40-hex literal of any string (a ``run`` script, an environment value, a ``git clone``
+       command line) is paired with the nearest preceding pinned repository name of the same string, else the nearest following one.
+    Raises SystemExit when the text is not valid YAML or repeats a mapping key."""
+    doc = _load_workflow_yaml(text)
+    pairs, pinned = [], [p.lower() for p in pinned]
+    for node in _walk_yaml(doc):
+        if isinstance(node, dict):
+            repos = {r for r in (_norm_repo(node.get(k)) for k in _REPO_KEYS) if r}
+            for r in repos:
+                for k in _REF_KEYS:
+                    if isinstance(node.get(k), str):
+                        pairs.append((r, node[k].strip()))
+                for k, v in node.items():
+                    if k not in _REF_KEYS and k not in _REPO_KEYS and isinstance(v, str):
+                        pairs.extend((r, h) for h in _HEX40_RE.findall(v))
+        elif isinstance(node, str) and pinned:
+            hits = _name_hits(node, pinned)
+            for m in _HEX40_RE.finditer(node):
+                before = [h for h in hits if h[0] < m.start()]
+                near = before[-1] if before else (hits[0] if hits else None)
+                if near:
+                    pairs.append((near[1], m.group(0)))
+    return pairs
 
 
 def workflow_pin_mismatches(text, resolved):
-    """Messages for every pinned-repository literal of the workflow that differs from the pin in force (E-4).
+    """Messages for every pinned-repository literal of the workflow that differs from the pin in force (E-4, F-T3-1).
 
     ``resolved`` is the manifest with the refreeze overlay applied (component pins) and the hub head of its identities. A repository that is
-    not pinned (third-party actions, other repositories) is not checked."""
-    pins = {s["repository"]: s["sha"] for _, _, s in all_components(resolved)}
+    not pinned (third-party actions, other repositories) is not checked. A pinned repository that the workflow names (in any YAML string)
+    but for which it carries no sha literal at all is reported too (a literal removed or hidden behind an expression); a pinned repository
+    the workflow never names (for example one whose pin is taken from the plan at run time) needs no literal."""
+    pins = {s["repository"].lower(): s["sha"] for _, _, s in all_components(resolved)}
     hub = resolved["identities"]["hub"]
-    pins[hub["repository"]] = hub["head"]
-    return [f"{repo}: workflow literal {lit!r} is not the pin in force {pins[repo]}" for repo, lit in workflow_pin_literals(text)
-            if repo in pins and lit != pins[repo]]
+    pins[hub["repository"].lower()] = hub["head"]
+    lits = workflow_pin_literals(text, pins)
+    bad = [f"{repo}: workflow literal {lit!r} is not the pin in force {pins[repo]}" for repo, lit in lits if repo in pins and lit != pins[repo]]
+    named = {p for node in _walk_yaml(_load_workflow_yaml(text)) if isinstance(node, str) for _, p in _name_hits(node, pins)}
+    have = {repo for repo, _ in lits}
+    bad += [f"{repo}: named by the workflow but no sha literal is present for it" for repo in sorted(named - have)]
+    return bad
 
 
 def cmd_check_workflow_pins(args):
@@ -711,11 +807,14 @@ JOB_AUDIT_COMPONENTS = {"native-f5b-suite": "audit_outcome"}
 
 
 def effective_job_status(record):
-    """The status of a job record as the requirement rows read it: PASS is kept only when the record's audit field, where one is required, is 'success'."""
+    """The status of a job record as the requirement rows read it: PASS is kept only when the record's audit field, where one is required, is
+    'success' and, where the record carries the exit code of its pytest session (``pytest_exit``), that code is 0 (F-T2-2)."""
     st = record.get("status")
     field = JOB_AUDIT_COMPONENTS.get(record.get("component"))
     if st == "PASS" and field and record.get(field) != "success":
         return "INCONCLUSIVE"
+    if st == "PASS" and record.get("pytest_exit") not in (None, 0):
+        return "INCONCLUSIVE"  # F-T2-2: a pytest session that exited non-zero is not PASS whatever its (possibly partial) JUnit says
     return st
 
 
@@ -723,6 +822,9 @@ def effective_job_status(record):
 # Component-suite rows keep their own semantics: retained component suites carry skips (control_plane 1, replay_bundle 17), and
 # qual-tooling (non-mandatory, 1 skip) and matched-refund are not listed.
 JOB_ZERO_SKIP_COMPONENTS = frozenset({"hub-tests"})
+# Pytest-session job rows: PASS needs at least `min_cases` executed cases (the row's optional integer field; default 1) when the job's counts are
+# known. The retained counts (hub-tests 653) are far above the default; no other number is invented here (F-T2-2).
+JOB_MIN_CASES_COMPONENTS = frozenset({"hub-tests", "qual-tooling"})
 
 
 def validate_requirements(doc):
@@ -736,6 +838,10 @@ def validate_requirements(doc):
         if not rid or rid in seen:
             raise ValueError(f"requirement row id {rid!r} is missing or duplicated")
         seen.add(rid)
+        if r.get("kind", "tests") == "job" and "min_cases" in r:
+            mc = r["min_cases"]
+            if isinstance(mc, bool) or not isinstance(mc, int) or mc < 1:
+                raise ValueError(f"requirement {rid}: job min_cases must be an integer of at least 1 (got {mc!r})")
         if r.get("kind", "tests") != "tests":
             continue
         sels = r.get("selectors")
@@ -859,6 +965,12 @@ def evaluate_requirements(doc, index, job_status, declared=None, job_counts_by_c
                 if not c.get("testcases") or c.get("skipped") != 0:
                     r["status"] = "INCONCLUSIVE"
                     r["reason"] = f"job passed with skipped tests or without counts (counts: {c or 'none'}); a skip is not coverage for this row"
+            if r["status"] == "PASS" and job_counts_by_component is not None and r["component"] in JOB_MIN_CASES_COMPONENTS:
+                c = job_counts_by_component.get(r["component"]) or {}
+                need = r.get("min_cases", 1)
+                if (c.get("testcases") or 0) < need:
+                    r["status"] = "INCONCLUSIVE"
+                    r["reason"] = f"job executed {c.get('testcases') or 0} case(s), fewer than the minimum {need} (counts: {c or 'none'})"
             if r["status"] != "PASS":
                 r.setdefault("reason", f"job status {st}")
         elif kind == "not_applicable":
@@ -962,8 +1074,11 @@ def collect_control_records(inputs: Path):
             raise SystemExit(f"refusing duplicate result for {key}")
         seen.add(key)
     freeze = _load_control_json(freeze_path) if freeze_path.exists() or freeze_path.is_symlink() else None
-    expected = (_load_control_json(plan_path).get("include", [])
-                if plan_path.exists() or plan_path.is_symlink() else [])
+    expected = []
+    if plan_path.exists() or plan_path.is_symlink():
+        expected = _load_control_json(plan_path).get("include", [])
+        if not isinstance(expected, list) or not all(isinstance(e, dict) and e.get("component") and e.get("os") and e.get("python") for e in expected):
+            raise SystemExit("refusing plan record: include must be a list of entries with component, os and python")
     return results, freeze, expected
 
 
@@ -1019,7 +1134,7 @@ def job_blockers(results, expected, missing, declared, inputs: Path, requirement
                          "status": rec.get("status"), "kind": kind, "reason": reason})
 
     for r in results:
-        st = r.get("status")
+        st = effective_job_status(r)
         if st == "PASS" or r.get("component") in reduced:
             continue
         if st == "NOT RUN" and (r.get("component"), r.get("os"), str(r.get("python"))[:4]) in optional:
@@ -1040,16 +1155,24 @@ def job_blockers(results, expected, missing, declared, inputs: Path, requirement
     return blockers
 
 
-def record_binding_problems(results, freeze, expected, run_id=None):
+PLAN_RECORD_PROBLEM = ("no plan record (v1v-plan/plan.json) or it lists no jobs: missing jobs, the job-to-plan sha/repository binding, the "
+                       "freeze-versus-plan component check and the optional-group allowance cannot be evaluated")
+
+
+def record_binding_problems(results, freeze, expected, run_id=None, require_plan=True):
     """[(job dir, message)] for job records that are not bound to this run, the plan and the freeze record (E-11).
 
     run_id: the aggregate's own GITHUB_RUN_ID; without it the freeze record's workflow_run is the reference (no reference: no run check).
+    require_plan (default True, fail closed): an empty plan (no v1v-plan record or no included jobs) is itself a problem, reported under the job
+    name "(plan)" (F-T2-1); the explicit local escape is the aggregate's --no-plan-record.
     Every job record must carry that workflow_run; a component job whose plan entry names a repository and sha must record the same
     repository, pinned_sha and actual_sha; and the commit the freeze record fetched for the component must equal the job's actual_sha."""
     ref = str(run_id) if run_id else (str(freeze["workflow_run"]) if freeze and freeze.get("workflow_run") else None)
     plan = {(e["component"], e["os"], str(e["python"])[:4]): e for e in expected}
     fetched = (freeze or {}).get("components") or {}
     problems = []
+    if require_plan and not expected:
+        problems.append(("(plan)", PLAN_RECORD_PROBLEM))
     for r in results:
         where = r["_dir"]
         if ref is not None and str(r.get("workflow_run")) != ref:
@@ -1127,8 +1250,10 @@ def cmd_aggregate(args):
         summary["full_catalog_status"] = full_catalog_status(requirements)
         summary["scope_reduction"] = scope_reduction_block(requirements)
     blockers = job_blockers(results, expected, missing, declared, inputs, requirements) if requirements else []
-    binding = record_binding_problems(results, freeze, expected, os.environ.get("GITHUB_RUN_ID"))
+    no_plan = bool(getattr(args, "no_plan_record", False))
+    binding = record_binding_problems(results, freeze, expected, os.environ.get("GITHUB_RUN_ID"), require_plan=not no_plan)
     summary["record_binding_problems"] = [{"job": j, "problem": m} for j, m in binding]
+    summary["no_plan_record"] = no_plan
     if requirements:
         blockers += [{"job": j, "component": next((x.get("component") for x in results if x["_dir"] == j), None), "os": None, "python": None,
                       "status": "UNBOUND", "kind": "INCOMPLETE", "reason": m} for j, m in binding]
@@ -1141,6 +1266,13 @@ def cmd_aggregate(args):
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
         summary["verdict_note"] = ((summary["verdict_note"] + " | ") if summary.get("verdict_note") else "") + (
             "freeze verification did not pass; no result may be promoted" + (f" ({freeze_problem})" if freeze_problem else ""))
+    if no_plan and not expected:
+        # explicit escape (local or retained re-aggregation without a plan record): missing jobs, sha binding and the freeze-vs-plan
+        # check were not evaluated, so the verdict is at most INCOMPLETE
+        summary["verdict_basis"] += "; run without a plan record (--no-plan-record): at most INCOMPLETE"
+        if summary["selected_v1_verdict"] == "PASS":
+            summary["selected_v1_verdict"] = "INCOMPLETE"
+        summary["verdict_note"] = ((summary["verdict_note"] + " | ") if summary.get("verdict_note") else "") + PLAN_RECORD_PROBLEM + " (--no-plan-record)"
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     lines = [f"## V1 validation {args.validation_id}", "", f"Freeze: **{summary['freeze_status']}** · Verdict: **{summary['selected_v1_verdict']}** ({summary['verdict_basis']})", "",
              "| Status | Jobs |", "|---|---|"] + [f"| {k} | {v} |" for k, v in counts.items()] + ["",
@@ -1230,6 +1362,7 @@ def main():
     p.add_argument("--declared-twin", default=None, help="pre-registration twin to read declared known limits from (default: the repository twin)")
     p.add_argument("--declared-set", default=None, help="a declared-set record written by the declared-set subcommand; the aggregate refuses to run if it differs from the set derived from the twin")
     p.add_argument("--allow-uncommitted-twin", action="store_true", help="local use only: accept a twin that differs from its copy at git HEAD (the default refuses)")
+    p.add_argument("--no-plan-record", action="store_true", help="local use only: aggregate without a v1v-plan record; recorded in the summary (no_plan_record) and the verdict is then at most INCOMPLETE (the default refuses to promote)")
     p.set_defaults(fn=cmd_aggregate)
     p = sub.add_parser("declared-set", help="print the declared-set record (entries and sha256) derived from the committed twin; reads no results")
     p.add_argument("--declared-twin", default=None); p.add_argument("--out", default=None); p.add_argument("--allow-uncommitted-twin", action="store_true")

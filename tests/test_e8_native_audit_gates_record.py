@@ -10,7 +10,7 @@ import textwrap
 import unittest
 from pathlib import Path
 
-from agg_util import aggregate, job
+from agg_util import GOOD_FREEZE, aggregate, job, plan_entry
 
 ROOT = Path(__file__).resolve().parents[1]
 TEXT = (ROOT / '.github/workflows/v1-validation.yml').read_text()
@@ -79,7 +79,9 @@ class AggregateRow(unittest.TestCase):
     ROWS = [{'id': 'SC-NATIVE-F5B', 'kind': 'job', 'component': 'native-f5b-suite', 'mandatory': True}]
 
     def agg(self, extra):
-        return aggregate([job('native-f5b-suite', 'PASS', dirname='v1v-native-f5b', extra=extra)], self.ROWS)
+        # F-T2-1: a plan record (and a freeze record for its component) is needed for the aggregate to reach PASS
+        freeze = dict(GOOD_FREEZE, components={'native-f5b-suite': {}}, components_expected=['native-f5b-suite'])
+        return aggregate([job('native-f5b-suite', 'PASS', dirname='v1v-native-f5b', extra=extra)], self.ROWS, freeze=freeze, plan=[plan_entry('native-f5b-suite')])
 
     def test_a_pass_record_with_a_successful_audit_is_pass(self):
         self.assertEqual(self.agg({'audit_outcome': 'success'})['selected_v1_verdict'], 'PASS')

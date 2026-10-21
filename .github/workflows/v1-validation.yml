@@ -47,6 +47,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - name: Install the hash-locked YAML reader for the pin check
+        run: python -m pip install --require-hashes -r .github/locks/jsonschema-pyyaml-c943d3.txt
       - name: Workflow pin literals equal the pins in force (fails closed)
         run: python tools/v1_validation.py check-workflow-pins --workflow .github/workflows/v1-validation.yml --manifest "$MANIFEST" --refreeze-log "$REFREEZE_LOG"
       - id: plan
@@ -239,7 +241,7 @@ jobs:
         if: always()
         run: |
           python - <<'EOF'
-          import json,os,xml.etree.ElementTree as ET
+          import json,os,re,xml.etree.ElementTree as ET
           for name in ('qual-tooling','hub-tests'):
               d=f'out/{name}'; f=d+'/junit.xml'
               c=dict(testcases=0,failures=0,errors=0,skipped=0)
@@ -247,10 +249,24 @@ jobs:
                   for tc in ET.parse(f).getroot().iter('testcase'):
                       c['testcases']+=1; c['failures']+=tc.find('failure') is not None
                       c['errors']+=tc.find('error') is not None; c['skipped']+=tc.find('skipped') is not None
-              ok=c['testcases']>0 and c['failures']==c['errors']==0
-              st='PASS' if ok else ('FAIL' if c['testcases'] else 'INCONCLUSIVE')
-              json.dump({'schema':'cognous.v1-validation-job/1','component':name,'status':st,'workflow_run':os.environ['GITHUB_RUN_ID'],
-                         'attempts':[{'outcome':st,'counts':c}],'os':'ubuntu-latest','python':'3.12'},open(d+'/result.json','w'),indent=2)
+              # exit.txt ("pytest exit N") is written only when the pytest session exited non-zero. Exit 1 is the plain "tests failed" exit;
+              # any other code (2 interrupted, 3 internal error, 4 usage, 5 nothing collected, 124 timeout, an unreadable file) is a session
+              # that did not complete, whatever its partial JUnit says.
+              px=None; xf=d+'/exit.txt'
+              if os.path.exists(xf):
+                  m=re.fullmatch(r'pytest exit (\d+)',open(xf).read().strip()); px=int(m.group(1)) if m else -1
+              bad=c['failures'] or c['errors']
+              reason=None
+              if px is None:
+                  st='PASS' if c['testcases']>0 and not bad else ('FAIL' if bad else 'INCONCLUSIVE')
+              elif bad:
+                  st,reason='FAIL',f'pytest session ended with exit {px} and failing cases'
+              else:
+                  st,reason='INCONCLUSIVE',f'pytest session ended with exit {px} (not a plain tests-failed exit) and no failing case in its JUnit'
+              rec={'schema':'cognous.v1-validation-job/1','component':name,'status':st,'workflow_run':os.environ['GITHUB_RUN_ID'],
+                   'attempts':[{'outcome':st,'counts':c}],'os':'ubuntu-latest','python':'3.12','pytest_exit':0 if px is None else px}
+              if reason: rec['reason']=reason
+              json.dump(rec,open(d+'/result.json','w'),indent=2)
           EOF
       # One artifact per record: the aggregate accepts a result.json only at the top level of its own v1v-* artifact.
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
