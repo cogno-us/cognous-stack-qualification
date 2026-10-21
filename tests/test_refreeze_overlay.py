@@ -26,6 +26,39 @@ def log(*entries):
     return {'validation_id': 'v1-2026-10-16-a', 'entries': list(entries)}
 
 
+class StrictStatusAndSha(unittest.TestCase):
+    def test_status_forms_in_the_real_log_are_all_applied(self):
+        entries = json.loads((VAL / 'refreeze-log.json').read_text())['entries']
+        self.assertTrue(entries)
+        for e in entries:
+            self.assertTrue(_pins.is_applied(e), e['id'])
+
+    def test_status_with_a_lookalike_prefix_is_not_applied(self):
+        for status in ('APPLIED-REVERTED: withdrawn', 'APPLIED-REVERTED (x)', 'APPLIEDX', 'APPLIED (x', 'APPLIED  (x)', 'APPLIED-IN-WORKFLOWX', 'applied'):
+            self.assertFalse(_pins.is_applied({'status': status}), status)
+        for status in ('APPLIED', 'APPLIED (qualified: x)', 'APPLIED-IN-WORKFLOW', 'APPLIED-IN-WORKFLOW (pending full controller run g6-r10)'):
+            self.assertTrue(_pins.is_applied({'status': status}), status)
+
+    def test_a_reverted_entry_does_not_move_the_pin(self):
+        m = manifest()
+        frm = m['components_lock_remainder']['the_index']['sha']
+        r, applied = _pins.apply_overlay(m, log(entry('the_index', frm, A, status='APPLIED-REVERTED: withdrawn')))
+        self.assertEqual(applied, [])
+        self.assertEqual(r['components_lock_remainder']['the_index']['sha'], frm)
+
+    def test_to_sha_must_be_40_lowercase_hex(self):
+        m = manifest()
+        frm = m['components_lock_remainder']['the_index']['sha']
+        for bad in ('main', 'a' * 39, 'A' * 40, 'a' * 41, 'g' * 40, ' ' + 'a' * 40, 'a' * 40 + '\n'):
+            with self.assertRaisesRegex(_pins.RefreezeError, 'to_sha'):
+                _pins.apply_overlay(m, log(entry('the_index', frm, bad, status='APPLIED')))
+
+    def test_the_real_log_still_selects_the_same_profile_and_pins(self):
+        rl = _pins.load_refreeze_log()
+        self.assertEqual(len(_pins.applied_entries(rl)), len(rl['entries']))
+        self.assertEqual(_pins.select_profile(rl), _pins.PROFILE_RELPATH)
+
+
 class Overlay(unittest.TestCase):
     def test_no_log_is_identity(self):
         m = manifest()
