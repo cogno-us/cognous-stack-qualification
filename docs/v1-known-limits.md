@@ -253,3 +253,17 @@ This entry records what was measured at the r10 pins (profile `process/security-
 The bounded comparison of the same candidate is recorded in `reports/comparison-g2-r10-2026-10-20.md`, with its retained output in `results/comparisons/g2-r10-20261020/`. It uses a different harness, does not change any count above and is not a release decision.
 
 **Still open.** The refreeze log status text and the inventory pair are not changed by this entry. The representative reference run remains a declared known limit (entry of 2026-10-19). The README of `suites/fix2-probes` and `process/adversarial/components.json` still name r9 revisions and are not edited here.
+
+
+### Update 2026-10-21 (candidate g5-r10: registry d25afe60 and attestation 981036c3)
+
+This entry adds to the entries above and does not rewrite them. The registry (`the_index`) and the attestation component (`bitrep`) were moved to the revisions the hub component lock lists (RF-42 to RF-44; the registry at `d25afe601454d60c561a4726e31c31d1ec40d99b` pins attestation `981036c315856c71207984797b0c4e48d3b3921d`). The seven components of the r10 profile keep their revisions.
+
+**Runs.** g4-r10 (run 39522462997) stopped at the install step of the scenarios job (INCONCLUSIVE, no scenario result). g4-r10b (run 39524389031) ran the scenarios; 14 SCN-C03 cases were INCONCLUSIVE on the harness exception `BitRep checkout must be clean and pinned`, because the registry at 704f55ea accepts only the previous attestation revision. Neither run qualified the two revisions. **g5-r10** (run 39531760987, results retained at qualification merge commit `0e4a29ac`) is the controller run at the tuple above: 40 of 40 workflow jobs succeeded; 33 PASS, 3 FAIL, 0 INCONCLUSIVE, 2 NOT RUN; freeze PASS; selected verdict PASS.
+
+- The 3 FAIL jobs are the declared failing tests: ODES on Python 3.11 and 3.12 (3071 cases, 4 failures, 1 skip) and the scenarios job (1093 cases, 3 failures: the three SCN-C04 copy cases of amendments 85 to 87). No undeclared test failed.
+- The 14 SCN-C03 cases that were inconclusive in g4-r10b ran and passed.
+- `one_evidence_record_linked_five_times` (SCN-C04) passed, as declared before the run by amendments 104 and 108. The SCN-C04 row stays INCONCLUSIVE and is not mandatory. Amendment 109 withdraws the declaration of amendment 88 for this case by the owner's decision, citing the run; the declared set is 75 entries (74 tests and 1 requirement), `declared_set_sha256` `51bb22945a8a5e525f689fc9a2053f150127aab0cc32b95fd26442eeba69e5d7`. The run itself used the set of 76 entries (`1ba741d7...`).
+- The registry change that counts a repeated link of one evidence record once is the behaviour behind the pass. The other three copy cases still show copied evidence raising supporting weight (F-19, D14).
+
+Scope: bounded synthetic profile only. This is not independent certification and not production readiness; operational trust, publication and production stay on HOLD. The hub component lock lists the registry at a revision that this run did not probe until the lock is updated.
