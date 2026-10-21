@@ -43,27 +43,31 @@ def test_interface_cleanup_lock_uses_declared_revisions():
         # exactly instead, and the earlier acceptance chain is required to stay recorded one level down.
         exact={
             "action_manifest":("sha","fa170815ef96a54c233d0dd9da821b60debabf8b"),
-            "control_plane":("sha","e77fe0ee8714617899592528e660a80fbb2e864a"),
-            "moltbot_safe":("accepted_sha","cab4d9abc651c7efbafb429798d2c908f048bf5c"),
-            "replay_bundle":("sha","53c0cd60d565ea1797ed0be87a2310c5b68b24f6"),
-            "governance_evidence_pack":("sha","99ba3211450b25a18007b4b62907b072fe05c964"),
-            "odes":("sha","dc5cf19d405ce885b287cde2f78519d3109b9ae6"),
-            "gax_imx_transport":("sha","81b0877e1a9a82c2a61b1bafe631a4691556355f"),
+            "control_plane":("sha","0a41faa972699f7ec3063967a14cd9bdd3e67d27"),
+            "moltbot_safe":("accepted_sha","ec728da6dc301a664b331ac8986afd6e850a1273"),
+            "replay_bundle":("sha","028f63d1c001f99580583888fa4b4e46d77a267b"),
+            "governance_evidence_pack":("sha","a3ebbb90559a44a88855139a182649d3792bb1ca"),
+            "odes":("sha","e86a25a1d660e74533337d38744e2934200a50ae"),
+            "gax_imx_transport":("sha","7f7569b02666b99669a9fca61117ca1f4bce5f0d"),
         }
         for name,(key,sha) in exact.items():
             assert lock["components"][name][key]==sha,name
-        assert lock["components"]["moltbot_safe"]["core_interop_sha"]=="cab4d9abc651c7efbafb429798d2c908f048bf5c"
-        assert gax["accepted_sha"]=="81b0877e1a9a82c2a61b1bafe631a4691556355f"
-        assert gax["merged_pr"]==60
-        assert gax["reviewed_source_sha"]=="81b0877e1a9a82c2a61b1bafe631a4691556355f"
+        assert lock["components"]["moltbot_safe"]["core_interop_sha"]=="ec728da6dc301a664b331ac8986afd6e850a1273"
+        assert gax["accepted_sha"]=="7f7569b02666b99669a9fca61117ca1f4bce5f0d"
+        assert gax["merged_pr"]==61
+        assert gax["reviewed_source_sha"]=="7f7569b02666b99669a9fca61117ca1f4bce5f0d"
         earlier=gax["previous_acceptance"]
-        assert earlier["accepted_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
-        assert earlier["merged_pr"]==55
-        assert earlier["reviewed_source_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        assert earlier["accepted_sha"]=="81b0877e1a9a82c2a61b1bafe631a4691556355f"
+        assert earlier["merged_pr"]==60
+        assert earlier["reviewed_source_sha"]=="81b0877e1a9a82c2a61b1bafe631a4691556355f"
         earliest=earlier["previous_acceptance"]
-        assert earliest["merged_pr"]==14
-        assert earliest["reviewed_source_sha"]=="8ba81548362c057dc7fa4f1cf7686f352188b76b"
-        assert earliest["previous_acceptance"]["sha"]=="9984d9011568ccdf3d562fa9760ad41368947b34"
+        assert earliest["accepted_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        assert earliest["merged_pr"]==55
+        assert earliest["reviewed_source_sha"]=="fdc2a410383396553254a39ae641c88b78ee13f1"
+        oldest=earliest["previous_acceptance"]
+        assert oldest["merged_pr"]==14
+        assert oldest["reviewed_source_sha"]=="8ba81548362c057dc7fa4f1cf7686f352188b76b"
+        assert oldest["previous_acceptance"]["sha"]=="9984d9011568ccdf3d562fa9760ad41368947b34"
         assert "manifest/reconstruction transformation 0.3.8 (programme-2 profiles candidate)" in lock["components"]["governance_evidence_pack"]["interfaces"]
         return
     assert lock["runtime_profile"]=="merged-producers-v1"
