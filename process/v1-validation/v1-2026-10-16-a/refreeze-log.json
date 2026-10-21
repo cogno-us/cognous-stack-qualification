@@ -18,7 +18,7 @@
    ],
    "open_item": "link profile index.link.v1 and issuer enrollment still need governor approval; BitRep contract remains proposed",
    "historical_results_at_from_sha": "final-38962759690 and later runs through full1-39005768983",
-   "status": "APPLIED (qualified: full controller run g2-r10, run 39349033320, verdict PASS at the final pins)"
+   "status": "APPLIED (qualified at this pin: full controller runs g2-r10 and g3-r10; superseded by RF-42, which no controller run has qualified yet)"
   },
   {
    "id": "RF-2",
@@ -657,6 +657,38 @@
    "open_item": "full controller run at the re-frozen tuple (RF-2..RF-41 together; mixed generations are refused) and the r10 profile process/security-runtime-f5b-20261016-r10.json; no run has been made",
    "historical_results_at_from_sha": "results at the earlier pins are historical and are not transferred",
    "status": "APPLIED (qualified: full controller run g2-r10, run 39349033320, verdict PASS at the final pins)"
+  },
+  {
+   "id": "RF-42",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (interface choices: \"Prepare the refreeze PR\" and \"Declare it before the run\", after the read-only impact check of the hub-lock revisions)",
+   "component": "the_index",
+   "repository": "cogno-us/cognous-evidence-registry",
+   "from_sha": "d17b8ac2b8445d385fbf51185a35914b2d8b835c",
+   "to_sha": "704f55ea08a2e97a36166f387895e8f5678bdad4",
+   "reason": "Move to the revision listed in the hub component lock (5 commits: #27 link weight counted once per evidence and relation, #28 and #29 documentation, #30 removal of six unreferenced store and registry methods, #31 removal of unused imports)",
+   "behaviour_changes": [
+    "a repeated link of one evidence record with the same relation counts once, at the strongest link, in compute_epistemic_status",
+    "six unreferenced methods removed from the store and registry layers"
+   ],
+   "open_item": "full controller run g4-r10 at the re-frozen tuple (RF-42 and RF-43); the SCN-C04 case one_evidence_record_linked_five_times may stop failing (declared before the run by amendment)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320) and g3-r10 (run 39481839420)",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g4-r10)"
+  },
+  {
+   "id": "RF-43",
+   "authorised": "Andr\u00e9 de Lima, 2026-10-21 (interface choices: \"Prepare the refreeze PR\" and \"Declare it before the run\", after the read-only impact check of the hub-lock revisions)",
+   "component": "bitrep",
+   "repository": "cogno-us/cognous-evidence-attestation",
+   "from_sha": "5b5077dafde232a7801cb425c4efddcffb468723",
+   "to_sha": "981036c315856c71207984797b0c4e48d3b3921d",
+   "reason": "Move to the revision listed in the hub component lock (27 commits: Apache-2.0 adoption and documentation, a new authority digest custody profile with schema, fixture and test, shared-key rejection and custody time binding, removal of unreferenced models and unused imports, hash-locked requirements and pinned workflow actions)",
+   "behaviour_changes": [
+    "new profile profiles/authority_digest_custody.py with its schema, fixture and test",
+    "requirements are hash-locked and workflow actions are pinned by commit"
+   ],
+   "open_item": "full controller run g4-r10 at the re-frozen tuple (RF-42 and RF-43)",
+   "historical_results_at_from_sha": "g2-r10 (run 39349033320) and g3-r10 (run 39481839420)",
+   "status": "APPLIED-IN-WORKFLOW (pending full controller run g4-r10)"
   }
  ]
 }
