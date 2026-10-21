@@ -588,7 +588,8 @@ class CurrentPins(unittest.TestCase):
             self.assertIn('probed', e['status'], eid)  # g7-r10 (run 39642578239) probed them; restated by the r13 refreeze (RF-45 precedent: not marked qualified)
             self.assertIn('not marked qualified', e['status'], eid)
             self.assertIn('39642578239', e['status'], eid)
-            self.assertEqual(e['status'].startswith('APPLIED-IN-WORKFLOW (pending full controller run g8-r10;'), eid in ('RF-46', 'RF-48'), eid)  # authority and manifest stay in force in r13
+            self.assertNotIn('pending', e['status'], eid)  # g8-r10 (run 39690459403) has been made; RF-46 and RF-48 stay in force in r13 and read as probed unchanged by g7-r10 and g8-r10
+            self.assertEqual('39690459403' in e['status'], eid in ('RF-46', 'RF-48'), eid)
 
     def test_r13_entries_carry_the_owner_authority_and_the_pins_in_force_at_the_previous_head(self):
         rf = {e['id']: e for e in _pins.load_refreeze_log()['entries']}
@@ -600,11 +601,12 @@ class CurrentPins(unittest.TestCase):
             e = rf[eid]
             self.assertEqual((e['component'], e['from_sha'], e['to_sha']), (comp, frm, to), eid)
             self.assertIn("don't refreeze anything. I want engineering fixes, then spot checks, then refreeze, then release.", e['authorised'], eid)
-            self.assertEqual(e['status'], 'APPLIED-IN-WORKFLOW (pending full controller run g8-r10)', eid)
+            self.assertTrue(e['status'].startswith('APPLIED (probed by the full controller run g8-r10, run 39690459403,'), eid)  # restated after the run (RF-45 precedent)
+            self.assertIn('not marked qualified', e['status'], eid)
             for key in ('reason', 'behaviour_changes', 'open_item', 'historical_results_at_from_sha'):
                 self.assertTrue(e[key], (eid, key))
             self.assertIn('39642578239', e['historical_results_at_from_sha'], eid)  # g7-r10 at the earlier pin is historical, not transferred
-        self.assertEqual([e['id'] for e in rf.values() if 'pending' in e['status']], ['RF-46', 'RF-48'] + ['RF-%d' % i for i in range(55, 62)])
+        self.assertEqual([e['id'] for e in rf.values() if 'pending' in e['status']], [])
         self.assertIn('164 codes', rf['RF-55']['behaviour_changes'][1])  # invalid_manifest joins the 0.2 registry (CP #81)
 
     def test_original_profile_and_freeze_manifest_are_unedited(self):

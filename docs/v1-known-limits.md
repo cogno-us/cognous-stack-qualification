@@ -343,3 +343,16 @@ This entry adds to the entries above and does not rewrite them. After the indepe
 - Local executions of the component suites, the native cases, the scenario suite (1093 passed) and the wiki-derived suite at the new pins are measurements made outside the controller. They are not results of any controller run and do not qualify any pin.
 
 Scope: bounded synthetic profile only. This is not independent certification and not production readiness; operational trust, publication and production stay on HOLD.
+
+
+### Update 2026-10-21 (candidate g8-r10: results of the controller run and restatement of the refreeze log statuses)
+
+This entry adds to the entries above and does not rewrite them. The controller run g8-r10 (run 39690459403, attempt 1, workflow main `4a57a309`) is retained by qualification #216 (`27e3deb1`) under `results/v1-validation/v1-2026-10-16-a/g8-r10-39690459403/`. Recorded as measured:
+
+- The selected verdict is PASS, over the reduced mandatory claim only (verdict basis requirement matrix); the freeze is PASS; `blocking_jobs` and `record_binding_problems` are empty. The 39 mandatory rows of the reduced claim are PASS. The unreduced mandatory verdict over the full catalog is INCOMPLETE (75 rows: 40 PASS, 30 INCONCLUSIVE, 5 NOT RUN); the 36 rows moved out of the mandatory claim by D15 keep their statuses and none is counted as PASS.
+- Jobs: 34 PASS, 2 FAIL (ODES on Python 3.11 and 3.12, the same declared failing set as g7-r10: 3094 cases, 4 failures and 1 skip each), 2 NOT RUN (`prp`, `tfa`: no tests). The control plane job ran 1194 cases with 1 skip per Python version, as amendments 124 and 125 expected.
+- Declared set: unchanged at 72 entries (`declared_set_sha256` `bde46adcfead101ce3a101712e80d7edbeafd7f33d4e8f2866a3fa8a1078a752`). No new declared failure appeared. The reportable declared-limit conditions are 4 (the control plane declared tests ER-05-1 x3 and ER-05-5 that document their limit by passing), down from 7 at g7-r10 because amendments 117 to 120 withdrew the three SCN-C04 copy-case declarations.
+- Amendments 126 and 127 record this and restate the `status` text of RF-46, RF-48 and RF-55 to RF-61 in the refreeze log: they read as probed by g8-r10 and no entry is marked qualified, because the unreduced mandatory verdict reads INCOMPLETE, as for g7-r10 (RF-45 precedent). The text `pending full controller run g8-r10` is retired. Because the refreeze log is a file of the candidate manifest, amendment 127 records the digests of the manifest after the restatement as the candidate g9-r10; no run of it has been made or is decided.
+
+Scope: bounded synthetic profile only. This is not independent certification and not production readiness; operational trust, publication and production stay on HOLD. No pin, profile, declared set or retained result is changed by this entry.
+
