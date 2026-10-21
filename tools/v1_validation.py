@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 Subcommands
   plan            emit the GitHub Actions job matrix from the freeze manifest
   freeze-verify   verify every identity recorded in the freeze manifest
+  check-workflow-pins  compare the sha literals of the controller workflow with manifest + overlay
   component-suite discover and run one component's own tests at its pinned commit
   aggregate       merge job results; refuse to promote missing, failed or skipped
                   mandatory coverage to PASS
@@ -149,6 +150,33 @@ def ls_remote_tag(repository: str, tag: str):
     return peeled or direct
 
 
+def profile_pin_checks(prof, manifest, label, suffix="", require_authority=False):
+    """[(check name, ok, expected, actual)] that a profile and a (resolved) manifest agree in BOTH directions (E-3).
+
+    profile -> manifest: every profile component names a manifest repository at the manifest revision (as before).
+    manifest -> profile: the profile lists at least one component, and every pinned subject component appears in it (by its profile_key)
+    with its repository and the manifest (overlay) revision. A profile ``constitutional_authority`` section must equal the pinned authority
+    (repository and revision); with ``require_authority`` the section must be present."""
+    comps = prof.get("components")
+    if not isinstance(comps, dict) or not comps:
+        return [(f"{label} profile lists its components", False, "at least one component", comps)]
+    byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(manifest)}
+    checks = [(f"{label} profile pin {name} equals manifest{suffix}", byrepo.get(spec.get("repository")) == spec.get("revision"), spec.get("revision"),
+               byrepo.get(spec.get("repository"))) for name, spec in comps.items()]
+    for key, spec in manifest["components_subject"].items():
+        pk = spec.get("profile_key", key)
+        entry = comps.get(pk) or {}
+        checks.append((f"{label} profile lists pinned subject component {pk} at its manifest revision{suffix}",
+                       entry.get("repository") == spec["repository"] and entry.get("revision") == spec["sha"], spec["sha"], entry.get("revision")))
+    auth = manifest.get("components_lock_remainder", {}).get("constitutional_authority")
+    section = prof.get("constitutional_authority")
+    if auth is not None and (section is not None or require_authority):
+        section = section if isinstance(section, dict) else {}
+        checks.append((f"{label} profile constitutional_authority equals the pinned authority{suffix}",
+                       section.get("repository") == auth["repository"] and section.get("revision") == auth["sha"], auth["sha"], section.get("revision")))
+    return checks
+
+
 def cmd_freeze_verify(args):
     m = load_manifest(args.manifest)  # ORIGINAL freeze: hub/profile/lock/tag identities are checked against what was frozen
     resolved, applied = load_resolved(args.manifest, args.refreeze_log)  # components that are fetched and qualified
@@ -189,9 +217,8 @@ def cmd_freeze_verify(args):
     check("runtime quarantine tag exists", ls_remote_tag(rt["repository"], rt["quarantine_tag"]) is not None)
     # profile pins agree with manifest
     prof = json.loads((hub / m["profile"]["path"]).read_text())
-    byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(m)}
-    for name, spec in prof["components"].items():
-        check(f"hub profile pin {name} equals manifest", byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], byrepo.get(spec["repository"]))
+    for name, ok, exp, act in profile_pin_checks(prof, m, "hub"):
+        check(name, ok, exp, act)
     in_force = {}  # pin in force before each entry: the manifest pin, then the previous entry's to_sha (chained re-freezes)
     for eid, group, key, frm, to in applied:
         before = in_force.get((group, key), m[group][key]["sha"])
@@ -199,12 +226,11 @@ def cmd_freeze_verify(args):
               before == frm and re.fullmatch(r"[0-9a-f]{40}", to) is not None and to != frm, before, to)
         in_force[(group, key)] = to
     # the qualification profile (the original, or the r1 profile via --qual-profile) must equal manifest + overlay
-    resolved_byrepo = {s["repository"]: s["sha"] for _, _, s in all_components(resolved)}
     qprof_path = qual / (args.qual_profile or m["profile"]["qualification_profile"])
     qprof = json.loads(qprof_path.read_text())
-    for name, spec in qprof["components"].items():
-        check(f"qualification profile pin {name} equals manifest" + (" + refreeze overlay" if applied else ""),
-              resolved_byrepo.get(spec["repository"]) == spec["revision"], spec["revision"], resolved_byrepo.get(spec["repository"]))
+    auth_moved = any(k == "constitutional_authority" for _, _, k, _, _ in applied)
+    for name, ok, exp, act in profile_pin_checks(qprof, resolved, "qualification", " + refreeze overlay" if applied else "", require_authority=auth_moved):
+        check(name, ok, exp, act)
     lock = json.loads((hub / "component-lock.json").read_text())
     for key, spec in {**m["components_lock_remainder"], **m["components_optional"]}.items():  # hub lock is frozen: original pins
         check(f"hub lock pin {key} equals manifest", lock["components"][key]["sha"] == spec["sha"], spec["sha"], lock["components"][key]["sha"])
@@ -231,6 +257,38 @@ def cmd_freeze_verify(args):
     for c in checks:
         print(("ok   " if c["status"] == "PASS" else "FAIL ") + c["check"])
     sys.exit(0 if out["status"] == "PASS" else 1)
+
+
+# ----------------------------------------------------- workflow pin literals
+_WF_CHECKOUT_RE = re.compile(r"repository:\s*(cogno-us/[\w.-]+)[ \t]*\n[ \t]+ref:[ \t]*(\S+)")
+_WF_MATRIX_RE = re.compile(r"repo:\s*(cogno-us/[\w.-]+),\s*sha:\s*(\S+?)\s*[,}]")
+
+
+def workflow_pin_literals(text):
+    """[(repository, ref literal)] of every checkout ``repository``/``ref`` pair and probes-matrix ``repo``/``sha`` pair in a workflow text."""
+    return [(m.group(1), m.group(2)) for rx in (_WF_CHECKOUT_RE, _WF_MATRIX_RE) for m in rx.finditer(text)]
+
+
+def workflow_pin_mismatches(text, resolved):
+    """Messages for every pinned-repository literal of the workflow that differs from the pin in force (E-4).
+
+    ``resolved`` is the manifest with the refreeze overlay applied (component pins) and the hub head of its identities. A repository that is
+    not pinned (third-party actions, other repositories) is not checked."""
+    pins = {s["repository"]: s["sha"] for _, _, s in all_components(resolved)}
+    hub = resolved["identities"]["hub"]
+    pins[hub["repository"]] = hub["head"]
+    return [f"{repo}: workflow literal {lit!r} is not the pin in force {pins[repo]}" for repo, lit in workflow_pin_literals(text)
+            if repo in pins and lit != pins[repo]]
+
+
+def cmd_check_workflow_pins(args):
+    resolved, _ = load_resolved(args.manifest, args.refreeze_log)
+    bad = workflow_pin_mismatches(Path(args.workflow).read_text(encoding="utf-8"), resolved)
+    for b in bad:
+        print("FAIL " + b)
+    if bad:
+        sys.exit(f"{len(bad)} workflow pin literal(s) differ from the manifest plus overlay")
+    print("ok   every pinned-repository literal of the workflow equals the pin in force")
 
 
 # ------------------------------------------------------- component suite
@@ -381,13 +439,14 @@ def cmd_component_suite(args):
                 setup_ok = setup_ok and installed
             if sibling_installs:
                 rec["sibling_installs"] = sibling_installs
+                rec["sibling_install_ok"] = setup_ok  # visible on its own: the project install below cannot overwrite it
             if (repo / "pyproject.toml").exists() or (repo / "setup.py").exists():
                 for extra in (".[dev,test]", ".[dev]", ".[test]", "."):
                     rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-e", extra], repo, 900, fh)
                     installs.append({"target": extra, "rc": rc})
                     if rc == 0:
                         break
-                setup_ok = bool(installs) and installs[-1]["rc"] == 0
+                setup_ok = setup_ok and bool(installs) and installs[-1]["rc"] == 0
             for req in sorted(repo.glob("requirements*.txt")):
                 rc, _, _, _ = run([py, "-m", "pip", "install", "-q", "-r", req.name], repo, 900, fh)
                 installs.append({"target": req.name, "rc": rc})
@@ -431,8 +490,9 @@ def cmd_component_suite(args):
     result["reason"] = final.get("reason")
     if len(result["attempts"]) > 1:
         result["retry_note"] = "one automatic retry after a plausible setup/transient cause; both attempts preserved"
+        result["attempt_outcomes"] = [a.get("outcome") for a in result["attempts"]]
         if final["outcome"] == "PASS" and result["attempts"][0]["outcome"] != "PASS":
-            result["flaky_or_setup"] = True
+            result["flaky_or_setup"] = True  # reported by the job row, the summary and the markdown; it does not block the verdict
     result["log"] = retain_log(log.read_text(encoding="utf-8", errors="replace"), out / "job.log.gz")
     log.unlink()
     (out / "result.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
@@ -533,19 +593,27 @@ def cmd_probe_suite(args):
 
 
 # -------------------------------------------------------------- aggregate
-def freeze_record_problem(freeze, expected_jobs):
+def freeze_record_problem(freeze, expected_jobs, validation_id=None):
     """Why a freeze-verification record cannot count as PASS proof of the pinned components, or None.
 
-    A record that carries ``components_expected`` (written by freeze-verify since the E1 fix) must list exactly those components, at least one,
-    and, when a plan is present, exactly the plan's component set. A record without the field is legacy: it is read as before (its status is
-    kept) but it is not proof that any pinned component was fetched; see ``freeze_components_proof``."""
-    if not freeze or "components_expected" not in freeze:
+    The record must carry ``components_expected`` (written by freeze-verify), at least one component, a ``components`` map that lists exactly
+    those components, no failed check under a PASS status and, when a plan is present, exactly the plan's component set. A record without
+    ``components_expected`` (the legacy shape, for example the retained g6-r10 record with 0 components) is a problem: it proves no pinned
+    component was fetched. No record at all is not a record problem here; the caller reads it as NOT RUN."""
+    if not freeze:
         return None
+    if validation_id is not None and freeze.get("validation_id") != validation_id:
+        return f"freeze record is for validation id {freeze.get('validation_id')!r}, not {validation_id!r}"
+    if "components_expected" not in freeze:
+        return "freeze record lacks components_expected (legacy record): it is not proof that the pinned components were fetched"
     exp, got = freeze.get("components_expected"), freeze.get("components")
     if not isinstance(exp, list) or not exp or not isinstance(got, dict):
         return "freeze record lists no expected components"
     if set(exp) != set(got) or len(exp) != len(set(exp)):
         return f"freeze record components {sorted(got)} differ from its expected set {sorted(exp)}"
+    bad = [c.get("check") for c in freeze.get("checks") or [] if isinstance(c, dict) and c.get("status") != "PASS"]
+    if bad:
+        return f"freeze record has failed checks under its status: {bad[:3]}"
     plan_set = {e["component"] for e in expected_jobs}
     if plan_set and plan_set != set(exp):
         return f"freeze record components differ from the plan's component set ({sorted(plan_set ^ set(exp))})"
@@ -637,10 +705,52 @@ def _kind(t):
     return t[3]["kind"] if len(t) > 3 else t[2]
 
 
+# Job records that carry the outcome of a gating audit step: PASS only when the record says the audit step succeeded (E-8). A record without
+# the field (written before the field existed) is not PASS proof for these components.
+JOB_AUDIT_COMPONENTS = {"native-f5b-suite": "audit_outcome"}
+
+
+def effective_job_status(record):
+    """The status of a job record as the requirement rows read it: PASS is kept only when the record's audit field, where one is required, is 'success'."""
+    st = record.get("status")
+    field = JOB_AUDIT_COMPONENTS.get(record.get("component"))
+    if st == "PASS" and field and record.get(field) != "success":
+        return "INCONCLUSIVE"
+    return st
+
+
 # Job-kind rows whose job must have run with zero skipped tests (the same fail-closed rule the native-f5b job applies to itself).
 # Component-suite rows keep their own semantics: retained component suites carry skips (control_plane 1, replay_bundle 17), and
 # qual-tooling (non-mandatory, 1 skip) and matched-refund are not listed.
 JOB_ZERO_SKIP_COMPONENTS = frozenset({"hub-tests"})
+
+
+def validate_requirements(doc):
+    """Refuse a malformed requirements document (E-10). Raises ValueError naming the row.
+
+    A `tests` row needs at least one selector; every selector needs a component, a compilable non-empty regular expression and an integer
+    min of at least 1 (min defaults to 1), so a row can never be PASS with zero executed cases by construction. Row ids must be unique."""
+    seen = set()
+    for r in doc.get("requirements", []):
+        rid = r.get("id")
+        if not rid or rid in seen:
+            raise ValueError(f"requirement row id {rid!r} is missing or duplicated")
+        seen.add(rid)
+        if r.get("kind", "tests") != "tests":
+            continue
+        sels = r.get("selectors")
+        if not isinstance(sels, list) or not sels:
+            raise ValueError(f"requirement {rid}: a tests row needs at least one selector")
+        for sel in sels:
+            mn = sel.get("min", 1)
+            if not sel.get("component") or not isinstance(sel.get("re"), str) or not sel["re"]:
+                raise ValueError(f"requirement {rid}: selector needs a component and a non-empty re: {sel}")
+            if isinstance(mn, bool) or not isinstance(mn, int) or mn < 1:
+                raise ValueError(f"requirement {rid}: selector min must be an integer of at least 1 (got {mn!r})")
+            try:
+                re.compile(sel["re"])
+            except re.error as exc:
+                raise ValueError(f"requirement {rid}: selector re does not compile: {exc}") from exc
 
 
 def evaluate_requirements(doc, index, job_status, declared=None, job_counts_by_component=None):
@@ -732,6 +842,8 @@ def evaluate_requirements(doc, index, job_status, declared=None, job_counts_by_c
                 r["reason"] = ("every case matched by selector " + ", ".join(zero_undeclared) + " is a declared known limit: zero undeclared cases remain, "
                                "so the row is not reported as PASS")
                 conditions.append("zero undeclared cases remain for selector " + ", ".join(zero_undeclared))
+            elif hits == 0:
+                r["status"] = "INCONCLUSIVE"; r["reason"] = "zero executed cases matched: a tests row is never PASS without executed evidence"
             elif r.get("adequacy", "adequate") == "adequate":
                 r["status"] = "PASS"; r["provenance"] = r.get("provenance", "NEW EXECUTION")
             else:
@@ -870,6 +982,89 @@ def job_counts(record, inputs: Path):
     return junit_counts(inputs / record["_dir"] / "junit.xml")
 
 
+def _job_junit_failures(record, inputs: Path):
+    """(classname, name) of every failed or errored case in the last JUnit report of one job, and whether a report was readable."""
+    d = inputs / record["_dir"]
+    files = sorted(d.glob("junit-attempt*.xml"))[-1:] or sorted(d.rglob("junit.xml"))[:1]
+    failed, readable = [], False
+    for f in files:
+        try:
+            root = ET.parse(f).getroot()
+        except ET.ParseError:
+            continue
+        readable = True
+        for tc in root.iter("testcase"):
+            if tc.find("failure") is not None or tc.find("error") is not None:
+                failed.append((tc.get("classname", ""), tc.get("name", "")))
+    return failed, readable
+
+
+def job_blockers(results, expected, missing, declared, inputs: Path, requirements):
+    """Jobs that stop the verdict from being PASS whatever the requirement rows say (E-1).
+
+    The requirement rows see only the cases their selectors match, so an undeclared failure elsewhere in a pinned component's own suite would
+    leave the verdict PASS with the job status FAIL. A blocker is, for every collected job record: FAIL (unless every failed case of its JUnit
+    report is a declared known limit of that component and at least one is present), INCONCLUSIVE or any other status that is not PASS, NOT RUN
+    (unless the plan marks the component optional); and every expected job that produced no result. A job whose component is the subject of a
+    non-mandatory job row (scope reduced: qualification tooling, matched-refund rerun) is not a blocker. Returns a list of
+    {job, component, os, python, status, kind (FAIL|INCOMPLETE), reason}; FAIL blockers make the verdict FAIL, the others INCOMPLETE.
+    """
+    dmap = DL.by_component(declared) if declared is not None else {}
+    reduced = {r.get("component") for r in requirements if r.get("kind") == "job" and not r.get("mandatory", True)}
+    optional = {(e["component"], e["os"], str(e["python"])[:4]) for e in expected if e.get("group") == "components_optional"}
+    blockers = []
+
+    def add(rec, kind, reason, job):
+        blockers.append({"job": job, "component": rec.get("component"), "os": rec.get("os"), "python": rec.get("python"),
+                         "status": rec.get("status"), "kind": kind, "reason": reason})
+
+    for r in results:
+        st = r.get("status")
+        if st == "PASS" or r.get("component") in reduced:
+            continue
+        if st == "NOT RUN" and (r.get("component"), r.get("os"), str(r.get("python"))[:4]) in optional:
+            continue
+        if st == "FAIL":
+            failed, _ = _job_junit_failures(r, inputs)
+            declared_here = dmap.get(r.get("component"), {})
+            undeclared = [f"{c}::{n}" for c, n in failed if (c, n) not in declared_here]
+            if failed and not undeclared:
+                continue  # every failed case is a declared known limit of this component
+            add(r, "FAIL", "job FAIL with undeclared failing case(s): " + ", ".join(undeclared[:5]) if undeclared else
+                "job FAIL without a failing case in its JUnit report (setup, collection or harness failure)", r["_dir"])
+        else:
+            add(r, "INCOMPLETE", f"job status {st}", r["_dir"])
+    for m in missing:
+        if m["component"] not in reduced:
+            add(m, "INCOMPLETE", m["reason"], "(missing)")
+    return blockers
+
+
+def record_binding_problems(results, freeze, expected, run_id=None):
+    """[(job dir, message)] for job records that are not bound to this run, the plan and the freeze record (E-11).
+
+    run_id: the aggregate's own GITHUB_RUN_ID; without it the freeze record's workflow_run is the reference (no reference: no run check).
+    Every job record must carry that workflow_run; a component job whose plan entry names a repository and sha must record the same
+    repository, pinned_sha and actual_sha; and the commit the freeze record fetched for the component must equal the job's actual_sha."""
+    ref = str(run_id) if run_id else (str(freeze["workflow_run"]) if freeze and freeze.get("workflow_run") else None)
+    plan = {(e["component"], e["os"], str(e["python"])[:4]): e for e in expected}
+    fetched = (freeze or {}).get("components") or {}
+    problems = []
+    for r in results:
+        where = r["_dir"]
+        if ref is not None and str(r.get("workflow_run")) != ref:
+            problems.append((where, f"workflow_run {r.get('workflow_run')!r} is not the run {ref}"))
+        e = plan.get((r.get("component"), r.get("os"), str(r.get("python"))[:4]))
+        if e and e.get("sha"):
+            for field, want in (("pinned_sha", e["sha"]), ("actual_sha", e["sha"]), ("repository", e.get("repository"))):
+                if want and r.get(field) != want:
+                    problems.append((where, f"{field} {r.get(field)!r} differs from the plan ({want})"))
+        rec = fetched.get(r.get("component"))
+        if isinstance(rec, dict) and rec.get("commit") and r.get("actual_sha") and rec["commit"] != r["actual_sha"]:
+            problems.append((where, f"actual_sha {r['actual_sha']} differs from the commit the freeze record fetched ({rec['commit']})"))
+    return problems
+
+
 def cmd_aggregate(args):
     if not VALIDATION_ID_RE.fullmatch(str(args.validation_id)):
         raise SystemExit("invalid validation id")
@@ -889,7 +1084,8 @@ def cmd_aggregate(args):
         att = r["attempts"][-1] if r.get("attempts") else {}
         rows.append({"job": r["_dir"], "component": r.get("component"), "os": r.get("os"), "python": r.get("python"),
                      "status": r.get("status"), "reason": r.get("reason"), "counts": job_counts(r, inputs),
-                     "attempts": len(r.get("attempts", []))})
+                     "attempts": len(r.get("attempts", [])), "flaky_or_setup": bool(r.get("flaky_or_setup")),
+                     "attempt_outcomes": r.get("attempt_outcomes") or [a.get("outcome") for a in r.get("attempts", [])]})
     seen = {(r.get("component"), r.get("os"), str(r.get("python"))[:4]) for r in results}
     missing = []
     for e in expected:
@@ -901,7 +1097,11 @@ def cmd_aggregate(args):
     requirements = []
     if args.requirements and Path(args.requirements).exists():
         req_doc = json.loads(Path(args.requirements).read_text(encoding="utf-8"))
-        job_status = {r.get("component"): r.get("status") for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
+        try:
+            validate_requirements(req_doc)
+        except ValueError as exc:
+            raise SystemExit(f"refusing to aggregate: malformed requirements: {exc}")
+        job_status = {r.get("component"): effective_job_status(r) for r in results if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
         junit_index = load_junit_index(inputs, results, detail=True)
         job_counts_by_component = {r.get("component"): job_counts(r, inputs) for r in results
                                    if r.get("os") in (None, "ubuntu-latest") and str(r.get("python", "3.12"))[:4] in ("3.12", "")}
@@ -910,10 +1110,12 @@ def cmd_aggregate(args):
                                                                   "declared_set_sha256": declared["declared_set_sha256"], "requirements": requirements}, indent=2) + "\n", encoding="utf-8")
         (out / "requirements-matrix.md").write_text(requirements_markdown(requirements) + "\nDeclared set sha256: `" + declared["declared_set_sha256"] + "`\n"
                                                     + ("\n### Declared known limits beside their rows\n\n" + declared_limits_markdown(requirements) if declared_limit_rows(requirements) else ""), encoding="utf-8")
-    freeze_problem = freeze_record_problem(freeze, expected)
+    freeze_problem = freeze_record_problem(freeze, expected, args.validation_id)
     freeze_status = "FAIL" if freeze_problem else (freeze or {}).get("status", "NOT RUN")
     summary = {"schema": "cognous.v1-validation-summary/1", "validation_id": args.validation_id,
                "workflow_run": os.environ.get("GITHUB_RUN_ID"), "freeze_status": freeze_status, "freeze_components_proof": freeze_components_proof(freeze),
+               "flaky_or_setup_jobs": [{"job": x["job"], "component": x["component"], "os": x["os"], "python": x["python"], "attempt_outcomes": x["attempt_outcomes"]}
+                                       for x in rows if x.get("flaky_or_setup")],
                "job_status_counts": counts, "expected_jobs": len(expected), "missing_jobs": len(missing), "jobs": rows,
                "selected_v1_verdict": "INCOMPLETE" if not requirements else verdict(requirements),
                "verdict_basis": "no requirement matrix supplied: aggregation refuses to promote" if not requirements else "requirement matrix",
@@ -924,16 +1126,29 @@ def cmd_aggregate(args):
         summary["declared_limits"] = declared_limits_block(declared, requirements, junit_index)
         summary["full_catalog_status"] = full_catalog_status(requirements)
         summary["scope_reduction"] = scope_reduction_block(requirements)
+    blockers = job_blockers(results, expected, missing, declared, inputs, requirements) if requirements else []
+    binding = record_binding_problems(results, freeze, expected, os.environ.get("GITHUB_RUN_ID"))
+    summary["record_binding_problems"] = [{"job": j, "problem": m} for j, m in binding]
+    if requirements:
+        blockers += [{"job": j, "component": next((x.get("component") for x in results if x["_dir"] == j), None), "os": None, "python": None,
+                      "status": "UNBOUND", "kind": "INCOMPLETE", "reason": m} for j, m in binding]
+    summary["blocking_jobs"] = blockers
+    if blockers and summary["selected_v1_verdict"] != "FAIL":
+        summary["selected_v1_verdict"] = "FAIL" if any(b["kind"] == "FAIL" for b in blockers) else "INCOMPLETE"
+        summary["verdict_note"] = "job(s) not covered by a declared known limit: " + "; ".join(
+            f"{b['component']} {b['os']} py{b['python']} ({b['job']}): {b['reason']}" for b in blockers)
     if freeze is None or freeze.get("status") != "PASS" or freeze_problem:
         summary["selected_v1_verdict"] = "INCOMPLETE" if summary["selected_v1_verdict"] != "FAIL" else "FAIL"
-        summary["verdict_note"] = "freeze verification did not pass; no result may be promoted" + (f" ({freeze_problem})" if freeze_problem else "")
+        summary["verdict_note"] = ((summary["verdict_note"] + " | ") if summary.get("verdict_note") else "") + (
+            "freeze verification did not pass; no result may be promoted" + (f" ({freeze_problem})" if freeze_problem else ""))
     (out / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     lines = [f"## V1 validation {args.validation_id}", "", f"Freeze: **{summary['freeze_status']}** · Verdict: **{summary['selected_v1_verdict']}** ({summary['verdict_basis']})", "",
              "| Status | Jobs |", "|---|---|"] + [f"| {k} | {v} |" for k, v in counts.items()] + ["",
              "| Component | OS | Python | Status | Testcases/fail/err/skip | Reason |", "|---|---|---|---|---|---|"]
     for row in rows:
         c = row["counts"] or {}
-        lines.append(f"| {row['component']} | {row['os']} | {row['python']} | {row['status']} | {c.get('testcases','-')}/{c.get('failures','-')}/{c.get('errors','-')}/{c.get('skipped','-')} | {row['reason'] or ''} |")
+        note = (row['reason'] or '') + (f" RETRIED: attempts {' -> '.join(map(str, row['attempt_outcomes']))} (first attempt did not pass; reported, not blocking)" if row.get('flaky_or_setup') else '')
+        lines.append(f"| {row['component']} | {row['os']} | {row['python']} | {row['status']} | {c.get('testcases','-')}/{c.get('failures','-')}/{c.get('errors','-')}/{c.get('skipped','-')} | {note.strip()} |")
     if requirements:
         fc, sr = summary["full_catalog_status"], summary["scope_reduction"]
         lines += ["", "### Full-catalog status (all rows, real statuses; reporting only, not the verdict basis)", "",
@@ -984,6 +1199,9 @@ def main():
     p.add_argument("--refreeze-log", default=None, help="overlay: APPLIED entries override the manifest pins of the components that are fetched")
     p.add_argument("--qual-profile", default=None, help="qualification profile path (repo-relative) to check against manifest + overlay; default the manifest's")
     p.set_defaults(fn=cmd_freeze_verify)
+    p = sub.add_parser("check-workflow-pins", help="fail when a pinned-repository sha literal of the workflow differs from manifest + overlay")
+    p.add_argument("--workflow", required=True); p.add_argument("--manifest", required=True); p.add_argument("--refreeze-log", default=None)
+    p.set_defaults(fn=cmd_check_workflow_pins)
     p = sub.add_parser("component-suite")
     for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name"):
         p.add_argument(a, required=True)

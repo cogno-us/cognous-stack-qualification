@@ -276,3 +276,18 @@ This entry adds to the entries above and does not rewrite them. An independent s
 The refreeze entry RF-45 moves the constitutional authority to that commit and the profile `process/security-runtime-f5b-20261016-r11.json` is r10 with only that pin changed. The controller run g5-r10 (entry of 2026-10-21 above) was made at the earlier authority revision and is not transferred. The candidate g6-r10 is the run at the new tuple; its expected state is recorded before the run in the pre-registration (amendment 112). No run of g6-r10 had been made when this entry was written.
 
 Scope: bounded synthetic profile only. This is not independent certification and not production readiness; operational trust, publication and production stay on HOLD.
+
+
+### Update 2026-10-21 (verdict machinery: independent review findings E-1 to E-11)
+
+This entry adds to the entries above and does not rewrite them. An independent review of the controller (`tools/v1_validation.py` and `.github/workflows/v1-validation.yml`) found that the machinery which decides the selected-V1 verdict could report PASS when it should not. The declared known limits, the requirement rows and the declared scope are unchanged; the verdict rule is stricter in the following ways, each with a test in `tests/test_e*.py`.
+
+- E-1: an expected job that is FAIL, INCONCLUSIVE or missing stops the verdict being PASS unless every failed case of its JUnit report is a declared known limit of that component (FAIL gives FAIL, the others INCOMPLETE). A NOT RUN job blocks unless the plan marks its component optional. Jobs behind a non-mandatory job row (qualification tooling, matched-refund rerun) remain scope-reduced. The blocking jobs are named in `verdict_note` and `blocking_jobs`.
+- E-2: a freeze-verification record without `components_expected`, or whose `components` differ from it, or with a failed check under a PASS status, is a freeze problem (INCOMPLETE). The retained g6-r10 record has 0 components and no `components_expected`; re-aggregated by this controller its verdict is INCOMPLETE, not PASS. The retained results are not edited; the earlier PASS is the result of the controller that produced it.
+- E-3: the freeze profile checks run both ways: the profile lists components, every pinned subject component appears at the manifest-plus-overlay revision, and a `constitutional_authority` section equals the pinned authority.
+- E-4: `check-workflow-pins` (run by the plan job) fails when a pinned-repository sha literal of the workflow differs from the pin in force.
+- E-8: the native-f5b job record is FAIL when the audit or repetition step failed, and SC-NATIVE-F5B is PASS only for a record whose `audit_outcome` is `success`.
+- E-10: a `tests` row with zero executed cases is INCONCLUSIVE; rows without selectors or with a selector minimum below 1 are refused.
+- E-5, E-7, E-7b, E-11: a refreeze status note that says the entry is reverted, withdrawn or not applied is not applied; duplicate entry ids and a missing `validation_id` are refused; a failed pinned-sibling install stays visible in the job record; a job that passed only on its retry is reported (`flaky_or_setup_jobs`, not blocking); job and freeze records are checked against the validation id, the workflow run and the plan pins.
+
+Not changed here: E-6, E-12 and E-13 of the review remain open and are not claimed as fixed. Scope: bounded synthetic profile only. This is not independent certification and not production readiness; operational trust, publication and production stay on HOLD.

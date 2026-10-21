@@ -12,6 +12,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 
 HEAD, TAG, SHA_A, SHA_B, SHA_C = 'a' * 40, 'b' * 40, '1' * 40, '2' * 40, '3' * 40
 MANIFEST = {
@@ -26,13 +27,16 @@ MANIFEST = {
 }
 
 
-def run_freeze(td, fetch):
+FULL_PROFILE = {'components': {k: {'repository': spec['repository'], 'revision': spec['sha']} for k, spec in MANIFEST['components_subject'].items()}}
+
+
+def run_freeze(td, fetch, profile=FULL_PROFILE, qprofile=FULL_PROFILE):
     td = Path(td)
     (td / 'hub').mkdir(); (td / 'q').mkdir()
     (td / 'manifest.json').write_text(json.dumps(MANIFEST))
-    (td / 'hub' / 'profile.json').write_text(json.dumps({'components': {}}))
+    (td / 'hub' / 'profile.json').write_text(json.dumps(profile))
     (td / 'hub' / 'component-lock.json').write_text(json.dumps({'components': {'gamma': {'sha': SHA_C}}}))
-    (td / 'q' / 'qprofile.json').write_text(json.dumps({'components': {}}))
+    (td / 'q' / 'qprofile.json').write_text(json.dumps(qprofile))
 
     def fake_git(path, *a, **k):
         return {'diff': 'x', 'merge-base': ''}.get(a[0], HEAD if a[:2] == ('rev-parse', 'HEAD') else 'tree')
@@ -65,6 +69,14 @@ class FreezeVerifyFetchesComponents(unittest.TestCase):
         self.assertEqual([c['check'] for c in rec['checks'] if c['status'] != 'PASS'], [])
         self.assertEqual(rec['status'], 'PASS')
 
+    def test_an_empty_or_incomplete_profile_fails_the_record(self):
+        # E-3: the profile checks used to run profile -> manifest only, so these passed with zero checks
+        partial = {'components': {'alpha': FULL_PROFILE['components']['alpha']}}
+        for kw in ({'profile': {'components': {}}}, {'qprofile': {'components': {}}}, {'profile': partial}, {'qprofile': partial}):
+            with tempfile.TemporaryDirectory() as td:
+                rec = run_freeze(td, lambda d, repo, sha: sha, **kw)
+            self.assertEqual(rec['status'], 'FAIL', kw)
+
     def test_a_component_that_resolves_to_another_commit_fails_the_record(self):
         with tempfile.TemporaryDirectory() as td:
             rec = run_freeze(td, lambda d, repo, sha: 'f' * 40 if repo == 'o/beta' else sha)
@@ -80,7 +92,7 @@ def aggregate(freeze, plan_components=()):
         ns = argparse.Namespace(inputs=str(inp), out=str(td / 'out'), validation_id='v1-2026-10-16-t', requirements=None,
                                 declared_twin=None, declared_set=None, require_committed_twin=False)
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(ns)
+            _agg_util.cmd_aggregate(ns)
         return json.loads((td / 'out' / 'summary.json').read_text())
 
 
@@ -94,17 +106,18 @@ class AggregateRefusesEmptyFreeze(unittest.TestCase):
         self.assertNotEqual(aggregate({'status': 'PASS', 'components': {}, 'components_expected': []})['freeze_status'], 'PASS')
 
     def test_components_differing_from_the_plan_are_not_pass(self):
-        rec = {'status': 'PASS', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
+        rec = {'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
         self.assertNotEqual(aggregate(rec, ['alpha', 'beta'])['freeze_status'], 'PASS')
 
     def test_complete_record_passes(self):
-        rec = {'status': 'PASS', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
+        rec = {'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {'alpha': {}}, 'components_expected': ['alpha']}
         s = aggregate(rec, ['alpha'])
         self.assertEqual((s['freeze_status'], s['freeze_components_proof']), ('PASS', 'verified'))
 
-    def test_legacy_record_is_readable_but_flagged_not_proof(self):
+    def test_legacy_record_is_flagged_not_proof_and_not_pass(self):
+        # E-2: this test used to expect freeze_status PASS for a record without components_expected (it encoded the bug)
         s = aggregate({'status': 'PASS', 'components': {}})
-        self.assertEqual(s['freeze_status'], 'PASS')
+        self.assertEqual(s['freeze_status'], 'FAIL')
         self.assertIn('not proof', s['freeze_components_proof'])
 
 

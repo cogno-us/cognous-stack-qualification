@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import declared_limits as DL  # noqa: E402
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 
 REPO = 'cogno-us/open-decision-evidence-standard'
 MOD = 'tests.test_ex'
@@ -326,9 +327,9 @@ def aggregate(junit_text, twin_doc, requirement, declared_set=None, comp=ODES, r
         td = Path(td)
         inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
-        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS'}))
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {comp: {}}, 'components_expected': [comp]}))
         (inp / ('v1v-' + comp)).mkdir()
-        (inp / ('v1v-' + comp) / 'result.json').write_text(json.dumps({'component': comp, 'status': 'FAIL', 'os': 'ubuntu-latest', 'python': '3.12'}))
+        (inp / ('v1v-' + comp) / 'result.json').write_text(json.dumps({'component': comp, 'status': 'FAIL' if '<failure' in junit_text or '<error' in junit_text else 'PASS', 'os': 'ubuntu-latest', 'python': '3.12'}))
         (inp / ('v1v-' + comp) / 'junit-attempt1.xml').write_text(junit_text)
         rq = td / 'requirements.json'
         rq.write_text(json.dumps({'requirements': [requirement]}))
@@ -336,7 +337,7 @@ def aggregate(junit_text, twin_doc, requirement, declared_set=None, comp=ODES, r
         ns = argparse.Namespace(inputs=str(inp), out=str(out), validation_id='v1-2026-10-16-t', requirements=str(rq),
                                 declared_twin=str(_write_twin(twin_doc)), declared_set=declared_set, require_committed_twin=require_committed)
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(ns)
+            _agg_util.cmd_aggregate(ns)
         return json.loads((out / 'summary.json').read_text()), (out / 'summary.md').read_text(), json.loads((out / 'requirements-matrix.json').read_text()), (out / 'requirements-matrix.md').read_text()
 
 

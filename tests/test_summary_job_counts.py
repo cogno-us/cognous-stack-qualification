@@ -14,6 +14,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 
 JUNIT = ('<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest">'
          '<testcase classname="s.a" name="t_pass"/>'
@@ -30,7 +31,7 @@ def summarise(jobs):
         td = Path(td)
         inp = td / 'in'
         (inp / 'v1v-freeze').mkdir(parents=True)
-        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS'}))
+        (inp / 'v1v-freeze' / 'freeze-verification.json').write_text(json.dumps({'status': 'PASS', 'validation_id': 'v1-2026-10-16-t', 'components': {'x': {}}, 'components_expected': ['x']}))
         for name, (record, junit_name) in jobs.items():
             (inp / name).mkdir()
             (inp / name / 'result.json').write_text(json.dumps(record))
@@ -40,7 +41,7 @@ def summarise(jobs):
         ns = argparse.Namespace(inputs=str(inp), out=str(out), validation_id='v1-2026-10-16-t', requirements=None,
                                 declared_twin=None, declared_set=None, require_committed_twin=False)
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(ns)
+            _agg_util.cmd_aggregate(ns)
         summary = json.loads((out / 'summary.json').read_text())
         md = (out / 'summary.md').read_text()
         return {j['job']: j['counts'] for j in summary['jobs']}, md
