@@ -365,7 +365,9 @@ jobs:
           node-version: '20'
       - name: Index and BitRep pins for C03/C04 (no dependency files are written into the pins)
         run: |
-          python -m pip install -r _index/requirements.txt -r _bitrep/requirements.txt httpx pydantic-settings
+          # The attestation requirements are hash-locked (pip then refuses unhashed requirements in the same command), so they are installed on their own.
+          python -m pip install --require-hashes -r _bitrep/requirements.txt
+          python -m pip install -r _index/requirements.txt httpx pydantic-settings
           cp -r _index/chain "$RUNNER_TEMP/index-chain"
           (cd "$RUNNER_TEMP/index-chain" && npm ci --ignore-scripts)
       - name: Build the seven pinned components (pristine, via the native runner's prepare step)
