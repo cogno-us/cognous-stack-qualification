@@ -1,0 +1,724 @@
+{
+  "defect_observed_untyped_refusals_on_wrong_json_types": {
+    "content_has_nan": [
+      "ValueError"
+    ],
+    "message_is_none": [
+      "AttributeError"
+    ],
+    "message_is_string": [
+      "AttributeError"
+    ]
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "tested_revision_match": true,
+        "tree": "c4146c16e416d4e8f3619a7b553d1691d389817c"
+      },
+      "evidence_pack": {
+        "commit": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "tested_revision_match": true,
+        "tree": "67c703b3182221e233220b607c4428a17baadd50"
+      },
+      "exchange": {
+        "commit": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "tested_revision_match": true,
+        "tree": "bdc7a5c6be6fd035b9e17c5867d25030c853e689"
+      },
+      "manifest": {
+        "commit": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "tested_revision_match": true,
+        "tree": "3bda14d9974b0645f14cd2a1ca9924951ac87be6"
+      },
+      "odes": {
+        "commit": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "tested_revision_match": true,
+        "tree": "6d011177f7ae9c1f082eb0727cc0254392ed5713"
+      },
+      "replay": {
+        "commit": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "tested_revision_match": true,
+        "tree": "b2df198599e7faf27966e5428b27ef0f4f36de19"
+      },
+      "runtime": {
+        "commit": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "tested_revision_match": true,
+        "tree": "31af6d1f253796b1abf09aa7152804871094f49b"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "6b16962db140590b808f02b5c2cb11a217aec46f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "note": "wrong-typed fields surface as raw Python exceptions, not typed GAX refusals; no effect occurs (hard gate asserted)",
+  "run1": {
+    "metrics": {
+      "type_confusion": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 0,
+          "voluntary": 0
+        },
+        "cpu_seconds_process_all_threads": 0.0554,
+        "cpu_utilisation_of_one_core": 1.0,
+        "label": "exchange_type_confusion",
+        "latency": {
+          "all": {
+            "max_ms": 5.816,
+            "mean_ms": 1.379,
+            "n": 40,
+            "p50_ms": 1.541,
+            "p95_ms": 1.833,
+            "p99_ms": 5.816
+          },
+          "authority_refs_is_string": {
+            "max_ms": 1.719,
+            "mean_ms": 1.592,
+            "n": 5,
+            "p50_ms": 1.555,
+            "p95_ms": 1.719,
+            "p99_ms": 1.719
+          },
+          "content_has_nan": {
+            "max_ms": 1.611,
+            "mean_ms": 1.541,
+            "n": 5,
+            "p50_ms": 1.531,
+            "p95_ms": 1.611,
+            "p99_ms": 1.611
+          },
+          "expires_at_not_a_time": {
+            "max_ms": 1.683,
+            "mean_ms": 1.606,
+            "n": 5,
+            "p50_ms": 1.621,
+            "p95_ms": 1.683,
+            "p99_ms": 1.683
+          },
+          "message_id_is_list": {
+            "max_ms": 1.833,
+            "mean_ms": 1.596,
+            "n": 5,
+            "p50_ms": 1.554,
+            "p95_ms": 1.833,
+            "p99_ms": 1.833
+          },
+          "message_id_is_object": {
+            "max_ms": 1.622,
+            "mean_ms": 1.519,
+            "n": 5,
+            "p50_ms": 1.476,
+            "p95_ms": 1.622,
+            "p99_ms": 1.622
+          },
+          "message_is_none": {
+            "max_ms": 0.381,
+            "mean_ms": 0.346,
+            "n": 5,
+            "p50_ms": 0.338,
+            "p95_ms": 0.381,
+            "p99_ms": 0.381
+          },
+          "message_is_string": {
+            "max_ms": 0.418,
+            "mean_ms": 0.374,
+            "n": 5,
+            "p50_ms": 0.378,
+            "p95_ms": 0.418,
+            "p99_ms": 0.418
+          },
+          "sender_is_list": {
+            "max_ms": 5.816,
+            "mean_ms": 2.458,
+            "n": 5,
+            "p50_ms": 1.652,
+            "p95_ms": 5.816,
+            "p99_ms": 5.816
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 216748,
+          "rss_after": 216748,
+          "rss_before": 216748
+        },
+        "report_only": true,
+        "request_rate_per_second": 721.88,
+        "requests": 40,
+        "storage_bytes": {
+          "after": 413694,
+          "before": 413694,
+          "growth": 0,
+          "growth_per_request": 0.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.0554
+      },
+      "typed_flood": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 374,
+          "voluntary": 13694
+        },
+        "cpu_seconds_process_all_threads": 0.8904,
+        "cpu_utilisation_of_one_core": 1.037,
+        "label": "exchange_flood",
+        "latency": {
+          "all": {
+            "max_ms": 139.933,
+            "mean_ms": 18.582,
+            "n": 360,
+            "p50_ms": 11.91,
+            "p95_ms": 64.112,
+            "p99_ms": 100.074
+          },
+          "digest_tamper": {
+            "max_ms": 91.276,
+            "mean_ms": 15.022,
+            "n": 40,
+            "p50_ms": 10.789,
+            "p95_ms": 71.905,
+            "p99_ms": 91.276
+          },
+          "expired": {
+            "max_ms": 116.868,
+            "mean_ms": 27.124,
+            "n": 40,
+            "p50_ms": 15.509,
+            "p95_ms": 95.547,
+            "p99_ms": 116.868
+          },
+          "missing_required_field": {
+            "max_ms": 139.933,
+            "mean_ms": 21.316,
+            "n": 40,
+            "p50_ms": 11.846,
+            "p95_ms": 76.412,
+            "p99_ms": 139.933
+          },
+          "operation_binding_mismatch_rehashed": {
+            "max_ms": 71.117,
+            "mean_ms": 13.926,
+            "n": 40,
+            "p50_ms": 11.293,
+            "p95_ms": 31.388,
+            "p99_ms": 71.117
+          },
+          "profile_downgrade_rehashed": {
+            "max_ms": 100.074,
+            "mean_ms": 16.449,
+            "n": 40,
+            "p50_ms": 10.529,
+            "p95_ms": 88.308,
+            "p99_ms": 100.074
+          },
+          "unsafe_message_id": {
+            "max_ms": 95.353,
+            "mean_ms": 20.677,
+            "n": 40,
+            "p50_ms": 13.808,
+            "p95_ms": 86.332,
+            "p99_ms": 95.353
+          },
+          "unsupported_purpose_rehashed": {
+            "max_ms": 63.0,
+            "mean_ms": 18.008,
+            "n": 40,
+            "p50_ms": 14.041,
+            "p95_ms": 54.681,
+            "p99_ms": 63.0
+          },
+          "untrusted_sender": {
+            "max_ms": 71.708,
+            "mean_ms": 16.544,
+            "n": 40,
+            "p50_ms": 11.093,
+            "p95_ms": 63.764,
+            "p99_ms": 71.708
+          },
+          "wrong_recipient": {
+            "max_ms": 134.109,
+            "mean_ms": 18.172,
+            "n": 40,
+            "p50_ms": 12.104,
+            "p95_ms": 72.492,
+            "p99_ms": 134.109
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 216748,
+          "rss_after": 216748,
+          "rss_before": 211736
+        },
+        "report_only": true,
+        "request_rate_per_second": 419.47,
+        "requests": 360,
+        "storage_bytes": {
+          "after": 413694,
+          "before": 368638,
+          "growth": 45056,
+          "growth_per_request": 125.2
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.8582
+      }
+    },
+    "outcome": {
+      "effect_count_before_valid": 0,
+      "effects_after_attacks": [],
+      "effects_after_valid": 1,
+      "files_created_by_attacks": null,
+      "type_confusion_by_class": {
+        "authority_refs_is_string": [
+          "NOT_UNDERSTOOD"
+        ],
+        "content_has_nan": [
+          "ValueError"
+        ],
+        "expires_at_not_a_time": [
+          "NOT_UNDERSTOOD"
+        ],
+        "message_id_is_list": [
+          "NOT_UNDERSTOOD"
+        ],
+        "message_id_is_object": [
+          "NOT_UNDERSTOOD"
+        ],
+        "message_is_none": [
+          "AttributeError"
+        ],
+        "message_is_string": [
+          "AttributeError"
+        ],
+        "sender_is_list": [
+          "REFUSE"
+        ]
+      },
+      "typed_by_class": {
+        "digest_tamper": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "expired": [
+          "('REFUSE', True, False)"
+        ],
+        "missing_required_field": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "operation_binding_mismatch_rehashed": [
+          "('REFUSE', True, False)"
+        ],
+        "profile_downgrade_rehashed": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "unsafe_message_id": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "unsupported_purpose_rehashed": [
+          "('REFUSE', True, False)"
+        ],
+        "untrusted_sender": [
+          "('REFUSE', True, False)"
+        ],
+        "wrong_recipient": [
+          "('REFUSE', True, False)"
+        ]
+      },
+      "valid": {
+        "attempt_status": "executed",
+        "attempted": true,
+        "errors": [],
+        "handling": "ACCEPT_FOR_ASSESSMENT",
+        "newly_executed": true
+      }
+    }
+  },
+  "run2": {
+    "metrics": {
+      "type_confusion": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 1,
+          "voluntary": 0
+        },
+        "cpu_seconds_process_all_threads": 0.0545,
+        "cpu_utilisation_of_one_core": 1.0,
+        "label": "exchange_type_confusion",
+        "latency": {
+          "all": {
+            "max_ms": 4.255,
+            "mean_ms": 1.357,
+            "n": 40,
+            "p50_ms": 1.573,
+            "p95_ms": 1.778,
+            "p99_ms": 4.255
+          },
+          "authority_refs_is_string": {
+            "max_ms": 1.685,
+            "mean_ms": 1.614,
+            "n": 5,
+            "p50_ms": 1.589,
+            "p95_ms": 1.685,
+            "p99_ms": 1.685
+          },
+          "content_has_nan": {
+            "max_ms": 1.632,
+            "mean_ms": 1.564,
+            "n": 5,
+            "p50_ms": 1.542,
+            "p95_ms": 1.632,
+            "p99_ms": 1.632
+          },
+          "expires_at_not_a_time": {
+            "max_ms": 1.727,
+            "mean_ms": 1.617,
+            "n": 5,
+            "p50_ms": 1.629,
+            "p95_ms": 1.727,
+            "p99_ms": 1.727
+          },
+          "message_id_is_list": {
+            "max_ms": 1.778,
+            "mean_ms": 1.619,
+            "n": 5,
+            "p50_ms": 1.585,
+            "p95_ms": 1.778,
+            "p99_ms": 1.778
+          },
+          "message_id_is_object": {
+            "max_ms": 1.659,
+            "mean_ms": 1.59,
+            "n": 5,
+            "p50_ms": 1.569,
+            "p95_ms": 1.659,
+            "p99_ms": 1.659
+          },
+          "message_is_none": {
+            "max_ms": 0.379,
+            "mean_ms": 0.348,
+            "n": 5,
+            "p50_ms": 0.343,
+            "p95_ms": 0.379,
+            "p99_ms": 0.379
+          },
+          "message_is_string": {
+            "max_ms": 0.395,
+            "mean_ms": 0.368,
+            "n": 5,
+            "p50_ms": 0.354,
+            "p95_ms": 0.395,
+            "p99_ms": 0.395
+          },
+          "sender_is_list": {
+            "max_ms": 4.255,
+            "mean_ms": 2.14,
+            "n": 5,
+            "p50_ms": 1.607,
+            "p95_ms": 4.255,
+            "p99_ms": 4.255
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 217488,
+          "rss_after": 217488,
+          "rss_before": 217488
+        },
+        "report_only": true,
+        "request_rate_per_second": 733.36,
+        "requests": 40,
+        "storage_bytes": {
+          "after": 413692,
+          "before": 413692,
+          "growth": 0,
+          "growth_per_request": 0.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.0545
+      },
+      "typed_flood": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 333,
+          "voluntary": 13213
+        },
+        "cpu_seconds_process_all_threads": 0.8901,
+        "cpu_utilisation_of_one_core": 1.028,
+        "label": "exchange_flood",
+        "latency": {
+          "all": {
+            "max_ms": 247.343,
+            "mean_ms": 18.968,
+            "n": 360,
+            "p50_ms": 11.678,
+            "p95_ms": 66.575,
+            "p99_ms": 145.943
+          },
+          "digest_tamper": {
+            "max_ms": 33.225,
+            "mean_ms": 14.433,
+            "n": 40,
+            "p50_ms": 12.777,
+            "p95_ms": 33.08,
+            "p99_ms": 33.225
+          },
+          "expired": {
+            "max_ms": 145.943,
+            "mean_ms": 16.588,
+            "n": 40,
+            "p50_ms": 11.204,
+            "p95_ms": 57.462,
+            "p99_ms": 145.943
+          },
+          "missing_required_field": {
+            "max_ms": 137.386,
+            "mean_ms": 20.395,
+            "n": 40,
+            "p50_ms": 11.352,
+            "p95_ms": 117.926,
+            "p99_ms": 137.386
+          },
+          "operation_binding_mismatch_rehashed": {
+            "max_ms": 247.343,
+            "mean_ms": 27.635,
+            "n": 40,
+            "p50_ms": 10.973,
+            "p95_ms": 188.726,
+            "p99_ms": 247.343
+          },
+          "profile_downgrade_rehashed": {
+            "max_ms": 71.662,
+            "mean_ms": 13.889,
+            "n": 40,
+            "p50_ms": 12.086,
+            "p95_ms": 27.852,
+            "p99_ms": 71.662
+          },
+          "unsafe_message_id": {
+            "max_ms": 191.115,
+            "mean_ms": 21.42,
+            "n": 40,
+            "p50_ms": 12.308,
+            "p95_ms": 117.525,
+            "p99_ms": 191.115
+          },
+          "unsupported_purpose_rehashed": {
+            "max_ms": 120.248,
+            "mean_ms": 20.047,
+            "n": 40,
+            "p50_ms": 11.92,
+            "p95_ms": 111.741,
+            "p99_ms": 120.248
+          },
+          "untrusted_sender": {
+            "max_ms": 145.688,
+            "mean_ms": 18.685,
+            "n": 40,
+            "p50_ms": 12.294,
+            "p95_ms": 67.269,
+            "p99_ms": 145.688
+          },
+          "wrong_recipient": {
+            "max_ms": 115.655,
+            "mean_ms": 17.624,
+            "n": 40,
+            "p50_ms": 11.81,
+            "p95_ms": 87.669,
+            "p99_ms": 115.655
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 217488,
+          "rss_after": 217488,
+          "rss_before": 216780
+        },
+        "report_only": true,
+        "request_rate_per_second": 415.97,
+        "requests": 360,
+        "storage_bytes": {
+          "after": 413692,
+          "before": 368636,
+          "growth": 45056,
+          "growth_per_request": 125.2
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.8654
+      }
+    },
+    "outcome": {
+      "effect_count_before_valid": 0,
+      "effects_after_attacks": [],
+      "effects_after_valid": 1,
+      "files_created_by_attacks": null,
+      "type_confusion_by_class": {
+        "authority_refs_is_string": [
+          "NOT_UNDERSTOOD"
+        ],
+        "content_has_nan": [
+          "ValueError"
+        ],
+        "expires_at_not_a_time": [
+          "NOT_UNDERSTOOD"
+        ],
+        "message_id_is_list": [
+          "NOT_UNDERSTOOD"
+        ],
+        "message_id_is_object": [
+          "NOT_UNDERSTOOD"
+        ],
+        "message_is_none": [
+          "AttributeError"
+        ],
+        "message_is_string": [
+          "AttributeError"
+        ],
+        "sender_is_list": [
+          "REFUSE"
+        ]
+      },
+      "typed_by_class": {
+        "digest_tamper": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "expired": [
+          "('REFUSE', True, False)"
+        ],
+        "missing_required_field": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "operation_binding_mismatch_rehashed": [
+          "('REFUSE', True, False)"
+        ],
+        "profile_downgrade_rehashed": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "unsafe_message_id": [
+          "('NOT_UNDERSTOOD', True, False)"
+        ],
+        "unsupported_purpose_rehashed": [
+          "('REFUSE', True, False)"
+        ],
+        "untrusted_sender": [
+          "('REFUSE', True, False)"
+        ],
+        "wrong_recipient": [
+          "('REFUSE', True, False)"
+        ]
+      },
+      "valid": {
+        "attempt_status": "executed",
+        "attempted": true,
+        "errors": [],
+        "handling": "ACCEPT_FOR_ASSESSMENT",
+        "newly_executed": true
+      }
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:9bb2c5fcc1b3e4dd61190a5151dd6fc5c5fa33b56c89977f5972e5c93a6505f5",
+    "run2_outcome_digest": "sha256:9bb2c5fcc1b3e4dd61190a5151dd6fc5c5fa33b56c89977f5972e5c93a6505f5",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "exchange GAX assessment + run_exchange",
+  "test": "test_scn_d06_unauthenticated_exchange_flood",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}
