@@ -47,6 +47,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
+      - name: Workflow pin literals equal the pins in force (fails closed)
+        run: python tools/v1_validation.py check-workflow-pins --workflow .github/workflows/v1-validation.yml --manifest "$MANIFEST" --refreeze-log "$REFREEZE_LOG"
       - id: plan
         run: python tools/v1_validation.py plan --manifest "$MANIFEST" --refreeze-log "$REFREEZE_LOG" --linux-only --github-output "$GITHUB_OUTPUT" --out-file out/plan.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02

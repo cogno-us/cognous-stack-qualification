@@ -5,6 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 Subcommands
   plan            emit the GitHub Actions job matrix from the freeze manifest
   freeze-verify   verify every identity recorded in the freeze manifest
+  check-workflow-pins  compare the sha literals of the controller workflow with manifest + overlay
   component-suite discover and run one component's own tests at its pinned commit
   aggregate       merge job results; refuse to promote missing, failed or skipped
                   mandatory coverage to PASS
@@ -256,6 +257,38 @@ def cmd_freeze_verify(args):
     for c in checks:
         print(("ok   " if c["status"] == "PASS" else "FAIL ") + c["check"])
     sys.exit(0 if out["status"] == "PASS" else 1)
+
+
+# ----------------------------------------------------- workflow pin literals
+_WF_CHECKOUT_RE = re.compile(r"repository:\s*(cogno-us/[\w.-]+)[ \t]*\n[ \t]+ref:[ \t]*(\S+)")
+_WF_MATRIX_RE = re.compile(r"repo:\s*(cogno-us/[\w.-]+),\s*sha:\s*(\S+?)\s*[,}]")
+
+
+def workflow_pin_literals(text):
+    """[(repository, ref literal)] of every checkout ``repository``/``ref`` pair and probes-matrix ``repo``/``sha`` pair in a workflow text."""
+    return [(m.group(1), m.group(2)) for rx in (_WF_CHECKOUT_RE, _WF_MATRIX_RE) for m in rx.finditer(text)]
+
+
+def workflow_pin_mismatches(text, resolved):
+    """Messages for every pinned-repository literal of the workflow that differs from the pin in force (E-4).
+
+    ``resolved`` is the manifest with the refreeze overlay applied (component pins) and the hub head of its identities. A repository that is
+    not pinned (third-party actions, other repositories) is not checked."""
+    pins = {s["repository"]: s["sha"] for _, _, s in all_components(resolved)}
+    hub = resolved["identities"]["hub"]
+    pins[hub["repository"]] = hub["head"]
+    return [f"{repo}: workflow literal {lit!r} is not the pin in force {pins[repo]}" for repo, lit in workflow_pin_literals(text)
+            if repo in pins and lit != pins[repo]]
+
+
+def cmd_check_workflow_pins(args):
+    resolved, _ = load_resolved(args.manifest, args.refreeze_log)
+    bad = workflow_pin_mismatches(Path(args.workflow).read_text(encoding="utf-8"), resolved)
+    for b in bad:
+        print("FAIL " + b)
+    if bad:
+        sys.exit(f"{len(bad)} workflow pin literal(s) differ from the manifest plus overlay")
+    print("ok   every pinned-repository literal of the workflow equals the pin in force")
 
 
 # ------------------------------------------------------- component suite
@@ -1080,6 +1113,9 @@ def main():
     p.add_argument("--refreeze-log", default=None, help="overlay: APPLIED entries override the manifest pins of the components that are fetched")
     p.add_argument("--qual-profile", default=None, help="qualification profile path (repo-relative) to check against manifest + overlay; default the manifest's")
     p.set_defaults(fn=cmd_freeze_verify)
+    p = sub.add_parser("check-workflow-pins", help="fail when a pinned-repository sha literal of the workflow differs from manifest + overlay")
+    p.add_argument("--workflow", required=True); p.add_argument("--manifest", required=True); p.add_argument("--refreeze-log", default=None)
+    p.set_defaults(fn=cmd_check_workflow_pins)
     p = sub.add_parser("component-suite")
     for a in ("--component", "--repository", "--sha", "--repo-dir", "--out", "--os-name"):
         p.add_argument(a, required=True)
