@@ -1,0 +1,255 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:3685c0c6974f53b8f0ba186c38191ea692ee87dedb84f778d6c5e4e8fac2dbe8",
+    "run2_digest": "sha256:3685c0c6974f53b8f0ba186c38191ea692ee87dedb84f778d6c5e4e8fac2dbe8",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "tested_revision_match": true,
+        "tree": "ea5c10fc6918fb7546574cf001cf734b745e891b"
+      },
+      "evidence_pack": {
+        "commit": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "tested_revision_match": true,
+        "tree": "3d0450e3ec1679e1473096a21b4e33eee7a2b58e"
+      },
+      "exchange": {
+        "commit": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "tested_revision_match": true,
+        "tree": "136f273e89bbab4ab4d26facb56318d8919d1eac"
+      },
+      "manifest": {
+        "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "tested_revision_match": true,
+        "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be"
+      },
+      "odes": {
+        "commit": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "tested_revision_match": true,
+        "tree": "979971e196d5228d2ebb0e33e168c91c87ec63ec"
+      },
+      "replay": {
+        "commit": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "tested_revision_match": true,
+        "tree": "0b8332192d2d934cd36620c3c7cfdff0469da2ce"
+      },
+      "runtime": {
+        "commit": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "tested_revision_match": true,
+        "tree": "875e56103ecfd2875fde82c6e168ca5ced93cae3"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "frozen_pins_asserted": {
+      "control_plane": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "ec728da6dc301a664b331ac8986afd6e850a1273"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r13.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "claims": [
+        [
+          "claim-1",
+          "consumed"
+        ]
+      ],
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "effect-1",
+          "operation_digest": "sha256:dd89fd15588f0c022c897f1884d08566765dc8051fea6e1a5c17f44ffaec69ff",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:1"
+        }
+      ],
+      "excess_duplicate_effects": 0,
+      "failures": [
+        [
+          "dispatch_error",
+          "acknowledgement_unavailable",
+          "post_dispatch"
+        ],
+        [
+          "authority_hold",
+          "current_authority_rejected",
+          "pre_dispatch"
+        ]
+      ],
+      "first": {
+        "acknowledged": false,
+        "attempted": true,
+        "error": "synthetic acknowledgement unavailable after atomic commit",
+        "newly_executed": false,
+        "observed_state": "applied",
+        "status": "unknown"
+      },
+      "reconcile": {
+        "claim_state": "consumed",
+        "retry_eligible": false,
+        "status": "applied"
+      },
+      "retry": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "execution claim is not usable",
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "claims": [
+        [
+          "claim-1",
+          "consumed"
+        ]
+      ],
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "effect-1",
+          "operation_digest": "sha256:dd89fd15588f0c022c897f1884d08566765dc8051fea6e1a5c17f44ffaec69ff",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:1"
+        }
+      ],
+      "excess_duplicate_effects": 0,
+      "failures": [
+        [
+          "dispatch_error",
+          "acknowledgement_unavailable",
+          "post_dispatch"
+        ],
+        [
+          "authority_hold",
+          "current_authority_rejected",
+          "pre_dispatch"
+        ]
+      ],
+      "first": {
+        "acknowledged": false,
+        "attempted": true,
+        "error": "synthetic acknowledgement unavailable after atomic commit",
+        "newly_executed": false,
+        "observed_state": "applied",
+        "status": "unknown"
+      },
+      "reconcile": {
+        "claim_state": "consumed",
+        "retry_eligible": false,
+        "status": "applied"
+      },
+      "retry": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "execution claim is not usable",
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": {
+    "asw_case": "R01",
+    "attack_condition": "Lost executor acknowledgement",
+    "expected_secure_outcome": "Retain unknown delivery; reconcile before retry.",
+    "family": "L17 monitoring",
+    "live_agent_or_human_part_not_covered": "Operator/SOC handling of the unknown-delivery alert (human process).",
+    "mapping_note": "proposal only; no 1:1 or compliance claim",
+    "nearest_wiki_cases": {
+      "TC-L17-028": "Platform Health and Silent Failure Detection"
+    },
+    "register_item": "GR-0576"
+  },
+  "test": "test_asw_r01_route_b_lost_ack_keeps_the_claim_consumed_and_retry_is_refused",
+  "verdict": "PASS"
+}

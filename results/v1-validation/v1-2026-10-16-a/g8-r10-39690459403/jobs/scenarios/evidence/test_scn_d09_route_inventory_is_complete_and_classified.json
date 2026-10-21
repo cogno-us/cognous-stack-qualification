@@ -1,0 +1,314 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:20162ebef3b7c90a6923871d7b2bcc1fcfe2de0113028cd0e4cf73ea97a6196e",
+    "run2_digest": "sha256:20162ebef3b7c90a6923871d7b2bcc1fcfe2de0113028cd0e4cf73ea97a6196e",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "tested_revision_match": true,
+        "tree": "ea5c10fc6918fb7546574cf001cf734b745e891b"
+      },
+      "evidence_pack": {
+        "commit": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "tested_revision_match": true,
+        "tree": "3d0450e3ec1679e1473096a21b4e33eee7a2b58e"
+      },
+      "exchange": {
+        "commit": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "tested_revision_match": true,
+        "tree": "136f273e89bbab4ab4d26facb56318d8919d1eac"
+      },
+      "manifest": {
+        "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "tested_revision_match": true,
+        "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be"
+      },
+      "odes": {
+        "commit": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "tested_revision_match": true,
+        "tree": "979971e196d5228d2ebb0e33e168c91c87ec63ec"
+      },
+      "replay": {
+        "commit": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "tested_revision_match": true,
+        "tree": "0b8332192d2d934cd36620c3c7cfdff0469da2ce"
+      },
+      "runtime": {
+        "commit": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "tested_revision_match": true,
+        "tree": "875e56103ecfd2875fde82c6e168ca5ced93cae3"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "frozen_pins_asserted": {
+      "control_plane": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "ec728da6dc301a664b331ac8986afd6e850a1273"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r13.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "declared_routes": {
+        "atomic-claim-executor": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "AtomicLocalControlPlaneExecutor + AtomicAuthorityEffectDestination claims (route B, run_matched_refund route)"
+        },
+        "control-plane-local-destination": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "BoundedAuthorizationWorkflow.execute against the Control Plane LocalRefundDestination (no runtime executor)"
+        },
+        "cp-pinned-executor": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "Control Plane revalidation + PinnedControlPlaneExecutor + EffectiveGrantDestination (route A)"
+        },
+        "direct-commit-bypass": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "direct DurableRefundDestination.commit / LocalDestinationExecutor.execute_snapshot / adapter.apply on an effective-grant destination"
+        },
+        "exchange-run_exchange": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "governed-exchange run_exchange ingress; drives route A internally (route C)"
+        },
+        "legacy-agent-engine": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "legacy AgentEngine.execute_action shell (declared to perform no side effect)"
+        },
+        "legacy-cli": {
+          "exercised": false,
+          "not_exercised_reason": "removed at the pin; asserted below to be absent, with no other CLI entry point that could reach a destination/executor route",
+          "what": "cli/moltbot_safe_cli.py (removed at runtime cad22611, #133: it did not run, ImportError)"
+        },
+        "legacy-write-on-atomic-profile": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "legacy DurableRefundDestination write path on an atomic-claim database"
+        },
+        "legacy-write-on-intent-profile": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "legacy DurableRefundDestination write path on an intent-registry database"
+        },
+        "openshell-destination": {
+          "exercised": false,
+          "not_exercised_reason": "requires a pinned OpenShell 0.1.2 gateway, Docker and an immutable OCI image; outside the bounded Linux synthetic reference",
+          "what": "OpenShellRefundDestination (sandbox destination, request_cancel)"
+        },
+        "raw-sql-by-database-holder": {
+          "exercised": false,
+          "not_exercised_reason": "declared out of model: SQLite does not separate the file holder from the authority writer (trusted-host boundary documented by the reference)",
+          "what": "direct SQL by a holder of the SQLite file"
+        }
+      },
+      "discovered_call_sites": {
+        "control_plane/src/agent_control_plane/bounded.py": [
+          "destination\\.apply\\("
+        ],
+        "runtime/engine/atomic_local_control_plane_executor.py": [
+          "\\bexecute_claim_atomic\\("
+        ],
+        "runtime/engine/control_plane_adapter.py": [
+          "\\bexecute_snapshot\\("
+        ],
+        "runtime/engine/dedupe_destination.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/delayed_commit_destination.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/openshell_worker.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/refund_intent.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/safe_executor.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ]
+      },
+      "excess_duplicate_effects": 0,
+      "unauthorized_effects": 0
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "declared_routes": {
+        "atomic-claim-executor": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "AtomicLocalControlPlaneExecutor + AtomicAuthorityEffectDestination claims (route B, run_matched_refund route)"
+        },
+        "control-plane-local-destination": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "BoundedAuthorizationWorkflow.execute against the Control Plane LocalRefundDestination (no runtime executor)"
+        },
+        "cp-pinned-executor": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "Control Plane revalidation + PinnedControlPlaneExecutor + EffectiveGrantDestination (route A)"
+        },
+        "direct-commit-bypass": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "direct DurableRefundDestination.commit / LocalDestinationExecutor.execute_snapshot / adapter.apply on an effective-grant destination"
+        },
+        "exchange-run_exchange": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "governed-exchange run_exchange ingress; drives route A internally (route C)"
+        },
+        "legacy-agent-engine": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "legacy AgentEngine.execute_action shell (declared to perform no side effect)"
+        },
+        "legacy-cli": {
+          "exercised": false,
+          "not_exercised_reason": "removed at the pin; asserted below to be absent, with no other CLI entry point that could reach a destination/executor route",
+          "what": "cli/moltbot_safe_cli.py (removed at runtime cad22611, #133: it did not run, ImportError)"
+        },
+        "legacy-write-on-atomic-profile": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "legacy DurableRefundDestination write path on an atomic-claim database"
+        },
+        "legacy-write-on-intent-profile": {
+          "exercised": true,
+          "not_exercised_reason": null,
+          "what": "legacy DurableRefundDestination write path on an intent-registry database"
+        },
+        "openshell-destination": {
+          "exercised": false,
+          "not_exercised_reason": "requires a pinned OpenShell 0.1.2 gateway, Docker and an immutable OCI image; outside the bounded Linux synthetic reference",
+          "what": "OpenShellRefundDestination (sandbox destination, request_cancel)"
+        },
+        "raw-sql-by-database-holder": {
+          "exercised": false,
+          "not_exercised_reason": "declared out of model: SQLite does not separate the file holder from the authority writer (trusted-host boundary documented by the reference)",
+          "what": "direct SQL by a holder of the SQLite file"
+        }
+      },
+      "discovered_call_sites": {
+        "control_plane/src/agent_control_plane/bounded.py": [
+          "destination\\.apply\\("
+        ],
+        "runtime/engine/atomic_local_control_plane_executor.py": [
+          "\\bexecute_claim_atomic\\("
+        ],
+        "runtime/engine/control_plane_adapter.py": [
+          "\\bexecute_snapshot\\("
+        ],
+        "runtime/engine/dedupe_destination.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/delayed_commit_destination.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/openshell_worker.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/refund_intent.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ],
+        "runtime/engine/safe_executor.py": [
+          "(?:destination|super\\(\\))\\.commit\\("
+        ]
+      },
+      "excess_duplicate_effects": 0,
+      "unauthorized_effects": 0
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "D09",
+  "test": "test_scn_d09_route_inventory_is_complete_and_classified",
+  "verdict": "PASS"
+}
