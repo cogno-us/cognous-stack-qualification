@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 
 REQS = ROOT / 'process/v1-validation/v1-2026-10-16-a/requirements.json'
 SR = {'decision': 'D15', 'final_status': 'FAIL', 'category': 'design-limit'}
@@ -36,7 +37,7 @@ def aggregate(reqs_doc, jobs):
         rq.write_text(json.dumps(reqs_doc))
         out = td / 'out'
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(argparse.Namespace(inputs=str(inp), out=str(out), validation_id='v1-2026-10-16-t', requirements=str(rq)))
+            _agg_util.cmd_aggregate(argparse.Namespace(inputs=str(inp), out=str(out), validation_id='v1-2026-10-16-t', requirements=str(rq)))
         return json.loads((out / 'summary.json').read_text()), (out / 'summary.md').read_text()
 
 

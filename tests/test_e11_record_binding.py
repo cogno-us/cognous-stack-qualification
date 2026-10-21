@@ -61,16 +61,8 @@ class Binding(unittest.TestCase):
         self.assertEqual(s['selected_v1_verdict'], 'INCOMPLETE')
 
     def test_the_aggregate_run_id_from_the_environment_wins(self):
-        import os
-        old = os.environ.get('GITHUB_RUN_ID')
-        os.environ['GITHUB_RUN_ID'] = '77'
-        try:
-            self.assertEqual(run()['selected_v1_verdict'], 'INCOMPLETE')  # records say run 5
-        finally:
-            if old is None:
-                del os.environ['GITHUB_RUN_ID']
-            else:
-                os.environ['GITHUB_RUN_ID'] = old
+        s = aggregate([comp()], ROW, freeze=freeze(), plan=PLAN, env={'GITHUB_RUN_ID': '77'})
+        self.assertEqual(s['selected_v1_verdict'], 'INCOMPLETE')  # records say run 5
 
 
 if __name__ == '__main__':

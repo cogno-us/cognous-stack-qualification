@@ -13,6 +13,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 from safe_paths import assert_plain_tree, resolve_regular_file, safe_relative_name  # noqa: E402
 
 VID = 'v1-2026-10-16-t'
@@ -28,7 +29,7 @@ def run_aggregate(layout, vid=VID):
             f.parent.mkdir(parents=True, exist_ok=True)
             f.write_text(json.dumps(value))
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(argparse.Namespace(inputs=str(inp), out=str(td / 'out'), validation_id=vid, requirements=None))
+            _agg_util.cmd_aggregate(argparse.Namespace(inputs=str(inp), out=str(td / 'out'), validation_id=vid, requirements=None))
         return json.loads((td / 'out/summary.json').read_text())
 
 

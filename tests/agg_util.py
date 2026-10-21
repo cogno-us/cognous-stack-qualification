@@ -3,9 +3,11 @@ import argparse
 import contextlib
 import io
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
+from unittest import mock
 from xml.sax.saxutils import quoteattr
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
@@ -13,6 +15,18 @@ import v1_validation as v  # noqa: E402
 
 VID = 'v1-2026-10-16-t'
 GOOD_FREEZE = {'status': 'PASS', 'validation_id': VID, 'components': {'alpha': {}}, 'components_expected': ['alpha']}
+
+
+RUN_ENV = ('GITHUB_RUN_ID', 'GITHUB_RUN_ATTEMPT')
+
+
+def cmd_aggregate(ns, **env):
+    """v.cmd_aggregate with the CI run variables removed (tests must not depend on where they run); env sets extras."""
+    with mock.patch.dict(os.environ, env):
+        for k in RUN_ENV:
+            if k not in env:
+                os.environ.pop(k, None)
+        return v.cmd_aggregate(ns)
 
 
 def junit_xml(cases):
@@ -55,7 +69,7 @@ def aggregate(jobs, requirements=None, freeze=GOOD_FREEZE, plan=None, declared_t
         ns = argparse.Namespace(inputs=str(inp), out=str(td / 'out'), validation_id=vid, requirements=req,
                                 declared_twin=declared_twin, declared_set=None, require_committed_twin=False)
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(ns)
+            cmd_aggregate(ns, **(env or {}))
         return json.loads((td / 'out' / 'summary.json').read_text())
 
 

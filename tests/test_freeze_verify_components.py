@@ -12,6 +12,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 
 HEAD, TAG, SHA_A, SHA_B, SHA_C = 'a' * 40, 'b' * 40, '1' * 40, '2' * 40, '3' * 40
 MANIFEST = {
@@ -91,7 +92,7 @@ def aggregate(freeze, plan_components=()):
         ns = argparse.Namespace(inputs=str(inp), out=str(td / 'out'), validation_id='v1-2026-10-16-t', requirements=None,
                                 declared_twin=None, declared_set=None, require_committed_twin=False)
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(ns)
+            _agg_util.cmd_aggregate(ns)
         return json.loads((td / 'out' / 'summary.json').read_text())
 
 

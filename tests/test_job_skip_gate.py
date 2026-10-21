@@ -4,6 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 
 ROW = {'requirements': [{'id': 'SC-HUB-TESTS', 'kind': 'job', 'component': 'hub-tests', 'mandatory': True}]}
 
@@ -21,7 +22,7 @@ def aggregate(skipped):
         ns = argparse.Namespace(inputs=str(inp), out=str(td / 'out'), validation_id='v1-2026-10-16-t', requirements=str(td / 'req.json'),
                                 declared_twin=None, declared_set=None, require_committed_twin=False)
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(ns)
+            _agg_util.cmd_aggregate(ns)
         return json.loads((td / 'out' / 'summary.json').read_text())
 
 

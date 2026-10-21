@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 import declared_limits as DL  # noqa: E402
 import v1_validation as v  # noqa: E402
+import agg_util as _agg_util  # noqa: E402
 
 REPO = 'cogno-us/open-decision-evidence-standard'
 MOD = 'tests.test_ex'
@@ -336,7 +337,7 @@ def aggregate(junit_text, twin_doc, requirement, declared_set=None, comp=ODES, r
         ns = argparse.Namespace(inputs=str(inp), out=str(out), validation_id='v1-2026-10-16-t', requirements=str(rq),
                                 declared_twin=str(_write_twin(twin_doc)), declared_set=declared_set, require_committed_twin=require_committed)
         with contextlib.redirect_stdout(io.StringIO()):
-            v.cmd_aggregate(ns)
+            _agg_util.cmd_aggregate(ns)
         return json.loads((out / 'summary.json').read_text()), (out / 'summary.md').read_text(), json.loads((out / 'requirements-matrix.json').read_text()), (out / 'requirements-matrix.md').read_text()
 
 
