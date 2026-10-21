@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 LOG = Path(__file__).resolve().parents[1] / 'process/v1-validation/v1-2026-10-16-a/refreeze-log.json'
-PENDING = {'RF-42', 'RF-43'}  # applied in the workflow, to be qualified by the controller run g4-r10
+PENDING = {'RF-42', 'RF-43', 'RF-44'}  # applied in the workflow, to be qualified by the controller run g5-r10 (RF-42 is superseded by RF-44)
 
 
 class RefreezeLogStatus(unittest.TestCase):
@@ -13,7 +13,7 @@ class RefreezeLogStatus(unittest.TestCase):
         self.entries = json.loads(LOG.read_text(encoding='utf-8'))['entries']
 
     def test_every_entry_is_applied_and_only_the_newest_are_pending(self):
-        self.assertEqual(len(self.entries), 43)
+        self.assertEqual(len(self.entries), 44)
         for e in self.entries:
             self.assertTrue(e['status'].startswith('APPLIED'), e['id'])
             self.assertEqual('pending' in e['status'], e['id'] in PENDING, e['id'])
