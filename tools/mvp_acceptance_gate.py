@@ -507,32 +507,120 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
 # ------------------------------------------------------------------------------------------------ commitment and environment
 COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v1.json"
 ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
-COMMIT_FIXED = ("process/mvp-acceptance/mandatory-battery.proposed.v1.json", "process/mvp-acceptance/mvp-applicability.proposed.v1.json",
-                "process/mvp-acceptance/gate-expectations.proposed.v1.json",
-                ENV_PROFILE_FILE, "tools/mvp_acceptance_gate.py", ".github/workflows/mvp-acceptance.yml")
+SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability")
+ABSENT_CANDIDATES = ("conftest.py", "suites/conftest.py", "tox.ini", "setup.cfg", "pyproject.toml")
+CONFIG_FILES = ("pytest.ini",)
+ENV_RECORDS_DIR = "process/mvp-acceptance/environment-records"
+
+
+def _entries(root: Path, rel: str) -> list[str]:
+    """Every entry (file, symlink to a file, symlink to a directory) under ``rel`` without following links."""
+    out = []
+    for dirpath, dirnames, filenames in os.walk(Path(root) / rel, followlinks=False):
+        dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
+        for name in sorted(filenames) + [d for d in dirnames if (Path(dirpath) / d).is_symlink()]:
+            if name.endswith(".pyc"):
+                continue
+            out.append(str((Path(dirpath) / name).relative_to(root)))
+    return out
+
+
+def _local_imports(root: Path, rel: str) -> set[str]:
+    """Local modules a Python file imports (nested imports included), resolved against the directories the suites put on sys.path."""
+    import ast
+    root = Path(root)
+    path = root / rel
+    try:
+        tree = ast.parse(path.read_text())
+    except (SyntaxError, OSError, UnicodeDecodeError):
+        return set()
+    names = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            names += [(a.name, 0) for a in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            base = node.module or ""
+            names.append((base, node.level))
+            names += [((base + "." + a.name).strip("."), node.level) for a in node.names]
+    search = [path.parent, root / "suites", root / "suites/operation-identity", root / "tools"]
+    found = set()
+    for name, level in names:
+        dirs = [path.parent.parents[level - 1] if level > 1 else path.parent] if level else search
+        parts = name.split(".") if name else []
+        for i in range(len(parts), 0, -1):
+            for d in dirs:
+                for cand in (d.joinpath(*parts[:i]).with_suffix(".py"), d.joinpath(*parts[:i], "__init__.py")):
+                    if cand.is_file():
+                        found.add(str(cand.relative_to(root)))
+        if level and not parts:
+            found.add(str((path.parent / "__init__.py").relative_to(root))) if (path.parent / "__init__.py").is_file() else None
+    return found
 
 
 def commit_files(repo_root: Path) -> list[str]:
-    """Every file whose bytes the qualification candidate commits to: the proposed inputs, the gate, the workflow, and every Python source of
-    the two suites that hold mandatory tests (so a mandatory test cannot be added or changed without a new candidate)."""
+    """Every file whose bytes the qualification candidate commits to: ALL files under the two mandatory suites, the transitive closure of the
+    local modules they import (including other suites and tools), the gate, the workflow and the lock files it references, pytest.ini, the
+    proposed inputs and every process/mvp-chain and process/mvp-acceptance file (except the commitment itself and the environment records,
+    which are evidence checked by an independent hash)."""
     root = Path(repo_root)
-    files = list(COMMIT_FIXED)
-    files.append("process/mvp-acceptance/candidate-identity.inputs.json")
-    for sub in ("suites/mvp-chain", "suites/mvp-applicability"):
-        files += [str(p.relative_to(root)) for p in sorted((root / sub).rglob("*.py")) if "__pycache__" not in p.parts]
-    return sorted(set(files))
+    files = {"tools/mvp_acceptance_gate.py", ".github/workflows/mvp-acceptance.yml"}
+    for sub in SUITE_DIRS:
+        files.update(_entries(root, sub))
+    for sub in ("process/mvp-chain", "process/mvp-acceptance"):
+        files.update(f for f in _entries(root, sub) if f != COMMITMENT_FILE and not f.startswith(ENV_RECORDS_DIR + "/"))
+    files.update(f for f in CONFIG_FILES if (root / f).exists() or (root / f).is_symlink())
+    wf = (root / ".github/workflows/mvp-acceptance.yml").read_text()
+    for lock in sorted(set(re.findall(r"\.github/locks/[A-Za-z0-9._-]+", wf))):
+        for cand in (lock, re.sub(r"\.txt$", ".in", lock)):
+            if (root / cand).exists() or (root / cand).is_symlink():
+                files.add(cand)
+    frontier = {f for f in files if f.endswith(".py")}
+    while frontier:
+        nxt = set()
+        for rel in frontier:
+            for dep in _local_imports(root, rel):
+                if dep not in files:
+                    files.add(dep)
+                    nxt.add(dep)
+        frontier = nxt
+    return sorted(files)
+
+
+def absent_files(repo_root: Path) -> list[str]:
+    return sorted(c for c in ABSENT_CANDIDATES if not (Path(repo_root) / c).exists() and not (Path(repo_root) / c).is_symlink())
+
+
+def symlinks_in(repo_root: Path, rels) -> list[str]:
+    """Committed paths that are, or sit below, a symbolic link."""
+    root, bad = Path(repo_root), set()
+    for rel in rels:
+        cur = root
+        for part in Path(rel).parts:
+            cur = cur / part
+            if cur.is_symlink():
+                bad.add(str(cur.relative_to(root)))
+    return sorted(bad)
 
 
 def build_commitment(repo_root: Path, out: Path) -> dict:
     root = Path(repo_root)
+    files = commit_files(root)
+    links = symlinks_in(root, files)
+    if links:
+        raise SystemExit(f"commit refused: symbolic links in the committed set: {links}")
     doc = {"schema": "cognous.mvp-qualification-candidate-commitment/1", "candidate_version": "mvp-qualification-candidate-v1",
            "status": "PROPOSED; pending independent Qualification acceptance and freeze (target 2026-10-27). Not frozen, not an acceptance; release HOLD.",
            "supersession": "A change to any listed file is a NEW candidate: write candidate-commitment.proposed.v2.json (and new versions of the changed inputs) and re-run. "
                            "This file is never edited in place once frozen, and the gate compares the committed list to the files present, so an added, removed or changed "
-                           "mandatory test, input, gate or workflow is refused.",
+                           "mandatory test, imported module, input, lock file, pytest.ini, gate or workflow is refused, as is any symbolic link in the set.",
            "independence": "The sha256 of THIS file must be supplied to the gate from outside this checkout (workflow input candidate_commitment_sha256, recorded by Qualification). "
                            "Without it the verdict is INCOMPLETE.",
-           "files": {rel: sha256_file(root / rel) for rel in commit_files(root)}}
+           "inherent_limit": "The gate and the workflow that evaluate this commitment come from the same checkout, so a changed gate could report PASS. An independent reviewer must pin "
+                             "this commitment hash AND the gate code (tools/mvp_acceptance_gate.py is itself listed here, but its listing is only meaningful against a hash held outside the checkout).",
+           "scope": "all files under suites/mvp-chain and suites/mvp-applicability; the transitive closure of local modules they import (static import analysis); pytest.ini; the lock files "
+                    "the workflow references; process/mvp-chain and process/mvp-acceptance (except this file and environment-records/, which are evidence checked by an independent hash).",
+           "must_remain_absent": absent_files(root),
+           "files": {rel: sha256_file(root / rel) for rel in files}}
     Path(out).write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
     return doc
 
@@ -556,15 +644,21 @@ def check_commitment(gate: Gate, repo_root: Path, expect_sha: str | None, commit
     uncommitted = sorted(set(present) - set(committed))
     removed = sorted(set(committed) - set(present))
     if uncommitted:
-        problems.append(f"files present but not committed (mandatory tests, inputs, gate or workflow added): {uncommitted}")
+        problems.append(f"files present but not committed (tests, imported modules, inputs, locks, config, gate or workflow added): {uncommitted}")
     if removed:
         problems.append(f"committed files absent: {removed}")
+    links = symlinks_in(repo_root, set(present) | set(committed))
+    if links:
+        problems.append(f"symbolic links in or above the committed set: {links}")
+    planted = sorted(c for c in doc.get("must_remain_absent", []) if (Path(repo_root) / c).exists() or (Path(repo_root) / c).is_symlink())
+    if planted:
+        problems.append(f"files that must remain absent now exist (they would change collection or configuration): {planted}")
     for rel in sorted(set(committed) & set(present)):
-        if sha256_file(Path(repo_root) / rel) != committed[rel]:
+        if (Path(repo_root) / rel).is_file() and sha256_file(Path(repo_root) / rel) != committed[rel]:
             problems.append(f"{rel}: bytes differ from the commitment")
     gate.add("G-12", FAIL if problems else PASS,
-             f"{doc.get('candidate_version')}: {len(committed)} files (battery, applicability mapping, gate expectations, tuple, environment profile, gate, workflow, mandatory test sources) match the commitment, "
-             "whose sha256 equals the independently supplied value" if not problems else "; ".join(problems),
+             f"{doc.get('candidate_version')}: {len(committed)} files (suite sources, imported modules, inputs, lock files, pytest.ini, gate, workflow) match the commitment, "
+             "whose sha256 equals the independently supplied value; no symlinks" if not problems else "; ".join(problems),
              commitment_sha256=actual, candidate_version=doc.get("candidate_version"))
     return actual
 
@@ -604,15 +698,23 @@ def _record_digest(rec: dict) -> str:
     return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path):
+def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, components_dir: Path | None = None, expect_record_sha: str | None = None,
+                             observations: dict | None = None):
     """The hub environment record (mvp-ingress-env-record/1) must be PASS on the selected profile; BLOCKED (Yama absent, not root, ...) is INCOMPLETE."""
     profile = load(Path(repo_root) / ENV_PROFILE_FILE)["hub_record"]
     rec = _read_json(gate, "G-11", run_dir / "environment-record.json", "hub environment record (none supplied)")
     if rec is None:
         return
+    record_path = run_dir / "environment-record.json"
     resolved = load(run_dir / "tuple-resolved.json") if (run_dir / "tuple-resolved.json").is_file() else {"components": {}}
     tuple_shas = {c.get("sha") for c in resolved.get("components", {}).values()}
     incomplete, fail = [], []
+    if record_path.is_symlink():
+        fail.append("the staged environment record is a symbolic link")
+    if not expect_record_sha or not re.fullmatch(r"[0-9a-f]{64}", expect_record_sha):
+        incomplete.append("no independently supplied sha256 of the environment record file (environment_record_sha256)")
+    elif sha256_file(record_path) != expect_record_sha:
+        fail.append("environment record file sha256 differs from the independently supplied value")
     if rec.get("schema") != profile["schema"]:
         fail.append(f"schema {rec.get('schema')!r} != {profile['schema']!r}")
     if rec.get("record_sha256") != _record_digest(rec):
@@ -641,6 +743,58 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path):
         (incomplete if scope is None else fail).append(f"kernel.yama.ptrace_scope {scope!r} (profile requires >= 1; absent is unsupported)")
     if any((c.get("data") or {}).get("relaxed") for c in checks.values()):
         fail.append("a requirement was relaxed (for example a root ingress): not a qualifying configuration")
+    # run binding
+    for key, want in (("run_id", resolved.get("run_id")), ("qualification_sha", resolved.get("qualification_sha"))):
+        if key not in rec:
+            incomplete.append(f"record carries no {key}: it cannot be bound to this run")
+        elif rec.get(key) != want:
+            fail.append(f"record {key} {rec.get(key)!r} != this run's {want!r}")
+    # interpreter version equals the one the suite ran on
+    seen = str((observations or {}).get("env", {}).get("python", "")).split(" ")[0]
+    if not seen:
+        incomplete.append("the suite's interpreter version was not observed")
+    elif py.get("version") != seen:
+        fail.append(f"record python {py.get('version')!r} != the suite's interpreter {seen!r}")
+    # ingress sources at the tuple sha
+    recorded_src = (rec.get("configuration") or {}).get("ingress_source_sha256")
+    hub = Path(components_dir) / COMPONENT_DIRS["hub"] / "tools" / "mvp_ingress" if components_dir else None
+    if not isinstance(recorded_src, dict) or not recorded_src:
+        incomplete.append("record has no configuration.ingress_source_sha256")
+    elif hub is None or not hub.is_dir():
+        incomplete.append("no hub checkout available to compare ingress_source_sha256")
+    else:
+        actual_src = {"tools/mvp_ingress/" + f.name: sha256_file(f) for f in sorted(hub.glob("*.py"))}
+        if recorded_src != actual_src:
+            fail.append("record ingress_source_sha256 differs from the hub files at the tuple sha: " + ", ".join(sorted(set(recorded_src) ^ set(actual_src) | {k for k in recorded_src if k in actual_src and recorded_src[k] != actual_src[k]})))
+    # ipc, group policy, separate IPC directory, non-root ingress
+    ipc = rec.get("ipc") or {}
+    policy = (ipc.get("connection_policy") or {}).get("socket_group_policy")
+    if policy is None:
+        incomplete.append("record has no ipc.connection_policy.socket_group_policy")
+    elif policy != profile["ipc"]["socket_group_policy"]:
+        fail.append(f"socket_group_policy {policy!r} != {profile['ipc']['socket_group_policy']!r}")
+    st = ipc.get("stat") if isinstance(ipc.get("stat"), dict) else None
+    if st is None or "mode" not in st:
+        incomplete.append("record has no ipc.stat (socket mode and type)")
+    else:
+        if st.get("mode") != profile["ipc"]["socket_mode"] or st.get("type") != profile["ipc"]["socket_type"]:
+            fail.append(f"socket mode/type {st.get('mode')}/{st.get('type')} != {profile['ipc']['socket_mode']}/{profile['ipc']['socket_type']}")
+        state_dir = (rec.get("filesystem") or {}).get("state_dir")
+        sock = st.get("path")
+        if not state_dir or not sock:
+            incomplete.append("record lacks the socket path or state dir needed to show a separate IPC directory")
+        else:
+            sd = os.path.normpath(state_dir)
+            sdir = os.path.normpath(os.path.dirname(sock))
+            if sdir == sd or sdir.startswith(sd + os.sep):
+                fail.append(f"the socket directory {sdir} is the ingress state directory or inside it")
+    ident = rec.get("process_identity") or {}
+    ing = ident.get("ingress_uid")
+    ing_proc = ident.get("ingress_process") if isinstance(ident.get("ingress_process"), dict) else {}
+    if ing is None:
+        incomplete.append("record has no process_identity.ingress_uid")
+    elif ing == 0 or ing_proc.get("uid") == 0:
+        fail.append("the ingress runs as uid 0 (a non-root dedicated uid is mandatory)")
     pins = [v for v in ((rec.get("configuration") or {}).get("source_pins") or {}).values() if isinstance(v, str) and SHA40.fullmatch(v)]
     if not pins:
         incomplete.append("the record pins no component sha: it cannot be tied to the selected tuple")
@@ -715,7 +869,7 @@ def check_exchange_exclusion(gate: Gate, run_dir: Path, battery: dict, mapping: 
 
 
 def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | None = None, expect_commitment: str | None = None,
-             require_python: str | None = None) -> dict:
+             require_python: str | None = None, components_dir: Path | None = None, expect_record_sha: str | None = None) -> dict:
     run_dir, repo_root = Path(run_dir), Path(repo_root)
     gate = Gate()
     battery = load(repo_root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json")
@@ -741,7 +895,7 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
     guarded("G-03b", check_declared_not_applicable, gate, battery)
     guarded("G-04", check_environment, gate, gate_exp, observations)
     guarded("G-04b", check_interpreter, gate, require_python)
-    guarded("G-11", check_environment_record, gate, run_dir, repo_root)
+    guarded("G-11", check_environment_record, gate, run_dir, repo_root, components_dir, expect_record_sha, observations)
     commitment_sha = guarded("G-12", check_commitment, gate, repo_root, expect_commitment)
     guarded("G-13", check_uncommitted_tests, gate, run_dir, battery)
     guarded("G-14", check_pending_rows, gate, battery)
@@ -786,6 +940,8 @@ def main(argv=None) -> int:
     g.add_argument("--expect-qualification-sha")
     g.add_argument("--expect-commitment-sha256")
     g.add_argument("--require-python")
+    g.add_argument("--components-dir")
+    g.add_argument("--expect-environment-record-sha256")
     c_ = sub.add_parser("commit")
     c_.add_argument("--repo-root", default=str(ROOT))
     c_.add_argument("--out", default=COMMITMENT_FILE)
@@ -804,7 +960,8 @@ def main(argv=None) -> int:
     if args.cmd == "verify-checkouts":
         verify_checkouts(Path(args.resolved), Path(args.base))
         return 0
-    doc = run_gate(Path(args.run_dir), Path(args.repo_root), args.expect_qualification_sha, args.expect_commitment_sha256, args.require_python)
+    doc = run_gate(Path(args.run_dir), Path(args.repo_root), args.expect_qualification_sha, args.expect_commitment_sha256, args.require_python,
+                   Path(args.components_dir) if args.components_dir else None, args.expect_environment_record_sha256)
     out = Path(args.out) if args.out else Path(args.run_dir) / "gate-verdict.json"
     out.write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
     for c in doc["checks"]:

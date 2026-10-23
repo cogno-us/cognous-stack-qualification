@@ -68,18 +68,23 @@ ENV_PROFILE = json.loads((ROOT / "process/mvp-acceptance/environment-profile.pro
 def make_root(dest: Path, mutate=None) -> tuple[Path, str]:
     """A copy of the files the gate reads, with a freshly generated candidate commitment (so these tests do not depend on the committed hash)."""
     ignore = shutil.ignore_patterns("__pycache__")
-    for rel in ("process", "suites/mvp-chain", "suites/mvp-applicability", "suites/v1-scenarios", "tools", ".github/workflows"):
-        shutil.copytree(ROOT / rel, dest / rel, ignore=ignore, dirs_exist_ok=True)
+    for rel in ("process", "suites/mvp-chain", "suites/mvp-applicability", "suites/v1-scenarios", "suites/operation-identity", "tools", ".github"):
+        shutil.copytree(ROOT / rel, dest / rel, ignore=ignore, dirs_exist_ok=True, symlinks=True)
+    shutil.copy(ROOT / "pytest.ini", dest / "pytest.ini")
     if mutate:
         mutate(dest)
     G.build_commitment(dest, dest / G.COMMITMENT_FILE)
     return dest, G.sha256_file(dest / G.COMMITMENT_FILE)
 
 
-def env_record(tuple_shas, mutate=None):
+def env_record(tuple_shas, mutate=None, ingress_sources=None):
     checks = [{"id": i, "status": "PASS", "detail": "x", "data": {}} for i in ENV_PROFILE["required_pass_check_ids"]]
-    rec = {"schema": "mvp-ingress-env-record/1", "python": {"version": "3.13.1", "implementation": "CPython"}, "isolation_limits": {"yama_ptrace_scope": "1"},
-           "configuration": {"source_pins": {f"c{i}": sha for i, sha in enumerate(sorted(tuple_shas))}}, "checks": checks, "overall": "PASS"}
+    rec = {"schema": "mvp-ingress-env-record/1", "run_id": RUN, "qualification_sha": QSHA,
+           "python": {"version": "3.13.1", "implementation": "CPython"}, "isolation_limits": {"yama_ptrace_scope": "1"},
+           "ipc": {"connection_policy": {"socket_group_policy": "dedicated"}, "stat": {"path": "/run/ipc/ingress.sock", "type": "socket", "mode": "0660", "uid": 1, "gid": 2}},
+           "filesystem": {"state_dir": "/var/lib/ingress/state"}, "process_identity": {"ingress_uid": 990, "ingress_process": {"uid": 990}},
+           "configuration": {"source_pins": {f"c{i}": sha for i, sha in enumerate(sorted(tuple_shas))}, "ingress_source_sha256": ingress_sources or {}},
+           "checks": checks, "overall": "PASS"}
     if mutate:
         mutate(rec)
     rec["record_sha256"] = G._record_digest(rec)
@@ -106,7 +111,11 @@ class GateTests(unittest.TestCase):
                                                             "identity_sha256": G.sha256_file(identity), "qualification_sha": QSHA, "run_id": RUN, "overrides": {}, "components": comps}))
         anchor = {"ref": "main", "files": {rel: {"main_blob": G.blob_id(ROOT / rel)} for rel in G.frozen_files(ROOT)}}
         (rd / "anchor.json").write_text(json.dumps(anchor))
-        (rd / "environment-record.json").write_text(json.dumps(env_record({c["sha"] for c in comps.values()}, env_mutate)))
+        hub = self.tmp / "components" / "hub" / "tools" / "mvp_ingress"
+        hub.mkdir(parents=True, exist_ok=True)
+        (hub / "server.py").write_text("print('x')\n")
+        sources = {"tools/mvp_ingress/server.py": G.sha256_file(hub / "server.py")}
+        (rd / "environment-record.json").write_text(json.dumps(env_record({c["sha"] for c in comps.values()}, env_mutate, sources)))
         (rd / "mvp-chain/artifacts/ingress-modules.json").write_text(json.dumps(
             {"run_id": RUN, "modules": {"os": "/usr/lib/os.py", "tools.mvp_ingress.server": "/hub/tools/mvp_ingress/server.py"}, "sys_path": ["/hub"]}))
         rows = [{"id": t["row"], "status": (row_status or {}).get(t["row"], "PASS")} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
@@ -130,7 +139,8 @@ class GateTests(unittest.TestCase):
             (rd / inv["exclusion_observation"]).write_text(json.dumps(exclusion or {"run_id": RUN, "exchange_modules_loaded": [], "modules_from_exchange_paths": [], "sys_path_exchange_entries": []}))
 
     def gate(self, root=None, commit=None, **kw):
-        args = {"expect_qualification": QSHA, "expect_commitment": (self.commit if root is None else None) if commit is None else commit, "require_python": PY}
+        args = {"expect_qualification": QSHA, "expect_commitment": (self.commit if root is None else None) if commit is None else commit, "require_python": PY,
+                "components_dir": self.tmp / "components", "expect_record_sha": G.sha256_file(self.run_dir / "environment-record.json") if (self.run_dir / "environment-record.json").is_file() else None}
         args.update(kw)
         return G.run_gate(self.run_dir, root or self.root, **args)
 
@@ -321,7 +331,9 @@ class ReviewFixTests(GateTests):
         out = self.tmp / "verdict.json"
         (self.run_dir / "mvp-chain/artifacts/verifier/B-report.json").write_bytes(b"{not json")
         self.assertEqual(G.main(["gate", "--run-dir", str(self.run_dir), "--repo-root", str(self.root), "--out", str(out),
-                                 "--expect-commitment-sha256", self.commit, "--require-python", PY]), 2)
+                                 "--expect-commitment-sha256", self.commit, "--require-python", PY,
+                                 "--components-dir", str(self.tmp / "components"),
+                                 "--expect-environment-record-sha256", G.sha256_file(self.run_dir / "environment-record.json")]), 2)
         self.assertEqual(json.loads(out.read_text())["verdict"], "INCOMPLETE")
 
     def test_unreadable_artifact_does_not_crash_the_gate(self):
@@ -492,6 +504,106 @@ class RulingsTwoTests(GateTests):
         self.assertEqual(self.verdict()[1]["G-11"], "FAIL")
         path.unlink()
         self.assertEqual(self.verdict()[1]["G-11"], "INCOMPLETE")
+
+    def _g12(self, doc=None):
+        return {c["id"]: c for c in (doc or self.gate())["checks"]}["G-12"]
+
+    def test_transitive_imports_config_locks_and_all_suite_files_are_committed(self):
+        files = G.commit_files(ROOT)
+        for needed in ("suites/operation-identity/_oi_flow.py", "tools/pristine_checkout.py", "pytest.ini",
+                       ".github/locks/cryptography-pydantic-pytest-a9a750.txt", ".github/locks/cryptography-pydantic-pytest-a9a750.in",
+                       "suites/mvp-chain/README.md", "suites/mvp-chain/_chain.py", "process/mvp-chain/expectations.proposed.v3.json"):
+            self.assertIn(needed, files)
+
+    def test_tampering_with_each_reviewer_case_is_a_g12_fail(self):
+        def tamper(label, fn):
+            with self.subTest(label):
+                shutil.rmtree(self.tmp / "t", ignore_errors=True)
+                root, commit = make_root(self.tmp / "t")
+                self.assertEqual(self._g12(self.gate(root, commit))["status"], "PASS")
+                fn(root)
+                c = self._g12(self.gate(root, commit))
+                self.assertEqual(c["status"], "FAIL", c["detail"])
+        def append(rel):
+            return lambda r: (r / rel).write_text((r / rel).read_text() + "\n# tampered\n")
+        tamper("_oi_flow.py", append("suites/operation-identity/_oi_flow.py"))
+        tamper("pristine_checkout.py", append("tools/pristine_checkout.py"))
+        tamper("pytest.ini addopts", lambda r: (r / "pytest.ini").write_text((r / "pytest.ini").read_text() + "addopts = -k 'not NC1'\n"))
+        tamper("non-py file under suite", lambda r: (r / "suites/mvp-chain/extra.txt").write_text("x"))
+        tamper("lock file", append(".github/locks/cryptography-pydantic-pytest-a9a750.txt"))
+        tamper("lock .in file", append(".github/locks/cryptography-pydantic-pytest-a9a750.in"))
+        tamper("root conftest planted", lambda r: (r / "conftest.py").write_text("collect_ignore_glob = ['*']\n"))
+        tamper("suites conftest planted", lambda r: (r / "suites/conftest.py").write_text("x = 1\n"))
+        def symlink_dir(r):
+            (r / "elsewhere").mkdir()
+            (r / "elsewhere/test_x.py").write_text("def test_x():\n    pass\n")
+            (r / "suites/mvp-chain/linked").symlink_to(r / "elsewhere", target_is_directory=True)
+        tamper("symlinked directory of .py files", symlink_dir)
+        def symlink_file(r):
+            (r / "suites/mvp-chain/verdict.py").rename(r / "verdict_real.py")
+            (r / "suites/mvp-chain/verdict.py").symlink_to(r / "verdict_real.py")
+        tamper("committed file replaced by a symlink", symlink_file)
+        def symlink_ancestor(r):
+            shutil.move(str(r / "suites/operation-identity"), str(r / "oi_real"))
+            (r / "suites/operation-identity").symlink_to(r / "oi_real", target_is_directory=True)
+        tamper("committed ancestor directory replaced by a symlink", symlink_ancestor)
+
+    def test_build_commitment_refuses_symlinks(self):
+        root, _ = make_root(self.tmp / "ts")
+        (root / "suites/mvp-chain/ln.py").symlink_to(root / "suites/mvp-chain/verdict.py")
+        with self.assertRaises(SystemExit):
+            G.build_commitment(root, root / "c.json")
+
+    def test_environment_record_file_hash_symlink_and_binding(self):
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(expect_record_sha=None)["checks"]}["G-11"], "INCOMPLETE")
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(expect_record_sha="0" * 64)["checks"]}["G-11"], "FAIL")
+        path = self.run_dir / "environment-record.json"
+        real = self.tmp / "real-record.json"
+        shutil.copy(path, real)
+        path.unlink()
+        path.symlink_to(real)
+        self.assertEqual({c["id"]: c["status"] for c in self.gate()["checks"]}["G-11"], "FAIL")
+
+    def test_every_hub_emitted_check_id_is_required(self):
+        ids = set(ENV_PROFILE["required_pass_check_ids"])
+        for needed in ("qualification.client_capabilities_empty", "qualification.client_socket_reachable", "qualification.client_denied_state_access",
+                       "qualification.client_denied_ingress_process", "invocation.client_entry_point", "invocation.simulate_fixed_none",
+                       "invocation.operation_identity_fixed_true", "configuration.pins_and_manifests", "configuration.journal_mode",
+                       "isolation.ingress_capabilities_recorded"):
+            self.assertIn(needed, ids)
+            with self.subTest(needed):
+                self.build(env_mutate=lambda r, n=needed: r["checks"].remove(next(c for c in r["checks"] if c["id"] == n)))
+                self.assertEqual(self.verdict()[1]["G-11"], "INCOMPLETE")
+
+    def test_environment_record_bound_to_run_sources_interpreter_and_ipc(self):
+        def setp(path, value):
+            def m(rec):
+                node = rec
+                for k in path[:-1]:
+                    node = node[k]
+                if value is KeyError:
+                    node.pop(path[-1], None)
+                else:
+                    node[path[-1]] = value
+            return m
+        cases = [("run_id absent", setp(["run_id"], KeyError), "INCOMPLETE"), ("run_id other", setp(["run_id"], "other"), "FAIL"),
+                 ("qual sha absent", setp(["qualification_sha"], KeyError), "INCOMPLETE"), ("qual sha other", setp(["qualification_sha"], "1" * 40), "FAIL"),
+                 ("interpreter differs", setp(["python", "version"], "3.13.9"), "FAIL"),
+                 ("sources absent", setp(["configuration", "ingress_source_sha256"], KeyError), "INCOMPLETE"),
+                 ("sources differ", setp(["configuration", "ingress_source_sha256"], {"tools/mvp_ingress/server.py": "0" * 64}), "FAIL"),
+                 ("group policy absent", setp(["ipc", "connection_policy"], KeyError), "INCOMPLETE"),
+                 ("group policy shared", setp(["ipc", "connection_policy", "socket_group_policy"], "shared"), "FAIL"),
+                 ("socket mode 0600", setp(["ipc", "stat", "mode"], "0600"), "FAIL"),
+                 ("socket mode absent", setp(["ipc", "stat"], KeyError), "INCOMPLETE"),
+                 ("socket inside state dir", setp(["ipc", "stat", "path"], "/var/lib/ingress/state/ingress.sock"), "FAIL"),
+                 ("ingress uid absent", setp(["process_identity", "ingress_uid"], KeyError), "INCOMPLETE"),
+                 ("ingress root", setp(["process_identity", "ingress_uid"], 0), "FAIL")]
+        for label, mut, want in cases:
+            with self.subTest(label):
+                self.build(env_mutate=mut)
+                self.assertEqual(self.verdict()[1]["G-11"], want)
+        self.build()
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(components_dir=None)["checks"]}["G-11"], "INCOMPLETE")
 
     def test_gate_interpreter_must_be_the_required_python(self):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(require_python="3.12" if PY != "3.12" else "3.13")["checks"]}["G-04b"], "INCOMPLETE")

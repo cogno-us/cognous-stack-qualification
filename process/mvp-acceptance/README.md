@@ -54,17 +54,27 @@ gate does not soften them, so a run is expected to be non-ACCEPT until the owner
 
 All of these stay **PROPOSED** pending independent Qualification acceptance and freeze (target 2026-10-27).
 
-* **Commitment (G-12, G-13).** `candidate-commitment.proposed.v1.json` lists the sha256 of the battery, applicability mapping, gate
-  expectations, candidate identity (tuple), environment profile, gate tool, workflow and every Python source of `suites/mvp-chain` and
-  `suites/mvp-applicability`. The sha256 of that file must be supplied from outside this checkout (`candidate_commitment_sha256`); without it
-  the verdict is INCOMPLETE. A changed, added or removed listed file is a FAIL, and a collected test that is not in the committed battery
-  (mandatory, or the one committed non-mandatory row KL-01) is INCOMPLETE. A later change is a new file (`...v2.json`) and a new candidate;
-  `python tools/mvp_acceptance_gate.py commit` writes it. Limit: a hash supplied by the same hands that edit the files proves nothing; it
-  is only independent when Qualification records it.
-* **Environment record (G-11).** The gate consumes the hub's `mvp-ingress-env-record/1` JSON (workflow input `environment_record`, a path under
-  `process/mvp-acceptance/environment-records/`). It must carry a valid `record_sha256`, an `overall` consistent with its checks, PASS for every
-  required check id of the profile, CPython 3.13, `kernel.yama.ptrace_scope >= 1`, no relaxed requirement (for example a root ingress) and
-  pins that belong to the selected tuple. A FAIL is a REJECT; BLOCKED, a missing record, or Yama absent (unsupported profile) is INCOMPLETE.
+* **Commitment (G-12, G-13).** `candidate-commitment.proposed.v1.json` lists the sha256 of: ALL files (not only `.py`) under `suites/mvp-chain` and
+  `suites/mvp-applicability`; the transitive closure of the local modules they import, computed by static import analysis (this reaches
+  `suites/operation-identity/_oi_flow.py` and `tools/pristine_checkout.py`); `pytest.ini`; the lock files the workflow references; every file of
+  `process/mvp-chain` and `process/mvp-acceptance` (candidate tuple, battery, mapping, gate expectations, environment profile); the gate tool and
+  the workflow. It also records files that must stay absent (a root or `suites/` `conftest.py`, `tox.ini`, `setup.cfg`, `pyproject.toml`).
+  Symbolic links anywhere in or above the committed set are refused, both when the commitment is built and by the gate. The sha256 of the
+  commitment file must be supplied from outside this checkout (`candidate_commitment_sha256`); without it the verdict is INCOMPLETE. A changed,
+  added or removed file, or a planted file that must be absent, is a FAIL, and a collected test that is not in the committed battery (mandatory,
+  or the committed non-mandatory KL-01) is INCOMPLETE. A later change is a new file (`...v2.json`) and a new candidate; `python
+  tools/mvp_acceptance_gate.py commit` writes it. **Inherent limit:** the gate and the workflow that evaluate the commitment come from the same
+  checkout, so a changed gate could report PASS; an independent reviewer must pin the commitment hash and the gate code outside the checkout.
+  Not covered: component checkouts (pinned by sha), the runner image and the hub environment record (evidence, hashed separately below).
+* **Environment record (G-11).** The gate consumes the hub's `mvp-ingress-env-record/1` JSON (workflow inputs `environment_record`, a regular file
+  under `process/mvp-acceptance/environment-records/` (symlinks refused), and `environment_record_sha256`, supplied from outside the checkout).
+  Required: a valid `record_sha256`; `overall` consistent with its checks; PASS for all 23 check ids the hub script emits (platform, python,
+  identity, isolation, ipc, filesystem, qualification probes, invocation, configuration); CPython 3.13 equal to the interpreter the suite
+  observed; `kernel.yama.ptrace_scope >= 1`; `ipc.connection_policy.socket_group_policy == "dedicated"`; socket mode 0660 in a directory that is not
+  the ingress state directory; non-root ingress; no relaxed requirement; `configuration.ingress_source_sha256` equal to the hub files at the tuple
+  sha; pins that belong to the selected tuple; and the record's own `run_id` and `qualification_sha` equal to this run's. Field names are read from
+  hub PR #219 head 4d1fe908; hub fields not emitted there yet (`run_id`, `qualification_sha`) are tolerated as INCOMPLETE, never as PASS. A FAIL
+  is a REJECT; BLOCKED, a missing record or field, or Yama absent (unsupported profile) is INCOMPLETE.
 * **Python (G-04, G-04b).** The workflow uses 3.13, asserts it, and the gate (`--require-python 3.13`) refuses to run its verdict as qualifying on
   any other interpreter. A Python 3.12 result is supplementary and cannot qualify the 3.13 profile. `mvp-chain.yml` on main is not changed.
 * **Pending rows (G-14).** The new origin-rule negative mutation expectations for NC4-03 are NOT battery rows. `pending_rows` holds a clearly

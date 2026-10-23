@@ -60,6 +60,11 @@ name: MVP acceptance (proposed)
         required: false
         default: ''
         type: string
+      environment_record_sha256:
+        description: sha256 of the environment record file as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
+        required: false
+        default: ''
+        type: string
       candidate_commitment_sha256:
         description: sha256 of process/mvp-acceptance/candidate-commitment.proposed.v1.json as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
         required: false
@@ -186,7 +191,9 @@ jobs:
         run: |
           if [[ -n "$ENV_RECORD" ]]; then
             [[ "$ENV_RECORD" =~ ^process/mvp-acceptance/environment-records/[A-Za-z0-9._-]+\.json$ ]] || { echo "environment_record path refused"; exit 1; }
-            cp -- "$ENV_RECORD" results/mvp-acceptance/environment-record.json
+            [[ -f "$ENV_RECORD" && ! -L "$ENV_RECORD" ]] || { echo "environment_record must be a regular file, not a symlink"; exit 1; }
+            [[ -z "$(find process/mvp-acceptance/environment-records -type l 2>/dev/null)" ]] || { echo "symlink inside environment-records refused"; exit 1; }
+            cp --no-dereference -- "$ENV_RECORD" results/mvp-acceptance/environment-record.json
           fi
       - name: Anchor the frozen files to the main branch (blob ids read through the REST API, independent of this checkout)
         env:
@@ -224,10 +231,12 @@ jobs:
         if: always()
         env:
           COMMITMENT_SHA256: ${{ inputs.candidate_commitment_sha256 }}
+          ENV_RECORD_SHA256: ${{ inputs.environment_record_sha256 }}
         run: |
           set -o pipefail
           python3 tools/mvp_acceptance_gate.py gate --run-dir results/mvp-acceptance --expect-qualification-sha "$(git rev-parse HEAD)" \
-            --expect-commitment-sha256 "$COMMITMENT_SHA256" --require-python 3.13 | tee results/mvp-acceptance/gate-summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
+            --expect-commitment-sha256 "$COMMITMENT_SHA256" --require-python 3.13 \
+            --components-dir "$GITHUB_WORKSPACE/components" --expect-environment-record-sha256 "$ENV_RECORD_SHA256" | tee results/mvp-acceptance/gate-summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:

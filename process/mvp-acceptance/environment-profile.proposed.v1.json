@@ -16,22 +16,41 @@
     "producer": "tools/mvp_ingress/capture_env_record.py (hub PR #219)",
     "required_overall": "PASS",
     "required_pass_check_ids": [
-      "platform.linux",
-      "python.profile",
-      "python.interpreter_matches_ingress",
-      "identity.declared",
+      "configuration.journal_mode",
+      "configuration.pins_and_manifests",
+      "filesystem.ancestors_not_writable_by_others",
+      "filesystem.no_acl_entries",
+      "filesystem.no_extra_group_access",
+      "filesystem.state_tree_owner_only",
       "identity.client_distinct_unprivileged",
+      "identity.declared",
       "identity.ingress_not_root",
       "identity.ingress_process",
-      "isolation.ptrace_scope",
+      "invocation.client_entry_point",
+      "invocation.operation_identity_fixed_true",
+      "invocation.simulate_fixed_none",
       "ipc.socket_mode_owner",
-      "filesystem.state_tree_owner_only",
-      "filesystem.ancestors_not_writable_by_others",
-      "filesystem.no_extra_group_access",
-      "filesystem.no_acl_entries"
+      "isolation.ingress_capabilities_recorded",
+      "isolation.ptrace_scope",
+      "platform.linux",
+      "python.interpreter_matches_ingress",
+      "python.profile",
+      "qualification.client_capabilities_empty",
+      "qualification.client_denied_ingress_process",
+      "qualification.client_denied_state_access",
+      "qualification.client_socket_reachable"
     ],
     "python_version_prefix": "3.13",
-    "supplied_by": "workflow_dispatch input environment_record (a path under process/mvp-acceptance/environment-records/ in the Qualification checkout); none supplied is INCOMPLETE",
-    "refresh": "Environment evidence must be refreshed (a new record) if the execution host or a relevant setting changes."
+    "supplied_by": "workflow_dispatch inputs environment_record (a regular file, not a symlink, under process/mvp-acceptance/environment-records/) and environment_record_sha256 (supplied from outside the checkout); none supplied is INCOMPLETE",
+    "refresh": "Environment evidence must be refreshed (a new record) if the execution host or a relevant setting changes.",
+    "ipc": {
+      "socket_mode": "0660",
+      "socket_type": "socket",
+      "socket_group_policy": "dedicated",
+      "separate_ipc_directory": "the socket's directory must not be, or sit under, the ingress state directory"
+    },
+    "run_binding": "the record must carry run_id and qualification_sha equal to the run's (top-level fields, covered by record_sha256); absent is INCOMPLETE. Hub PR #219 head 4d1fe908 does not emit them yet.",
+    "source_binding": "configuration.ingress_source_sha256 must equal the sha256 of tools/mvp_ingress/*.py in the hub checkout at the tuple sha; absent is INCOMPLETE",
+    "interpreter_binding": "python.version must equal the interpreter version the suite observed in this run"
   }
 }
