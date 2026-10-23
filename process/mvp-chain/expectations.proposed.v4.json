@@ -34,7 +34,7 @@
  "supersedes": {
   "file": "expectations.proposed.v3.json",
   "reasons": {
-   "NC4-03": "v3 forbade every non-literal ** forwarding in tools/mvp_ingress and FAILED on synthetic_host.py line 39 (lambda proxy) and line 72 (fixed-name comprehension). v4 (suites/mvp-chain/_kwflow.py) keeps the blanket ban on non-literal ** for every callee, carves out only an inline constant-key display and a closed lambda proxy (the generic comprehension carve-out was removed by architect rulings #2), rejects prohibited keys with non-literal values, protected-callable escape, star-args and any ** into model_copy, adds the R1 origin rule for claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id and requested_permissions at protected calls, and accepts three trusted-host sites only by exact AST-digest pin whose records state source revision, AST digest, trusted input origin and protected destination (an incomplete record or a changed semantic AST fails). The protected guarantee is unchanged. Raw v3 result: process/mvp-chain/history/nc4-03-v3-predicate-result.json."
+   "NC4-03": "v3 forbade every non-literal ** forwarding in tools/mvp_ingress and FAILED on synthetic_host.py line 39 (lambda proxy) and line 72 (fixed-name comprehension). v4 (suites/mvp-chain/_kwflow.py) keeps the blanket ban on non-literal ** for every callee, carves out only an inline constant-key display and a closed lambda proxy (the generic comprehension carve-out was removed by architect rulings #2), rejects prohibited keys with non-literal values, protected-callable escape, star-args and any ** into model_copy, adds the R1 origin rule for claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id and requested_permissions at protected calls, and accepts three trusted-host sites only by exact AST-digest pin whose records state source revision, AST digest, trusted input origin and protected destination (an incomplete record or a changed semantic AST fails). The protected guarantee is unchanged. Raw v3 result: process/mvp-chain/history/nc4-03-v3-predicate-result.json. Pins are content-addressed: honoured only when the scanned ingress_tree_sha256 (sha256 of the sorted '<name>\\\\0<file sha256>\\\\n' manifest of tools/mvp_ingress/*.py) equals the reviewed digest recorded in each pin record; the hub commit is informational."
   },
   "unchanged_rows": "all other rows are byte-identical to v3"
  },
@@ -659,12 +659,9 @@
      ]
     },
     {
-     "obs": "nc_unmediated.source_level.kwflow.hub_revision_verified",
-     "op": "true"
-    },
-    {
-     "obs": "nc_unmediated.source_level.kwflow.pin_source_revision_mismatch",
-     "op": "empty"
+     "obs": "nc_unmediated.source_level.kwflow.ingress_tree_sha256",
+     "op": "eq",
+     "value": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
     },
     {
      "obs": "nc_unmediated.source_level.all_simulate_keywords_constant_none",

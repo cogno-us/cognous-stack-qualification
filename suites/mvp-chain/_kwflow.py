@@ -52,21 +52,21 @@ PRODUCER_RECEIVER = {"decide": "host.workflow", "provision_claim": "host.executo
 ESCAPE_NAMES = PROTECTED_CALLS | {"envelope"}
 SIX = frozenset({"claim_id", "grant_id", "grant_revision", "effective_max_effects", "authority_context_id", "requested_permissions"})
 HUB_REVISION = "43c526eb1c8df9f07942ac36a6b2d11e14775bd1"
-PIN_FIELDS = ("source_revision", "ast_digest", "trusted_input_origin", "protected_destination")
+PIN_FIELDS = ("reviewed_ingress_tree_sha256", "ast_digest", "trusted_input_origin", "protected_destination")
 # Exact reviewed sites, keyed "file:qualname:callee#ordinal". ast_digest = sha256 over ast.dump (no line/col, so comments/blank lines/formatting are
 # irrelevant) of the call node plus its whole enclosing function; any semantic AST change invalidates the pin. A pin with a missing or empty
 # field makes the predicate fail (pin_records_incomplete).
 PINNED_SITES = {
     "synthetic_host.py:SyntheticHost.__init__:original#1": {
-        "source_revision": HUB_REVISION, "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
         "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it",
         "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API"},
     "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
-        "source_revision": HUB_REVISION, "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
         "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host",
         "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)"},
     "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
-        "source_revision": HUB_REVISION, "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
         "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount, unit, request_id come from the client under non-prohibited keys), fixed 14 field names",
         "protected_destination": "ExecutionOperation(...) constructor feeding ExecutionEnvelope for AtomicLocalControlPlaneExecutor.execute"},
 }
@@ -97,8 +97,8 @@ def _literal_ok(key, value):
 
 
 class Analyzer:
-    def __init__(self, source, filename, hub_revision=None):
-        self.hub_revision = hub_revision
+    def __init__(self, source, filename, tree_digest=None):
+        self.tree_digest = tree_digest
         self.src, self.filename = source, filename
         self.tree = ast.parse(source)
         self.findings, self.pinned, self.examined, self.sites = [], [], [], []
@@ -221,7 +221,23 @@ class Analyzer:
         """Producer = a METHOD call on the known receiver chain exactly as in the real ingress (host.workflow.decide, host.executor.provision_claim,
         host.build_proposal); a bare/local/aliased name never qualifies."""
         f = call.func if isinstance(call, ast.Call) else None
-        return (isinstance(f, ast.Attribute) and f.attr in producers and ast.unparse(f.value) == PRODUCER_RECEIVER[f.attr])
+        if not (isinstance(f, ast.Attribute) and f.attr in producers and ast.unparse(f.value) == PRODUCER_RECEIVER[f.attr]):
+            return False
+        root = f.value
+        while isinstance(root, ast.Attribute):
+            root = root.value
+        return isinstance(root, ast.Name) and root.id == "host" and self._host_ok(call)
+
+    def _host_ok(self, call):
+        """N5: `host` must be bound exactly once, in the enclosing function, as `host = self._host`, and must not be a parameter."""
+        fn = self._enclosing_func(call)
+        if fn is None or "host" in self._arg_names(fn) or "host" in self.escapes:
+            return False
+        stores = self.stores.get("host", [])
+        if not stores or any(self._enclosing_func(st) is not fn for st in stores):
+            return False
+        return all(isinstance(a, ast.Assign) and len(a.targets) == 1 and a.targets[0] in stores and ast.unparse(a.value) == "self._host"
+                   for a in (self.parent.get(st) for st in stores))
 
     def _bound_only_from(self, use, ident, producers):
         """Scoped single-binding test: within the enclosing function of `use`, `ident` is not a parameter (of it or of an intervening lambda), is bound
@@ -298,7 +314,7 @@ class Analyzer:
              "site": pid, "ast_digest": digest}
         rec = PINNED_SITES.get(pid)
         pin = pid if (rec and rec.get("ast_digest") == digest and all(rec.get(k) for k in PIN_FIELDS)
-                      and self.hub_revision and rec["source_revision"] == self.hub_revision) else None
+                      and self.tree_digest and rec["reviewed_ingress_tree_sha256"] == self.tree_digest) else None
         (self.pinned if pin else self.findings).append({**f, "pinned": pin} if pin else f)
 
     # ---- the check --------------------------------------------------------------
@@ -386,21 +402,31 @@ def scan_source(source, filename="<src>"):
     return a.findings, a.examined
 
 
+def ingress_tree_manifest(files):
+    """Canonical manifest: for each tools/mvp_ingress/*.py sorted by file name (bytewise on the UTF-8 name): ``<name>\\0<sha256 hex of the file bytes>\\n``,
+    concatenated and UTF-8 encoded. ingress_tree_sha256 = sha256 of that byte string. Any byte change in any file (including a comment) changes it."""
+    pairs = [(f.name, hashlib.sha256(f.read_bytes()).hexdigest()) for f in sorted(files, key=lambda p: p.name.encode())]
+    return pairs, hashlib.sha256("".join(f"{n}\0{h}\n" for n, h in pairs).encode()).hexdigest()
+
+
 def scan_dir(hub, hub_revision=None):
+    """hub_revision is INFORMATIONAL only (recorded, never gating): a pin is honoured by content (ingress tree digest), not by commit sha."""
     """Observation record for NC4-03 v4 (source-level). Keys are the ones expectations v4 reads."""
     files = sorted((pathlib.Path(hub) / "tools" / "mvp_ingress").glob("*.py"))
     findings, pinned, examined, sites = [], [], [], []
+    pairs, tree = ingress_tree_manifest(files)
     for f in files:
-        a = Analyzer(f.read_text(), f.name, hub_revision).run()
+        a = Analyzer(f.read_text(), f.name, tree).run()
         findings += a.findings
         pinned += a.pinned
         examined += a.examined
         sites += a.sites
     have = {(s["file"], s["qualname"], s["callee"], s["ordinal"]) for s in sites}
     used = {p["pinned"] for p in pinned}
-    return {"predicate": PREDICATE_ID, "scanned_hub_revision": hub_revision,
-            "hub_revision_verified": bool(hub_revision and re.fullmatch(r"[0-9a-f]{40}", hub_revision)),
-            "pin_source_revision_mismatch": sorted(k for k, r in PINNED_SITES.items() if r.get("source_revision") != hub_revision),
+    return {"predicate": PREDICATE_ID, "ingress_tree_sha256": tree, "ingress_tree_manifest": [list(p) for p in pairs],
+            "reviewed_ingress_tree_sha256": sorted({r.get("reviewed_ingress_tree_sha256") for r in PINNED_SITES.values()}),
+            "scanned_hub_revision": hub_revision, "hub_revision_verified": bool(hub_revision and re.fullmatch(r"[0-9a-f]{40}", hub_revision)),
+            "pin_source_revision_mismatch": sorted(k for k, r in PINNED_SITES.items() if r.get("originating_hub_commit") != hub_revision),  # informational
             "files_scanned": [f.name for f in files],
             "violations": findings, "simulate_violations": [x for x in findings if x["rule"] == "SIMULATE_NOT_CONSTANT_NONE"],
             "client_fed_kwargs_to_protected": [x for x in findings if x["rule"] != "SIMULATE_NOT_CONSTANT_NONE"],

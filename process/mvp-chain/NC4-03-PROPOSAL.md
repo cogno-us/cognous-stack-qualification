@@ -23,10 +23,10 @@ v3 forbade every non-literal `**` forwarding in `tools/mvp_ingress`; `synthetic_
 - The oracle row also requires all 6 files of tools/mvp_ingress scanned, the 10 real protected call sites seen by exact (file, function, callee, ordinal), count >= 8, sqlite receiver `c` excluded.
 
 ## Pins (item 1)
-Exactly three reviewed sites in `synthetic_host.py` are accepted by pin: the `original(*a, **k)` lambda proxy, `model_copy(update={"operation_identity": OperationIdentityProfile(<constants>)})`
-and the 14-name `ExecutionOperation(**{...comprehension...})`. Each pin record states `source_revision` (hub 43c526eb1c8df9f07942ac36a6b2d11e14775bd1), `ast_digest`
+Exactly three reviewed sites in `synthetic_host.py` are accepted by pin (see content-addressing below): the `original(*a, **k)` lambda proxy, `model_copy(update={"operation_identity": OperationIdentityProfile(<constants>)})`
+and the 14-name `ExecutionOperation(**{...comprehension...})`. Each pin record states `reviewed_ingress_tree_sha256`, informational `originating_hub_commit` (43c526eb1c8df9f07942ac36a6b2d11e14775bd1), `ast_digest`
 (sha256 over `ast.dump` of the call and its whole enclosing function; comments, blank lines and formatting are irrelevant, docstrings and every semantic change are not),
-`trusted_input_origin` and `protected_destination`. The predicate FAILS if any field is missing or empty (`pin_records_incomplete`), or if the AST digest differs (`pins_unmatched` and the
+`trusted_input_origin` and `protected_destination`. The predicate FAILS if any required field is missing or empty (`pin_records_incomplete`), if the AST digest differs, or if the ingress tree digest differs from the reviewed one (`pins_unmatched` and the
 underlying violations reappear). Qualification must independently establish the stated provenance of these three sites.
 
 ## What remains relaxed versus v3 (precisely)
@@ -42,7 +42,13 @@ NC4-02 remains the execution evidence; this predicate is source-level only.
   imported or differently-received name never qualifies, and any module-level/local def, import or assignment binding `decide`, `provision_claim`, `build_proposal`, `execute`, `envelope`,
   ... is rejected (`PRODUCER_SHADOWED`; class-body methods are exempt).
 - `envelope` is treated like a protected callable: alias, value use and `getattr(host, "envelope")` are rejected; the direct-call caller rule is unchanged.
-- Each pin record's `source_revision` is compared inside the predicate to the scanned hub revision (`pin_source_revision_mismatch`, `hub_revision_verified`); a mismatch un-pins.
+- **Pins are content-addressed (revision 5).** `scan_dir` computes `ingress_tree_sha256` = sha256 of the UTF-8 concatenation, over `tools/mvp_ingress/*.py` sorted by file name, of
+  `<name>\0<sha256 hex of the file bytes>\n`. Each pin record carries `reviewed_ingress_tree_sha256`; a pin is honoured only when its `ast_digest` matches AND the scanned tree digest equals the reviewed
+  digest. The originating hub commit (43c526eb) is informational only: an unrelated hub commit with byte-identical ingress files still PASSES, so moving the tuple hub sha needs no re-pin. Any byte change in
+  any ingress file, including a comment-only edit, changes the tree digest and fails closed until Qualification makes a new pin record (intended; the pinned sites' `ast_digest` is unchanged by a comment).
+  The oracle gates `ingress_tree_sha256` equal to the reviewed digest and `pin_records_incomplete` empty; `hub_revision_verified` and `pin_source_revision_mismatch` are informational output only.
+  The six per-file sha256 values in `history/nc4-03-v3-predicate-result.json` are tested to reproduce the digest.
+- N5: `host` must be bound exactly once in the enclosing function as `host = self._host` and must not be a parameter, for any producer call; the real ingress still passes with the same three pins.
 
 ## Limits (out of scope)
 Class limits of the origin rule, stated plainly: it is name-based (producers and roots are identified by names and receiver text, not by resolved objects), it checks the shape of the source
@@ -52,7 +58,7 @@ parameters named `d`/`p` of `envelope` are trusted only through the caller rule 
 single-assignment binding, not full data flow.
 
 ## Evidence
-`suites/mvp-chain/test_kwflow.py`: 68 negative fixtures (each REJECTED with the declared rule, including client claim_id and the other five fields by keyword and display, generic comprehension
+`suites/mvp-chain/test_kwflow.py`: 71 negative fixtures (each REJECTED with the declared rule, including client claim_id and the other five fields by keyword and display, generic comprehension
 over an arbitrary obj, untrusted `envelope` callers), 7 positive, baseline = all of tools/mvp_ingress at 43c526eb (accepted only via complete pins; no-pins control FAILS),
-pin-field-missing tests (4), comment-only edit does not un-pin, semantic edit un-pins, sqlite exclusion, vanished-site detection, and 41 mutants of the ingress copy each failing, including the
+pin-field-missing tests (4), comment-only edit does not un-pin, semantic edit un-pins, sqlite exclusion, vanished-site detection, and 43 mutants of the ingress copy each failing, including the
 regression target `claim_id=fields["claim_id"]` at execute in `core._run` (rejected as ORIGIN_VIOLATION) and one mutant per remaining origin field.
