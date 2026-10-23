@@ -2,7 +2,8 @@
 
 SPDX-License-Identifier: Apache-2.0
 
-Added alongside ``test_scn_d09.py`` (which is unchanged: historical expectations stay intact). Architect MVP2 rulings Q13/Q14:
+Lives in suites/mvp-d09/, deliberately outside suites/v1-scenarios and with no ``test_scn_d09`` in its name, so the frozen V1 SCN-D09
+selector (min 32) still matches exactly the original cases. Companion to ``test_scn_d09.py`` (which is unchanged: historical expectations stay intact). Architect MVP2 rulings Q13/Q14:
   Q13  D09 evidence produced at Runtime 4a83b175 does not transfer; the controls are re-executed here and in test_scn_d09.py at the
        exact runtime / Control Plane pair selected by the r13 profile.
   Q14  every inventory failure affecting a supported or potentially reachable effect surface is blocking until corrected or
@@ -25,16 +26,30 @@ from pathlib import Path
 
 import pytest
 
-import _d02_d05_d09_helpers as H
-from _reason_norm import exc_summary
-from _d02_d05_d09_helpers import no_network, pinned_reference  # noqa: F401  (fixtures)
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'operation-identity'))
+_SUITES = Path(__file__).resolve().parents[1]
+for _p in (_SUITES / 'operation-identity', _SUITES / 'v1-scenarios'):  # helpers and the original declared inventory live there
+    sys.path.insert(0, str(_p))
+import _d02_d05_d09_helpers as H  # noqa: E402
+from _reason_norm import exc_summary  # noqa: E402
+from _d02_d05_d09_helpers import no_network, pinned_reference  # noqa: F401,E402  (fixtures)
 import test_scn_d09 as D09  # noqa: E402  (the original declared inventory, imported so it is extended and never copied)
 
 pytestmark = pytest.mark.usefixtures('pinned_reference')
 
 OP = 'op-order-100/refund-1'
+
+# Expected identities of the MVP tuple (asserted, not inherited from the selected profile). The Control Plane may be either
+# revision of the MVP tuple: 0a41faa9 (hub lock) or 7a4bcd40 (F3-repaired candidate); the runtime must be ec728da6.
+EXPECTED_RUNTIME = 'ec728da6dc301a664b331ac8986afd6e850a1273'
+ALLOWED_CONTROL_PLANE = ('0a41faa972699f7ec3063967a14cd9bdd3e67d27', '7a4bcd40b3b49e61ff3c294dcca53b52f460b22c')
+
+
+@pytest.fixture(autouse=True)
+def _tuple_is_the_mvp_tuple():
+    ref = H.reference()
+    rt, cp = ref.pins['runtime']['commit'], ref.pins['control_plane']['commit']
+    assert rt == EXPECTED_RUNTIME, f'runtime {rt} is not the MVP runtime {EXPECTED_RUNTIME}'
+    assert cp in ALLOWED_CONTROL_PLANE, f'control plane {cp} is not an MVP tuple revision {ALLOWED_CONTROL_PLANE}'
 
 # --- (a) the sink: the only statements that write the effects table at the exact runtime -------------------------------------
 EFFECT_WRITE = re.compile(r'\b(?:INSERT(?:\s+OR\s+\w+)?\s+INTO|UPDATE|DELETE\s+FROM)\s+effects\b', re.I)
@@ -50,7 +65,7 @@ NEW_CALL_SITES = {
         '`acp run` (console script agent_control_plane.cli:main) -> run_command -> BoundedAuthorizationWorkflow.execute -> '
         'LocalRefundDestination (a local destination.json file in the output directory). Mediated by the workflow decision and grant '
         'revalidation (route "control-plane-local-destination"); it does not touch the route B SQLite destination. NOT declared '
-        'excluded: whether an ordinary client can invoke it is a trusted-host ingress question for the integration profile.'),
+        'excluded (invocation is covered by the D2 branch test test_REFUSED_acp_run*, which together with this declaration closes the item): whether an ordinary client can invoke it is a trusted-host ingress question for the integration profile.'),
 }
 
 
