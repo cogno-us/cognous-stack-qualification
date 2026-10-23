@@ -1,51 +1,47 @@
-# NC4-03 proposal (revision 2): v4 as a strict refinement of v3
+# NC4-03 proposal (revision 3): v4 corrected per Architect rulings #2
 
 Status: PROPOSED by the builder. Non-authorizing. Production HOLD unchanged. Not frozen, not an acceptance.
-Qualification owns the oracle and must independently review and freeze (or reject) this; the builder only proposes.
-Revision 2 answers the independent review (CHANGES REQUIRED: revision 1 was weaker than v3).
+**The protected guarantee is unchanged.** Qualification must independently approve this corrected predicate before freezing it; the builder only proposes. v1-v3 are untouched.
 
 ## Why NC4-03 failed under v3
-v3 forbade every non-literal `**` forwarding in `tools/mvp_ingress`. Two sites tripped it, neither forwarding a client value:
-`synthetic_host.py:39` (lambda proxy to the Control Plane test fixture) and `:72` (`ExecutionOperation(**{k: getattr(p, k) for k in names})`, fixed names).
-The v3 result is kept as raw history: `process/mvp-chain/history/nc4-03-v3-predicate-result.json` (v3 file untouched).
+v3 forbade every non-literal `**` forwarding in `tools/mvp_ingress`; `synthetic_host.py` line 39 (lambda proxy to a Control Plane test fixture) and line 72
+(`ExecutionOperation(**{k: getattr(p, k) for k in names})`) tripped it. Raw v3 result: `process/mvp-chain/history/nc4-03-v3-predicate-result.json`.
 
 ## v4 rule (suites/mvp-chain/_kwflow.py)
-Base rule kept from v3 and tightened: any call to ANY callee with `**<expr>` is REJECTED unless `<expr>` is a statically proven fixed form:
-(a) inline dict display with constant string keys (nested `**` only of such a display); (b) inline dict comprehension `{k: getattr(obj, k) | constant for k in NAMES}`
-over an inline literal string tuple/list, or a name bound once and loaded once in the file (never aliased, passed, mutated, global/nonlocal); (c) lambda proxy bound
-once to a name that is only called directly. A mapping in a variable is always OPAQUE. Prohibited keys (simulate, operation_id/operation_identity*, *writer*, set_*_*,
-grant_id, grant_revision, effective_max_effects, authority_context_id, actor, principal, claim_id, idempotency_key) inside a fixed form need a literal value (simulate: None).
-Also: import aliases bound; explicit `simulate=` must be None on any call; non-literal `*args` into a protected, unresolvable or protected-callable-receiving call is rejected;
-a protected callable used as a value (alias, argument to run/submit/starmap/partial, `.__call__`) is rejected; protected set extended with `decide`, `bind_approval`,
-`model_copy(update=)` (must be a fixed display). The oracle row also requires: all 6 files of tools/mvp_ingress scanned; the 10 real protected call sites seen by exact
-(file, function, callee, ordinal) pin, count >= 8, sqlite receiver `c` excluded; no unmatched pins.
+- Blanket ban kept: `**<expr>` to ANY callee is rejected unless `<expr>` is (a) an inline dict display with constant string keys, or (c) a closed lambda proxy
+  (bound once to a local name only ever called directly). A mapping in a variable is always opaque.
+- **Removed (rulings #2 item 2):** the generic comprehension carve-out. No dict comprehension is accepted generically.
+- Prohibited keys inside a fixed form (simulate, operation_id/operation_identity*, *writer*, set_*_*, actor, principal, idempotency_key, manifest_*, action_id, adapter_id,
+  requirement_id, authority_context_ref, effects) need a literal value (simulate: None). Explicit `simulate=` must be None on any call. Any `**` into `model_copy` is rejected;
+  `update=` must be a fixed display. Non-literal `*args` into protected/unresolvable/protected-callable-receiving calls and protected-callable escape are rejected.
+- **R1 origin rule (item 3), bounded and source-aware, not a taint framework**, at protected calls, both as explicit keywords and as keys of a fixed display / `model_copy(update=)`:
+  `claim_id` must be `<name>.claim_id` where `<name>` is bound only from `provision_claim(...)`; `grant_id`/`grant_revision`/`effective_max_effects` must be
+  `<d>.binding.<field>` with `<d>` bound only from `decide(...)` (or the `d`/`decision` parameter of a function named `envelope`); `authority_context_id` must be
+  `<p>.authority_context_ref|authority_context_id` and `requested_permissions` `[tuple(]<p>.requested_permissions[)]` with `<p>` bound only from `build_proposal(...)` (or the
+  `p`/`proposal` parameter of `envelope`); a literal constant is accepted. Every call `X.envelope(a, b)` must pass `a` bound only from `decide()` and `b` only from `build_proposal()`.
+  Anything else (including a client field, a request attribute, or a name reassigned from other data) is `ORIGIN_VIOLATION` / `ORIGIN_CALLER_UNTRUSTED`.
+- The oracle row also requires all 6 files of tools/mvp_ingress scanned, the 10 real protected call sites seen by exact (file, function, callee, ordinal), count >= 8, sqlite receiver `c` excluded.
 
-## Strictness relative to v3 (honest accounting)
-v4 rejects everything v3 rejected, plus non-constant-key displays, prohibited keys with non-literal values, any `**` into `model_copy`, protected-callable escape and star-args.
-Prohibited keys (mapping forms, `model_copy(update=)`): the list above plus manifest_id, manifest_version, manifest_digest, action_id, adapter_id, requirement_id,
-authority_context_ref, requested_permissions, effects. Explicit keywords use the same list except claim_id, grant_id, grant_revision, effective_max_effects,
-authority_context_id and requested_permissions, which the real trusted call sites pass explicitly with non-literal values (residual difference, disclosed).
+## Pins (item 1)
+Exactly three reviewed sites in `synthetic_host.py` are accepted by pin: the `original(*a, **k)` lambda proxy, `model_copy(update={"operation_identity": OperationIdentityProfile(<constants>)})`
+and the 14-name `ExecutionOperation(**{...comprehension...})`. Each pin record states `source_revision` (hub 43c526eb1c8df9f07942ac36a6b2d11e14775bd1), `ast_digest`
+(sha256 over `ast.dump` of the call and its whole enclosing function; comments, blank lines and formatting are irrelevant, docstrings and every semantic change are not),
+`trusted_input_origin` and `protected_destination`. The predicate FAILS if any field is missing or empty (`pin_records_incomplete`), or if the AST digest differs (`pins_unmatched` and the
+underlying violations reappear). Qualification must independently establish the stated provenance of these three sites.
 
-**Residual relaxations versus v3 (two, both requiring explicit operator adoption):**
-1. **Comprehension carve-out.** `{k: getattr(obj, k) for k in <literal tuple/list of non-prohibited string names>}` is accepted for ANY `obj` (v3 forbade every non-literal `**`).
-   The keys are fixed and non-prohibited, but the values are whatever `obj` holds; they are not taint-tracked.
-2. **Three exact-hash pinned sites in `synthetic_host.py`**, accepted only because the generic rules cannot prove them:
-   - the lambda proxy `original(*a, **k)` (exposed through attribute assignment; target is the non-protected fixture `tra.proposal`);
-   - `model_copy(update={"operation_identity": OperationIdentityProfile(<constants>)})` (prohibited key, trusted-host constant value);
-   - `ExecutionOperation(**{k: getattr(p, k) for k in names})`, whose names include prohibited keys (actor, principal, manifest_*, action_id, adapter_id, requirement_id, effects)
-     taken from the template proposal `p0`, not from the client.
-   The pin is a hash over the normalised AST (`ast.unparse`) of the call and its whole enclosing function: comment-only, blank-line and formatting edits do NOT un-pin;
-   any semantic edit inside that function does. Without the pins v4 FAILS on the real source (verified), as v3 does.
+## What remains relaxed versus v3 (precisely)
+1. The three pinned sites above (v3 failed on two of them; the model_copy site was not reached by v3 at all).
+2. A closed lambda proxy forwarding its own `*a, **k` (v3 rejected it); none exists in the real ingress.
+Nothing else is relaxed: the generic comprehension exception is gone, and v4 additionally rejects everything above that v3 did not. Without the pins v4 FAILS on the real source (verified).
+NC4-02 remains the execution evidence; this predicate is source-level only.
 
-**Adopting v4 therefore needs explicit operator adoption of (1) the comprehension carve-out and (2) the three pinned sites, OR a refactor of those hub sites instead.**
-The guarantee (no client-controlled simulate/authority-writer/operation-identity override/arbitrary keyword reaches a protected API) is otherwise unchanged; NC4-02 remains the execution evidence.
-
-## Out of scope / limits
-setattr, `__dict__.update`, positional client values, values under non-prohibited fixed keys (not taint-tracked, e.g. a client `customer_id`), anything outside the scanned files,
-imports not followed, dynamic code (`exec`/`eval`). Static, source-level only.
+## Limits (out of scope)
+setattr, `__dict__.update`, positional client values, values under non-prohibited fixed keys (not taint-tracked, e.g. a client `customer_id`), imports not followed, dynamic code,
+parameters named `d`/`p` of `envelope` are trusted only through the caller rule within the scanned files. The origin rule checks the shape of the source expression and
+single-assignment binding, not full data flow.
 
 ## Evidence
-`suites/mvp-chain/test_kwflow.py`: 44 negative fixtures (all REJECTED with the declared rule), 8 positive (ACCEPTED), baseline = all of tools/mvp_ingress at 43c526eb (accepted only via pins),
-a no-pins control (fails), sqlite exclusion, vanished-site detection, and 24 mutants of the ingress copy (each fails): `**fields`, client simulate, comprehension, update(), partial, lambda proxy,
-import alias + star-args, alias/poison/closure mutation, `run(execute, **fields)`, `pool.submit`, `starmap`, `__call__`, `decide(**fields)`, non-literal comprehension, names list gaining `simulate`,
-model_copy update from client, and a change inside a pinned function (un-pins). Pinned-source verdict: v3 FAIL, v4 PASS (with pins).
+`suites/mvp-chain/test_kwflow.py`: 57 negative fixtures (each REJECTED with the declared rule, including client claim_id and the other five fields by keyword and display, generic comprehension
+over an arbitrary obj, untrusted `envelope` callers), 7 positive, baseline = all of tools/mvp_ingress at 43c526eb (accepted only via complete pins; no-pins control FAILS),
+pin-field-missing tests (4), comment-only edit does not un-pin, semantic edit un-pins, sqlite exclusion, vanished-site detection, and 33 mutants of the ingress copy each failing, including the
+regression target `claim_id=fields["claim_id"]` at execute in `core._run` (rejected as ORIGIN_VIOLATION) and one mutant per remaining origin field.

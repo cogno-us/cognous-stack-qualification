@@ -31,7 +31,7 @@ def _expected_rule(path):
 
 
 def test_fixture_inventory():
-    assert len(NEG) >= 44 and len(POS) >= 8
+    assert len(NEG) >= 57 and len(POS) >= 7
 
 
 @pytest.mark.parametrize("path", NEG, ids=lambda p: p.stem)
@@ -53,6 +53,34 @@ def test_baseline_covers_all_of_ingress_and_is_accepted_only_via_pins():
     assert obs["violations"] == [] and obs["required_sites_missing"] == [] and obs["pins_unmatched"] == []
     assert obs["real_protected_calls_count"] >= 8
     assert sorted(obs["pinned_sites_used"]) == sorted(_kwflow.PINNED_SITES)
+    assert obs["pin_records_incomplete"] == []
+    for rec in obs["pin_records"].values():
+        assert all(rec[f] for f in _kwflow.PIN_FIELDS) and rec["source_revision"] == _kwflow.HUB_REVISION
+
+
+@pytest.mark.parametrize("field", _kwflow.PIN_FIELDS)
+def test_pin_record_missing_field_fails(monkeypatch, field):
+    pins = {k: {f: v for f, v in r.items() if f != field} for k, r in _kwflow.PINNED_SITES.items()}
+    monkeypatch.setattr(_kwflow, "PINNED_SITES", pins)
+    obs = _kwflow.scan_dir(BASE)
+    assert obs["pin_records_incomplete"] and obs["violations"]
+
+
+def _host_copy(tmp_path, edit):
+    shutil.copytree(BASE / "tools" / "mvp_ingress", tmp_path / "tools" / "mvp_ingress")
+    f = tmp_path / "tools" / "mvp_ingress" / "synthetic_host.py"
+    f.write_text(edit(f.read_text()))
+    return _kwflow.scan_dir(tmp_path)
+
+
+def test_comment_and_blank_line_edits_do_not_unpin(tmp_path):
+    obs = _host_copy(tmp_path, lambda t: t.replace("        op = ExecutionOperation(", "\n\n        # reviewed\n        op = ExecutionOperation(").replace("self._cp, self._tba = cp, tba", "self._cp, self._tba = cp, tba  # note"))
+    assert obs["violations"] == [] and obs["pins_unmatched"] == []
+
+
+def test_semantic_ast_change_unpins(tmp_path):
+    obs = _host_copy(tmp_path, lambda t: t.replace('"payload", "payload_commitment", "amount", "unit", "effects"', '"payload", "payload_commitment", "unit", "amount", "effects"'))
+    assert obs["pins_unmatched"] and obs["violations"]
 
 
 def test_without_pins_the_baseline_fails(monkeypatch):
@@ -100,6 +128,15 @@ MUTANTS = {
     "host: build_proposal update gains client effects": ("synthetic_host.py", '"amount": float(fields["amount"]),', '"amount": float(fields["amount"]), "effects": fields["e"],'),
     "core: explicit client action_id into execute": ("core.py", "claim_id=claim.claim_id, simulate=None)", 'claim_id=claim.claim_id, simulate=None, action_id=fields["a"])'),
     "core: display with client requested_permissions": ("core.py", "claim_id=claim.claim_id, simulate=None)", 'claim_id=claim.claim_id, simulate=None, **{"requested_permissions": fields["p"]})'),
+    "core: CLIENT claim_id reaches execute (regression target)": ("core.py", "claim_id=claim.claim_id, simulate=None)", 'claim_id=fields["claim_id"], simulate=None)', "ORIGIN_VIOLATION"),
+    "core: claim_id from client display": ("core.py", "claim_id=claim.claim_id, simulate=None)", 'simulate=None, **{"claim_id": fields["claim_id"]})', "ORIGIN_VIOLATION"),
+    "core: claim name reassigned from client fields": ("core.py", "res = host.executor.execute(", "claim = fields\n            res = host.executor.execute(", "ORIGIN_VIOLATION"),
+    "host: client grant_id": ("synthetic_host.py", "grant_id=d.binding.grant_id", 'grant_id=p.payload["g"]', "ORIGIN_VIOLATION"),
+    "host: client grant_revision": ("synthetic_host.py", "grant_revision=d.binding.grant_revision", 'grant_revision=p.payload["r"]', "ORIGIN_VIOLATION"),
+    "host: client effective_max_effects": ("synthetic_host.py", "effective_max_effects=d.binding.effective_max_effects", 'effective_max_effects=p.payload["m"]', "ORIGIN_VIOLATION"),
+    "host: client authority_context_id": ("synthetic_host.py", "authority_context_id=p.authority_context_ref", 'authority_context_id=p.payload["c"]', "ORIGIN_VIOLATION"),
+    "host: client requested_permissions": ("synthetic_host.py", "requested_permissions=tuple(p.requested_permissions)", 'requested_permissions=tuple(p.payload["perm"])', "ORIGIN_VIOLATION"),
+    "core: envelope called with client-derived arguments": ("core.py", "host.envelope(decision, proposal)", 'host.envelope(fields, proposal)', "ORIGIN_CALLER_UNTRUSTED"),
     "host: pinned ExecutionOperation site changed (un-pins)": ("synthetic_host.py", "institution_id=tba.INSTITUTION,", "institution_id=tba.INSTITUTION, **names,"),
 }
 
@@ -108,9 +145,11 @@ MUTANTS = {
 def test_mutant_ingress_fails(label, tmp_path):
     dst = tmp_path / "tools" / "mvp_ingress"
     shutil.copytree(BASE / "tools" / "mvp_ingress", dst)
-    fname, old, new = MUTANTS[label]
+    fname, old, new, *rule = MUTANTS[label]
     text = (dst / fname).read_text()
     assert text.count(old) == 1, "mutation anchor not found exactly once"
     (dst / fname).write_text(text.replace(old, new))
     obs = _kwflow.scan_dir(tmp_path)
     assert obs["violations"] or obs["pins_unmatched"], f"mutant ACCEPTED: {label}"
+    if rule:
+        assert rule[0] in {v["rule"] for v in obs["violations"]}, (label, [v["rule"] for v in obs["violations"]])
