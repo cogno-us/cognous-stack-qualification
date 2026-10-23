@@ -40,7 +40,12 @@ PROTECTED_CTORS = frozenset({"ExecutionOperation", "ExecutionEnvelope", "Operati
                              "OperationIdentityAtomicAuthorityEffectDestination", "LocalExecutionPolicy"})
 PROTECTED = PROTECTED_CALLS | PROTECTED_CTORS | {"model_copy"}
 BASE_PROHIBITED = re.compile(r"^(simulate|operation_id|operation_identity\w*|operation_override\w*|\w*writer\w*|set_(grant|approval|policy|evidence)_\w+)$")
-MAPPING_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|grant_id|grant_revision|effective_max_effects|authority_context_id|actor|principal|claim_id|idempotency_key)$")
+MAPPING_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|grant_id|grant_revision|effective_max_effects|authority_context_id|actor|principal|claim_id|idempotency_key"
+                              r"|manifest_id|manifest_version|manifest_digest|action_id|adapter_id|requirement_id|authority_context_ref|requested_permissions|effects)$")
+# explicit keywords: BASE plus the names the real ingress never passes explicitly with a non-literal value (it passes claim_id, grant_id, grant_revision,
+# effective_max_effects, authority_context_id, requested_permissions explicitly on trusted call sites, so those stay mapping-only; disclosed in the proposal)
+EXPLICIT_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|actor|principal|idempotency_key|manifest_id|manifest_version|manifest_digest|action_id|adapter_id"
+                                 r"|requirement_id|authority_context_ref|effects)$")
 SQLITE_RECEIVERS = frozenset({"c"})
 
 # exact reviewed sites (file:qualname:callee#ordinal:sha256-12 of the unparsed call): trusted-host code, no client value reaches them
@@ -251,6 +256,9 @@ class Analyzer:
             self.sites.append({"file": self.filename, "qualname": self.qualname(node), "callee": callee, "ordinal": ordinal, "line": node.lineno})
         forwards = []
         for kw in node.keywords:
+            if kw.arg is None and callee == "model_copy":
+                self.record(node, "MODEL_COPY_KWARGS_FORBIDDEN", "any ** into model_copy is rejected; update= must be an explicit keyword", callee, ordinal)
+                continue
             if kw.arg is None:
                 bad = self.check_mapping(kw.value, lam)
                 forwards.append({"mapping": ast.unparse(kw.value)[:80], "fixed_form": not bad})
@@ -258,7 +266,7 @@ class Analyzer:
                     self.record(node, rule, d, callee, ordinal)
             elif kw.arg == "simulate" and not _literal_ok("simulate", kw.value):
                 self.record(node, "SIMULATE_NOT_CONSTANT_NONE", "simulate=" + ast.unparse(kw.value)[:50], callee, ordinal)
-            elif (protected or is_partial or "UNRESOLVED" in names) and BASE_PROHIBITED.match(kw.arg) and not _literal_ok(kw.arg, kw.value):
+            elif (protected or is_partial or "UNRESOLVED" in names) and EXPLICIT_PROHIBITED.match(kw.arg) and not _literal_ok(kw.arg, kw.value):
                 self.record(node, "PROHIBITED_KEYWORD_NON_LITERAL", f"{kw.arg}={ast.unparse(kw.value)[:50]}", callee, ordinal)
             elif kw.arg == "update" and callee == "model_copy":
                 for rule, d in self.check_mapping(kw.value, None):
