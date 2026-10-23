@@ -47,3 +47,29 @@ def test_negative_control_caller_controlled_simulate_nc2_06_must_fail():
     failed = [f["obs"] for f in result["failed"]]
     assert "nc_ingress_ambiguity.boundary.simulate_received_by_destination" in failed, failed
     assert "nc_ingress_ambiguity.boundary.simulate_received_by_executor" in failed, failed
+
+
+def _failed(result):
+    return [f["obs"] for f in result["failed"]]
+
+
+def test_negative_control_before_commit_nc2_06_must_fail():
+    # the failure is raised before the commit: no durable effect, so the effect-exists predicates must fail
+    result = _control("nc_ingress_ambiguity_before_commit")
+    assert result["status"] == verdict.FAIL, result
+    assert "nc_ingress_ambiguity.boundary.effect_count_after_first" in _failed(result), result["failed"]
+
+
+def test_negative_control_second_commit_allowed_nc2_06_must_fail():
+    # a destination that would let the second request commit: the second-request predicates must fail
+    result = _control("nc_ingress_ambiguity_allow_second_commit")
+    assert result["status"] == verdict.FAIL, result
+    failed = _failed(result)
+    assert "nc_ingress_ambiguity.reuse.second_status" in failed or "nc_ingress_ambiguity.reuse.effect_count_after_reuse" in failed, failed
+
+
+def test_negative_control_unbound_fresh_request_nc2_06_must_fail():
+    # without bind_fresh the fresh request is HELD at decide and never reaches the executor: that proves nothing about the destination
+    result = _control("nc_ingress_ambiguity_unbound_fresh")
+    assert result["status"] == verdict.FAIL, result
+    assert "nc_ingress_ambiguity.reuse.executor_calls_after_fresh" in _failed(result), result["failed"]

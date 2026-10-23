@@ -11,7 +11,12 @@ seam raises once after the destination commit. Observations recorded:
   boundary   the live ``execute_claim_atomic`` call received simulate=None; owner-side read-only SQLite readback shows the committed effect
   ack        the hook fired; the client received outcome 'unknown' (never 'executed', never a refusal); executor result acknowledged False
   unknown    the ingress ledger settled the request as 'unknown'; the executor observation says retry_eligible False; the claim is consumed
-  reuse      the same request bytes again -> REPLAY refusal; a fresh request id with the same business content -> not executed; effects unchanged
+  reuse      (a) same request bytes again -> REPLAY refusal at the INGRESS ledger (ingress-level only, says nothing about the destination);
+             (b) a fresh request id with the same business content, built owner-side to carry the approval-bound correlation id (``bind_fresh``,
+             see _ingress_fault_wrapper.py) so it is NOT held at decide and reaches provision and the executor a second time: the destination
+             operation-identity guard must deny it (executor call count 2, second result denied / not attempted / not acknowledged, refusal code
+             DUPLICATE_OPERATION or EXECUTION_DENIED, effects and consumed claims unchanged). Without ``bind_fresh`` a fresh id is merely HELD by
+             approval binding, which is not destination duplicate prevention and is not what this row claims.
   reconcile  after the ingress is stopped, the owner runs reconcile_claim over the real destination file with the captured claim/envelope
 Raw observations only; no verdict is computed here.
 """
@@ -58,7 +63,18 @@ def _load(path):
     return json.loads(p.read_text()) if p.exists() else None
 
 
-def run(work, fault_mode="after_commit"):
+PRODUCT_MODES = "after_commit,bind_fresh"
+
+
+def _calls(capture, stem):
+    out, n = [], 1
+    while (capture / f"{stem}.{n}.json").exists():
+        out.append(_load(capture / f"{stem}.{n}.json"))
+        n += 1
+    return out
+
+
+def run(work, fault_mode=PRODUCT_MODES):
     hub = _state.ENV["dirs"].get("hub")
     if not hub:
         return {"status": "blocked", "blocked_reason": "hub checkout not provided (MVP_HUB_DIR)", "ingress": {"probe_ran": False}}
@@ -85,7 +101,7 @@ def run(work, fault_mode="after_commit"):
     obs = {"evidence_level": "supported-ingress", "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
            "fault_injection": {"where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",
                                "wrapper": "suites/mvp-chain/_ingress_fault_wrapper.py", "wrapper_sha256": _ingress.sha(wrapper.read_bytes()),
-                               "fault_mode": fault_mode, "request_schema_changed": False, "client_chooses_simulate": False}}
+                               "fault_mode": sorted(fault_mode.split(",")), "request_schema_changed": False, "client_chooses_simulate": False}}
     try:
         line = proc.stdout.readline()
         if line.strip() != "READY":
@@ -118,10 +134,18 @@ def run(work, fault_mode="after_commit"):
         if "error" in first:
             return {**obs, "status": "blocked", "ingress": {"probe_ran": False}, "blocked_reason": "unprivileged client failed to run: " + first["error"]}
         after_first = {"effects": _effects(dest), "claims": _claims(dest), "tables": dest_tables(), "ledger": _ingress.ledger_rows(state / "ingress.db")}
-        hook, atomic_call, exec_res = _load(capture / "hook.json"), _load(capture / "atomic_call.json"), _load(capture / "executor_result.json")
+        hook = _load(capture / "hook.json")
+        atomic_calls, exec_results = _calls(capture, "atomic_call"), _calls(capture, "executor_result")
+        atomic_call = atomic_calls[0] if atomic_calls else None
+        exec_res = exec_results[0] if exec_results else None
         # reuse 1: the very same request bytes; reuse 2: a fresh request id with the same business content (no new authority)
         replay = client("replay", [good])
+        after_replay = {"effects": _effects(dest), "claims": _claims(dest), "ledger": _ingress.ledger_rows(state / "ingress.db")}
+        exec_calls_after_replay = len(_calls(capture, "executor_result"))
         fresh = client("fresh", [{**good, "request_id": good["request_id"] + "-fresh"}])
+        exec_results = _calls(capture, "executor_result")
+        atomic_calls = _calls(capture, "atomic_call")
+        second = exec_results[1] if len(exec_results) > 1 else None
         after_reuse = {"effects": _effects(dest), "claims": _claims(dest), "tables": dest_tables(), "ledger": _ingress.ledger_rows(state / "ingress.db")}
         alive_before_stop = proc.poll() is None
         # owner-side reconciliation over the real destination, after the ingress is stopped (no second writer)
@@ -166,11 +190,29 @@ def run(work, fault_mode="after_commit"):
                         "executor_retry_eligible": None if exec_res is None else (exec_res["observation"] or {}).get("retry_eligible"),
                         "claim_states_after_first": after_first["claims"]},
             "reuse": {"replay_response": replay.get("responses", [None])[0], "fresh_request_id_response": fresh.get("responses", [None])[0],
+                      "replay_ingress_level_only": True,
+                      "executor_calls_after_first": 1 if exec_res is not None else 0,
+                      "executor_calls_after_replay": exec_calls_after_replay,
+                      "executor_calls_after_fresh": len(exec_results),
+                      "destination_atomic_calls_after_fresh": len(atomic_calls),
+                      "second_executor_result": second,
+                      "second_status": None if second is None else second["status"],
+                      "second_attempted": None if second is None else second["attempted"],
+                      "second_acknowledged": None if second is None else second["acknowledged"],
+                      "second_error": None if second is None else second["error"],
+                      "second_simulate_received": None if second is None else second["simulate_received"],
+                      "second_claim_id_differs_from_first": bool(second and exec_res and second["claim_id"] != exec_res["claim_id"]),
+                      "ledger_fresh_state": next((r[2] for r in after_reuse["ledger"] if r[0] == good["request_id"] + "-fresh"), None),
+                      "effects_after_replay_unchanged": after_replay["effects"] == after_first["effects"],
                       "effects_after_reuse": after_reuse["effects"], "effect_count_after_reuse": len(after_reuse["effects"]),
                       "effects_unchanged": after_reuse["effects"] == after_first["effects"],
                       "destination_effect_tables_unchanged": all(after_reuse["tables"].get(t) == after_first["tables"].get(t)
                                                                  for t in ("effects", "attempts", "authority_effect_receipts_v1", "operation_effects_v1")),
-                      "claims_unchanged": after_reuse["claims"] == after_first["claims"]},
+                      "consumed_claims_unchanged_ids": sorted(c for c, st in after_first["claims"].items() if st == "consumed")
+                      == sorted(c for c, st in after_reuse["claims"].items() if c in after_first["claims"] and st == "consumed"),
+                      "new_consumed_claims_after_reuse": sorted(c for c, st in after_reuse["claims"].items()
+                                                                if st == "consumed" and c not in after_first["claims"]),
+                      "claim_states_after_reuse": after_reuse["claims"]},
             "reconcile": {"ran": recon_obs.get("ran"), "ok": recon_obs.get("ok"), "error": recon_obs.get("error"), "value": recon_obs.get("value"),
                           "state_or_status": v.get("state") or v.get("status"), "effect_id": v.get("effect_id"), "retry_eligible": v.get("retry_eligible"),
                           "effect_id_matches_owner_readback": bool(one) and v.get("effect_id") == one[0][0],

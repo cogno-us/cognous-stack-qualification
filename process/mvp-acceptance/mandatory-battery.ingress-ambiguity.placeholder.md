@@ -14,3 +14,5 @@ Also required of a future battery version: `expectations_in_force` would have to
 EXECUTOR-LEVEL evidence (`simulate='lost_ack'`) and must not be cited as supported-ingress evidence. Preserve the UNKNOWN / no-blind-retry criterion.
 
 The fault is injected owner-side only (`suites/mvp-chain/_ingress_fault_wrapper.py`: one Runtime post-commit seam, one use); no general fault-injection subsystem.
+
+Evidence limit for the reuse part of NC2-06: the same-bytes REPLAY refusal is ingress-ledger evidence only. A fresh request id is HELD by approval binding unless the owner-side harness builds it with the approval-bound correlation id (`bind_fresh`); only then does a second request reach the executor, where it is denied (in the pinned tuple by the authoritative effect budget, not by the operation-identity guard). The row must not be cited as destination duplicate prevention beyond that observation.
