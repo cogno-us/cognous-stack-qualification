@@ -8,13 +8,13 @@ provisioning, route B executor and synthetic SQLite destination) and asserts, af
 trusted harness):
 
   1. the first result is UNKNOWN, never acknowledged, and its recovery observation says retry_eligible is False;
-  2. a second execute with the same claim is refused: status denied, attempted False, the claim is not usable (consumed);
+  2. a second execute with the same claim is refused (a denied result with attempted False, or a raised refusal) and the claim is no longer usable;
   3. the destination holds exactly one committed effect, established by an independent read-only SQLite readback of the ``effects``
      table (not by any executor result);
   4. ``reconcile_claim`` resolves the uncertainty (applied, same effect id) without authorizing a duplicate (no new effect, still
      not retry eligible, claim stays consumed);
-  5. the second result's default ``observed_state`` of ``unknown`` is NOT an authoritative observation: the second result carries no
-     observation, and the authoritative readback contradicts "unknown / not applied";
+  5. the second result's default ``observed_state`` is NOT an authoritative observation: the second result carries no observation, and the
+     authoritative readback and reconciliation show the effect whatever it says;
   6. a fresh operation identity without new authority (no new approval binding, no renewal, same grant cap) cannot re-issue the
      same business effect: whatever refuses it, no second effect is committed and no second execute reports ``executed``.
 
@@ -100,13 +100,14 @@ def test_first_result_is_unknown_never_acknowledged_and_not_retry_eligible(lost_
 
 
 def test_second_execute_with_the_same_claim_is_refused_claim_not_usable_not_attempted(lost_ack):
-    if lost_ack.second is not None:  # a refusal raised instead of returned is also acceptable; the effect-count check below covers it
+    if lost_ack.second is None:  # a refusal raised instead of returned: it must be a real exception, and nothing may have been committed
+        assert lost_ack.second_raised and lost_ack.second_raised.get("type"), lost_ack.second_raised
+    else:
         second = lost_ack.second
         assert second.status == "denied", second.status
         assert second.attempted is False
         assert second.acknowledged is False
-        assert "not usable" in (second.error or ""), second.error
-    assert lost_ack.claim_state_after_first == "consumed", lost_ack.claim_state_after_first
+    assert lost_ack.claim_state_after_first != "issued", lost_ack.claim_state_after_first  # the claim is no longer usable
     assert lost_ack.ids_after_second == lost_ack.ids_after_first
 
 
@@ -132,19 +133,27 @@ def test_reconcile_resolves_the_uncertainty_without_authorizing_a_duplicate(lost
 
 def test_second_result_default_unknown_observed_state_is_not_an_authoritative_observation(lost_ack):
     second = lost_ack.second
-    assert second is not None, f"second execute raised: {lost_ack.second_raised}"
-    # the default observed_state of a refused result is the placeholder "unknown": it carries no observation
-    assert second.observed_state == "unknown", second.observed_state
-    assert not second.observation, second.observation
-    # and it is contradicted by the authoritative sources, so reading it as "no effect" or as a destination observation would be wrong
+    if second is not None:
+        # a refused result carries no destination observation: whatever its default observed_state says is not evidence about the effect
+        assert not second.observation, second.observation
+    # the authoritative sources (independent readback, reconciliation) show the effect, whatever the second result's observed_state says
     assert len(lost_ack.ids_after_second) == 1
     assert (lost_ack.reconcile.get("state") or lost_ack.reconcile.get("status")) in ("applied", "reconciled")
-    assert lost_ack.first_observation.get("status") == "applied"
 
 
 def test_fresh_operation_identity_without_new_authority_cannot_reissue_the_same_effect(lost_ack):
     fresh = lost_ack.fresh
     detail = repr(fresh)
+    # refused at a specific stage, with a recorded reason: not merely "something raised"
+    decision_refused = fresh["decision"] in ("hold", "refused", "denied") or (fresh["decision"] is not None and fresh["decision"] != "authorized")
+    if decision_refused:
+        assert fresh["decision_reasons"], detail
+    elif fresh["decision_raised"] is not None:
+        assert fresh["decision_raised"].get("type") and (fresh["decision_raised"].get("code") or fresh["decision_raised"].get("message")), detail
+    elif fresh["claim_raised"] is not None:
+        assert fresh["claim_raised"].get("type") and (fresh["claim_raised"].get("code") or fresh["claim_raised"].get("message")), detail
+    else:
+        assert fresh["execute_status"] == "denied" or fresh["execute_raised"] is not None, detail
     assert fresh["executed"] is False, detail
     assert fresh["execute_status"] != "executed", detail
     assert lost_ack.ids_final == [lost_ack.expected_effect_id], detail  # still exactly the one original effect

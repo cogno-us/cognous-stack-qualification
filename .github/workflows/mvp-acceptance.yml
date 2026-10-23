@@ -80,6 +80,11 @@ jobs:
       MVP_IDENTITY_FILE: ${{ github.workspace }}/process/mvp-acceptance/candidate-identity.inputs.json
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
+      - name: Validate qualification_revision before it is used as a checkout ref
+        env:
+          QUAL_REV: ${{ inputs.qualification_revision }}
+        run: |
+          [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ inputs.qualification_revision || github.sha }}
@@ -87,7 +92,6 @@ jobs:
       - name: Resolve the tuple from the candidate identity inputs (40-hex only; overrides validated and recorded)
         id: tuple
         env:
-          QUAL_REV: ${{ inputs.qualification_revision }}
           MVP_OVERRIDE_CONTROL_PLANE: ${{ inputs.control_plane_revision }}
           MVP_OVERRIDE_RUNTIME: ${{ inputs.runtime_revision }}
           MVP_OVERRIDE_REPLAY: ${{ inputs.replay_revision }}
@@ -97,11 +101,11 @@ jobs:
           MVP_OVERRIDE_ACTION_MANIFEST: ${{ inputs.manifest_revision }}
           MVP_OVERRIDE_HUB: ${{ inputs.hub_revision }}
         run: |
-          [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
           mkdir -p results/mvp-acceptance/mvp-chain
           python3 tools/mvp_acceptance_gate.py resolve --identity process/mvp-acceptance/candidate-identity.inputs.json \
             --out-pin results/mvp-acceptance/tuple-pin.resolved.json --out-resolved results/mvp-acceptance/tuple-resolved.json \
-            --github-output "$GITHUB_OUTPUT"
+            --github-output "$GITHUB_OUTPUT" --github-env "$GITHUB_ENV" \
+            --qualification-sha "$(git rev-parse HEAD)"
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-control-plane
@@ -165,6 +169,11 @@ jobs:
           git config --global --add safe.directory '*'
           sudo git config --global --add safe.directory '*'
           python tools/mvp_acceptance_gate.py verify-checkouts --resolved results/mvp-acceptance/tuple-resolved.json --base "$GITHUB_WORKSPACE"
+      - name: Anchor the frozen files to the main branch (blob ids read through the REST API, independent of this checkout)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python tools/mvp_acceptance_gate.py anchor --repo "$GITHUB_REPOSITORY" --ref main --out results/mvp-acceptance/anchor.json
       - name: Collect the mandatory battery (discovery is recorded separately from execution)
         run: |
           set -o pipefail
@@ -180,7 +189,7 @@ jobs:
           MVP_EXCLUSION_TAG=mvp-chain PYTHONPATH="$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" \
             sudo -E env "PATH=$PATH" python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin \
             suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py \
-            --junitxml="$d/junit-mvp-chain.xml"
+            -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-mvp-chain" --junitxml="$d/junit-mvp-chain.xml"
           echo $? > "$d/pytest-exit-mvp-chain.txt"
           exit 0
       - name: Run the route C exclusion checks (ruling 5)
@@ -189,16 +198,16 @@ jobs:
           set +e
           MVP_EXCLUSION_TAG=applicability PYTHONPATH="$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" \
             python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin suites/mvp-applicability/test_route_c_exclusion.py \
-            --junitxml="$d/junit-applicability.xml"
+            -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-applicability" --junitxml="$d/junit-applicability.xml"
           echo $? > "$d/pytest-exit-applicability.txt"
           exit 0
       - name: Gate (zero unexplained skips in the mandatory battery, exact Verifier dispositions); fails unless ACCEPT
         if: always()
         run: |
           set -o pipefail
-          python3 tools/mvp_acceptance_gate.py gate --run-dir results/mvp-acceptance | tee results/mvp-acceptance/gate-summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 tools/mvp_acceptance_gate.py gate --run-dir results/mvp-acceptance --expect-qualification-sha "$(git rev-parse HEAD)" | tee results/mvp-acceptance/gate-summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: mvp-acceptance-${{ github.sha }}
+          name: mvp-acceptance-${{ steps.tuple.outputs.qualification }}
           path: results/mvp-acceptance

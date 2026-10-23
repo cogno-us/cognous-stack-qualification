@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 ROOTS = ("experiments", "odex_gax_imx_reference", "governed_message_transport")
-PATH_PATTERN = re.compile(r"(?i)(cognous-governed-exchange|governed[-_]exchange|odex_gax_imx)")
+PATH_PATTERN = re.compile(r"(?i)(cognous-governed-exchange|governed[-_]exchange|odex_gax_imx|[/\\]components[/\\]exchange|[/\\]exchange[/\\])")
 
 
 def scan(modules=None, paths=None) -> dict:
@@ -36,6 +36,6 @@ def pytest_sessionfinish(session, exitstatus):
     out = Path(os.environ.get("MVP_ACCEPTANCE_DIR") or os.environ.get("MVP_RESULTS_DIR") or ".")
     out.mkdir(parents=True, exist_ok=True)
     tag = re.sub(r"[^A-Za-z0-9_-]", "", os.environ.get("MVP_EXCLUSION_TAG") or "battery") or "battery"
-    doc = {"schema": "cognous.mvp-exchange-exclusion-observation/1", "tag": tag, "scanned": "sys.modules and sys.path of the interpreter that ran the battery",
+    doc = {"schema": "cognous.mvp-exchange-exclusion-observation/1", "tag": tag, "run_id": os.environ.get("MVP_RUN_ID"), "scanned": "sys.modules and sys.path of the interpreter that ran the battery",
            **scan(), "pytest_exit_status": int(exitstatus)}
     (out / f"exchange-exclusion-{tag}.json").write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")

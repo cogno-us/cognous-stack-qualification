@@ -27,7 +27,7 @@ def _banned(mapping):
 def test_ap01_mapping_declares_route_c_excluded_and_not_invoked_distinct_from_a_skip(mapping, identity_file):
     route_c = mapping["routes"]["route_c"]
     assert route_c["mvp_status"] == "EXCLUDED and NOT INVOKED"
-    assert "NOT APPLICABLE by exclusion" in route_c["applicability"] and "distinct from a skip" in route_c["applicability"]
+    assert "declared exclusion" in route_c["applicability"] and "not a skipped test" in route_c["applicability"]
     assert mapping["routes"]["route_b"]["mvp_status"] == "IN SCOPE and INVOKED"
     assert "unchanged raw history" in route_c["defect_register_note"]
     ap_ids = [v["id"] for v in route_c["verified_by"]]

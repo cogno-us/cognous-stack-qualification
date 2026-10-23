@@ -160,7 +160,12 @@ def run(work):
     state, sock = base / "state", str(base / "ingress.sock")
     cmd = [sys.executable, "-m", "tools.mvp_ingress.server", "--state-dir", str(state), "--socket", sock,
            "--control-plane", _state.ENV["dirs"]["control_plane"], "--runtime", _state.ENV["dirs"]["runtime"], "--socket-mode", "666"]
-    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=os.pathsep.join([str(hub)] + ([os.environ["PYTHONPATH"]] if os.environ.get("PYTHONPATH") else [])))
+    # observation only (AP-06): a sitecustomize in the ingress process writes its sys.modules at exit; it changes no behaviour
+    probe_dir = pathlib.Path(__file__).resolve().parents[1] / "mvp-applicability" / "plugin" / "ingress_probe"
+    dump_path = _state.results_dir() / "artifacts" / "ingress-modules.json"
+    dump_path.parent.mkdir(parents=True, exist_ok=True)
+    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MVP_INGRESS_MODULE_DUMP=str(dump_path),
+                PYTHONPATH=os.pathsep.join([str(hub), str(probe_dir)] + ([os.environ["PYTHONPATH"]] if os.environ.get("PYTHONPATH") else [])))
     proc = subprocess.Popen(cmd, cwd=hub, env=penv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     try:
         line = proc.stdout.readline()
