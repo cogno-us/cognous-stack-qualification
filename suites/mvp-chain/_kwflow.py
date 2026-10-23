@@ -1,447 +1,300 @@
-"""NC4-03 v4 source predicate: DATA-FLOW / CALL-BOUNDARY check of keyword forwarding into protected executor and claim APIs.
+"""NC4-03 v4 source predicate: a STRICT REFINEMENT of the v3 blanket ban on non-literal ** forwarding, with proven-fixed carve-outs.
 
 SPDX-License-Identifier: Apache-2.0
 
 PROPOSED by the builder for Qualification review and freeze (not frozen, not an acceptance, production HOLD unchanged).
-SOURCE-LEVEL ONLY: a static AST analysis; it is not an execution observation and says nothing about code outside the scanned files.
+SOURCE-LEVEL ONLY: a static AST analysis of tools/mvp_ingress; not an execution observation.
 
-Protected property (unchanged from v3): no client-controlled ``simulate``, authority-writer capability, operation-identity override or
-arbitrary keyword can reach a protected executor or claim API. v3 approximated this by forbidding every non-literal ``**`` in the
-ingress source. v4 judges the CALL BOUNDARY instead: every call whose callee resolves to a protected API is examined, and the mapping
-behind each ``**`` is given an abstract value:
+Base rule (kept from v3, tightened): any call, to ANY callee, whose keywords contain ``**<expr>`` is REJECTED unless ``<expr>`` is one of
+the statically proven fixed forms below. A mapping held in a variable is therefore always OPAQUE (aliasing, passing to a call, mutation in a
+nested scope or global, ``update()``, helpers: all rejected by construction). Carve-outs, each checked for prohibited keys:
+  (a) an inline dict display with constant string keys (nested ``**`` only of another such display);
+  (b) an inline dict comprehension ``{k: getattr(obj, k) | <constant> for k in NAMES}`` where NAMES is an inline literal list/tuple of string
+      constants, or a name bound exactly once in the file to one and loaded exactly once (the comprehension): never aliased, passed, mutated,
+      or declared global/nonlocal;
+  (c) a lambda proxy forwarding only its own ``*a, **k`` where the lambda is bound once to a local name that is only ever called directly
+      (call sites are then judged by the same rules).
+Prohibited keys inside a carved-out mapping (simulate, operation_id/operation_identity*, *writer*, set_*_*, grant_id, grant_revision,
+effective_max_effects, authority_context_id, actor, principal, claim_id, idempotency_key) are allowed only with a literal constant value
+(simulate: exactly None).
+Further rules: explicit ``simulate=`` must be the constant None on any call; explicit operation-identity/writer/set_* keywords with a
+non-literal value are rejected on protected callees; non-literal ``*args`` into a protected or unresolvable callee, or into any call that
+receives a protected callable, is rejected; a protected callable referenced anywhere except as the direct callee of a call (alias, argument to
+run/submit/starmap/partial, ``.__call__``) is rejected; ``model_copy(update=...)`` must be a carved-out display. Import aliases are bound.
+Pinned reviewed sites: a violation whose exact call source hash is pinned in PINNED_SITES is reported separately (``pinned_sites_used``)
+and is NOT a violation; a changed site un-pins itself and fails. Pins are a recorded exception and need Qualification/operator adoption.
 
-  FIXED(keys)  the key set is statically known and every key is a string constant (dict display, comprehension over a literal name
-               list, fixed ``.items()`` copy, ``dict(**fixed)``, ``|``, ``.update(fixed)``, constant-key subscript stores, ``{**fixed}``)
-  OPAQUE       anything else: a parameter (including a lambda/proxy ``**k``), a call result, an unknown name, a comprehension over a
-               non-literal iterable, a non-constant key, ``.update(opaque)``, ``dict(opaque)``, ``{**opaque}``, ``partial(..., **opaque)``
-
-A protected call is REJECTED if: a ``**`` argument is OPAQUE; a FIXED mapping carries a prohibited key; a prohibited keyword is passed
-explicitly with a non-literal value (``simulate`` must be exactly the constant None); or ``*args`` unpacks a non-literal sequence.
-A FIXED mapping with only non-prohibited keys is ACCEPTED, as is a proxy whose target is not protected. Aliases (``f = obj.execute``),
-``functools.partial`` and lambda proxies are resolved to their targets; a ``**`` OPAQUE into a callee that cannot be resolved is rejected.
-
-Limits (recorded, not hidden): intraprocedural and flow-insensitive per scope (all assignments to a name are joined); no import
-following; values under non-prohibited fixed keys are not taint-tracked (e.g. a client ``claim_id`` string); a dynamic ``getattr`` name
-or ``exec``/``eval`` is treated as an unresolvable callee. Qualification must review these limits.
+Out of scope (limits, not hidden): setattr/__dict__.update, positional client values, values under non-prohibited fixed keys (not
+taint-tracked), values inside constants-only forms, anything outside the scanned files, imports are not followed.
 """
 from __future__ import annotations
 
 import ast
+import hashlib
 import pathlib
 import re
 
-PREDICATE_ID = "nc4-03.v4.dataflow-callboundary"
-PROTECTED_CALLEES = frozenset({
-    "execute", "execute_claim_atomic", "provision_claim",  # executor / claim APIs named by the architect ruling
-    "ExecutionOperation", "ExecutionEnvelope", "OperationIdentityProfile",  # operation-identity / authority-bearing constructors
-    "AtomicLocalControlPlaneExecutor", "OperationIdentityAtomicAuthorityEffectDestination", "LocalExecutionPolicy",
-})
-PROHIBITED_KEY = re.compile(r"^(simulate|operation_id|operation_identity\w*|operation_override\w*|\w*writer\w*|set_(grant|approval|policy|evidence)_\w+|claim_writer\w*)$")
-SIMULATE = "simulate"
+PREDICATE_ID = "nc4-03.v4.strict-refinement-dataflow"
+PROTECTED_CALLS = frozenset({"execute", "execute_claim_atomic", "provision_claim", "decide", "bind_approval"})
+PROTECTED_CTORS = frozenset({"ExecutionOperation", "ExecutionEnvelope", "OperationIdentityProfile", "AtomicLocalControlPlaneExecutor",
+                             "OperationIdentityAtomicAuthorityEffectDestination", "LocalExecutionPolicy"})
+PROTECTED = PROTECTED_CALLS | PROTECTED_CTORS | {"model_copy"}
+BASE_PROHIBITED = re.compile(r"^(simulate|operation_id|operation_identity\w*|operation_override\w*|\w*writer\w*|set_(grant|approval|policy|evidence)_\w+)$")
+MAPPING_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|grant_id|grant_revision|effective_max_effects|authority_context_id|actor|principal|claim_id|idempotency_key)$")
+SQLITE_RECEIVERS = frozenset({"c"})
+
+# exact reviewed sites (file:qualname:callee#ordinal:sha256-12 of the unparsed call): trusted-host code, no client value reaches them
+PINNED_SITES = {
+    "synthetic_host.py:SyntheticHost.__init__:original#1:1c959780adb1": "lambda proxy to Control Plane test fixture tra.proposal; exposed via attribute assignment so (c) cannot prove it closed",
+    "synthetic_host.py:SyntheticHost.__init__:model_copy#1:4a51b6e6828a": "model_copy(update={'operation_identity': OperationIdentityProfile(fixed constants)}): trusted-host constant profile",
+    "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1:7eb688f54020": "fixed 14-name comprehension; actor/principal come from the template proposal p0, not from the client",
+}
+REQUIRED_SITES = [  # exact-site pin of the real protected calls the oracle must see (file, qualname, callee, ordinal)
+    ("core.py", "IngressCore._run", "decide", 1), ("core.py", "IngressCore._run", "provision_claim", 1), ("core.py", "IngressCore._run", "execute", 1),
+    ("synthetic_host.py", "SyntheticHost.__init__", "bind_approval", 1),
+    ("synthetic_host.py", "SyntheticHost.__init__", "OperationIdentityProfile", 1),
+    ("synthetic_host.py", "SyntheticHost.__init__", "OperationIdentityAtomicAuthorityEffectDestination", 1),
+    ("synthetic_host.py", "SyntheticHost.__init__", "LocalExecutionPolicy", 1),
+    ("synthetic_host.py", "SyntheticHost.__init__", "AtomicLocalControlPlaneExecutor", 1),
+    ("synthetic_host.py", "SyntheticHost.envelope", "ExecutionOperation", 1), ("synthetic_host.py", "SyntheticHost.envelope", "ExecutionEnvelope", 1)]
+EXPECTED_FILES = ["__init__.py", "client.py", "core.py", "proposal.py", "server.py", "synthetic_host.py"]
 
 
-class _Opaque:
-    def __repr__(self):
-        return "OPAQUE"
+def _is_const_str(n):
+    return isinstance(n, ast.Constant) and isinstance(n.value, str)
 
 
-OPAQUE = _Opaque()
-
-
-_EXPR = object()
-
-
-class Fixed:
-    """Fixed key set. ``vals`` maps key -> literal constant value, or _EXPR when the value is any other expression."""
-
-    def __init__(self, keys, vals=None):
-        self.keys = frozenset(keys)
-        self.vals = {k: (vals or {}).get(k, _EXPR) for k in self.keys}
-
-    def __repr__(self):
-        return f"FIXED{sorted(self.keys)}"
-
-
-def _const(node):
-    return node.value if isinstance(node, ast.Constant) else _EXPR
-
-
-def _same(a, b):
-    return a is b or (a is not _EXPR and b is not _EXPR and type(a) is type(b) and a == b)
-
-
-def _join(a, b):
-    if a is None:
-        return b
-    if b is None:
-        return a
-    if isinstance(a, Fixed) and isinstance(b, Fixed):
-        vals = {}
-        for k in a.keys | b.keys:
-            if k in a.vals and k in b.vals:
-                vals[k] = a.vals[k] if _same(a.vals[k], b.vals[k]) else _EXPR
-            else:
-                vals[k] = a.vals.get(k, b.vals.get(k, _EXPR))
-        return Fixed(a.keys | b.keys, vals)
-    return OPAQUE
-
-
-def _safe_literal(key, value):
-    """A prohibited keyword is tolerated only as a literal constant (simulate: exactly None); anything else may be client-fed."""
-    return value is not _EXPR and (value is None if key == "simulate" else True)
-
-
-def _str_consts(node):
-    if isinstance(node, (ast.List, ast.Tuple, ast.Set)) and all(isinstance(e, ast.Constant) and isinstance(e.value, str) for e in node.elts):
-        return [e.value for e in node.elts]
+def _lit_names(n):
+    if isinstance(n, (ast.List, ast.Tuple)) and n.elts and all(_is_const_str(e) for e in n.elts):
+        return [e.value for e in n.elts]
     return None
 
 
-class _Scope:
-    def __init__(self, parent, params=()):
-        self.parent, self.assigns, self.params = parent, {}, set(params)
-        self.mut = {}  # name -> list of ("update"/"store", node)
-
-    def lookup_assigns(self, name):
-        s = self
-        while s is not None:
-            if name in s.params:
-                return "param"
-            if name in s.assigns:
-                return s.assigns[name]
-            s = s.parent
-        return None
+def _literal_ok(key, value):
+    """A prohibited key may only carry a literal constant (simulate: exactly None)."""
+    return isinstance(value, ast.Constant) and (value.value is None if key == "simulate" else True)
 
 
 class Analyzer:
-    def __init__(self, tree, filename):
-        self.filename, self.tree = filename, tree
-        self.findings, self.examined = [], []
-        self.fn_scopes = {}
+    def __init__(self, source, filename):
+        self.src, self.filename = source, filename
+        self.tree = ast.parse(source)
+        self.findings, self.pinned, self.examined, self.sites = [], [], [], []
+        self.alias, self.assign = {}, {}
+        self.loads, self.stores, self.escapes = {}, {}, set()
+        self.parent, self._memo = {}, {}
+        self._index()
 
-    # ---- scope construction -------------------------------------------------
-    def _collect(self, body_nodes, scope):
-        """Record every assignment of a name in this scope (flow-insensitive), without descending into nested function scopes."""
-        stack = list(body_nodes)
-        while stack:
-            n = stack.pop()
-            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)):
-                continue
-            if isinstance(n, ast.Assign):
+    # ---- indexing -------------------------------------------------------------
+    def _index(self):
+        for n in ast.walk(self.tree):
+            for c in ast.iter_child_nodes(n):
+                self.parent[c] = n
+            if isinstance(n, ast.Import):
+                for a in n.names:
+                    if a.asname:
+                        self.alias[a.asname] = a.name.split(".")[-1]
+            elif isinstance(n, ast.ImportFrom):
+                for a in n.names:
+                    if a.asname:
+                        self.alias[a.asname] = a.name
+            elif isinstance(n, ast.Name):
+                (self.loads if isinstance(n.ctx, ast.Load) else self.stores).setdefault(n.id, []).append(n)
+            elif isinstance(n, (ast.Global, ast.Nonlocal)):
+                self.escapes.update(n.names)
+            elif isinstance(n, ast.Assign):
                 for t in n.targets:
-                    self._bind(t, n.value, scope)
-            elif isinstance(n, ast.AnnAssign) and n.value is not None:
-                self._bind(n.target, n.value, scope)
-            elif isinstance(n, ast.AugAssign):
-                self._bind(n.target, ast.BinOp(left=n.target, op=n.op, right=n.value), scope)
-            elif isinstance(n, (ast.For, ast.AsyncFor, ast.With, ast.AsyncWith, ast.NamedExpr)):
-                for t in ([n.target] if hasattr(n, "target") else [i.optional_vars for i in getattr(n, "items", []) if i.optional_vars]):
-                    self._bind(t, None, scope)
-            stack.extend(ast.iter_child_nodes(n))
-        for n in ast.walk(ast.Module(body=list(body_nodes), type_ignores=[])):
-            pass
+                    if isinstance(t, ast.Name):
+                        self.assign.setdefault(t.id, []).append(n.value)
+                    elif isinstance(t, ast.Attribute):
+                        self.assign.setdefault("." + t.attr, []).append(n.value)
+            elif isinstance(n, (ast.AugAssign, ast.AnnAssign, ast.NamedExpr)) and isinstance(getattr(n, "target", None), ast.Name):
+                self.assign.setdefault(n.target.id, []).append(getattr(n, "value", None))
 
-    def _bind(self, target, value, scope):
-        if isinstance(target, ast.Name):
-            scope.assigns.setdefault(target.id, []).append(value)
-        elif isinstance(target, ast.Subscript) and isinstance(target.value, ast.Name):
-            scope.mut.setdefault(target.value.id, []).append(("store", target))
-        elif isinstance(target, (ast.Tuple, ast.List)):
-            for e in target.elts:
-                self._bind(e, None, scope)
-        elif isinstance(target, ast.Attribute):
-            pass
+    def names_of(self, e, depth=0):
+        """Possible final callee names of an expression; 'UNRESOLVED' when it cannot be determined statically."""
+        if depth > 6 or e is None:
+            return {"UNRESOLVED"}
+        if isinstance(e, ast.Attribute):
+            return {e.attr}
+        if isinstance(e, ast.Name):
+            if e.id in self._memo:
+                return self._memo[e.id]
+            self._memo[e.id] = {e.id}  # cycle guard
+            out = {e.id, self.alias.get(e.id, e.id)}
+            for v in self.assign.get(e.id, []):
+                if isinstance(v, (ast.Name, ast.Attribute, ast.Lambda, ast.Call, ast.IfExp)):
+                    out |= self.names_of(v, depth + 1)
+            self._memo[e.id] = out
+            return out
+        if isinstance(e, ast.IfExp):
+            return self.names_of(e.body, depth + 1) | self.names_of(e.orelse, depth + 1)
+        if isinstance(e, ast.Lambda):
+            out = set()
+            for c in ast.walk(e.body):
+                if isinstance(c, ast.Call):
+                    out |= self.names_of(c.func, depth + 1)
+            return out
+        if isinstance(e, ast.Call):
+            f = e.func
+            fname = f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else None
+            fname = self.alias.get(fname, fname)
+            if fname == "getattr" and len(e.args) >= 2:
+                return {e.args[1].value} if _is_const_str(e.args[1]) else {"UNRESOLVED"}
+            if fname == "partial" and e.args:
+                return self.names_of(e.args[0], depth + 1)
+            return {"UNRESOLVED"}
+        return {"UNRESOLVED"}
 
-    def _scope_mutations(self, body_nodes, scope):
-        stack = list(body_nodes)
-        while stack:
-            n = stack.pop()
-            if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)):
-                continue
-            if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and isinstance(n.func.value, ast.Name) \
-                    and n.func.attr in ("update", "setdefault", "append", "extend", "insert", "add", "__setitem__", "__ior__"):
-                kind = n.func.attr if n.func.attr in ("update", "setdefault") else "seqmut"
-                scope.mut.setdefault(n.func.value.id, []).append((kind, n))
-            stack.extend(ast.iter_child_nodes(n))
+    # ---- helpers ----------------------------------------------------------------
+    def qualname(self, n):
+        parts, p = [], self.parent.get(n)
+        while p is not None:
+            if isinstance(p, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                parts.append(p.name)
+            p = self.parent.get(p)
+        return ".".join(reversed(parts)) or "<module>"
 
-    # ---- abstract evaluation ------------------------------------------------
-    def mapping(self, node, scope, seen=()):
-        """Abstract value of an expression used as a ``**`` mapping."""
+    def _once_literal(self, name_node):
+        """NAMES bound exactly once in the file to a literal string list/tuple and loaded exactly once (this use)."""
+        i = name_node.id
+        vals = self.assign.get(i, [])
+        return (len(vals) == 1 and _lit_names(vals[0]) is not None and len(self.stores.get(i, [])) == 1 and len(self.loads.get(i, [])) == 1
+                and i not in self.escapes and _lit_names(vals[0]))
+
+    def check_mapping(self, node, lam):
+        """Return [(rule, detail)] for the expression used as a ** mapping / update= display; [] means a proven fixed form."""
         if isinstance(node, ast.Dict):
-            keys, vals = set(), {}
+            bad = []
             for k, v in zip(node.keys, node.values):
-                if k is None:  # {**x}
-                    m = self.mapping(v, scope, seen)
-                    if not isinstance(m, Fixed):
-                        return OPAQUE
-                    keys |= m.keys
-                    vals.update(m.vals)
-                elif isinstance(k, ast.Constant) and isinstance(k.value, str):
-                    keys.add(k.value)
-                    vals[k.value] = _const(v)
-                else:
-                    return OPAQUE
-            return Fixed(keys, vals)
+                if k is None:
+                    bad += self.check_mapping(v, lam) if isinstance(v, ast.Dict) else [("NONLITERAL_KWARGS", f"{{**{ast.unparse(v)[:50]}}}")]
+                elif not _is_const_str(k):
+                    bad.append(("NONLITERAL_KWARGS", "dict display with non-constant key " + ast.unparse(k)[:40]))
+                elif MAPPING_PROHIBITED.match(k.value) and not _literal_ok(k.value, v):
+                    bad.append(("PROHIBITED_KEY_IN_FIXED_FORM", f"key {k.value!r} with non-literal value {ast.unparse(v)[:40]}"))
+            return bad
         if isinstance(node, ast.DictComp):
-            return self._dictcomp(node, scope, seen)
-        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
-            a, b = self.mapping(node.left, scope, seen), self.mapping(node.right, scope, seen)
-            return Fixed(a.keys | b.keys, {**a.vals, **b.vals}) if isinstance(a, Fixed) and isinstance(b, Fixed) else OPAQUE
-        if isinstance(node, ast.Call):
-            f = node.func
-            if isinstance(f, ast.Name) and f.id == "dict":
-                keys, vals = set(), {}
-                if len(node.args) > 1:
-                    return OPAQUE
-                if node.args:
-                    m = self.mapping(node.args[0], scope, seen)
-                    if not isinstance(m, Fixed):
-                        return OPAQUE
-                    keys |= m.keys
-                    vals.update(m.vals)
-                for kw in node.keywords:
-                    if kw.arg is None:
-                        m = self.mapping(kw.value, scope, seen)
-                        if not isinstance(m, Fixed):
-                            return OPAQUE
-                        keys |= m.keys
-                        vals.update(m.vals)
-                    else:
-                        keys.add(kw.arg)
-                        vals[kw.arg] = _const(kw.value)
-                return Fixed(keys, vals)
-            if isinstance(f, ast.Attribute) and f.attr == "copy" and not node.args:
-                return self.mapping(f.value, scope, seen)
-            return OPAQUE
-        if isinstance(node, ast.Name):
-            if node.id in seen:
-                return None  # cyclic join neutral element
-            res = scope.lookup_assigns(node.id)
-            if res is None or res == "param":
-                return OPAQUE
-            sc, s = None, scope
-            while s is not None and node.id not in s.assigns and node.id not in s.params:
-                s = s.parent
-            acc = None
-            for v in res:
-                if v is None:
-                    return OPAQUE
-                acc = _join(acc, self.mapping(v, s, seen + (node.id,)))
-                if acc is OPAQUE:
-                    return OPAQUE
-            for kind, mnode in (s.mut.get(node.id, []) if s else []):
-                if kind == "store":
-                    sl = mnode.slice
-                    if isinstance(sl, ast.Constant) and isinstance(sl.value, str):
-                        acc = _join(acc, Fixed({sl.value}, {sl.value: _EXPR}))
-                    else:
-                        return OPAQUE
-                elif kind == "seqmut":
-                    return OPAQUE  # in-place mutation by a method that is not modelled for a mapping
-                elif kind == "update":
-                    keys, vals = set(), {}
-                    for a in mnode.args:
-                        m = self.mapping(a, scope, seen + (node.id,))
-                        if not isinstance(m, Fixed):
-                            return OPAQUE
-                        keys |= m.keys
-                        vals.update(m.vals)
-                    for kw in mnode.keywords:
-                        if kw.arg is None:
-                            m = self.mapping(kw.value, scope, seen + (node.id,))
-                            if not isinstance(m, Fixed):
-                                return OPAQUE
-                            keys |= m.keys
-                            vals.update(m.vals)
-                        else:
-                            keys.add(kw.arg)
-                            vals[kw.arg] = _const(kw.value)
-                    acc = _join(acc, Fixed(keys, vals))
-                else:  # setdefault(k, v)
-                    a0 = mnode.args[0] if mnode.args else None
-                    if isinstance(a0, ast.Constant) and isinstance(a0.value, str):
-                        acc = _join(acc, Fixed({a0.value}, {a0.value: _EXPR}))
-                    else:
-                        return OPAQUE
-            return acc if acc is not None else OPAQUE
-        return OPAQUE
+            g = node.generators[0] if len(node.generators) == 1 else None
+            if g is None or g.ifs or g.is_async or not isinstance(g.target, ast.Name) or not (isinstance(node.key, ast.Name) and node.key.id == g.target.id):
+                return [("COMPREHENSION_NOT_FIXED", "comprehension shape is not {k: ... for k in LITERAL_NAMES}")]
+            names = _lit_names(g.iter) if not isinstance(g.iter, ast.Name) else self._once_literal(g.iter)
+            if not names:
+                return [("COMPREHENSION_NOT_FIXED", "iterable is not an inline or once-bound literal tuple/list of string constants")]
+            v = node.value
+            derived = isinstance(v, ast.Constant) or (isinstance(v, ast.Call) and isinstance(v.func, ast.Name) and v.func.id == "getattr" and len(v.args) == 2
+                                                       and isinstance(v.args[0], ast.Name) and isinstance(v.args[1], ast.Name) and v.args[1].id == g.target.id)
+            if not derived:
+                return [("COMPREHENSION_NOT_FIXED", "value is not a constant or getattr(<name>, k): " + ast.unparse(v)[:50])]
+            return [("PROHIBITED_KEY_IN_FIXED_FORM", f"key {k!r} with non-literal value {ast.unparse(v)[:40]}") for k in names
+                    if MAPPING_PROHIBITED.match(k) and not isinstance(v, ast.Constant)]
+        if isinstance(node, ast.Name) and lam is not None and node.id in lam:
+            return []  # (c) the proxy's own *a/**k, closed lambda
+        return [("NONLITERAL_KWARGS", f"**{ast.unparse(node)[:60]} is not a proven fixed form")]
 
-    def _seq_keys(self, node, scope, seen=()):
-        """String constants of a literal list/tuple/set, resolved through names."""
-        c = _str_consts(node)
-        if c is not None:
-            return c
-        if isinstance(node, ast.Name) and node.id not in seen:
-            res = scope.lookup_assigns(node.id)
-            if res is None or res == "param" or len(res) != 1 or res[0] is None:
-                return None
-            s = scope
-            while s is not None and node.id not in s.assigns:
-                s = s.parent
-            if s is not None and s.mut.get(node.id):
-                return None
-            return self._seq_keys(res[0], s, seen + (node.id,))
-        return None
+    def closed_lambda_params(self, lam):
+        """(c): lambda bound once to a name that is only ever called directly -> its own *a/**k names, else empty set."""
+        p = self.parent.get(lam)
+        if not (isinstance(p, ast.Assign) and len(p.targets) == 1 and isinstance(p.targets[0], ast.Name)):
+            return set()
+        n = p.targets[0].id
+        if len(self.stores.get(n, [])) != 1 or n in self.escapes:
+            return set()
+        for use in self.loads.get(n, []):
+            par = self.parent.get(use)
+            if not (isinstance(par, ast.Call) and par.func is use):
+                return set()
+        return {x.arg for x in (lam.args.vararg, lam.args.kwarg) if x}
 
-    def _dictcomp(self, node, scope, seen):
-        if len(node.generators) != 1 or node.generators[0].is_async:
-            return OPAQUE
-        g = node.generators[0]
-        inner = _Scope(scope)
-        key = node.key
-        if isinstance(g.target, ast.Name) and isinstance(key, ast.Name) and key.id == g.target.id:
-            consts = self._seq_keys(g.iter, scope)
-            if consts is not None:
-                return Fixed(consts)
-        if isinstance(g.target, ast.Tuple) and len(g.target.elts) == 2 and isinstance(g.target.elts[0], ast.Name) \
-                and isinstance(key, ast.Name) and key.id == g.target.elts[0].id and isinstance(g.iter, ast.Call) \
-                and isinstance(g.iter.func, ast.Attribute) and g.iter.func.attr == "items" and not g.iter.args:
-            return self.mapping(g.iter.func.value, scope, seen)
-        if isinstance(key, ast.Constant) and isinstance(key.value, str):
-            return Fixed({key.value})
-        return OPAQUE
+    def record(self, node, rule, detail, callee, ordinal):
+        scope, p = node, self.parent.get(node)
+        while p is not None and not isinstance(p, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            p = self.parent.get(p)
+        scope = p or self.tree  # the pin covers the whole enclosing function, so a change anywhere in it un-pins the site
+        sig = hashlib.sha256((ast.unparse(node) + "\n--\n" + ast.unparse(scope)).encode()).hexdigest()[:12]
+        f = {"file": self.filename, "line": node.lineno, "rule": rule, "callee": callee, "detail": detail, "source": ast.unparse(node)[:160],
+             "site": f"{self.filename}:{self.qualname(node)}:{callee}#{ordinal}:{sig}"}
+        pin = next((k for k in PINNED_SITES if k.rsplit(":", 1)[0] == f["site"].rsplit(":", 1)[0] and k.endswith(sig)), None)
+        (self.pinned if pin else self.findings).append({**f, "pinned": pin} if pin else f)
 
-    # ---- callee resolution --------------------------------------------------
-    def _name_of(self, func):
-        if isinstance(func, ast.Name):
-            return func.id
-        if isinstance(func, ast.Attribute):
-            return func.attr
-        return None
-
-    def resolve(self, func, scope, depth=0):
-        """Return (callee_name or None if unresolvable, extra_kwargs list[(kind,node)], proxy_node or None)."""
-        if depth > 6:
-            return None, [], None
-        if isinstance(func, ast.Attribute):
-            return func.attr, [], None
-        if isinstance(func, ast.Call) and isinstance(func.func, ast.Name) and func.func.id == "getattr" and len(func.args) >= 2:
-            a = func.args[1]
-            return (a.value, [], None) if isinstance(a, ast.Constant) and isinstance(a.value, str) else (None, [], None)
-        if isinstance(func, ast.Name):
-            res = scope.lookup_assigns(func.id)
-            if res is None or res == "param":
-                return func.id, [], None  # imported / global name: judged by its own name
-            if len(res) == 1 and res[0] is not None:
-                v = res[0]
-                if isinstance(v, ast.Lambda):
-                    return "<lambda>", [], v
-                if isinstance(v, (ast.Name, ast.Attribute)):
-                    return self.resolve(v, scope, depth + 1)
-                if isinstance(v, ast.Call) and self._name_of(v.func) == "partial" and v.args:
-                    t, ex, px = self.resolve(v.args[0], scope, depth + 1)
-                    return t, ex + [("partial", v)], px
-                if isinstance(v, ast.Call):
-                    return self.resolve(v.func, scope, depth + 1) if self._name_of(v.func) == "getattr" else (None, [], None)
-            return (None, [], None)
-        return None, [], None
-
-    # ---- the check ----------------------------------------------------------
-    def add(self, node, rule, detail, callee):
-        self.findings.append({"file": self.filename, "line": node.lineno, "rule": rule, "callee": callee, "detail": detail,
-                              "source": ast.unparse(node)[:160]})
-
-    def check_call(self, node, scope):
-        callee, extras, proxy = self.resolve(node.func, scope)
-        is_partial = self._name_of(node.func) == "partial" and node.args
-        if is_partial:  # partial(target, ...): examine the bound arguments against the target
-            callee, _, _ = self.resolve(node.args[0], scope)
-            args, kws = node.args[1:], node.keywords
-        else:
-            args, kws = node.args, node.keywords
-            for kind, pnode in extras:  # calling a partial variable: the bound arguments plus this call's own
-                args = list(pnode.args[1:]) + list(args)
-                kws = list(pnode.keywords) + list(kws)
-        protected = callee in PROTECTED_CALLEES
-        unresolved = callee is None
-        has_dstar = any(k.arg is None for k in kws) or any(isinstance(a, ast.Starred) for a in args)
-        if not (protected or (unresolved and has_dstar) or any(k.arg and PROHIBITED_KEY.match(k.arg) for k in kws)):
-            if has_dstar:  # transparency: record non-protected forwarding (e.g. a proxy to a fixture) without judging it
-                self.examined.append({"file": self.filename, "line": node.lineno, "callee": callee or "<unresolved>", "protected": False,
-                                      "forwards": [{"mapping": ast.unparse(k.value)[:80], "abstract": repr(self.mapping(k.value, scope))}
-                                                   for k in kws if k.arg is None]})
-            return
-        rec = {"file": self.filename, "line": node.lineno, "callee": callee or "<unresolved>", "protected": protected}
-        forwards = []
-        for a in args:
-            if isinstance(a, ast.Starred):
-                c = self._seq_keys(a.value, scope)
-                if (protected or unresolved) and c is None and not isinstance(a.value, (ast.Tuple, ast.List)):
-                    self.add(node, "OPAQUE_POSITIONAL_UNPACK", f"*{ast.unparse(a.value)[:60]} is not a literal sequence", rec["callee"])
-        for kw in kws:
-            if kw.arg is None:
-                m = self.mapping(kw.value, scope)
-                forwards.append({"mapping": ast.unparse(kw.value)[:80], "abstract": repr(m)})
-                if protected or unresolved:
-                    if not isinstance(m, Fixed):
-                        self.add(node, "OPAQUE_KWARGS_TO_PROTECTED" if protected else "OPAQUE_KWARGS_TO_UNRESOLVED",
-                                 f"**{ast.unparse(kw.value)[:60]} is not a statically fixed key set", rec["callee"])
-                    else:
-                        bad = sorted(k for k in m.keys if PROHIBITED_KEY.match(k) and not _safe_literal(k, m.vals[k]))
-                        if bad:
-                            self.add(node, "PROHIBITED_KEY_IN_FIXED_MAPPING", f"fixed mapping carries prohibited key(s) {bad}", rec["callee"])
-            elif PROHIBITED_KEY.match(kw.arg):
-                ok = isinstance(kw.value, ast.Constant) and (kw.value.value is None if kw.arg == SIMULATE else True)
-                if kw.arg == SIMULATE and not ok:
-                    self.add(node, "SIMULATE_NOT_CONSTANT_NONE", f"simulate={ast.unparse(kw.value)[:60]}", rec["callee"])
-                elif kw.arg != SIMULATE and not ok and (protected or unresolved):
-                    self.add(node, "PROHIBITED_KEYWORD_NON_LITERAL", f"{kw.arg}={ast.unparse(kw.value)[:60]}", rec["callee"])
-        rec["forwards"] = forwards
-        if protected or forwards:
-            self.examined.append(rec)
-
+    # ---- the check --------------------------------------------------------------
     def run(self):
-        mod = _Scope(None)
-        self._collect(self.tree.body, mod)
-        self._scope_mutations(self.tree.body, mod)
-        self._walk(self.tree.body, mod)
+        counts = {}
+        for n in ast.walk(self.tree):
+            if isinstance(n, ast.Call):
+                self.check_call(n, counts)
+            elif isinstance(n, (ast.Attribute, ast.Name)) and isinstance(n.ctx, ast.Load):
+                par = self.parent.get(n)
+                hit = self.names_of(n) & PROTECTED_CALLS
+                if hit and not (isinstance(par, ast.Call) and par.func is n):
+                    self.record(n, "PROTECTED_CALLABLE_ESCAPES", "protected callable referenced as a value, not called directly", sorted(hit)[0], 0)
         return self
 
-    def _walk(self, nodes, scope):
-        for n in nodes:
-            self._visit(n, scope)
-
-    def _visit(self, n, scope):
-        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
-            a = n.args
-            params = [x.arg for x in a.posonlyargs + a.args + a.kwonlyargs] + ([a.vararg.arg] if a.vararg else []) + ([a.kwarg.arg] if a.kwarg else [])
-            inner = _Scope(scope, params)
-            body = n.body if isinstance(n.body, list) else [n.body]
-            self._collect(body, inner)
-            self._scope_mutations(body, inner)
-            for d in (a.defaults + a.kw_defaults):
-                if d is not None:
-                    self._visit(d, scope)
-            self._walk(body, inner)
-            return
-        if isinstance(n, ast.ClassDef):
-            inner = _Scope(scope)
-            self._collect(n.body, inner)
-            self._scope_mutations(n.body, inner)
-            self._walk(n.body, inner)
-            return
-        if isinstance(n, ast.Call):
-            self.check_call(n, scope)
-        for c in ast.iter_child_nodes(n):
-            self._visit(c, scope)
+    def check_call(self, node, counts):
+        f = node.func
+        names = self.names_of(f)
+        callee = (sorted(names & PROTECTED) or [self.alias.get(f.attr if isinstance(f, ast.Attribute) else getattr(f, "id", "<expr>"),
+                                                                f.attr if isinstance(f, ast.Attribute) else getattr(f, "id", "<expr>"))])[0]
+        is_partial = callee == "partial" or (isinstance(f, ast.Name) and self.alias.get(f.id) == "partial")
+        protected = bool(names & PROTECTED)
+        recv_sqlite = isinstance(f, ast.Attribute) and f.attr == "execute" and isinstance(f.value, ast.Name) and f.value.id in SQLITE_RECEIVERS
+        counts[(self.qualname(node), callee)] = ordinal = counts.get((self.qualname(node), callee), 0) + 1
+        receives_protected = any(self.names_of(v) & PROTECTED_CALLS for v in list(node.args) + [k.value for k in node.keywords]
+                                 if isinstance(v, (ast.Name, ast.Attribute)))
+        lam, par = None, self.parent.get(node)
+        while par is not None and lam is None:
+            if isinstance(par, ast.Lambda):
+                lam = self.closed_lambda_params(par) or None
+            par = self.parent.get(par)
+        real = protected and not recv_sqlite and callee in (PROTECTED_CALLS | PROTECTED_CTORS)
+        if real:
+            self.sites.append({"file": self.filename, "qualname": self.qualname(node), "callee": callee, "ordinal": ordinal, "line": node.lineno})
+        forwards = []
+        for kw in node.keywords:
+            if kw.arg is None:
+                bad = self.check_mapping(kw.value, lam)
+                forwards.append({"mapping": ast.unparse(kw.value)[:80], "fixed_form": not bad})
+                for rule, d in bad:
+                    self.record(node, rule, d, callee, ordinal)
+            elif kw.arg == "simulate" and not _literal_ok("simulate", kw.value):
+                self.record(node, "SIMULATE_NOT_CONSTANT_NONE", "simulate=" + ast.unparse(kw.value)[:50], callee, ordinal)
+            elif (protected or is_partial or "UNRESOLVED" in names) and BASE_PROHIBITED.match(kw.arg) and not _literal_ok(kw.arg, kw.value):
+                self.record(node, "PROHIBITED_KEYWORD_NON_LITERAL", f"{kw.arg}={ast.unparse(kw.value)[:50]}", callee, ordinal)
+            elif kw.arg == "update" and callee == "model_copy":
+                for rule, d in self.check_mapping(kw.value, None):
+                    self.record(node, "MODEL_COPY_UPDATE_NOT_FIXED" if rule == "NONLITERAL_KWARGS" else rule, d, callee, ordinal)
+        for a in node.args:
+            if isinstance(a, ast.Starred) and (protected or "UNRESOLVED" in names or receives_protected):
+                own = lam and isinstance(a.value, ast.Name) and a.value.id in lam
+                if not own and not isinstance(a.value, (ast.Tuple, ast.List)):
+                    self.record(node, "OPAQUE_POSITIONAL_UNPACK", f"*{ast.unparse(a.value)[:50]} into protected/unresolved/protected-callable-receiving call", callee, ordinal)
+        if forwards or real:
+            self.examined.append({"file": self.filename, "line": node.lineno, "callee": callee, "protected": real, "forwards": forwards})
 
 
 def scan_source(source, filename="<src>"):
-    a = Analyzer(ast.parse(source), filename).run()
+    a = Analyzer(source, filename).run()
     return a.findings, a.examined
 
 
 def scan_dir(hub):
     """Observation record for NC4-03 v4 (source-level). Keys are the ones expectations v4 reads."""
     files = sorted((pathlib.Path(hub) / "tools" / "mvp_ingress").glob("*.py"))
-    findings, examined = [], []
+    findings, pinned, examined, sites = [], [], [], []
     for f in files:
-        fi, ex = scan_source(f.read_text(), f.name)
-        findings += fi
-        examined += ex
-    sim = [x for x in findings if x["rule"] == "SIMULATE_NOT_CONSTANT_NONE"]
+        a = Analyzer(f.read_text(), f.name).run()
+        findings += a.findings
+        pinned += a.pinned
+        examined += a.examined
+        sites += a.sites
+    have = {(s["file"], s["qualname"], s["callee"], s["ordinal"]) for s in sites}
+    used = {p["pinned"] for p in pinned}
     return {"predicate": PREDICATE_ID, "files_scanned": [f.name for f in files],
-            "protected_callees": sorted(PROTECTED_CALLEES), "calls_examined": examined,
-            "violations": findings, "client_fed_kwargs_to_protected": [x for x in findings if x["rule"] != "SIMULATE_NOT_CONSTANT_NONE"],
-            "simulate_violations": sim, "protected_calls_examined_count": sum(1 for e in examined if e["protected"]),
+            "violations": findings, "simulate_violations": [x for x in findings if x["rule"] == "SIMULATE_NOT_CONSTANT_NONE"],
+            "client_fed_kwargs_to_protected": [x for x in findings if x["rule"] != "SIMULATE_NOT_CONSTANT_NONE"],
+            "required_sites_missing": [list(s) for s in REQUIRED_SITES if s not in have],
+            "real_protected_calls_count": len(sites), "real_protected_calls": sites,
+            "pinned_sites_used": sorted(used), "pins_unmatched": sorted(k for k in PINNED_SITES if k not in used),
+            "pinned_site_reasons": {k: v for k, v in PINNED_SITES.items() if k in used},
+            "calls_examined": examined,
             "scope": "source-level static analysis; see _kwflow.py module docstring for limits"}

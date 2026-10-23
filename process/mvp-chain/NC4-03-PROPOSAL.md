@@ -1,39 +1,42 @@
-# NC4-03 proposal: data-flow / call-boundary source predicate (v4)
+# NC4-03 proposal (revision 2): v4 as a strict refinement of v3
 
 Status: PROPOSED by the builder. Non-authorizing. Production HOLD unchanged. Not frozen, not an acceptance.
 Qualification owns the oracle and must independently review and freeze (or reject) this; the builder only proposes.
+Revision 2 answers the independent review (CHANGES REQUIRED: revision 1 was weaker than v3).
 
-## Why
-NC4-03 (v3, merged main 4298247e) FAILS because its source predicate forbids every non-literal `**` forwarding in `tools/mvp_ingress`.
-Two sites trip it, and neither forwards a client value:
-- `synthetic_host.py:39` `lambda *a, **k: original(*a, **k)`: proxy to the Control Plane test fixture `tra.proposal` (not a protected API).
-- `synthetic_host.py:72` `ExecutionOperation(**{k: getattr(p, k) for k in names})`: `names` is a fixed literal list of 14 field names.
-The v3 result is preserved unedited in meaning as raw history: `process/mvp-chain/history/nc4-03-v3-predicate-result.json`.
+## Why NC4-03 failed under v3
+v3 forbade every non-literal `**` forwarding in `tools/mvp_ingress`. Two sites tripped it, neither forwarding a client value:
+`synthetic_host.py:39` (lambda proxy to the Control Plane test fixture) and `:72` (`ExecutionOperation(**{k: getattr(p, k) for k in names})`, fixed names).
+The v3 result is kept as raw history: `process/mvp-chain/history/nc4-03-v3-predicate-result.json` (v3 file untouched).
 
-## What changes
-Only the implementation-level predicate, per the Architect ruling (data-flow / call-boundary, not a blanket dict-comprehension exception):
-- `suites/mvp-chain/_kwflow.py` examines every call whose callee resolves (through aliases, `functools.partial`, lambda proxies) to a protected API
-  (`execute`, `provision_claim`, `execute_claim_atomic`, and the ingress equivalents: `ExecutionOperation`, `ExecutionEnvelope`, `OperationIdentityProfile`,
-  `AtomicLocalControlPlaneExecutor`, `OperationIdentityAtomicAuthorityEffectDestination`, `LocalExecutionPolicy`).
-- A `**` mapping is FIXED (statically known string-constant key set) or OPAQUE. OPAQUE into a protected or unresolvable callee is REJECTED. A FIXED mapping
-  is REJECTED if it carries a prohibited key (`simulate`, `operation_id`/`operation_identity*`, `*writer*`, `set_{grant,approval,policy,evidence}_*`) whose value
-  is not a literal constant (`simulate` must be exactly None). Non-literal `*args` into a protected call is REJECTED. Fixed trusted forwarding is ACCEPTED.
-- `expectations.proposed.v4.json` is a new file; only the NC4-03 row differs from v3 (v1, v2, v3 untouched). `conftest.py` still defaults to v3;
-  v4 is selected by `MVP_EXPECTATIONS` until Qualification adopts it. `_ingress.py` additionally records `source_level.kwflow` and keeps all v3 observation keys.
+## v4 rule (suites/mvp-chain/_kwflow.py)
+Base rule kept from v3 and tightened: any call to ANY callee with `**<expr>` is REJECTED unless `<expr>` is a statically proven fixed form:
+(a) inline dict display with constant string keys (nested `**` only of such a display); (b) inline dict comprehension `{k: getattr(obj, k) | constant for k in NAMES}`
+over an inline literal string tuple/list, or a name bound once and loaded once in the file (never aliased, passed, mutated, global/nonlocal); (c) lambda proxy bound
+once to a name that is only called directly. A mapping in a variable is always OPAQUE. Prohibited keys (simulate, operation_id/operation_identity*, *writer*, set_*_*,
+grant_id, grant_revision, effective_max_effects, authority_context_id, actor, principal, claim_id, idempotency_key) inside a fixed form need a literal value (simulate: None).
+Also: import aliases bound; explicit `simulate=` must be None on any call; non-literal `*args` into a protected, unresolvable or protected-callable-receiving call is rejected;
+a protected callable used as a value (alias, argument to run/submit/starmap/partial, `.__call__`) is rejected; protected set extended with `decide`, `bind_approval`,
+`model_copy(update=)` (must be a fixed display). The oracle row also requires: all 6 files of tools/mvp_ingress scanned; the 10 real protected call sites seen by exact
+(file, function, callee, ordinal) pin, count >= 8, sqlite receiver `c` excluded; no unmatched pins.
+
+## Strictness relative to v3 (honest accounting)
+Strictly stronger than v3 in all but one respect: v3 allowed any dict display as a `**` and any value of any key; v4 rejects everything v3 rejected, plus non-constant-key
+displays, prohibited keys with non-literal values, protected-callable escape and star-args. The ONE remaining relaxation: three trusted-host sites are accepted by EXACT PIN
+(hash of the call and its whole enclosing function, so any edit un-pins them), because the generic rules cannot prove them:
+1. `synthetic_host.py` `original(*a, **k)` lambda proxy (exposed through attribute assignment, so (c) cannot show it closed; target is the non-protected fixture `tra.proposal`);
+2. `model_copy(update={"operation_identity": OperationIdentityProfile(<constants>)})` (prohibited key, non-literal but trusted-host constant value);
+3. `ExecutionOperation(**{k: getattr(p, k) for k in names})`: fixed names include `actor` and `principal`, taken from the template proposal `p0`, not from the client.
+Without these pins v4 FAILS on the real source (verified), exactly as v3 does. The pins are a recorded exception: **they are a weakening versus v3's blanket ban only in that these
+three reviewed sites are exempt, and they require Qualification/operator adoption before NC4-03 can PASS.** If adoption is declined, the alternative is to refactor the three sites in the hub.
+The guarantee (no client-controlled simulate/authority-writer/operation-identity override/arbitrary keyword reaches a protected API) is otherwise unchanged; NC4-02 remains the execution evidence.
+
+## Out of scope / limits
+setattr, `__dict__.update`, positional client values, values under non-prohibited fixed keys (not taint-tracked, e.g. a client `customer_id`), anything outside the scanned files,
+imports not followed, dynamic code (`exec`/`eval`). Static, source-level only.
 
 ## Evidence
-- 18 negative fixtures (indirect assembly via comprehension, proxy/lambda, intermediate dict, `update()`, `functools.partial`, alias, dynamic getattr,
-  dict union, subscript store, helper proxy, `*args`, plus explicit client `simulate`, authority-writer key, operation-identity override): all REJECTED.
-- 9 positive fixtures (fixed dict display, literal-name comprehension, fixed proxy to a non-protected fixture, fixed update/store, fixed partial, constant
-  `operation_identity=True`, fixed `.items()` copy, `dict(fixed, ...)`): all ACCEPTED.
-- Baseline ingress snapshot (byte-identical to hub 43c526eb `tools/mvp_ingress`) is ACCEPTED, 13 protected-name calls examined, lines 39 and 72 observed and judged.
-- Mutation check: 8 client-fed mutants of the ingress copy (`**fields` into execute, client `simulate`, comprehension over client fields, `update(fields)`,
-  partial, lambda proxy, non-literal comprehension iterable, names list gaining `simulate`) all FAIL the new predicate. On the pinned source: v3 verdict FAIL, v4 PASS.
-
-## Does the guarantee change? No.
-The protected property is unchanged: no client-controlled `simulate`, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected
-executor or claim API. v3 over-approximated it syntactically; v4 states it at the call boundary. No expectation was loosened to obtain a PASS: the v4 predicate rejects every
-indirect client-fed construction in the fixtures and mutants. Residual limits, for Qualification to weigh (if it judges any of them a guarantee change it should stop for
-operator adoption): static, intraprocedural and flow-insensitive; no import following; values under non-prohibited fixed keys are not taint-tracked (e.g. a client `claim_id`);
-opaque `**` into a NON-protected, resolvable callee is permitted (v3 forbade it); the sqlite `c.execute` calls match the protected name `execute` (harmless: no `**`).
-This is a source-level assertion, not an execution observation; NC4-02 remains the execution evidence.
+`suites/mvp-chain/test_kwflow.py`: 37 negative fixtures (all REJECTED with the declared rule), 8 positive (ACCEPTED), baseline = all of tools/mvp_ingress at 43c526eb (accepted only via pins),
+a no-pins control (fails), sqlite exclusion, vanished-site detection, and 19 mutants of the ingress copy (each fails): `**fields`, client simulate, comprehension, update(), partial, lambda proxy,
+import alias + star-args, alias/poison/closure mutation, `run(execute, **fields)`, `pool.submit`, `starmap`, `__call__`, `decide(**fields)`, non-literal comprehension, names list gaining `simulate`,
+model_copy update from client, and a change inside a pinned function (un-pins). Pinned-source verdict: v3 FAIL, v4 PASS (with pins).

@@ -34,7 +34,7 @@
  "supersedes": {
   "file": "expectations.proposed.v3.json",
   "reasons": {
-   "NC4-03": "v3 forbade every non-literal ** forwarding in tools/mvp_ingress, an implementation-level over-approximation: synthetic_host.py line 39 (lambda proxy to a Control Plane test fixture) and line 72 (fixed-name dict comprehension building ExecutionOperation) forward no client value, so v3 FAILED on a construct that does not breach the property. v4 replaces the syntactic predicate with a data-flow / call-boundary predicate (suites/mvp-chain/_kwflow.py): no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword may reach execute, provision_claim, execute_claim_atomic or an operation-identity/authority-bearing constructor; demonstrably fixed trusted keyword forwarding is permitted. The protected security property is unchanged; the v3 result is retained as raw history in process/mvp-chain/history/nc4-03-v3-predicate-result.json and was not edited."
+   "NC4-03": "v3 forbade every non-literal ** forwarding in tools/mvp_ingress and FAILED on synthetic_host.py line 39 (lambda proxy) and line 72 (fixed-name comprehension). v4 is a STRICT REFINEMENT of v3 (suites/mvp-chain/_kwflow.py): the blanket ban on non-literal ** is kept for every callee; only statically proven fixed forms (inline constant-key display, comprehension over a literal string tuple with getattr/constant values, closed lambda proxy) are carved out, none with a prohibited key carrying a non-literal value; plus bound import aliases, protected-callable escape and star-args rules, extended protected callees (decide, bind_approval, model_copy(update=)), exact-site pins of the real protected calls (floor 8) and a full-directory scan. Three trusted-host sites are accepted only by exact pin (enclosing-function source hash) because the generic rules cannot prove them: this is a recorded exception requiring Qualification/operator adoption. The v3 result is kept as raw history in process/mvp-chain/history/nc4-03-v3-predicate-result.json."
   },
   "unchanged_rows": "all other rows are byte-identical to v3"
  },
@@ -605,21 +605,20 @@
   {
    "id": "NC4-03",
    "mandatory": true,
-   "title": "SOURCE-LEVEL assertion only (not an execution observation): in the pinned hub tools/mvp_ingress source no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword (** assembled directly or via comprehension, proxy/lambda, intermediate dict, update() or functools.partial) reaches a protected executor/claim API (data-flow / call-boundary predicate, _kwflow.py), every simulate keyword is the constant None, and D1's own simulate AST tests pass",
+   "title": "SOURCE-LEVEL assertion only (not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except statically proven fixed forms and three exactly pinned reviewed sites; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass",
    "scenario": "nc_unmediated",
    "all": [
     {
      "obs": "nc_unmediated.source_level.kwflow.files_scanned",
-     "op": "contains_all",
+     "op": "eq",
      "value": [
+      "__init__.py",
+      "client.py",
       "core.py",
+      "proposal.py",
+      "server.py",
       "synthetic_host.py"
      ]
-    },
-    {
-     "obs": "nc_unmediated.source_level.kwflow.protected_calls_examined_count",
-     "op": "gte",
-     "value": 1
     },
     {
      "obs": "nc_unmediated.source_level.kwflow.violations",
@@ -632,6 +631,28 @@
     {
      "obs": "nc_unmediated.source_level.kwflow.simulate_violations",
      "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.required_sites_missing",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.real_protected_calls_count",
+     "op": "gte",
+     "value": 8
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.pins_unmatched",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.pinned_sites_used",
+     "op": "eq",
+     "value": [
+      "synthetic_host.py:SyntheticHost.__init__:model_copy#1:4a51b6e6828a",
+      "synthetic_host.py:SyntheticHost.__init__:original#1:1c959780adb1",
+      "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1:7eb688f54020"
+     ]
     },
     {
      "obs": "nc_unmediated.source_level.all_simulate_keywords_constant_none",
