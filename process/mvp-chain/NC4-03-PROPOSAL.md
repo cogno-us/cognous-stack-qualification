@@ -35,13 +35,24 @@ underlying violations reappear). Qualification must independently establish the 
 Nothing else is relaxed: the generic comprehension exception is gone, and v4 additionally rejects everything above that v3 did not. Without the pins v4 FAILS on the real source (verified).
 NC4-02 remains the execution evidence; this predicate is source-level only.
 
+## Hardening in revision 4 (re-review F1-F3)
+- Origin bindings are scoped to the enclosing function: a root name that is a parameter of that scope, is bound in any other scope, is global/nonlocal, or is shadowed by an
+  intervening lambda parameter is rejected; only plain `name = <producer call>` bindings count.
+- Producers must be method calls on the exact receivers of the real ingress (`host.workflow.decide`, `host.executor.provision_claim`, `host.build_proposal`); a bare, local,
+  imported or differently-received name never qualifies, and any module-level/local def, import or assignment binding `decide`, `provision_claim`, `build_proposal`, `execute`, `envelope`,
+  ... is rejected (`PRODUCER_SHADOWED`; class-body methods are exempt).
+- `envelope` is treated like a protected callable: alias, value use and `getattr(host, "envelope")` are rejected; the direct-call caller rule is unchanged.
+- Each pin record's `source_revision` is compared inside the predicate to the scanned hub revision (`pin_source_revision_mismatch`, `hub_revision_verified`); a mismatch un-pins.
+
 ## Limits (out of scope)
+Class limits of the origin rule, stated plainly: it is name-based (producers and roots are identified by names and receiver text, not by resolved objects), it checks the shape of the source
+expression plus scoped single assignment (not full data flow, not object identity), and it does not see positional client values.
 setattr, `__dict__.update`, positional client values, values under non-prohibited fixed keys (not taint-tracked, e.g. a client `customer_id`), imports not followed, dynamic code,
 parameters named `d`/`p` of `envelope` are trusted only through the caller rule within the scanned files. The origin rule checks the shape of the source expression and
 single-assignment binding, not full data flow.
 
 ## Evidence
-`suites/mvp-chain/test_kwflow.py`: 57 negative fixtures (each REJECTED with the declared rule, including client claim_id and the other five fields by keyword and display, generic comprehension
+`suites/mvp-chain/test_kwflow.py`: 68 negative fixtures (each REJECTED with the declared rule, including client claim_id and the other five fields by keyword and display, generic comprehension
 over an arbitrary obj, untrusted `envelope` callers), 7 positive, baseline = all of tools/mvp_ingress at 43c526eb (accepted only via complete pins; no-pins control FAILS),
-pin-field-missing tests (4), comment-only edit does not un-pin, semantic edit un-pins, sqlite exclusion, vanished-site detection, and 33 mutants of the ingress copy each failing, including the
+pin-field-missing tests (4), comment-only edit does not un-pin, semantic edit un-pins, sqlite exclusion, vanished-site detection, and 41 mutants of the ingress copy each failing, including the
 regression target `claim_id=fields["claim_id"]` at execute in `core._run` (rejected as ORIGIN_VIOLATION) and one mutant per remaining origin field.

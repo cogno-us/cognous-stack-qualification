@@ -31,7 +31,7 @@ def _expected_rule(path):
 
 
 def test_fixture_inventory():
-    assert len(NEG) >= 57 and len(POS) >= 7
+    assert len(NEG) >= 68 and len(POS) >= 7
 
 
 @pytest.mark.parametrize("path", NEG, ids=lambda p: p.stem)
@@ -48,7 +48,7 @@ def test_positive_fixture_is_accepted(path):
 
 
 def test_baseline_covers_all_of_ingress_and_is_accepted_only_via_pins():
-    obs = _kwflow.scan_dir(BASE)
+    obs = _kwflow.scan_dir(BASE, _kwflow.HUB_REVISION)
     assert obs["files_scanned"] == _kwflow.EXPECTED_FILES
     assert obs["violations"] == [] and obs["required_sites_missing"] == [] and obs["pins_unmatched"] == []
     assert obs["real_protected_calls_count"] >= 8
@@ -62,15 +62,22 @@ def test_baseline_covers_all_of_ingress_and_is_accepted_only_via_pins():
 def test_pin_record_missing_field_fails(monkeypatch, field):
     pins = {k: {f: v for f, v in r.items() if f != field} for k, r in _kwflow.PINNED_SITES.items()}
     monkeypatch.setattr(_kwflow, "PINNED_SITES", pins)
-    obs = _kwflow.scan_dir(BASE)
+    obs = _kwflow.scan_dir(BASE, _kwflow.HUB_REVISION)
     assert obs["pin_records_incomplete"] and obs["violations"]
+
+
+@pytest.mark.parametrize("rev", [None, "0" * 40, "43c526eb"])
+def test_pin_source_revision_must_equal_scanned_hub_revision(rev):
+    obs = _kwflow.scan_dir(BASE, rev)
+    assert obs["pin_source_revision_mismatch"] and obs["pins_unmatched"] and obs["violations"]
+    assert obs["hub_revision_verified"] is (rev == "0" * 40)
 
 
 def _host_copy(tmp_path, edit):
     shutil.copytree(BASE / "tools" / "mvp_ingress", tmp_path / "tools" / "mvp_ingress")
     f = tmp_path / "tools" / "mvp_ingress" / "synthetic_host.py"
     f.write_text(edit(f.read_text()))
-    return _kwflow.scan_dir(tmp_path)
+    return _kwflow.scan_dir(tmp_path, _kwflow.HUB_REVISION)
 
 
 def test_comment_and_blank_line_edits_do_not_unpin(tmp_path):
@@ -85,7 +92,7 @@ def test_semantic_ast_change_unpins(tmp_path):
 
 def test_without_pins_the_baseline_fails(monkeypatch):
     monkeypatch.setattr(_kwflow, "PINNED_SITES", {})
-    obs = _kwflow.scan_dir(BASE)
+    obs = _kwflow.scan_dir(BASE, _kwflow.HUB_REVISION)
     assert {v["line"] for v in obs["violations"]} >= {39, 44, 72}
 
 
@@ -98,7 +105,7 @@ def test_vanished_required_site_is_reported(tmp_path):
     shutil.copytree(BASE / "tools" / "mvp_ingress", tmp_path / "tools" / "mvp_ingress")
     core = tmp_path / "tools" / "mvp_ingress" / "core.py"
     core.write_text(core.read_text().replace("host.executor.provision_claim(", "host.executor.other_claim("))
-    assert ["core.py", "IngressCore._run", "provision_claim", 1] in _kwflow.scan_dir(tmp_path)["required_sites_missing"]
+    assert ["core.py", "IngressCore._run", "provision_claim", 1] in _kwflow.scan_dir(tmp_path, _kwflow.HUB_REVISION)["required_sites_missing"]
 
 
 EXEC = "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)"
@@ -137,6 +144,14 @@ MUTANTS = {
     "host: client authority_context_id": ("synthetic_host.py", "authority_context_id=p.authority_context_ref", 'authority_context_id=p.payload["c"]', "ORIGIN_VIOLATION"),
     "host: client requested_permissions": ("synthetic_host.py", "requested_permissions=tuple(p.requested_permissions)", 'requested_permissions=tuple(p.payload["perm"])', "ORIGIN_VIOLATION"),
     "core: envelope called with client-derived arguments": ("core.py", "host.envelope(decision, proposal)", 'host.envelope(fields, proposal)', "ORIGIN_CALLER_UNTRUSTED"),
+    "core: F1 claim bound in another function, used as parameter": ("core.py", "class IngressCore:", "def _a(host):\n    claim = host.executor.provision_claim(1)\n\n\ndef _h(host, claim):\n    return host.executor.execute(claim_id=claim.claim_id)\n\n\nclass IngressCore:", "ORIGIN_VIOLATION"),
+    "core: F1 claim rebound from client in another scope": ("core.py", "class IngressCore:", "def _h(host, fields):\n    claim = fields\n    return claim\n\n\nclass IngressCore:", "ORIGIN_VIOLATION"),
+    "core: F2 module-level provision_claim shadow": ("core.py", "class IngressCore:", "def provision_claim(x):\n    return x\n\n\nclass IngressCore:", "PRODUCER_SHADOWED"),
+    "core: F2 bare-name producer": ("core.py", "host.executor.provision_claim(proposal=proposal", "provision_claim(proposal=proposal", "ORIGIN_VIOLATION"),
+    "core: F2 producer on wrong receiver": ("core.py", "host.executor.provision_claim(proposal=proposal", "host.workflow.provision_claim(proposal=proposal", "ORIGIN_VIOLATION"),
+    "core: F2 decide shadowed by import": ("core.py", "class IngressCore:", "from helpers import decide\n\n\nclass IngressCore:", "PRODUCER_SHADOWED"),
+    "core: F3 envelope alias": ("core.py", EXEC, "e = host.envelope\n            res = host.executor.execute(envelope=e(decision, proposal), claim_id=claim.claim_id, simulate=None)", "PROTECTED_CALLABLE_ESCAPES"),
+    "core: F3 envelope via getattr": ("core.py", EXEC, "res = host.executor.execute(envelope=getattr(host, \"envelope\")(decision, proposal), claim_id=claim.claim_id, simulate=None)", "PROTECTED_CALLABLE_ESCAPES"),
     "host: pinned ExecutionOperation site changed (un-pins)": ("synthetic_host.py", "institution_id=tba.INSTITUTION,", "institution_id=tba.INSTITUTION, **names,"),
 }
 
@@ -149,7 +164,7 @@ def test_mutant_ingress_fails(label, tmp_path):
     text = (dst / fname).read_text()
     assert text.count(old) == 1, "mutation anchor not found exactly once"
     (dst / fname).write_text(text.replace(old, new))
-    obs = _kwflow.scan_dir(tmp_path)
+    obs = _kwflow.scan_dir(tmp_path, _kwflow.HUB_REVISION)
     assert obs["violations"] or obs["pins_unmatched"], f"mutant ACCEPTED: {label}"
     if rule:
         assert rule[0] in {v["rule"] for v in obs["violations"]}, (label, [v["rule"] for v in obs["violations"]])

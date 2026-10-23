@@ -48,6 +48,8 @@ EXPLICIT_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|actor|princip
                                  r"|requirement_id|authority_context_ref|effects)$")
 SQLITE_RECEIVERS = frozenset({"c"})
 
+PRODUCER_RECEIVER = {"decide": "host.workflow", "provision_claim": "host.executor", "build_proposal": "host"}
+ESCAPE_NAMES = PROTECTED_CALLS | {"envelope"}
 SIX = frozenset({"claim_id", "grant_id", "grant_revision", "effective_max_effects", "authority_context_id", "requested_permissions"})
 HUB_REVISION = "43c526eb1c8df9f07942ac36a6b2d11e14775bd1"
 PIN_FIELDS = ("source_revision", "ast_digest", "trusted_input_origin", "protected_destination")
@@ -95,7 +97,8 @@ def _literal_ok(key, value):
 
 
 class Analyzer:
-    def __init__(self, source, filename):
+    def __init__(self, source, filename, hub_revision=None):
+        self.hub_revision = hub_revision
         self.src, self.filename = source, filename
         self.tree = ast.parse(source)
         self.findings, self.pinned, self.examined, self.sites = [], [], [], []
@@ -209,20 +212,43 @@ class Analyzer:
             p = self.parent.get(p)
         return p
 
-    def _bound_only_from(self, ident, producers):
-        vals = self.assign.get(ident, [])
-        return bool(vals) and len(self.stores.get(ident, [])) == len(vals) and all(
-            isinstance(v, ast.Call) and (self.names_of(v.func) & producers) for v in vals)
+    @staticmethod
+    def _arg_names(fn):
+        a = fn.args
+        return {x.arg for x in a.posonlyargs + a.args + a.kwonlyargs} | {x.arg for x in (a.vararg, a.kwarg) if x}
+
+    def _is_producer(self, call, producers):
+        """Producer = a METHOD call on the known receiver chain exactly as in the real ingress (host.workflow.decide, host.executor.provision_claim,
+        host.build_proposal); a bare/local/aliased name never qualifies."""
+        f = call.func if isinstance(call, ast.Call) else None
+        return (isinstance(f, ast.Attribute) and f.attr in producers and ast.unparse(f.value) == PRODUCER_RECEIVER[f.attr])
+
+    def _bound_only_from(self, use, ident, producers):
+        """Scoped single-binding test: within the enclosing function of `use`, `ident` is not a parameter (of it or of an intervening lambda), is bound
+        in no other scope, is not global/nonlocal, and every binding is a plain `ident = <producer call>`."""
+        fn = self._enclosing_func(use)
+        if ident in self.escapes or (fn is not None and ident in self._arg_names(fn)):
+            return False
+        p = self.parent.get(use)
+        while p is not None and p is not fn:
+            if isinstance(p, ast.Lambda) and ident in self._arg_names(p):
+                return False
+            p = self.parent.get(p)
+        stores = self.stores.get(ident, [])
+        if not stores or any(self._enclosing_func(st) is not fn for st in stores):
+            return False
+        assigns = [self.parent.get(st) for st in stores]
+        return all(isinstance(x, ast.Assign) and len(x.targets) == 1 and x.targets[0] in stores and self._is_producer(x.value, producers) for x in assigns)
 
     def _root_ok(self, node, producers, params):
-        """Name is bound only from calls to `producers`, or is a parameter named in `params` of a function called `envelope`
+        """Name bound (scoped, single) only from a producer, or a parameter named in `params` of a function called `envelope`
         (whose every caller is separately required to pass producer-bound arguments)."""
         if not isinstance(node, ast.Name):
             return False
-        if self._bound_only_from(node.id, producers):
+        if self._bound_only_from(node, node.id, producers):
             return True
         fn = self._enclosing_func(node)
-        return bool(fn and fn.name == "envelope" and node.id in params and node.id not in self.assign and node.id in {a.arg for a in fn.args.args})
+        return bool(fn and fn.name == "envelope" and node.id in params and node.id not in self.stores and node.id in self._arg_names(fn))
 
     def origin_ok(self, field, v):
         if isinstance(v, ast.Constant):
@@ -243,9 +269,9 @@ class Analyzer:
     def check_envelope_caller(self, node, ordinal):
         if isinstance(node.func, ast.Attribute) and node.func.attr == "envelope":
             a = node.args
-            if not (len(a) >= 2 and isinstance(a[0], ast.Name) and self._bound_only_from(a[0].id, {"decide"})
-                    and isinstance(a[1], ast.Name) and self._bound_only_from(a[1].id, {"build_proposal"})):
-                self.record(node, "ORIGIN_CALLER_UNTRUSTED", "envelope(decision, proposal) must receive names bound only from decide() / build_proposal()", "envelope", ordinal)
+            if not (len(a) >= 2 and isinstance(a[0], ast.Name) and self._bound_only_from(node, a[0].id, {"decide"})
+                    and isinstance(a[1], ast.Name) and self._bound_only_from(node, a[1].id, {"build_proposal"})):
+                self.record(node, "ORIGIN_CALLER_UNTRUSTED", "envelope(decision, proposal) must receive names bound only from host.workflow.decide() / host.build_proposal() in this scope", "envelope", ordinal)
 
     def closed_lambda_params(self, lam):
         """(c): lambda bound once to a name that is only ever called directly -> its own *a/**k names, else empty set."""
@@ -271,7 +297,8 @@ class Analyzer:
         f = {"file": self.filename, "line": node.lineno, "rule": rule, "callee": callee, "detail": detail, "source": ast.unparse(node)[:160],
              "site": pid, "ast_digest": digest}
         rec = PINNED_SITES.get(pid)
-        pin = pid if rec and rec.get("ast_digest") == digest and all(rec.get(k) for k in PIN_FIELDS) else None
+        pin = pid if (rec and rec.get("ast_digest") == digest and all(rec.get(k) for k in PIN_FIELDS)
+                      and self.hub_revision and rec["source_revision"] == self.hub_revision) else None
         (self.pinned if pin else self.findings).append({**f, "pinned": pin} if pin else f)
 
     # ---- the check --------------------------------------------------------------
@@ -280,12 +307,30 @@ class Analyzer:
         for n in ast.walk(self.tree):
             if isinstance(n, ast.Call):
                 self.check_call(n, counts)
+                if isinstance(n.func, ast.Call) and (self.names_of(n.func) & ESCAPE_NAMES):  # getattr(host, "execute"/"envelope")(...)
+                    self.record(n, "PROTECTED_CALLABLE_ESCAPES", "protected callable obtained through getattr", sorted(self.names_of(n.func) & ESCAPE_NAMES)[0], 0)
             elif isinstance(n, (ast.Attribute, ast.Name)) and isinstance(n.ctx, ast.Load):
                 par = self.parent.get(n)
-                hit = self.names_of(n) & PROTECTED_CALLS
+                names = self.names_of(n)
+                hit = names & PROTECTED_CALLS
+                if "envelope" in names and (isinstance(n, ast.Attribute) and n.attr == "envelope" or isinstance(n, ast.Name) and n.id != "envelope"):
+                    hit = hit | {"envelope"}
                 if hit and not (isinstance(par, ast.Call) and par.func is n):
                     self.record(n, "PROTECTED_CALLABLE_ESCAPES", "protected callable referenced as a value, not called directly", sorted(hit)[0], 0)
+            self._shadow(n)
         return self
+
+    def _shadow(self, n):
+        bound = []
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and not isinstance(self.parent.get(n), ast.ClassDef):
+            bound = [n.name]
+        elif isinstance(n, (ast.Import, ast.ImportFrom)):
+            bound = [a.asname or a.name.split(".")[0] for a in n.names]
+        elif isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store):
+            bound = [n.id]
+        for b in bound:
+            if b in set(PRODUCER_RECEIVER) | {"envelope"} | PROTECTED_CALLS:
+                self.record(n, "PRODUCER_SHADOWED", f"local/module binding of the protected/producer name {b!r}", b, 0)
 
     def check_call(self, node, counts):
         f = node.func
@@ -341,19 +386,22 @@ def scan_source(source, filename="<src>"):
     return a.findings, a.examined
 
 
-def scan_dir(hub):
+def scan_dir(hub, hub_revision=None):
     """Observation record for NC4-03 v4 (source-level). Keys are the ones expectations v4 reads."""
     files = sorted((pathlib.Path(hub) / "tools" / "mvp_ingress").glob("*.py"))
     findings, pinned, examined, sites = [], [], [], []
     for f in files:
-        a = Analyzer(f.read_text(), f.name).run()
+        a = Analyzer(f.read_text(), f.name, hub_revision).run()
         findings += a.findings
         pinned += a.pinned
         examined += a.examined
         sites += a.sites
     have = {(s["file"], s["qualname"], s["callee"], s["ordinal"]) for s in sites}
     used = {p["pinned"] for p in pinned}
-    return {"predicate": PREDICATE_ID, "files_scanned": [f.name for f in files],
+    return {"predicate": PREDICATE_ID, "scanned_hub_revision": hub_revision,
+            "hub_revision_verified": bool(hub_revision and re.fullmatch(r"[0-9a-f]{40}", hub_revision)),
+            "pin_source_revision_mismatch": sorted(k for k, r in PINNED_SITES.items() if r.get("source_revision") != hub_revision),
+            "files_scanned": [f.name for f in files],
             "violations": findings, "simulate_violations": [x for x in findings if x["rule"] == "SIMULATE_NOT_CONSTANT_NONE"],
             "client_fed_kwargs_to_protected": [x for x in findings if x["rule"] != "SIMULATE_NOT_CONSTANT_NONE"],
             "required_sites_missing": [list(s) for s in REQUIRED_SITES if s not in have],
