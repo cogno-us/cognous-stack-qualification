@@ -13,8 +13,9 @@ seam raises once after the destination commit. Observations recorded:
   unknown    the ingress ledger settled the request as 'unknown'; the executor observation says retry_eligible False; the claim is consumed
   reuse      (a) same request bytes again -> REPLAY refusal at the INGRESS ledger (ingress-level only, says nothing about the destination);
              (b) a fresh request id with the same business content, built owner-side to carry the approval-bound correlation id (``bind_fresh``,
-             see _ingress_fault_wrapper.py) so it is NOT held at decide and reaches provision and the executor a second time: the destination
-             operation-identity guard must deny it (executor call count 2, second result denied / not attempted / not acknowledged, refusal code
+             see _ingress_fault_wrapper.py) so it is NOT held at decide and reaches provision and the executor a second time: a second authorized
+             request reaches the executor and is denied with no second effect; NC2-06 does NOT discriminate the operation-identity guard from the
+             authoritative effect budget, which at the pinned tuple stops it first (executor call count 2, second result denied / not attempted / not acknowledged, refusal code
              DUPLICATE_OPERATION or EXECUTION_DENIED, effects and consumed claims unchanged). Without ``bind_fresh`` a fresh id is merely HELD by
              approval binding, which is not destination duplicate prevention and is not what this row claims.
   reconcile  after the ingress is stopped, the owner runs reconcile_claim over the real destination file with the captured claim/envelope

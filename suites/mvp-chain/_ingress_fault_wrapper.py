@@ -14,7 +14,8 @@ starts (a client cannot set it and nothing on the wire selects it). ``MVP_FAULT_
   * ``bind_fresh``: the synthetic approval binds exactly the request id ``case-1`` (hub synthetic_host.APPROVED_REQUEST_ID). A fresh
     request id would therefore be HELD at decide and never reach the executor, which proves nothing about destination duplicate
     prevention. This token makes the owner-side host build every proposal with that bound correlation id, so a fresh ingress request
-    reaches provision and execute and the destination operation-identity guard is what must stop the second effect. The wire schema,
+    reaches provision and execute a second time and is denied with no second effect (at the pinned tuple by the authoritative effect budget, which is checked
+    before the operation-identity guard; this does NOT discriminate the guard from the budget). The wire schema,
     the request ids and the ingress ledger are untouched; the first request (already ``case-1``) is unchanged.
 
 Negative-control tokens (mutations, never used by the product run): ``none`` (no fault), ``forced_simulate`` (a caller-controlled
