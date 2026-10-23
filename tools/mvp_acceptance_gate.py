@@ -10,6 +10,8 @@ every verdict document says ``authorizes: false`` and ``release: HOLD``.
 Subcommands
   resolve           candidate identity inputs + validated per-component overrides -> resolved tuple pin file + tuple-resolved.json
   verify-checkouts  every component checkout is at exactly its resolved 40-hex sha and pristine -> tuple-resolved.json updated
+  commit            write the versioned candidate commitment (sha256 of the proposed inputs, gate, workflow and mandatory test sources)
+  anchor            record main-branch blob ids of the frozen historical files
   gate              recorded run artifacts -> gate-verdict.json; exit 0 ACCEPT, 1 REJECT, 2 INCOMPLETE
 
 Verdicts (precedence INCOMPLETE > REJECT > ACCEPT)
@@ -502,6 +504,155 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
     return resolved
 
 
+# ------------------------------------------------------------------------------------------------ commitment and environment
+COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v1.json"
+ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
+COMMIT_FIXED = ("process/mvp-acceptance/mandatory-battery.proposed.v1.json", "process/mvp-acceptance/mvp-applicability.proposed.v1.json",
+                "process/mvp-acceptance/gate-expectations.proposed.v1.json",
+                ENV_PROFILE_FILE, "tools/mvp_acceptance_gate.py", ".github/workflows/mvp-acceptance.yml")
+
+
+def commit_files(repo_root: Path) -> list[str]:
+    """Every file whose bytes the qualification candidate commits to: the proposed inputs, the gate, the workflow, and every Python source of
+    the two suites that hold mandatory tests (so a mandatory test cannot be added or changed without a new candidate)."""
+    root = Path(repo_root)
+    files = list(COMMIT_FIXED)
+    files.append("process/mvp-acceptance/candidate-identity.inputs.json")
+    for sub in ("suites/mvp-chain", "suites/mvp-applicability"):
+        files += [str(p.relative_to(root)) for p in sorted((root / sub).rglob("*.py")) if "__pycache__" not in p.parts]
+    return sorted(set(files))
+
+
+def build_commitment(repo_root: Path, out: Path) -> dict:
+    root = Path(repo_root)
+    doc = {"schema": "cognous.mvp-qualification-candidate-commitment/1", "candidate_version": "mvp-qualification-candidate-v1",
+           "status": "PROPOSED; pending independent Qualification acceptance and freeze (target 2026-10-27). Not frozen, not an acceptance; release HOLD.",
+           "supersession": "A change to any listed file is a NEW candidate: write candidate-commitment.proposed.v2.json (and new versions of the changed inputs) and re-run. "
+                           "This file is never edited in place once frozen, and the gate compares the committed list to the files present, so an added, removed or changed "
+                           "mandatory test, input, gate or workflow is refused.",
+           "independence": "The sha256 of THIS file must be supplied to the gate from outside this checkout (workflow input candidate_commitment_sha256, recorded by Qualification). "
+                           "Without it the verdict is INCOMPLETE.",
+           "files": {rel: sha256_file(root / rel) for rel in commit_files(root)}}
+    Path(out).write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
+    return doc
+
+
+def check_commitment(gate: Gate, repo_root: Path, expect_sha: str | None, commitment_rel: str = COMMITMENT_FILE):
+    path = Path(repo_root) / commitment_rel
+    if not path.is_file():
+        gate.add("G-12", INCOMPLETE, f"candidate commitment {commitment_rel} is missing")
+        return None
+    actual = sha256_file(path)
+    if not expect_sha or not re.fullmatch(r"[0-9a-f]{64}", expect_sha):
+        gate.add("G-12", INCOMPLETE, "no independently supplied sha256 of the candidate commitment file (candidate_commitment_sha256): the candidate is not anchored outside this checkout",
+                 commitment_sha256=actual)
+        return actual
+    if actual != expect_sha:
+        gate.add("G-12", FAIL, f"candidate commitment file sha256 {actual} != the independently supplied {expect_sha}: a changed candidate must be a new versioned candidate", commitment_sha256=actual)
+        return actual
+    doc = load(path)
+    committed, present = doc.get("files", {}), commit_files(repo_root)
+    problems = []
+    uncommitted = sorted(set(present) - set(committed))
+    removed = sorted(set(committed) - set(present))
+    if uncommitted:
+        problems.append(f"files present but not committed (mandatory tests, inputs, gate or workflow added): {uncommitted}")
+    if removed:
+        problems.append(f"committed files absent: {removed}")
+    for rel in sorted(set(committed) & set(present)):
+        if sha256_file(Path(repo_root) / rel) != committed[rel]:
+            problems.append(f"{rel}: bytes differ from the commitment")
+    gate.add("G-12", FAIL if problems else PASS,
+             f"{doc.get('candidate_version')}: {len(committed)} files (battery, applicability mapping, gate expectations, tuple, environment profile, gate, workflow, mandatory test sources) match the commitment, "
+             "whose sha256 equals the independently supplied value" if not problems else "; ".join(problems),
+             commitment_sha256=actual, candidate_version=doc.get("candidate_version"))
+    return actual
+
+
+def check_uncommitted_tests(gate: Gate, run_dir: Path, battery: dict):
+    """Any test collected from a battery invocation that is neither mandatory nor listed as non-mandatory is an uncommitted test."""
+    known = {f"{t['file']}::{t['test']}" for t in battery["tests"]} | {f"{t['file']}::{t['test']}" for t in battery.get("non_mandatory_tests", [])}
+    extra = {}
+    for tag, inv in battery["invocations"].items():
+        try:
+            names = parse_collected(run_dir / inv["collected"])
+        except OSError:
+            continue  # reported by G-05
+        extra[tag] = sorted(names - known)
+    flat = [x for v in extra.values() for x in v]
+    gate.add("G-13", INCOMPLETE if flat else PASS, "every collected test is a committed mandatory test or a committed non-mandatory test" if not flat
+             else f"collected tests that are not in the committed battery: {flat[:10]}")
+
+
+def check_pending_rows(gate: Gate, battery: dict):
+    bad = [p for p in battery.get("pending_rows", []) if not isinstance(p, dict) or p.get("rows") != [] or not p.get("placeholder")]
+    gate.add("G-14", INCOMPLETE if bad else PASS, "pending row placeholders hold no rows (none invented before Qualification freezes the predicate)" if not bad
+             else f"a pending placeholder carries rows before its predicate is frozen: {bad}")
+
+
+def check_interpreter(gate: Gate, require: str | None):
+    if not require:
+        gate.add("G-04b", INCOMPLETE, "--require-python not given: the gate did not assert its interpreter")
+        return
+    ok = f"{sys.version_info[0]}.{sys.version_info[1]}" == require and sys.implementation.name == "cpython"
+    gate.add("G-04b", PASS if ok else INCOMPLETE, f"the gate runs on CPython {require}" if ok else
+             f"the gate runs on {sys.implementation.name} {sys.version.split()[0]}, not CPython {require}; a result from any other interpreter (for example 3.12) is supplementary and cannot qualify the profile")
+
+
+def _record_digest(rec: dict) -> str:
+    body = {k: v for k, v in rec.items() if k != "record_sha256"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path):
+    """The hub environment record (mvp-ingress-env-record/1) must be PASS on the selected profile; BLOCKED (Yama absent, not root, ...) is INCOMPLETE."""
+    profile = load(Path(repo_root) / ENV_PROFILE_FILE)["hub_record"]
+    rec = _read_json(gate, "G-11", run_dir / "environment-record.json", "hub environment record (none supplied)")
+    if rec is None:
+        return
+    resolved = load(run_dir / "tuple-resolved.json") if (run_dir / "tuple-resolved.json").is_file() else {"components": {}}
+    tuple_shas = {c.get("sha") for c in resolved.get("components", {}).values()}
+    incomplete, fail = [], []
+    if rec.get("schema") != profile["schema"]:
+        fail.append(f"schema {rec.get('schema')!r} != {profile['schema']!r}")
+    if rec.get("record_sha256") != _record_digest(rec):
+        fail.append("record_sha256 does not match the record body (altered or hand-edited)")
+    checks = {c.get("id"): c for c in rec.get("checks", []) if isinstance(c, dict)}
+    derived = "FAIL" if any(c.get("status") == "FAIL" for c in checks.values()) else ("BLOCKED" if any(c.get("status") == "BLOCKED" for c in checks.values()) else "PASS")
+    if rec.get("overall") != derived:
+        fail.append(f"recorded overall {rec.get('overall')!r} disagrees with its checks ({derived})")
+    if derived == "FAIL":
+        fail.append("record has FAIL checks: " + ", ".join(sorted(i for i, c in checks.items() if c.get("status") == "FAIL")))
+    if derived == "BLOCKED":
+        incomplete.append("record has BLOCKED checks (a precondition could not be verified): " + ", ".join(sorted(i for i, c in checks.items() if c.get("status") == "BLOCKED")))
+    for cid in profile["required_pass_check_ids"]:
+        st = (checks.get(cid) or {}).get("status")
+        if st is None:
+            incomplete.append(f"required check {cid} absent from the record")
+        elif st != "PASS" and st not in ("FAIL", "BLOCKED"):
+            fail.append(f"required check {cid} has status {st!r}")
+        elif st != "PASS" and cid == "isolation.ptrace_scope" and st == "BLOCKED":
+            incomplete.append("Yama absent or unreadable: the exact profile is unsupported, the boundary test is BLOCKED")
+    py = rec.get("python") or {}
+    if not str(py.get("version", "")).startswith(profile["python_version_prefix"] + ".") or py.get("implementation") != "CPython":
+        fail.append(f"python {py.get('implementation')} {py.get('version')} is not CPython {profile['python_version_prefix']}")
+    scope = (rec.get("isolation_limits") or {}).get("yama_ptrace_scope")
+    if scope not in ("1", "2", "3"):
+        (incomplete if scope is None else fail).append(f"kernel.yama.ptrace_scope {scope!r} (profile requires >= 1; absent is unsupported)")
+    if any((c.get("data") or {}).get("relaxed") for c in checks.values()):
+        fail.append("a requirement was relaxed (for example a root ingress): not a qualifying configuration")
+    pins = [v for v in ((rec.get("configuration") or {}).get("source_pins") or {}).values() if isinstance(v, str) and SHA40.fullmatch(v)]
+    if not pins:
+        incomplete.append("the record pins no component sha: it cannot be tied to the selected tuple")
+    elif not set(pins) <= tuple_shas:
+        fail.append(f"record pins {sorted(set(pins) - tuple_shas)} are not members of the selected tuple")
+    status = INCOMPLETE if incomplete else (FAIL if fail else PASS)
+    if fail and not incomplete:
+        status = FAIL
+    gate.add("G-11", status, "hub environment record is PASS on the selected profile (CPython 3.13, Yama ptrace_scope >= 1, non-root ingress, actual identities, tuple pins)"
+             if status == PASS else "; ".join(fail + incomplete), record_sha256=rec.get("record_sha256"), overall=rec.get("overall"))
+
+
 def check_pytest_exits(gate: Gate, run_dir: Path, battery: dict):
     """The recorded pytest exit status of each invocation: 0 (all passed) and 1 (some tests failed, judged per test) are judgeable; 2 interrupted,
     3 internal error, 4 usage error and 5 no tests collected are not."""
@@ -563,7 +714,8 @@ def check_exchange_exclusion(gate: Gate, run_dir: Path, battery: dict, mapping: 
         gate.add("G-08", PASS, "no Exchange module loaded or Exchange path on sys.path in any battery pytest process or in the ingress server process, and no Exchange test collected (AP-06)")
 
 
-def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | None = None) -> dict:
+def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | None = None, expect_commitment: str | None = None,
+             require_python: str | None = None) -> dict:
     run_dir, repo_root = Path(run_dir), Path(repo_root)
     gate = Gate()
     battery = load(repo_root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json")
@@ -588,13 +740,18 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
     guarded("G-03", check_battery_covers_oracle, gate, repo_root, battery)
     guarded("G-03b", check_declared_not_applicable, gate, battery)
     guarded("G-04", check_environment, gate, gate_exp, observations)
+    guarded("G-04b", check_interpreter, gate, require_python)
+    guarded("G-11", check_environment_record, gate, run_dir, repo_root)
+    commitment_sha = guarded("G-12", check_commitment, gate, repo_root, expect_commitment)
+    guarded("G-13", check_uncommitted_tests, gate, run_dir, battery)
+    guarded("G-14", check_pending_rows, gate, battery)
     accounting = guarded("G-05", check_battery_execution, gate, run_dir, battery, results) or {}
     guarded("G-07", check_verifier, gate, chain_dir, gate_exp, observations)
     guarded("G-09", check_pytest_exits, gate, run_dir, battery)
     guarded("G-08", check_exchange_exclusion, gate, run_dir, battery, mapping)
     resolved = guarded("G-10", check_run_binding, gate, run_dir, battery, results, observations, expect_qualification)
     doc = {"schema": "cognous.mvp-acceptance-gate-verdict/1", "verdict": gate.verdict(), "authorizes": False, "release": "HOLD",
-           "run_id": (resolved or {}).get("run_id"), "qualification_sha": (resolved or {}).get("qualification_sha"),
+           "candidate_commitment_sha256": commitment_sha, "gate_python": sys.version.split()[0], "run_id": (resolved or {}).get("run_id"), "qualification_sha": (resolved or {}).get("qualification_sha"),
            "note": "Proposed gate over recorded artifacts. ACCEPT is a proposal for the owner, not an authorization, certification or release decision.",
            "battery_sha256": sha256_file(repo_root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json"),
            "gate_expectations_sha256": sha256_file(repo_root / "process/mvp-acceptance/gate-expectations.proposed.v1.json"),
@@ -627,11 +784,19 @@ def main(argv=None) -> int:
     g.add_argument("--out")
     g.add_argument("--repo-root", default=str(ROOT))
     g.add_argument("--expect-qualification-sha")
+    g.add_argument("--expect-commitment-sha256")
+    g.add_argument("--require-python")
+    c_ = sub.add_parser("commit")
+    c_.add_argument("--repo-root", default=str(ROOT))
+    c_.add_argument("--out", default=COMMITMENT_FILE)
     args = parser.parse_args(argv)
     if args.cmd == "resolve":
         overrides = {n: os.environ[OVERRIDE_ENV + n.upper()] for n in EXPECTED_COMPONENTS if os.environ.get(OVERRIDE_ENV + n.upper())}
         resolve(Path(args.identity), overrides, Path(args.out_pin), Path(args.out_resolved), Path(args.github_output) if args.github_output else None,
                 qualification_sha=args.qualification_sha, github_env=Path(args.github_env) if args.github_env else None)
+        return 0
+    if args.cmd == "commit":
+        build_commitment(Path(args.repo_root), Path(args.repo_root) / args.out)
         return 0
     if args.cmd == "anchor":
         anchor(args.repo, args.ref, Path(args.out), Path(args.repo_root))
@@ -639,7 +804,7 @@ def main(argv=None) -> int:
     if args.cmd == "verify-checkouts":
         verify_checkouts(Path(args.resolved), Path(args.base))
         return 0
-    doc = run_gate(Path(args.run_dir), Path(args.repo_root), args.expect_qualification_sha)
+    doc = run_gate(Path(args.run_dir), Path(args.repo_root), args.expect_qualification_sha, args.expect_commitment_sha256, args.require_python)
     out = Path(args.out) if args.out else Path(args.run_dir) / "gate-verdict.json"
     out.write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
     for c in doc["checks"]:

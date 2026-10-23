@@ -1,0 +1,37 @@
+{
+  "schema": "cognous.mvp-environment-profile/1",
+  "status": "PROPOSED supported-environment record for the selected profile (Architect rulings #2 items 4 and 6); pending independent Qualification acceptance and freeze (target 2026-10-27). A change is a new versioned file.",
+  "profile": "restricted Linux, single host, CPython 3.13, pydantic >= 2.12",
+  "python": {
+    "implementation": "CPython",
+    "version_prefix": "3.13",
+    "note": "A Python 3.12 result is supplementary and cannot qualify this profile. This workflow does not change main's mvp-chain.yml."
+  },
+  "yama": {
+    "ptrace_scope_min": 1,
+    "absent": "Yama unavailable means the exact profile is unsupported: the boundary test is BLOCKED and the verdict is INCOMPLETE; no weaker environment is substituted."
+  },
+  "hub_record": {
+    "schema": "mvp-ingress-env-record/1",
+    "producer": "tools/mvp_ingress/capture_env_record.py (hub PR #219)",
+    "required_overall": "PASS",
+    "required_pass_check_ids": [
+      "platform.linux",
+      "python.profile",
+      "python.interpreter_matches_ingress",
+      "identity.declared",
+      "identity.client_distinct_unprivileged",
+      "identity.ingress_not_root",
+      "identity.ingress_process",
+      "isolation.ptrace_scope",
+      "ipc.socket_mode_owner",
+      "filesystem.state_tree_owner_only",
+      "filesystem.ancestors_not_writable_by_others",
+      "filesystem.no_extra_group_access",
+      "filesystem.no_acl_entries"
+    ],
+    "python_version_prefix": "3.13",
+    "supplied_by": "workflow_dispatch input environment_record (a path under process/mvp-acceptance/environment-records/ in the Qualification checkout); none supplied is INCOMPLETE",
+    "refresh": "Environment evidence must be refreshed (a new record) if the execution host or a relevant setting changes."
+  }
+}

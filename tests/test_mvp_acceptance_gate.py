@@ -61,14 +61,40 @@ def junit(tests, overrides=None, drop=(), suite="mvp-acceptance-" + RUN):
     return "\n".join(lines)
 
 
+PY = f"{sys.version_info[0]}.{sys.version_info[1]}"
+ENV_PROFILE = json.loads((ROOT / "process/mvp-acceptance/environment-profile.proposed.v1.json").read_text())["hub_record"]
+
+
+def make_root(dest: Path, mutate=None) -> tuple[Path, str]:
+    """A copy of the files the gate reads, with a freshly generated candidate commitment (so these tests do not depend on the committed hash)."""
+    ignore = shutil.ignore_patterns("__pycache__")
+    for rel in ("process", "suites/mvp-chain", "suites/mvp-applicability", "suites/v1-scenarios", "tools", ".github/workflows"):
+        shutil.copytree(ROOT / rel, dest / rel, ignore=ignore, dirs_exist_ok=True)
+    if mutate:
+        mutate(dest)
+    G.build_commitment(dest, dest / G.COMMITMENT_FILE)
+    return dest, G.sha256_file(dest / G.COMMITMENT_FILE)
+
+
+def env_record(tuple_shas, mutate=None):
+    checks = [{"id": i, "status": "PASS", "detail": "x", "data": {}} for i in ENV_PROFILE["required_pass_check_ids"]]
+    rec = {"schema": "mvp-ingress-env-record/1", "python": {"version": "3.13.1", "implementation": "CPython"}, "isolation_limits": {"yama_ptrace_scope": "1"},
+           "configuration": {"source_pins": {f"c{i}": sha for i, sha in enumerate(sorted(tuple_shas))}}, "checks": checks, "overall": "PASS"}
+    if mutate:
+        mutate(rec)
+    rec["record_sha256"] = G._record_digest(rec)
+    return rec
+
+
 class GateTests(unittest.TestCase):
     def setUp(self):
         self.tmp = Path(tempfile.mkdtemp(prefix="gate-test-"))
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.run_dir = self.tmp / "run"
+        self.root, self.commit = make_root(self.tmp / "root")
         self.build()
 
-    def build(self, *, collect_drop=(), junit_overrides=None, junit_drop=(), row_status=None, verifier_mutate=None, exclusion=None):
+    def build(self, *, collect_drop=(), junit_overrides=None, junit_drop=(), row_status=None, verifier_mutate=None, exclusion=None, env_mutate=None):
         shutil.rmtree(self.run_dir, ignore_errors=True)
         rd = self.run_dir
         (rd / "mvp-chain/artifacts/verifier").mkdir(parents=True)
@@ -80,6 +106,7 @@ class GateTests(unittest.TestCase):
                                                             "identity_sha256": G.sha256_file(identity), "qualification_sha": QSHA, "run_id": RUN, "overrides": {}, "components": comps}))
         anchor = {"ref": "main", "files": {rel: {"main_blob": G.blob_id(ROOT / rel)} for rel in G.frozen_files(ROOT)}}
         (rd / "anchor.json").write_text(json.dumps(anchor))
+        (rd / "environment-record.json").write_text(json.dumps(env_record({c["sha"] for c in comps.values()}, env_mutate)))
         (rd / "mvp-chain/artifacts/ingress-modules.json").write_text(json.dumps(
             {"run_id": RUN, "modules": {"os": "/usr/lib/os.py", "tools.mvp_ingress.server": "/hub/tools/mvp_ingress/server.py"}, "sys_path": ["/hub"]}))
         rows = [{"id": t["row"], "status": (row_status or {}).get(t["row"], "PASS")} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
@@ -102,8 +129,13 @@ class GateTests(unittest.TestCase):
             (rd / inv["exit_file"]).write_text("0\n")
             (rd / inv["exclusion_observation"]).write_text(json.dumps(exclusion or {"run_id": RUN, "exchange_modules_loaded": [], "modules_from_exchange_paths": [], "sys_path_exchange_entries": []}))
 
+    def gate(self, root=None, commit=None, **kw):
+        args = {"expect_qualification": QSHA, "expect_commitment": (self.commit if root is None else None) if commit is None else commit, "require_python": PY}
+        args.update(kw)
+        return G.run_gate(self.run_dir, root or self.root, **args)
+
     def verdict(self):
-        doc = G.run_gate(self.run_dir, ROOT, QSHA)
+        doc = self.gate()
         self.assertIs(doc["authorizes"], False)
         self.assertEqual(doc["release"], "HOLD")
         return doc["verdict"], {c["id"]: c["status"] for c in doc["checks"]}, doc
@@ -169,11 +201,8 @@ class GateTests(unittest.TestCase):
         self.assertEqual(self.verdict()[0], "INCOMPLETE")
         declared = copy.deepcopy(BATTERY)
         declared["declared_not_applicable"] = [{"id": "VER-03", "justification": "test"}]
-        root = self.tmp / "root"
-        shutil.copytree(ROOT / "process", root / "process", dirs_exist_ok=True)
-        shutil.copytree(ROOT / "suites/v1-scenarios", root / "suites/v1-scenarios", dirs_exist_ok=True)
-        (root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(declared))
-        self.assertEqual(G.run_gate(self.run_dir, root)["verdict"], "ACCEPT")
+        root, commit = make_root(self.tmp / "rootx", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(declared)))
+        self.assertEqual(self.gate(root, commit)["verdict"], "ACCEPT")
 
     def test_verifier_exact_dispositions_are_asserted_not_assumed(self):
         def abstain_count(label, rep, code):
@@ -228,12 +257,11 @@ class GateTests(unittest.TestCase):
         self.assertEqual(self.verdict()[1]["G-01"], "INCOMPLETE")
 
     def test_changed_frozen_expectation_is_refused(self):
-        root = self.tmp / "root2"
-        shutil.copytree(ROOT / "process", root / "process")
-        shutil.copytree(ROOT / "suites/v1-scenarios", root / "suites/v1-scenarios")
-        target = root / "process/mvp-chain/expectations.proposed.v3.json"
-        target.write_text(target.read_text().replace('"mandatory": true', '"mandatory": true ', 1))
-        doc = G.run_gate(self.run_dir, root)
+        def edit(r):
+            t = r / "process/mvp-chain/expectations.proposed.v3.json"
+            t.write_text(t.read_text().replace('"mandatory": true', '"mandatory": true ', 1))
+        root, commit = make_root(self.tmp / "root2", edit)
+        doc = self.gate(root, commit)
         self.assertEqual({c["id"]: c["status"] for c in doc["checks"]}["G-02"], "FAIL")
         self.assertNotEqual(doc["verdict"], "ACCEPT")
 
@@ -263,22 +291,18 @@ class ReviewFixTests(GateTests):
     def _declared_root(self, entries):
         declared = copy.deepcopy(BATTERY)
         declared["declared_not_applicable"] = entries
-        root = self.tmp / "rootd"
-        shutil.rmtree(root, ignore_errors=True)
-        shutil.copytree(ROOT / "process", root / "process")
-        shutil.copytree(ROOT / "suites/v1-scenarios", root / "suites/v1-scenarios")
-        (root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(declared))
-        return root
+        shutil.rmtree(self.tmp / "rootd", ignore_errors=True)
+        return make_root(self.tmp / "rootd", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(declared)))
 
     def test_declared_not_applicable_must_be_valid(self):
         self.build(row_status={"VER-03": "NOT APPLICABLE"})
         for entries in ([{"id": "VER-03", "justification": ""}], [{"id": "VER-03", "justification": "   "}], [{"id": "VER-03"}],
                         [{"id": "NOT-A-ROW", "justification": "x"}], ["VER-03"]):
             with self.subTest(entries):
-                doc = G.run_gate(self.run_dir, self._declared_root(entries), QSHA)
+                doc = self.gate(*self._declared_root(entries))
                 self.assertEqual(doc["verdict"], "INCOMPLETE")
                 self.assertEqual({c["id"]: c["status"] for c in doc["checks"]}["G-03b"], "INCOMPLETE")
-        ok = G.run_gate(self.run_dir, self._declared_root([{"id": "VER-03", "justification": "run B exited 0, nothing to attribute"}]), QSHA)
+        ok = self.gate(*self._declared_root([{"id": "VER-03", "justification": "run B exited 0, nothing to attribute"}]))
         self.assertEqual(ok["verdict"], "ACCEPT", [c for c in ok["checks"] if c["status"] != "PASS"])
 
     def test_malformed_verifier_reports_are_incomplete_and_a_verdict_is_still_written(self):
@@ -296,7 +320,8 @@ class ReviewFixTests(GateTests):
         self.build()
         out = self.tmp / "verdict.json"
         (self.run_dir / "mvp-chain/artifacts/verifier/B-report.json").write_bytes(b"{not json")
-        self.assertEqual(G.main(["gate", "--run-dir", str(self.run_dir), "--repo-root", str(ROOT), "--out", str(out)]), 2)
+        self.assertEqual(G.main(["gate", "--run-dir", str(self.run_dir), "--repo-root", str(self.root), "--out", str(out),
+                                 "--expect-commitment-sha256", self.commit, "--require-python", PY]), 2)
         self.assertEqual(json.loads(out.read_text())["verdict"], "INCOMPLETE")
 
     def test_unreadable_artifact_does_not_crash_the_gate(self):
@@ -345,7 +370,7 @@ class ReviewFixTests(GateTests):
         (self.run_dir / "junit-applicability.xml").write_text(junit([t for t in BATTERY["tests"] if t["invocation"] == "applicability"], suite="mvp-acceptance-old"))
         self.assertEqual(self.verdict()[1]["G-10"], "INCOMPLETE")
         self.build()
-        self.assertEqual(G.run_gate(self.run_dir, ROOT, "8" * 40)["verdict"], "INCOMPLETE")
+        self.assertEqual(self.gate(expect_qualification="8" * 40)["verdict"], "INCOMPLETE")
 
     def test_resolve_records_qualification_sha_and_run_id(self):
         tmp = Path(tempfile.mkdtemp(prefix="res-"))
@@ -403,6 +428,84 @@ class CheckoutAndProbeTests(unittest.TestCase):
         doc = json.loads(out.read_text())
         self.assertEqual(doc["run_id"], "abc")
         self.assertIn("json", doc["modules"])
+
+
+class RulingsTwoTests(GateTests):
+    """Architect rulings #2 item 6: commitment, environment record, Python 3.13, pending NC4-03 placeholder."""
+
+    def test_committed_candidate_matches_the_files_in_this_repository(self):
+        doc = json.loads((ROOT / G.COMMITMENT_FILE).read_text())
+        self.assertEqual(sorted(doc["files"]), G.commit_files(ROOT))
+        for rel, digest in doc["files"].items():
+            self.assertEqual(G.sha256_file(ROOT / rel), digest, f"{rel} changed: regenerate the commitment as a NEW versioned candidate (python tools/mvp_acceptance_gate.py commit)")
+        self.assertIn("PROPOSED", doc["status"])
+        self.assertEqual(doc["candidate_version"], "mvp-qualification-candidate-v1")
+
+    def test_commitment_requires_an_independent_hash_and_detects_any_change(self):
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="")["checks"]}["G-12"], "INCOMPLETE")
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="0" * 64)["checks"]}["G-12"], "FAIL")
+        t = self.root / "suites/mvp-chain/test_ruling4_lost_ack.py"
+        t.write_text(t.read_text() + "\n# edited after commitment\n")
+        doc = self.gate()
+        self.assertEqual({c["id"]: c["status"] for c in doc["checks"]}["G-12"], "FAIL")
+        self.assertNotEqual(doc["verdict"], "ACCEPT")
+
+    def test_an_uncommitted_new_mandatory_test_file_is_refused(self):
+        (self.root / "suites/mvp-chain/test_new_mandatory.py").write_text("def test_x():\n    pass\n")
+        c = {c["id"]: c for c in self.gate()["checks"]}["G-12"]
+        self.assertEqual(c["status"], "FAIL")
+        self.assertIn("not committed", c["detail"])
+
+    def test_an_uncommitted_collected_test_is_incomplete(self):
+        path = self.run_dir / "collected-mvp-chain.txt"
+        path.write_text(path.read_text() + "suites/mvp-chain/test_mvp_chain.py::test_surprise\n")
+        self.assertEqual(self.verdict()[1]["G-13"], "INCOMPLETE")
+
+    def test_environment_record_must_be_pass_on_the_selected_profile(self):
+        def set_check(cid, status):
+            def m(rec):
+                next(c for c in rec["checks"] if c["id"] == cid)["status"] = status
+                rec["overall"] = "FAIL" if status == "FAIL" else "BLOCKED"
+            return m
+        cases = [("BLOCKED", set_check("isolation.ptrace_scope", "BLOCKED"), "INCOMPLETE"),
+                 ("yama absent", lambda r: (r["isolation_limits"].update(yama_ptrace_scope=None), set_check("isolation.ptrace_scope", "BLOCKED")(r)), "INCOMPLETE"),
+                 ("FAIL", set_check("identity.ingress_not_root", "FAIL"), "FAIL"),
+                 ("python 3.12", lambda r: r["python"].update(version="3.12.7"), "FAIL"),
+                 ("scope 0", lambda r: r["isolation_limits"].update(yama_ptrace_scope="0"), "FAIL"),
+                 ("missing check", lambda r: r["checks"].pop(), "INCOMPLETE"),
+                 ("relaxed", lambda r: r["checks"][0].update(data={"relaxed": True}), "FAIL"),
+                 ("other tuple", lambda r: r["configuration"]["source_pins"].update(x="e" * 40), "FAIL"),
+                 ("no pins", lambda r: r["configuration"].update(source_pins={}), "INCOMPLETE"),
+                 ("wrong schema", lambda r: r.update(schema="other/1"), "FAIL")]
+        for label, mut, want in cases:
+            with self.subTest(label):
+                self.build(env_mutate=mut)
+                v, checks, _ = self.verdict()
+                self.assertEqual(checks["G-11"], want)
+                self.assertNotEqual(v, "ACCEPT")
+
+    def test_edited_environment_record_is_refused_and_missing_is_incomplete(self):
+        path = self.run_dir / "environment-record.json"
+        rec = json.loads(path.read_text())
+        rec["python"]["version"] = "3.13.9"  # edited without re-hashing
+        path.write_text(json.dumps(rec))
+        self.assertEqual(self.verdict()[1]["G-11"], "FAIL")
+        path.unlink()
+        self.assertEqual(self.verdict()[1]["G-11"], "INCOMPLETE")
+
+    def test_gate_interpreter_must_be_the_required_python(self):
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(require_python="3.12" if PY != "3.12" else "3.13")["checks"]}["G-04b"], "INCOMPLETE")
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(require_python=None)["checks"]}["G-04b"], "INCOMPLETE")
+
+    def test_nc4_03_origin_rule_placeholder_holds_no_rows(self):
+        battery = json.loads((ROOT / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").read_text())
+        (placeholder,) = battery["pending_rows"]
+        self.assertEqual(placeholder["rows"], [])
+        self.assertIn("PLACEHOLDER", placeholder["status"])
+        bad = copy.deepcopy(battery)
+        bad["pending_rows"][0]["rows"] = [{"id": "NC4-03-ORIGIN-01"}]
+        root, commit = make_root(self.tmp / "rootp", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(bad)))
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(root, commit)["checks"]}["G-14"], "INCOMPLETE")
 
 
 class ResolveTests(unittest.TestCase):

@@ -9,6 +9,8 @@ release decision or a production claim; release stays HOLD, and the gate verdict
 | [`candidate-identity.inputs.json`](candidate-identity.inputs.json) | The only source of the tuple: eight components, each a full 40-hex sha. Exchange is listed only under `excluded_components`. |
 | [`mandatory-battery.proposed.v1.json`](mandatory-battery.proposed.v1.json) | The frozen-candidate list of mandatory tests (50) and the skip rule. |
 | [`gate-expectations.proposed.v1.json`](gate-expectations.proposed.v1.json) | Exact Verifier dispositions and environment floor. |
+| [`candidate-commitment.proposed.v1.json`](candidate-commitment.proposed.v1.json) | Versioned qualification candidate: sha256 of the battery, mapping, gate expectations, tuple, environment profile, gate, workflow and every mandatory test source. |
+| [`environment-profile.proposed.v1.json`](environment-profile.proposed.v1.json) | The supported environment record: CPython 3.13, Yama `ptrace_scope >= 1`, required hub record checks. |
 | [`mvp-applicability.proposed.v1.json`](mvp-applicability.proposed.v1.json) | Route C (Exchange) EXCLUDED and NOT INVOKED, with the checks that verify it. |
 | [`../../.github/workflows/mvp-acceptance.yml`](../../.github/workflows/mvp-acceptance.yml) | Dispatch-only workflow (Python 3.13, pydantic 2.13.5 from the hash lock). |
 | [`../../tools/mvp_acceptance_gate.py`](../../tools/mvp_acceptance_gate.py) | `resolve`, `verify-checkouts`, `gate` (standard library only); tests in `tests/test_mvp_acceptance_gate.py`. |
@@ -47,6 +49,27 @@ the post-F3 Runtime later, pass `runtime_revision` (or replace the one `runtime`
 
 At the current tuple the oracle itself records known failures (for example NC1-04, approval revocation is reversible at the Runtime); the
 gate does not soften them, so a run is expected to be non-ACCEPT until the owner's corrections land.
+
+## Candidate commitment, environment record, Python 3.13 (Architect rulings #2 item 6)
+
+All of these stay **PROPOSED** pending independent Qualification acceptance and freeze (target 2026-10-27).
+
+* **Commitment (G-12, G-13).** `candidate-commitment.proposed.v1.json` lists the sha256 of the battery, applicability mapping, gate
+  expectations, candidate identity (tuple), environment profile, gate tool, workflow and every Python source of `suites/mvp-chain` and
+  `suites/mvp-applicability`. The sha256 of that file must be supplied from outside this checkout (`candidate_commitment_sha256`); without it
+  the verdict is INCOMPLETE. A changed, added or removed listed file is a FAIL, and a collected test that is not in the committed battery
+  (mandatory, or the one committed non-mandatory row KL-01) is INCOMPLETE. A later change is a new file (`...v2.json`) and a new candidate;
+  `python tools/mvp_acceptance_gate.py commit` writes it. Limit: a hash supplied by the same hands that edit the files proves nothing; it
+  is only independent when Qualification records it.
+* **Environment record (G-11).** The gate consumes the hub's `mvp-ingress-env-record/1` JSON (workflow input `environment_record`, a path under
+  `process/mvp-acceptance/environment-records/`). It must carry a valid `record_sha256`, an `overall` consistent with its checks, PASS for every
+  required check id of the profile, CPython 3.13, `kernel.yama.ptrace_scope >= 1`, no relaxed requirement (for example a root ingress) and
+  pins that belong to the selected tuple. A FAIL is a REJECT; BLOCKED, a missing record, or Yama absent (unsupported profile) is INCOMPLETE.
+* **Python (G-04, G-04b).** The workflow uses 3.13, asserts it, and the gate (`--require-python 3.13`) refuses to run its verdict as qualifying on
+  any other interpreter. A Python 3.12 result is supplementary and cannot qualify the 3.13 profile. `mvp-chain.yml` on main is not changed.
+* **Pending rows (G-14).** The new origin-rule negative mutation expectations for NC4-03 are NOT battery rows. `pending_rows` holds a clearly
+  marked placeholder with no rows; they are added only after Qualification freezes the corrected NC4-03 predicate, and the gate refuses a
+  placeholder that carries rows.
 
 ## Binding, anchoring and limits
 

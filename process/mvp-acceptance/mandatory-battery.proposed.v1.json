@@ -427,5 +427,23 @@
    "file": "suites/mvp-applicability/test_route_c_exclusion.py",
    "test": "test_ap05_historical_files_are_byte_identical_to_the_recorded_hashes"
   }
+ ],
+ "non_mandatory_tests": [
+  {
+   "id": "KL-01",
+   "kind": "oracle_row_non_mandatory",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[KL-01]",
+   "row": "KL-01",
+   "note": "known limitation row; collected and executed but cannot change the verdict"
+  }
+ ],
+ "pending_rows": [
+  {
+   "placeholder": "NC4-03-origin-rule-negative-mutations",
+   "rows": [],
+   "status": "PLACEHOLDER. Architect rulings #2 items 1-2: the new origin-rule negative mutation expectations (claim_id from the governed claim of the trusted execution path; grant id/revision from the authoritative decision or snapshot) become battery rows ONLY after Qualification freezes the corrected NC4-03 predicate. No row is invented here; the gate refuses a placeholder that carries rows."
+  }
  ]
 }
