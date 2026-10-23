@@ -31,7 +31,7 @@ def _expected_rule(path):
 
 
 def test_fixture_inventory():
-    assert len(NEG) >= 16 and len(POS) >= 8
+    assert len(NEG) >= 36 and len(POS) >= 8
 
 
 @pytest.mark.parametrize("path", NEG, ids=lambda p: p.stem)
@@ -47,28 +47,55 @@ def test_positive_fixture_is_accepted(path):
     assert findings == [], findings
 
 
-def test_baseline_ingress_snapshot_is_accepted_and_examined():
+def test_baseline_covers_all_of_ingress_and_is_accepted_only_via_pins():
     obs = _kwflow.scan_dir(BASE)
-    assert obs["violations"] == []
-    assert obs["protected_calls_examined_count"] >= 10
-    # the two forwardings the v3 predicate rejected are present, observed and judged fixed/non-protected
-    fwd = [(e["file"], e["line"]) for e in obs["calls_examined"] if e["forwards"]]
-    assert ("synthetic_host.py", 39) in fwd and ("synthetic_host.py", 72) in fwd
+    assert obs["files_scanned"] == _kwflow.EXPECTED_FILES
+    assert obs["violations"] == [] and obs["required_sites_missing"] == [] and obs["pins_unmatched"] == []
+    assert obs["real_protected_calls_count"] >= 8
+    assert sorted(obs["pinned_sites_used"]) == sorted(_kwflow.PINNED_SITES)
 
 
+def test_without_pins_the_baseline_fails(monkeypatch):
+    monkeypatch.setattr(_kwflow, "PINNED_SITES", {})
+    obs = _kwflow.scan_dir(BASE)
+    assert {v["line"] for v in obs["violations"]} >= {39, 44, 72}
+
+
+def test_sqlite_receiver_not_counted_as_protected():
+    findings, ex = _kwflow.scan_source("def f(c):\n    c.execute('x')\n")
+    assert findings == [] and not [e for e in ex if e["protected"]]
+
+
+def test_vanished_required_site_is_reported(tmp_path):
+    shutil.copytree(BASE / "tools" / "mvp_ingress", tmp_path / "tools" / "mvp_ingress")
+    core = tmp_path / "tools" / "mvp_ingress" / "core.py"
+    core.write_text(core.read_text().replace("host.executor.provision_claim(", "host.executor.other_claim("))
+    assert ["core.py", "IngressCore._run", "provision_claim", 1] in _kwflow.scan_dir(tmp_path)["required_sites_missing"]
+
+
+EXEC = "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)"
 MUTANTS = {
     "core: **fields into execute": ("core.py", "claim_id=claim.claim_id, simulate=None)", "claim_id=claim.claim_id, simulate=None, **fields)"),
     "core: client simulate": ("core.py", "claim_id=claim.claim_id, simulate=None)", 'claim_id=claim.claim_id, simulate=fields.get("simulate"))'),
     "core: comprehension over client fields into provision_claim": ("core.py", "provision_claim(proposal=proposal, decision=decision, now=host.now)",
                                                                   "provision_claim(proposal=proposal, decision=decision, now=host.now, **{k: v for k, v in fields.items()})"),
-    "core: update() with client fields then execute": ("core.py", "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
-                                                       "kw = {\"claim_id\": claim.claim_id}\n            kw.update(fields)\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), **kw)"),
-    "core: functools.partial with client fields": ("core.py", "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
-                                                   "import functools\n            run = functools.partial(host.executor.execute, **fields)\n            res = run(envelope=host.envelope(decision, proposal))"),
-    "core: lambda proxy fed by client fields": ("core.py", "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
-                                                "run = lambda **k: host.executor.execute(**k)\n            res = run(envelope=host.envelope(decision, proposal), **fields)"),
-    "host: op construction keys from non-literal iterable": ("synthetic_host.py", "for k in names}", "for k in p.model_dump()}"),
+    "core: update() with client fields": ("core.py", EXEC, "kw = {\"claim_id\": claim.claim_id}\n            kw.update(fields)\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), **kw)"),
+    "core: functools.partial with client fields": ("core.py", EXEC, "import functools\n            run = functools.partial(host.executor.execute, **fields)\n            res = run(envelope=host.envelope(decision, proposal))"),
+    "core: lambda proxy fed by client fields": ("core.py", EXEC, "run = lambda **k: host.executor.execute(**k)\n            res = run(envelope=host.envelope(decision, proposal), **fields)"),
+    "core: import alias then client star-args": ("core.py", EXEC, "from engine.x import execute as go\n            res = go(*fields[\"a\"])"),
+    "core: helper mutation via alias": ("core.py", EXEC, "kw = {\"claim_id\": claim.claim_id}\n            al = kw\n            al.update(fields)\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), **kw)"),
+    "core: helper mutation via poison call": ("core.py", EXEC, "kw = {\"claim_id\": claim.claim_id}\n            poison(kw, fields)\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), **kw)"),
+    "core: closure mutation": ("core.py", EXEC, "kw = {\"claim_id\": claim.claim_id}\n            def later():\n                kw.update(fields)\n            later()\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), **kw)"),
+    "core: ** into non-protected helper receiving execute": ("core.py", EXEC, "res = run(host.executor.execute, envelope=host.envelope(decision, proposal), **fields)"),
+    "core: pool.submit(execute)": ("core.py", EXEC, "res = pool.submit(host.executor.execute, envelope=host.envelope(decision, proposal)).result()"),
+    "core: starmap(execute)": ("core.py", EXEC, "res = list(itertools.starmap(host.executor.execute, fields[\"rows\"]))"),
+    "core: __call__": ("core.py", EXEC, "res = host.executor.execute.__call__(envelope=host.envelope(decision, proposal), **fields)"),
+    "core: client kwargs into decide": ("core.py", "host.workflow.decide(proposal, now=host.now)", "host.workflow.decide(proposal, now=host.now, **fields)"),
+    "host: comprehension keys from non-literal iterable": ("synthetic_host.py", "for k in names}", "for k in p.model_dump()}"),
     "host: names list gains simulate": ("synthetic_host.py", "op = ExecutionOperation(", "names.append(\"simulate\")\n        op = ExecutionOperation("),
+    "host: model_copy update from client mapping": ("synthetic_host.py", "tra.proposal = lambda *a, **k: original(*a, **k).model_copy(update={\"amount\": APPROVED_AMOUNT})",
+                                                    "tra.proposal = lambda *a, **k: original(*a, **k).model_copy(update=a[0])"),
+    "host: pinned ExecutionOperation site changed (un-pins)": ("synthetic_host.py", "institution_id=tba.INSTITUTION,", "institution_id=tba.INSTITUTION, **names,"),
 }
 
 
@@ -81,4 +108,4 @@ def test_mutant_ingress_fails(label, tmp_path):
     assert text.count(old) == 1, "mutation anchor not found exactly once"
     (dst / fname).write_text(text.replace(old, new))
     obs = _kwflow.scan_dir(tmp_path)
-    assert obs["violations"], f"mutant ACCEPTED: {label}"
+    assert obs["violations"] or obs["pins_unmatched"], f"mutant ACCEPTED: {label}"
