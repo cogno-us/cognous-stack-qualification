@@ -261,3 +261,9 @@ def test_REFUSED_every_legacy_destination_class_commit_on_route_b_database(tmp_p
         assert raised is not None and _effects(dest) == []
     finally:
         mp.undo()
+
+
+def test_route_b_destination_has_no_apply_so_workflow_execute_cannot_use_it(tmp_path):
+    """BoundedAuthorizationWorkflow.execute calls destination.apply (bounded.py:1794); the route-B destination has none."""
+    from engine.operation_identity_atomic_destination import OperationIdentityAtomicAuthorityEffectDestination as Dest
+    assert not hasattr(Dest, "apply")

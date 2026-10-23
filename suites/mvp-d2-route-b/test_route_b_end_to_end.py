@@ -198,6 +198,7 @@ def test_grant_revoked_before_effect_is_refused_zero_effects(tmp_path):
         r = _run(flow, ex, claim)
         assert r.status == "denied" and r.attempted is False and "authoritative grant state invalid" in r.error
         assert _effects(dest) == [] and _op_rows(dest) == []
+        assert _attempt_rows(dest) == [], "a refused atomic execute leaves no attempt rows (rolled back with the transaction)"
         assert dest.claim_state(claim.claim_id) == "issued"
         assert dest.budget_state(f"grant:{flow.d1.binding.grant_id}")["used_effects"] == 0
         with pytest.raises(PermissionError, match="grant revision is revoked"):
