@@ -1,0 +1,83 @@
+{
+ "schema": "cognous.mvp-chain-nc4-03-history/1",
+ "status": "RAW HISTORY, retained unedited in meaning. Not an acceptance. Builder-generated; Qualification must re-derive independently.",
+ "what": "Result of the v3 NC4-03 predicate (non-literal ** forwarding forbidden) on the pinned hub tools/mvp_ingress source, preserved before the v4 proposal replaces the predicate.",
+ "hub_pin": "43c526eb1c8df9f07942ac36a6b2d11e14775bd1 (tuple-pin.proposed.json hub sha 43c526eb whose tools/mvp_ingress files are byte-identical to the scanned checkout 810f509fb2932fff13ab773ec1b42f71cfd8ac5f)",
+ "scanned_files_sha256": {
+  "__init__.py": "a276ffbfe0f63fc9ef4f1c6b8a90ffe9c14badabaf54149ccad5c08cc193e638",
+  "client.py": "2693a4221d89fe5cf19c100c1a6334f7fcf37ff78daa6f31ea10de319466843a",
+  "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f",
+  "proposal.py": "2182acf7c38a5976ef4ade4457a290eb9020cba21f2d4cc8b6b0446de1a9484c",
+  "server.py": "340f9a3940f4c0af91349bdd9d341655880a65df99334710fa77b9bc16b7e920",
+  "synthetic_host.py": "40b624fceb52def7b13034ecfb5448806aa2c9d44784a4ee5d0a94388717646f"
+ },
+ "old_predicate_raw_observation": {
+  "files_scanned": [
+   "__init__.py",
+   "client.py",
+   "core.py",
+   "proposal.py",
+   "server.py",
+   "synthetic_host.py"
+  ],
+  "all_simulate_keywords_constant_none": true,
+  "non_literal_kwargs_forwarding": [
+   {
+    "file": "synthetic_host.py",
+    "line": 72,
+    "kwargs_forwarding_non_literal": true,
+    "callee": "ExecutionOperation",
+    "source": "{k: getattr(p, k) for k in names}"
+   },
+   {
+    "file": "synthetic_host.py",
+    "line": 39,
+    "kwargs_forwarding_non_literal": true,
+    "callee": "original",
+    "source": "k"
+   }
+  ]
+ },
+ "d1_simulate_ast_tests": "7 passed (pytest -k simulate in tests/test_mvp_ingress_boundary.py at the scanned checkout)",
+ "v3_NC4-03_verdict": {
+  "id": "NC4-03",
+  "mandatory": true,
+  "title": "SOURCE-LEVEL assertion only (not an execution observation): every simulate keyword in the pinned hub tools/mvp_ingress source is the constant None, no non-literal ** forwarding exists, and D1's own simulate AST tests pass",
+  "status": "FAIL",
+  "reason": "1 predicate(s) did not hold",
+  "failed": [
+   {
+    "obs": "nc_unmediated.source_level.non_literal_kwargs_forwarding",
+    "op": "empty",
+    "expected": null,
+    "observed": [
+     {
+      "file": "synthetic_host.py",
+      "line": 72,
+      "kwargs_forwarding_non_literal": true,
+      "callee": "ExecutionOperation",
+      "source": "{k: getattr(p, k) for k in names}"
+     },
+     {
+      "file": "synthetic_host.py",
+      "line": 39,
+      "kwargs_forwarding_non_literal": true,
+      "callee": "original",
+      "source": "k"
+     }
+    ]
+   }
+  ],
+  "expectations_sha256": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4"
+ },
+ "v4_NC4-03_verdict_on_same_source_PROPOSED": {
+  "id": "NC4-03",
+  "mandatory": true,
+  "title": "SOURCE-LEVEL assertion only (not an execution observation): in the pinned hub tools/mvp_ingress source no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword (** assembled directly or via comprehension, proxy/lambda, intermediate dict, update() or functools.partial) reaches a protected executor/claim API (data-flow / call-boundary predicate, _kwflow.py), every simulate keyword is the constant None, and D1's own simulate AST tests pass",
+  "status": "PASS",
+  "reason": "every predicate held on the recorded observations",
+  "failed": [],
+  "expectations_sha256": "ff077401805427d83b776e46137f644a7302a351c161c858bd59a6f4e360008b"
+ },
+ "note": "The v3 FAIL is preserved as recorded. The v3 file was not edited and no expectation was changed to obtain a PASS: v4 is a new file with a new predicate and a recorded reason."
+}
