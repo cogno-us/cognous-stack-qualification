@@ -10,4 +10,4 @@ CI (no workflow, no lock, not registered) and is not a Qualification verdict.
   Accepted pins: Runtime ec728da6dc301a664b331ac8986afd6e850a1273; Control Plane 0a41faa972699f7ec3063967a14cd9bdd3e67d27 or
   7a4bcd40b3b49e61ff3c294dcca53b52f460b22c. Any other HEAD, a dirty checkout or pydantic < 2.12 fails every test.
 - Needs `suites/operation-identity/` (imports `_oi_flow.py` and the R2 helper unmodified).
-- The ODES touchpoint trace script was removed from the repo; its result is in the D2 report only.
+- The ODES touchpoint trace script is not in the repo (removed); its result is in the D2 report only.

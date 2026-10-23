@@ -215,6 +215,25 @@ def test_grant_revoked_before_effect_is_refused_zero_effects(tmp_path):
         mp.undo()
 
 
+def test_grant_status_flip_alone_is_refused_zero_effects(tmp_path):
+    """Isolates the grant status check: the row is set to revoked by SQL, so no retained-revision record exists and
+    _revision_revoked is False; only the `grant["status"] != "active"` line can refuse."""
+    mp, flow, dest, ex, claim = _build(tmp_path)
+    try:
+        c = sqlite3.connect(dest.path)
+        try:
+            c.execute("UPDATE authority_grants_v1 SET status='revoked' WHERE grant_id=?", (flow.d1.binding.grant_id,))
+            c.commit()
+            assert c.execute("SELECT name FROM sqlite_master WHERE name='authority_grant_revocations_v1'").fetchall() == []
+        finally:
+            c.close()
+        r = _run(flow, ex, claim)
+        assert r.status == "denied" and "authoritative grant state invalid" in r.error
+        assert _effects(dest) == [] and dest.claim_state(claim.claim_id) == "issued"
+    finally:
+        mp.undo()
+
+
 # 4. approval withdrawal before effect ---------------------------------------------------------------------------------
 
 def _approval_ref(claim):
