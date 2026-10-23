@@ -1,16 +1,17 @@
 {
   "schema": "cognous.mvp-chain-tuple-pin/1",
-  "status": "PROPOSED for Qualification freeze; not frozen, not selected, not an acceptance",
-  "source": "hub component-lock.json at origin/main (lock_version 1.0), read 2026-10-23",
-  "scenario": "matched $10 synthetic refund, Linux single-host, route B AtomicLocalControlPlaneExecutor with operation identity (journal mode)",
+  "status": "PROPOSED for Qualification freeze; not frozen, not selected, not an acceptance. Single source of the tuple: the workflow reads this file.",
+  "source": "hub component-lock.json (lock_version 1.0) for runtime, verifier, manifest; merged component main commits reported by the coordinator for control_plane, replay and the hub ingress; evidence_pack and odes are PENDING their re-pin PRs and are deliberately not guessed",
+  "scenario": "matched $10 synthetic refund, Linux single-host, route B AtomicLocalControlPlaneExecutor with operation identity (journal mode), trusted-host ingress",
   "components": {
-    "control_plane": {"repository": "cogno-us/cognous-control-plane", "sha": "0a41faa972699f7ec3063967a14cd9bdd3e67d27", "env": "MVP_CP_DIR", "note": "UNPATCHED pin. A patched run overrides it explicitly with MVP_CP_REVISION and is recorded as an override."},
-    "runtime": {"repository": "cogno-us/cognous-execution-runtime", "sha": "ec728da6dc301a664b331ac8986afd6e850a1273", "env": "MVP_RUNTIME_DIR"},
-    "replay": {"repository": "cogno-us/cognous-replay-bundle", "sha": "028f63d1c001f99580583888fa4b4e46d77a267b", "env": "MVP_REPLAY_DIR"},
-    "evidence_pack": {"repository": "cogno-us/cognous-governance-evidence-pack", "sha": "a3ebbb90559a44a88855139a182649d3792bb1ca", "env": "MVP_PACK_DIR"},
-    "odes": {"repository": "cogno-us/open-decision-evidence-standard", "sha": "e86a25a1d660e74533337d38744e2934200a50ae", "env": "MVP_ODES_DIR"},
-    "verifier": {"repository": "cogno-us/cognous-open-control-stack-verifier", "sha": "c0b8ba1f55b75db787a320f3de0f79342c6f6826", "env": "MVP_VERIFIER_DIR"},
-    "action_manifest": {"repository": "cogno-us/cognous-action-manifest", "sha": "fa170815ef96a54c233d0dd9da821b60debabf8b", "env": "MVP_MANIFEST_DIR"}
+    "control_plane": {"repository": "cogno-us/cognous-control-plane", "sha": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c", "env": "MVP_CP_DIR", "rev_env": "MVP_CP_REVISION", "note": "main after the merged F3 claim-journal repair. The unpatched hub-lock revision is 0a41faa972699f7ec3063967a14cd9bdd3e67d27 (override with MVP_CP_REVISION)."},
+    "runtime": {"repository": "cogno-us/cognous-execution-runtime", "sha": "ec728da6dc301a664b331ac8986afd6e850a1273", "env": "MVP_RUNTIME_DIR", "rev_env": "MVP_RUNTIME_REVISION"},
+    "replay": {"repository": "cogno-us/cognous-replay-bundle", "sha": "ab421ad0fdc6a24999273adf82455968953598ae", "env": "MVP_REPLAY_DIR", "rev_env": "MVP_REPLAY_REVISION", "note": "main after the merged Replay F3. Hub-lock revision is 028f63d1c001f99580583888fa4b4e46d77a267b."},
+    "evidence_pack": {"repository": "cogno-us/cognous-governance-evidence-pack", "sha": null, "env": "MVP_PACK_DIR", "rev_env": "MVP_PACK_REVISION", "note": "PENDING: re-pin to Replay ab421ad0 is in review (not merged). Hub-lock revision is a3ebbb90559a44a88855139a182649d3792bb1ca."},
+    "odes": {"repository": "cogno-us/open-decision-evidence-standard", "sha": null, "env": "MVP_ODES_DIR", "rev_env": "MVP_ODES_REVISION", "note": "PENDING: re-pin in progress. Pin-checked only: this chain never imports or exercises ODES. Hub-lock revision is e86a25a1d660e74533337d38744e2934200a50ae."},
+    "verifier": {"repository": "cogno-us/cognous-open-control-stack-verifier", "sha": "c0b8ba1f55b75db787a320f3de0f79342c6f6826", "env": "MVP_VERIFIER_DIR", "rev_env": "MVP_VERIFIER_REVISION"},
+    "action_manifest": {"repository": "cogno-us/cognous-action-manifest", "sha": "fa170815ef96a54c233d0dd9da821b60debabf8b", "env": "MVP_MANIFEST_DIR", "rev_env": "MVP_MANIFEST_REVISION"},
+    "hub": {"repository": "cogno-us/cognous-open-control-stack", "sha": "43c526eb1c8df9f07942ac36a6b2d11e14775bd1", "env": "MVP_HUB_DIR", "rev_env": "MVP_HUB_REVISION", "note": "hub main containing the D1 trusted-host ingress (tools/mvp_ingress, merge 43c526eb)"}
   },
   "python_requirements": {"pydantic_min": "2.12", "note": "pydantic 2.11.x gives false Verifier refusals on Control Plane serialization; the Qualification lock uses 2.13.5"}
 }

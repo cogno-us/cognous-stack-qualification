@@ -361,6 +361,29 @@ def nc_revocation(work):
         obs["resolver_revoked"] = {"claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
     finally:
         ctx.close()
+    # terminality (information for NC1-04/05): revoke, then reactivate, then execute the claim issued before the revocation
+    ctx = Ctx(work / "d")
+    try:
+        claim = ctx.provision()
+        approval_ref = ctx.flow.r.contexts[ctx.flow.PROFILE]["grant"]["approval_refs"][0]
+        ctx.dest.set_approval_status(approval_ref, status="revoked")
+        step = attempt(lambda: ctx.dest.set_approval_status(approval_ref, status="active"))
+        r = attempt(lambda: ctx.execute(claim.claim_id))
+        obs["approval_terminality"] = {"reactivation_accepted": step["ok"], "reactivation_error": err_of(step),
+                                       **(result_obs(r["value"]) if r["ok"] else {"status": None, "raised": err_of(r)}), "effect_count": ctx.count()}
+    finally:
+        ctx.close()
+    ctx = Ctx(work / "e")
+    try:
+        claim = ctx.provision()
+        gid = ctx.flow.d1.binding.grant_id
+        ctx.dest.set_grant_status(gid, status="revoked")
+        step = attempt(lambda: ctx.dest.set_grant_status(gid, status="active"))
+        r = attempt(lambda: ctx.execute(claim.claim_id))
+        obs["grant_terminality"] = {"reactivation_accepted": step["ok"], "reactivation_error": err_of(step),
+                                    **(result_obs(r["value"]) if r["ok"] else {"status": None, "raised": err_of(r)}), "effect_count": ctx.count()}
+    finally:
+        ctx.close()
     return obs
 
 
@@ -470,46 +493,14 @@ def nc_duplicate(work):
 
 @scenario("nc_unmediated")
 def nc_unmediated(work):
-    """Declared ingress boundary hook (Worker D1 supplies the ingress). Fails closed: absent module -> BLOCKED.
+    """The declared ingress boundary: the real hub ingress (Unix socket) attacked as an unprivileged uid; see _ingress.py.
 
-    Hook contract (proposed; D1 may adapt it, and Qualification owns what the row accepts): environment MVP_INGRESS_MODULE names an
-    importable module (MVP_INGRESS_PATH, optional, is prepended to sys.path) exposing
-        qualification_probe(context: dict) -> dict
-    with context = {"control_plane_dir", "runtime_dir", "work_dir"} and a return value containing
-        attempted_surfaces: [str]   surfaces an ordinary client of the declared ingress tried to reach
-        reached_surfaces:   [str]   those it actually reached (must be empty)
-        fixed_simulate:     None    the value the ingress passes as ``simulate``
-        operation_identity_source:  "persisted_decision" when the id is derived from the persisted decision
-        details:            free-form raw observations, retained verbatim
-    The harness records the return value as is.
+    Reachability is computed from independent owner-side observations, never from ingress self-report. BLOCKED (never PASS) when the
+    environment cannot run the client as a distinct unprivileged uid or the hub checkout is absent.
     """
-    obs = {"baseline_direct_surfaces": direct_surface_baseline(work / "direct")}
-    module_name = os.environ.get("MVP_INGRESS_MODULE")
-    if not module_name:
-        obs.update(status="blocked", blocked_reason="MVP_INGRESS_MODULE not set: the declared ingress boundary (Worker D1) is not available to probe", ingress={"probe_ran": False})
-        return obs
-    path = os.environ.get("MVP_INGRESS_PATH")
-    if path:
-        sys.path.insert(0, path)
-    import importlib
-    try:
-        module = importlib.import_module(module_name)
-    except Exception as exc:  # noqa: BLE001
-        obs.update(status="blocked", blocked_reason=f"ingress module {module_name!r} not importable ({type(exc).__name__}: {exc})", ingress={"probe_ran": False})
-        return obs
-    probe = getattr(module, "qualification_probe", None)
-    if not callable(probe):
-        obs.update(status="blocked", blocked_reason=f"ingress module {module_name!r} has no qualification_probe(context)", ingress={"probe_ran": False})
-        return obs
-    ctxinfo = {"control_plane_dir": _state.ENV["dirs"]["control_plane"], "runtime_dir": _state.ENV["dirs"]["runtime"], "work_dir": str(work / "ingress")}
-    (work / "ingress").mkdir(parents=True, exist_ok=True)
-    step = attempt(lambda: probe(ctxinfo))
-    if not step["ok"]:
-        obs["ingress"] = {"probe_ran": False, "probe_error": err_of(step)}
-        return obs
-    value = step["value"]
-    obs["ingress"] = {"probe_ran": True, "module": module_name, "module_file": getattr(module, "__file__", None), **{k: value.get(k) for k in (
-        "attempted_surfaces", "reached_surfaces", "fixed_simulate", "operation_identity_source", "details")}}
+    import _ingress
+    obs = _ingress.run(work / "ingress")
+    obs["baseline_direct_surfaces"] = direct_surface_baseline(work / "direct")
     return obs
 
 

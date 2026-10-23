@@ -3,11 +3,11 @@
 SPDX-License-Identifier: Apache-2.0
 
 Components come from explicit environment paths (MVP_CP_DIR, MVP_RUNTIME_DIR, MVP_REPLAY_DIR, MVP_PACK_DIR, MVP_ODES_DIR,
-MVP_VERIFIER_DIR, MVP_MANIFEST_DIR). The expected shas come from the tuple pin file (MVP_PIN_FILE, default
-process/mvp-chain/tuple-pin.proposed.json). The Control Plane revision is a run parameter: MVP_CP_REVISION (40-hex) replaces
-the pin file's Control Plane sha and the override is recorded in the results. Any mismatch, dirty checkout, unset variable or
+MVP_VERIFIER_DIR, MVP_MANIFEST_DIR, MVP_HUB_DIR). The expected shas come from the tuple pin file (MVP_PIN_FILE, default
+process/mvp-chain/tuple-pin.proposed.json). Every component revision is a run parameter: MVP_<NAME>_REVISION (40-hex, named by rev_env in the pin file) replaces that component's pin-file
+sha (a PENDING null pin requires it) and each override is recorded in the results. Any mismatch, dirty checkout, unset variable or
 module imported from outside its pinned tree fails every test; nothing skips. Missing components are never papered over.
-Statuses are computed from process/mvp-chain/expectations.proposed.v2.json (MVP_EXPECTATIONS overrides the path) and the recorded
+Statuses are computed from process/mvp-chain/expectations.proposed.v3.json (MVP_EXPECTATIONS overrides the path) and the recorded
 observations only; see verdict.py.
 """
 from __future__ import annotations
@@ -49,7 +49,7 @@ def pin_file() -> Path:
 
 
 def expectations_file() -> Path:
-    return Path(os.environ.get("MVP_EXPECTATIONS") or ROOT / "process" / "mvp-chain" / "expectations.proposed.v2.json")
+    return Path(os.environ.get("MVP_EXPECTATIONS") or ROOT / "process" / "mvp-chain" / "expectations.proposed.v3.json")
 
 
 def _wire():
@@ -57,16 +57,22 @@ def _wire():
     pins = json.loads(pin_file().read_text())
     env["pin_file"] = str(pin_file())
     env["pin_file_sha256"] = hashlib.sha256(pin_file().read_bytes()).hexdigest()
-    comps = pins["components"]
-    override = os.environ.get("MVP_CP_REVISION")
-    env["cp_revision_override"] = None
-    if override:
-        if not SHA.fullmatch(override):
-            env["problems"].append("MVP_CP_REVISION is not a 40-hex commit sha")
-        else:
-            env["cp_revision_override"] = {"pin_file_sha": comps["control_plane"]["sha"], "run_sha": override}
-            comps = {**comps, "control_plane": {**comps["control_plane"], "sha": override}}
+    comps = {k: dict(v) for k, v in pins["components"].items()}
+    env["overrides"], env["pending"] = {}, []
+    for name, spec in comps.items():
+        override = os.environ.get(spec["rev_env"])
+        if override:
+            if not SHA.fullmatch(override):
+                env["problems"].append(f"{spec['rev_env']} is not a 40-hex commit sha")
+                continue
+            env["overrides"][name] = {"pin_file_sha": spec["sha"], "run_sha": override}
+            spec["sha"] = override
+        elif spec["sha"] is None:
+            env["pending"].append(name)
+            env["problems"].append(f"{name}: pin is PENDING in the pin file; name the revision under test with {spec['rev_env']}")
+    env["cp_revision_override"] = env["overrides"].get("control_plane")
     env["pins"] = {k: v["sha"] for k, v in comps.items()}
+    comps = {k: v for k, v in comps.items() if v["sha"] is not None}
     pins_match, pristine = True, True
     heads = {}
     from pristine_checkout import require_pristine
@@ -125,7 +131,7 @@ def _wire():
     env["verifier_src"] = str(Path(env["dirs"]["verifier"]) / "src") if "verifier" in env["dirs"] else None
     _state.OBS["env"] = {k: env.get(k) for k in (
         "status", "pins", "heads", "dirs", "pins_match", "pristine", "pydantic_version", "pydantic_ok", "pydantic_file", "python", "platform", "uid",
-        "modules_from_pinned_trees", "module_files", "replay_distribution_path", "replay_revision_seen_by_evidence_pack", "replay_code_problem", "replay_distribution_ok", "replay_distribution_error", "pin_file", "pin_file_sha256", "cp_revision_override", "problems")}
+        "modules_from_pinned_trees", "module_files", "replay_distribution_path", "replay_revision_seen_by_evidence_pack", "replay_code_problem", "replay_distribution_ok", "replay_distribution_error", "pin_file", "pin_file_sha256", "cp_revision_override", "overrides", "pending", "problems")}
     _state.OBS["env"]["status"] = "ran"
 
 
@@ -210,7 +216,7 @@ def pytest_sessionfinish(session, exitstatus):
         "expectations_git_blob": subprocess.run(["git", "hash-object", str(exp_path)], capture_output=True, text=True).stdout.strip(),
         "observations_sha256": hashlib.sha256(obs_bytes).hexdigest(),
         "pytest_exit_status": int(exitstatus),
-        "tuple": {"pins": _state.ENV.get("pins"), "heads": _state.ENV.get("heads"), "cp_revision_override": _state.ENV.get("cp_revision_override"),
+        "tuple": {"pins": _state.ENV.get("pins"), "heads": _state.ENV.get("heads"), "cp_revision_override": _state.ENV.get("cp_revision_override"), "overrides": _state.ENV.get("overrides"),
                   "pin_file_sha256": _state.ENV.get("pin_file_sha256")},
         "counts": verdict.counts(results),
         "rows": results,
