@@ -504,6 +504,14 @@ def nc_unmediated(work):
     return obs
 
 
+
+@scenario("nc_ingress_ambiguity")
+def nc_ingress_ambiguity(work):
+    """SUPPORTED-INGRESS evidence (ruling 5, proposed): see _ingress_ambiguity.py. Executor-level evidence stays in nc_ambiguous / ruling 4."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity")
+
+
 def direct_surface_baseline(work):
     """Informational (no row): the excluded surfaces ARE reachable by direct in-process use of the components, which is the
     trusted-host limitation the ingress must exclude for ordinary clients. Recorded, not judged."""
