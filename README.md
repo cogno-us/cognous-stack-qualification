@@ -101,7 +101,7 @@ What these show: the catalog and its provenance records are consistent, and this
 | Area | Contents |
 |---|---|
 | [`scenarios/`](scenarios/README.md) | `catalog.json` (40 Cognous cases), `coverage-map.json`, and `ai-security-wiki/` (656 imported reference cases, `applicability.json`, CC BY-SA 4.0) |
-| [`suites/`](suites/README.md) | 18 executable suite directories (see the [suites index](suites/README.md)) |
+| [`suites/`](suites/README.md) | 19 executable suite directories (see the [suites index](suites/README.md)) |
 | `tools/` | See the table below |
 | [`process/`](docs/README.md) | `testing/` (bounded comparison process), `adversarial/` (batch-1 tests T01 to T20, [README](process/adversarial/README.md)), `release-gate/` (inventory twin), `v1-validation/`, and retained runtime-authority and security-runtime profile files |
 | [`results/`](results/README.md) | Retained evidence and workflow metadata: `workflows/` (append-only), `v1-validation/`, `security-runtime-*`, `serial/`, `comparisons/`, `verifier-mutation/`, `readme-commentary/` and others. Retained files are not rewritten |
