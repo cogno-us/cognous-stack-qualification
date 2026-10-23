@@ -217,11 +217,12 @@ def capture_environment_record(hub, ident, profile, *, state, sock, pid, dest, r
         result["reason"] = "the hub checkout at the tuple sha has no capture script (the tuple's hub sha predates it)"
         return result
     heads = _state.ENV.get("heads") or {}
+    evidence_label = "hosted-runner acceptance run %s, profile=approved" % (os.environ.get("MVP_RUN_ID") or "UNBOUND")
     cmd = [sys.executable, "-I", str(script), "--state-dir", str(state), "--socket", sock, "--ingress-pid", str(pid),
            "--ingress-uid", str(ident["ingress_uid"]), "--ingress-gid", str(ident["ingress_gid"]),
            "--client-uid", str(ident["client_uid"]), "--client-gid", str(ident["client_gid"]), "--outsider-uid", str(rec_cfg["outsider_uid"]),
            "--db", str(dest), "--authority-store", str(dest), "--ledger", str(pathlib.Path(state) / "ingress.db"),
-           "--journal-mode", rec_cfg["journal_mode"], "--accept-unverified-pins", "--repo-root", str(hub), "--out", str(record_path)]
+           "--journal-mode", rec_cfg["journal_mode"], "--label", evidence_label, "--accept-unverified-pins", "--repo-root", str(hub), "--out", str(record_path)]
     for name, sha_ in sorted(heads.items()):
         cmd += ["--pin", f"{name}={sha_}"]
     for f in sorted((pathlib.Path(hub) / "tools" / "mvp_ingress").glob("*.py")):
@@ -306,8 +307,9 @@ def run(work):
     dump_dir = base / "dump"
     module_dump = (dump_dir if not optout else base) / "ingress-modules.json"
     if not optout:
-        # the ingress owns its 0700 state directory; the socket lives in a SEPARATE IPC directory (the setgid bit gives the socket the dedicated group)
-        for d, mode_, gid in ((state, 0o700, ident["ingress_gid"]), (ipc_dir, 0o2750, ident["ipc_gid"]), (dump_dir, 0o700, ident["ingress_gid"])):
+        # the ingress owns its 0700 state directory; the socket lives in a SEPARATE IPC directory (the setgid bit gives the socket the dedicated group; 2751: others may only
+        # traverse, never list or write, so the outsider probe is denied by the socket's own mode and group, not by the directory)
+        for d, mode_, gid in ((state, 0o700, ident["ingress_gid"]), (ipc_dir, 0o2751, ident["ipc_gid"]), (dump_dir, 0o700, ident["ingress_gid"])):
             d.mkdir()
             os.chown(d, ident["ingress_uid"], gid)
             os.chmod(d, mode_)

@@ -812,6 +812,13 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
             fail.append(f"required check {cid} has status {st!r}")
         elif st == "BLOCKED" and cid == "isolation.ptrace_scope":
             incomplete.append("Yama absent or unreadable: the exact profile is unsupported, the boundary test is BLOCKED")
+    label = rec.get("evidence_label")
+    if not isinstance(label, str) or not label.strip():
+        incomplete.append("record has no evidence_label (the hub script requires --label)")
+    else:
+        want_run = resolved.get("run_id")
+        if "profile=approved" not in label or not want_run or want_run not in label:
+            fail.append(f"evidence_label {label!r} is not bound to this run and the approved profile (must carry run_id {want_run!r} and 'profile=approved')")
     py = rec.get("python") or {}
     if not str(py.get("version", "")).startswith(profile["python_version_prefix"] + ".") or py.get("implementation") != "CPython":
         fail.append(f"python {py.get('implementation')} {py.get('version')} is not CPython {profile['python_version_prefix']}")

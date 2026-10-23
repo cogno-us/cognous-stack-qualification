@@ -13,9 +13,10 @@
   },
   "hub_record": {
     "schema": "mvp-ingress-env-record/1",
-    "producer": "tools/mvp_ingress/capture_env_record.py (hub PR #219, branch mvp-ingress-env-record, head 558566dfd93b6c6e3c0b4f284a6f32c386b480d0)",
+    "producer": "tools/mvp_ingress/capture_env_record.py (hub PR #219, branch mvp-ingress-env-record, approved head 050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e)",
     "required_overall": "PASS",
     "required_pass_check_ids": [
+      "capture.evidence_label",
       "configuration.journal_mode",
       "configuration.pins_and_manifests",
       "filesystem.ancestors_not_writable_by_others",
@@ -53,7 +54,8 @@
       "socket_mode": "0660",
       "socket_type": "socket",
       "socket_group_policy": "dedicated",
-      "separate_ipc_directory": "the socket's directory must not be, or sit under, the ingress state directory"
+      "separate_ipc_directory": "the socket's directory must not be, or sit under, the ingress state directory; it is owned by the ingress uid, setgid group mvp-ipc, mode 2751: not group/other writable (the hub check ipc.directory_separate_and_protected only refuses group/other write) and with other SEARCH (x) only, no read, so the outsider uid can traverse it and is denied by the socket's own 0660 mode and group, which qualification.outsider_denied_socket then proves (hub untraversable_for logic)",
+      "directory_mode": "2751"
     },
     "run_binding": "The hub record is deterministic and carries no run id. The envelope (cognous.mvp-environment-record-envelope/1) carries run_id and qualification_sha supplied by the workflow (MVP_RUN_ID, MVP_QUALIFICATION_SHA), the record's own record_sha256, the sha256 of the record file, the sha256 of the capture script and of this profile; the gate requires all of them to match. Missing run_id or qualification_sha is INCOMPLETE, a different one FAIL.",
     "source_binding": "configuration.ingress_source_sha256 must equal the sha256 of tools/mvp_ingress/*.py in the hub checkout at the tuple sha; absent is INCOMPLETE. Each component pin in the record must equal the tuple sha of that component.",
@@ -61,8 +63,8 @@
     "required_ids_note": "Reconciled against the ids the hub script at the pinned sha256 emits (also verified by running it: 32 ids on a bare host, of which the always-emitted PASS-or-better set is required). Not required by name: capture.exception, <section>.exception, filesystem.state_dir_present and filesystem.socket_present (BLOCKED markers emitted only on failure; any BLOCKED check already makes the verdict INCOMPLETE). A required id absent from the record is INCOMPLETE; one that is not PASS is INCOMPLETE (BLOCKED) or FAIL.",
     "capture_script": {
       "path": "tools/mvp_ingress/capture_env_record.py",
-      "sha256": "68628d4ed24cb3f869497d728ac190075016e431bb0752df988edbad64303615",
-      "hub_pr": "cogno-us/cognous-open-control-stack#219 head 558566dfd93b6c6e3c0b4f284a6f32c386b480d0",
+      "sha256": "5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51",
+      "hub_pr": "cogno-us/cognous-open-control-stack#219 approved head 050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e (sha256 computed from the file at that commit)",
       "note": "Pinned because #219 is still moving. The script in the hub checkout at the tuple sha must have exactly these bytes (a different script is a NEW candidate: new profile version and commitment), and the run envelope must name this sha256. The candidate-identity hub sha (hub main) predates the script: a run needs hub_revision set to a sha that contains it, otherwise G-11 is INCOMPLETE."
     },
     "manifest": {
@@ -80,12 +82,21 @@
     },
     "provisioning": {
       "yama": "sudo sysctl -w kernel.yama.ptrace_scope=1 in the workflow; absent or < 1 is BLOCKED and the verdict INCOMPLETE",
-      "ipc_directory": "a separate directory (setgid, group mvp-ipc, 2750) the client can traverse; the ingress-owned 0700 state directory is never the socket directory",
+      "ipc_directory": "a separate directory (setgid, group mvp-ipc, 2751: traverse-only for others) the client and the outsider probe can traverse; the ingress-owned 0700 state directory is never the socket directory",
       "socket": "0660, owner the ingress uid, group mvp-ipc",
       "developer_optout": "MVP_INGRESS_PROFILE=developer-optout (local only: root ingress, mode 666, uid 65534, no record); the suite records profile=developer-optout and the gate verdict is INCOMPLETE. The workflow always sets MVP_INGRESS_PROFILE=approved."
     },
     "capture": "captured IN THE RUN by suites/mvp-chain/_ingress.py as root against the very ingress process the suite then attacks (not a pre-committed file); written to mvp-chain/artifacts/environment-record.json with a gate-side envelope environment-record.envelope.json",
     "independent_pin": "There is no pre-committed environment record hash any more: the independent anchor is the pin on the capture script (above) plus the candidate commitment, which covers this profile.",
-    "identity_binding": "the identities the suite observed on the running ingress and client (uid, gid, ipc gid, non-root) must equal process_identity and ipc.stat in the record"
+    "identity_binding": "the identities the suite observed on the running ingress and client (uid, gid, ipc gid, non-root) must equal process_identity and ipc.stat in the record",
+    "optional_informational_check_ids": [
+      "qualification.outsider_denied_by_ipc_directory"
+    ],
+    "optional_note": "Emitted by the hub script only when the outsider was denied at the IPC directory (not at the socket). It is informational and never substitutes for qualification.outsider_denied_socket, which must be PASS; its presence is INCOMPLETE because the socket's own mode/group was then not tested.",
+    "evidence_label": {
+      "required": true,
+      "format": "hosted-runner acceptance run <run_id>, profile=approved",
+      "note": "passed as --label by the suite; missing or blank makes capture.evidence_label BLOCKED (INCOMPLETE); the gate also requires the record's evidence_label to carry this run's run_id and profile=approved"
+    }
   }
 }

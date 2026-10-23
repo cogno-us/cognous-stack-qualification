@@ -71,16 +71,16 @@ All of these stay **PROPOSED** pending independent Qualification acceptance and 
   step creates the dedicated users `mvp-ingress` and `mvp-client` (own primary groups) and the group `mvp-ipc` (exactly those two members), makes the
   checkouts readable and sets `kernel.yama.ptrace_scope=1` with `sudo sysctl` (absent Yama is BLOCKED/INCOMPLETE, never a weaker run). `_ingress.py`
   then starts the ingress as `mvp-ingress` (non-root, no supplementary groups) with a 0660 socket in a SEPARATE setgid IPC directory (group `mvp-ipc`,
-  2750) the client traverses, and its 0700 state directory elsewhere; the client runs as `mvp-client` with the `mvp-ipc` group; owner-side
-  observations are made as the ingress uid. The hub script `tools/mvp_ingress/capture_env_record.py` (hub PR #219) is run as root against the live
-  process with the actual uids, gids, pid, database, ledger, tuple pins, source pins and the tuple's action-manifest file, and writes
+  2751: others may traverse but not list or write, so the outsider probe is denied by the socket's own mode and group) the client traverses, and its 0700 state directory elsewhere; the client runs as `mvp-client` with the `mvp-ipc` group; owner-side
+  observations are made as the ingress uid. The hub script `tools/mvp_ingress/capture_env_record.py` (hub PR #219, approved head 050dcd67) is run as root against the live
+  process with a run-bound `--label` (`hosted-runner acceptance run <run_id>, profile=approved`; required, the gate checks it names this run), the actual uids, gids, pid, database, ledger, tuple pins, source pins and the tuple's action-manifest file, and writes
   `mvp-chain/artifacts/environment-record.json` unchanged. A gate-side **envelope** (`environment-record.envelope.json`) binds `run_id` and
   `qualification_sha` (supplied by the workflow as `MVP_RUN_ID` and `MVP_QUALIFICATION_SHA`; the hub script has no flags for them and its deterministic
   record cannot hold a later run id), the record's own `record_sha256`, the sha256 of the record file, of the capture script and of the environment profile.
   **Pin:** the sha256 of the capture script (`environment-profile.proposed.v1.json`, `capture_script`) is committed because #219 is still moving: the
   script in the hub checkout at the tuple sha and the one the envelope names must both have exactly those bytes, otherwise FAIL (a moved script is a new
   candidate); a tuple hub sha that predates the script is INCOMPLETE, so a run needs `hub_revision` set to a sha that contains it. Required: valid
-  `record_sha256`; `overall` consistent with its checks; PASS for all 30 check ids the hub script emits (reconciled against the script, including
+  `record_sha256`; `overall` consistent with its checks; PASS for all 31 check ids the hub script emits (reconciled against the script, including
   `ipc.socket_mode_owner_group`, `isolation.ingress_capabilities`, `ipc.directory_separate_and_protected` and `qualification.outsider_denied_socket`);
   CPython 3.13 equal to the suite's interpreter; `kernel.yama.ptrace_scope >= 1`; socket group policy `dedicated`, mode 0660, in a directory that is not
   the state directory; non-root ingress; no relaxed requirement; `ingress_source_sha256` equal to the hub files at the tuple sha; the manifest digest

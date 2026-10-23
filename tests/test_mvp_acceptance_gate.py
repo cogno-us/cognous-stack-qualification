@@ -99,7 +99,7 @@ def pin_fake_script(root):
 def env_record(tuple_shas, mutate=None, ingress_sources=None, comps=None):
     checks = [{"id": i, "status": "PASS", "detail": "x", "data": {}} for i in ENV_PROFILE["required_pass_check_ids"]]
     man = ENV_PROFILE["manifest"]
-    rec = {"schema": "mvp-ingress-env-record/1",
+    rec = {"schema": "mvp-ingress-env-record/1", "evidence_label": f"hosted-runner acceptance run {RUN}, profile=approved",
            "python": {"version": "3.13.1", "implementation": "CPython"}, "isolation_limits": {"yama_ptrace_scope": "1"},
            "ipc": {"connection_policy": {"socket_group_policy": "dedicated"}, "stat": {"path": "/run/ipc/ingress.sock", "type": "socket", "mode": "0660", "uid": IDS["ingress_uid"], "gid": IDS["ipc_gid"]}},
            "filesystem": {"state_dir": "/var/lib/ingress/state"},
@@ -691,7 +691,8 @@ class RulingsTwoTests(GateTests):
         real_pin = ENV_PROFILE["capture_script"]
         self.assertRegex(real_pin["sha256"], r"^[0-9a-f]{64}$")
         self.assertEqual(real_pin["path"], "tools/mvp_ingress/capture_env_record.py")
-        self.assertIn("558566df", real_pin["hub_pr"])
+        self.assertIn("050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e", real_pin["hub_pr"])
+        self.assertEqual(real_pin["sha256"], "5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51")
         # the envelope names a script other than the pinned one
         self.build(envelope_mutate=lambda e: e.update(capture_script_sha256="a" * 64))
         c = self.g11()
@@ -741,6 +742,55 @@ class RulingsTwoTests(GateTests):
         self.build(ingress_mutate=lambda o: o.pop("ingress_is_root"))
         self.assertEqual(self.g11()["status"], "FAIL")
 
+    def test_evidence_label_is_required_and_bound_to_this_run(self):
+        self.assertIn("capture.evidence_label", ENV_PROFILE["required_pass_check_ids"])
+        self.build(env_mutate=lambda r: r.pop("evidence_label"))
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+        self.build(env_mutate=lambda r: r.update(evidence_label="  "))
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+        self.build(env_mutate=lambda r: r.update(evidence_label="hosted-runner acceptance run other, profile=approved"))
+        self.assertEqual(self.g11()["status"], "FAIL")
+        self.build(env_mutate=lambda r: r.update(evidence_label=f"development container run {RUN}"))
+        self.assertEqual(self.g11()["status"], "FAIL")
+        def blocked(r):
+            next(c for c in r["checks"] if c["id"] == "capture.evidence_label")["status"] = "BLOCKED"
+            r["overall"] = "BLOCKED"
+        self.build(env_mutate=blocked)
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+
+    def test_outsider_must_be_denied_at_the_socket_not_at_the_ipc_directory(self):
+        self.assertEqual(ENV_PROFILE["optional_informational_check_ids"], ["qualification.outsider_denied_by_ipc_directory"])
+        def only_directory(r):  # what the hub script emits when the outsider cannot traverse the IPC directory
+            next(c for c in r["checks"] if c["id"] == "qualification.outsider_denied_socket")["status"] = "BLOCKED"
+            r["checks"].append({"id": "qualification.outsider_denied_by_ipc_directory", "status": "PASS", "detail": "x", "data": {}})
+            r["overall"] = "BLOCKED"
+        self.build(env_mutate=only_directory)
+        c = self.g11()
+        self.assertEqual(c["status"], "INCOMPLETE")
+        self.assertIn("qualification.outsider_denied_socket", c["detail"])
+        def socket_fail(r):
+            next(c for c in r["checks"] if c["id"] == "qualification.outsider_denied_socket")["status"] = "FAIL"
+            r["overall"] = "FAIL"
+        self.build(env_mutate=socket_fail)
+        self.assertEqual(self.g11()["status"], "FAIL")
+        def info_only(r):  # the informational id is optional and never a problem by itself
+            r["checks"].append({"id": "qualification.outsider_denied_by_ipc_directory", "status": "PASS", "detail": "x", "data": {}})
+        self.build(env_mutate=info_only)
+        self.assertEqual(self.g11()["status"], "PASS")
+        self.build()
+        self.assertEqual(self.g11()["status"], "PASS")
+
+    def test_ipc_directory_is_traversable_by_others_but_never_listable_or_writable(self):
+        src = (ROOT / "suites/mvp-chain/_ingress.py").read_text()
+        self.assertIn("0o2751", src)
+        self.assertNotIn("0o2750", src)
+        mode = 0o2751
+        self.assertEqual(mode & 0o022, 0)  # the hub check refuses only group/other WRITE
+        self.assertEqual(mode & 0o004, 0)  # others cannot list
+        self.assertTrue(mode & 0o001)      # others can traverse: the denial is on the 0660 socket itself
+        self.assertEqual(ENV_PROFILE["ipc"]["directory_mode"], "2751")
+        self.assertEqual(ENV_PROFILE["ipc"]["socket_mode"], "0660")
+
     def test_component_pins_and_manifest_are_the_tuples(self):
         def pin(name, value):
             return lambda r: r["configuration"]["source_pins"].update({name: value}) if value else r["configuration"]["source_pins"].pop(name)
@@ -753,8 +803,8 @@ class RulingsTwoTests(GateTests):
         self.build(env_mutate=lambda r: r["configuration"].pop("manifest_sha256"))
         self.assertEqual(self.g11()["status"], "INCOMPLETE")
 
-    HUB_EMITTED_IDS = (  # every check id the hub capture script (PR #219 head 558566df) always emits when the inputs are given; the *.exception and *_present ids are BLOCKED markers emitted only on failure
-        "configuration.journal_mode", "configuration.pins_and_manifests", "filesystem.ancestors_not_writable_by_others", "filesystem.no_acl_entries",
+    HUB_EMITTED_IDS = (  # every check id the hub capture script (PR #219 approved head 050dcd67) always emits when the inputs are given; the *.exception and *_present ids are BLOCKED markers emitted only on failure
+        "capture.evidence_label", "configuration.journal_mode", "configuration.pins_and_manifests", "filesystem.ancestors_not_writable_by_others", "filesystem.no_acl_entries",
         "filesystem.no_extra_group_access", "filesystem.state_tree_owner_only", "identity.client_distinct_unprivileged", "identity.declared",
         "identity.ingress_command", "identity.ingress_not_root", "identity.ingress_process", "invocation.client_entry_point",
         "invocation.operation_identity_fixed_true", "invocation.simulate_fixed_none", "ipc.directory_separate_and_protected", "ipc.peer_credentials",
@@ -951,6 +1001,7 @@ class IngressProfileTests(unittest.TestCase):
         self.assertEqual(env["record_file_sha256"], hashlib.sha256(record.read_bytes()).hexdigest())
         self.assertEqual(env["capture_script_sha256"], hashlib.sha256((hub / "tools/mvp_ingress/capture_env_record.py").read_bytes()).hexdigest())
         argv = json.loads(record.read_text())["argv"]
+        self.assertEqual(argv[argv.index("--label") + 1], "hosted-runner acceptance run run123, profile=approved")
         for flag, val in (("--ingress-pid", "4242"), ("--ingress-uid", "990"), ("--client-uid", "991"), ("--journal-mode", "wal"), ("--outsider-uid", "65533")):
             self.assertEqual(argv[argv.index(flag) + 1], val)
         self.assertIn("runtime=" + "b" * 40, argv)
