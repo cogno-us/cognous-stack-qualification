@@ -91,6 +91,16 @@ export MVP_CP_DIR=... MVP_RUNTIME_DIR=... MVP_REPLAY_DIR=... MVP_PACK_DIR=... MV
 MVP_RESULTS_DIR=out PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cacheprovider suites/mvp-chain
 ```
 
+## Ruling 4: lost acknowledgement (`test_ruling4_lost_ack.py`)
+
+Six direct assertions added to the battery without touching expectations v1-v3 or any observation they read; the module drives its own flow
+(`_chain.Ctx`) and fails, never skips, when the components are not the pinned tuple. After `simulate='lost_ack'`: the first result is
+UNKNOWN, unacknowledged, `retry_eligible` False; a second execute with the same claim is denied (claim not usable, `attempted` False);
+the destination holds exactly one committed effect by an independent read-only SQLite readback; `reconcile_claim` resolves it (applied, same
+effect id, not retry eligible, nothing written); the second result's default `observed_state` `unknown` carries no observation and is
+contradicted by the readback, so it is not an authoritative observation; and a fresh operation identity without new authority (no approval
+re-binding, no renewal, same cap) commits no second effect and never reports `executed`.
+
 ## Known limits
 
 - The destination ledger is the atomic `effects` table; there is no account balance adapter, so "matched" means amount `10.0 USD` on the Control Plane proposal.
