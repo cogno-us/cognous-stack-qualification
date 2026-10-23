@@ -1,0 +1,170 @@
+name: MVP chain (proposed)
+# Exact-candidate MVP chain harness (suites/mvp-chain): one governed $10 synthetic refund through the Control Plane, operation identity,
+# real claim provisioning, route B atomic executor, Replay, Evidence Pack and the pinned Verifier, plus the six negative controls
+# (NC4 starts the hub trusted-host ingress and attacks it as uid 65534, so the suite step runs under sudo).
+# Dispatch only: it never runs on push, selects nothing, declares no acceptance and changes no verdict. Statuses are computed from
+# process/mvp-chain/expectations.proposed.v3.json, which Qualification owns. The component tuple has ONE source,
+# process/mvp-chain/tuple-pin.proposed.json; a revision input overrides one component for that run and is recorded in results.json.
+# A PENDING (null) pin must be named by its input. A mismatched or dirty checkout fails the job; nothing skips.
+'on':
+  workflow_dispatch:
+    inputs:
+      control_plane_revision:
+        description: cogno-us/cognous-control-plane commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      runtime_revision:
+        description: cogno-us/cognous-execution-runtime commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      replay_revision:
+        description: cogno-us/cognous-replay-bundle commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      evidence_pack_revision:
+        description: cogno-us/cognous-governance-evidence-pack commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      odes_revision:
+        description: cogno-us/open-decision-evidence-standard commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      verifier_revision:
+        description: cogno-us/cognous-open-control-stack-verifier commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      manifest_revision:
+        description: cogno-us/cognous-action-manifest commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      hub_revision:
+        description: cogno-us/cognous-open-control-stack commit (blank uses the pin file; required while the pin is PENDING)
+        required: false
+        default: ''
+        type: string
+      qualification_revision:
+        description: Suite commit (blank uses the workflow event commit)
+        required: false
+        type: string
+permissions:
+  contents: read
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ inputs.qualification_revision || github.sha }}
+          persist-credentials: false
+      - name: Resolve the tuple (pin file, with validated per-component overrides)
+        id: tuple
+        env:
+          IN_CONTROL_PLANE: ${{ inputs.control_plane_revision }}
+          IN_RUNTIME: ${{ inputs.runtime_revision }}
+          IN_REPLAY: ${{ inputs.replay_revision }}
+          IN_EVIDENCE_PACK: ${{ inputs.evidence_pack_revision }}
+          IN_ODES: ${{ inputs.odes_revision }}
+          IN_VERIFIER: ${{ inputs.verifier_revision }}
+          IN_ACTION_MANIFEST: ${{ inputs.manifest_revision }}
+          IN_HUB: ${{ inputs.hub_revision }}
+          QUAL_REV: ${{ inputs.qualification_revision }}
+        run: |
+          [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os, re, sys
+          pins = json.load(open("process/mvp-chain/tuple-pin.proposed.json"))["components"]
+          for name, spec in pins.items():
+              sha = os.environ.get("IN_" + name.upper()) or spec["sha"]
+              if not sha or not re.fullmatch(r"[0-9a-f]{40}", sha):
+                  sys.exit(f"{name}: no valid 40-hex revision (PENDING pin needs its input)")
+              print(f"{name}={sha}")
+          PY
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: ${{ steps.tuple.outputs.control_plane }}
+          path: components/control_plane
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-execution-runtime
+          ref: ${{ steps.tuple.outputs.runtime }}
+          path: components/runtime
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-replay-bundle
+          ref: ${{ steps.tuple.outputs.replay }}
+          path: components/replay
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-governance-evidence-pack
+          ref: ${{ steps.tuple.outputs.evidence_pack }}
+          path: components/evidence_pack
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/open-decision-evidence-standard
+          ref: ${{ steps.tuple.outputs.odes }}
+          path: components/odes
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-open-control-stack-verifier
+          ref: ${{ steps.tuple.outputs.verifier }}
+          path: components/verifier
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-action-manifest
+          ref: ${{ steps.tuple.outputs.action_manifest }}
+          path: components/manifest
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-open-control-stack
+          ref: ${{ steps.tuple.outputs.hub }}
+          path: components/hub
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --require-hashes -r .github/locks/cryptography-pydantic-pytest-a9a750.txt
+      - name: Run the mvp-chain suite as root (NC4 drops the client to uid 65534); failures are reported, never suppressed
+        env:
+          MVP_CP_DIR: ${{ github.workspace }}/components/control_plane
+          MVP_CP_REVISION: ${{ steps.tuple.outputs.control_plane }}
+          MVP_RUNTIME_DIR: ${{ github.workspace }}/components/runtime
+          MVP_RUNTIME_REVISION: ${{ steps.tuple.outputs.runtime }}
+          MVP_REPLAY_DIR: ${{ github.workspace }}/components/replay
+          MVP_REPLAY_REVISION: ${{ steps.tuple.outputs.replay }}
+          MVP_PACK_DIR: ${{ github.workspace }}/components/evidence_pack
+          MVP_PACK_REVISION: ${{ steps.tuple.outputs.evidence_pack }}
+          MVP_ODES_DIR: ${{ github.workspace }}/components/odes
+          MVP_ODES_REVISION: ${{ steps.tuple.outputs.odes }}
+          MVP_VERIFIER_DIR: ${{ github.workspace }}/components/verifier
+          MVP_VERIFIER_REVISION: ${{ steps.tuple.outputs.verifier }}
+          MVP_MANIFEST_DIR: ${{ github.workspace }}/components/manifest
+          MVP_MANIFEST_REVISION: ${{ steps.tuple.outputs.action_manifest }}
+          MVP_HUB_DIR: ${{ github.workspace }}/components/hub
+          MVP_HUB_REVISION: ${{ steps.tuple.outputs.hub }}
+          MVP_RESULTS_DIR: ${{ github.workspace }}/results/mvp-chain
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: |
+          mkdir -p results/mvp-chain
+          sudo git config --global --add safe.directory '*'
+          sudo -E env "PATH=$PATH" python -m pytest -q -p no:cacheprovider suites/mvp-chain --junitxml=results/mvp-chain/junit.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: mvp-chain-${{ github.sha }}
+          path: results/mvp-chain
