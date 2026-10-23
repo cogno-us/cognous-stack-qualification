@@ -30,11 +30,11 @@
   "lte",
   "is_null"
  ],
- "status": "PROPOSED oracle v4 for Qualification to review and freeze. Supersedes v3 (v1, v2 and v3 kept unchanged). Only NC4-03 differs from v3. Never edit after seeing results: a change is a new file with a recorded reason. NOT frozen; builder proposal only; production HOLD unchanged.",
+ "status": "PROPOSED oracle v4 (revision 3, after architect rulings #2) for Qualification to review and freeze. Supersedes v3 (v1, v2 and v3 kept unchanged). Only NC4-03 differs from v3. Never edit after seeing results: a change is a new file with a recorded reason. NOT frozen; builder proposal only; production HOLD unchanged.",
  "supersedes": {
   "file": "expectations.proposed.v3.json",
   "reasons": {
-   "NC4-03": "v3 forbade every non-literal ** forwarding in tools/mvp_ingress and FAILED on synthetic_host.py line 39 (lambda proxy) and line 72 (fixed-name comprehension). v4 is a STRICT REFINEMENT of v3 (suites/mvp-chain/_kwflow.py): the blanket ban on non-literal ** is kept for every callee; only statically proven fixed forms (inline constant-key display, comprehension over a literal string tuple with getattr/constant values, closed lambda proxy) are carved out, none with a prohibited key carrying a non-literal value; plus bound import aliases, protected-callable escape and star-args rules, extended protected callees (decide, bind_approval, model_copy(update=)), exact-site pins of the real protected calls (floor 8) and a full-directory scan. Three trusted-host sites are accepted only by exact pin (enclosing-function source hash) because the generic rules cannot prove them: this is a recorded exception requiring Qualification/operator adoption. The v3 result is kept as raw history in process/mvp-chain/history/nc4-03-v3-predicate-result.json."
+   "NC4-03": "v3 forbade every non-literal ** forwarding in tools/mvp_ingress and FAILED on synthetic_host.py line 39 (lambda proxy) and line 72 (fixed-name comprehension). v4 (suites/mvp-chain/_kwflow.py) keeps the blanket ban on non-literal ** for every callee, carves out only an inline constant-key display and a closed lambda proxy (the generic comprehension carve-out was removed by architect rulings #2), rejects prohibited keys with non-literal values, protected-callable escape, star-args and any ** into model_copy, adds the R1 origin rule for claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id and requested_permissions at protected calls, and accepts three trusted-host sites only by exact AST-digest pin whose records state source revision, AST digest, trusted input origin and protected destination (an incomplete record or a changed semantic AST fails). The protected guarantee is unchanged. Raw v3 result: process/mvp-chain/history/nc4-03-v3-predicate-result.json."
   },
   "unchanged_rows": "all other rows are byte-identical to v3"
  },
@@ -605,7 +605,7 @@
   {
    "id": "NC4-03",
    "mandatory": true,
-   "title": "SOURCE-LEVEL assertion only (not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except statically proven fixed forms and three exactly pinned reviewed sites; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass",
+   "title": "SOURCE-LEVEL assertion only (not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except proven fixed forms and three exactly pinned, fully recorded reviewed sites; the six authority-bearing fields (claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id, requested_permissions) have a trusted origin at every protected call; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass",
    "scenario": "nc_unmediated",
    "all": [
     {
@@ -646,12 +646,16 @@
      "op": "empty"
     },
     {
+     "obs": "nc_unmediated.source_level.kwflow.pin_records_incomplete",
+     "op": "empty"
+    },
+    {
      "obs": "nc_unmediated.source_level.kwflow.pinned_sites_used",
      "op": "eq",
      "value": [
-      "synthetic_host.py:SyntheticHost.__init__:model_copy#1:4a51b6e6828a",
-      "synthetic_host.py:SyntheticHost.__init__:original#1:1c959780adb1",
-      "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1:7eb688f54020"
+      "synthetic_host.py:SyntheticHost.__init__:model_copy#1",
+      "synthetic_host.py:SyntheticHost.__init__:original#1",
+      "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1"
      ]
     },
     {

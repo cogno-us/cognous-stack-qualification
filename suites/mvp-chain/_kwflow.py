@@ -9,7 +9,7 @@ Base rule (kept from v3, tightened): any call, to ANY callee, whose keywords con
 the statically proven fixed forms below. A mapping held in a variable is therefore always OPAQUE (aliasing, passing to a call, mutation in a
 nested scope or global, ``update()``, helpers: all rejected by construction). Carve-outs, each checked for prohibited keys:
   (a) an inline dict display with constant string keys (nested ``**`` only of another such display);
-  (b) an inline dict comprehension ``{k: getattr(obj, k) | <constant> for k in NAMES}`` where NAMES is an inline literal list/tuple of string
+  (b) REMOVED (architect rulings #2): the former generic comprehension carve-out; the 14-name site is accepted only by exact pin. Formerly: an inline dict comprehension ``{k: getattr(obj, k) | <constant> for k in NAMES}`` where NAMES is an inline literal list/tuple of string
       constants, or a name bound exactly once in the file to one and loaded exactly once (the comprehension): never aliased, passed, mutated,
       or declared global/nonlocal;
   (c) a lambda proxy forwarding only its own ``*a, **k`` where the lambda is bound once to a local name that is only ever called directly
@@ -48,11 +48,25 @@ EXPLICIT_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|actor|princip
                                  r"|requirement_id|authority_context_ref|effects)$")
 SQLITE_RECEIVERS = frozenset({"c"})
 
-# exact reviewed sites (file:qualname:callee#ordinal:sha256-12 of the unparsed call): trusted-host code, no client value reaches them
+SIX = frozenset({"claim_id", "grant_id", "grant_revision", "effective_max_effects", "authority_context_id", "requested_permissions"})
+HUB_REVISION = "43c526eb1c8df9f07942ac36a6b2d11e14775bd1"
+PIN_FIELDS = ("source_revision", "ast_digest", "trusted_input_origin", "protected_destination")
+# Exact reviewed sites, keyed "file:qualname:callee#ordinal". ast_digest = sha256 over ast.dump (no line/col, so comments/blank lines/formatting are
+# irrelevant) of the call node plus its whole enclosing function; any semantic AST change invalidates the pin. A pin with a missing or empty
+# field makes the predicate fail (pin_records_incomplete).
 PINNED_SITES = {
-    "synthetic_host.py:SyntheticHost.__init__:original#1:1c959780adb1": "lambda proxy to Control Plane test fixture tra.proposal; exposed via attribute assignment so (c) cannot prove it closed",
-    "synthetic_host.py:SyntheticHost.__init__:model_copy#1:4a51b6e6828a": "model_copy(update={'operation_identity': OperationIdentityProfile(fixed constants)}): trusted-host constant profile",
-    "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1:7eb688f54020": "fixed 14-name comprehension; actor/principal come from the template proposal p0, not from the client",
+    "synthetic_host.py:SyntheticHost.__init__:original#1": {
+        "source_revision": HUB_REVISION, "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
+        "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it",
+        "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API"},
+    "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
+        "source_revision": HUB_REVISION, "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
+        "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host",
+        "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)"},
+    "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
+        "source_revision": HUB_REVISION, "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
+        "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount, unit, request_id come from the client under non-prohibited keys), fixed 14 field names",
+        "protected_destination": "ExecutionOperation(...) constructor feeding ExecutionEnvelope for AtomicLocalControlPlaneExecutor.execute"},
 }
 REQUIRED_SITES = [  # exact-site pin of the real protected calls the oracle must see (file, qualname, callee, ordinal)
     ("core.py", "IngressCore._run", "decide", 1), ("core.py", "IngressCore._run", "provision_claim", 1), ("core.py", "IngressCore._run", "execute", 1),
@@ -176,26 +190,62 @@ class Analyzer:
                     bad += self.check_mapping(v, lam) if isinstance(v, ast.Dict) else [("NONLITERAL_KWARGS", f"{{**{ast.unparse(v)[:50]}}}")]
                 elif not _is_const_str(k):
                     bad.append(("NONLITERAL_KWARGS", "dict display with non-constant key " + ast.unparse(k)[:40]))
+                elif k.value in SIX:
+                    if not self.origin_ok(k.value, v):
+                        bad.append(("ORIGIN_VIOLATION", f"{k.value} value {ast.unparse(v)[:50]} has no trusted origin"))
                 elif MAPPING_PROHIBITED.match(k.value) and not _literal_ok(k.value, v):
                     bad.append(("PROHIBITED_KEY_IN_FIXED_FORM", f"key {k.value!r} with non-literal value {ast.unparse(v)[:40]}"))
             return bad
-        if isinstance(node, ast.DictComp):
-            g = node.generators[0] if len(node.generators) == 1 else None
-            if g is None or g.ifs or g.is_async or not isinstance(g.target, ast.Name) or not (isinstance(node.key, ast.Name) and node.key.id == g.target.id):
-                return [("COMPREHENSION_NOT_FIXED", "comprehension shape is not {k: ... for k in LITERAL_NAMES}")]
-            names = _lit_names(g.iter) if not isinstance(g.iter, ast.Name) else self._once_literal(g.iter)
-            if not names:
-                return [("COMPREHENSION_NOT_FIXED", "iterable is not an inline or once-bound literal tuple/list of string constants")]
-            v = node.value
-            derived = isinstance(v, ast.Constant) or (isinstance(v, ast.Call) and isinstance(v.func, ast.Name) and v.func.id == "getattr" and len(v.args) == 2
-                                                       and isinstance(v.args[0], ast.Name) and isinstance(v.args[1], ast.Name) and v.args[1].id == g.target.id)
-            if not derived:
-                return [("COMPREHENSION_NOT_FIXED", "value is not a constant or getattr(<name>, k): " + ast.unparse(v)[:50])]
-            return [("PROHIBITED_KEY_IN_FIXED_FORM", f"key {k!r} with non-literal value {ast.unparse(v)[:40]}") for k in names
-                    if MAPPING_PROHIBITED.match(k) and not isinstance(v, ast.Constant)]
+        if isinstance(node, ast.DictComp):  # the generic carve-out was removed (architect rulings #2): values of an arbitrary obj are not proven trusted
+            return [("COMPREHENSION_NOT_FIXED", "dict comprehension is not an accepted ** form (only an exactly pinned reviewed site)")]
         if isinstance(node, ast.Name) and lam is not None and node.id in lam:
             return []  # (c) the proxy's own *a/**k, closed lambda
         return [("NONLITERAL_KWARGS", f"**{ast.unparse(node)[:60]} is not a proven fixed form")]
+
+    # ---- R1 origin rule (bounded, source-aware; not a taint framework) -----------------
+    def _enclosing_func(self, node):
+        p = self.parent.get(node)
+        while p is not None and not isinstance(p, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            p = self.parent.get(p)
+        return p
+
+    def _bound_only_from(self, ident, producers):
+        vals = self.assign.get(ident, [])
+        return bool(vals) and len(self.stores.get(ident, [])) == len(vals) and all(
+            isinstance(v, ast.Call) and (self.names_of(v.func) & producers) for v in vals)
+
+    def _root_ok(self, node, producers, params):
+        """Name is bound only from calls to `producers`, or is a parameter named in `params` of a function called `envelope`
+        (whose every caller is separately required to pass producer-bound arguments)."""
+        if not isinstance(node, ast.Name):
+            return False
+        if self._bound_only_from(node.id, producers):
+            return True
+        fn = self._enclosing_func(node)
+        return bool(fn and fn.name == "envelope" and node.id in params and node.id not in self.assign and node.id in {a.arg for a in fn.args.args})
+
+    def origin_ok(self, field, v):
+        if isinstance(v, ast.Constant):
+            return True
+        if field == "requested_permissions" and isinstance(v, ast.Call) and isinstance(v.func, ast.Name) and v.func.id == "tuple" and len(v.args) == 1 and not v.keywords:
+            v = v.args[0]
+        if not isinstance(v, ast.Attribute):
+            return False
+        if field == "claim_id":  # the governed claim returned by the trusted provision path
+            return v.attr == "claim_id" and self._root_ok(v.value, {"provision_claim"}, ())
+        if field in ("grant_id", "grant_revision", "effective_max_effects"):  # authoritative decision binding
+            return (v.attr == field and isinstance(v.value, ast.Attribute) and v.value.attr == "binding"
+                    and self._root_ok(v.value.value, {"decide"}, {"d", "decision"}))
+        if field == "authority_context_id":  # the selected trusted authority context carried by the template-derived proposal
+            return v.attr in ("authority_context_ref", "authority_context_id") and self._root_ok(v.value, {"build_proposal"}, {"p", "proposal"})
+        return v.attr == "requested_permissions" and self._root_ok(v.value, {"build_proposal"}, {"p", "proposal"})  # derived from the authorized operation
+
+    def check_envelope_caller(self, node, ordinal):
+        if isinstance(node.func, ast.Attribute) and node.func.attr == "envelope":
+            a = node.args
+            if not (len(a) >= 2 and isinstance(a[0], ast.Name) and self._bound_only_from(a[0].id, {"decide"})
+                    and isinstance(a[1], ast.Name) and self._bound_only_from(a[1].id, {"build_proposal"})):
+                self.record(node, "ORIGIN_CALLER_UNTRUSTED", "envelope(decision, proposal) must receive names bound only from decide() / build_proposal()", "envelope", ordinal)
 
     def closed_lambda_params(self, lam):
         """(c): lambda bound once to a name that is only ever called directly -> its own *a/**k names, else empty set."""
@@ -216,10 +266,12 @@ class Analyzer:
         while p is not None and not isinstance(p, (ast.FunctionDef, ast.AsyncFunctionDef)):
             p = self.parent.get(p)
         scope = p or self.tree  # the pin covers the whole enclosing function, so a change anywhere in it un-pins the site
-        sig = hashlib.sha256((ast.unparse(node) + "\n--\n" + ast.unparse(scope)).encode()).hexdigest()[:12]
+        digest = hashlib.sha256((ast.dump(node) + "\n--\n" + ast.dump(scope)).encode()).hexdigest()
+        pid = f"{self.filename}:{self.qualname(node)}:{callee}#{ordinal}"
         f = {"file": self.filename, "line": node.lineno, "rule": rule, "callee": callee, "detail": detail, "source": ast.unparse(node)[:160],
-             "site": f"{self.filename}:{self.qualname(node)}:{callee}#{ordinal}:{sig}"}
-        pin = next((k for k in PINNED_SITES if k.rsplit(":", 1)[0] == f["site"].rsplit(":", 1)[0] and k.endswith(sig)), None)
+             "site": pid, "ast_digest": digest}
+        rec = PINNED_SITES.get(pid)
+        pin = pid if rec and rec.get("ast_digest") == digest and all(rec.get(k) for k in PIN_FIELDS) else None
         (self.pinned if pin else self.findings).append({**f, "pinned": pin} if pin else f)
 
     # ---- the check --------------------------------------------------------------
@@ -255,6 +307,7 @@ class Analyzer:
         if real:
             self.sites.append({"file": self.filename, "qualname": self.qualname(node), "callee": callee, "ordinal": ordinal, "line": node.lineno})
         forwards = []
+        self.check_envelope_caller(node, ordinal)
         for kw in node.keywords:
             if kw.arg is None and callee == "model_copy":
                 self.record(node, "MODEL_COPY_KWARGS_FORBIDDEN", "any ** into model_copy is rejected; update= must be an explicit keyword", callee, ordinal)
@@ -266,6 +319,9 @@ class Analyzer:
                     self.record(node, rule, d, callee, ordinal)
             elif kw.arg == "simulate" and not _literal_ok("simulate", kw.value):
                 self.record(node, "SIMULATE_NOT_CONSTANT_NONE", "simulate=" + ast.unparse(kw.value)[:50], callee, ordinal)
+            elif kw.arg in SIX and (protected or is_partial or "UNRESOLVED" in names):
+                if not self.origin_ok(kw.arg, kw.value):
+                    self.record(node, "ORIGIN_VIOLATION", f"{kw.arg}={ast.unparse(kw.value)[:60]} has no trusted origin", callee, ordinal)
             elif (protected or is_partial or "UNRESOLVED" in names) and EXPLICIT_PROHIBITED.match(kw.arg) and not _literal_ok(kw.arg, kw.value):
                 self.record(node, "PROHIBITED_KEYWORD_NON_LITERAL", f"{kw.arg}={ast.unparse(kw.value)[:50]}", callee, ordinal)
             elif kw.arg == "update" and callee == "model_copy":
@@ -303,6 +359,8 @@ def scan_dir(hub):
             "required_sites_missing": [list(s) for s in REQUIRED_SITES if s not in have],
             "real_protected_calls_count": len(sites), "real_protected_calls": sites,
             "pinned_sites_used": sorted(used), "pins_unmatched": sorted(k for k in PINNED_SITES if k not in used),
-            "pinned_site_reasons": {k: v for k, v in PINNED_SITES.items() if k in used},
+            "pin_records_incomplete": sorted(k for k, r in PINNED_SITES.items() if any(not r.get(f) for f in PIN_FIELDS)
+                                             or not re.fullmatch(r"[0-9a-f]{64}", str(r.get("ast_digest", "")))),
+            "pin_records": {k: v for k, v in PINNED_SITES.items() if k in used},
             "calls_examined": examined,
             "scope": "source-level static analysis; see _kwflow.py module docstring for limits"}
