@@ -5,6 +5,9 @@ bypass of identity/authority) IS reachable through the named surface at the tupl
 unmediated surface that the trusted-host ingress (Worker D1) must keep out of reach of ordinary clients. They pass when the
 surface is reachable; they do not endorse it.
 
+LOCAL BUILDER EVIDENCE, NOT WIRED TO CI. test_REACHABLE_* tests PASS WHEN A HOLE EXISTS: a green check there is not a control and
+must be excluded from any aggregate pass count.
+
 SPDX-License-Identifier: Apache-2.0
 """
 from __future__ import annotations
@@ -85,12 +88,9 @@ def test_REFUSED_pinned_control_plane_executor_on_route_b_database(tmp_path):
     try:
         flow = Flow(tmp_path, mp, identity=True, wide=False,
                     dest_factory=lambda path, f: Dest(path, clock=lambda: f.NOW))
-        try:
-            res = flow.run(flow.d1)
-            print("PINNED on route-B DB:", res.status, res.error)
-            assert res.status != "executed"
-        except Exception as exc:  # a raised refusal is equally a stop
-            print("PINNED on route-B DB raised:", type(exc).__name__, exc)
+        res = flow.run(flow.d1)
+        assert res.status == "failed" and res.error == "destination_outcome_unknown:RuntimeError"
+        assert res.attempted is True and res.newly_executed is False
         assert flow.ledger_effect_ids() == []
     finally:
         mp.undo()
@@ -226,39 +226,39 @@ def test_REACHABLE_raw_sql_insert_into_effects_by_the_database_file_holder(tmp_p
 
 # --- every importable runtime destination class with a commit path, aimed at the route-B database ------------------------
 
-@pytest.mark.parametrize("modname,clsname", [
-    ("engine.delayed_commit_destination", "DelayedCommitDestination"),
-    ("engine.delayed_commit_destination", "DelayedOperationIdentityDestination"),
-    ("engine.delayed_commit_destination", "DelayedEffectiveGrantDestination"),
-    ("engine.delayed_commit_destination", "DelayedOperationIdentityEffectiveGrantDestination"),
-    ("engine.effective_grant", "EffectiveGrantDestination"),
-    ("engine.operation_identity_destination", "OperationIdentityDestination"),
-    ("engine.operation_identity_destination", "OperationIdentityEffectiveGrantDestination"),
-    ("engine.dedupe_destination", "DedupeTtlOperationDestination"),
-    ("engine.refund_intent", "IntentRefundDestination"),
+MARKER = "authority-effect-profile destination requires atomic claim execution"
+SHARE = "effective-grant profile cannot share an authority-effect database"
+
+
+@pytest.mark.parametrize("modname,clsname,expected", [
+    ("engine.delayed_commit_destination", "DelayedCommitDestination", MARKER),
+    ("engine.delayed_commit_destination", "DelayedOperationIdentityDestination", MARKER),
+    ("engine.delayed_commit_destination", "DelayedEffectiveGrantDestination", SHARE),
+    ("engine.delayed_commit_destination", "DelayedOperationIdentityEffectiveGrantDestination", SHARE),
+    ("engine.effective_grant", "EffectiveGrantDestination", SHARE),
+    ("engine.operation_identity_destination", "OperationIdentityDestination", MARKER),
+    ("engine.operation_identity_destination", "OperationIdentityEffectiveGrantDestination", SHARE),
+    ("engine.dedupe_destination", "DedupeTtlOperationDestination", MARKER),
+    # Different refusal: the intent was deliberately unregistered, so this does NOT exercise the atomic marker.
+    ("engine.refund_intent", "IntentRefundDestination", "intent scope does not match operation"),
 ])
-def test_REFUSED_every_legacy_destination_class_commit_on_route_b_database(tmp_path, modname, clsname):
+def test_REFUSED_every_legacy_destination_class_commit_on_route_b_database(tmp_path, modname, clsname, expected):
     import importlib
-    from engine.safe_executor import snapshot_envelope
+    from engine.safe_executor import DurableRefundDestination, snapshot_envelope
     mp, flow, dest, ex, claim = _build(tmp_path)
     try:
         cls = getattr(importlib.import_module(modname), clsname)
-        before = set(_tables(dest))
         snap = snapshot_envelope(flow.envelope(flow.d1))
-        raised = None
-        try:
+        kwargs = {"operation_id": OPERATION} if "OperationIdentity" in clsname or "Dedupe" in clsname else {}
+        with pytest.raises(PermissionError) as info:
             if clsname == "IntentRefundDestination":
                 from engine.refund_intent import RefundIntent
-                from engine.safe_executor import DurableRefundDestination
-                other = cls(DurableRefundDestination(tmp_path / "atomic"),
-                            RefundIntent("urn:i", "customer-refunds", "cust-1", "req-1"))
+                other = cls(DurableRefundDestination(tmp_path / "atomic"), RefundIntent("urn:i", "customer-refunds", "cust-1", "req-1"))
             else:
                 other = cls(tmp_path / "atomic")
-            other.commit(snap, **({"operation_id": OPERATION} if "OperationIdentity" in clsname or "Dedupe" in clsname else {}))
-        except Exception as exc:  # a refusal at construction or at commit is a stop; the effect count is the assertion
-            raised = type(exc).__name__ + ": " + str(exc)
-        print(clsname, "->", raised, "| tables added to route-B DB by construction:", sorted(set(_tables(dest)) - before))
-        assert raised is not None and _effects(dest) == []
+            other.commit(snap, **kwargs)
+        assert str(info.value) == expected
+        assert _effects(dest) == []
     finally:
         mp.undo()
 

@@ -4,8 +4,9 @@ provision_local_execution_claim), real persisted decision, operation id derived 
 
 SPDX-License-Identifier: Apache-2.0
 Scope: synthetic $10-class refund fixtures of the Control Plane test package; builder tests, no Qualification verdict.
-Two tests in this file describe the observed behaviour of approval status (see test_approval_*): one asserts the terminal
-expectation and is expected to FAIL at this tuple; it is left failing, not marked xfail.
+Local builder evidence, not wired to CI; not a Qualification verdict. test_REACHABLE_* tests (other file) PASS when a hole exists.
+test_approval_revocation_is_terminal_like_grant_revocation asserts the terminal expectation and FAILS at this tuple; it is left
+failing, not marked xfail.
 """
 from __future__ import annotations
 
@@ -149,16 +150,22 @@ def test_lost_ack_is_unknown_then_second_execute_is_denied_one_effect(tmp_path):
         mp.undo()
 
 
-def test_lost_ack_second_execute_result_carries_unknown_and_not_retry_eligible(tmp_path):
-    """The task's stated expectation: the second execute reports unknown with retry_eligible False. Observed values asserted."""
+def test_lost_ack_second_execute_is_denied_pre_dispatch_with_one_committed_effect(tmp_path):
+    """Characterisation of the observed second result (not the 'unknown' the brief expected): status "denied", error
+    "execution claim is not usable", attempted False, observed_state "unknown" (the dataclass default of a pre-dispatch denial,
+    not an observation), observation None, failure_class authority_hold. NOTE: "denied / attempted False" does not mean "no
+    effect": one effect IS committed. The unknown / retry_eligible False facts belong to the FIRST result and to reconcile()."""
     mp, flow, dest, ex, claim = _build(tmp_path, dest_cls=_lost_ack_dest(), wide=True)
     try:
-        _run(flow, ex, claim, attempt_id="attempt-1")
+        r1 = _run(flow, ex, claim, attempt_id="attempt-1")
+        assert r1.status == "unknown" and r1.observation["retry_eligible"] is False
         r2 = _run(flow, ex, claim, attempt_id="attempt-2")
-        assert r2.observed_state == "unknown"
-        retry = (r2.observation or {}).get("retry_eligible", False)
-        assert retry is False
-        assert r2.status != "executed"
+        assert r2.status == "denied"
+        assert r2.error == "execution claim is not usable"
+        assert r2.attempted is False and r2.acknowledged is False and r2.newly_executed is False
+        assert r2.observed_state == "unknown" and r2.observation is None
+        assert r2.control_plane_evidence["failure_class"] == "authority_hold"
+        assert _effects(dest) == [flow.d1.effect_id]
     finally:
         mp.undo()
 
