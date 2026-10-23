@@ -31,7 +31,7 @@ def _expected_rule(path):
 
 
 def test_fixture_inventory():
-    assert len(NEG) >= 36 and len(POS) >= 8
+    assert len(NEG) >= 44 and len(POS) >= 8
 
 
 @pytest.mark.parametrize("path", NEG, ids=lambda p: p.stem)
@@ -95,6 +95,11 @@ MUTANTS = {
     "host: names list gains simulate": ("synthetic_host.py", "op = ExecutionOperation(", "names.append(\"simulate\")\n        op = ExecutionOperation("),
     "host: model_copy update from client mapping": ("synthetic_host.py", "tra.proposal = lambda *a, **k: original(*a, **k).model_copy(update={\"amount\": APPROVED_AMOUNT})",
                                                     "tra.proposal = lambda *a, **k: original(*a, **k).model_copy(update=a[0])"),
+    "host: model_copy ** update from client": ("synthetic_host.py", "return self.p0.model_copy(update={", "return self.p0.model_copy(**{\"fields\": fields}, update={"),
+    "host: build_proposal update gains client manifest_digest": ("synthetic_host.py", '"amount": float(fields["amount"]),', '"amount": float(fields["amount"]), "manifest_digest": fields["d"],'),
+    "host: build_proposal update gains client effects": ("synthetic_host.py", '"amount": float(fields["amount"]),', '"amount": float(fields["amount"]), "effects": fields["e"],'),
+    "core: explicit client action_id into execute": ("core.py", "claim_id=claim.claim_id, simulate=None)", 'claim_id=claim.claim_id, simulate=None, action_id=fields["a"])'),
+    "core: display with client requested_permissions": ("core.py", "claim_id=claim.claim_id, simulate=None)", 'claim_id=claim.claim_id, simulate=None, **{"requested_permissions": fields["p"]})'),
     "host: pinned ExecutionOperation site changed (un-pins)": ("synthetic_host.py", "institution_id=tba.INSTITUTION,", "institution_id=tba.INSTITUTION, **names,"),
 }
 
