@@ -512,6 +512,20 @@ def nc_ingress_ambiguity(work):
     return _ingress_ambiguity.run(work / "ingress-ambiguity")
 
 
+@scenario("nc_ingress_ambiguity_nohook")
+def nc_ingress_ambiguity_nohook(work):
+    """NEGATIVE CONTROL for NC2-06: the owner-side fault hook is disabled (no after_commit raise)."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity-nohook", fault_mode="none")
+
+
+@scenario("nc_ingress_ambiguity_forced_simulate")
+def nc_ingress_ambiguity_forced_simulate(work):
+    """NEGATIVE CONTROL for NC2-06: mutated wrapper forces simulate='lost_ack' into the executor call (a caller-controlled simulate)."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity-forced", fault_mode="forced_simulate")
+
+
 def direct_surface_baseline(work):
     """Informational (no row): the excluded surfaces ARE reachable by direct in-process use of the components, which is the
     trusted-host limitation the ingress must exclude for ordinary clients. Recorded, not judged."""

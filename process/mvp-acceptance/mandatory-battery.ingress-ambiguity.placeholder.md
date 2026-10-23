@@ -7,9 +7,9 @@ Proposed entry for a future battery version (Architect ruling 5):
 
 | id | kind | invocation | file | test | oracle row | evidence level |
 |---|---|---|---|---|---|---|
-| NC2-06 | oracle_row | mvp-chain | `suites/mvp-chain/test_ingress_ambiguity.py` | `test_ingress_ambiguous_acknowledgement_supported_path` | `NC2-06` in `process/mvp-chain/expectations.proposed.v4.json` | SUPPORTED INGRESS |
+| NC2-06 | oracle_row | mvp-chain | `suites/mvp-chain/test_ingress_ambiguity.py` | `test_ingress_ambiguous_acknowledgement_supported_path` | `NC2-06` in `process/mvp-chain/expectations.proposed.v5-ingress-ambiguity.json` | SUPPORTED INGRESS |
 
-Also required of a future battery version: `expectations_in_force` would have to name `expectations.proposed.v4.json` and the new file would need its own
+Also required of a future battery version: `expectations_in_force` would have to name `expectations.proposed.v5-ingress-ambiguity.json` and the new file would need its own
 `unchanged_files_sha256` entry; the invocation `paths` list would need the new test file. NC2-01..05 and `test_ruling4_lost_ack.py` remain
 EXECUTOR-LEVEL evidence (`simulate='lost_ack'`) and must not be cited as supported-ingress evidence. Preserve the UNKNOWN / no-blind-retry criterion.
 

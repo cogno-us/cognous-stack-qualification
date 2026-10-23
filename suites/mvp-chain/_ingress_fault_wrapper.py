@@ -46,11 +46,12 @@ def install(capture_dir: pathlib.Path):
         tmp.write_text(json.dumps(doc, sort_keys=True, default=str))
         os.replace(tmp, capture_dir / name)
 
+    mode = os.environ.get("MVP_FAULT_MODE", "after_commit")  # owner environment only; 'none' and 'forced_simulate' exist for negative controls
     original_stage = dest_cls._transaction_stage
 
     def stage(self, name):
         original_stage(self, name)
-        if name == "after_commit" and state["fired"] == 0:
+        if mode == "after_commit" and name == "after_commit" and state["fired"] == 0:
             state["fired"] = 1
             write("hook.json", {"fired": True, "stage": name})
             raise RuntimeError("injected by owner-side harness: acknowledgement unavailable after durable commit")
@@ -68,6 +69,8 @@ def install(capture_dir: pathlib.Path):
     original_execute = Exe.execute
 
     def execute(self, *, envelope, claim_id, simulate=None, attempt_id=None):
+        if mode == "forced_simulate":  # NEGATIVE-CONTROL MUTATION: a wrapper that lets a caller-controlled value reach simulate
+            simulate = "lost_ack"
         with open(capture_dir / "envelope.pickle", "wb") as fh:
             pickle.dump({"claim_id": claim_id, "envelope": envelope}, fh)
         result = original_execute(self, envelope=envelope, claim_id=claim_id, simulate=simulate, attempt_id=attempt_id)

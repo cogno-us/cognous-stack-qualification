@@ -101,6 +101,12 @@ effect id, not retry eligible, nothing written); the second result's default `ob
 contradicted by the readback, so it is not an authoritative observation; and a fresh operation identity without new authority (no approval
 re-binding, no renewal, same cap) commits no second effect and never reports `executed`.
 
+## Ruling 5: supported-ingress ambiguous acknowledgement (`test_ingress_ambiguity.py`, row NC2-06, PROPOSED)
+
+EVIDENCE LEVEL: SUPPORTED INGRESS. One valid proposal from the unprivileged client over the real hub ingress (`simulate=None`, request schema unchanged); the fault is owner-side only (`_ingress_fault_wrapper.py`, one Runtime post-commit seam). Row NC2-06 lives in `process/mvp-chain/expectations.proposed.v5-ingress-ambiguity.json` (v3 plus NC2-06 only). NC2-01..05 and ruling 4 remain EXECUTOR-LEVEL evidence (`simulate='lost_ack'`). Negative controls (tests): with the hook disabled NC2-06 must FAIL via `ack.hook_fired`; with a mutated wrapper that forces `simulate='lost_ack'` it must FAIL the `simulate` is-null predicates.
+
+**Composition is open:** PR #222 (branch `nc4-03-dataflow-predicate-v4`) separately proposes `expectations.proposed.v4.json` with the NC4-03 change. This file is deliberately NOT named v4 and does not contain that change. Qualification must compose the final expectations version from #222's NC4-03 row and this NC2-06 row as a new frozen version; that composition has not been done here.
+
 ## Known limits
 
 - The destination ledger is the atomic `effects` table; there is no account balance adapter, so "matched" means amount `10.0 USD` on the Control Plane proposal.
