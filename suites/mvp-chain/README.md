@@ -101,6 +101,22 @@ effect id, not retry eligible, nothing written); the second result's default `ob
 contradicted by the readback, so it is not an authoritative observation; and a fresh operation identity without new authority (no approval
 re-binding, no renewal, same cap) commits no second effect and never reports `executed`.
 
+## Ruling 5: supported-ingress ambiguous acknowledgement (`test_ingress_ambiguity.py`, row NC2-06, PROPOSED)
+
+EVIDENCE LEVEL: SUPPORTED INGRESS. One valid proposal from the unprivileged client over the real hub ingress (`simulate=None`, request schema unchanged); the fault is owner-side only (`_ingress_fault_wrapper.py`, one Runtime post-commit seam). Row NC2-06 lives in `process/mvp-chain/expectations.proposed.v5-ingress-ambiguity.json` (v3 rows byte-identical as text, plus NC2-06 inserted after NC2-05; only the header `status`/`supersedes` block differs). NC2-01..05 and ruling 4 remain EXECUTOR-LEVEL evidence (`simulate='lost_ack'`).
+
+`MVP_FAULT_MODE` is a required, comma-separated token set for the wrapper (absent or unknown tokens: refuse to start). The product run uses `after_commit,bind_fresh`.
+
+What the reuse part does and does not show:
+
+- **Same bytes again** is refused `REPLAY` by the ingress request ledger. This is ingress-level evidence only; it never reaches the executor and says nothing about the destination.
+- **A fresh request id with the same business content** is, without help, HELD at decide, because the synthetic approval binds exactly the request id `case-1`. A HELD request never reaches the executor, so that observation is not destination duplicate prevention. `bind_fresh` (owner side only, the wire is unchanged) builds the proposal with the approval-bound correlation id, so the fresh request is authorized, a second claim is provisioned, and the executor and `execute_claim_atomic` are called a second time. The row requires: executor calls 1 after the first request, 1 after the replay, 2 after the fresh request; the second result is `denied`, not attempted, not acknowledged, with `simulate` null; the fresh response is `refused` with `DUPLICATE_OPERATION` or `EXECUTION_DENIED`; the effect count stays 1; no new consumed claim exists. In the pinned tuple the second call is stopped inside the destination transaction by `authoritative effect budget exhausted` (the budget is checked before the operation-identity guard); the second claim remains `issued` and unconsumed. The operation-identity guard is not what stops it here.
+- **Reconcile** runs on the FIRST claim only (`envelope.pickle` is written on the first executor call).
+
+Negative controls (tests, each must FAIL NC2-06): hook disabled (`ack.hook_fired`); a wrapper forcing `simulate='lost_ack'` (the `simulate` is-null predicates); failure raised before the commit (`boundary.effect_count_after_first` and the ack/unknown predicates); a destination that allows a second commit (operation guard and record skipped and the budget un-spent from the second execute on; fails the second-request predicates; the second insert still collides on the deterministic effect id and ends `unknown` / `IntegrityError`, so the effect count stays 1); no `bind_fresh` (fails `reuse.executor_calls_after_fresh`).
+
+**Composition is open:** PR #222 (branch `nc4-03-dataflow-predicate-v4`) separately proposes `expectations.proposed.v4.json` with the NC4-03 change. This file is deliberately NOT named v4 and does not contain that change. Qualification must compose the final expectations version from #222's NC4-03 row and this NC2-06 row as a new frozen version; that composition has not been done here.
+
 ## Known limits
 
 - The destination ledger is the atomic `effects` table; there is no account balance adapter, so "matched" means amount `10.0 USD` on the Control Plane proposal.

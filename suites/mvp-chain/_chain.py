@@ -504,6 +504,51 @@ def nc_unmediated(work):
     return obs
 
 
+
+@scenario("nc_ingress_ambiguity")
+def nc_ingress_ambiguity(work):
+    """SUPPORTED-INGRESS evidence (ruling 5, proposed): see _ingress_ambiguity.py. Executor-level evidence stays in nc_ambiguous / ruling 4."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity")
+
+
+@scenario("nc_ingress_ambiguity_nohook")
+def nc_ingress_ambiguity_nohook(work):
+    """NEGATIVE CONTROL for NC2-06: the owner-side fault hook is disabled (no after_commit raise)."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity-nohook", fault_mode="none,bind_fresh")
+
+
+@scenario("nc_ingress_ambiguity_forced_simulate")
+def nc_ingress_ambiguity_forced_simulate(work):
+    """NEGATIVE CONTROL for NC2-06: mutated wrapper forces simulate='lost_ack' into the executor call (a caller-controlled simulate)."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity-forced", fault_mode="after_commit,bind_fresh,forced_simulate")
+
+
+@scenario("nc_ingress_ambiguity_before_commit")
+def nc_ingress_ambiguity_before_commit(work):
+    """NEGATIVE CONTROL for NC2-06: the failure is raised BEFORE the commit (no durable effect), so the row's effect-exists predicates must fail."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity-before", fault_mode="before_commit,bind_fresh")
+
+
+@scenario("nc_ingress_ambiguity_allow_second_commit")
+def nc_ingress_ambiguity_allow_second_commit(work):
+    """NEGATIVE CONTROL for NC2-06: the destination operation guard and record are skipped from the second execute on (a destination that
+    would allow a second commit); the reuse predicates must fail."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity-second", fault_mode="after_commit,bind_fresh,allow_second_commit")
+
+
+@scenario("nc_ingress_ambiguity_unbound_fresh")
+def nc_ingress_ambiguity_unbound_fresh(work):
+    """NEGATIVE CONTROL for NC2-06: without bind_fresh the fresh request id is HELD by approval binding and never reaches the executor
+    again; that is not destination duplicate prevention, so the row must fail on the executor-call predicates."""
+    import _ingress_ambiguity
+    return _ingress_ambiguity.run(work / "ingress-ambiguity-unbound", fault_mode="after_commit")
+
+
 def direct_surface_baseline(work):
     """Informational (no row): the excluded surfaces ARE reachable by direct in-process use of the components, which is the
     trusted-host limitation the ingress must exclude for ordinary clients. Recorded, not judged."""
