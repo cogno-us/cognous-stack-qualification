@@ -13,7 +13,9 @@ name: MVP acceptance (proposed)
 # v1-v3 byte-identical, the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
 # the hub environment record, CAPTURED IN THE RUN against the very ingress process the suite attacks (dedicated non-root uid and group, 0660 socket in a separate IPC
 # directory, Yama ptrace_scope >= 1 set here via sudo sysctl; absent Yama is BLOCKED/INCOMPLETE) and bound to this run by a gate-side envelope (run_id, qualification_sha,
-# record hash, pinned capture script). A Python 3.12 result is supplementary only. Unrelated historical suites are not required to be skip-free. The job fails unless the gate says ACCEPT.
+# record hash, pinned capture script). hub_revision MUST name a hub sha containing tools/mvp_ingress/capture_env_record.py with sha256
+# 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51 (a preflight step right after the hub checkout exits 1 otherwise; the gate's INCOMPLETE stays as backup).
+# A Python 3.12 result is supplementary only. Unrelated historical suites are not required to be skip-free. The job fails unless the gate says ACCEPT.
 'on':
   workflow_dispatch:
     inputs:
@@ -53,7 +55,7 @@ name: MVP acceptance (proposed)
         default: ''
         type: string
       hub_revision:
-        description: cogno-us/cognous-open-control-stack commit, 40-hex (blank uses the candidate identity inputs; overrides hub (trusted-host ingress) for this run only)
+        description: cogno-us/cognous-open-control-stack commit, 40-hex (blank uses the candidate identity inputs; overrides hub (trusted-host ingress) for this run only). MUST name a hub sha that contains tools/mvp_ingress/capture_env_record.py with sha256 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51 (hub PR #219, approved head 050dcd67; hub 0e2b52a0 carries identical script bytes); the run exits 1 right after the hub checkout otherwise. The default hub sha predates the script.
         required: false
         default: ''
         type: string
@@ -63,7 +65,7 @@ name: MVP acceptance (proposed)
         default: ''
         type: string
       qualification_revision:
-        description: Suite commit, 40-hex (blank uses the workflow event commit)
+        description: Suite commit, 40-hex; must be blank or equal the workflow event commit (github.sha), anything else is refused so the running workflow and the checked-out suite cannot differ
         required: false
         default: ''
         type: string
@@ -88,11 +90,12 @@ jobs:
       MVP_IDENTITY_FILE: ${{ github.workspace }}/process/mvp-acceptance/candidate-identity.inputs.json
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
-      - name: Validate qualification_revision before it is used as a checkout ref
+      - name: Validate qualification_revision before it is used as a checkout ref (blank or the workflow commit only)
         env:
           QUAL_REV: ${{ inputs.qualification_revision }}
         run: |
           [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
+          [[ -z "$QUAL_REV" || "$QUAL_REV" == "$GITHUB_SHA" ]] || { echo "qualification_revision must be blank or equal the workflow commit $GITHUB_SHA"; exit 1; }
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           ref: ${{ inputs.qualification_revision || github.sha }}
@@ -162,6 +165,9 @@ jobs:
           ref: ${{ steps.tuple.outputs.hub }}
           path: components/hub
           persist-credentials: false
+      - name: Preflight the hub capture script (must exist with the pinned sha256; fail early, the gate stays the backup)
+        run: |
+          python3 tools/mvp_acceptance_gate.py preflight-hub --components-dir "$GITHUB_WORKSPACE/components"
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
           python-version: '3.13'

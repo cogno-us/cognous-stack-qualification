@@ -693,6 +693,8 @@ class RulingsTwoTests(GateTests):
         self.assertEqual(real_pin["path"], "tools/mvp_ingress/capture_env_record.py")
         self.assertIn("050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e", real_pin["hub_pr"])
         self.assertEqual(real_pin["sha256"], "5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51")
+        self.assertIn("0e2b52a0", real_pin["hub_pr"])
+        self.assertIn("identical script bytes", real_pin["hub_pr"])
         # the envelope names a script other than the pinned one
         self.build(envelope_mutate=lambda e: e.update(capture_script_sha256="a" * 64))
         c = self.g11()
@@ -1036,6 +1038,74 @@ class IngressProfileTests(unittest.TestCase):
                 self.assertIsNotNone(self.I.yama_block_reason(value))
         for value in ("1", "2", "3"):
             self.assertIsNone(self.I.yama_block_reason(value))
+
+
+class HardeningTests(unittest.TestCase):
+    """Preflight of the hub capture script, qualification_revision refusal, interpreter note."""
+
+    PIN = ENV_PROFILE["capture_script"]["sha256"]
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp(prefix="hard-test-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def hub_script(self, content):
+        f = self.tmp / "components/hub" / ENV_PROFILE["capture_script"]["path"]
+        f.parent.mkdir(parents=True, exist_ok=True)
+        if content is not None:
+            f.write_bytes(content)
+        return f
+
+    def test_preflight_fails_early_when_the_script_is_absent_a_symlink_or_other_bytes(self):
+        self.hub_script(None)
+        self.assertEqual(len(G.preflight_hub(ROOT, self.tmp / "components")), 1)
+        self.assertEqual(G.main(["preflight-hub", "--components-dir", str(self.tmp / "components"), "--repo-root", str(ROOT)]), 1)
+        f = self.hub_script(b"# some other script\n")
+        self.assertIn("not the pinned", G.preflight_hub(ROOT, self.tmp / "components")[0])
+        f.unlink()
+        real = self.tmp / "real.py"
+        real.write_bytes(b"x")
+        f.symlink_to(real)
+        self.assertEqual(len(G.preflight_hub(ROOT, self.tmp / "components")), 1)
+
+    def test_preflight_passes_for_the_pinned_bytes(self):
+        root, _ = make_root(self.tmp / "root")  # profile pinned to the stand-in script
+        self.hub_script(FAKE_SCRIPT)
+        self.assertEqual(G.preflight_hub(root, self.tmp / "components"), [])
+        self.assertEqual(G.main(["preflight-hub", "--components-dir", str(self.tmp / "components"), "--repo-root", str(root)]), 0)
+
+    def test_workflow_runs_the_preflight_right_after_the_hub_checkout_and_documents_hub_revision(self):
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        hub_co = wf.index("path: components/hub")
+        pre = wf.index("preflight-hub")
+        self.assertLess(hub_co, pre)
+        self.assertLess(pre, wf.index("actions/setup-python"))
+        self.assertEqual(wf[hub_co:pre].count("- uses:"), 0)  # nothing else runs between the checkout and the preflight
+        self.assertGreaterEqual(wf.count(self.PIN), 2)  # the input description and the header
+        self.assertIn("MUST name a hub sha", wf)
+        self.assertIn("0e2b52a0", wf)
+
+    def run_validate_step(self, qual_rev, github_sha):
+        import re
+        import subprocess
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        step = wf[wf.index("- name: Validate qualification_revision"):]
+        body = step[step.index("run: |\n") + len("run: |\n"):step.index("      - uses:")]
+        script = "\n".join(line[10:] for line in body.splitlines())
+        return subprocess.run(["bash", "-c", script], env={"QUAL_REV": qual_rev, "GITHUB_SHA": github_sha, "PATH": "/usr/bin:/bin"}, capture_output=True, text=True).returncode
+
+    def test_qualification_revision_must_be_blank_or_the_workflow_commit(self):
+        sha, other = "a" * 40, "b" * 40
+        self.assertEqual(self.run_validate_step("", sha), 0)
+        self.assertEqual(self.run_validate_step(sha, sha), 0)
+        self.assertEqual(self.run_validate_step(other, sha), 1)
+        self.assertEqual(self.run_validate_step("main", sha), 1)
+        self.assertEqual(self.run_validate_step("abc123", sha), 1)
+
+    def test_readme_states_which_interpreters_the_match_checks_apply_to(self):
+        text = (ROOT / "process/mvp-acceptance/README.md").read_text()
+        self.assertIn("system `/usr/bin/python3 -I`", text)
+        self.assertIn("apply to the ingress and the suite only, never to the probe client", text)
 
 
 if __name__ == "__main__":

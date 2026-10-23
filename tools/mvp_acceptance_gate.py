@@ -1017,6 +1017,17 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
     return doc
 
 
+def preflight_hub(repo_root: Path, components_dir: Path) -> list[str]:
+    """Problems (empty when fine) with the hub capture script at the tuple's hub sha: absent, a symlink or not the pinned bytes. Fail early; G-11 stays the backup."""
+    cs = load(Path(repo_root) / ENV_PROFILE_FILE)["hub_record"]["capture_script"]
+    f = Path(components_dir) / COMPONENT_DIRS["hub"] / cs["path"]
+    if f.is_symlink() or not f.is_file():
+        return [f"{cs['path']} is absent from the hub checkout: hub_revision must name a hub sha that contains it (sha256 {cs['sha256']})"]
+    if sha256_file(f) != cs["sha256"]:
+        return [f"{cs['path']} has sha256 {sha256_file(f)}, not the pinned {cs['sha256']}: a changed capture script is a NEW candidate"]
+    return []
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -1035,6 +1046,9 @@ def main(argv=None) -> int:
     v = sub.add_parser("verify-checkouts")
     v.add_argument("--resolved", required=True)
     v.add_argument("--base", default=".")
+    pf = sub.add_parser("preflight-hub")
+    pf.add_argument("--components-dir", required=True)
+    pf.add_argument("--repo-root", default=str(ROOT))
     g = sub.add_parser("gate")
     g.add_argument("--run-dir", required=True)
     g.add_argument("--out")
@@ -1058,6 +1072,11 @@ def main(argv=None) -> int:
     if args.cmd == "anchor":
         anchor(args.repo, args.ref, Path(args.out), Path(args.repo_root))
         return 0
+    if args.cmd == "preflight-hub":
+        problems = preflight_hub(Path(args.repo_root), Path(args.components_dir))
+        for pr in problems:
+            print("preflight-hub: " + pr, file=sys.stderr)
+        return 1 if problems else 0
     if args.cmd == "verify-checkouts":
         verify_checkouts(Path(args.resolved), Path(args.base))
         return 0
