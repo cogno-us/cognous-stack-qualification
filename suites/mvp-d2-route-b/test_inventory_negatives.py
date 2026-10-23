@@ -222,3 +222,42 @@ def test_REACHABLE_raw_sql_insert_into_effects_by_the_database_file_holder(tmp_p
         print("DB MODE:", oct(os.stat(dest.path).st_mode & 0o777), "DIR MODE:", oct(os.stat(dest.root).st_mode & 0o777))
     finally:
         mp.undo()
+
+
+# --- every importable runtime destination class with a commit path, aimed at the route-B database ------------------------
+
+@pytest.mark.parametrize("modname,clsname", [
+    ("engine.delayed_commit_destination", "DelayedCommitDestination"),
+    ("engine.delayed_commit_destination", "DelayedOperationIdentityDestination"),
+    ("engine.delayed_commit_destination", "DelayedEffectiveGrantDestination"),
+    ("engine.delayed_commit_destination", "DelayedOperationIdentityEffectiveGrantDestination"),
+    ("engine.effective_grant", "EffectiveGrantDestination"),
+    ("engine.operation_identity_destination", "OperationIdentityDestination"),
+    ("engine.operation_identity_destination", "OperationIdentityEffectiveGrantDestination"),
+    ("engine.dedupe_destination", "DedupeTtlOperationDestination"),
+    ("engine.refund_intent", "IntentRefundDestination"),
+])
+def test_REFUSED_every_legacy_destination_class_commit_on_route_b_database(tmp_path, modname, clsname):
+    import importlib
+    from engine.safe_executor import snapshot_envelope
+    mp, flow, dest, ex, claim = _build(tmp_path)
+    try:
+        cls = getattr(importlib.import_module(modname), clsname)
+        before = set(_tables(dest))
+        snap = snapshot_envelope(flow.envelope(flow.d1))
+        raised = None
+        try:
+            if clsname == "IntentRefundDestination":
+                from engine.refund_intent import RefundIntent
+                from engine.safe_executor import DurableRefundDestination
+                other = cls(DurableRefundDestination(tmp_path / "atomic"),
+                            RefundIntent("urn:i", "customer-refunds", "cust-1", "req-1"))
+            else:
+                other = cls(tmp_path / "atomic")
+            other.commit(snap, **({"operation_id": OPERATION} if "OperationIdentity" in clsname or "Dedupe" in clsname else {}))
+        except Exception as exc:  # a refusal at construction or at commit is a stop; the effect count is the assertion
+            raised = type(exc).__name__ + ": " + str(exc)
+        print(clsname, "->", raised, "| tables added to route-B DB by construction:", sorted(set(_tables(dest)) - before))
+        assert raised is not None and _effects(dest) == []
+    finally:
+        mp.undo()
