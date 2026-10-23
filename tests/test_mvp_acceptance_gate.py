@@ -65,30 +65,58 @@ PY = f"{sys.version_info[0]}.{sys.version_info[1]}"
 ENV_PROFILE = json.loads((ROOT / "process/mvp-acceptance/environment-profile.proposed.v1.json").read_text())["hub_record"]
 
 
-def make_root(dest: Path, mutate=None) -> tuple[Path, str]:
+def make_root(dest: Path, mutate=None, real_pin=False) -> tuple[Path, str]:
     """A copy of the files the gate reads, with a freshly generated candidate commitment (so these tests do not depend on the committed hash)."""
     ignore = shutil.ignore_patterns("__pycache__")
     for rel in ("process", "suites/mvp-chain", "suites/mvp-applicability", "suites/v1-scenarios", "suites/operation-identity", "tools", ".github"):
         shutil.copytree(ROOT / rel, dest / rel, ignore=ignore, dirs_exist_ok=True, symlinks=True)
     shutil.copy(ROOT / "pytest.ini", dest / "pytest.ini")
+    for f in (ROOT / "suites").iterdir():  # every file directly in suites/ is on sys.path and committed
+        if f.is_file():
+            shutil.copy(f, dest / "suites" / f.name)
+    if not real_pin:
+        pin_fake_script(dest)
     if mutate:
         mutate(dest)
     G.build_commitment(dest, dest / G.COMMITMENT_FILE)
     return dest, G.sha256_file(dest / G.COMMITMENT_FILE)
 
 
-def env_record(tuple_shas, mutate=None, ingress_sources=None):
+FAKE_SCRIPT = b"# stands in for the hub capture script in these synthetic runs\n"
+FAKE_SCRIPT_SHA = hashlib.sha256(FAKE_SCRIPT).hexdigest()
+FAKE_MANIFEST = b'{"manifest": "synthetic"}\n'
+IDS = {"ingress_uid": 990, "ingress_gid": 990, "client_uid": 991, "client_gid": 991, "ipc_gid": 992}
+
+
+def pin_fake_script(root):
+    """Synthetic runs use a stand-in capture script; the pin in the (copied) profile is set to its sha so only the tests about the pin look at the real one."""
+    p = root / G.ENV_PROFILE_FILE
+    d = json.loads(p.read_text())
+    d["hub_record"]["capture_script"]["sha256"] = FAKE_SCRIPT_SHA
+    p.write_text(json.dumps(d, indent=2) + "\n")
+
+
+def env_record(tuple_shas, mutate=None, ingress_sources=None, comps=None):
     checks = [{"id": i, "status": "PASS", "detail": "x", "data": {}} for i in ENV_PROFILE["required_pass_check_ids"]]
-    rec = {"schema": "mvp-ingress-env-record/1", "run_id": RUN, "qualification_sha": QSHA,
+    man = ENV_PROFILE["manifest"]
+    rec = {"schema": "mvp-ingress-env-record/1",
            "python": {"version": "3.13.1", "implementation": "CPython"}, "isolation_limits": {"yama_ptrace_scope": "1"},
-           "ipc": {"connection_policy": {"socket_group_policy": "dedicated"}, "stat": {"path": "/run/ipc/ingress.sock", "type": "socket", "mode": "0660", "uid": 1, "gid": 2}},
-           "filesystem": {"state_dir": "/var/lib/ingress/state"}, "process_identity": {"ingress_uid": 990, "ingress_process": {"uid": 990}},
-           "configuration": {"source_pins": {f"c{i}": sha for i, sha in enumerate(sorted(tuple_shas))}, "ingress_source_sha256": ingress_sources or {}},
+           "ipc": {"connection_policy": {"socket_group_policy": "dedicated"}, "stat": {"path": "/run/ipc/ingress.sock", "type": "socket", "mode": "0660", "uid": IDS["ingress_uid"], "gid": IDS["ipc_gid"]}},
+           "filesystem": {"state_dir": "/var/lib/ingress/state"},
+           "process_identity": {"ingress_uid": IDS["ingress_uid"], "ingress_gid": IDS["ingress_gid"], "client_uid": IDS["client_uid"], "client_gid": IDS["client_gid"],
+                                "ingress_process": {"uid": [IDS["ingress_uid"]] * 3}},
+           "configuration": {"source_pins": {n: c["sha"] for n, c in (comps or {}).items()} or {f"c{i}": sha for i, sha in enumerate(sorted(tuple_shas))},
+                             "ingress_source_sha256": ingress_sources or {},
+                             "manifest_sha256": {pathlib_name(man["path"]): hashlib.sha256(FAKE_MANIFEST).hexdigest()}},
            "checks": checks, "overall": "PASS"}
     if mutate:
         mutate(rec)
     rec["record_sha256"] = G._record_digest(rec)
     return rec
+
+
+def pathlib_name(rel):
+    return rel.rsplit("/", 1)[-1]
 
 
 class GateTests(unittest.TestCase):
@@ -99,7 +127,7 @@ class GateTests(unittest.TestCase):
         self.root, self.commit = make_root(self.tmp / "root")
         self.build()
 
-    def build(self, *, collect_drop=(), junit_overrides=None, junit_drop=(), row_status=None, verifier_mutate=None, exclusion=None, env_mutate=None):
+    def build(self, *, collect_drop=(), junit_overrides=None, junit_drop=(), row_status=None, verifier_mutate=None, exclusion=None, env_mutate=None, envelope_mutate=None, ingress_mutate=None, no_record=False, script_on_hub=FAKE_SCRIPT):
         shutil.rmtree(self.run_dir, ignore_errors=True)
         rd = self.run_dir
         (rd / "mvp-chain/artifacts/verifier").mkdir(parents=True)
@@ -114,8 +142,30 @@ class GateTests(unittest.TestCase):
         hub = self.tmp / "components" / "hub" / "tools" / "mvp_ingress"
         hub.mkdir(parents=True, exist_ok=True)
         (hub / "server.py").write_text("print('x')\n")
+        script = self.tmp / "components" / "hub" / ENV_PROFILE["capture_script"]["path"]
+        if script_on_hub is None:
+            script.unlink(missing_ok=True)
+        else:
+            script.write_bytes(script_on_hub)
+        man = self.tmp / "components" / "manifest" / ENV_PROFILE["manifest"]["path"]
+        man.parent.mkdir(parents=True, exist_ok=True)
+        man.write_bytes(FAKE_MANIFEST)
         sources = {"tools/mvp_ingress/server.py": G.sha256_file(hub / "server.py")}
-        (rd / "environment-record.json").write_text(json.dumps(env_record({c["sha"] for c in comps.values()}, env_mutate, sources)))
+        if script_on_hub is not None:
+            sources["tools/mvp_ingress/capture_env_record.py"] = G.sha256_file(script)
+        self.record_path = rd / "mvp-chain/artifacts/environment-record.json"
+        self.envelope_path = rd / "mvp-chain/artifacts/environment-record.envelope.json"
+        if not no_record:
+            self.record_path.write_text(json.dumps(env_record({c["sha"] for c in comps.values()}, env_mutate, sources, comps)))
+            envelope = {"schema": G.ENVELOPE_SCHEMA, "run_id": RUN, "qualification_sha": QSHA, "record_sha256": json.loads(self.record_path.read_text())["record_sha256"],
+                        "record_file_sha256": G.sha256_file(self.record_path), "capture_script_sha256": FAKE_SCRIPT_SHA,
+                        "environment_profile_sha256": G.sha256_file(self.root / G.ENV_PROFILE_FILE)}
+            if envelope_mutate:
+                envelope_mutate(envelope)
+            self.envelope_path.write_text(json.dumps(envelope))
+        self.ingress_obs = {"profile": "approved", "probe_ran": True, "ingress_is_root": False, **IDS}
+        if ingress_mutate:
+            ingress_mutate(self.ingress_obs)
         (rd / "mvp-chain/artifacts/ingress-modules.json").write_text(json.dumps(
             {"run_id": RUN, "modules": {"os": "/usr/lib/os.py", "tools.mvp_ingress.server": "/hub/tools/mvp_ingress/server.py"}, "sys_path": ["/hub"]}))
         rows = [{"id": t["row"], "status": (row_status or {}).get(t["row"], "PASS")} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
@@ -130,7 +180,8 @@ class GateTests(unittest.TestCase):
             (rd / f"mvp-chain/artifacts/verifier/{label}-report.json").write_bytes(raw)
             vrun[label] = {"exit_code": code, "overall": "abstain" if code == 3 else "accept", "crashed": False, "report_sha256": hashlib.sha256(raw).hexdigest(),
                            "module_path": "/x/src/cognous_verify/__init__.py", "module_path_under_pin": True}
-        (rd / "mvp-chain/observations.json").write_text(json.dumps({"run": {"run_id": RUN}, "env": {"python": "3.13.1 (main)", "pydantic_version": "2.13.5"}, "chain": {"verifier": vrun}}))
+        (rd / "mvp-chain/observations.json").write_text(json.dumps({"run": {"run_id": RUN}, "env": {"python": "3.13.1 (main)", "pydantic_version": "2.13.5"}, "chain": {"verifier": vrun},
+                                                                  "nc_unmediated": {"ingress": self.ingress_obs}}))
         for tag, inv in BATTERY["invocations"].items():
             tests = [t for t in BATTERY["tests"] if t["invocation"] == tag]
             (rd / inv["junit"]).write_text(junit(tests, junit_overrides, junit_drop))
@@ -140,7 +191,7 @@ class GateTests(unittest.TestCase):
 
     def gate(self, root=None, commit=None, **kw):
         args = {"expect_qualification": QSHA, "expect_commitment": (self.commit if root is None else None) if commit is None else commit, "require_python": PY,
-                "components_dir": self.tmp / "components", "expect_record_sha": G.sha256_file(self.run_dir / "environment-record.json") if (self.run_dir / "environment-record.json").is_file() else None}
+                "components_dir": self.tmp / "components"}
         args.update(kw)
         return G.run_gate(self.run_dir, root or self.root, **args)
 
@@ -332,8 +383,7 @@ class ReviewFixTests(GateTests):
         (self.run_dir / "mvp-chain/artifacts/verifier/B-report.json").write_bytes(b"{not json")
         self.assertEqual(G.main(["gate", "--run-dir", str(self.run_dir), "--repo-root", str(self.root), "--out", str(out),
                                  "--expect-commitment-sha256", self.commit, "--require-python", PY,
-                                 "--components-dir", str(self.tmp / "components"),
-                                 "--expect-environment-record-sha256", G.sha256_file(self.run_dir / "environment-record.json")]), 2)
+                                 "--components-dir", str(self.tmp / "components")]), 2)
         self.assertEqual(json.loads(out.read_text())["verdict"], "INCOMPLETE")
 
     def test_unreadable_artifact_does_not_crash_the_gate(self):
@@ -497,7 +547,7 @@ class RulingsTwoTests(GateTests):
                 self.assertNotEqual(v, "ACCEPT")
 
     def test_edited_environment_record_is_refused_and_missing_is_incomplete(self):
-        path = self.run_dir / "environment-record.json"
+        path = self.record_path
         rec = json.loads(path.read_text())
         rec["python"]["version"] = "3.13.9"  # edited without re-hashing
         path.write_text(json.dumps(rec))
@@ -548,32 +598,185 @@ class RulingsTwoTests(GateTests):
             (r / "suites/operation-identity").symlink_to(r / "oi_real", target_is_directory=True)
         tamper("committed ancestor directory replaced by a symlink", symlink_ancestor)
 
+    def test_every_file_directly_in_a_sys_path_directory_is_committed(self):
+        committed = set(json.loads((ROOT / G.COMMITMENT_FILE).read_text())["files"])
+        for rel in ("suites", "suites/operation-identity", "tools"):
+            for f in sorted((ROOT / rel).iterdir()):
+                if f.is_file():
+                    self.assertIn(f"{rel}/{f.name}", committed, f"{rel}/{f.name} is on sys.path and must be committed")
+        for f in sorted(ROOT.iterdir()):  # the repository root is first on sys.path under ``python -m pytest``: every importable file and package __init__
+            if f.is_file() and f.name.endswith(G.IMPORTABLE_SUFFIXES):
+                self.assertIn(f.name, committed)
+            if f.is_dir() and (f / "__init__.py").exists():
+                self.assertIn(f"{f.name}/__init__.py", committed)
+        self.assertEqual(set(G.syspath_entries(ROOT)) - committed, set())
+
+    def test_a_planted_shadow_module_on_sys_path_is_a_g12_fail(self):
+        plants = {"tools/yaml.py": "x = 1\n", "suites/jsonschema.py": "x = 1\n", "suites/operation-identity/pydantic.py": "x = 1\n", "sitecustomize.py": "x = 1\n",
+                  "usercustomize.py": "x = 1\n", "tools/shadow.pth": "/tmp\n", "suites/pkg/__init__.py": "x = 1\n", "tools/pkg/__init__.py": "x = 1\n",
+                  "tools/native.cpython-313-x86_64-linux-gnu.so": "x", "yaml.pyc": "x", "suites/data.txt": "any file directly in suites/", "tools/notes.md": "any file directly in tools/",
+                  "suites/operation-identity/notes.md": "any file directly in suites/operation-identity/"}
+        for rel, content in plants.items():
+            with self.subTest(rel):
+                shutil.rmtree(self.tmp / "p", ignore_errors=True)
+                root, commit = make_root(self.tmp / "p")
+                self.assertEqual(self._g12(self.gate(root, commit))["status"], "PASS")
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_text(content)
+                c = self._g12(self.gate(root, commit))
+                self.assertEqual(c["status"], "FAIL", c["detail"])
+                self.assertIn("not committed", c["detail"])
+        with self.subTest("symlink planted"):
+            shutil.rmtree(self.tmp / "p", ignore_errors=True)
+            root, commit = make_root(self.tmp / "p")
+            (root / "tools/yaml.py").symlink_to(root / "tools/pristine_checkout.py")
+            self.assertEqual(self._g12(self.gate(root, commit))["status"], "FAIL")
+        with self.subTest("edited committed module"):
+            shutil.rmtree(self.tmp / "p", ignore_errors=True)
+            root, commit = make_root(self.tmp / "p")
+            (root / "suites/_pins.py").write_text((root / "suites/_pins.py").read_text() + "\n# shadow\n")
+            self.assertEqual(self._g12(self.gate(root, commit))["status"], "FAIL")
+        with self.subTest("a directory that is not on sys.path is not part of the set"):
+            shutil.rmtree(self.tmp / "p", ignore_errors=True)
+            root, commit = make_root(self.tmp / "p")
+            (root / "docs").mkdir(exist_ok=True)
+            (root / "docs/unrelated.py").write_text("x = 1\n")
+            self.assertEqual(self._g12(self.gate(root, commit))["status"], "PASS")
+
     def test_build_commitment_refuses_symlinks(self):
         root, _ = make_root(self.tmp / "ts")
         (root / "suites/mvp-chain/ln.py").symlink_to(root / "suites/mvp-chain/verdict.py")
         with self.assertRaises(SystemExit):
             G.build_commitment(root, root / "c.json")
 
-    def test_environment_record_file_hash_symlink_and_binding(self):
-        self.assertEqual({c["id"]: c["status"] for c in self.gate(expect_record_sha=None)["checks"]}["G-11"], "INCOMPLETE")
-        self.assertEqual({c["id"]: c["status"] for c in self.gate(expect_record_sha="0" * 64)["checks"]}["G-11"], "FAIL")
-        path = self.run_dir / "environment-record.json"
+    def g11(self, **kw):
+        doc = self.gate(**kw)
+        return {c["id"]: c for c in doc["checks"]}["G-11"]
+
+    def test_environment_record_file_replaced_symlinked_or_unbound_is_refused(self):
+        self.assertEqual(self.g11()["status"], "PASS")
+        # no envelope: the record cannot be bound to the run
+        self.envelope_path.unlink()
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+        # the record file replaced after capture (the envelope pins its file hash)
+        self.build()
+        rec = json.loads(self.record_path.read_text())
+        rec["python"]["version"] = "3.13.9"
+        rec["record_sha256"] = G._record_digest(rec)
+        self.record_path.write_text(json.dumps(rec))
+        self.assertEqual(self.g11()["status"], "FAIL")
+        # symbolic link
+        self.build()
         real = self.tmp / "real-record.json"
-        shutil.copy(path, real)
-        path.unlink()
-        path.symlink_to(real)
-        self.assertEqual({c["id"]: c["status"] for c in self.gate()["checks"]}["G-11"], "FAIL")
+        shutil.copy(self.record_path, real)
+        self.record_path.unlink()
+        self.record_path.symlink_to(real)
+        self.assertEqual(self.g11()["status"], "FAIL")
+
+    def test_run_binding_lives_in_the_envelope_not_in_a_committed_record(self):
+        for label, mut, want in (("run_id absent", lambda e: e.pop("run_id"), "INCOMPLETE"), ("run_id other", lambda e: e.update(run_id="other"), "FAIL"),
+                                 ("qualification_sha absent", lambda e: e.pop("qualification_sha"), "INCOMPLETE"),
+                                 ("qualification_sha other", lambda e: e.update(qualification_sha="1" * 40), "FAIL"),
+                                 ("record hash other", lambda e: e.update(record_sha256="0" * 64), "FAIL"),
+                                 ("record file hash other", lambda e: e.update(record_file_sha256="0" * 64), "FAIL"),
+                                 ("profile hash other", lambda e: e.update(environment_profile_sha256="0" * 64), "FAIL"),
+                                 ("schema other", lambda e: e.update(schema="x/1"), "FAIL")):
+            with self.subTest(label):
+                self.build(envelope_mutate=mut)
+                self.assertEqual(self.g11()["status"], want, self.g11()["detail"])
+        self.build()
+        self.assertEqual(self.g11()["status"], "PASS")
+
+    def test_capture_script_is_pinned_in_the_profile_and_at_the_tuple_hub_sha(self):
+        real_pin = ENV_PROFILE["capture_script"]
+        self.assertRegex(real_pin["sha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(real_pin["path"], "tools/mvp_ingress/capture_env_record.py")
+        self.assertIn("558566df", real_pin["hub_pr"])
+        # the envelope names a script other than the pinned one
+        self.build(envelope_mutate=lambda e: e.update(capture_script_sha256="a" * 64))
+        c = self.g11()
+        self.assertEqual(c["status"], "FAIL")
+        self.assertIn("not the pinned", c["detail"])
+        # the hub checkout at the tuple sha holds a different script than the pin (a moved #219 is a new candidate)
+        self.build(script_on_hub=b"# a later revision of the capture script\n")
+        c = self.g11()
+        self.assertEqual(c["status"], "FAIL")
+        self.assertIn("differs from the pinned sha256", c["detail"])
+        # the tuple's hub sha predates the script
+        self.build(script_on_hub=None, env_mutate=None)
+        c = self.g11()
+        self.assertEqual(c["status"], "INCOMPLETE")
+        self.assertIn("predates the capture script", c["detail"])
+        # and with the REAL pin (not the stand-in) the stand-in script is refused
+        real_root, real_commit = make_root(self.tmp / "realpin", real_pin=True)
+        self.build()
+        self.assertEqual({c["id"]: c for c in self.gate(real_root, real_commit)["checks"]}["G-11"]["status"], "FAIL")
+
+    def test_developer_optout_and_unrecorded_profile_are_incomplete_never_a_pass(self):
+        self.build(ingress_mutate=lambda o: o.update(profile="developer-optout"))
+        c = self.g11()
+        self.assertEqual(c["status"], "INCOMPLETE")
+        self.assertIn("developer opt-out", c["detail"])
+        self.assertNotEqual(self.verdict()[0], "ACCEPT")
+        self.build(ingress_mutate=lambda o: o.pop("profile"))
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+        # opt-out takes precedence even though a record happens to exist
+        self.build(no_record=True, ingress_mutate=lambda o: o.update(profile="developer-optout"))
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+        self.build(no_record=True)
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+
+    def test_identities_in_the_record_are_the_ones_the_suite_observed(self):
+        for key in IDS:
+            with self.subTest(key):
+                self.build(ingress_mutate=lambda o, k=key: o.update({k: o[k] + 1000}))
+                c = self.g11()
+                self.assertEqual(c["status"], "FAIL")
+                self.assertIn(f"identity {key}", c["detail"])
+            with self.subTest(key + " not observed"):
+                self.build(ingress_mutate=lambda o, k=key: o.pop(k))
+                self.assertEqual(self.g11()["status"], "INCOMPLETE")
+        self.build(ingress_mutate=lambda o: o.update(ingress_is_root=True))
+        self.assertEqual(self.g11()["status"], "FAIL")
+        self.build(ingress_mutate=lambda o: o.pop("ingress_is_root"))
+        self.assertEqual(self.g11()["status"], "FAIL")
+
+    def test_component_pins_and_manifest_are_the_tuples(self):
+        def pin(name, value):
+            return lambda r: r["configuration"]["source_pins"].update({name: value}) if value else r["configuration"]["source_pins"].pop(name)
+        self.build(env_mutate=pin("runtime", "d" * 40))
+        self.assertEqual(self.g11()["status"], "FAIL")
+        self.build(env_mutate=pin("control_plane", None))
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+        self.build(env_mutate=lambda r: r["configuration"].update(manifest_sha256={"refund_integration_v1_1.manifest.json": "0" * 64}))
+        self.assertEqual(self.g11()["status"], "FAIL")
+        self.build(env_mutate=lambda r: r["configuration"].pop("manifest_sha256"))
+        self.assertEqual(self.g11()["status"], "INCOMPLETE")
+
+    HUB_EMITTED_IDS = (  # every check id the hub capture script (PR #219 head 558566df) always emits when the inputs are given; the *.exception and *_present ids are BLOCKED markers emitted only on failure
+        "configuration.journal_mode", "configuration.pins_and_manifests", "filesystem.ancestors_not_writable_by_others", "filesystem.no_acl_entries",
+        "filesystem.no_extra_group_access", "filesystem.state_tree_owner_only", "identity.client_distinct_unprivileged", "identity.declared",
+        "identity.ingress_command", "identity.ingress_not_root", "identity.ingress_process", "invocation.client_entry_point",
+        "invocation.operation_identity_fixed_true", "invocation.simulate_fixed_none", "ipc.directory_separate_and_protected", "ipc.peer_credentials",
+        "ipc.socket_mode_owner_group", "isolation.ingress_capabilities", "isolation.ingress_dumpability", "isolation.ptrace_scope", "platform.linux",
+        "platform.fs_enforces_unix_perms.socket_dir", "platform.fs_enforces_unix_perms.state_dir",
+        "python.interpreter_matches_ingress", "python.profile", "qualification.client_capabilities_empty", "qualification.client_denied_ingress_process",
+        "qualification.client_denied_state_access", "qualification.client_socket_reachable", "qualification.outsider_denied_socket")
+
+    def test_required_ids_equal_the_ids_the_hub_script_emits(self):
+        self.assertEqual(sorted(ENV_PROFILE["required_pass_check_ids"]), sorted(self.HUB_EMITTED_IDS))
+        for stale in ("ipc.socket_mode_owner", "isolation.ingress_capabilities_recorded"):  # names the hub does not emit (they made the gate unsatisfiable)
+            self.assertNotIn(stale, ENV_PROFILE["required_pass_check_ids"])
 
     def test_every_hub_emitted_check_id_is_required(self):
-        ids = set(ENV_PROFILE["required_pass_check_ids"])
-        for needed in ("qualification.client_capabilities_empty", "qualification.client_socket_reachable", "qualification.client_denied_state_access",
-                       "qualification.client_denied_ingress_process", "invocation.client_entry_point", "invocation.simulate_fixed_none",
-                       "invocation.operation_identity_fixed_true", "configuration.pins_and_manifests", "configuration.journal_mode",
-                       "isolation.ingress_capabilities_recorded"):
-            self.assertIn(needed, ids)
+        for needed in self.HUB_EMITTED_IDS:
             with self.subTest(needed):
                 self.build(env_mutate=lambda r, n=needed: r["checks"].remove(next(c for c in r["checks"] if c["id"] == n)))
                 self.assertEqual(self.verdict()[1]["G-11"], "INCOMPLETE")
+        for needed in ("ipc.directory_separate_and_protected", "qualification.outsider_denied_socket"):
+            with self.subTest("not PASS " + needed):
+                self.build(env_mutate=lambda r, n=needed: (next(c for c in r["checks"] if c["id"] == n).update(status="FAIL"), r.update(overall="FAIL")))
+                self.assertEqual(self.verdict()[1]["G-11"], "FAIL")
 
     def test_environment_record_bound_to_run_sources_interpreter_and_ipc(self):
         def setp(path, value):
@@ -586,9 +789,7 @@ class RulingsTwoTests(GateTests):
                 else:
                     node[path[-1]] = value
             return m
-        cases = [("run_id absent", setp(["run_id"], KeyError), "INCOMPLETE"), ("run_id other", setp(["run_id"], "other"), "FAIL"),
-                 ("qual sha absent", setp(["qualification_sha"], KeyError), "INCOMPLETE"), ("qual sha other", setp(["qualification_sha"], "1" * 40), "FAIL"),
-                 ("interpreter differs", setp(["python", "version"], "3.13.9"), "FAIL"),
+        cases = [("interpreter differs", setp(["python", "version"], "3.13.9"), "FAIL"),
                  ("sources absent", setp(["configuration", "ingress_source_sha256"], KeyError), "INCOMPLETE"),
                  ("sources differ", setp(["configuration", "ingress_source_sha256"], {"tools/mvp_ingress/server.py": "0" * 64}), "FAIL"),
                  ("group policy absent", setp(["ipc", "connection_policy"], KeyError), "INCOMPLETE"),
@@ -598,6 +799,9 @@ class RulingsTwoTests(GateTests):
                  ("socket inside state dir", setp(["ipc", "stat", "path"], "/var/lib/ingress/state/ingress.sock"), "FAIL"),
                  ("ingress uid absent", setp(["process_identity", "ingress_uid"], KeyError), "INCOMPLETE"),
                  ("ingress root", setp(["process_identity", "ingress_uid"], 0), "FAIL")]
+        for label, mut, want in cases:
+            if label == "ingress root":  # the suite's observation then disagrees with the record too: still a FAIL
+                pass
         for label, mut, want in cases:
             with self.subTest(label):
                 self.build(env_mutate=mut)
@@ -660,6 +864,127 @@ class ResolveTests(unittest.TestCase):
     def test_unknown_component_override_is_refused(self):
         with self.assertRaises(SystemExit):
             self.run_resolve({"exchange": "1" * 40})
+
+
+class IngressProfileTests(unittest.TestCase):
+    """suites/mvp-chain/_ingress.py: the approved profile is explicit, never silently weaker."""
+
+    def setUp(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        self.addCleanup(sys.path.remove, str(ROOT / "suites/mvp-chain"))
+        for m in ("_ingress", "_state"):
+            sys.modules.pop(m, None)
+        import _ingress, _state  # noqa: E401
+        self.I, self.S = _ingress, _state
+        self.tmp = Path(tempfile.mkdtemp(prefix="ingress-test-"))
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.addCleanup(lambda: [sys.modules.pop(m, None) for m in ("_ingress", "_state")])
+
+    def env(self, **kw):
+        import os
+        from unittest import mock
+        return mock.patch.dict(os.environ, kw, clear=False)
+
+    def test_unknown_profile_is_blocked(self):
+        with self.env(MVP_INGRESS_PROFILE="whatever"):
+            out = self.I.run(self.tmp)
+        self.assertEqual(out["status"], "blocked")
+        self.assertFalse(out["ingress"]["probe_ran"])
+
+    def test_default_profile_is_approved_and_optout_is_explicit_and_recorded(self):
+        import os
+        self.S.ENV["dirs"].pop("hub", None)
+        with self.env():
+            os.environ.pop("MVP_INGRESS_PROFILE", None)
+            self.assertEqual(self.I.run(self.tmp)["ingress"]["profile"], "approved")
+        with self.env(MVP_INGRESS_PROFILE="developer-optout"):
+            self.assertEqual(self.I.run(self.tmp)["ingress"]["profile"], "developer-optout")
+
+    def test_identities_must_be_named_exist_and_be_dedicated(self):
+        import os
+        for k in ("MVP_INGRESS_USER", "MVP_CLIENT_USER", "MVP_IPC_GROUP"):
+            os.environ.pop(k, None)
+        with self.assertRaises(self.I.ProfileBlocked) as cm:
+            self.I._identities()
+        self.assertIn("developer-optout", str(cm.exception))
+        with self.env(MVP_INGRESS_USER="no-such-user-xyz", MVP_CLIENT_USER="root", MVP_IPC_GROUP="root"):
+            with self.assertRaises(self.I.ProfileBlocked):
+                self.I._identities()
+        with self.env(MVP_INGRESS_USER="root", MVP_CLIENT_USER="root", MVP_IPC_GROUP="root"):
+            with self.assertRaises(self.I.ProfileBlocked) as cm:
+                self.I._identities()
+            self.assertIn("non-root", str(cm.exception))
+
+    def test_workflow_provisions_the_profile_and_no_longer_takes_a_precommitted_record(self):
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        for needed in ("sysctl -w kernel.yama.ptrace_scope=1", "MVP_INGRESS_PROFILE=approved", "MVP_INGRESS_USER=mvp-ingress", "MVP_CLIENT_USER=mvp-client",
+                       "MVP_IPC_GROUP=mvp-ipc", "MVP_QUALIFICATION_SHA=", "useradd", "groupadd --system mvp-ipc"):
+            self.assertIn(needed, wf)
+        for gone in ("environment_record_sha256", "inputs.environment_record", "expect-environment-record-sha256", "--socket-mode 666"):
+            self.assertNotIn(gone, wf)
+        self.assertNotIn("developer-optout", wf)
+        src = (ROOT / "suites/mvp-chain/_ingress.py").read_text()
+        self.assertIn('"666" if optout else "660"', src)
+        self.assertNotIn("--socket-mode\", \"666\"]", src)
+
+    def test_capture_binds_the_record_to_the_run_in_an_envelope_and_leaves_the_record_intact(self):
+        import os
+        hub = self.tmp / "hub"
+        (hub / "tools/mvp_ingress").mkdir(parents=True)
+        (hub / "tools/mvp_ingress/server.py").write_text("x = 1\n")
+        (hub / "tools/mvp_ingress/capture_env_record.py").write_text(
+            "import json, sys\nout = sys.argv[sys.argv.index('--out') + 1]\nrec = {'schema': 'mvp-ingress-env-record/1', 'overall': 'PASS', 'record_sha256': 'f' * 64, 'argv': sys.argv[1:]}\n"
+            "open(out, 'w').write(json.dumps(rec, sort_keys=True))\nsys.exit(0)\n")
+        man = self.tmp / "manifest"
+        (man / "examples").mkdir(parents=True)
+        (man / "examples/refund_integration_v1_1.manifest.json").write_text("{}")
+        self.S.ENV["dirs"]["action_manifest"] = str(man)
+        self.S.ENV["heads"] = {"hub": "a" * 40, "runtime": "b" * 40}
+        profile = json.loads((ROOT / G.ENV_PROFILE_FILE).read_text())
+        ident = {"ingress_uid": 990, "ingress_gid": 990, "client_uid": 991, "client_gid": 991}
+        record = self.tmp / "art/environment-record.json"
+        with self.env(MVP_RUN_ID="run123", MVP_QUALIFICATION_SHA="9" * 40):
+            res = self.I.capture_environment_record(hub, ident, profile, state=self.tmp / "st", sock="/x/ipc/s.sock", pid=4242, dest=self.tmp / "d.db", record_path=record)
+        self.assertTrue(res["captured"])
+        env = json.loads((record.parent / "environment-record.envelope.json").read_text())
+        self.assertEqual((env["run_id"], env["qualification_sha"], env["record_sha256"]), ("run123", "9" * 40, "f" * 64))
+        self.assertEqual(env["record_file_sha256"], hashlib.sha256(record.read_bytes()).hexdigest())
+        self.assertEqual(env["capture_script_sha256"], hashlib.sha256((hub / "tools/mvp_ingress/capture_env_record.py").read_bytes()).hexdigest())
+        argv = json.loads(record.read_text())["argv"]
+        for flag, val in (("--ingress-pid", "4242"), ("--ingress-uid", "990"), ("--client-uid", "991"), ("--journal-mode", "wal"), ("--outsider-uid", "65533")):
+            self.assertEqual(argv[argv.index(flag) + 1], val)
+        self.assertIn("runtime=" + "b" * 40, argv)
+        self.assertTrue(any(a.startswith("manifest_sha256.refund_integration_v1_1.manifest.json=") for a in argv))
+        # no run id supplied: the envelope omits it (the gate then says INCOMPLETE), it never invents one
+        for k in ("MVP_RUN_ID", "MVP_QUALIFICATION_SHA"):
+            os.environ.pop(k, None)
+        self.I.capture_environment_record(hub, ident, profile, state=self.tmp / "st", sock="/x/ipc/s.sock", pid=4242, dest=self.tmp / "d.db", record_path=record)
+        env = json.loads((record.parent / "environment-record.envelope.json").read_text())
+        self.assertNotIn("run_id", env)
+        self.assertNotIn("qualification_sha", env)
+
+    def test_capture_script_absent_from_the_hub_checkout_is_reported_not_faked(self):
+        hub = self.tmp / "hub2"
+        (hub / "tools/mvp_ingress").mkdir(parents=True)
+        profile = json.loads((ROOT / G.ENV_PROFILE_FILE).read_text())
+        res = self.I.capture_environment_record(hub, {}, profile, state="s", sock="x", pid=1, dest="d", record_path=self.tmp / "r.json")
+        self.assertFalse(res["captured"])
+        self.assertFalse((self.tmp / "r.json").exists())
+
+    @unittest.skipUnless(hasattr(__import__("os"), "geteuid") and __import__("os").geteuid() == 0, "needs root to drop privileges")
+    def test_owner_side_observation_runs_as_the_dropped_uid_with_umask_077(self):
+        import os
+        out = self.I._run_as(65534, 65534, lambda: {"uid": os.geteuid(), "gid": os.getegid(), "groups": os.getgroups(), "umask": os.umask(0o077)})
+        self.assertEqual(out, {"uid": 65534, "gid": 65534, "groups": [], "umask": 0o077})
+        with self.assertRaises(RuntimeError):
+            self.I._run_as(65534, 65534, lambda: 1 / 0)
+
+    def test_yama_absent_or_below_one_blocks_the_boundary_test(self):
+        for value in ("unavailable: FileNotFoundError", "0", ""):
+            with self.subTest(value):
+                self.assertIsNotNone(self.I.yama_block_reason(value))
+        for value in ("1", "2", "3"):
+            self.assertIsNone(self.I.yama_block_reason(value))
 
 
 if __name__ == "__main__":

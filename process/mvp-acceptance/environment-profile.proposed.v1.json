@@ -1,6 +1,6 @@
 {
   "schema": "cognous.mvp-environment-profile/1",
-  "status": "PROPOSED supported-environment record for the selected profile (Architect rulings #2 items 4 and 6); pending independent Qualification acceptance and freeze (target 2026-10-27). A change is a new versioned file.",
+  "status": "PROPOSED supported-environment record for the selected profile (Architect rulings #2 items 4 and 6 and the approved ingress profile); pending independent Qualification acceptance and freeze (target 2026-10-27). A change is a new versioned file.",
   "profile": "restricted Linux, single host, CPython 3.13, pydantic >= 2.12",
   "python": {
     "implementation": "CPython",
@@ -13,7 +13,7 @@
   },
   "hub_record": {
     "schema": "mvp-ingress-env-record/1",
-    "producer": "tools/mvp_ingress/capture_env_record.py (hub PR #219)",
+    "producer": "tools/mvp_ingress/capture_env_record.py (hub PR #219, branch mvp-ingress-env-record, head 558566dfd93b6c6e3c0b4f284a6f32c386b480d0)",
     "required_overall": "PASS",
     "required_pass_check_ids": [
       "configuration.journal_mode",
@@ -24,24 +24,30 @@
       "filesystem.state_tree_owner_only",
       "identity.client_distinct_unprivileged",
       "identity.declared",
+      "identity.ingress_command",
       "identity.ingress_not_root",
       "identity.ingress_process",
       "invocation.client_entry_point",
       "invocation.operation_identity_fixed_true",
       "invocation.simulate_fixed_none",
-      "ipc.socket_mode_owner",
-      "isolation.ingress_capabilities_recorded",
+      "ipc.directory_separate_and_protected",
+      "ipc.peer_credentials",
+      "ipc.socket_mode_owner_group",
+      "isolation.ingress_capabilities",
+      "isolation.ingress_dumpability",
       "isolation.ptrace_scope",
+      "platform.fs_enforces_unix_perms.socket_dir",
+      "platform.fs_enforces_unix_perms.state_dir",
       "platform.linux",
       "python.interpreter_matches_ingress",
       "python.profile",
       "qualification.client_capabilities_empty",
       "qualification.client_denied_ingress_process",
       "qualification.client_denied_state_access",
-      "qualification.client_socket_reachable"
+      "qualification.client_socket_reachable",
+      "qualification.outsider_denied_socket"
     ],
     "python_version_prefix": "3.13",
-    "supplied_by": "workflow_dispatch inputs environment_record (a regular file, not a symlink, under process/mvp-acceptance/environment-records/) and environment_record_sha256 (supplied from outside the checkout); none supplied is INCOMPLETE",
     "refresh": "Environment evidence must be refreshed (a new record) if the execution host or a relevant setting changes.",
     "ipc": {
       "socket_mode": "0660",
@@ -49,8 +55,37 @@
       "socket_group_policy": "dedicated",
       "separate_ipc_directory": "the socket's directory must not be, or sit under, the ingress state directory"
     },
-    "run_binding": "the record must carry run_id and qualification_sha equal to the run's (top-level fields, covered by record_sha256); absent is INCOMPLETE. Hub PR #219 head 4d1fe908 does not emit them yet.",
-    "source_binding": "configuration.ingress_source_sha256 must equal the sha256 of tools/mvp_ingress/*.py in the hub checkout at the tuple sha; absent is INCOMPLETE",
-    "interpreter_binding": "python.version must equal the interpreter version the suite observed in this run"
+    "run_binding": "The hub record is deterministic and carries no run id. The envelope (cognous.mvp-environment-record-envelope/1) carries run_id and qualification_sha supplied by the workflow (MVP_RUN_ID, MVP_QUALIFICATION_SHA), the record's own record_sha256, the sha256 of the record file, the sha256 of the capture script and of this profile; the gate requires all of them to match. Missing run_id or qualification_sha is INCOMPLETE, a different one FAIL.",
+    "source_binding": "configuration.ingress_source_sha256 must equal the sha256 of tools/mvp_ingress/*.py in the hub checkout at the tuple sha; absent is INCOMPLETE. Each component pin in the record must equal the tuple sha of that component.",
+    "interpreter_binding": "python.version must equal the interpreter version the suite observed in this run",
+    "required_ids_note": "Reconciled against the ids the hub script at the pinned sha256 emits (also verified by running it: 32 ids on a bare host, of which the always-emitted PASS-or-better set is required). Not required by name: capture.exception, <section>.exception, filesystem.state_dir_present and filesystem.socket_present (BLOCKED markers emitted only on failure; any BLOCKED check already makes the verdict INCOMPLETE). A required id absent from the record is INCOMPLETE; one that is not PASS is INCOMPLETE (BLOCKED) or FAIL.",
+    "capture_script": {
+      "path": "tools/mvp_ingress/capture_env_record.py",
+      "sha256": "68628d4ed24cb3f869497d728ac190075016e431bb0752df988edbad64303615",
+      "hub_pr": "cogno-us/cognous-open-control-stack#219 head 558566dfd93b6c6e3c0b4f284a6f32c386b480d0",
+      "note": "Pinned because #219 is still moving. The script in the hub checkout at the tuple sha must have exactly these bytes (a different script is a NEW candidate: new profile version and commitment), and the run envelope must name this sha256. The candidate-identity hub sha (hub main) predates the script: a run needs hub_revision set to a sha that contains it, otherwise G-11 is INCOMPLETE."
+    },
+    "manifest": {
+      "component": "action_manifest",
+      "path": "examples/refund_integration_v1_1.manifest.json",
+      "note": "manifest file passed to the capture script; its sha256 must equal the record's configuration.manifest_sha256 (checked against the tuple's action-manifest checkout)"
+    },
+    "journal_mode": "wal",
+    "outsider_uid": 65533,
+    "identities": {
+      "ingress_user": "mvp-ingress",
+      "client_user": "mvp-client",
+      "ipc_group": "mvp-ipc",
+      "note": "dedicated users and group created by the workflow; names only, the uids and gids are resolved on the host and compared with the record. The ingress runs as mvp-ingress (non-root, own primary group), the client as mvp-client, the socket group mvp-ipc has exactly those two members."
+    },
+    "provisioning": {
+      "yama": "sudo sysctl -w kernel.yama.ptrace_scope=1 in the workflow; absent or < 1 is BLOCKED and the verdict INCOMPLETE",
+      "ipc_directory": "a separate directory (setgid, group mvp-ipc, 2750) the client can traverse; the ingress-owned 0700 state directory is never the socket directory",
+      "socket": "0660, owner the ingress uid, group mvp-ipc",
+      "developer_optout": "MVP_INGRESS_PROFILE=developer-optout (local only: root ingress, mode 666, uid 65534, no record); the suite records profile=developer-optout and the gate verdict is INCOMPLETE. The workflow always sets MVP_INGRESS_PROFILE=approved."
+    },
+    "capture": "captured IN THE RUN by suites/mvp-chain/_ingress.py as root against the very ingress process the suite then attacks (not a pre-committed file); written to mvp-chain/artifacts/environment-record.json with a gate-side envelope environment-record.envelope.json",
+    "independent_pin": "There is no pre-committed environment record hash any more: the independent anchor is the pin on the capture script (above) plus the candidate commitment, which covers this profile.",
+    "identity_binding": "the identities the suite observed on the running ingress and client (uid, gid, ipc gid, non-root) must equal process_identity and ipc.stat in the record"
   }
 }

@@ -510,7 +510,11 @@ ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
 SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability")
 ABSENT_CANDIDATES = ("conftest.py", "suites/conftest.py", "tox.ini", "setup.cfg", "pyproject.toml")
 CONFIG_FILES = ("pytest.ini",)
-ENV_RECORDS_DIR = "process/mvp-acceptance/environment-records"
+# Directories that are (or can be) on sys.path of the pytest processes: ``python -m pytest`` puts the repository root first, the suites' conftest files put
+# suites/, suites/operation-identity/ and tools/ first. A planted tools/yaml.py, suites/jsonschema.py, sitecustomize.py or a package directory there would
+# shadow a real import, so EVERY file directly in them (the repository root: every importable file) and every package __init__ one level down is committed.
+SYSPATH_DIRS = (".", "suites", "suites/operation-identity", "tools")
+IMPORTABLE_SUFFIXES = (".py", ".pyc", ".pyo", ".pyd", ".so", ".pth", ".zip", ".egg", ".whl")
 
 
 def _entries(root: Path, rel: str) -> list[str]:
@@ -523,6 +527,30 @@ def _entries(root: Path, rel: str) -> list[str]:
                 continue
             out.append(str((Path(dirpath) / name).relative_to(root)))
     return out
+
+
+def syspath_entries(root: Path) -> list[str]:
+    """Everything that can satisfy an import directly from a sys.path directory: all files (importable ones at the repository root), symlinks and the
+    __init__ file of each package directory. Not recursive beyond that: a subdirectory without an __init__ is only a namespace portion and loses to any regular module."""
+    root, out = Path(root), set()
+    for rel in SYSPATH_DIRS:
+        d = root / rel
+        if not d.is_dir():
+            continue
+        for ent in sorted(os.scandir(d), key=lambda e: e.name):
+            if ent.name == "__pycache__" or ent.name == ".git":
+                continue
+            relp = ent.name if rel == "." else f"{rel}/{ent.name}"
+            if ent.is_symlink():
+                out.add(relp)
+            elif ent.is_file():
+                if rel != "." or ent.name.endswith(IMPORTABLE_SUFFIXES) or ".so" in ent.name:
+                    out.add(relp)
+            elif ent.is_dir():
+                for init in ("__init__.py", "__init__.pyc"):
+                    if (Path(ent.path) / init).exists() or (Path(ent.path) / init).is_symlink():
+                        out.add(f"{relp}/{init}")
+    return sorted(out)
 
 
 def _local_imports(root: Path, rel: str) -> set[str]:
@@ -560,14 +588,15 @@ def _local_imports(root: Path, rel: str) -> set[str]:
 def commit_files(repo_root: Path) -> list[str]:
     """Every file whose bytes the qualification candidate commits to: ALL files under the two mandatory suites, the transitive closure of the
     local modules they import (including other suites and tools), the gate, the workflow and the lock files it references, pytest.ini, the
-    proposed inputs and every process/mvp-chain and process/mvp-acceptance file (except the commitment itself and the environment records,
-    which are evidence checked by an independent hash)."""
+    proposed inputs, every process/mvp-chain and process/mvp-acceptance file (except the commitment itself) and every file directly in a sys.path
+    directory (see SYSPATH_DIRS)."""
     root = Path(repo_root)
     files = {"tools/mvp_acceptance_gate.py", ".github/workflows/mvp-acceptance.yml"}
+    files.update(syspath_entries(root))
     for sub in SUITE_DIRS:
         files.update(_entries(root, sub))
     for sub in ("process/mvp-chain", "process/mvp-acceptance"):
-        files.update(f for f in _entries(root, sub) if f != COMMITMENT_FILE and not f.startswith(ENV_RECORDS_DIR + "/"))
+        files.update(f for f in _entries(root, sub) if f != COMMITMENT_FILE)
     files.update(f for f in CONFIG_FILES if (root / f).exists() or (root / f).is_symlink())
     wf = (root / ".github/workflows/mvp-acceptance.yml").read_text()
     for lock in sorted(set(re.findall(r"\.github/locks/[A-Za-z0-9._-]+", wf))):
@@ -618,7 +647,7 @@ def build_commitment(repo_root: Path, out: Path) -> dict:
            "inherent_limit": "The gate and the workflow that evaluate this commitment come from the same checkout, so a changed gate could report PASS. An independent reviewer must pin "
                              "this commitment hash AND the gate code (tools/mvp_acceptance_gate.py is itself listed here, but its listing is only meaningful against a hash held outside the checkout).",
            "scope": "all files under suites/mvp-chain and suites/mvp-applicability; the transitive closure of local modules they import (static import analysis); pytest.ini; the lock files "
-                    "the workflow references; process/mvp-chain and process/mvp-acceptance (except this file and environment-records/, which are evidence checked by an independent hash).",
+                    "the workflow references; process/mvp-chain and process/mvp-acceptance (except this file); every file directly in the repository root (importable ones), suites/, suites/operation-identity/ and tools/ (the sys.path directories), so a planted module that would shadow an import is an uncommitted file.",
            "must_remain_absent": absent_files(root),
            "files": {rel: sha256_file(root / rel) for rel in files}}
     Path(out).write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
@@ -698,23 +727,71 @@ def _record_digest(rec: dict) -> str:
     return hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
-def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, components_dir: Path | None = None, expect_record_sha: str | None = None,
-                             observations: dict | None = None):
-    """The hub environment record (mvp-ingress-env-record/1) must be PASS on the selected profile; BLOCKED (Yama absent, not root, ...) is INCOMPLETE."""
+ENVELOPE_SCHEMA = "cognous.mvp-environment-record-envelope/1"
+RECORD_PARTS = ("mvp-chain", "artifacts", "environment-record.json")
+ENVELOPE_PARTS = ("mvp-chain", "artifacts", "environment-record.envelope.json")
+
+
+def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, components_dir: Path | None = None, observations: dict | None = None):
+    """The hub environment record (mvp-ingress-env-record/1), captured IN THIS RUN against the very ingress process the suite attacked, must be
+    PASS on the selected profile. The hub record is kept intact; a gate-side envelope binds run_id, qualification_sha, the hub record_sha256 and the
+    sha256 of the record file and of the capture script (itself pinned in the environment profile). BLOCKED (Yama absent, not root, ...) and the
+    developer opt-out are INCOMPLETE, never a weaker pass."""
     profile = load(Path(repo_root) / ENV_PROFILE_FILE)["hub_record"]
-    rec = _read_json(gate, "G-11", run_dir / "environment-record.json", "hub environment record (none supplied)")
-    if rec is None:
-        return
-    record_path = run_dir / "environment-record.json"
-    resolved = load(run_dir / "tuple-resolved.json") if (run_dir / "tuple-resolved.json").is_file() else {"components": {}}
-    tuple_shas = {c.get("sha") for c in resolved.get("components", {}).values()}
+    run_dir = Path(run_dir)
+    record_path, envelope_path = run_dir.joinpath(*RECORD_PARTS), run_dir.joinpath(*ENVELOPE_PARTS)
+    ing_obs = ((observations or {}).get("nc_unmediated") or {}).get("ingress") or {}
     incomplete, fail = [], []
-    if record_path.is_symlink():
-        fail.append("the staged environment record is a symbolic link")
-    if not expect_record_sha or not re.fullmatch(r"[0-9a-f]{64}", expect_record_sha):
-        incomplete.append("no independently supplied sha256 of the environment record file (environment_record_sha256)")
-    elif sha256_file(record_path) != expect_record_sha:
-        fail.append("environment record file sha256 differs from the independently supplied value")
+    mode = ing_obs.get("profile")
+    if mode == "developer-optout":
+        incomplete.append("the ingress ran under the explicit developer opt-out (root, no dedicated identities, no environment record): never an acceptance run")
+    elif mode != "approved":
+        incomplete.append(f"the suite did not record that the ingress ran per the approved profile (profile={mode!r})")
+    if not record_path.is_file() and not record_path.is_symlink():
+        gate.add("G-11", INCOMPLETE, "; ".join(incomplete + ["no hub environment record was captured in this run"]))
+        return
+    if record_path.is_symlink() or envelope_path.is_symlink():
+        fail.append("the environment record or its envelope is a symbolic link")
+    try:
+        rec = json.loads(record_path.read_text())
+    except (OSError, ValueError) as exc:
+        gate.add("G-11", INCOMPLETE, f"environment record unreadable ({type(exc).__name__})")
+        return
+    resolved = load(run_dir / "tuple-resolved.json") if (run_dir / "tuple-resolved.json").is_file() else {"components": {}}
+    comps = resolved.get("components", {})
+    tuple_shas = {c.get("sha") for c in comps.values()}
+    # --- envelope: the gate-side run binding (the hub record is a deterministic file and cannot carry a later run id)
+    try:
+        env = json.loads(envelope_path.read_text())
+    except (OSError, ValueError):
+        env = None
+        incomplete.append("no environment record envelope (run_id / qualification_sha / record hash binding) was written")
+    script_rel = profile["capture_script"]["path"]
+    pinned_script = profile["capture_script"]["sha256"]
+    if env is not None:
+        if env.get("schema") != ENVELOPE_SCHEMA:
+            fail.append(f"envelope schema {env.get('schema')!r} != {ENVELOPE_SCHEMA!r}")
+        for key, want in (("run_id", resolved.get("run_id")), ("qualification_sha", resolved.get("qualification_sha"))):
+            if key not in env:
+                incomplete.append(f"envelope carries no {key}: the record cannot be bound to this run")
+            elif env.get(key) != want:
+                fail.append(f"envelope {key} {env.get(key)!r} != this run's {want!r}")
+        if env.get("record_file_sha256") != sha256_file(record_path):
+            fail.append("envelope record_file_sha256 differs from the record file (record replaced after capture)")
+        if env.get("record_sha256") != rec.get("record_sha256"):
+            fail.append("envelope record_sha256 differs from the record's own record_sha256")
+        if env.get("capture_script_sha256") != pinned_script:
+            fail.append(f"the capture script that produced the record has sha256 {env.get('capture_script_sha256')!r}, not the pinned {pinned_script}")
+        if env.get("environment_profile_sha256") != sha256_file(Path(repo_root) / ENV_PROFILE_FILE):
+            fail.append("envelope environment_profile_sha256 is not the committed environment profile")
+    # the capture script at the tuple's hub sha must be the pinned bytes (#219 is still moving: a different script is a new candidate)
+    hub_root = Path(components_dir) / COMPONENT_DIRS["hub"] if components_dir else None
+    if hub_root is None or not hub_root.is_dir():
+        incomplete.append("no hub checkout available to verify the capture script pin")
+    elif not (hub_root / script_rel).is_file():
+        incomplete.append(f"the hub checkout at the tuple sha has no {script_rel}: the tuple's hub sha predates the capture script (run with hub_revision set to a sha that contains it)")
+    elif sha256_file(hub_root / script_rel) != pinned_script:
+        fail.append(f"{script_rel} in the hub checkout differs from the pinned sha256 {pinned_script}: a changed capture script is a NEW candidate")
     if rec.get("schema") != profile["schema"]:
         fail.append(f"schema {rec.get('schema')!r} != {profile['schema']!r}")
     if rec.get("record_sha256") != _record_digest(rec):
@@ -731,9 +808,9 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         st = (checks.get(cid) or {}).get("status")
         if st is None:
             incomplete.append(f"required check {cid} absent from the record")
-        elif st != "PASS" and st not in ("FAIL", "BLOCKED"):
+        elif st not in ("PASS", "FAIL", "BLOCKED"):
             fail.append(f"required check {cid} has status {st!r}")
-        elif st != "PASS" and cid == "isolation.ptrace_scope" and st == "BLOCKED":
+        elif st == "BLOCKED" and cid == "isolation.ptrace_scope":
             incomplete.append("Yama absent or unreadable: the exact profile is unsupported, the boundary test is BLOCKED")
     py = rec.get("python") or {}
     if not str(py.get("version", "")).startswith(profile["python_version_prefix"] + ".") or py.get("implementation") != "CPython":
@@ -743,12 +820,6 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         (incomplete if scope is None else fail).append(f"kernel.yama.ptrace_scope {scope!r} (profile requires >= 1; absent is unsupported)")
     if any((c.get("data") or {}).get("relaxed") for c in checks.values()):
         fail.append("a requirement was relaxed (for example a root ingress): not a qualifying configuration")
-    # run binding
-    for key, want in (("run_id", resolved.get("run_id")), ("qualification_sha", resolved.get("qualification_sha"))):
-        if key not in rec:
-            incomplete.append(f"record carries no {key}: it cannot be bound to this run")
-        elif rec.get(key) != want:
-            fail.append(f"record {key} {rec.get(key)!r} != this run's {want!r}")
     # interpreter version equals the one the suite ran on
     seen = str((observations or {}).get("env", {}).get("python", "")).split(" ")[0]
     if not seen:
@@ -757,7 +828,7 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         fail.append(f"record python {py.get('version')!r} != the suite's interpreter {seen!r}")
     # ingress sources at the tuple sha
     recorded_src = (rec.get("configuration") or {}).get("ingress_source_sha256")
-    hub = Path(components_dir) / COMPONENT_DIRS["hub"] / "tools" / "mvp_ingress" if components_dir else None
+    hub = hub_root / "tools" / "mvp_ingress" if hub_root else None
     if not isinstance(recorded_src, dict) or not recorded_src:
         incomplete.append("record has no configuration.ingress_source_sha256")
     elif hub is None or not hub.is_dir():
@@ -766,6 +837,16 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         actual_src = {"tools/mvp_ingress/" + f.name: sha256_file(f) for f in sorted(hub.glob("*.py"))}
         if recorded_src != actual_src:
             fail.append("record ingress_source_sha256 differs from the hub files at the tuple sha: " + ", ".join(sorted(set(recorded_src) ^ set(actual_src) | {k for k in recorded_src if k in actual_src and recorded_src[k] != actual_src[k]})))
+    # action manifest: the record's manifest digest is the bytes of the tuple's manifest file
+    man = profile["manifest"]
+    mpath = Path(components_dir) / COMPONENT_DIRS[man["component"]] / man["path"] if components_dir else None
+    recorded_man = (rec.get("configuration") or {}).get("manifest_sha256")
+    if not isinstance(recorded_man, dict) or not recorded_man:
+        incomplete.append("record has no configuration.manifest_sha256")
+    elif mpath is None or not mpath.is_file():
+        incomplete.append(f"no {man['path']} in the {man['component']} checkout to compare manifest_sha256")
+    elif recorded_man != {mpath.name: sha256_file(mpath)}:
+        fail.append(f"record manifest_sha256 {recorded_man} is not the tuple's {man['path']}")
     # ipc, group policy, separate IPC directory, non-root ingress
     ipc = rec.get("ipc") or {}
     policy = (ipc.get("connection_policy") or {}).get("socket_group_policy")
@@ -795,15 +876,29 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         incomplete.append("record has no process_identity.ingress_uid")
     elif ing == 0 or ing_proc.get("uid") == 0:
         fail.append("the ingress runs as uid 0 (a non-root dedicated uid is mandatory)")
-    pins = [v for v in ((rec.get("configuration") or {}).get("source_pins") or {}).values() if isinstance(v, str) and SHA40.fullmatch(v)]
-    if not pins:
+    # the identities in the record are the ones the suite observed on the process it attacked (actual identities, not stand-ins)
+    if mode == "approved":
+        pairs = (("ingress_uid", ident.get("ingress_uid")), ("ingress_gid", ident.get("ingress_gid")), ("client_uid", ident.get("client_uid")),
+                 ("client_gid", ident.get("client_gid")), ("ipc_gid", (st or {}).get("gid")))
+        for key, recorded in pairs:
+            if ing_obs.get(key) is None or recorded is None:
+                incomplete.append(f"identity {key} not observed by the suite or absent from the record")
+            elif ing_obs.get(key) != recorded:
+                fail.append(f"identity {key}: the suite observed {ing_obs.get(key)!r} but the record says {recorded!r}")
+        if ing_obs.get("ingress_is_root") is not False:
+            fail.append("the suite did not observe a non-root ingress process")
+    pins = (rec.get("configuration") or {}).get("source_pins") or {}
+    comp_pins = {k: v for k, v in pins.items() if isinstance(v, str) and SHA40.fullmatch(v)}
+    if not comp_pins:
         incomplete.append("the record pins no component sha: it cannot be tied to the selected tuple")
-    elif not set(pins) <= tuple_shas:
-        fail.append(f"record pins {sorted(set(pins) - tuple_shas)} are not members of the selected tuple")
+    else:
+        if not set(comp_pins.values()) <= tuple_shas:
+            fail.append(f"record pins {sorted(set(comp_pins.values()) - tuple_shas)} are not members of the selected tuple")
+        for name, comp in comps.items():
+            if name != "odes" and comp_pins.get(name) != comp.get("sha"):
+                (incomplete if name not in comp_pins else fail).append(f"record pin for {name} is {comp_pins.get(name)!r}, the tuple's is {comp.get('sha')!r}")
     status = INCOMPLETE if incomplete else (FAIL if fail else PASS)
-    if fail and not incomplete:
-        status = FAIL
-    gate.add("G-11", status, "hub environment record is PASS on the selected profile (CPython 3.13, Yama ptrace_scope >= 1, non-root ingress, actual identities, tuple pins)"
+    gate.add("G-11", status, "hub environment record captured in this run against the attacked ingress is PASS on the selected profile (CPython 3.13, Yama ptrace_scope >= 1, dedicated non-root ingress uid and group, 0660 socket in a separate IPC directory, actual identities, tuple pins, pinned capture script, run envelope)"
              if status == PASS else "; ".join(fail + incomplete), record_sha256=rec.get("record_sha256"), overall=rec.get("overall"))
 
 
@@ -869,7 +964,7 @@ def check_exchange_exclusion(gate: Gate, run_dir: Path, battery: dict, mapping: 
 
 
 def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | None = None, expect_commitment: str | None = None,
-             require_python: str | None = None, components_dir: Path | None = None, expect_record_sha: str | None = None) -> dict:
+             require_python: str | None = None, components_dir: Path | None = None) -> dict:
     run_dir, repo_root = Path(run_dir), Path(repo_root)
     gate = Gate()
     battery = load(repo_root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json")
@@ -895,7 +990,7 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
     guarded("G-03b", check_declared_not_applicable, gate, battery)
     guarded("G-04", check_environment, gate, gate_exp, observations)
     guarded("G-04b", check_interpreter, gate, require_python)
-    guarded("G-11", check_environment_record, gate, run_dir, repo_root, components_dir, expect_record_sha, observations)
+    guarded("G-11", check_environment_record, gate, run_dir, repo_root, components_dir, observations)
     commitment_sha = guarded("G-12", check_commitment, gate, repo_root, expect_commitment)
     guarded("G-13", check_uncommitted_tests, gate, run_dir, battery)
     guarded("G-14", check_pending_rows, gate, battery)
@@ -941,7 +1036,6 @@ def main(argv=None) -> int:
     g.add_argument("--expect-commitment-sha256")
     g.add_argument("--require-python")
     g.add_argument("--components-dir")
-    g.add_argument("--expect-environment-record-sha256")
     c_ = sub.add_parser("commit")
     c_.add_argument("--repo-root", default=str(ROOT))
     c_.add_argument("--out", default=COMMITMENT_FILE)
@@ -961,7 +1055,7 @@ def main(argv=None) -> int:
         verify_checkouts(Path(args.resolved), Path(args.base))
         return 0
     doc = run_gate(Path(args.run_dir), Path(args.repo_root), args.expect_qualification_sha, args.expect_commitment_sha256, args.require_python,
-                   Path(args.components_dir) if args.components_dir else None, args.expect_environment_record_sha256)
+                   Path(args.components_dir) if args.components_dir else None)
     out = Path(args.out) if args.out else Path(args.run_dir) / "gate-verdict.json"
     out.write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
     for c in doc["checks"]:

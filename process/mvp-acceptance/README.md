@@ -19,7 +19,7 @@ release decision or a production claim; release stays HOLD, and the gate verdict
 
 Real claim provisioning (journal mode, operation identity), actual route B synthetic execution, grant and approval revocation negatives
 (NC1), lost-acknowledgement and duplicate-operation negatives (NC2, NC3, and the ruling 4 assertions), Replay and Evidence Pack
-reconstruction, the pinned Verifier, custody and tamper checks (NC5, NC6), the trusted-host ingress boundary (NC4, as uid 65534) and the
+reconstruction, the pinned Verifier, custody and tamper checks (NC5, NC6), the trusted-host ingress boundary (NC4: ingress as a dedicated non-root uid, client as another) and the
 route C exclusion checks. The chain, negatives and Verifier come from `suites/mvp-chain` (its expectations v3 are the oracle and are not
 changed); `suites/mvp-d2-route-b` and `suites/mvp-d09` are not in this job because they hard-code the Runtime sha and one of them fails by
 design; the same behaviours are exercised here by mvp-chain.
@@ -56,7 +56,7 @@ All of these stay **PROPOSED** pending independent Qualification acceptance and 
 
 * **Commitment (G-12, G-13).** `candidate-commitment.proposed.v1.json` lists the sha256 of: ALL files (not only `.py`) under `suites/mvp-chain` and
   `suites/mvp-applicability`; the transitive closure of the local modules they import, computed by static import analysis (this reaches
-  `suites/operation-identity/_oi_flow.py` and `tools/pristine_checkout.py`); `pytest.ini`; the lock files the workflow references; every file of
+  `suites/operation-identity/_oi_flow.py` and `tools/pristine_checkout.py`); `pytest.ini`; the lock files the workflow references; EVERY file directly in each `sys.path` directory (`suites/`, `suites/operation-identity/`, `tools/`; at the repository root every importable file, which `python -m pytest` puts first on `sys.path`) and the `__init__` of each package directory there, so a planted `tools/yaml.py`, `suites/jsonschema.py`, `sitecustomize.py` or package is an uncommitted file (FAIL), not a shadowed import; every file of
   `process/mvp-chain` and `process/mvp-acceptance` (candidate tuple, battery, mapping, gate expectations, environment profile); the gate tool and
   the workflow. It also records files that must stay absent (a root or `suites/` `conftest.py`, `tox.ini`, `setup.cfg`, `pyproject.toml`).
   Symbolic links anywhere in or above the committed set are refused, both when the commitment is built and by the gate. The sha256 of the
@@ -65,16 +65,29 @@ All of these stay **PROPOSED** pending independent Qualification acceptance and 
   or the committed non-mandatory KL-01) is INCOMPLETE. A later change is a new file (`...v2.json`) and a new candidate; `python
   tools/mvp_acceptance_gate.py commit` writes it. **Inherent limit:** the gate and the workflow that evaluate the commitment come from the same
   checkout, so a changed gate could report PASS; an independent reviewer must pin the commitment hash and the gate code outside the checkout.
-  Not covered: component checkouts (pinned by sha), the runner image and the hub environment record (evidence, hashed separately below).
-* **Environment record (G-11).** The gate consumes the hub's `mvp-ingress-env-record/1` JSON (workflow inputs `environment_record`, a regular file
-  under `process/mvp-acceptance/environment-records/` (symlinks refused), and `environment_record_sha256`, supplied from outside the checkout).
-  Required: a valid `record_sha256`; `overall` consistent with its checks; PASS for all 23 check ids the hub script emits (platform, python,
-  identity, isolation, ipc, filesystem, qualification probes, invocation, configuration); CPython 3.13 equal to the interpreter the suite
-  observed; `kernel.yama.ptrace_scope >= 1`; `ipc.connection_policy.socket_group_policy == "dedicated"`; socket mode 0660 in a directory that is not
-  the ingress state directory; non-root ingress; no relaxed requirement; `configuration.ingress_source_sha256` equal to the hub files at the tuple
-  sha; pins that belong to the selected tuple; and the record's own `run_id` and `qualification_sha` equal to this run's. Field names are read from
-  hub PR #219 head 4d1fe908; hub fields not emitted there yet (`run_id`, `qualification_sha`) are tolerated as INCOMPLETE, never as PASS. A FAIL
-  is a REJECT; BLOCKED, a missing record or field, or Yama absent (unsupported profile) is INCOMPLETE.
+  Not covered: component checkouts (pinned by sha), the runner image, site-packages (locked installs) and the hub environment record (captured in the run, below).
+* **Environment record (G-11).** The suite runs the ingress per the approved profile and the hub environment record is **captured in the run**
+  against that very process; there is no pre-committed record and no `environment_record*` workflow input any more. In the workflow the Provision
+  step creates the dedicated users `mvp-ingress` and `mvp-client` (own primary groups) and the group `mvp-ipc` (exactly those two members), makes the
+  checkouts readable and sets `kernel.yama.ptrace_scope=1` with `sudo sysctl` (absent Yama is BLOCKED/INCOMPLETE, never a weaker run). `_ingress.py`
+  then starts the ingress as `mvp-ingress` (non-root, no supplementary groups) with a 0660 socket in a SEPARATE setgid IPC directory (group `mvp-ipc`,
+  2750) the client traverses, and its 0700 state directory elsewhere; the client runs as `mvp-client` with the `mvp-ipc` group; owner-side
+  observations are made as the ingress uid. The hub script `tools/mvp_ingress/capture_env_record.py` (hub PR #219) is run as root against the live
+  process with the actual uids, gids, pid, database, ledger, tuple pins, source pins and the tuple's action-manifest file, and writes
+  `mvp-chain/artifacts/environment-record.json` unchanged. A gate-side **envelope** (`environment-record.envelope.json`) binds `run_id` and
+  `qualification_sha` (supplied by the workflow as `MVP_RUN_ID` and `MVP_QUALIFICATION_SHA`; the hub script has no flags for them and its deterministic
+  record cannot hold a later run id), the record's own `record_sha256`, the sha256 of the record file, of the capture script and of the environment profile.
+  **Pin:** the sha256 of the capture script (`environment-profile.proposed.v1.json`, `capture_script`) is committed because #219 is still moving: the
+  script in the hub checkout at the tuple sha and the one the envelope names must both have exactly those bytes, otherwise FAIL (a moved script is a new
+  candidate); a tuple hub sha that predates the script is INCOMPLETE, so a run needs `hub_revision` set to a sha that contains it. Required: valid
+  `record_sha256`; `overall` consistent with its checks; PASS for all 30 check ids the hub script emits (reconciled against the script, including
+  `ipc.socket_mode_owner_group`, `isolation.ingress_capabilities`, `ipc.directory_separate_and_protected` and `qualification.outsider_denied_socket`);
+  CPython 3.13 equal to the suite's interpreter; `kernel.yama.ptrace_scope >= 1`; socket group policy `dedicated`, mode 0660, in a directory that is not
+  the state directory; non-root ingress; no relaxed requirement; `ingress_source_sha256` equal to the hub files at the tuple sha; the manifest digest
+  equal to the tuple's manifest file; every component pin equal to the tuple sha; and the identities (ingress uid and gid, client uid and gid, IPC gid,
+  non-root) the suite observed equal to those in the record. **Developer opt-out:** `MVP_INGRESS_PROFILE=developer-optout` (never set by the
+  workflow) keeps the old local behaviour (root ingress, socket mode 666, client uid 65534, no record); the suite records `profile=developer-optout`
+  and the gate verdict is INCOMPLETE. A FAIL is a REJECT; BLOCKED, a missing record, envelope or field, or Yama absent is INCOMPLETE.
 * **Python (G-04, G-04b).** The workflow uses 3.13, asserts it, and the gate (`--require-python 3.13`) refuses to run its verdict as qualifying on
   any other interpreter. A Python 3.12 result is supplementary and cannot qualify the 3.13 profile. `mvp-chain.yml` on main is not changed.
 * **Pending rows (G-14).** The new origin-rule negative mutation expectations for NC4-03 are NOT battery rows. `pending_rows` holds a clearly

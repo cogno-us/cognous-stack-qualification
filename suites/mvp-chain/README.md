@@ -64,7 +64,7 @@ Verifier report).
 | revocation, incl. approval withdrawal before effect | NC1-01..05 | grant revoked / approval withdrawn in the destination after claim issuance; resolver revoked before claim |
 | ambiguous commit incl. lost acknowledgement | NC2-01..05 | `simulate='lost_ack'` (fault injection by this trusted harness, not the ingress), retry of the claim, `reconcile_claim`, reconcile route unavailable, export and Replay of the unknown outcome |
 | duplicate effect | NC3-01..03 | consumed claim replayed, second claim for one decision, cap-2 renewal with the same operation id |
-| unmediated path via the declared ingress | NC4-01..03, KL-01 | the real hub ingress (Unix socket), attacked as uid 65534; see below |
+| unmediated path via the declared ingress | NC4-01..03, KL-01 | the real hub ingress (Unix socket), attacked as a dedicated client uid against a dedicated non-root ingress uid (developer opt-out: root ingress, uid 65534); see below |
 | evidence tampering | NC5-01..05 | substituted journal commitment, export naming another effect, Evidence Pack retained source, Verifier on an altered decision, destination row edited after the fact |
 | custody failure | NC6-01..04 | journal events omitted, store directory absent at effect time, authority store unreadable at claim, export withheld |
 
@@ -105,7 +105,7 @@ re-binding, no renewal, same cap) commits no second effect and never reports `ex
 
 - The destination ledger is the atomic `effects` table; there is no account balance adapter, so "matched" means amount `10.0 USD` on the Control Plane proposal.
 - Evidence Pack tamper (NC5-03) drops a retained record from the pack's retained source; it is only exercised once Replay accepts the chain.
-- NC4 needs root (to drop to uid 65534); the unprivileged runner path is BLOCKED by design. `yama.ptrace_scope` is absent on the observed kernel and recorded as unavailable.
+- NC4 needs root (to start the ingress and the client as other uids; the acceptance workflow creates the dedicated users `mvp-ingress`, `mvp-client` and group `mvp-ipc`, named by `MVP_INGRESS_USER`, `MVP_CLIENT_USER`, `MVP_IPC_GROUP`) and `kernel.yama.ptrace_scope >= 1`; the unprivileged runner path is BLOCKED by design. `MVP_INGRESS_PROFILE=developer-optout` is the explicit local escape (root ingress, mode 666, uid 65534, no environment record) and makes the acceptance verdict INCOMPLETE. `yama.ptrace_scope` is absent on the observed kernel and recorded as unavailable.
 - Approval revocation terminality (NC1-04) is expected to FAIL at the current tuple: the Runtime lets a revoked approval be reactivated. It must not be softened.
 - Verifier run B uses a ledger derived by this harness; it is not a component artifact. Run A is the gated run.
 - Single Linux host and a single process; no claim about concurrent writers, process kill or financial finality.

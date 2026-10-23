@@ -11,7 +11,9 @@ name: MVP acceptance (proposed)
 # The gate (tools/mvp_acceptance_gate.py) applies process/mvp-acceptance/mandatory-battery.proposed.v1.json: zero unexplained skips WITHIN that frozen
 # mandatory battery (a skipped, undiscovered, unexecuted or errored mandatory test is INCOMPLETE, never ACCEPT), exact Verifier dispositions, expectations
 # v1-v3 byte-identical, the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
-# the hub environment record (must be PASS on the selected profile: CPython 3.13, Yama, non-root ingress). A Python 3.12 result is supplementary only. Unrelated historical suites are not required to be skip-free. The job fails unless the gate says ACCEPT.
+# the hub environment record, CAPTURED IN THE RUN against the very ingress process the suite attacks (dedicated non-root uid and group, 0660 socket in a separate IPC
+# directory, Yama ptrace_scope >= 1 set here via sudo sysctl; absent Yama is BLOCKED/INCOMPLETE) and bound to this run by a gate-side envelope (run_id, qualification_sha,
+# record hash, pinned capture script). A Python 3.12 result is supplementary only. Unrelated historical suites are not required to be skip-free. The job fails unless the gate says ACCEPT.
 'on':
   workflow_dispatch:
     inputs:
@@ -52,16 +54,6 @@ name: MVP acceptance (proposed)
         type: string
       hub_revision:
         description: cogno-us/cognous-open-control-stack commit, 40-hex (blank uses the candidate identity inputs; overrides hub (trusted-host ingress) for this run only)
-        required: false
-        default: ''
-        type: string
-      environment_record:
-        description: path of the hub environment record JSON (mvp-ingress-env-record/1) under process/mvp-acceptance/environment-records/ (blank is an INCOMPLETE verdict)
-        required: false
-        default: ''
-        type: string
-      environment_record_sha256:
-        description: sha256 of the environment record file as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
         required: false
         default: ''
         type: string
@@ -185,16 +177,26 @@ jobs:
           git config --global --add safe.directory '*'
           sudo git config --global --add safe.directory '*'
           python tools/mvp_acceptance_gate.py verify-checkouts --resolved results/mvp-acceptance/tuple-resolved.json --base "$GITHUB_WORKSPACE"
-      - name: Stage the hub environment record (path validated; absent is judged INCOMPLETE by the gate)
-        env:
-          ENV_RECORD: ${{ inputs.environment_record }}
+      - name: Provision the approved ingress profile (dedicated non-root uid and group, separate IPC directory, Yama ptrace_scope >= 1); never a weaker substitute
         run: |
-          if [[ -n "$ENV_RECORD" ]]; then
-            [[ "$ENV_RECORD" =~ ^process/mvp-acceptance/environment-records/[A-Za-z0-9._-]+\.json$ ]] || { echo "environment_record path refused"; exit 1; }
-            [[ -f "$ENV_RECORD" && ! -L "$ENV_RECORD" ]] || { echo "environment_record must be a regular file, not a symlink"; exit 1; }
-            [[ -z "$(find process/mvp-acceptance/environment-records -type l 2>/dev/null)" ]] || { echo "symlink inside environment-records refused"; exit 1; }
-            cp --no-dereference -- "$ENV_RECORD" results/mvp-acceptance/environment-record.json
-          fi
+          # dedicated identities: ingress and client have their own primary groups; the socket group mvp-ipc has exactly those two members
+          [[ -z "$(getent passwd 65533)" ]] || { echo "uid 65533 (the outsider probe uid) is in use"; exit 1; }
+          sudo groupadd --system mvp-ingress
+          sudo groupadd --system mvp-client
+          sudo groupadd --system mvp-ipc
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin -g mvp-ingress -G mvp-ipc mvp-ingress
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin -g mvp-client -G mvp-ipc mvp-client
+          # the ingress (a different uid from the runner) must be able to read the component checkouts and this workspace; no write access is granted
+          sudo chmod -R go+rX,go-w "$GITHUB_WORKSPACE"
+          d="$GITHUB_WORKSPACE"; while [[ "$d" != "/" ]]; do sudo chmod go+x "$d"; d="$(dirname "$d")"; done
+          # Yama: absent or unsettable is recorded, not hidden: the suite reports the boundary test BLOCKED (verdict INCOMPLETE)
+          sudo sysctl -w kernel.yama.ptrace_scope=1 || echo "::warning::kernel.yama.ptrace_scope could not be set: the boundary test will be BLOCKED and the verdict INCOMPLETE"
+          cat /proc/sys/kernel/yama/ptrace_scope || true
+          echo "MVP_INGRESS_PROFILE=approved" >> "$GITHUB_ENV"
+          echo "MVP_INGRESS_USER=mvp-ingress" >> "$GITHUB_ENV"
+          echo "MVP_CLIENT_USER=mvp-client" >> "$GITHUB_ENV"
+          echo "MVP_IPC_GROUP=mvp-ipc" >> "$GITHUB_ENV"
+          echo "MVP_QUALIFICATION_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
       - name: Anchor the frozen files to the main branch (blob ids read through the REST API, independent of this checkout)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -208,7 +210,7 @@ jobs:
             suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py | tee "$d/collected-mvp-chain.txt"
           MVP_RESULTS_DIR="$d/collect-applicability" python -m pytest --collect-only -q -p no:cacheprovider \
             suites/mvp-applicability/test_route_c_exclusion.py | tee "$d/collected-applicability.txt"
-      - name: Run the chain battery as root (NC4 drops the ingress client to uid 65534); the exit status is recorded and judged by the gate, never suppressed
+      - name: Run the chain battery as root (NC4 starts the ingress as the dedicated non-root uid and the client as another; the hub environment record is captured in-run against that process); the exit status is recorded and judged by the gate, never suppressed
         run: |
           d=results/mvp-acceptance
           set +e
@@ -231,12 +233,11 @@ jobs:
         if: always()
         env:
           COMMITMENT_SHA256: ${{ inputs.candidate_commitment_sha256 }}
-          ENV_RECORD_SHA256: ${{ inputs.environment_record_sha256 }}
         run: |
           set -o pipefail
           python3 tools/mvp_acceptance_gate.py gate --run-dir results/mvp-acceptance --expect-qualification-sha "$(git rev-parse HEAD)" \
             --expect-commitment-sha256 "$COMMITMENT_SHA256" --require-python 3.13 \
-            --components-dir "$GITHUB_WORKSPACE/components" --expect-environment-record-sha256 "$ENV_RECORD_SHA256" | tee results/mvp-acceptance/gate-summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
+            --components-dir "$GITHUB_WORKSPACE/components" | tee results/mvp-acceptance/gate-summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
