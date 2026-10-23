@@ -101,14 +101,14 @@ What these show: the catalog and its provenance records are consistent, and this
 | Area | Contents |
 |---|---|
 | [`scenarios/`](scenarios/README.md) | `catalog.json` (40 Cognous cases), `coverage-map.json`, and `ai-security-wiki/` (656 imported reference cases, `applicability.json`, CC BY-SA 4.0) |
-| [`suites/`](suites/README.md) | 17 executable suite directories (see the [suites index](suites/README.md)) |
+| [`suites/`](suites/README.md) | 18 executable suite directories (see the [suites index](suites/README.md)) |
 | `tools/` | See the table below |
 | [`process/`](docs/README.md) | `testing/` (bounded comparison process), `adversarial/` (batch-1 tests T01 to T20, [README](process/adversarial/README.md)), `release-gate/` (inventory twin), `v1-validation/`, and retained runtime-authority and security-runtime profile files |
 | [`results/`](results/README.md) | Retained evidence and workflow metadata: `workflows/` (append-only), `v1-validation/`, `security-runtime-*`, `serial/`, `comparisons/`, `verifier-mutation/`, `readme-commentary/` and others. Retained files are not rewritten |
 | [`docs/`](docs/README.md) | Documentation index and every page |
 | `reports/`, `qualification/`, `schemas/`, `sources/`, `migrations/` | Dated reports, serial orchestration state, JSON schemas, the source register and Wiki lock, and the migration manifests |
 | `dashboard/` | Static assets for the generated qualification dashboard |
-| `.github/workflows/` | 68 workflows; see [GitHub workflow](#github-workflow) |
+| `.github/workflows/` | 69 workflows; see [GitHub workflow](#github-workflow) |
 
 Tools by function (all under `tools/`; the command-line tools print their usage with `--help`):
 
@@ -138,7 +138,7 @@ This repository does not select component revisions, grant authority, clear publ
 
 Read and change scenarios through GitHub files and pull requests. The Catalog validation workflow checks catalog consistency and provenance/license records on pushes and pull requests. The Upstream Wiki refresh workflow runs weekly on Mondays at 14:17 UTC, validates the generated update (provenance, license and importer checks) and opens a pull request for maintainer review; it never merges it. Manual dispatch also remains available. It does not execute D, A, H or C scenarios. No offline file collection is required to browse or maintain the catalog.
 
-The repository has 68 workflows (retained, not edited by documentation changes):
+The repository has 69 workflows (retained, not edited by documentation changes):
 
 | Kind | Workflows |
 |---|---|
@@ -146,7 +146,7 @@ The repository has 68 workflows (retained, not edited by documentation changes):
 | Upstream import | `upstream-wiki-refresh.yml` (opens a PR for review; never merges) |
 | Controller | `v1-validation.yml` (dispatch only; plan, freeze check, suites, aggregate) |
 | Delegated component workflows (50) | `<repository>--<name>.yml`: the original test commands of the relocated suites, run against pinned components (dispatch or `workflow_call`) |
-| Profile and candidate runs | `operation-identity-profile.yml`, `outside-holder-profile.yml`, `verifier-mutation-report.yml`, `runtime-authority-candidate.yml`, `security-runtime-qualification.yml`, `security-runtime-f5b-qualification.yml`, `security-coverage.yml`, `serial-qualification.yml`, `remediation-compatibility-pr.yml` |
+| Profile and candidate runs | `operation-identity-profile.yml`, `mvp-chain.yml` (proposed MVP chain harness, dispatch only; see [`suites/mvp-chain/`](suites/mvp-chain/README.md)), `outside-holder-profile.yml`, `verifier-mutation-report.yml`, `runtime-authority-candidate.yml`, `security-runtime-qualification.yml`, `security-runtime-f5b-qualification.yml`, `security-coverage.yml`, `serial-qualification.yml`, `remediation-compatibility-pr.yml` |
 | Dashboard and capture | `capture-qualification-run.yml`, `qualification-dashboard.yml`, `publish-qualification-dashboard.yml` |
 | Paid provider pilots | `claude-agent-pilot.yml`, `openai-agent-pilot.yml` (the paid jobs run in the reviewer-gated `provider-keys` environment; keys are environment secrets) |
 
