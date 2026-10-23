@@ -23,6 +23,7 @@ import subprocess
 import sys
 import tempfile
 
+import _kwflow
 import _state
 
 UNPRIV_UID = 65534
@@ -270,7 +271,8 @@ def run(work):
     if not hub:
         return {"status": "blocked", "blocked_reason": "hub checkout not provided (MVP_HUB_DIR)", "ingress": {"probe_ran": False, "profile": mode}}
     hub = pathlib.Path(hub)
-    obs["source_level"].update(ast_simulate_scan(hub))
+    obs["source_level"].update(ast_simulate_scan(hub))  # v3 predicate inputs, still recorded as raw history (incl. non_literal_kwargs_forwarding)
+    obs["source_level"]["kwflow"] = _kwflow.scan_dir(hub)  # v4 NC4-03 data-flow / call-boundary predicate (PROPOSED, see _kwflow.py)
     host_src = (hub / "tools" / "mvp_ingress" / "synthetic_host.py").read_text()
     obs["limitations"] = {"ingress_imports_cp_test_fixtures": "tests.test_runtime_authority" in host_src,
                           "note": "trusted ingress process loads the Control Plane component's tests package (synthetic resolver fixture) in-process; not client reachable; no production authority"}
