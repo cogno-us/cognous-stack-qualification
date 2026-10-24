@@ -1,0 +1,1274 @@
+{
+ "schema": "cognous.mvp-chain-expectations/1",
+ "statuses": [
+  "PASS",
+  "FAIL",
+  "BLOCKED",
+  "NOT RUN",
+  "NOT APPLICABLE"
+ ],
+ "semantics": {
+  "NOT RUN": "the scenario produced no observation record at all",
+  "BLOCKED": "the scenario or a precondition recorded that it could not be exercised (absent module, undefined differential); never a pass",
+  "NOT APPLICABLE": "a declared not_applicable_if predicate held",
+  "FAIL": "an observation contradicts a predicate, or a required observation is missing from a scenario that ran",
+  "PASS": "every predicate held on the recorded raw observations; says nothing beyond the named row"
+ },
+ "operators": [
+  "eq",
+  "ne",
+  "in",
+  "not_in",
+  "true",
+  "false",
+  "empty",
+  "nonempty",
+  "contains",
+  "contains_all",
+  "not_contains",
+  "gte",
+  "lte",
+  "is_null"
+ ],
+ "status": "PROPOSED oracle v7 (builder proposal for the MVP battery) for Qualification's independent review, acceptance and freeze. v7 = v6 (the candidate mandatory expectation baseline per architect ruling Q1) byte-identical in every row, plus the three required negative controls of architect ruling Q2 (NC7-01..03). v1-v6 and the v4/v5 proposals are untouched. NOT frozen; builder-prepared, Qualification owns every verdict; non-authorizing; release and production stay HOLD. Never edit after seeing results: a change is a new file with a recorded reason.",
+ "supersedes": {
+  "file": "expectations.proposed.v6.json",
+  "v6_sha256": "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a",
+  "composition": {
+   "base": "expectations.proposed.v6.json (38 rows, 37 mandatory)",
+   "added": "NC7-01, NC7-02, NC7-03 (inserted before KL-01; mandatory)",
+   "row_count": "41 rows, 40 mandatory (KL-01 remains non-mandatory)"
+  },
+  "reasons": {
+   "NC7-01..03": "Architect ruling Q2 requires three mandatory negative controls that no earlier row stated as such: (1) unauthorized execution must not commit an effect; (2) stale or mismatched authority must prevent an unauthorized effect; (3) missing, invalid or expired required evidence must not permit execution. Expected verdicts are computed from raw observations recorded by suites/mvp-chain/_chain.py scenario nc_authority_gates (status, attempted, error text, independent read-only effect count, claim state), never from a desired outcome; an authorized control case through the same Ctx must commit exactly one effect so a refusal cannot be an artefact of a harness that cannot commit. The predicates require refusal, not attempted, and zero effects; they do not pin error strings (recorded for readers). Existing rows that overlap: NC1-01..05 (revocation), NC3-01..03 (duplicates), NC4-02 (ingress adversarial inputs: effect count unchanged); they are cited as related evidence, not re-used as these rows, because none of them observes a never-issued claim, a not-authorized decision, an expired claim, an advanced revision, an envelope mismatch or any evidence state."
+  },
+  "unchanged_rows": "all 38 rows of v6 are byte-identical in v7"
+ },
+ "rows": [
+  {
+   "id": "ENV-01",
+   "mandatory": true,
+   "title": "Every component HEAD equals its pin, checkouts pristine, modules loaded from the pinned trees, pydantic >= 2.12",
+   "scenario": "env",
+   "all": [
+    {
+     "obs": "env.pins_match",
+     "op": "true"
+    },
+    {
+     "obs": "env.pristine",
+     "op": "true"
+    },
+    {
+     "obs": "env.modules_from_pinned_trees",
+     "op": "true"
+    },
+    {
+     "obs": "env.pydantic_ok",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-01",
+   "mandatory": true,
+   "title": "Control Plane decides authorized and the operation is admitted (operation identity, journal mode)",
+   "scenario": "chain",
+   "all": [
+    {
+     "obs": "chain.decision.result",
+     "op": "eq",
+     "value": "authorized"
+    },
+    {
+     "obs": "chain.operation.status",
+     "op": "eq",
+     "value": "ok"
+    },
+    {
+     "obs": "chain.operation.identity_profile_on",
+     "op": "true"
+    },
+    {
+     "obs": "chain.proposal.amount",
+     "op": "eq",
+     "value": 10.0
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-02",
+   "mandatory": true,
+   "title": "Real provision_local_execution_claim (executor.provision_claim) issues a claim",
+   "scenario": "chain",
+   "all": [
+    {
+     "obs": "chain.claim.ok",
+     "op": "true"
+    },
+    {
+     "obs": "chain.claim.state_after_provision",
+     "op": "eq",
+     "value": "issued"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-03",
+   "mandatory": true,
+   "title": "Route B execute commits exactly one effect and consumes the claim (independent read-only ledger read)",
+   "scenario": "chain",
+   "all": [
+    {
+     "obs": "chain.execute.status",
+     "op": "eq",
+     "value": "executed"
+    },
+    {
+     "obs": "chain.execute.observed_state",
+     "op": "eq",
+     "value": "applied"
+    },
+    {
+     "obs": "chain.destination.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "chain.destination.claim_state_after",
+     "op": "eq",
+     "value": "consumed"
+    },
+    {
+     "obs": "chain.destination.operation_identity_destination",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-04",
+   "mandatory": true,
+   "title": "export_execution_artifacts serialises the executor evidence",
+   "scenario": "chain",
+   "all": [
+    {
+     "obs": "chain.export.ok",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-05",
+   "mandatory": true,
+   "title": "Replay import accepts the raw CP record, proposal and executor export; all import reports complete",
+   "scenario": "chain",
+   "blocked_if": [
+    {
+     "obs": "chain.export.ok",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "chain.replay.ok",
+     "op": "true"
+    },
+    {
+     "obs": "chain.replay.all_reports_complete",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "CHAIN-06",
+   "mandatory": true,
+   "title": "Evidence Pack imports the Replay bundle and validate_evidence_pack is valid",
+   "scenario": "chain",
+   "blocked_if": [
+    {
+     "obs": "chain.replay.ok",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "chain.pack.ok",
+     "op": "true"
+    },
+    {
+     "obs": "chain.pack.valid",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "VER-01",
+   "mandatory": true,
+   "title": "Pinned Verifier on the raw CP record + proposal + manifest does not crash, does not refute (exit 0 accept or 3 abstain only)",
+   "scenario": "chain",
+   "all": [
+    {
+     "obs": "chain.verifier.A.crashed",
+     "op": "false"
+    },
+    {
+     "obs": "chain.verifier.A.exit_code",
+     "op": "in",
+     "value": [
+      0,
+      3
+     ]
+    },
+    {
+     "obs": "chain.verifier.A.refuted_check_ids",
+     "op": "empty"
+    }
+   ]
+  },
+  {
+   "id": "VER-02",
+   "mandatory": true,
+   "title": "No Verifier finding with code journal_check_reused (the documented claim-stage journal refutation)",
+   "scenario": "chain",
+   "all": [
+    {
+     "obs": "chain.verifier.A.finding_codes",
+     "op": "not_contains",
+     "value": "journal_check_reused"
+    }
+   ]
+  },
+  {
+   "id": "VER-03",
+   "mandatory": true,
+   "title": "Verifier run B (record + proposal + manifest + harness-derived ledger): any abstention is attributable only to v4.ledger.rows-agree-with-attempts (route B has no attempt layer); no check refuted",
+   "scenario": "chain",
+   "not_applicable_if": [
+    {
+     "obs": "chain.verifier.B.exit_code",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "all": [
+    {
+     "obs": "chain.verifier.B.crashed",
+     "op": "false"
+    },
+    {
+     "obs": "chain.verifier.B.exit_code",
+     "op": "eq",
+     "value": 3
+    },
+    {
+     "obs": "chain.verifier.B.could_not_check_check_ids",
+     "op": "eq",
+     "value": [
+      "v4.ledger.rows-agree-with-attempts"
+     ]
+    },
+    {
+     "obs": "chain.verifier.B.refuted_check_ids",
+     "op": "empty"
+    }
+   ]
+  },
+  {
+   "id": "VER-04",
+   "mandatory": true,
+   "title": "Verifier exit code, report bytes (hash) and module path retained for the run",
+   "scenario": "chain",
+   "all": [
+    {
+     "obs": "chain.verifier.A.report_sha256",
+     "op": "nonempty"
+    },
+    {
+     "obs": "chain.verifier.A.module_path_under_pin",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "NC1-01",
+   "mandatory": true,
+   "title": "Revocation: grant revoked in the authority store after claim issuance and before effect: effect refused, not attempted, zero effects",
+   "scenario": "nc_revocation",
+   "all": [
+    {
+     "obs": "nc_revocation.grant_revoked.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_revocation.grant_revoked.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_revocation.grant_revoked.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC1-02",
+   "mandatory": true,
+   "title": "Approval withdrawal before effect: effect refused, not attempted, zero effects",
+   "scenario": "nc_revocation",
+   "all": [
+    {
+     "obs": "nc_revocation.approval_withdrawn.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_revocation.approval_withdrawn.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_revocation.approval_withdrawn.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC1-03",
+   "mandatory": true,
+   "title": "Revocation at the Control Plane resolver before claim issuance: claim refused, zero effects",
+   "scenario": "nc_revocation",
+   "all": [
+    {
+     "obs": "nc_revocation.resolver_revoked.claim_ok",
+     "op": "false"
+    },
+    {
+     "obs": "nc_revocation.resolver_revoked.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC1-04",
+   "mandatory": true,
+   "title": "Approval revocation is terminal: revoke, then reactivate the approval, then execute the claim issued earlier: refused, zero effects",
+   "scenario": "nc_revocation",
+   "all": [
+    {
+     "obs": "nc_revocation.approval_terminality.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_revocation.approval_terminality.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC1-05",
+   "mandatory": true,
+   "title": "Grant revocation is terminal: revoke, then reactivate the grant, then execute: refused, zero effects",
+   "scenario": "nc_revocation",
+   "all": [
+    {
+     "obs": "nc_revocation.grant_terminality.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_revocation.grant_terminality.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC2-01",
+   "mandatory": true,
+   "title": "Ambiguous commit (lost acknowledgement): result is unknown, never acknowledged, retry not eligible",
+   "scenario": "nc_ambiguous",
+   "all": [
+    {
+     "obs": "nc_ambiguous.first.status",
+     "op": "eq",
+     "value": "unknown"
+    },
+    {
+     "obs": "nc_ambiguous.first.acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ambiguous.recovery.retry_eligible",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC2-02",
+   "mandatory": true,
+   "title": "No blind retry: re-execution of the same claim is refused (status denied, not attempted) and the ledger still holds exactly one effect",
+   "scenario": "nc_ambiguous",
+   "all": [
+    {
+     "obs": "nc_ambiguous.retry.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_ambiguous.retry.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ambiguous.destination.effect_count",
+     "op": "eq",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "NC2-03",
+   "mandatory": true,
+   "title": "Reconciliation after ambiguous commit establishes the applied effect without a second write",
+   "scenario": "nc_ambiguous",
+   "all": [
+    {
+     "obs": "nc_ambiguous.recovery.status_or_state",
+     "op": "in",
+     "value": [
+      "applied",
+      "reconciled"
+     ]
+    },
+    {
+     "obs": "nc_ambiguous.destination.effect_count_after_reconcile",
+     "op": "eq",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "NC2-04",
+   "mandatory": true,
+   "title": "Reconciliation route unavailable after ambiguous commit: still unknown, never retry-eligible, never executed",
+   "scenario": "nc_ambiguous",
+   "all": [
+    {
+     "obs": "nc_ambiguous.reconcile_unavailable.status",
+     "op": "eq",
+     "value": "unknown"
+    },
+    {
+     "obs": "nc_ambiguous.reconcile_unavailable.retry_eligible",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC2-05",
+   "mandatory": true,
+   "title": "Ambiguous-commit evidence is reconstructable: export and Replay import of the unknown outcome succeed",
+   "scenario": "nc_ambiguous",
+   "all": [
+    {
+     "obs": "nc_ambiguous.export.ok",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ambiguous.replay.ok",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "NC2-06",
+   "mandatory": true,
+   "evidence_level": "supported-ingress",
+   "title": "SUPPORTED-INGRESS evidence (NOT executor-level; executor-level is NC2-01..05 / ruling 4 with simulate='lost_ack'): one valid proposal from an unprivileged client over the real ingress (simulate=None, schema unchanged) reaches the execution boundary; an owner-side harness hook makes the acknowledgement unavailable after the committed effect; the client sees UNKNOWN; the system retains UNKNOWN; a second request that is not held at decide (owner-side bind_fresh: fresh request id carrying the approval-bound correlation id) reaches provision and the executor a second time and is DENIED, not attempted and not acknowledged, with no second effect and no second consumed claim; the same-bytes REPLAY refusal is ingress-ledger evidence only; owner-side reconciliation of the FIRST claim establishes the destination-owned outcome (applied, same effect id, not retry eligible)",
+   "scenario": "nc_ingress_ambiguity",
+   "blocked_if": [
+    {
+     "obs": "nc_ingress_ambiguity.ingress.probe_ran",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_ingress_ambiguity.evidence_level",
+     "op": "eq",
+     "value": "supported-ingress"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.fault_injection.request_schema_changed",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.fault_injection.client_chooses_simulate",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.ingress.client_is_distinct_unprivileged",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.boundary.execute_claim_atomic_called",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.boundary.simulate_received_by_destination",
+     "op": "is_null"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.boundary.simulate_received_by_executor",
+     "op": "is_null"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.boundary.effect_count_after_first",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ingress_ambiguity.ack.hook_fired",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.ack.executor_attempted",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.ack.executor_acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.ack.client_response.outcome",
+     "op": "eq",
+     "value": "unknown"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.ack.client_response.code",
+     "op": "eq",
+     "value": "OUTCOME_UNKNOWN"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.ack.executor_status",
+     "op": "eq",
+     "value": "unknown"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.unknown.executor_retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.unknown.ledger_state",
+     "op": "eq",
+     "value": "settled"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.unknown.ledger_outcome",
+     "op": "eq",
+     "value": "unknown"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.unknown.claim_consumed_after_first",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.replay_ingress_level_only",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.replay_response.outcome",
+     "op": "eq",
+     "value": "refused"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.replay_response.code",
+     "op": "eq",
+     "value": "REPLAY"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.executor_calls_after_first",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.executor_calls_after_replay",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.effects_after_replay_unchanged",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.executor_calls_after_fresh",
+     "op": "eq",
+     "value": 2
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.destination_atomic_calls_after_fresh",
+     "op": "eq",
+     "value": 2
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.second_claim_id_differs_from_first",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.second_simulate_received",
+     "op": "is_null"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.second_status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.second_attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.second_acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.fresh_request_id_response.outcome",
+     "op": "eq",
+     "value": "refused"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.fresh_request_id_response.code",
+     "op": "in",
+     "value": [
+      "DUPLICATE_OPERATION",
+      "EXECUTION_DENIED"
+     ]
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.effect_count_after_reuse",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.effects_unchanged",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.destination_effect_tables_unchanged",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.consumed_claims_unchanged_ids",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reuse.new_consumed_claims_after_reuse",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reconcile.ok",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reconcile.state_or_status",
+     "op": "in",
+     "value": [
+      "applied",
+      "reconciled"
+     ]
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reconcile.effect_id_matches_owner_readback",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reconcile.retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ingress_ambiguity.reconcile.effect_count_after_reconcile",
+     "op": "eq",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "NC3-01",
+   "mandatory": true,
+   "title": "Duplicate effect: replaying the consumed claim is refused; one effect",
+   "scenario": "nc_duplicate",
+   "all": [
+    {
+     "obs": "nc_duplicate.same_claim.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_duplicate.same_claim.effect_count",
+     "op": "eq",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "NC3-02",
+   "mandatory": true,
+   "title": "Duplicate effect: a second claim for the same decision does not commit a second effect",
+   "scenario": "nc_duplicate",
+   "all": [
+    {
+     "obs": "nc_duplicate.second_claim.executed",
+     "op": "false"
+    },
+    {
+     "obs": "nc_duplicate.second_claim.effect_count",
+     "op": "eq",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "NC3-03",
+   "mandatory": true,
+   "title": "Duplicate effect: renewal with cap 2 for the same operation id is refused operation_already_committed; one effect",
+   "scenario": "nc_duplicate",
+   "all": [
+    {
+     "obs": "nc_duplicate.renewal_cap2.error",
+     "op": "eq",
+     "value": "operation_already_committed"
+    },
+    {
+     "obs": "nc_duplicate.renewal_cap2.effect_count",
+     "op": "eq",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "NC4-01",
+   "mandatory": true,
+   "title": "Real ingress (hub tools/mvp_ingress, Unix socket) started; the adversarial client ran as a distinct unprivileged uid (65534, no groups); the state tree was owner-only before and after",
+   "scenario": "nc_unmediated",
+   "all": [
+    {
+     "obs": "nc_unmediated.ingress.probe_ran",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.ingress.client_is_distinct_unprivileged",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.ingress.state_tree_owner_only_before",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.ingress.state_tree_owner_only_after",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.ingress.server_pid_alive_after",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "NC4-02",
+   "mandatory": true,
+   "title": "EXECUTION OBSERVATION, independent of ingress self-report: after D1's adversarial inputs plus claim, simulate, authority-writer and SQL attempts as the unprivileged uid, no destination/authority table, ledger or state-tree entry changed, direct file/sqlite/proc access was denied by the OS, and the one legitimate proposal then produced exactly one effect and one consumed claim",
+   "scenario": "nc_unmediated",
+   "blocked_if": [
+    {
+     "obs": "nc_unmediated.ingress.probe_ran",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_unmediated.ingress.reached_surfaces",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.ingress.attempted_surfaces",
+     "op": "contains_all",
+     "value": [
+      "provision_claim",
+      "execute_claim_atomic",
+      "simulate",
+      "set_grant_status",
+      "set_approval_status",
+      "set_policy_state",
+      "set_evidence_state",
+      "raw_sql_destination_write"
+     ]
+    },
+    {
+     "obs": "nc_unmediated.ingress.attack_tables_changed",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.ingress.direct_access_all_denied",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.ingress.legit_after.exactly_one_effect_one_consumed_claim",
+     "op": "true"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03",
+   "mandatory": true,
+   "title": "SOURCE-LEVEL assertion only (not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except proven fixed forms and three exactly pinned, fully recorded reviewed sites; the six authority-bearing fields (claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id, requested_permissions) have a trusted origin at every protected call; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass",
+   "scenario": "nc_unmediated",
+   "all": [
+    {
+     "obs": "nc_unmediated.source_level.kwflow.files_scanned",
+     "op": "eq",
+     "value": [
+      "__init__.py",
+      "client.py",
+      "core.py",
+      "proposal.py",
+      "server.py",
+      "synthetic_host.py"
+     ]
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.violations",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.client_fed_kwargs_to_protected",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.simulate_violations",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.required_sites_missing",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.real_protected_calls_count",
+     "op": "gte",
+     "value": 8
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.pins_unmatched",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.pin_records_incomplete",
+     "op": "empty"
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.pinned_sites_used",
+     "op": "eq",
+     "value": [
+      "synthetic_host.py:SyntheticHost.__init__:model_copy#1",
+      "synthetic_host.py:SyntheticHost.__init__:original#1",
+      "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1"
+     ]
+    },
+    {
+     "obs": "nc_unmediated.source_level.kwflow.ingress_tree_sha256",
+     "op": "eq",
+     "value": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
+    },
+    {
+     "obs": "nc_unmediated.source_level.all_simulate_keywords_constant_none",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.source_level.d1_ast_test_exit_code",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC5-01",
+   "mandatory": true,
+   "title": "Evidence tampering: Replay import refuses a CP record with a substituted journal commitment (differential against an accepted control)",
+   "scenario": "nc_tamper",
+   "blocked_if": [
+    {
+     "obs": "nc_tamper.replay_record.control_accepted",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_tamper.replay_record.tampered_accepted",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC5-02",
+   "mandatory": true,
+   "title": "Evidence tampering: Replay import refuses an executor export naming a different effect (differential)",
+   "scenario": "nc_tamper",
+   "blocked_if": [
+    {
+     "obs": "nc_tamper.replay_export.control_accepted",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_tamper.replay_export.tampered_accepted",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC5-03",
+   "mandatory": true,
+   "title": "Evidence tampering: Evidence Pack validation rejects a relabelled refusal summary / retained source",
+   "scenario": "nc_tamper",
+   "blocked_if": [
+    {
+     "obs": "nc_tamper.pack.control_valid",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_tamper.pack.tampered_valid",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC5-04",
+   "mandatory": true,
+   "title": "Evidence tampering: the Verifier reports the finding code decision_result_inconsistent, absent from the untampered record, for an altered decision result",
+   "scenario": "nc_tamper",
+   "all": [
+    {
+     "obs": "nc_tamper.verifier_record.crashed",
+     "op": "false"
+    },
+    {
+     "obs": "nc_tamper.verifier_record.new_finding_codes",
+     "op": "contains",
+     "value": "decision_result_inconsistent"
+    }
+   ]
+  },
+  {
+   "id": "NC5-05",
+   "mandatory": true,
+   "title": "Evidence tampering: Replay import refuses an executor export whose effect row was edited in the destination store after the fact (differential)",
+   "scenario": "nc_tamper",
+   "blocked_if": [
+    {
+     "obs": "nc_tamper.destination_row.control_accepted",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_tamper.destination_row.tampered_accepted",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC6-01",
+   "mandatory": true,
+   "title": "Custody failure: omission of the journal check events from the CP record is refused by Replay (differential)",
+   "scenario": "nc_custody",
+   "blocked_if": [
+    {
+     "obs": "nc_custody.journal_omitted.control_accepted",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_custody.journal_omitted.tampered_accepted",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC6-02",
+   "mandatory": true,
+   "title": "Custody failure: destination store unavailable at effect time never yields executed and never a retry-eligible result; zero effects",
+   "scenario": "nc_custody",
+   "all": [
+    {
+     "obs": "nc_custody.destination_unavailable.status",
+     "op": "ne",
+     "value": "executed"
+    },
+    {
+     "obs": "nc_custody.destination_unavailable.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC6-03",
+   "mandatory": true,
+   "title": "Custody failure: authority store unreadable at claim issuance refuses the claim; zero effects",
+   "scenario": "nc_custody",
+   "all": [
+    {
+     "obs": "nc_custody.authority_unreadable.claim_ok",
+     "op": "false"
+    },
+    {
+     "obs": "nc_custody.authority_unreadable.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC6-04",
+   "mandatory": true,
+   "title": "Custody failure: Replay import without the executor export is not reported as a complete reconstruction (differential against an accepted control)",
+   "scenario": "nc_custody",
+   "blocked_if": [
+    {
+     "obs": "nc_custody.export_withheld.control_accepted",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_custody.export_withheld.reported_complete",
+     "op": "false"
+    }
+   ]
+  },
+  {
+   "id": "NC7-01",
+   "mandatory": true,
+   "scenario": "nc_authority_gates",
+   "title": "Unauthorized execution commits no effect (route B, executor level): a claim id that was never issued is denied and not attempted, and a decision that is not authorized (amount beyond the grant) cannot be provisioned; independent read-only effect count 0 in each case; the authorized control case through the same harness commits exactly one effect",
+   "all": [
+    {
+     "obs": "nc_authority_gates.control.status",
+     "op": "eq",
+     "value": "executed"
+    },
+    {
+     "obs": "nc_authority_gates.control.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_authority_gates.unauthorized.forged_claim_id.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.unauthorized.forged_claim_id.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.unauthorized.forged_claim_id.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.unauthorized.not_authorized_decision.decision_result",
+     "op": "ne",
+     "value": "authorized"
+    },
+    {
+     "obs": "nc_authority_gates.unauthorized.not_authorized_decision.claim_ok",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.unauthorized.not_authorized_decision.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC7-02",
+   "mandatory": true,
+   "scenario": "nc_authority_gates",
+   "title": "Stale or mismatched authority prevents an unauthorized effect (route B, executor level): an expired claim, authority advanced to another grant revision after the claim, an envelope whose amount or grant revision differs from the claim are each denied and not attempted, and a resolver revision change before claim issuance refuses the claim; effect count 0 in each case; the authorized control commits exactly one effect",
+   "all": [
+    {
+     "obs": "nc_authority_gates.control.status",
+     "op": "eq",
+     "value": "executed"
+    },
+    {
+     "obs": "nc_authority_gates.control.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.claim_expired.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.claim_expired.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.claim_expired.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.authority_advanced_after_claim.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.authority_advanced_after_claim.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.authority_advanced_after_claim.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.envelope_amount_mismatch.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.envelope_amount_mismatch.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.envelope_amount_mismatch.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.envelope_grant_revision_mismatch.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.envelope_grant_revision_mismatch.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.envelope_grant_revision_mismatch.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.resolver_revision_changed_before_claim.claim_ok",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.stale_or_mismatched.resolver_revision_changed_before_claim.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC7-03",
+   "mandatory": true,
+   "scenario": "nc_authority_gates",
+   "title": "Missing, invalid or expired required evidence does not permit execution (route B, executor level): with the required evidence row deleted, in a non-current state, or older than its maximum age, the execute is denied and not attempted; required evidence missing at claim issuance refuses the claim; effect count 0 in each case; the authorized control commits exactly one effect",
+   "all": [
+    {
+     "obs": "nc_authority_gates.control.status",
+     "op": "eq",
+     "value": "executed"
+    },
+    {
+     "obs": "nc_authority_gates.control.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_authority_gates.evidence.missing.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.evidence.missing.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.evidence.missing.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.evidence.invalid_state.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.evidence.invalid_state.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.evidence.invalid_state.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.evidence.expired.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_authority_gates.evidence.expired.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.evidence.expired.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_authority_gates.evidence.missing_at_claim_issuance.claim_ok",
+     "op": "false"
+    },
+    {
+     "obs": "nc_authority_gates.evidence.missing_at_claim_issuance.effect_count",
+     "op": "eq",
+     "value": 0
+    }
+   ]
+  },
+  {
+   "id": "KL-01",
+   "mandatory": false,
+   "title": "KNOWN LIMITATION recorded, not a defect pass: the trusted ingress process imports the Control Plane component's tests package (synthetic resolver fixture) in-process; not client reachable; no production authority",
+   "scenario": "nc_unmediated",
+   "all": [
+    {
+     "obs": "nc_unmediated.limitations.ingress_imports_cp_test_fixtures",
+     "op": "true"
+    }
+   ]
+  }
+ ],
+ "limitations": {
+  "os_level_process_kill": "UNQUALIFIED. True OS-level process kill and crash recovery are not exercised by any row. NC2-01..06, ruling 4 and NC6-02/03 use the existing synthetic fault injection (simulate='lost_ack', an owner-side post-commit wrapper, an unavailable or unreadable store). Accepted for the 2026-10-31 target under architect ruling Q2 unless the MVP claim promises OS-kill recovery; if it does, this stays UNQUALIFIED/INCOMPLETE.",
+  "executor_level_scope_of_NC7": "NC7-01..03 are executor-level controls on route B at the candidate tuple (Runtime c5e97e87). They are not ingress-level evidence (NC4-01..03 and NC2-06 are), and they say nothing about code with direct access to the destination database or the authority writers (see the D2 REACHABLE characterisations, which are recorded and not mandatory)."
+ },
+ "inventory_vs_claims": {
+  "unique_governance_claims": "mandatory oracle rows: 40 in v7 (37 in v6). Each row is one claim.",
+  "test_inventory": "the acceptance battery lists more test entries than claims: supplementary entries (KW-001..143 substantiate the single claim NC4-03; AMB-01..06 substantiate NC2-06; the route-B mediation entries map existing mvp-d2-route-b tests) are inventory, not additional claims. Inventory counts must not be cited as governance coverage."
+ }
+}

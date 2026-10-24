@@ -82,6 +82,17 @@ KL-01 records, as a known limitation and not a defect pass, that the trusted ing
 fixture) in-process; it is not client reachable and is not production authority. Only the tested configuration is observed (single host, uid 65534, kernel
 and capabilities recorded); nothing here covers code running as the ingress uid or root.
 
+## Required controls NC7-01..03 (expectations v7, PROPOSED)
+
+Architect ruling Q2. Scenario `nc_authority_gates` (in `_chain.py`) drives the real route-B chain (Control Plane workflow, `AtomicLocalControlPlaneExecutor`, operation-identity atomic SQLite destination) and records raw observations; the rows in `process/mvp-chain/expectations.proposed.v7.json` compute their verdicts from them.
+
+* NC7-01: unauthorized execution (forged claim id; a decision that is not `authorized`) is denied, not attempted, zero effects.
+* NC7-02: stale or mismatched authority (expired claim, authority advanced after the claim, resolver revision changed before the claim, envelope amount or grant revision mismatch) is refused with zero effects.
+* NC7-03: missing, invalid-state or expired evidence, and evidence missing at claim issuance, does not permit execution (zero effects).
+* Every row also requires the control case to execute exactly one effect, so a refusal cannot pass because nothing works at all.
+
+v7 is v6 plus these three rows (41 rows, 40 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (219 battery entries) is not the number of unique governance claims (40 mandatory rows).
+
 ## Run
 
 ```bash

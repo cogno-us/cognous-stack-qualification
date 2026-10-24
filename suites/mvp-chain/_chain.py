@@ -491,6 +491,113 @@ def nc_duplicate(work):
     return obs
 
 
+@scenario("nc_authority_gates")
+def nc_authority_gates(work):
+    """Three required negative controls on route B (Architect ruling Q2), executor level on the exact candidate tuple: (1) unauthorized execution
+    commits no effect; (2) stale or mismatched authority prevents an unauthorized effect; (3) missing, invalid or expired required evidence does not
+    permit execution. Every case records raw observations only (status, attempted, error text, an independent read-only effect count, claim state);
+    rows NC7-01..03 judge them. A control case that refuses proves nothing if the harness could never commit, so the authorized control case must
+    commit exactly one effect through the same Ctx. Evidence rows are changed in the destination store the way the existing NC1 cases change grant
+    and approval rows (owner-side, raw SQLite), which is the authority-store writer role, not a client capability.
+    """
+    from datetime import timedelta
+    obs = {}
+
+    def refused(ctx, claim_id, envelope=None):
+        step = attempt(lambda: ctx.executor.execute(envelope=envelope or ctx.flow.envelope(ctx.flow.d1), claim_id=claim_id))
+        base = result_obs(step["value"]) if step["ok"] else {"status": None, "raised": err_of(step)}
+        return {**base, "effect_count": ctx.count(), "claim_state_after": ctx.dest.claim_state(claim_id)}
+
+    def evidence_case(name, mutate):
+        ctx = Ctx(work / name)
+        try:
+            claim = ctx.provision()
+            conn = sqlite3.connect(ctx.dest.path)
+            try:
+                mutate(conn)
+                conn.commit()
+            finally:
+                conn.close()
+            obs.setdefault("evidence", {})[name] = refused(ctx, claim.claim_id)
+        finally:
+            ctx.close()
+
+    ctx = Ctx(work / "control")
+    try:
+        claim = ctx.provision()
+        obs["control"] = {**result_obs(ctx.execute(claim.claim_id)), "effect_count": ctx.count()}
+    finally:
+        ctx.close()
+
+    # (1) unauthorized execution
+    ctx = Ctx(work / "forged")
+    try:
+        obs.setdefault("unauthorized", {})["forged_claim_id"] = refused(ctx, "claim-never-issued")
+    finally:
+        ctx.close()
+    ctx = Ctx(work / "denied")
+    try:
+        over = ctx.flow.p.model_copy(update={"amount": 100000.0})
+        decision = ctx.flow.f.decide(over, now=ctx.flow.NOW)
+        step = attempt(lambda: ctx.executor.provision_claim(proposal=over, decision=decision, now=ctx.flow.NOW))
+        obs["unauthorized"]["not_authorized_decision"] = {"decision_result": decision.result, "claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
+    finally:
+        ctx.close()
+
+    # (2) stale or mismatched authority
+    stale = obs.setdefault("stale_or_mismatched", {})
+    ctx = Ctx(work / "expired")
+    try:
+        now = ctx.flow.NOW
+        claim = ctx.executor.provision_claim(proposal=ctx.flow.p, decision=ctx.flow.d1, now=now, expires_at=(now + timedelta(seconds=60)).isoformat())
+        ctx.flow.advance_clock(120)
+        stale["claim_expired"] = refused(ctx, claim.claim_id)
+    finally:
+        ctx.close()
+    ctx = Ctx(work / "advanced")
+    try:
+        claim = ctx.provision()
+        ctx.dest.set_grant_status(ctx.flow.d1.binding.grant_id, status="active", revision="2")
+        stale["authority_advanced_after_claim"] = refused(ctx, claim.claim_id)
+    finally:
+        ctx.close()
+    ctx = Ctx(work / "resolver")
+    try:
+        ctx.flow.publish_revision("2")
+        step = attempt(ctx.provision)
+        stale["resolver_revision_changed_before_claim"] = {"claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
+    finally:
+        ctx.close()
+    ctx = Ctx(work / "amount")
+    try:
+        claim = ctx.provision()
+        changed = ctx.flow.p.model_copy(update={"amount": 11.0})
+        stale["envelope_amount_mismatch"] = refused(ctx, claim.claim_id, ctx.flow.envelope(ctx.flow.d1, changed))
+    finally:
+        ctx.close()
+    ctx = Ctx(work / "binding")
+    try:
+        claim = ctx.provision()
+        d1 = ctx.flow.d1
+        other = d1.model_copy(update={"binding": d1.binding.model_copy(update={"grant_revision": "2"})})
+        stale["envelope_grant_revision_mismatch"] = refused(ctx, claim.claim_id, ctx.flow.envelope(other))
+    finally:
+        ctx.close()
+
+    # (3) missing, invalid or expired required evidence
+    evidence_case("missing", lambda c: c.execute("DELETE FROM authority_evidence_v1"))
+    evidence_case("invalid_state", lambda c: c.execute("UPDATE authority_evidence_v1 SET state='stale'"))
+    evidence_case("expired", lambda c: c.execute("UPDATE authority_evidence_v1 SET observed_at='2020-01-01T00:00:00+00:00'"))
+    ctx = Ctx(work / "resolver_evidence")
+    try:
+        ctx.flow.r.evidence.clear()
+        step = attempt(ctx.provision)
+        obs["evidence"]["missing_at_claim_issuance"] = {"claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
+    finally:
+        ctx.close()
+    return obs
+
+
 @scenario("nc_unmediated")
 def nc_unmediated(work):
     """The declared ingress boundary: the real hub ingress (Unix socket) attacked as an unprivileged uid; see _ingress.py.

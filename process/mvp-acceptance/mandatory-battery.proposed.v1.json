@@ -4,14 +4,15 @@
  "rule": "Zero unexplained skips within THIS list. A listed test that is skipped, not discovered (absent from the collection), not executed (absent from the junit report, or errored before it could run) or whose oracle row is BLOCKED or NOT RUN makes the verdict INCOMPLETE (non-ACCEPT). A row that is NOT APPLICABLE counts only if it is listed under declared_not_applicable with a justification; any other NOT APPLICABLE is INCOMPLETE. A FAIL is a REJECT, never softened. Tests outside this list (other suites, historical suites, mvp-chain KL-01 which is non-mandatory) are neither required to be skip-free nor able to change the verdict.",
  "verdict_precedence": "INCOMPLETE over REJECT over ACCEPT. ACCEPT is a proposal for the owner only; it never authorizes anything and release stays HOLD.",
  "oracle": {
-  "expectations_in_force": "process/mvp-chain/expectations.proposed.v6.json",
+  "expectations_in_force": "process/mvp-chain/expectations.proposed.v7.json",
   "unchanged_files_sha256": {
    "process/mvp-chain/expectations.proposed.v1.json": "828df48ddedfbe66977d64f095556cf31e64015bb57107b4b5d02d95867abf7d",
    "process/mvp-chain/expectations.proposed.v2.json": "3a67d0a867447131bde11629fab9a84024d64d73f5d3fc9480cee996eb662245",
    "process/mvp-chain/expectations.proposed.v3.json": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4",
-   "process/mvp-chain/expectations.proposed.v6.json": "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a"
+   "process/mvp-chain/expectations.proposed.v6.json": "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a",
+   "process/mvp-chain/expectations.proposed.v7.json": "a3284d18920f082757070b34cd691bfffdae39b76802d7d3a815b8595dcff1a7"
   },
-  "note": "No expectation and no frozen file is changed to obtain a PASS: the gate refuses a different hash. v6 is the builder's composition of the v3 rows with the NC4-03 row of PR #222 and the NC2-06 row of PR #224 (proposal only; Qualification owns and freezes the oracle; v1-v3 stay byte-identical)."
+  "note": "No expectation and no frozen file is changed to obtain a PASS: the gate refuses a different hash. v6 is the candidate mandatory expectation baseline (architect ruling Q1) and stays listed byte-identical; v7 is v6 plus the three required negative controls NC7-01..03 (architect ruling Q2), a builder-prepared proposal: Qualification owns the oracle and every verdict."
  },
  "invocations": {
   "mvp-chain": {
@@ -37,6 +38,17 @@
    "exclusion_observation": "exchange-exclusion-applicability.json",
    "runs_as_root": false,
    "exit_file": "pytest-exit-applicability.txt"
+  },
+  "d2-route-b": {
+   "paths": [
+    "suites/mvp-d2-route-b/test_inventory_negatives.py"
+   ],
+   "junit": "junit-d2-route-b.xml",
+   "collected": "collected-d2-route-b.txt",
+   "exclusion_observation": "exchange-exclusion-d2-route-b.json",
+   "runs_as_root": false,
+   "exit_file": "pytest-exit-d2-route-b.txt",
+   "note": "needs D2_CONTROL_PLANE_DIR, D2_RUNTIME_DIR and D2_CONTROL_PLANE_PIN (the resolved Control Plane sha); the suite itself refuses (fails, never skips) unless Runtime is c5e97e87 and the Control Plane is an accepted pin"
   }
  },
  "declared_not_applicable": [],
@@ -339,6 +351,30 @@
    "file": "suites/mvp-chain/test_mvp_chain.py",
    "test": "test_row[NC6-04]",
    "row": "NC6-04"
+  },
+  {
+   "id": "NC7-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC7-01]",
+   "row": "NC7-01"
+  },
+  {
+   "id": "NC7-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC7-02]",
+   "row": "NC7-02"
+  },
+  {
+   "id": "NC7-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC7-03]",
+   "row": "NC7-03"
   },
   {
    "id": "VE-pass_fail_and_missing_is_fail",
@@ -1480,6 +1516,118 @@
    "invocation": "mvp-chain",
    "file": "suites/mvp-chain/test_ingress_ambiguity.py",
    "test": "test_negative_control_unbound_fresh_request_nc2_06_must_fail"
+  },
+  {
+   "id": "MED-01",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_legacy_commit_on_route_b_database"
+  },
+  {
+   "id": "MED-02",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_execute_snapshot_on_route_b_database_and_leftover_attempt_rows"
+  },
+  {
+   "id": "MED-03",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_pinned_control_plane_executor_on_route_b_database"
+  },
+  {
+   "id": "MED-04",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_cp_workflow_execute_writes_only_the_cp_store_never_the_route_b_database"
+  },
+  {
+   "id": "MED-05",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_acp_run_cannot_target_a_populated_route_b_directory"
+  },
+  {
+   "id": "MED-06",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_selected_destination_never_forgets_an_operation_after_time_passes"
+  },
+  {
+   "id": "MED-07",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.delayed_commit_destination-DelayedCommitDestination-authority-effect-profile destination requires atomic claim execution]"
+  },
+  {
+   "id": "MED-08",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.delayed_commit_destination-DelayedOperationIdentityDestination-authority-effect-profile destination requires atomic claim execution]"
+  },
+  {
+   "id": "MED-09",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.delayed_commit_destination-DelayedEffectiveGrantDestination-effective-grant profile cannot share an authority-effect database]"
+  },
+  {
+   "id": "MED-10",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.delayed_commit_destination-DelayedOperationIdentityEffectiveGrantDestination-effective-grant profile cannot share an authority-effect database]"
+  },
+  {
+   "id": "MED-11",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.effective_grant-EffectiveGrantDestination-effective-grant profile cannot share an authority-effect database]"
+  },
+  {
+   "id": "MED-12",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.operation_identity_destination-OperationIdentityDestination-authority-effect-profile destination requires atomic claim execution]"
+  },
+  {
+   "id": "MED-13",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.operation_identity_destination-OperationIdentityEffectiveGrantDestination-effective-grant profile cannot share an authority-effect database]"
+  },
+  {
+   "id": "MED-14",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.dedupe_destination-DedupeTtlOperationDestination-authority-effect-profile destination requires atomic claim execution]"
+  },
+  {
+   "id": "MED-15",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REFUSED_every_legacy_destination_class_commit_on_route_b_database[engine.refund_intent-IntentRefundDestination-intent scope does not match operation]"
+  },
+  {
+   "id": "MED-16",
+   "kind": "supplementary_route_b_mediation",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_route_b_destination_has_no_apply_so_workflow_execute_cannot_use_it"
   }
  ],
  "non_mandatory_tests": [
@@ -1491,6 +1639,54 @@
    "test": "test_row[KL-01]",
    "row": "KL-01",
    "note": "known limitation row; collected and executed but cannot change the verdict"
+  },
+  {
+   "id": "D2C-01",
+   "kind": "characterisation_non_mandatory",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_dedupe_ttl_destination_class_has_no_atomic_claim_path_and_is_not_the_selected_class",
+   "note": "characterises a destination class that is not the selected one; collected and executed but cannot change the verdict and must not be counted as a pass"
+  },
+  {
+   "id": "D2C-02",
+   "kind": "characterisation_non_mandatory",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REACHABLE_forged_claim_without_any_control_plane_decision_commits_an_effect",
+   "note": "test_REACHABLE_* PASS WHEN A HOLE EXISTS (recorded unmediated surfaces, not controls); collected and executed but cannot change the verdict and must not be counted as a pass"
+  },
+  {
+   "id": "D2C-03",
+   "kind": "characterisation_non_mandatory",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REACHABLE_direct_destination_call_with_caller_chosen_operation_id_defeats_identity",
+   "note": "test_REACHABLE_* PASS WHEN A HOLE EXISTS (recorded unmediated surfaces, not controls); collected and executed but cannot change the verdict and must not be counted as a pass"
+  },
+  {
+   "id": "D2C-04",
+   "kind": "characterisation_non_mandatory",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REACHABLE_simulate_is_caller_controlled_on_executor_execute_and_changes_the_effect_state",
+   "note": "test_REACHABLE_* PASS WHEN A HOLE EXISTS (recorded unmediated surfaces, not controls); collected and executed but cannot change the verdict and must not be counted as a pass"
+  },
+  {
+   "id": "D2C-05",
+   "kind": "characterisation_non_mandatory",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REACHABLE_authority_writers_can_reactivate_suspended_grant_and_delete_authority_rows",
+   "note": "test_REACHABLE_* PASS WHEN A HOLE EXISTS (recorded unmediated surfaces, not controls); collected and executed but cannot change the verdict and must not be counted as a pass"
+  },
+  {
+   "id": "D2C-06",
+   "kind": "characterisation_non_mandatory",
+   "invocation": "d2-route-b",
+   "file": "suites/mvp-d2-route-b/test_inventory_negatives.py",
+   "test": "test_REACHABLE_raw_sql_insert_into_effects_by_the_database_file_holder",
+   "note": "test_REACHABLE_* PASS WHEN A HOLE EXISTS (recorded unmediated surfaces, not controls); collected and executed but cannot change the verdict and must not be counted as a pass"
   }
  ],
  "pending_rows": [
@@ -1501,11 +1697,12 @@
   }
  ],
  "supplementary_entries": {
-  "note": "Entries of kind supplementary_* are mandatory in the same sense as every other entry of tests (zero unexplained skips, a failure is a REJECT) but they are NOT oracle rows: supplementary_nc4_03_predicate lists every collected test of suites/mvp-chain/test_kwflow.py (self-tests of the NC4-03 data-flow predicate: negative and positive fixtures, pin records, tree digest, mutants); supplementary_nc2_06_negative_control lists the six tests of suites/mvp-chain/test_ingress_ambiguity.py (the supported-path test and five negative controls, each of which must FAIL the NC2-06 predicate). Listing them keeps G-13 (a collected test that is not committed is INCOMPLETE) satisfied and puts them under G-05/G-06. The NC2-06 oracle row itself is test_mvp_chain.py::test_row[NC2-06].",
+  "note": "Entries of kind supplementary_* are mandatory in the same sense as every other entry of tests (zero unexplained skips, a failure is a REJECT) but they are NOT oracle rows: supplementary_nc4_03_predicate lists every collected test of suites/mvp-chain/test_kwflow.py (self-tests of the NC4-03 data-flow predicate: negative and positive fixtures, pin records, tree digest, mutants); supplementary_nc2_06_negative_control lists the six tests of suites/mvp-chain/test_ingress_ambiguity.py (the supported-path test and five negative controls, each of which must FAIL the NC2-06 predicate). Listing them keeps G-13 (a collected test that is not committed is INCOMPLETE) satisfied and puts them under G-05/G-06. The NC2-06 oracle row itself is test_mvp_chain.py::test_row[NC2-06]. supplementary_route_b_mediation (MED-01..16, invocation d2-route-b) maps the existing route-B effect-path mediation tests of suites/mvp-d2-route-b/test_inventory_negatives.py (every test_REFUSED_* case, the Control Plane workflow-execute no-write check and the no-apply check; architect ruling Q5). The six remaining tests of that file are recorded as non-mandatory characterisations (D2C-01..06). Inventory counts are not governance claims: the unique claims are the oracle rows.",
   "counts": {
-   "oracle_row": 37,
+   "oracle_row": 40,
    "supplementary_nc4_03_predicate": 143,
-   "supplementary_nc2_06_negative_control": 6
+   "supplementary_nc2_06_negative_control": 6,
+   "supplementary_route_b_mediation": 16
   }
  }
 }

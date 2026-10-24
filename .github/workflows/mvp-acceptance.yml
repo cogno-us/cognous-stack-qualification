@@ -60,7 +60,7 @@ name: MVP acceptance (proposed)
         default: ''
         type: string
       candidate_commitment_sha256:
-        description: sha256 of process/mvp-acceptance/candidate-commitment.proposed.v2.json as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
+        description: sha256 of process/mvp-acceptance/candidate-commitment.proposed.v3.json as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
         required: false
         default: ''
         type: string
@@ -88,6 +88,8 @@ jobs:
       MVP_ACCEPTANCE_DIR: ${{ github.workspace }}/results/mvp-acceptance
       MVP_RESULTS_DIR: ${{ github.workspace }}/results/mvp-acceptance/mvp-chain
       MVP_IDENTITY_FILE: ${{ github.workspace }}/process/mvp-acceptance/candidate-identity.inputs.json
+      D2_CONTROL_PLANE_DIR: ${{ github.workspace }}/components/control_plane
+      D2_RUNTIME_DIR: ${{ github.workspace }}/components/runtime
       PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - name: Validate qualification_revision before it is used as a checkout ref (blank or the workflow commit only)
@@ -215,6 +217,8 @@ jobs:
           MVP_RESULTS_DIR="$d/collect-mvp-chain" python -m pytest --collect-only -q -p no:cacheprovider \
             suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py \
             suites/mvp-chain/test_kwflow.py suites/mvp-chain/test_ingress_ambiguity.py | tee "$d/collected-mvp-chain.txt"
+          D2_CONTROL_PLANE_PIN="${{ steps.tuple.outputs.control_plane }}" MVP_RESULTS_DIR="$d/collect-d2-route-b" python -m pytest --collect-only -q -p no:cacheprovider \
+            suites/mvp-d2-route-b/test_inventory_negatives.py | tee "$d/collected-d2-route-b.txt"
           MVP_RESULTS_DIR="$d/collect-applicability" python -m pytest --collect-only -q -p no:cacheprovider \
             suites/mvp-applicability/test_route_c_exclusion.py | tee "$d/collected-applicability.txt"
       - name: Run the chain battery as root (NC4 starts the ingress as the dedicated non-root uid and the client as another; the hub environment record is captured in-run against that process); the exit status is recorded and judged by the gate, never suppressed
@@ -227,6 +231,16 @@ jobs:
             suites/mvp-chain/test_kwflow.py suites/mvp-chain/test_ingress_ambiguity.py \
             -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-mvp-chain" --junitxml="$d/junit-mvp-chain.xml"
           echo $? > "$d/pytest-exit-mvp-chain.txt"
+          exit 0
+      - name: Run the route-B effect-path mediation tests (architect ruling Q5; pins the Runtime and Control Plane themselves and fails, never skips, on a mismatch)
+        run: |
+          d=results/mvp-acceptance
+          set +e
+          D2_CONTROL_PLANE_PIN="${{ steps.tuple.outputs.control_plane }}" MVP_EXCLUSION_TAG=d2-route-b MVP_RESULTS_DIR="$d/mvp-d2-route-b" \
+            PYTHONPATH="$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" \
+            python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin suites/mvp-d2-route-b/test_inventory_negatives.py \
+            -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-d2-route-b" --junitxml="$d/junit-d2-route-b.xml"
+          echo $? > "$d/pytest-exit-d2-route-b.txt"
           exit 0
       - name: Run the route C exclusion checks (ruling 5)
         run: |

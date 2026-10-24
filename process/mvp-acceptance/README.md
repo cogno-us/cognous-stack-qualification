@@ -7,9 +7,9 @@ release decision or a production claim; release stays HOLD, and the gate verdict
 | File | Role |
 |---|---|
 | [`candidate-identity.inputs.json`](candidate-identity.inputs.json) | The only source of the tuple: eight components, each a full 40-hex sha. Exchange is listed only under `excluded_components`. |
-| [`mandatory-battery.proposed.v1.json`](mandatory-battery.proposed.v1.json) | The frozen-candidate list of mandatory tests (200: 37 oracle rows, 6 ruling 4, 6 applicability, 2 verdict-engine self-checks, 143 `test_kwflow.py` and 6 `test_ingress_ambiguity.py` supplementary entries) and the skip rule. |
+| [`mandatory-battery.proposed.v1.json`](mandatory-battery.proposed.v1.json) | The frozen-candidate list of mandatory tests (219 test-inventory entries: 40 oracle rows (v7, including the required controls NC7-01..03), 6 ruling 4, 6 applicability, 2 verdict-engine self-checks, 143 `test_kwflow.py` and 6 `test_ingress_ambiguity.py` supplementary entries, and 16 route-B mediation entries from `suites/mvp-d2-route-b`). The inventory count is not the number of unique governance claims: those are the 40 mandatory oracle rows, and the supplementary entries substantiate them (NC4-03, ambiguity behaviour, route-B effect-path mediation) under their existing ids and the skip rule. |
 | [`gate-expectations.proposed.v1.json`](gate-expectations.proposed.v1.json) | Exact Verifier dispositions and environment floor. |
-| [`candidate-commitment.proposed.v2.json`](candidate-commitment.proposed.v2.json) | Versioned qualification candidate: sha256 of the battery, mapping, gate expectations, tuple, environment profile, gate, workflow and every mandatory test source. |
+| [`candidate-commitment.proposed.v3.json`](candidate-commitment.proposed.v3.json) | Versioned qualification candidate: sha256 of the battery, mapping, gate expectations, tuple, environment profile, gate, workflow and every mandatory test source. |
 | [`environment-profile.proposed.v1.json`](environment-profile.proposed.v1.json) | The supported environment record: CPython 3.13, Yama `ptrace_scope >= 1`, required hub record checks. |
 | [`mvp-applicability.proposed.v1.json`](mvp-applicability.proposed.v1.json) | Route C (Exchange) EXCLUDED and NOT INVOKED, with the checks that verify it. |
 | [`../../.github/workflows/mvp-acceptance.yml`](../../.github/workflows/mvp-acceptance.yml) | Dispatch-only workflow (Python 3.13, pydantic 2.13.5 from the hash lock). |
@@ -20,8 +20,8 @@ release decision or a production claim; release stays HOLD, and the gate verdict
 Real claim provisioning (journal mode, operation identity), actual route B synthetic execution, grant and approval revocation negatives
 (NC1), lost-acknowledgement and duplicate-operation negatives (NC2, NC3, and the ruling 4 assertions), Replay and Evidence Pack
 reconstruction, the pinned Verifier, custody and tamper checks (NC5, NC6), the trusted-host ingress boundary (NC4: ingress as a dedicated non-root uid, client as another) and the
-route C exclusion checks. The chain, negatives and Verifier come from `suites/mvp-chain` (its expectations v6, the builder's composition of v3 with the NC4-03 row of #222 and the NC2-06 row of #224, are the oracle in force; v1-v3 are
-unchanged); `suites/mvp-d2-route-b` and `suites/mvp-d09` are not in this job because they hard-code a Runtime sha (d2-route-b: `c5e97e87`; d09 is bound to the frozen V1 profile and stays at the pre-F3 `ec728da6`); the same behaviours are exercised here by mvp-chain.
+route C exclusion checks. The chain, negatives and Verifier come from `suites/mvp-chain` (its expectations v7, the builder's composition of v6 with the three required negative controls NC7-01..03, are the oracle in force; v1-v3 and v6 are
+unchanged); `suites/mvp-d2-route-b` runs as its own invocation (`d2-route-b`, Runtime `c5e97e87`, `D2_*` env) so that its 16 REFUSED / no-write tests are mandatory evidence for route-B effect-path mediation (ruling Q5); its 5 REACHABLE characterisations and one structural check stay non-mandatory. `suites/mvp-d09` is not in this job: it is bound to the frozen V1 profile (pre-F3 `ec728da6`), is not modified and stays supplementary historical characterisation.
 
 ## Tuple
 
@@ -43,7 +43,7 @@ identity file names the final PROVISIONAL, UNQUALIFIED tuple (Control Plane `7a4
   (abstain), 28 checks, 27 confirmed, 1 could-not-check (`v4.ledger.rows-agree-with-attempts`), 0 refuted; V4 has 4 confirmed, 1 abstained
   and 2 not applicable (`v4.ledger.acknowledged-attempts-have-rows`, `v4.ledger.observations-agree`). Run A (no ledger) exits 3 with 29 checks,
   22 confirmed, 7 could-not-check (all `input_absent`). Nothing is asserted as "all other V4 checks pass".
-* A changed frozen expectation file (v1, v2, v3 and the v6 proposal in force; the files named in the battery's `unchanged_files_sha256`) is a `REJECT` (G-02); the gate never edits one.
+* A changed frozen expectation file (v1, v2, v3, v6 and the v7 proposal in force; the files named in the battery's `unchanged_files_sha256`) is a `REJECT` (G-02); the gate never edits one.
 * A `FAIL` row is a `REJECT`; the job fails unless the gate says `ACCEPT`.
 
 The oracle's own FAIL rows are never softened by the gate. Whether any row fails at the final tuple (for example NC1-04, approval revocation terminality, which failed at the pre-F3 Runtime `ec728da6`) is a result of a run, not asserted here; no dispatched run exists yet.
@@ -52,7 +52,7 @@ The oracle's own FAIL rows are never softened by the gate. Whether any row fails
 
 All of these stay **PROPOSED** pending independent Qualification acceptance and freeze (target 2026-10-27).
 
-* **Commitment (G-12, G-13).** `candidate-commitment.proposed.v2.json` (`candidate_version` `mvp-qualification-candidate-v2`; it follows `COMMITMENT_FILE` in the gate; `candidate-commitment.proposed.v1.json` stays in the tree as the earlier candidate and is itself committed by v2) lists the sha256 of: ALL files (not only `.py`) under `suites/mvp-chain` and
+* **Commitment (G-12, G-13).** `candidate-commitment.proposed.v3.json` (`candidate_version` `mvp-qualification-candidate-v3`; it follows `COMMITMENT_FILE` in the gate; `candidate-commitment.proposed.v1.json` and `...v2.json` stay in the tree as earlier candidates and are themselves committed by v3) lists the sha256 of: ALL files (not only `.py`) under `suites/mvp-chain` and
   `suites/mvp-applicability`; the transitive closure of the local modules they import, computed by static import analysis (this reaches
   `suites/operation-identity/_oi_flow.py` and `tools/pristine_checkout.py`); `pytest.ini`; the lock files the workflow references; EVERY file directly in each `sys.path` directory (`suites/`, `suites/operation-identity/`, `tools/`; at the repository root every importable file, which `python -m pytest` puts first on `sys.path`) and the `__init__` of each package directory there, so a planted `tools/yaml.py`, `suites/jsonschema.py`, `sitecustomize.py` or package is an uncommitted file (FAIL), not a shadowed import; every file of
   `process/mvp-chain` and `process/mvp-acceptance` (candidate tuple, battery, mapping, gate expectations, environment profile); the gate tool and
@@ -60,7 +60,7 @@ All of these stay **PROPOSED** pending independent Qualification acceptance and 
   Symbolic links anywhere in or above the committed set are refused, both when the commitment is built and by the gate. The sha256 of the
   commitment file must be supplied from outside this checkout (`candidate_commitment_sha256`); without it the verdict is INCOMPLETE. A changed,
   added or removed file, or a planted file that must be absent, is a FAIL, and a collected test that is not in the committed battery (mandatory,
-  or the committed non-mandatory KL-01) is INCOMPLETE. A later change is a new file (`...v2.json`) and a new candidate; `python
+  or the committed non-mandatory KL-01) is INCOMPLETE. A later change is a new file (`...v4.json`) and a new candidate; `python
   tools/mvp_acceptance_gate.py commit` writes it. **Inherent limit:** the gate and the workflow that evaluate the commitment come from the same
   checkout, so a changed gate could report PASS; an independent reviewer must pin the commitment hash and the gate code outside the checkout.
   Not covered: component checkouts (pinned by sha), the runner image, site-packages (locked installs) and the hub environment record (captured in the run, below).
@@ -118,11 +118,18 @@ The workflow has not been dispatched from this change; the gate logic is covered
 artifacts, and the ruling 4 and applicability tests were checked for syntax and (for the applicability tests) against the pinned hub
 ingress sources.
 
-## Commitment v2: how it was recomputed (PROPOSED)
+## Required negative controls and limits (rulings Q2, Q4, Q6)
 
-`candidate-commitment.proposed.v2.json` replaces v1 as the candidate once the composed v6 proposal, the supplementary battery entries, the `conftest.py` default, the gate constant and the final tuple are in the tree. Method, so that anyone can reproduce the hash:
+* **NC7-01..03** (scenario `nc_authority_gates`, new small assertions on the real route-B chain): unauthorized execution (forged claim id, not-authorized decision) commits no effect; stale or mismatched authority (expired claim, authority advanced, resolver revision changed, envelope amount or grant revision mismatch) prevents an effect; missing, invalid or expired evidence does not permit execution. A control run must commit exactly one effect, so a refusal cannot pass vacuously. Related existing evidence: NC1, NC2-06, NC3, NC4-02.
+* **UNQUALIFIED:** true OS-level process-kill recovery is not qualified; the existing synthetic fault injection is accepted for 2026-10-31 (see `limitations` in expectations v7).
+* **Verifier** stays `c0b8ba1f`; `39d46b49` is a later documentation revision, not an implicitly qualified replacement.
+* Builder-prepared; Qualification owns every verdict. Non-authorizing; release and production stay HOLD.
+
+## Commitment v3: how it was recomputed (PROPOSED)
+
+`candidate-commitment.proposed.v3.json` replaces v2 as the candidate once the composed v7 proposal, the supplementary battery entries, the `conftest.py` default, the gate constant and the final tuple are in the tree. Method, so that anyone can reproduce the hash:
 
 1. Start from a clean checkout of the PR head (`git status --porcelain --ignored` empty; no `__pycache__`, no `conftest.py`, `tox.ini`, `setup.cfg` or `pyproject.toml` at the places the commitment lists as absent).
-2. After the LAST edit to any file under `process/mvp-chain`, `process/mvp-acceptance`, `suites/mvp-chain`, `suites/mvp-applicability`, `tools`, `.github/workflows/mvp-acceptance.yml` or the lock files, run `PYTHONDONTWRITEBYTECODE=1 python tools/mvp_acceptance_gate.py commit` with CPython 3.13 (the hash-locked set). It writes `process/mvp-acceptance/candidate-commitment.proposed.v2.json` (`COMMITMENT_FILE`); the file lists sha256 of every committed file except itself.
-3. `sha256sum process/mvp-acceptance/candidate-commitment.proposed.v2.json` is the value Qualification supplies as `candidate_commitment_sha256` from outside the checkout. It cannot be written into this README or any committed file (that would change the commitment), so it is recorded in the PR comment, not here.
-4. Any later change to a committed file is a new candidate: a new `...v3.json`, a new constant and a new hash. `tests/test_mvp_acceptance_gate.py::RulingsTwoTests::test_committed_candidate_matches_the_files_in_this_repository` fails when the committed file no longer matches the tree.
+2. After the LAST edit to any file under `process/mvp-chain`, `process/mvp-acceptance`, `suites/mvp-chain`, `suites/mvp-applicability`, `tools`, `.github/workflows/mvp-acceptance.yml` or the lock files, run `PYTHONDONTWRITEBYTECODE=1 python tools/mvp_acceptance_gate.py commit` with CPython 3.13 (the hash-locked set). It writes `process/mvp-acceptance/candidate-commitment.proposed.v3.json` (`COMMITMENT_FILE`); the file lists sha256 of every committed file except itself.
+3. `sha256sum process/mvp-acceptance/candidate-commitment.proposed.v3.json` is the value Qualification supplies as `candidate_commitment_sha256` from outside the checkout. It cannot be written into this README or any committed file (that would change the commitment), so it is recorded in the PR comment, not here.
+4. Any later change to a committed file is a new candidate: a new `...v4.json`, a new constant and a new hash. `tests/test_mvp_acceptance_gate.py::RulingsTwoTests::test_committed_candidate_matches_the_files_in_this_repository` fails when the committed file no longer matches the tree.

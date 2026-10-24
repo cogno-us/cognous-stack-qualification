@@ -1175,18 +1175,22 @@ class OracleMessageAndIdentityTests(unittest.TestCase):
 class ComposedV6BatteryTests(unittest.TestCase):
     """The composed v6 proposal is the oracle in force and the battery, the suite default and the workflow agree (proposal only; Qualification owns the oracle)."""
     V6 = "process/mvp-chain/expectations.proposed.v6.json"
+    V7 = "process/mvp-chain/expectations.proposed.v7.json"
 
     @staticmethod
     def _entry(test_id):
         return next(t for t in BATTERY["tests"] if t["id"] == test_id)
 
-    def test_v6_is_in_force_with_its_own_hash_and_v1_to_v3_stay_listed(self):
+    def test_v7_is_in_force_with_its_own_hash_and_v1_to_v3_and_v6_stay_listed(self):
         oracle = BATTERY["oracle"]
-        self.assertEqual(oracle["expectations_in_force"], self.V6)
+        self.assertEqual(oracle["expectations_in_force"], self.V7)
+        self.assertEqual(oracle["unchanged_files_sha256"][self.V7], G.sha256_file(ROOT / self.V7))
         self.assertEqual(oracle["unchanged_files_sha256"][self.V6], G.sha256_file(ROOT / self.V6))
+        self.assertEqual(oracle["unchanged_files_sha256"][self.V6], "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a")
         for v in (1, 2, 3):
             rel = f"process/mvp-chain/expectations.proposed.v{v}.json"
             self.assertEqual(oracle["unchanged_files_sha256"][rel], G.sha256_file(ROOT / rel))
+        self.assertIn(self.V7, G.frozen_files(ROOT))
         self.assertIn(self.V6, G.frozen_files(ROOT))
 
     def test_nc2_06_is_the_oracle_row_entry_of_test_mvp_chain_not_of_the_ambiguity_file(self):
@@ -1210,7 +1214,7 @@ class ComposedV6BatteryTests(unittest.TestCase):
 
     def test_suite_default_expectations_is_the_oracle_in_force(self):
         text = (ROOT / "suites/mvp-chain/conftest.py").read_text()
-        self.assertIn('ROOT / "process" / "mvp-chain" / "expectations.proposed.v6.json"', text)
+        self.assertIn('ROOT / "process" / "mvp-chain" / "expectations.proposed.v7.json"', text)
         self.assertNotIn('expectations.proposed.v3.json")', text)
 
     def test_supplementary_entries_cover_exactly_the_collected_tests_of_the_two_files(self):
@@ -1220,9 +1224,9 @@ class ComposedV6BatteryTests(unittest.TestCase):
         out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "suites/mvp-chain/test_kwflow.py",
                               "suites/mvp-chain/test_ingress_ambiguity.py"], cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
         collected = {l.strip() for l in out.splitlines() if l.startswith("suites/mvp-chain/") and "::" in l}
-        listed = {f"{t['file']}::{t['test']}" for t in BATTERY["tests"] if t["kind"].startswith("supplementary_")}
+        listed = {f"{t['file']}::{t['test']}" for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
         self.assertEqual(collected, listed)
-        kinds = {t["file"]: t["kind"] for t in BATTERY["tests"] if t["kind"].startswith("supplementary_")}
+        kinds = {t["file"]: t["kind"] for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
         self.assertEqual(kinds, {"suites/mvp-chain/test_kwflow.py": "supplementary_nc4_03_predicate",
                                  "suites/mvp-chain/test_ingress_ambiguity.py": "supplementary_nc2_06_negative_control"})
         self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 143)
@@ -1284,6 +1288,131 @@ class ImportAnalysisTests(unittest.TestCase):
         self.assertEqual(G._local_imports(tmp / "b", "suites/t.py"), set())
         (tmp / "b" / "suites" / "bad.py").write_text("def broken(:\n")
         self.assertEqual(G._local_imports(tmp / "b", "suites/bad.py"), set())
+
+
+class RequiredControlsTests(unittest.TestCase):
+    """Architect rulings Q2, Q5, Q6: the three required negative controls NC7-01..03, the route-B mediation entries, limitations and inventory-versus-claims text."""
+    V7 = json.loads((ROOT / "process/mvp-chain/expectations.proposed.v7.json").read_text())
+    V6 = json.loads((ROOT / "process/mvp-chain/expectations.proposed.v6.json").read_text())
+
+    def _verdict(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        import verdict
+        return verdict
+
+    @staticmethod
+    def _refused():
+        return {"status": "denied", "attempted": False, "effect_count": 0}
+
+    def _obs(self):
+        refused = self._refused()
+        claim_refused = {"claim_ok": False, "effect_count": 0}
+        return {"nc_authority_gates": {
+            "status": "ran", "control": {"status": "executed", "effect_count": 1},
+            "unauthorized": {"forged_claim_id": dict(refused), "not_authorized_decision": {"decision_result": "hold", **claim_refused}},
+            "stale_or_mismatched": {"claim_expired": dict(refused), "authority_advanced_after_claim": dict(refused), "envelope_amount_mismatch": dict(refused),
+                                    "envelope_grant_revision_mismatch": dict(refused), "resolver_revision_changed_before_claim": dict(claim_refused)},
+            "evidence": {"missing": dict(refused), "invalid_state": dict(refused), "expired": dict(refused), "missing_at_claim_issuance": dict(claim_refused)}}}
+
+    def _rows(self):
+        return {r["id"]: r for r in self.V7["rows"] if r["id"].startswith("NC7-")}
+
+    def test_v7_is_v6_plus_exactly_the_three_required_controls(self):
+        self.assertEqual(sorted(self._rows()), ["NC7-01", "NC7-02", "NC7-03"])
+        self.assertEqual([r for r in self.V7["rows"] if not r["id"].startswith("NC7-")], self.V6["rows"])
+        for key in ("schema", "statuses", "semantics", "operators"):
+            self.assertEqual(self.V7[key], self.V6[key])
+        self.assertEqual(sum(r.get("mandatory", True) for r in self.V7["rows"]), 40)
+        self.assertTrue(all(r["mandatory"] is True for r in self._rows().values()))
+        self.assertEqual(self.V7["supersedes"]["v6_sha256"], G.sha256_file(ROOT / "process/mvp-chain/expectations.proposed.v6.json"))
+
+    def test_expected_verdicts_are_computed_from_observations(self):
+        v = self._verdict()
+        for rid, row in self._rows().items():
+            self.assertEqual(v.evaluate_row(row, self._obs())["status"], v.PASS, rid)
+            self.assertEqual(v.evaluate_row(row, {})["status"], v.NOT_RUN, rid)
+            blocked = {"nc_authority_gates": {"status": "blocked", "blocked_reason": "x"}}
+            self.assertEqual(v.evaluate_row(row, blocked)["status"], v.BLOCKED, rid)
+
+    def test_each_refusal_predicate_fails_when_an_effect_was_committed_or_the_control_cannot_commit(self):
+        v = self._verdict()
+        cases = {"NC7-01": ["unauthorized.forged_claim_id", "unauthorized.not_authorized_decision"],
+                 "NC7-02": ["stale_or_mismatched.claim_expired", "stale_or_mismatched.authority_advanced_after_claim", "stale_or_mismatched.envelope_amount_mismatch",
+                            "stale_or_mismatched.envelope_grant_revision_mismatch", "stale_or_mismatched.resolver_revision_changed_before_claim"],
+                 "NC7-03": ["evidence.missing", "evidence.invalid_state", "evidence.expired", "evidence.missing_at_claim_issuance"]}
+        for rid, paths in cases.items():
+            row = self._rows()[rid]
+            for path in paths:
+                obs = self._obs()
+                node = obs["nc_authority_gates"]
+                for part in path.split("."):
+                    node = node[part]
+                node["effect_count"] = 1
+                self.assertEqual(v.evaluate_row(row, obs)["status"], v.FAIL, f"{rid} {path}")
+                obs = self._obs()
+                node = obs["nc_authority_gates"]
+                for part in path.split("."):
+                    node = node[part]
+                del node["effect_count"]
+                self.assertEqual(v.evaluate_row(row, obs)["status"], v.FAIL, f"{rid} {path} missing observation")
+            for control in ({"status": "denied", "effect_count": 0}, {"status": "executed", "effect_count": 2}):
+                obs = self._obs()
+                obs["nc_authority_gates"]["control"] = control
+                self.assertEqual(v.evaluate_row(row, obs)["status"], v.FAIL, f"{rid} control {control}")
+        obs = self._obs()
+        obs["nc_authority_gates"]["unauthorized"]["not_authorized_decision"]["decision_result"] = "authorized"
+        self.assertEqual(v.evaluate_row(self._rows()["NC7-01"], obs)["status"], v.FAIL)
+        obs = self._obs()
+        obs["nc_authority_gates"]["unauthorized"]["forged_claim_id"]["attempted"] = True
+        self.assertEqual(v.evaluate_row(self._rows()["NC7-01"], obs)["status"], v.FAIL)
+
+    def test_battery_lists_the_three_rows_as_oracle_rows_after_nc6_04(self):
+        ids = [t["id"] for t in BATTERY["tests"]]
+        self.assertEqual(ids[ids.index("NC6-04") + 1:ids.index("NC6-04") + 4], ["NC7-01", "NC7-02", "NC7-03"])
+        for rid in ("NC7-01", "NC7-02", "NC7-03"):
+            t = next(x for x in BATTERY["tests"] if x["id"] == rid)
+            self.assertEqual((t["kind"], t["invocation"], t["file"], t["test"], t["row"]), ("oracle_row", "mvp-chain", "suites/mvp-chain/test_mvp_chain.py", f"test_row[{rid}]", rid))
+
+    def test_route_b_mediation_entries_map_only_refusal_tests_and_characterisations_stay_non_mandatory(self):
+        med = [t for t in BATTERY["tests"] if t["kind"] == "supplementary_route_b_mediation"]
+        self.assertEqual(len(med), 16)
+        self.assertTrue(all(t["invocation"] == "d2-route-b" and t["file"] == "suites/mvp-d2-route-b/test_inventory_negatives.py" for t in med))
+        self.assertFalse([t for t in med if "REACHABLE" in t["test"]])
+        non = [t for t in BATTERY["non_mandatory_tests"] if t["invocation"] == "d2-route-b"]
+        self.assertEqual(len(non), 6)
+        self.assertEqual(len([t for t in non if "REACHABLE" in t["test"]]), 5)
+        inv = BATTERY["invocations"]["d2-route-b"]
+        self.assertEqual(inv["paths"], ["suites/mvp-d2-route-b/test_inventory_negatives.py"])
+        self.assertFalse(inv["runs_as_root"])
+        self.assertIn("suites/mvp-d2-route-b", G.SUITE_DIRS)
+
+    def test_d2_entries_equal_the_collected_tests_of_the_d2_file(self):
+        if importlib.util.find_spec("pytest") is None:
+            self.skipTest("pytest is not installed in this environment: the collection cross-check needs it")
+        if not (os.environ.get("D2_CONTROL_PLANE_DIR") and os.environ.get("D2_RUNTIME_DIR")):
+            self.skipTest("D2_CONTROL_PLANE_DIR and D2_RUNTIME_DIR (component checkouts) are needed to import the d2 file")
+        env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+        out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "suites/mvp-d2-route-b/test_inventory_negatives.py"],
+                             cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
+        collected = {l.strip() for l in out.splitlines() if l.startswith("suites/mvp-d2-route-b/") and "::" in l}
+        listed = {f"{t['file']}::{t['test']}" for t in BATTERY["tests"] + BATTERY["non_mandatory_tests"] if t["invocation"] == "d2-route-b"}
+        self.assertEqual(collected, listed)
+
+    def test_workflow_runs_and_collects_the_d2_invocation_with_the_tuple_pin(self):
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        self.assertIn("collected-d2-route-b.txt", wf)
+        self.assertIn("junit-d2-route-b.xml", wf)
+        self.assertIn("pytest-exit-d2-route-b.txt", wf)
+        self.assertGreaterEqual(wf.count('D2_CONTROL_PLANE_PIN="${{ steps.tuple.outputs.control_plane }}"'), 2)
+        self.assertIn("D2_RUNTIME_DIR: ${{ github.workspace }}/components/runtime", wf)
+
+    def test_os_kill_is_unqualified_and_inventory_is_not_claims(self):
+        lim = self.V7["limitations"]["os_level_process_kill"]
+        self.assertTrue(lim.startswith("UNQUALIFIED"))
+        self.assertIn("synthetic fault injection", lim)
+        self.assertIn("40", self.V7["inventory_vs_claims"]["unique_governance_claims"])
+        self.assertIn("not additional claims", self.V7["inventory_vs_claims"]["test_inventory"])
+        self.assertIn("claims", (ROOT / "process/mvp-acceptance/README.md").read_text())
 
 
 if __name__ == "__main__":

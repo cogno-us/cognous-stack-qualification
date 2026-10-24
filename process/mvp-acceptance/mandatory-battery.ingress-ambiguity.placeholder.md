@@ -21,3 +21,10 @@ The six tests of `suites/mvp-chain/test_ingress_ambiguity.py` (the supported-pat
 The fault is injected owner-side only (`suites/mvp-chain/_ingress_fault_wrapper.py`: one Runtime post-commit seam, one use); no general fault-injection subsystem.
 
 Evidence limit for the reuse part of NC2-06: the same-bytes REPLAY refusal is ingress-ledger evidence only. A fresh request id is HELD by approval binding unless the owner-side harness builds it with the approval-bound correlation id (`bind_fresh`); only then does a second request reach the executor, where it is denied (in the pinned tuple by the authoritative effect budget, not by the operation-identity guard). The row must not be cited as destination duplicate prevention beyond that observation.
+
+## Addendum: v7, required controls and route-B mediation (rulings Q2, Q5, Q6; PROPOSED)
+
+- `expectations_in_force` is now `expectations.proposed.v7.json` (v6 plus oracle rows NC7-01..03, the three required negative controls). v6 stays listed with its hash and unchanged; the NC2-06 table row above refers to the same row id in v7.
+- Route-B effect-path mediation is covered inside the MVP battery: 16 REFUSED / no-write tests of `suites/mvp-d2-route-b/test_inventory_negatives.py` are entries `MED-01..16` (kind `supplementary_route_b_mediation`, invocation `d2-route-b`, Runtime `c5e97e87`). The REACHABLE characterisations (they pass when a hole exists) and the structural check are listed in `non_mandatory_tests` (D2C-01..06), never as mandatory. The frozen D09/V1 profile is not modified and stays supplementary.
+- Inventory versus claims: 219 battery entries are test inventory; the unique governance claims are the 40 mandatory oracle rows. KW, AMB and MED entries substantiate claims under their existing ids and are not additional claims. An unexplained skip of any mandatory instance makes acceptance INCOMPLETE.
+- True OS-level process-kill recovery is UNQUALIFIED; synthetic fault injection is the accepted evidence for 2026-10-31.

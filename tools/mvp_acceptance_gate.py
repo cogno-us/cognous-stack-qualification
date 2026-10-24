@@ -515,10 +515,10 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
 
 
 # ------------------------------------------------------------------------------------------------ commitment and environment
-COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v2.json"
+COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v3.json"
 COMMITMENT_VERSION = int(re.search(r"\.v(\d+)\.json$", COMMITMENT_FILE).group(1))  # the candidate version follows the file name
 ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
-SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability")
+SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability", "suites/mvp-d2-route-b")
 ABSENT_CANDIDATES = ("conftest.py", "suites/conftest.py", "tox.ini", "setup.cfg", "pyproject.toml")
 CONFIG_FILES = ("pytest.ini",)
 # Directories that are (or can be) on sys.path of the pytest processes: ``python -m pytest`` puts the repository root first, the suites' conftest files put
