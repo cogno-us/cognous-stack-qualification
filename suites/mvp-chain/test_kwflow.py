@@ -290,7 +290,7 @@ def test_real_hub_tree_is_unchanged_and_has_exactly_the_expected_files():
     obs = _kwflow.scan_dir(BASE)
     assert [r for r, k in obs["recursive_tree_files"]] == _kwflow.EXPECTED_TREE_FILES and all(k == "file" for _, k in obs["recursive_tree_files"])
     assert len(_kwflow.EXPECTED_TREE_FILES) == 7 and obs["recursive_tree_sha256"] == _kwflow.EXPECTED_TREE_SHA256
-    assert obs["ingress_tree_sha256"] == "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"  # the *.py digest the pins bind is unchanged
+    assert obs["ingress_tree_sha256"] == _kwflow.INGRESS_PY_TREE_SHA256  # the *.py digest the pins bind is unchanged
 
 
 def _tree_copy(tmp_path):
@@ -320,7 +320,7 @@ def test_a_non_py_content_change_fails_the_recursive_digest_but_not_the_py_diges
     d = _tree_copy(tmp_path)
     (d / "BOUNDARY.md").write_text((d / "BOUNDARY.md").read_text() + "\nedit\n")
     obs = _kwflow.scan_dir(tmp_path)
-    assert obs["ingress_tree_sha256"] == "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
+    assert obs["ingress_tree_sha256"] == _kwflow.INGRESS_PY_TREE_SHA256
     assert [v["rule"] for v in obs["violations"]] == ["INGRESS_TREE_DIGEST"]
 
 
@@ -335,3 +335,13 @@ def test_ast_digest_pins_fail_closed_except_on_the_recorded_interpreter(monkeypa
 def test_pin_prose_states_that_request_id_flows_via_correlation_id():
     text = _kwflow.PINNED_SITES["synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1"]["trusted_input_origin"]
     assert "correlation_id" in text and "NOT among the 14 names" in text
+
+
+def test_launcher_isolation_helper_flags_the_shadowable_launch():
+    assert _kwflow.launcher_isolated(["python", "-m", "tools.mvp_ingress.server"]) is False  # cwd-first sys.path: shadowable
+    assert _kwflow.launcher_isolated(["python", "-P", "-m", "tools.mvp_ingress.server"]) is True
+    assert _kwflow.launcher_isolated(["python", "-I", "-m", "tools.mvp_ingress.server"]) is True
+
+
+def test_single_update_point_for_the_ingress_digest():
+    assert {r["reviewed_ingress_tree_sha256"] for r in _kwflow.PINNED_SITES.values()} == {_kwflow.INGRESS_PY_TREE_SHA256}

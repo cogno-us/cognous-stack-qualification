@@ -14,7 +14,7 @@ The six tests of `suites/mvp-chain/test_ingress_ambiguity.py` (the supported-pat
 
 ## What the battery now names
 
-- `expectations_in_force` is `expectations.proposed.v6.json` (the builder's composition of the v3 rows with the NC4-03 row of PR #222 and the NC2-06 row of PR #224; a rows-from-two-branches merge, not a Qualification-composed or frozen oracle); it has its own `unchanged_files_sha256` entry; v1-v3 stay listed and unchanged.
+- `expectations_in_force` is `expectations.proposed.v6.json` (the builder's composition of the v3 rows with the NC4-03 row of PR #222 and the NC2-06 row of PR #224; a rows-from-two-branches merge, not a Qualification-composed or frozen oracle); it has its own `unchanged_files_sha258` entry; v1-v3 stay listed and unchanged.
 - The invocation `paths` of `mvp-chain` (battery, collection step and run step of the workflow, which must stay identical) include `test_kwflow.py` and `test_ingress_ambiguity.py`, so G-13 (a collected test that is not committed is INCOMPLETE) holds.
 - NC2-01..05 and `test_ruling4_lost_ack.py` remain EXECUTOR-LEVEL evidence (`simulate='lost_ack'`) and must not be cited as supported-ingress evidence. Preserve the UNKNOWN / no-blind-retry criterion.
 
@@ -26,5 +26,5 @@ Evidence limit for the reuse part of NC2-06: the same-bytes REPLAY refusal is in
 
 - `expectations_in_force` is now `expectations.proposed.v7.json` (v6 plus oracle rows NC7-01..03, the three required negative controls). v6 stays listed with its hash and unchanged; the NC2-06 table row above refers to the same row id in v7.
 - Route-B effect-path mediation is covered inside the MVP battery: 16 REFUSED / no-write tests of `suites/mvp-d2-route-b/test_inventory_negatives.py` are entries `MED-01..16` (kind `supplementary_route_b_mediation`, invocation `d2-route-b`, Runtime `c5e97e87`). The REACHABLE characterisations (they pass when a hole exists) and the structural check are listed in `non_mandatory_tests` (D2C-01..06), never as mandatory. The frozen D09/V1 profile is not modified and stays supplementary.
-- Inventory versus claims: 256 battery entries are test inventory; the unique governance claims are the 40 mandatory oracle rows. KW, AMB and MED entries substantiate claims under their existing ids and are not additional claims. An unexplained skip of any mandatory instance makes acceptance INCOMPLETE.
+- Inventory versus claims: 258 battery entries are test inventory; the unique governance claims are the 40 mandatory oracle rows. KW, AMB and MED entries substantiate claims under their existing ids and are not additional claims. An unexplained skip of any mandatory instance makes acceptance INCOMPLETE.
 - True OS-level process-kill recovery is UNQUALIFIED; synthetic fault injection is the accepted evidence for 2026-10-31.

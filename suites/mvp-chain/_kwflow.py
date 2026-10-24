@@ -65,21 +65,25 @@ PRODUCER_RECEIVER = {"decide": "host.workflow", "provision_claim": "host.executo
 ESCAPE_NAMES = PROTECTED_CALLS | {"envelope"}
 SIX = frozenset({"claim_id", "grant_id", "grant_revision", "effective_max_effects", "authority_context_id", "requested_permissions"})
 HUB_REVISION = "43c526eb1c8df9f07942ac36a6b2d11e14775bd1"
+# SINGLE POINT OF UPDATE for a changed ingress tree (hub launcher change): the *.py tree digest the pins bind, and EXPECTED_TREE_SHA256 / EXPECTED_TREE_FILES below.
+# After changing them run ``python suites/mvp-chain/_kwflow.py <hub_checkout>`` and paste the printed ast_digest of each pin; expectations v7 NC4-03 carries the same
+# digest once (obs ingress_tree_sha256), the battery lists v7's own sha256, and the commitment is regenerated.
+INGRESS_PY_TREE_SHA256 = "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
 PIN_FIELDS = ("reviewed_ingress_tree_sha256", "ast_digest", "ast_digest_python", "trusted_input_origin", "protected_destination")
 # Exact reviewed sites, keyed "file:qualname:callee#ordinal". ast_digest = sha256 over ast.dump (no line/col, so comments/blank lines/formatting are
 # irrelevant) of the call node plus its whole enclosing function; any semantic AST change invalidates the pin. A pin with a missing or empty
 # field makes the predicate fail (pin_records_incomplete).
 PINNED_SITES = {
     "synthetic_host.py:SyntheticHost.__init__:original#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest_python": PIN_PYTHON, "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": INGRESS_PY_TREE_SHA256, "ast_digest_python": PIN_PYTHON, "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
         "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it",
         "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API"},
     "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest_python": PIN_PYTHON, "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": INGRESS_PY_TREE_SHA256, "ast_digest_python": PIN_PYTHON, "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
         "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host",
         "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)"},
     "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest_python": PIN_PYTHON, "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": INGRESS_PY_TREE_SHA256, "ast_digest_python": PIN_PYTHON, "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
         "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount and unit come from the client under non-prohibited keys; request_id flows via correlation_id into the proposal commitment and is NOT among the 14 names), fixed 14 field names",
         "protected_destination": "ExecutionOperation(...) constructor feeding ExecutionEnvelope for AtomicLocalControlPlaneExecutor.execute"},
 }
@@ -571,3 +575,22 @@ def scan_dir(hub, hub_revision=None):
             "pin_records": {k: v for k, v in PINNED_SITES.items() if k in used},
             "calls_examined": examined,
             "scope": "source-level static analysis; see _kwflow.py module docstring for limits"}
+
+
+def launcher_isolated(cmd):
+    """Module-shadowing regression: a launcher command that runs ``-m tools.mvp_ingress...`` must carry -I or -P (no cwd-first sys.path). Observation helper;
+    the hub launcher change is pending, so this is recorded, not yet a gating predicate."""
+    return "-m" in cmd and any(f in cmd for f in ("-I", "-P"))
+
+
+if __name__ == "__main__":  # regenerate pin values: python _kwflow.py <hub_checkout>
+    import json
+    hub = sys.argv[1]
+    files = sorted((pathlib.Path(hub) / "tools" / "mvp_ingress").glob("*.py"))
+    saved = {k: dict(v) for k, v in PINNED_SITES.items()}
+    _, t = ingress_tree_manifest(files)
+    for r in PINNED_SITES.values():
+        r["reviewed_ingress_tree_sha256"] = t
+    o = scan_dir(hub)
+    print(json.dumps({"py_tree_sha256": t, "recursive_tree_sha256": o["recursive_tree_sha256"], "files": o["recursive_tree_files"],
+                      "site_digests": {v["site"]: v["ast_digest"] for v in o["violations"] + [{"site": k, "ast_digest": PINNED_SITES[k]["ast_digest"]} for k in o["pinned_sites_used"]] if v.get("site") != "tree"}}, indent=1))

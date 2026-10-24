@@ -10,7 +10,7 @@
    "process/mvp-chain/expectations.proposed.v2.json": "3a67d0a867447131bde11629fab9a84024d64d73f5d3fc9480cee996eb662245",
    "process/mvp-chain/expectations.proposed.v3.json": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4",
    "process/mvp-chain/expectations.proposed.v6.json": "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a",
-   "process/mvp-chain/expectations.proposed.v7.json": "508be5da989efeffff6d429b0af3238067a2c7d91b45e09e02a77f6e0cfc3c37"
+   "process/mvp-chain/expectations.proposed.v7.json": "f46a4c7f122812c3ed1e8e928245db960056c4af7dad0d80e917601ae101acdb"
   },
   "note": "No expectation and no frozen file is changed to obtain a PASS: the gate refuses a different hash. v6 is the candidate mandatory expectation baseline (architect ruling Q1) and stays listed byte-identical; v7 is v6 plus the three required negative controls NC7-01..03 (architect ruling Q2), a builder-prepared proposal: Qualification owns the oracle and every verdict."
  },
@@ -1735,6 +1735,20 @@
    "test": "test_pin_prose_states_that_request_id_flows_via_correlation_id"
   },
   {
+   "id": "KW-181",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_launcher_isolation_helper_flags_the_shadowable_launch"
+  },
+  {
+   "id": "KW-182",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_single_update_point_for_the_ingress_digest"
+  },
+  {
    "id": "AMB-01",
    "kind": "supplementary_nc2_06_negative_control",
    "invocation": "mvp-chain",
@@ -1959,7 +1973,7 @@
   "note": "Entries of kind supplementary_* are mandatory in the same sense as every other entry of tests (zero unexplained skips, a failure is a REJECT) but they are NOT oracle rows: supplementary_nc4_03_predicate lists every collected test of suites/mvp-chain/test_kwflow.py (self-tests of the NC4-03 data-flow predicate: negative and positive fixtures, pin records, tree digest, mutants); supplementary_nc2_06_negative_control lists the six tests of suites/mvp-chain/test_ingress_ambiguity.py (the supported-path test and five negative controls, each of which must FAIL the NC2-06 predicate). Listing them keeps G-13 (a collected test that is not committed is INCOMPLETE) satisfied and puts them under G-05/G-06. The NC2-06 oracle row itself is test_mvp_chain.py::test_row[NC2-06]. supplementary_route_b_mediation (MED-01..16, invocation d2-route-b) maps the existing route-B effect-path mediation tests of suites/mvp-d2-route-b/test_inventory_negatives.py (every test_REFUSED_* case, the Control Plane workflow-execute no-write check and the no-apply check; architect ruling Q5). The six remaining tests of that file are recorded as non-mandatory characterisations (D2C-01..06). Inventory counts are not governance claims: the unique claims are the oracle rows.",
   "counts": {
    "oracle_row": 40,
-   "supplementary_nc4_03_predicate": 180,
+   "supplementary_nc4_03_predicate": 182,
    "supplementary_nc2_06_negative_control": 6,
    "supplementary_route_b_mediation": 16
   }
