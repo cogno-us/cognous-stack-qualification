@@ -31,9 +31,7 @@ is imported from outside its pinned tree.
 
 Every component revision is a run parameter: `MVP_<NAME>_REVISION=<40-hex>` (`MVP_CP_`, `_RUNTIME_`, `_REPLAY_`, `_PACK_`, `_ODES_`, `_VERIFIER_`, `_MANIFEST_`, `_HUB_`)
 replaces that component's pin-file sha for the run and is recorded under `overrides` in `results.json`. The pin file is the single source of the
-tuple (the workflow reads it). Current proposed tuple: Control Plane `7a4bcd40` (main after the merged F3), Runtime `ec728da6`, Replay `ab421ad0`
-(main after the merged Replay F3), Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `43c526eb` (ingress). **Evidence Pack and ODES are PENDING**
-(null in the pin file, their re-pin PRs are not merged) and must be named by `MVP_PACK_REVISION` / `MVP_ODES_REVISION`; they are not guessed.
+tuple (the workflow reads it). Current proposed tuple (PROVISIONAL, UNQUALIFIED; see `process/mvp-chain/tuple-pin.proposed.json`, which is the single source): Control Plane `7a4bcd40`, Runtime `c5e97e87` (main after the merged Runtime F3, PR #144; pre-F3 `ec728da6`), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `5b76c58a` (ingress and `tools/mvp_env_record/capture_env_record.py`). Replay, Pack and ODES are re-tied to Runtime `c5e97e87` at these pins.
 To reproduce the earlier unpatched run: `MVP_CP_REVISION=0a41faa9...`, `MVP_REPLAY_REVISION=028f63d1...`, `MVP_PACK_REVISION=a3ebbb90...`.
 
 **ODES is pin-checked but not exercised**: the chain never imports ODES (no schema validation or fixture of ODES runs here), so for ODES the "exact tuple"
@@ -96,6 +94,6 @@ MVP_RESULTS_DIR=out PYTHONDONTWRITEBYTECODE=1 python -m pytest -q -p no:cachepro
 - The destination ledger is the atomic `effects` table; there is no account balance adapter, so "matched" means amount `10.0 USD` on the Control Plane proposal.
 - Evidence Pack tamper (NC5-03) drops a retained record from the pack's retained source; it is only exercised once Replay accepts the chain.
 - NC4 needs root (to drop to uid 65534); the unprivileged runner path is BLOCKED by design. `yama.ptrace_scope` is absent on the observed kernel and recorded as unavailable.
-- Approval revocation terminality (NC1-04) is expected to FAIL at the current tuple: the Runtime lets a revoked approval be reactivated. It must not be softened.
+- Approval revocation terminality (NC1-04) was expected to FAIL at Runtime `ec728da6` (a revoked approval could be reactivated). It must not be softened. At Runtime `c5e97e87` (F3 PR #144) the expectation is unchanged; whether it passes is a Qualification result, not asserted here.
 - Verifier run B uses a ledger derived by this harness; it is not a component artifact. Run A is the gated run.
 - Single Linux host and a single process; no claim about concurrent writers, process kill or financial finality.
