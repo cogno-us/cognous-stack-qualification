@@ -535,6 +535,31 @@ class RulingsTwoTests(GateTests):
         path.write_text(path.read_text() + "suites/mvp-chain/test_mvp_chain.py::test_surprise\n")
         self.assertEqual(self.verdict()[1]["G-13"], "INCOMPLETE")
 
+    def test_workflow_pythonpath_directories_are_sys_path_directories(self):
+        self.assertIn("suites/mvp-applicability/plugin", G.workflow_pythonpath_dirs(ROOT))
+        self.assertTrue(any(f.startswith("suites/mvp-applicability/plugin/") for f in G.commit_files(ROOT)))
+
+    def test_adjacent_pyc_is_an_entry_but_pycache_is_not(self):
+        shutil.rmtree(self.tmp / "q", ignore_errors=True)
+        root, _ = make_root(self.tmp / "q")
+        d = root / "suites/mvp-applicability/plugin"
+        (d / "__pycache__").mkdir(exist_ok=True)
+        (d / "__pycache__/x.cpython-313.pyc").write_bytes(b"x")
+        (d / "sitecustomize.pyc").write_bytes(b"x")
+        files = G.commit_files(root)
+        self.assertIn("suites/mvp-applicability/plugin/sitecustomize.pyc", files)
+        self.assertFalse(any("__pycache__" in f for f in files))
+
+    def test_fail_and_blocked_together_is_incomplete_not_reject(self):
+        def m(rec):
+            next(c for c in rec["checks"] if c["id"] == "identity.ingress_not_root")["status"] = "FAIL"
+            next(c for c in rec["checks"] if c["id"] == "isolation.ptrace_scope")["status"] = "BLOCKED"
+            rec["overall"] = "FAIL"
+        self.build(env_mutate=m)
+        v, checks, _ = self.verdict()
+        self.assertEqual(checks["G-11"], "INCOMPLETE")
+        self.assertNotEqual(v, "ACCEPT")
+
     def test_environment_record_must_be_pass_on_the_selected_profile(self):
         def set_check(cid, status):
             def m(rec):
@@ -627,7 +652,10 @@ class RulingsTwoTests(GateTests):
         plants = {"tools/yaml.py": "x = 1\n", "suites/jsonschema.py": "x = 1\n", "suites/operation-identity/pydantic.py": "x = 1\n", "sitecustomize.py": "x = 1\n",
                   "usercustomize.py": "x = 1\n", "tools/shadow.pth": "/tmp\n", "suites/pkg/__init__.py": "x = 1\n", "tools/pkg/__init__.py": "x = 1\n",
                   "tools/native.cpython-313-x86_64-linux-gnu.so": "x", "yaml.pyc": "x", "suites/data.txt": "any file directly in suites/", "tools/notes.md": "any file directly in tools/",
-                  "suites/operation-identity/notes.md": "any file directly in suites/operation-identity/"}
+                  "suites/operation-identity/notes.md": "any file directly in suites/operation-identity/",
+                  "suites/mvp-applicability/plugin/sitecustomize.pyc": "x", "suites/mvp-applicability/plugin/usercustomize.pyc": "x",
+                  "suites/mvp-applicability/plugin/sitecustomize.py": "x = 1\n", "suites/mvp-applicability/plugin/startup.pth": "import os\n",
+                  "suites/mvp-applicability/plugin/native.so": "x", "suites/mvp-applicability/plugin/ingress_probe/sitecustomize.pyc": "x"}
         for rel, content in plants.items():
             with self.subTest(rel):
                 shutil.rmtree(self.tmp / "p", ignore_errors=True)

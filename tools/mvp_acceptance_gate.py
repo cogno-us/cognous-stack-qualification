@@ -601,22 +601,30 @@ IMPORTABLE_SUFFIXES = (".py", ".pyc", ".pyo", ".pyd", ".so", ".pth", ".zip", ".e
 
 
 def _entries(root: Path, rel: str) -> list[str]:
-    """Every entry (file, symlink to a file, symlink to a directory) under ``rel`` without following links."""
+    """Every entry (file, symlink to a file, symlink to a directory) under ``rel`` without following links. Only the __pycache__ directory is skipped: a
+    sourceless adjacent .pyc (for example sitecustomize.pyc or a module .pyc beside its absent source) is importable and startup-executable, so it IS an entry."""
     out = []
     for dirpath, dirnames, filenames in os.walk(Path(root) / rel, followlinks=False):
         dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
         for name in sorted(filenames) + [d for d in dirnames if (Path(dirpath) / d).is_symlink()]:
-            if name.endswith(".pyc"):
-                continue
             out.append(str((Path(dirpath) / name).relative_to(root)))
     return out
+
+
+def workflow_pythonpath_dirs(root: Path) -> list[str]:
+    """Repository-relative directories the workflow puts on PYTHONPATH (startup directories: sitecustomize/usercustomize/.pth are honoured there)."""
+    try:
+        wf = (Path(root) / ".github/workflows/mvp-acceptance.yml").read_text()
+    except OSError:
+        return []
+    return sorted(set(re.findall(r"PYTHONPATH=\"\$GITHUB_WORKSPACE/([A-Za-z0-9._/-]+)\"", wf)))
 
 
 def syspath_entries(root: Path) -> list[str]:
     """Everything that can satisfy an import directly from a sys.path directory: all files (importable ones at the repository root), symlinks and the
     __init__ file of each package directory. Not recursive beyond that: a subdirectory without an __init__ is only a namespace portion and loses to any regular module."""
     root, out = Path(root), set()
-    for rel in SYSPATH_DIRS:
+    for rel in SYSPATH_DIRS + tuple(workflow_pythonpath_dirs(root)):
         d = root / rel
         if not d.is_dir():
             continue
@@ -901,7 +909,7 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         fail.append(f"recorded overall {rec.get('overall')!r} disagrees with its checks ({derived})")
     if derived == "FAIL":
         fail.append("record has FAIL checks: " + ", ".join(sorted(i for i, c in checks.items() if c.get("status") == "FAIL")))
-    if derived == "BLOCKED":
+    if any(c.get("status") == "BLOCKED" for c in checks.values()):  # independent of the overall: FAIL plus BLOCKED is INCOMPLETE (INCOMPLETE outranks REJECT)
         incomplete.append("record has BLOCKED checks (a precondition could not be verified): " + ", ".join(sorted(i for i, c in checks.items() if c.get("status") == "BLOCKED")))
     for cid in profile["required_pass_check_ids"]:
         st = (checks.get(cid) or {}).get("status")
