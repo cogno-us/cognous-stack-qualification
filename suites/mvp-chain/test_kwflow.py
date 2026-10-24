@@ -307,7 +307,7 @@ def _tree_copy(tmp_path):
     ("empty directory", lambda d: (d / "emptydir").mkdir()),
     ("symlink", lambda d: (d / "link.py").symlink_to("core.py")),
     ("removed file", lambda d: (d / "BOUNDARY.md").unlink()),
-])
+], ids=["package-shadowing-proposal", "non-py-file", "extension-module", "sitecustomize", "subpackage", "empty-directory", "symlink", "removed-file"])
 def test_recursive_tree_rejects_extra_or_missing_entries(tmp_path, name, write):
     d = _tree_copy(tmp_path)
     write(d)
