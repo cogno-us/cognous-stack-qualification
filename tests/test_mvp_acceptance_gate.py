@@ -1168,5 +1168,29 @@ class OracleMessageAndIdentityTests(unittest.TestCase):
         self.assertTrue(all(isinstance(v["sha"], str) and re.fullmatch(r"[0-9a-f]{40}", v["sha"]) for v in pin.values()), "no null or short sha in the pin file")
 
 
+class ImportAnalysisTests(unittest.TestCase):
+    """The static import analysis behind the candidate commitment is cached by file CONTENT only; the resolution against a root is never cached."""
+
+    def test_names_are_a_pure_function_of_the_source_and_bad_source_is_none(self):
+        src = "import os\nfrom tools import x as y\nfrom . import z\ndef f():\n    import helper\n"
+        self.assertEqual(G._imported_names(src), (("os", 0), ("tools", 0), ("tools.x", 0), ("", 1), ("z", 1), ("helper", 0)))
+        self.assertEqual(G._imported_names(src), G._imported_names(src))
+        self.assertIsNone(G._imported_names("def broken(:\n"))
+
+    def test_same_bytes_resolve_differently_in_two_roots(self):
+        tmp = Path(tempfile.mkdtemp(prefix="imports-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        for name, with_helper in (("a", True), ("b", False)):
+            (tmp / name / "tools").mkdir(parents=True)
+            (tmp / name / "suites").mkdir()
+            (tmp / name / "suites" / "t.py").write_text("import helper_mod\n")
+            if with_helper:
+                (tmp / name / "tools" / "helper_mod.py").write_text("X = 1\n")
+        self.assertEqual(G._local_imports(tmp / "a", "suites/t.py"), {"tools/helper_mod.py"})
+        self.assertEqual(G._local_imports(tmp / "b", "suites/t.py"), set())
+        (tmp / "b" / "suites" / "bad.py").write_text("def broken(:\n")
+        self.assertEqual(G._local_imports(tmp / "b", "suites/bad.py"), set())
+
+
 if __name__ == "__main__":
     unittest.main()

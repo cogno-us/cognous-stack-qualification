@@ -24,6 +24,7 @@ Verdicts (precedence INCOMPLETE > REJECT > ACCEPT)
 from __future__ import annotations
 
 import argparse
+import functools
 import hashlib
 import json
 import os
@@ -562,15 +563,15 @@ def syspath_entries(root: Path) -> list[str]:
     return sorted(out)
 
 
-def _local_imports(root: Path, rel: str) -> set[str]:
-    """Local modules a Python file imports (nested imports included), resolved against the directories the suites put on sys.path."""
+@functools.lru_cache(maxsize=2048)
+def _imported_names(source: str):
+    """(module name, relative level) pairs a source text imports, nested imports included; None when it does not parse. A pure function of the text, so it is
+    cached by content: the resolution against the files of a given root stays in _local_imports and is never cached."""
     import ast
-    root = Path(root)
-    path = root / rel
     try:
-        tree = ast.parse(path.read_text())
-    except (SyntaxError, OSError, UnicodeDecodeError):
-        return set()
+        tree = ast.parse(source)
+    except (SyntaxError, ValueError):
+        return None
     names = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
@@ -579,6 +580,19 @@ def _local_imports(root: Path, rel: str) -> set[str]:
             base = node.module or ""
             names.append((base, node.level))
             names += [((base + "." + a.name).strip("."), node.level) for a in node.names]
+    return tuple(names)
+
+
+def _local_imports(root: Path, rel: str) -> set[str]:
+    """Local modules a Python file imports (nested imports included), resolved against the directories the suites put on sys.path."""
+    root = Path(root)
+    path = root / rel
+    try:
+        names = _imported_names(path.read_text())
+    except (OSError, UnicodeDecodeError):
+        return set()
+    if names is None:
+        return set()
     search = [path.parent, root / "suites", root / "suites/operation-identity", root / "tools"]
     found = set()
     for name, level in names:
