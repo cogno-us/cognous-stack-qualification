@@ -31,7 +31,7 @@ is imported from outside its pinned tree.
 
 Every component revision is a run parameter: `MVP_<NAME>_REVISION=<40-hex>` (`MVP_CP_`, `_RUNTIME_`, `_REPLAY_`, `_PACK_`, `_ODES_`, `_VERIFIER_`, `_MANIFEST_`, `_HUB_`)
 replaces that component's pin-file sha for the run and is recorded under `overrides` in `results.json`. The pin file is the single source of the
-tuple (the workflow reads it). Current proposed tuple (PROVISIONAL, UNQUALIFIED; see `process/mvp-chain/tuple-pin.proposed.json`, which is the single source): Control Plane `7a4bcd40`, Runtime `c5e97e87` (main after the merged Runtime F3, PR #144; pre-F3 `ec728da6`), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `5b76c58a` (ingress and `tools/mvp_env_record/capture_env_record.py`). Replay, Pack and ODES are re-tied to Runtime `c5e97e87` at these pins.
+tuple (the workflow reads it). Current proposed tuple (PROVISIONAL, UNQUALIFIED; see `process/mvp-chain/tuple-pin.proposed.json`, which is the single source): Control Plane `7a4bcd40`, Runtime `c5e97e87` (main after the merged Runtime F3, PR #144; pre-F3 `ec728da6`), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `c897266b` (ingress and `tools/mvp_env_record/capture_env_record.py`). Replay, Pack and ODES are re-tied to Runtime `c5e97e87` at these pins.
 To reproduce the earlier unpatched run: `MVP_CP_REVISION=0a41faa9...`, `MVP_REPLAY_REVISION=028f63d1...`, `MVP_PACK_REVISION=a3ebbb90...`.
 
 **ODES is pin-checked but not exercised**: the chain never imports ODES (no schema validation or fixture of ODES runs here), so for ODES the "exact tuple"
@@ -45,8 +45,8 @@ first on `sys.path`, then records the revision the Evidence Pack resolves and re
 
 `_chain.py` only records raw observations (statuses, error types and codes, counts from an independent read-only SQLite connection,
 hashes, Verifier exit codes and findings). `verdict.py` computes `PASS` / `FAIL` / `BLOCKED` / `NOT RUN` / `NOT APPLICABLE` as a pure function
-of the observations and [`process/mvp-chain/expectations.proposed.v3.json`](../../process/mvp-chain/expectations.proposed.v3.json) (37 rows).
-`v1` and `v2` are kept unchanged. v2 differed from v1 in `VER-03`; v3 differs from v2 in NC4-01..03 (rewired to the real ingress), NC2-02 and NC5-04 (tightened), and adds NC1-04, NC1-05 (revocation terminality) and KL-01 (known limitation); reasons are recorded inside v3. Expectations are never edited after a
+of the observations and [`process/mvp-chain/expectations.proposed.v7.json`](../../process/mvp-chain/expectations.proposed.v7.json) (42 rows, 41 mandatory, including NC4-04 and NC7-01..03; the default of `conftest.py`; `MVP_EXPECTATIONS` selects another file such as v3 or v6). v7 is built on v6 (38 rows, 37 mandatory), which is the builder's composition of the v3 rows with the NC4-03 row of PR #222 and the NC2-06 row of PR #224 (kept here as composition provenance); v7 changes NC4-03 again and adds NC4-04 and NC7-01..03. All of these are proposals that Qualification owns and has not frozen.
+`v1` and `v2` are kept unchanged (as are v4 and v5, the two single-row proposals). v6 differs from v3 only in NC4-03 (changed) and NC2-06 (added). v2 differed from v1 in `VER-03`; v3 differs from v2 in NC4-01..03 (rewired to the real ingress), NC2-02 and NC5-04 (tightened), and adds NC1-04, NC1-05 (revocation terminality) and KL-01 (known limitation); reasons are recorded inside v3. Expectations are never edited after a
 result is seen; a change is a new file with a recorded reason. A row fails its pytest test unless `PASS` or `NOT APPLICABLE`: there is no
 xfail, skip or relabelling. Differential rows (tampering, custody) are `BLOCKED` when the untampered control is not accepted, because
 a refusal then cannot be attributed to the tamper.
@@ -82,6 +82,17 @@ KL-01 records, as a known limitation and not a defect pass, that the trusted ing
 fixture) in-process; it is not client reachable and is not production authority. Only the tested configuration is observed (single host, uid 65534, kernel
 and capabilities recorded); nothing here covers code running as the ingress uid or root.
 
+## Required controls NC7-01..03 (expectations v7, PROPOSED)
+
+Architect ruling Q2. Scenario `nc_authority_gates` (in `_chain.py`) drives the real route-B chain (Control Plane workflow, `AtomicLocalControlPlaneExecutor`, operation-identity atomic SQLite destination) and records raw observations; the rows in `process/mvp-chain/expectations.proposed.v7.json` compute their verdicts from them.
+
+* NC7-01: unauthorized execution (forged claim id; a decision that is not `authorized`) is denied, not attempted, zero effects.
+* NC7-02: stale or mismatched authority (expired claim, authority advanced after the claim, resolver revision changed before the claim, envelope amount or grant revision mismatch) is refused with zero effects.
+* NC7-03: missing, invalid-state or expired evidence, and evidence missing at claim issuance, does not permit execution (zero effects).
+* Every row also requires the control case to execute exactly one effect, so a refusal cannot pass because nothing works at all.
+
+v7 is v6 plus these three rows (42 rows, 41 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (260 battery entries) is not the number of unique governance claims (41 mandatory rows).
+
 ## Run
 
 ```bash
@@ -99,6 +110,22 @@ effect id, not retry eligible, nothing written); the second result's default `ob
 contradicted by the readback, so it is not an authoritative observation; and a fresh operation identity without new authority (no approval
 re-binding, no renewal, same cap) commits no second effect and never reports `executed`.
 
+## Ruling 5: supported-ingress ambiguous acknowledgement (`test_ingress_ambiguity.py`, row NC2-06, PROPOSED)
+
+EVIDENCE LEVEL: SUPPORTED INGRESS. One valid proposal from the unprivileged client over the real hub ingress (`simulate=None`, request schema unchanged); the fault is owner-side only (`_ingress_fault_wrapper.py`, one Runtime post-commit seam). Row NC2-06 lives in `process/mvp-chain/expectations.proposed.v6.json` (the composed proposal: v3 rows byte-identical except NC4-03 from PR #222 and NC2-06 inserted after NC2-05; first proposed in PR #224's `expectations.proposed.v5-ingress-ambiguity.json`, byte-identical row). NC2-01..05 and ruling 4 remain EXECUTOR-LEVEL evidence (`simulate='lost_ack'`).
+
+`MVP_FAULT_MODE` is a required, comma-separated token set for the wrapper (absent or unknown tokens: refuse to start). The product run uses `after_commit,bind_fresh`.
+
+What the reuse part does and does not show:
+
+- **Same bytes again** is refused `REPLAY` by the ingress request ledger. This is ingress-level evidence only; it never reaches the executor and says nothing about the destination.
+- **A fresh request id with the same business content** is, without help, HELD at decide, because the synthetic approval binds exactly the request id `case-1`. A HELD request never reaches the executor, so that observation is not destination duplicate prevention. `bind_fresh` (owner side only, the wire is unchanged) builds the proposal with the approval-bound correlation id, so the fresh request is authorized, a second claim is provisioned, and the executor and `execute_claim_atomic` are called a second time. The row requires: executor calls 1 after the first request, 1 after the replay, 2 after the fresh request; the second result is `denied`, not attempted, not acknowledged, with `simulate` null; the fresh response is `refused` with `DUPLICATE_OPERATION` or `EXECUTION_DENIED`; the effect count stays 1; no new consumed claim exists. In the pinned tuple the second call is stopped inside the destination transaction by `authoritative effect budget exhausted` (the budget is checked before the operation-identity guard); the second claim remains `issued` and unconsumed. The operation-identity guard is not what stops it here.
+- **Reconcile** runs on the FIRST claim only (`envelope.pickle` is written on the first executor call).
+
+Negative controls (tests, each must FAIL NC2-06): hook disabled (`ack.hook_fired`); a wrapper forcing `simulate='lost_ack'` (the `simulate` is-null predicates); failure raised before the commit (`boundary.effect_count_after_first` and the ack/unknown predicates); a destination that allows a second commit (operation guard and record skipped and the budget un-spent from the second execute on; fails the second-request predicates; the second insert still collides on the deterministic effect id and ends `unknown` / `IntegrityError`, so the effect count stays 1); no `bind_fresh` (fails `reuse.executor_calls_after_fresh`).
+
+**Composition:** `process/mvp-chain/expectations.proposed.v6.json` is the builder's composition (a rows-from-two-branches merge, not a Qualification-composed or frozen oracle) of PR #222's NC4-03 row (`expectations.proposed.v4.json`) and this NC2-06 row (PR #224's `expectations.proposed.v5-ingress-ambiguity.json`) over v3, as a new proposed version (38 rows, 37 mandatory). This composition is provenance: the oracle in force, the default of `conftest.py` and of `process/mvp-acceptance/mandatory-battery.proposed.v1.json`, is `expectations.proposed.v7.json` (42 rows, 41 mandatory; v6 plus NC7-01..03, with NC4-03 changed and NC4-04 added), where NC2-06 is the oracle-row entry `test_mvp_chain.py::test_row[NC2-06]` (not a test of `test_ingress_ambiguity.py`); the six tests of `test_ingress_ambiguity.py` and every test of `test_kwflow.py` are listed there as supplementary entries (they are not oracle rows). v1-v5 are untouched. Proposal only; Qualification owns and freezes the oracle; non-authorizing; release stays HOLD.
+
 ## Known limits
 
 - The destination ledger is the atomic `effects` table; there is no account balance adapter, so "matched" means amount `10.0 USD` on the Control Plane proposal.
@@ -107,3 +134,17 @@ re-binding, no renewal, same cap) commits no second effect and never reports `ex
 - Approval revocation terminality (NC1-04) was expected to FAIL at Runtime `ec728da6` (a revoked approval could be reactivated). It must not be softened. At Runtime `c5e97e87` (F3 PR #144) the expectation is unchanged; whether it passes is a Qualification result, not asserted here.
 - Verifier run B uses a ledger derived by this harness; it is not a component artifact. Run A is the gated run.
 - Single Linux host and a single process; no claim about concurrent writers, process kill or financial finality.
+
+## NC4-03 predicate v5 (independent Q1 review; PROPOSED, builder-prepared)
+
+Narrowly scoped source-aware additions to `_kwflow.py` (no taint-analysis subsystem, no ingress change, `tools/mvp_ingress` untouched):
+
+1. literal-only protected keywords `attempt_id`, `budget_id`, `expires_at`, `decision_input_commitment`, `decision_input_profile_version`, `now` (only `now=host.now` is accepted) and the RuntimeProposal keys `evidence_refs`, `risk_metadata`, `run_id`, `expires_at`, `not_before`, `expected_side_effects`, `tenant_id`;
+2. rule `AUTHORITY_OBJECT_MUTATION`: attribute stores, `setattr`, `object.__setattr__` on non-self objects (including in helper functions); `DYNAMIC_PROPOSAL_CONSTRUCTION` (`model_validate`, `model_construct`, `vars`) and `DYNAMIC_ATTRIBUTE_ACCESS` (`__class__`, `__dict__`);
+3. rule `POSITIONAL_NON_LITERAL` for `ExecutionOperation`, `ExecutionEnvelope`, `execute`, `provision_claim`;
+4. rebinding by import-as, match capture, except-as and def/class of the tracked names;
+5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 8 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
+6. `ast_digest` pins carry `ast_digest_python` and are honoured on CPython 3.13 only (fail closed elsewhere), the observation records the interpreter;
+7. pin prose: `request_id` flows via `correlation_id` into the proposal commitment and is not among the 14 names.
+
+Every evading mutant of the review has a negative test (`test_v5_evading_mutant_is_rejected_by_its_source_aware_rule`, pins re-based so that only the new rule decides) and the unmodified ingress still passes. Not covered, not claimed: see `limitations.nc4_03_not_covered_not_claimed` in expectations v7.

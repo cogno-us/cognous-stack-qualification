@@ -1,9 +1,12 @@
-name: MVP chain (proposed)
+name: MVP chain (proposed, SUPPLEMENTARY Python 3.12 compatibility run)
+# SUPPLEMENTARY / LEGACY COMPATIBILITY CI: this workflow runs Python 3.12 and the developer-optout profile. The authoritative profile is the Python 3.13 mvp-acceptance
+# workflow. A passing run here is NOT qualification of the 3.13 profile: the interpreter-pinned assertions of suites/mvp-chain/test_kwflow.py are skipped with an explicit
+# reason on 3.12 and the NC4-03 oracle row fails closed on 3.12 by design (ast_digest pins are honoured on CPython 3.13 only).
 # Exact-candidate MVP chain harness (suites/mvp-chain): one governed $10 synthetic refund through the Control Plane, operation identity,
 # real claim provisioning, route B atomic executor, Replay, Evidence Pack and the pinned Verifier, plus the six negative controls
 # (NC4 starts the hub trusted-host ingress and attacks it as uid 65534, so the suite step runs under sudo).
 # Dispatch only: it never runs on push, selects nothing, declares no acceptance and changes no verdict. Statuses are computed from
-# process/mvp-chain/expectations.proposed.v3.json, which Qualification owns. The component tuple has ONE source,
+# process/mvp-chain/expectations.proposed.v7.json (the builder's proposal, v6 plus NC7-01..03; MVP_EXPECTATIONS selects another file, for example v3), which Qualification owns. The component tuple has ONE source,
 # process/mvp-chain/tuple-pin.proposed.json; a revision input overrides one component for that run and is recorded in results.json.
 # A PENDING (null) pin must be named by its input. A mismatched or dirty checkout fails the job; nothing skips.
 'on':

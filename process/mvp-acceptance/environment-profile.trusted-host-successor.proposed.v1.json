@@ -1,0 +1,66 @@
+{
+ "schema": "cognous.mvp-environment-profile-successor/1",
+ "profile_id": "trusted-host-successor",
+ "version": "proposed.v1",
+ "status": "PROPOSED successor profile, builder-prepared. NOT adopted, NOT qualified, NOT an acceptance and NOT a release decision. It SUPPLEMENTS and does not replace, edit or overwrite environment-profile.proposed.v1.json (the original restricted-host profile with its Yama requirement) or any of its history; the original profile and its INCOMPLETE NC4 host requirements stay in force until the operator approves a scope change AND the independent Qualification owner approves this profile, before any acceptance run.",
+ "approved_scope_wording": "OCS MVP trusted-host, distinct-UID execution profile. The supported boundary assumes trusted host administration, an uncompromised Python runtime, a separately privileged ingress identity, and unprivileged clients restricted to the authenticated IPC interface. Same-UID hostile execution, ingress-UID compromise, privileged host compromise and interpreter tampering are outside the supported threat model.",
+ "approval_state": "scope wording approved by the architect (2026-10-24), subject to operator adoption; not adopted; no successor qualification is claimed",
+ "supersedes": null,
+ "original_profile": {
+  "path": "process/mvp-acceptance/environment-profile.proposed.v1.json",
+  "unchanged": true,
+  "yama_ptrace_scope_required": true
+ },
+ "approval_required": [
+  "operator approval of the scope change (no Yama host will be provisioned)",
+  "independent Qualification owner approval of this profile (identity recorded in the Qualification repository, see owner-designation-request.proposed.md)"
+ ],
+ "claim": "Under this profile the host-isolation claim is the narrower: a separately identified unprivileged client uid cannot reach the designated ingress's authority, state or effects except through the allowlisted IPC socket, on a trusted host. It makes no successor-qualification statement.",
+ "excluded_adversaries": [
+  "an adversary running as the same uid as the ingress",
+  "any code running as the ingress uid",
+  "privileged or root host compromise",
+  "tampering with the trusted Python installation (interpreter, standard library, site-packages)"
+ ],
+ "retained_requirements": {
+  "distinct_uids": "ingress and client run as distinct uids; the client has no supplementary group except the IPC group",
+  "non_root_ingress": "the ingress process is not root and has no effective, permitted or inheritable capabilities",
+  "ipc_group_and_permissions": "socket mode 0660 owned by the ingress uid with the dedicated IPC group, in a separate setgid IPC directory (2751) that is not the state directory; state directory 0700 owned by the ingress uid",
+  "peer_credential_allowlist": "explicit SO_PEERCRED uid allowlist: the ingress is started by hub tools/mvp_ingress/launch.py with a mandatory --allow-uid equal to the client uid; NC4-04 observes it on the live process argv",
+  "process_credentials_capabilities_dumpability": "real, effective and saved uid/gid, supplementary groups, capability sets and the dumpable flag of the ingress process are verified from /proc by the independently captured environment record (hub tools/mvp_env_record/capture_env_record.py, sha256 in the composite identity)",
+  "standard_ptrace_restrictions": "the relevant standard Linux ptrace restrictions are recorded as observed (PR_SET_DUMPABLE=0 on the ingress, and the kernel.yama.ptrace_scope value when the kernel exposes it). A mandatory Yama requirement is NOT part of this profile: a recorded value below 1 is reported, not required, and the same-uid exclusion above is what makes that acceptable",
+  "launcher_and_dependency_integrity": "bound by the composite candidate identity (G-15): hub revision, git tree ids of tools/mvp_ingress and tools/mvp_env_record, launcher entry point, capture script sha256, registry catalogue digest, Python 3.13 and lock-file sha256, environment profile sha256; plus the candidate commitment sha256 supplied from outside the checkout",
+  "negative_tests": "unauthorized IPC access is tested and must be denied: an outsider uid that is neither the allowlisted client nor in the IPC group (socket mode/group denial), an allowlisted-group member that is not the allowlisted uid (peer-uid refusal), direct access to the state directory and database as the client (NC4-01/NC4-02)",
+  "independently_captured_observations": "owner-side observations are made as the ingress uid and the environment record is captured against the live process by the hub script, bound to the run by the gate envelope; builder self-reports are not evidence"
+ },
+ "not_established_by_source_review": "Source review alone cannot establish deployed host isolation. Code-level launch isolation (NC4-03 source predicate, NC4-04 launch evidence) is a different layer from host isolation and is never aggregated into it.",
+ "incomplete_conditions": [
+  "no environment with distinct ingress and client identities is available: the successor host-isolation claim is INCOMPLETE",
+  "no independently captured environment record for the run",
+  "any retained requirement above not observed"
+ ],
+ "result_labels": {
+  "host_isolation_under_successor_profile": "INCOMPLETE until observed on an environment with distinct identities and independently adjudicated",
+  "nc4_overall_under_original_profile": "INCOMPLETE"
+ },
+ "limits": [
+  "builder-prepared proposal",
+  "no successor qualification is claimed",
+  "release and production stay HOLD",
+  "non-authorizing"
+ ],
+ "mandatory_within_profile": [
+  "distinct ingress and client UIDs",
+  "non-root ingress",
+  "restricted IPC and filesystem permissions",
+  "explicit SO_PEERCRED allowlisting",
+  "fail-closed ingress",
+  "standard Linux credential and ptrace restrictions",
+  "Yama is NOT mandatory"
+ ],
+ "evidence_rules": [
+  "no host provisioning or search: existing environments only, for bounded tests",
+  "any host-isolation property not independently exercised stays INCOMPLETE",
+  "container evidence is not substituted for host evidence without a justified equivalence assessment"
+ ]
+}

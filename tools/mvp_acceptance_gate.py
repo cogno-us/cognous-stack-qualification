@@ -109,6 +109,39 @@ def _git(path: Path, *args: str) -> str:
     return subprocess.run(["git", "-C", str(path), *args], check=True, capture_output=True, text=True, timeout=60).stdout.strip()
 
 
+def _composite_verified(doc: dict, base: Path) -> dict:
+    """Values of the composite candidate identity computed from the actual checkouts and committed files (compared with the declared ones by G-15)."""
+    out = {}
+    try:
+        declared = load(ROOT / doc["identity_file"]).get("composite", {})
+    except Exception:  # noqa: BLE001
+        return out
+    hub = Path(base) / doc["components"]["hub"]["dir"]
+    h = declared.get("hub", {})
+    trees = {}
+    for rel in h.get("git_tree_ids", {}):
+        try:
+            trees[rel] = _git(hub, "rev-parse", f"HEAD:{rel}")
+        except Exception:  # noqa: BLE001
+            trees[rel] = None
+    out["hub"] = {"revision": doc["components"]["hub"]["sha"], "git_tree_ids": trees}
+    launcher = h.get("launcher_entry_point")
+    out["hub"]["launcher_entry_point_is_file"] = bool(launcher) and (hub / launcher).is_file()
+    cs = hub / "tools/mvp_env_record/capture_env_record.py"
+    out["hub"]["capture_script_sha256"] = sha256_file(cs) if cs.is_file() else None
+    reg = h.get("registry_catalogue_manifest", {})
+    try:
+        out["hub"]["registry_catalogue_manifest_digest"] = json.loads((hub / reg["path"]).read_text()).get(reg.get("digest_field", "digest"))
+    except Exception:  # noqa: BLE001
+        out["hub"]["registry_catalogue_manifest_digest"] = None
+    py = declared.get("python", {})
+    out["python"] = {"version": f"{sys.version_info[0]}.{sys.version_info[1]}",
+                     "lock_files_sha256": {rel: (sha256_file(ROOT / rel) if (ROOT / rel).is_file() else None) for rel in py.get("lock_files_sha256", {})}}
+    ep = declared.get("environment_profile", {})
+    out["environment_profile"] = {"sha256": sha256_file(ROOT / ep["path"]) if ep.get("path") and (ROOT / ep["path"]).is_file() else None}
+    return out
+
+
 def verify_checkouts(resolved_path: Path, base: Path) -> dict:
     doc = load(resolved_path)
     problems = []
@@ -130,6 +163,7 @@ def verify_checkouts(resolved_path: Path, base: Path) -> dict:
         if kind != "commit":
             problems.append(f"{name}: {comp['sha']} is a {kind}, not a commit")
     doc["checkout_problems"] = problems
+    doc["composite_verified"] = _composite_verified(doc, base)
     Path(resolved_path).write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
     if problems:
         raise SystemExit("verify-checkouts refused:\n  " + "\n  ".join(problems))
@@ -146,7 +180,7 @@ class Gate:
 
     def verdict(self) -> str:
         statuses = {c["status"] for c in self.checks}
-        if INCOMPLETE in statuses:
+        if INCOMPLETE in statuses or statuses - {PASS, FAIL, INCOMPLETE}:  # a status this gate does not know is never an ACCEPT
             return INCOMPLETE
         if FAIL in statuses:
             return REJECT
@@ -189,6 +223,36 @@ def parse_junit(path: Path) -> dict[str, str]:
 
 def parse_collected(path: Path) -> set[str]:
     return {line.strip() for line in Path(path).read_text().splitlines() if "::" in line and not line.startswith(("=", "-", " "))}
+
+
+def check_composite(gate: Gate, run_dir: Path, repo_root: Path):
+    """G-15 composite candidate identity: component shas (G-01) plus the declared hub tree ids, launcher entry point, capture script, registry catalogue digest,
+    Python version and lock files, and environment profile, each compared with the value computed from the checkout/files by verify-checkouts."""
+    resolved = _read_json(gate, "G-15", run_dir / "tuple-resolved.json", "resolved tuple")
+    if resolved is None:
+        return
+    declared = load(repo_root / resolved.get("identity_file", "")).get("composite")
+    if not declared:
+        gate.add("G-15", INCOMPLETE, "the candidate identity has no composite block")
+        return
+    seen = resolved.get("composite_verified")
+    if not isinstance(seen, dict) or not seen:
+        gate.add("G-15", INCOMPLETE, "no composite verification recorded by verify-checkouts")
+        return
+    h, sh = declared.get("hub", {}), seen.get("hub", {})
+    pairs = [("hub revision", h.get("revision"), sh.get("revision")),
+             ("hub revision equals the tuple hub sha", h.get("revision"), resolved.get("components", {}).get("hub", {}).get("sha")),
+             ("launcher entry point present", True, sh.get("launcher_entry_point_is_file")),
+             ("capture script sha256", h.get("capture_script_sha256"), sh.get("capture_script_sha256")),
+             ("registry catalogue manifest digest", h.get("registry_catalogue_manifest", {}).get("digest"), sh.get("registry_catalogue_manifest_digest")),
+             ("python version", declared.get("python", {}).get("version"), seen.get("python", {}).get("version")),
+             ("environment profile sha256", declared.get("environment_profile", {}).get("sha256"), seen.get("environment_profile", {}).get("sha256"))]
+    for rel, want in h.get("git_tree_ids", {}).items():
+        pairs.append((f"git tree id {rel}", want, sh.get("git_tree_ids", {}).get(rel)))
+    for rel, want in declared.get("python", {}).get("lock_files_sha256", {}).items():
+        pairs.append((f"lock file {rel}", want, seen.get("python", {}).get("lock_files_sha256", {}).get(rel)))
+    bad = [f"{what}: declared {want!r}, observed {got!r}" for what, want, got in pairs if want != got or want is None]
+    gate.add("G-15", FAIL if bad else PASS, "composite identity matches the checkouts and committed files" if not bad else "; ".join(bad), compared=[p[0] for p in pairs])
 
 
 def check_tuple(gate: Gate, run_dir: Path, repo_root: Path, results: dict | None):
@@ -511,21 +575,23 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
                     problems.append(f"{inv['junit']} testsuite name does not carry the run_id")
         except (OSError, ET.ParseError):
             pass  # reported by G-05
-    try:
-        d = json.loads((run_dir / "mvp-chain" / "artifacts" / "ingress-modules.json").read_text())
-        if d.get("run_id") != run_id:
-            problems.append("ingress-modules.json carries a different run_id")
-    except (OSError, ValueError):
-        pass
+    for name in ingress_dump_names(run_dir):
+        try:
+            d = json.loads((run_dir / "mvp-chain" / "artifacts" / name).read_text())
+            if not isinstance(d, dict) or d.get("run_id") != run_id:
+                problems.append(f"{name} carries a different run_id")
+        except (OSError, ValueError):
+            pass  # reported by G-08
     gate.add("G-10", INCOMPLETE if problems else PASS, "artifacts, junit reports and the recorded Qualification commit belong to this run" if not problems else "; ".join(problems),
              run_id=run_id, qualification_sha=q)
     return resolved
 
 
 # ------------------------------------------------------------------------------------------------ commitment and environment
-COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v1.json"
+COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v4.json"
+COMMITMENT_VERSION = int(re.search(r"\.v(\d+)\.json$", COMMITMENT_FILE).group(1))  # the candidate version follows the file name
 ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
-SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability")
+SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability", "suites/mvp-d2-route-b")
 ABSENT_CANDIDATES = ("conftest.py", "suites/conftest.py", "tox.ini", "setup.cfg", "pyproject.toml")
 CONFIG_FILES = ("pytest.ini",)
 # Directories that are (or can be) on sys.path of the pytest processes: ``python -m pytest`` puts the repository root first, the suites' conftest files put
@@ -536,22 +602,50 @@ IMPORTABLE_SUFFIXES = (".py", ".pyc", ".pyo", ".pyd", ".so", ".pth", ".zip", ".e
 
 
 def _entries(root: Path, rel: str) -> list[str]:
-    """Every entry (file, symlink to a file, symlink to a directory) under ``rel`` without following links."""
+    """Every entry (file, symlink to a file, symlink to a directory) under ``rel`` without following links. Only the __pycache__ directory is skipped: a
+    sourceless adjacent .pyc (for example sitecustomize.pyc or a module .pyc beside its absent source) is importable and startup-executable, so it IS an entry."""
     out = []
     for dirpath, dirnames, filenames in os.walk(Path(root) / rel, followlinks=False):
         dirnames[:] = sorted(d for d in dirnames if d != "__pycache__")
         for name in sorted(filenames) + [d for d in dirnames if (Path(dirpath) / d).is_symlink()]:
-            if name.endswith(".pyc"):
-                continue
             out.append(str((Path(dirpath) / name).relative_to(root)))
     return out
+
+
+def workflow_pythonpath_dirs(root: Path) -> list[str]:
+    """Repository-relative directories the workflow puts on PYTHONPATH (startup directories: sitecustomize/usercustomize/.pth are honoured there)."""
+    try:
+        wf = (Path(root) / ".github/workflows/mvp-acceptance.yml").read_text()
+    except OSError:
+        return []
+    return sorted(set(re.findall(r"PYTHONPATH=\"\$GITHUB_WORKSPACE/([A-Za-z0-9._/-]+)\"", wf)))
+
+
+def pycache_dirs(root: Path) -> list[str]:
+    """Every __pycache__ directory under the committed suites, the sys.path directories and the workflow PYTHONPATH directories. The workflow runs with
+    PYTHONDONTWRITEBYTECODE=1 on a fresh checkout, so none can legitimately exist: one beside a committed module could be a planted bytecode file that runs in
+    place of the committed source (the commitment hashes sources only), so its presence is a G-12 failure."""
+    root, found = Path(root), set()
+    for rel in set(SUITE_DIRS) | set(SYSPATH_DIRS) | set(workflow_pythonpath_dirs(root)):
+        base = root / rel
+        if not base.is_dir():
+            continue
+        if rel in SYSPATH_DIRS and rel != ".":
+            walk = [base]  # a sys.path directory itself; subdirectories are covered when they are suites or workflow dirs
+        else:
+            walk = [Path(dp) for dp, _, _ in os.walk(base, followlinks=False)] if rel != "." else [base]
+        for d in walk:
+            for ent in os.scandir(d):
+                if ent.name == "__pycache__":
+                    found.add(str(Path(ent.path).relative_to(root)))
+    return sorted(found)
 
 
 def syspath_entries(root: Path) -> list[str]:
     """Everything that can satisfy an import directly from a sys.path directory: all files (importable ones at the repository root), symlinks and the
     __init__ file of each package directory. Not recursive beyond that: a subdirectory without an __init__ is only a namespace portion and loses to any regular module."""
     root, out = Path(root), set()
-    for rel in SYSPATH_DIRS:
+    for rel in SYSPATH_DIRS + tuple(workflow_pythonpath_dirs(root)):
         d = root / rel
         if not d.is_dir():
             continue
@@ -668,9 +762,9 @@ def build_commitment(repo_root: Path, out: Path) -> dict:
     links = symlinks_in(root, files)
     if links:
         raise SystemExit(f"commit refused: symbolic links in the committed set: {links}")
-    doc = {"schema": "cognous.mvp-qualification-candidate-commitment/1", "candidate_version": "mvp-qualification-candidate-v1",
+    doc = {"schema": "cognous.mvp-qualification-candidate-commitment/1", "candidate_version": f"mvp-qualification-candidate-v{COMMITMENT_VERSION}",
            "status": "PROPOSED; pending independent Qualification acceptance and freeze (target 2026-10-27). Not frozen, not an acceptance; release HOLD.",
-           "supersession": "A change to any listed file is a NEW candidate: write candidate-commitment.proposed.v2.json (and new versions of the changed inputs) and re-run. "
+           "supersession": f"A change to any listed file is a NEW candidate: write candidate-commitment.proposed.v{COMMITMENT_VERSION + 1}.json (and new versions of the changed inputs) and re-run. "
                            "This file is never edited in place once frozen, and the gate compares the committed list to the files present, so an added, removed or changed "
                            "mandatory test, imported module, input, lock file, pytest.ini, gate or workflow is refused, as is any symbolic link in the set.",
            "independence": "The sha256 of THIS file must be supplied to the gate from outside this checkout (workflow input candidate_commitment_sha256, recorded by Qualification). "
@@ -710,6 +804,9 @@ def check_commitment(gate: Gate, repo_root: Path, expect_sha: str | None, commit
     links = symlinks_in(repo_root, set(present) | set(committed))
     if links:
         problems.append(f"symbolic links in or above the committed set: {links}")
+    caches = pycache_dirs(repo_root)
+    if caches:
+        problems.append(f"__pycache__ directories exist beside committed modules (bytecode could run in place of the committed source; the workflow sets PYTHONDONTWRITEBYTECODE=1): {caches}")
     planted = sorted(c for c in doc.get("must_remain_absent", []) if (Path(repo_root) / c).exists() or (Path(repo_root) / c).is_symlink())
     if planted:
         problems.append(f"files that must remain absent now exist (they would change collection or configuration): {planted}")
@@ -830,13 +927,21 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         fail.append(f"schema {rec.get('schema')!r} != {profile['schema']!r}")
     if rec.get("record_sha256") != _record_digest(rec):
         fail.append("record_sha256 does not match the record body (altered or hand-edited)")
-    checks = {c.get("id"): c for c in rec.get("checks", []) if isinstance(c, dict)}
+    rows = [c for c in rec.get("checks", []) if isinstance(c, dict)]
+    ids = [c.get("id") for c in rows]
+    dup = sorted({str(i) for i in ids if ids.count(i) > 1})
+    if dup:  # the dict below would keep only the last row, hiding a FAIL behind a later PASS
+        fail.append(f"record has duplicate check ids (a later row could hide an earlier FAIL): {dup}")
+    odd = sorted({f"{c.get('id')}={c.get('status')!r}" for c in rows if c.get("status") not in ("PASS", "FAIL", "BLOCKED")})
+    if odd:
+        fail.append(f"record has check statuses outside PASS/FAIL/BLOCKED: {odd}")
+    checks = {c.get("id"): c for c in rows}
     derived = "FAIL" if any(c.get("status") == "FAIL" for c in checks.values()) else ("BLOCKED" if any(c.get("status") == "BLOCKED" for c in checks.values()) else "PASS")
     if rec.get("overall") != derived:
         fail.append(f"recorded overall {rec.get('overall')!r} disagrees with its checks ({derived})")
     if derived == "FAIL":
         fail.append("record has FAIL checks: " + ", ".join(sorted(i for i, c in checks.items() if c.get("status") == "FAIL")))
-    if derived == "BLOCKED":
+    if any(c.get("status") == "BLOCKED" for c in checks.values()):  # independent of the overall: FAIL plus BLOCKED is INCOMPLETE (INCOMPLETE outranks REJECT)
         incomplete.append("record has BLOCKED checks (a precondition could not be verified): " + ", ".join(sorted(i for i, c in checks.items() if c.get("status") == "BLOCKED")))
     for cid in profile["required_pass_check_ids"]:
         st = (checks.get(cid) or {}).get("status")
@@ -959,6 +1064,15 @@ def check_pytest_exits(gate: Gate, run_dir: Path, battery: dict):
              "each battery pytest invocation ran to completion (exit 0 or 1)" if not problems else "; ".join(problems), exits=seen)
 
 
+INGRESS_DUMPS_REQUIRED = ("ingress-modules.json", "ingress-modules-ambiguity.json")
+
+
+def ingress_dump_names(run_dir: Path) -> list[str]:
+    """The AP-06 module reports G-08 and G-10 read: the two required ones (plain NC4 ingress; wrapper-launched NC2-06 ingress) plus any other ingress-modules-*.json present."""
+    extra = sorted(p.name for p in (Path(run_dir) / "mvp-chain" / "artifacts").glob("ingress-modules-*.json")) if (Path(run_dir) / "mvp-chain" / "artifacts").is_dir() else []
+    return list(INGRESS_DUMPS_REQUIRED) + [n for n in extra if n not in INGRESS_DUMPS_REQUIRED]
+
+
 def check_exchange_exclusion(gate: Gate, run_dir: Path, battery: dict, mapping: dict):
     problems_incomplete, problems_fail = [], []
     for tag, inv in battery["invocations"].items():
@@ -973,20 +1087,24 @@ def check_exchange_exclusion(gate: Gate, run_dir: Path, battery: dict, mapping: 
                     problems_fail.append(f"{tag}: {key} = {doc.get(key)!r}")
     roots = tuple(mapping["banned_exchange_module_roots"])
     path_pattern = re.compile(mapping["banned_exchange_path_pattern"])
-    dump = None
-    try:
-        dump = json.loads((run_dir / "mvp-chain" / "artifacts" / "ingress-modules.json").read_text())
-    except (OSError, ValueError):
-        problems_incomplete.append("mvp-chain/artifacts/ingress-modules.json missing or unreadable (the ingress process's loaded modules were not recorded)")
-    if dump is not None:
-        mods = dump.get("modules", {})
-        loaded = sorted(m for m in mods if m.split(".")[0] in roots)
-        by_file = sorted(m for m, f in mods.items() if isinstance(f, str) and path_pattern.search(f))
-        paths = [x for x in dump.get("sys_path", []) if isinstance(x, str) and path_pattern.search(x)]
-        if not mods:
-            problems_incomplete.append("ingress module dump is empty")
-        if loaded or by_file or paths:
-            problems_fail.append(f"ingress process: modules {loaded}, from exchange paths {by_file}, sys.path {paths}")
+    for name in ingress_dump_names(run_dir):  # one run-bound report per ingress process the battery launches (the plain NC4 ingress and each wrapper-launched ambiguity ingress)
+        dump = None
+        try:
+            dump = json.loads((run_dir / "mvp-chain" / "artifacts" / name).read_text())
+        except (OSError, ValueError):
+            problems_incomplete.append(f"mvp-chain/artifacts/{name} missing or unreadable (that ingress process's loaded modules were not recorded)")
+        if dump is not None and not isinstance(dump, dict):
+            problems_incomplete.append(f"mvp-chain/artifacts/{name} is not a JSON object")
+            dump = None
+        if dump is not None:
+            mods = dump.get("modules", {})
+            loaded = sorted(m for m in mods if m.split(".")[0] in roots)
+            by_file = sorted(m for m, f in mods.items() if isinstance(f, str) and path_pattern.search(f))
+            paths = [x for x in dump.get("sys_path", []) if isinstance(x, str) and path_pattern.search(x)]
+            if not mods:
+                problems_incomplete.append(f"ingress module dump {name} is empty")
+            if loaded or by_file or paths:
+                problems_fail.append(f"ingress process ({name}): modules {loaded}, from exchange paths {by_file}, sys.path {paths}")
     pattern = re.compile(mapping["banned_exchange_name_pattern"])
     for tag, inv in battery["invocations"].items():
         try:
@@ -1031,6 +1149,7 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
     guarded("G-04", check_environment, gate, gate_exp, observations)
     guarded("G-04b", check_interpreter, gate, require_python)
     guarded("G-11", check_environment_record, gate, run_dir, repo_root, components_dir, observations)
+    guarded("G-15", check_composite, gate, run_dir, repo_root)
     commitment_sha = guarded("G-12", check_commitment, gate, repo_root, expect_commitment)
     guarded("G-13", check_uncommitted_tests, gate, run_dir, battery)
     guarded("G-14", check_pending_rows, gate, battery)
@@ -1060,6 +1179,48 @@ def preflight_hub(repo_root: Path, components_dir: Path) -> list[str]:
         return [f"{cs['path']} has sha256 {sha256_file(f)}, not the pinned {cs['sha256']}: a changed capture script is a NEW candidate"]
     old = [o for o in cs.get("forbidden_paths", []) if (Path(components_dir) / COMPONENT_DIRS["hub"] / o).exists() or (Path(components_dir) / COMPONENT_DIRS["hub"] / o).is_symlink()]
     return [f"{o} is present in the hub checkout: the capture script must not be carried inside the ingress package" for o in old]
+
+
+BASELINE_FILE = "process/governance/qualification-baseline.proposed.md"
+BASELINE_ITEMS = (
+    ("expectations v3 (frozen)", "process/mvp-chain/expectations.proposed.v3.json"),
+    ("expectations v6 (proposed baseline)", "process/mvp-chain/expectations.proposed.v6.json"),
+    ("expectations v7 (in force: v6 + NC7-01..03 + NC4-04)", "process/mvp-chain/expectations.proposed.v7.json"),
+    ("mandatory battery", "process/mvp-acceptance/mandatory-battery.proposed.v1.json"),
+    ("candidate identity (tuple + composite)", "process/mvp-acceptance/candidate-identity.inputs.json"),
+    ("gate", "tools/mvp_acceptance_gate.py"),
+    ("acceptance workflow", ".github/workflows/mvp-acceptance.yml"),
+    ("environment profile (original, unchanged)", "process/mvp-acceptance/environment-profile.proposed.v1.json"),
+    ("successor profile (proposal)", "process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json"),
+    ("harness: _ingress.py", "suites/mvp-chain/_ingress.py"),
+    ("harness: _chain.py", "suites/mvp-chain/_chain.py"),
+    ("harness: _kwflow.py", "suites/mvp-chain/_kwflow.py"),
+    ("harness: verdict.py", "suites/mvp-chain/verdict.py"),
+)
+
+
+def baseline_rows(repo_root: Path) -> list[str]:
+    """The digest table rows of the baseline record, computed from the files themselves (never typed)."""
+    return [f"| {label} (`{rel}`) | `{sha256_file(Path(repo_root) / rel)}` |" for label, rel in BASELINE_ITEMS]
+
+
+def baseline_rows_in(text: str) -> list[str]:
+    lines = text.splitlines()
+    start = lines.index("| Item | sha256 |") + 2
+    end = start
+    while end < len(lines) and lines[end].startswith("|"):
+        end += 1
+    return lines[start:end]
+
+
+def write_baseline(repo_root: Path) -> None:
+    path = Path(repo_root) / BASELINE_FILE
+    lines = path.read_text().splitlines()
+    start = lines.index("| Item | sha256 |") + 2
+    end = start
+    while end < len(lines) and lines[end].startswith("|"):
+        end += 1
+    path.write_text("\n".join(lines[:start] + baseline_rows(repo_root) + lines[end:]) + "\n")
 
 
 def main(argv=None) -> int:
@@ -1094,7 +1255,12 @@ def main(argv=None) -> int:
     c_ = sub.add_parser("commit")
     c_.add_argument("--repo-root", default=str(ROOT))
     c_.add_argument("--out", default=COMMITMENT_FILE)
+    b_ = sub.add_parser("baseline", help="rewrite the digest table of the (not adopted) baseline record from the files")
+    b_.add_argument("--repo-root", default=str(ROOT))
     args = parser.parse_args(argv)
+    if args.cmd == "baseline":
+        write_baseline(Path(args.repo_root))
+        return 0
     if args.cmd == "resolve":
         overrides = {n: os.environ[OVERRIDE_ENV + n.upper()] for n in EXPECTED_COMPONENTS if os.environ.get(OVERRIDE_ENV + n.upper())}
         resolve(Path(args.identity), overrides, Path(args.out_pin), Path(args.out_resolved), Path(args.github_output) if args.github_output else None,

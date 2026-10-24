@@ -23,6 +23,7 @@ import subprocess
 import sys
 import tempfile
 
+import _kwflow
 import _state
 
 UNPRIV_UID = 65534
@@ -67,6 +68,28 @@ for hexbody in json.load(open(plan))["bodies_hex"]:
 out["responses"] = resp
 print(json.dumps(out))
 '''
+
+
+# Genuine denial / transport-refusal exception names the unprivileged client may record. Any other exception type (TypeError, NameError, ImportError, ... from a harness or
+# probe bug) is not refusal evidence: the owner side treats it as a probe error and the scenario is BLOCKED (INCOMPLETE), never a pass.
+DENIAL_ERRORS = frozenset({"PermissionError", "FileNotFoundError", "NotADirectoryError", "IsADirectoryError", "ProcessLookupError", "OperationalError"})
+TRANSPORT_ERRORS = frozenset({"ConnectionRefusedError", "ConnectionResetError", "ConnectionAbortedError", "BrokenPipeError", "FileNotFoundError", "PermissionError",
+                              "TimeoutError", "socket.timeout", "timeout"})
+
+
+def unexpected_probe_errors(attack):
+    """Entries of an unprivileged-client attack observation that are neither SUCCEEDED, a genuine denial nor a genuine transport refusal."""
+    bad = {}
+    for key, value in attack.items():
+        if key in ("responses", "uid", "euid", "gid", "groups"):
+            continue
+        if value != "SUCCEEDED" and value not in DENIAL_ERRORS:
+            bad[key] = value
+    for i, resp in enumerate(attack.get("responses") or []):
+        err = resp.get("transport_error") if isinstance(resp, dict) else None
+        if err is not None and err not in TRANSPORT_ERRORS:
+            bad[f"responses[{i}]"] = err
+    return bad
 
 
 def sha(data: bytes) -> str:
@@ -167,6 +190,53 @@ def yama_block_reason(ptrace_scope):
             "the exact profile is unsupported, the boundary test is BLOCKED and no weaker environment is substituted")
 
 
+# Isolated launch form (hub tools/mvp_ingress/launch.py; the old `-m tools.mvp_ingress.server` form exits 2): ``python -I -B -c BOOT <kind> <pre.py> <launch.py> ARGS --allow-uid UID``.
+# BOOT loads one observation/fault module by FILE PATH (never via sys.path or PYTHONPATH), then runs launch.py unchanged as __main__ (runpy), so -I stays in force.
+# The module is compiled from the SOURCE BYTES read here and executed in a fresh namespace: it never goes through the import system's bytecode cache, so a planted
+# __pycache__ .pyc (timestamp, hash or unchecked-hash header) beside it cannot run in place of the committed source (-B only blocks writing .pyc files).
+LAUNCH_BOOT = """import sys, runpy, types, os, pathlib
+kind, path, lp = sys.argv[1:4]
+sys.argv = [lp] + sys.argv[4:]
+m = types.ModuleType("_mvp_pre")
+m.__file__ = path
+exec(compile(pathlib.Path(path).read_bytes(), path, "exec"), m.__dict__)
+extra = os.environ.get("MVP_PRE_PROBE")  # a second observation-only module (AP-06 dump) for a wrapper-launched ingress; also compiled from source bytes
+if extra:
+    exec(compile(pathlib.Path(extra).read_bytes(), extra, "exec"), types.ModuleType("_mvp_probe").__dict__)
+if kind == "wrapper":
+    m.install(pathlib.Path(os.environ["MVP_FAULT_CAPTURE_DIR"]), m.parse_modes(os.environ.get("MVP_FAULT_MODE")))
+runpy.run_path(lp, run_name="__main__")
+"""
+
+
+def launch_evidence(pid, hub, client_uid):
+    """Code-level launch isolation evidence for the NC4 isolation claim (separate from host isolation: identities, Yama, which stay in the environment record):
+    the LIVE ingress process's own argv (/proc/<pid>/cmdline), and the refusal of the superseded `-m` entry point."""
+    hub = pathlib.Path(hub)
+    try:
+        argv = pathlib.Path(f"/proc/{pid}/cmdline").read_bytes().decode().split("\0")
+    except OSError:
+        argv = []
+    flags = []
+    for a in argv[1:]:
+        if a == "-c":
+            break
+        flags.append(a)
+    launch = str(hub / "tools" / "mvp_ingress" / "launch.py")
+    uids = [argv[i + 1] for i, a in enumerate(argv[:-1]) if a == "--allow-uid"]
+    legacy = subprocess.run([sys.executable, "-m", "tools.mvp_ingress.server"], cwd=hub, env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1", "PYTHONPATH": str(hub)},
+                            capture_output=True, text=True, timeout=60)
+    return {"argv_flags": flags, "entry_point": "tools/mvp_ingress/launch.py" if launch in argv else None, "entry_point_is_launch_py": launch in argv,
+            "allow_uid_values": uids, "allow_uid_equals_client": uids == [str(client_uid)], "allow_uid_present": bool(uids),
+            "legacy_module_form_exit_code": legacy.returncode, "legacy_module_form_refused": legacy.returncode == 2 and "refused" in legacy.stderr,
+            "scope": "code-level launch isolation of the ingress process only; host isolation (dedicated uids, Yama ptrace_scope) is a separate claim recorded in the environment record and stays INCOMPLETE without a qualifying host"}
+
+
+def launch_cmd(hub, args, client_uid, pre):
+    kind, path = pre
+    return [sys.executable, "-I", "-B", "-c", LAUNCH_BOOT, kind, str(path), str(pathlib.Path(hub) / "tools" / "mvp_ingress" / "launch.py"), *args, "--allow-uid", str(client_uid)]
+
+
 def _drop(uid, gid, groups, umask=None):
     def drop():
         os.setgroups(groups)
@@ -221,6 +291,7 @@ def capture_environment_record(hub, ident, profile, *, state, sock, pid, dest, r
     cmd = [sys.executable, "-I", str(script), "--state-dir", str(state), "--socket", sock, "--ingress-pid", str(pid),
            "--ingress-uid", str(ident["ingress_uid"]), "--ingress-gid", str(ident["ingress_gid"]),
            "--client-uid", str(ident["client_uid"]), "--client-gid", str(ident["client_gid"]), "--outsider-uid", str(rec_cfg["outsider_uid"]),
+           "--allow-uid", str(ident["client_uid"]),  # the SAME uid the ingress was started with (launch.py --allow-uid); without it the script records identity.ingress_command FAIL
            "--db", str(dest), "--authority-store", str(dest), "--ledger", str(pathlib.Path(state) / "ingress.db"),
            "--journal-mode", rec_cfg["journal_mode"], "--label", evidence_label, "--accept-unverified-pins", "--repo-root", str(hub), "--out", str(record_path)]
     for name, sha_ in sorted(heads.items()):
@@ -270,7 +341,8 @@ def run(work):
     if not hub:
         return {"status": "blocked", "blocked_reason": "hub checkout not provided (MVP_HUB_DIR)", "ingress": {"probe_ran": False, "profile": mode}}
     hub = pathlib.Path(hub)
-    obs["source_level"].update(ast_simulate_scan(hub))
+    obs["source_level"].update(ast_simulate_scan(hub))  # v3 predicate inputs, still recorded as raw history (incl. non_literal_kwargs_forwarding)
+    obs["source_level"]["kwflow"] = _kwflow.scan_dir(hub, _state.ENV["heads"].get("hub"))  # v4 NC4-03 data-flow / call-boundary predicate (PROPOSED, see _kwflow.py)
     host_src = (hub / "tools" / "mvp_ingress" / "synthetic_host.py").read_text()
     obs["limitations"] = {"ingress_imports_cp_test_fixtures": "tests.test_runtime_authority" in host_src,
                           "note": "trusted ingress process loads the Control Plane component's tests package (synthetic resolver fixture) in-process; not client reachable; no production authority"}
@@ -313,14 +385,16 @@ def run(work):
             d.mkdir()
             os.chown(d, ident["ingress_uid"], gid)
             os.chmod(d, mode_)
-    cmd = [sys.executable, "-m", "tools.mvp_ingress.server", "--state-dir", str(state), "--socket", sock,
-           "--control-plane", _state.ENV["dirs"]["control_plane"], "--runtime", _state.ENV["dirs"]["runtime"], "--socket-mode", "666" if optout else "660"]
-    # observation only (AP-06): a sitecustomize in the ingress process writes its sys.modules at exit; it changes no behaviour
+    # observation only (AP-06): a sitecustomize-style probe in the ingress process writes its sys.modules at exit; it changes no behaviour. It is loaded by
+    # file path BEFORE the isolated launcher runs (see launch_cmd); -I is never weakened and PYTHONPATH stays ignored.
     probe_dir = pathlib.Path(__file__).resolve().parents[1] / "mvp-applicability" / "plugin" / "ingress_probe"
+    cmd = launch_cmd(hub, ["--state-dir", str(state), "--socket", sock, "--control-plane", _state.ENV["dirs"]["control_plane"], "--runtime", _state.ENV["dirs"]["runtime"],
+                           "--socket-mode", "666" if optout else "660"], ident["client_uid"], pre=("probe", probe_dir / "sitecustomize.py"))
     dump_path = _state.results_dir() / "artifacts" / "ingress-modules.json"
     dump_path.parent.mkdir(parents=True, exist_ok=True)
     penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MVP_INGRESS_MODULE_DUMP=str(module_dump),
-                PYTHONPATH=os.pathsep.join([str(hub), str(probe_dir)] + ([os.environ["PYTHONPATH"]] if os.environ.get("PYTHONPATH") else [])))
+                )
+    penv.pop("PYTHONPATH", None)  # ignored by -I anyway; not passed
     if not optout:
         penv["HOME"] = "/nonexistent"
     proc = subprocess.Popen(cmd, cwd=hub, env=penv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
@@ -370,6 +444,9 @@ def run(work):
         attack = client("attack", [b.hex() for b in bodies], True)
         if "error" in attack:
             return {**obs, "status": "blocked", "ingress": {"probe_ran": False, "profile": mode}, "blocked_reason": "unprivileged client failed to run: " + attack["error"]}
+        bad_probe = unexpected_probe_errors(attack)
+        if bad_probe:
+            return {**obs, "status": "blocked", "ingress": {"probe_ran": False, "profile": mode}, "blocked_reason": f"the unprivileged client recorded exceptions that are not genuine refusals (probe or harness error): {bad_probe}"}
         after_attack = snapshot()
         sock_st = os.stat(sock)
         sock_mode = oct(stat.S_IMODE(sock_st.st_mode))
@@ -437,6 +514,7 @@ def run(work):
             "evidence_basis": "owner-side table content hashes before/after the attack phase (read as the ingress uid), ledger rows, stat of the state tree, client uid/groups; not ingress self-report",
             "kernel_hardening": env_info,
         }
+        obs["launch"] = launch_evidence(proc.pid, hub, ident["client_uid"])
         return {**obs, "status": "ran"}
     finally:
         proc.terminate()
