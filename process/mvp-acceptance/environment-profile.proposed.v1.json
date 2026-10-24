@@ -13,7 +13,7 @@
   },
   "hub_record": {
     "schema": "mvp-ingress-env-record/1",
-    "producer": "tools/mvp_ingress/capture_env_record.py (hub PR #219, branch mvp-ingress-env-record, approved head 050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e; hub 0e2b52a0, a test-only follow-up, carries identical script bytes)",
+    "producer": "tools/mvp_env_record/capture_env_record.py (hub PR #219, branch mvp-ingress-env-record, head 3fff3dfb0fb909774cdae77557689dde4cb90f12; script bytes identical to 050dcd67 and 0e2b52a0)",
     "required_overall": "PASS",
     "required_pass_check_ids": [
       "capture.evidence_label",
@@ -62,10 +62,14 @@
     "interpreter_binding": "python.version must equal the interpreter version the suite observed in this run",
     "required_ids_note": "Reconciled against the ids the hub script at the pinned sha256 emits (also verified by running it: 32 ids on a bare host, of which the always-emitted PASS-or-better set is required). Not required by name: capture.exception, <section>.exception, filesystem.state_dir_present and filesystem.socket_present (BLOCKED markers emitted only on failure; any BLOCKED check already makes the verdict INCOMPLETE). A required id absent from the record is INCOMPLETE; one that is not PASS is INCOMPLETE (BLOCKED) or FAIL.",
     "capture_script": {
-      "path": "tools/mvp_ingress/capture_env_record.py",
+      "path": "tools/mvp_env_record/capture_env_record.py",
       "sha256": "5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51",
-      "hub_pr": "cogno-us/cognous-open-control-stack#219 approved head 050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e (sha256 computed from the file at that commit); hub 0e2b52a0, a test-only follow-up, carries identical script bytes",
-      "note": "Pinned because #219 is still moving. The script in the hub checkout at the tuple sha must have exactly these bytes (a different script is a NEW candidate: new profile version and commitment), and the run envelope must name this sha256. The candidate-identity hub sha (hub main) predates the script: a run needs hub_revision set to a sha that contains it, otherwise G-11 is INCOMPLETE."
+      "hub_pr": "cogno-us/cognous-open-control-stack#219 head 3fff3dfb0fb909774cdae77557689dde4cb90f12 (script moved out of the ingress package; bytes identical to the approved 050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e and the test-only follow-up 0e2b52a0; sha256 computed from the file)",
+      "note": "Pinned because #219 is still moving. The script in the hub checkout at the tuple sha must have exactly these bytes (a different script is a NEW candidate: new profile version and commitment), and the run envelope must name this sha256. The candidate-identity hub sha (hub main) predates the script: a run needs hub_revision set to a sha that contains it, otherwise G-11 is INCOMPLETE.",
+      "forbidden_paths": [
+        "tools/mvp_ingress/capture_env_record.py"
+      ],
+      "forbidden_note": "The capture script must NOT sit inside the ingress package: if it is present at this old path in the hub checkout at the tuple sha, preflight-hub and G-11 fail (the ingress tree digest the NC4-03 pins bind to must not carry it)."
     },
     "manifest": {
       "component": "action_manifest",

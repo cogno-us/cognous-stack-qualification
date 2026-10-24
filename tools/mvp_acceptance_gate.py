@@ -218,6 +218,15 @@ def check_tuple(gate: Gate, run_dir: Path, repo_root: Path, results: dict | None
              tuple={n: {"sha": c.get("sha"), "source": c.get("source")} for n, c in comps.items()}, overrides=resolved.get("overrides", {}))
 
 
+def _version_labels(paths) -> list[str]:
+    """Short labels (v1, v2, v3, v6, ...) of expectations files named in the battery, derived from the file names so the messages follow the battery."""
+    out = []
+    for rel in paths:
+        m = re.search(r"expectations\.proposed\.(v\d+)", str(rel))
+        out.append(m.group(1) if m else Path(str(rel)).name)
+    return sorted(out, key=lambda x: (len(x), x))
+
+
 def check_oracle(gate: Gate, repo_root: Path, battery: dict, results: dict | None):
     unchanged = battery["oracle"]["unchanged_files_sha256"]
     wrong = {}
@@ -226,11 +235,11 @@ def check_oracle(gate: Gate, repo_root: Path, battery: dict, results: dict | Non
         if actual != digest:
             wrong[rel] = {"recorded": digest, "actual": actual}
     gate.add("G-02", FAIL if wrong else PASS,
-             "expectations v1, v2 and v3 are byte-identical to their recorded hashes" if not wrong else f"frozen expectation changed: {wrong}")
+             f"the frozen expectation files ({', '.join(_version_labels(unchanged))}) are byte-identical to their recorded hashes" if not wrong else f"frozen expectation changed: {wrong}")
     if results is not None:
         in_force = battery["oracle"]["unchanged_files_sha256"][battery["oracle"]["expectations_in_force"]]
         used = results.get("expectations_sha256")
-        gate.add("G-02b", PASS if used == in_force else FAIL, "the suite judged against expectations v3" if used == in_force
+        gate.add("G-02b", PASS if used == in_force else FAIL, f"the suite judged against the expectations in force ({_version_labels([battery['oracle']['expectations_in_force']])[0]})" if used == in_force
                  else f"the suite used expectations sha256 {used}, not the recorded {in_force}")
 
 
@@ -792,6 +801,9 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         incomplete.append(f"the hub checkout at the tuple sha has no {script_rel}: the tuple's hub sha predates the capture script (run with hub_revision set to a sha that contains it)")
     elif sha256_file(hub_root / script_rel) != pinned_script:
         fail.append(f"{script_rel} in the hub checkout differs from the pinned sha256 {pinned_script}: a changed capture script is a NEW candidate")
+    for old in profile["capture_script"].get("forbidden_paths", []) if hub_root is not None and hub_root.is_dir() else []:
+        if (hub_root / old).exists() or (hub_root / old).is_symlink():
+            fail.append(f"{old} is present in the hub checkout: the capture script must not be carried inside the ingress package")
     if rec.get("schema") != profile["schema"]:
         fail.append(f"schema {rec.get('schema')!r} != {profile['schema']!r}")
     if rec.get("record_sha256") != _record_digest(rec):
@@ -1025,7 +1037,8 @@ def preflight_hub(repo_root: Path, components_dir: Path) -> list[str]:
         return [f"{cs['path']} is absent from the hub checkout: hub_revision must name a hub sha that contains it (sha256 {cs['sha256']})"]
     if sha256_file(f) != cs["sha256"]:
         return [f"{cs['path']} has sha256 {sha256_file(f)}, not the pinned {cs['sha256']}: a changed capture script is a NEW candidate"]
-    return []
+    old = [o for o in cs.get("forbidden_paths", []) if (Path(components_dir) / COMPONENT_DIRS["hub"] / o).exists() or (Path(components_dir) / COMPONENT_DIRS["hub"] / o).is_symlink()]
+    return [f"{o} is present in the hub checkout: the capture script must not be carried inside the ingress package" for o in old]
 
 
 def main(argv=None) -> int:
