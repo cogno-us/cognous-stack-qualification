@@ -1,0 +1,449 @@
+{
+ "schema": "cognous.mvp-mandatory-battery/1",
+ "status": "PROPOSED for Qualification freeze (Architect ruling 7); not frozen, not selected, not an acceptance. Qualification owns this list, the oracle and every verdict; the builder proposes.",
+ "rule": "Zero unexplained skips within THIS list. A listed test that is skipped, not discovered (absent from the collection), not executed (absent from the junit report, or errored before it could run) or whose oracle row is BLOCKED or NOT RUN makes the verdict INCOMPLETE (non-ACCEPT). A row that is NOT APPLICABLE counts only if it is listed under declared_not_applicable with a justification; any other NOT APPLICABLE is INCOMPLETE. A FAIL is a REJECT, never softened. Tests outside this list (other suites, historical suites, mvp-chain KL-01 which is non-mandatory) are neither required to be skip-free nor able to change the verdict.",
+ "verdict_precedence": "INCOMPLETE over REJECT over ACCEPT. ACCEPT is a proposal for the owner only; it never authorizes anything and release stays HOLD.",
+ "oracle": {
+  "expectations_in_force": "process/mvp-chain/expectations.proposed.v3.json",
+  "unchanged_files_sha256": {
+   "process/mvp-chain/expectations.proposed.v1.json": "828df48ddedfbe66977d64f095556cf31e64015bb57107b4b5d02d95867abf7d",
+   "process/mvp-chain/expectations.proposed.v2.json": "3a67d0a867447131bde11629fab9a84024d64d73f5d3fc9480cee996eb662245",
+   "process/mvp-chain/expectations.proposed.v3.json": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4"
+  },
+  "note": "No expectation and no frozen file is changed to obtain a PASS: the gate refuses a different hash."
+ },
+ "invocations": {
+  "mvp-chain": {
+   "paths": [
+    "suites/mvp-chain/test_mvp_chain.py",
+    "suites/mvp-chain/test_verdict_engine.py",
+    "suites/mvp-chain/test_ruling4_lost_ack.py"
+   ],
+   "junit": "junit-mvp-chain.xml",
+   "collected": "collected-mvp-chain.txt",
+   "exclusion_observation": "exchange-exclusion-mvp-chain.json",
+   "runs_as_root": true,
+   "exit_file": "pytest-exit-mvp-chain.txt"
+  },
+  "applicability": {
+   "paths": [
+    "suites/mvp-applicability/test_route_c_exclusion.py"
+   ],
+   "junit": "junit-applicability.xml",
+   "collected": "collected-applicability.txt",
+   "exclusion_observation": "exchange-exclusion-applicability.json",
+   "runs_as_root": false,
+   "exit_file": "pytest-exit-applicability.txt"
+  }
+ },
+ "declared_not_applicable": [],
+ "excluded_components_not_in_battery": {
+  "exchange": "EXCLUDED and NOT INVOKED; see process/mvp-acceptance/mvp-applicability.proposed.v1.json"
+ },
+ "tests": [
+  {
+   "id": "ENV-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[ENV-01]",
+   "row": "ENV-01"
+  },
+  {
+   "id": "CHAIN-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[CHAIN-01]",
+   "row": "CHAIN-01"
+  },
+  {
+   "id": "CHAIN-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[CHAIN-02]",
+   "row": "CHAIN-02"
+  },
+  {
+   "id": "CHAIN-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[CHAIN-03]",
+   "row": "CHAIN-03"
+  },
+  {
+   "id": "CHAIN-04",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[CHAIN-04]",
+   "row": "CHAIN-04"
+  },
+  {
+   "id": "CHAIN-05",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[CHAIN-05]",
+   "row": "CHAIN-05"
+  },
+  {
+   "id": "CHAIN-06",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[CHAIN-06]",
+   "row": "CHAIN-06"
+  },
+  {
+   "id": "VER-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[VER-01]",
+   "row": "VER-01"
+  },
+  {
+   "id": "VER-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[VER-02]",
+   "row": "VER-02"
+  },
+  {
+   "id": "VER-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[VER-03]",
+   "row": "VER-03"
+  },
+  {
+   "id": "VER-04",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[VER-04]",
+   "row": "VER-04"
+  },
+  {
+   "id": "NC1-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC1-01]",
+   "row": "NC1-01"
+  },
+  {
+   "id": "NC1-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC1-02]",
+   "row": "NC1-02"
+  },
+  {
+   "id": "NC1-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC1-03]",
+   "row": "NC1-03"
+  },
+  {
+   "id": "NC1-04",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC1-04]",
+   "row": "NC1-04"
+  },
+  {
+   "id": "NC1-05",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC1-05]",
+   "row": "NC1-05"
+  },
+  {
+   "id": "NC2-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC2-01]",
+   "row": "NC2-01"
+  },
+  {
+   "id": "NC2-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC2-02]",
+   "row": "NC2-02"
+  },
+  {
+   "id": "NC2-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC2-03]",
+   "row": "NC2-03"
+  },
+  {
+   "id": "NC2-04",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC2-04]",
+   "row": "NC2-04"
+  },
+  {
+   "id": "NC2-05",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC2-05]",
+   "row": "NC2-05"
+  },
+  {
+   "id": "NC3-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC3-01]",
+   "row": "NC3-01"
+  },
+  {
+   "id": "NC3-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC3-02]",
+   "row": "NC3-02"
+  },
+  {
+   "id": "NC3-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC3-03]",
+   "row": "NC3-03"
+  },
+  {
+   "id": "NC4-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC4-01]",
+   "row": "NC4-01"
+  },
+  {
+   "id": "NC4-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC4-02]",
+   "row": "NC4-02"
+  },
+  {
+   "id": "NC4-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC4-03]",
+   "row": "NC4-03"
+  },
+  {
+   "id": "NC5-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC5-01]",
+   "row": "NC5-01"
+  },
+  {
+   "id": "NC5-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC5-02]",
+   "row": "NC5-02"
+  },
+  {
+   "id": "NC5-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC5-03]",
+   "row": "NC5-03"
+  },
+  {
+   "id": "NC5-04",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC5-04]",
+   "row": "NC5-04"
+  },
+  {
+   "id": "NC5-05",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC5-05]",
+   "row": "NC5-05"
+  },
+  {
+   "id": "NC6-01",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC6-01]",
+   "row": "NC6-01"
+  },
+  {
+   "id": "NC6-02",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC6-02]",
+   "row": "NC6-02"
+  },
+  {
+   "id": "NC6-03",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC6-03]",
+   "row": "NC6-03"
+  },
+  {
+   "id": "NC6-04",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC6-04]",
+   "row": "NC6-04"
+  },
+  {
+   "id": "VE-pass_fail_and_missing_is_fail",
+   "kind": "verdict_engine_self_check",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_verdict_engine.py",
+   "test": "test_pass_fail_and_missing_is_fail"
+  },
+  {
+   "id": "VE-not_run_blocked_not_applicable",
+   "kind": "verdict_engine_self_check",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_verdict_engine.py",
+   "test": "test_not_run_blocked_not_applicable"
+  },
+  {
+   "id": "R4-01",
+   "kind": "ruling_4",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ruling4_lost_ack.py",
+   "test": "test_first_result_is_unknown_never_acknowledged_and_not_retry_eligible"
+  },
+  {
+   "id": "R4-02",
+   "kind": "ruling_4",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ruling4_lost_ack.py",
+   "test": "test_second_execute_with_the_same_claim_is_refused_claim_not_usable_not_attempted"
+  },
+  {
+   "id": "R4-03",
+   "kind": "ruling_4",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ruling4_lost_ack.py",
+   "test": "test_destination_has_exactly_one_committed_effect_by_authoritative_readback"
+  },
+  {
+   "id": "R4-04",
+   "kind": "ruling_4",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ruling4_lost_ack.py",
+   "test": "test_reconcile_resolves_the_uncertainty_without_authorizing_a_duplicate"
+  },
+  {
+   "id": "R4-05",
+   "kind": "ruling_4",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ruling4_lost_ack.py",
+   "test": "test_second_result_default_unknown_observed_state_is_not_an_authoritative_observation"
+  },
+  {
+   "id": "R4-06",
+   "kind": "ruling_4",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ruling4_lost_ack.py",
+   "test": "test_fresh_operation_identity_without_new_authority_cannot_reissue_the_same_effect"
+  },
+  {
+   "id": "AP01",
+   "kind": "applicability",
+   "invocation": "applicability",
+   "file": "suites/mvp-applicability/test_route_c_exclusion.py",
+   "test": "test_ap01_mapping_declares_route_c_excluded_and_not_invoked_distinct_from_a_skip"
+  },
+  {
+   "id": "AP02",
+   "kind": "applicability",
+   "invocation": "applicability",
+   "file": "suites/mvp-applicability/test_route_c_exclusion.py",
+   "test": "test_ap02_resolved_tuple_has_no_exchange_component"
+  },
+  {
+   "id": "AP03",
+   "kind": "applicability",
+   "invocation": "applicability",
+   "file": "suites/mvp-applicability/test_route_c_exclusion.py",
+   "test": "test_ap03_pinned_ingress_source_has_no_route_c_entry_point"
+  },
+  {
+   "id": "AP03-scanner",
+   "kind": "applicability",
+   "invocation": "applicability",
+   "file": "suites/mvp-applicability/test_route_c_exclusion.py",
+   "test": "test_ap03_scanner_detects_what_it_claims_to_detect"
+  },
+  {
+   "id": "AP04",
+   "kind": "applicability",
+   "invocation": "applicability",
+   "file": "suites/mvp-applicability/test_route_c_exclusion.py",
+   "test": "test_ap04_ingress_parser_is_closed_and_refuses_every_route_c_selector"
+  },
+  {
+   "id": "AP05",
+   "kind": "applicability",
+   "invocation": "applicability",
+   "file": "suites/mvp-applicability/test_route_c_exclusion.py",
+   "test": "test_ap05_historical_files_are_byte_identical_to_the_recorded_hashes"
+  }
+ ],
+ "non_mandatory_tests": [
+  {
+   "id": "KL-01",
+   "kind": "oracle_row_non_mandatory",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[KL-01]",
+   "row": "KL-01",
+   "note": "known limitation row; collected and executed but cannot change the verdict"
+  }
+ ],
+ "pending_rows": [
+  {
+   "placeholder": "NC4-03-origin-rule-negative-mutations",
+   "rows": [],
+   "status": "PLACEHOLDER. Architect rulings #2 items 1-2: the new origin-rule negative mutation expectations (claim_id from the governed claim of the trusted execution path; grant id/revision from the authoritative decision or snapshot) become battery rows ONLY after Qualification freezes the corrected NC4-03 predicate. No row is invented here; the gate refuses a placeholder that carries rows."
+  }
+ ]
+}

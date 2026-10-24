@@ -94,9 +94,9 @@ def ledger_rows(path):
         conn.close()
 
 
-def state_tree_stat(state):
+def state_tree_stat(state, owner_uid=None):
     entries, bad = [], []
-    me = os.geteuid()
+    me = os.geteuid() if owner_uid is None else owner_uid
     for root, dirs, files in os.walk(state):
         for name in dirs + files:
             p = pathlib.Path(root) / name
@@ -127,12 +127,148 @@ def ast_simulate_scan(hub):
             "non_literal_kwargs_forwarding": [x for x in findings if x.get("kwargs_forwarding_non_literal")]}
 
 
+class ProfileBlocked(Exception):
+    """The approved ingress profile cannot be established here: NC4 is BLOCKED (and the acceptance verdict INCOMPLETE), never run weaker."""
+
+
+def _ids(pid):
+    """Real/effective uid and gid of a running process as the kernel reports them."""
+    fields = {}
+    for line in _read(f"/proc/{pid}/status").splitlines():
+        if line.startswith(("Uid:", "Gid:")):
+            key, *vals = line.split()
+            fields[key.rstrip(":").lower()] = [int(v) for v in vals]
+    return fields
+
+
+def _identities():
+    """Resolve the dedicated ingress user, client user and IPC group by NAME (set by the workflow) to the real uids and gids on this host."""
+    import grp
+    import pwd
+    names = {"ingress_user": os.environ.get("MVP_INGRESS_USER"), "client_user": os.environ.get("MVP_CLIENT_USER"), "ipc_group": os.environ.get("MVP_IPC_GROUP")}
+    unset = sorted(k for k, v in names.items() if not v)
+    if unset:
+        raise ProfileBlocked(f"approved ingress profile: {unset} not named (MVP_INGRESS_USER, MVP_CLIENT_USER, MVP_IPC_GROUP); use MVP_INGRESS_PROFILE=developer-optout for a local run (verdict INCOMPLETE)")
+    try:
+        ing, cli, ipc = pwd.getpwnam(names["ingress_user"]), pwd.getpwnam(names["client_user"]), grp.getgrnam(names["ipc_group"])
+    except KeyError as exc:
+        raise ProfileBlocked(f"approved ingress profile: {exc} does not exist on this host") from None
+    if 0 in (ing.pw_uid, cli.pw_uid) or ing.pw_uid == cli.pw_uid or ing.pw_gid == cli.pw_gid or ipc.gr_gid in (0, ing.pw_gid, cli.pw_gid):
+        raise ProfileBlocked("approved ingress profile needs a non-root ingress user and client user with distinct primary groups and a dedicated IPC group")
+    return {"ingress_user": ing.pw_name, "ingress_uid": ing.pw_uid, "ingress_gid": ing.pw_gid, "client_user": cli.pw_name, "client_uid": cli.pw_uid,
+            "client_gid": cli.pw_gid, "ipc_group": ipc.gr_name, "ipc_gid": ipc.gr_gid, "client_groups": sorted(os.getgrouplist(cli.pw_name, cli.pw_gid))}
+
+
+def yama_block_reason(ptrace_scope):
+    """None when kernel.yama.ptrace_scope >= 1; otherwise why the boundary test is BLOCKED (Yama absent is unsupported, never a weaker substitute)."""
+    if ptrace_scope in ("1", "2", "3"):
+        return None
+    return (f"kernel.yama.ptrace_scope is {ptrace_scope!r} (the approved profile requires >= 1; set it with sudo sysctl, or Yama is absent): "
+            "the exact profile is unsupported, the boundary test is BLOCKED and no weaker environment is substituted")
+
+
+def _drop(uid, gid, groups, umask=None):
+    def drop():
+        os.setgroups(groups)
+        os.setresgid(gid, gid, gid)
+        os.setresuid(uid, uid, uid)
+        if umask is not None:
+            os.umask(umask)
+    return drop
+
+
+def _run_as(uid, gid, fn):
+    """Run fn() in a forked child that has dropped to uid:gid (umask 077) and return its JSON-able result. Owner-side observations are made as the ingress
+    uid so that the harness (root) never creates a root-owned file (for example a sqlite shm/wal) inside the ingress state tree."""
+    r, w = os.pipe()
+    pid = os.fork()
+    if pid == 0:
+        try:
+            os.close(r)
+            _drop(uid, gid, [], 0o077)()
+            data = json.dumps({"ok": fn()}, default=str).encode()
+        except BaseException as exc:  # noqa: BLE001
+            data = json.dumps({"error": f"{type(exc).__name__}: {exc}"}).encode()
+        while data:
+            data = data[os.write(w, data):]
+        os._exit(0)
+    os.close(w)
+    chunks = []
+    while True:
+        chunk = os.read(r, 65536)
+        if not chunk:
+            break
+        chunks.append(chunk)
+    os.close(r)
+    os.waitpid(pid, 0)
+    out = json.loads(b"".join(chunks) or b'{"error": "no output"}')
+    if "error" in out:
+        raise RuntimeError("owner-side observation failed: " + out["error"])
+    return out["ok"]
+
+
+def capture_environment_record(hub, ident, profile, *, state, sock, pid, dest, record_path):
+    """Run the hub capture script (hub PR #219, pinned by sha256 in the environment profile) as root against THIS running ingress, then bind the record to this
+    run with a gate-side envelope. The hub record is left byte-for-byte as the script wrote it."""
+    rec_cfg = profile["hub_record"]
+    script = pathlib.Path(hub) / rec_cfg["capture_script"]["path"]
+    result = {"captured": False, "script": rec_cfg["capture_script"]["path"]}
+    if not script.is_file():
+        result["reason"] = "the hub checkout at the tuple sha has no capture script (the tuple's hub sha predates it)"
+        return result
+    heads = _state.ENV.get("heads") or {}
+    evidence_label = "hosted-runner acceptance run %s, profile=approved" % (os.environ.get("MVP_RUN_ID") or "UNBOUND")
+    cmd = [sys.executable, "-I", str(script), "--state-dir", str(state), "--socket", sock, "--ingress-pid", str(pid),
+           "--ingress-uid", str(ident["ingress_uid"]), "--ingress-gid", str(ident["ingress_gid"]),
+           "--client-uid", str(ident["client_uid"]), "--client-gid", str(ident["client_gid"]), "--outsider-uid", str(rec_cfg["outsider_uid"]),
+           "--db", str(dest), "--authority-store", str(dest), "--ledger", str(pathlib.Path(state) / "ingress.db"),
+           "--journal-mode", rec_cfg["journal_mode"], "--label", evidence_label, "--accept-unverified-pins", "--repo-root", str(hub), "--out", str(record_path)]
+    for name, sha_ in sorted(heads.items()):
+        cmd += ["--pin", f"{name}={sha_}"]
+    for f in sorted((pathlib.Path(hub) / "tools" / "mvp_ingress").glob("*.py")):
+        cmd += ["--pin", f"source_sha256.tools/mvp_ingress/{f.name}={sha(f.read_bytes())}"]
+    man = rec_cfg["manifest"]
+    manifest = pathlib.Path(_state.ENV["dirs"].get(man["component"], "/nonexistent")) / man["path"]
+    if manifest.is_file():
+        cmd += ["--manifest", str(manifest), "--pin", f"manifest_sha256.{manifest.name}={sha(manifest.read_bytes())}"]
+    pathlib.Path(record_path).parent.mkdir(parents=True, exist_ok=True)
+    p = subprocess.run(cmd, cwd=hub, env={"PATH": "/usr/sbin:/usr/bin:/sbin:/bin", "PYTHONDONTWRITEBYTECODE": "1"}, capture_output=True, text=True, timeout=300)
+    result.update(exit_code=p.returncode, stderr_tail=p.stderr[-300:])
+    if not pathlib.Path(record_path).is_file():
+        result["reason"] = "the capture script wrote no record"
+        return result
+    record_bytes = pathlib.Path(record_path).read_bytes()
+    try:
+        rec = json.loads(record_bytes)
+    except ValueError:
+        result["reason"] = "the capture script wrote an unreadable record"
+        return result
+    envelope = {"schema": "cognous.mvp-environment-record-envelope/1", "non_authorizing": True, "release": "HOLD",
+                "record_sha256": rec.get("record_sha256"), "record_file_sha256": sha(record_bytes),
+                "capture_script_path": rec_cfg["capture_script"]["path"], "capture_script_sha256": sha(script.read_bytes()),
+                "hub_sha": heads.get("hub"), "environment_profile_sha256": sha((_PROFILE_PATH).read_bytes()), "capture_exit_code": p.returncode}
+    for key, env_name in (("run_id", "MVP_RUN_ID"), ("qualification_sha", "MVP_QUALIFICATION_SHA")):
+        if os.environ.get(env_name):
+            envelope[key] = os.environ[env_name]
+    (pathlib.Path(record_path).parent / "environment-record.envelope.json").write_text(json.dumps(envelope, indent=2, sort_keys=True) + "\n")
+    result.update(captured=True, overall=rec.get("overall"), record_sha256=rec.get("record_sha256"))
+    return result
+
+
+_PROFILE_PATH = pathlib.Path(__file__).resolve().parents[2] / "process" / "mvp-acceptance" / "environment-profile.proposed.v1.json"
+
+
 def run(work):
     obs = {"source_level": {}, "limitations": {}}
+    mode = os.environ.get("MVP_INGRESS_PROFILE", "approved")
+    obs["profile"] = mode
     hub = _state.ENV["dirs"].get("hub")
     obs["source_level"] = {"scope": "SOURCE-LEVEL assertions (AST over the pinned hub source and D1's own AST tests), not execution observations"}
+    if mode not in ("approved", "developer-optout"):
+        return {"status": "blocked", "blocked_reason": f"unknown MVP_INGRESS_PROFILE {mode!r} (approved or developer-optout)", "ingress": {"probe_ran": False, "profile": mode}}
+    optout = mode == "developer-optout"
     if not hub:
-        return {"status": "blocked", "blocked_reason": "hub checkout not provided (MVP_HUB_DIR)", "ingress": {"probe_ran": False}}
+        return {"status": "blocked", "blocked_reason": "hub checkout not provided (MVP_HUB_DIR)", "ingress": {"probe_ran": False, "profile": mode}}
     hub = pathlib.Path(hub)
     obs["source_level"].update(ast_simulate_scan(hub))
     host_src = (hub / "tools" / "mvp_ingress" / "synthetic_host.py").read_text()
@@ -147,31 +283,65 @@ def run(work):
     env_info = {"euid": os.geteuid(), "ptrace_scope": _read("/proc/sys/kernel/yama/ptrace_scope"), "kernel": os.uname().release,
                 "cap_eff": next((l.split()[1] for l in _read("/proc/self/status").splitlines() if l.startswith("CapEff")), None)}
     obs["environment"] = env_info
+    blocked = lambda why: {**obs, "status": "blocked", "ingress": {"probe_ran": False, "profile": mode}, "blocked_reason": why}  # noqa: E731
     if os.geteuid() != 0:
-        return {**obs, "status": "blocked", "ingress": {"probe_ran": False},
-                "blocked_reason": "environment cannot run the client as a distinct unprivileged uid (needs root to drop to uid 65534); NC4 is never passed without that"}
+        return blocked("environment cannot run the ingress and client as other uids (needs root to drop privileges); NC4 is never passed without that")
+    try:
+        ident = ({"ingress_user": None, "ingress_uid": 0, "ingress_gid": 0, "client_user": None, "client_uid": UNPRIV_UID, "client_gid": UNPRIV_UID,
+                  "ipc_group": None, "ipc_gid": None, "client_groups": []} if optout else _identities())
+    except ProfileBlocked as exc:
+        return blocked(str(exc))
+    if not optout and yama_block_reason(env_info["ptrace_scope"]):
+        return blocked(yama_block_reason(env_info["ptrace_scope"]))
+    profile = json.loads(_PROFILE_PATH.read_text())
     dump = subprocess.run([sys.executable, str(pathlib.Path(__file__).with_name("_dump_d1_cases.py")), str(hub)], cwd=hub,
                           env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}, capture_output=True, text=True, timeout=120)
     if dump.returncode != 0:
-        return {**obs, "status": "blocked", "ingress": {"probe_ran": False}, "blocked_reason": "cannot load D1 adversarial cases: " + dump.stderr[-300:]}
+        return blocked("cannot load D1 adversarial cases: " + dump.stderr[-300:])
     cases = json.loads(dump.stdout)
     base = pathlib.Path(tempfile.mkdtemp(prefix="mvp-nc4-"))
     os.chmod(base, 0o755)
-    state, sock = base / "state", str(base / "ingress.sock")
+    state = base / "state"
+    ipc_dir = base if optout else base / "ipc"
+    sock = str(ipc_dir / "ingress.sock")
+    dump_dir = base / "dump"
+    module_dump = (dump_dir if not optout else base) / "ingress-modules.json"
+    if not optout:
+        # the ingress owns its 0700 state directory; the socket lives in a SEPARATE IPC directory (the setgid bit gives the socket the dedicated group; 2751: others may only
+        # traverse, never list or write, so the outsider probe is denied by the socket's own mode and group, not by the directory)
+        for d, mode_, gid in ((state, 0o700, ident["ingress_gid"]), (ipc_dir, 0o2751, ident["ipc_gid"]), (dump_dir, 0o700, ident["ingress_gid"])):
+            d.mkdir()
+            os.chown(d, ident["ingress_uid"], gid)
+            os.chmod(d, mode_)
     cmd = [sys.executable, "-m", "tools.mvp_ingress.server", "--state-dir", str(state), "--socket", sock,
-           "--control-plane", _state.ENV["dirs"]["control_plane"], "--runtime", _state.ENV["dirs"]["runtime"], "--socket-mode", "666"]
-    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONPATH=os.pathsep.join([str(hub)] + ([os.environ["PYTHONPATH"]] if os.environ.get("PYTHONPATH") else [])))
-    proc = subprocess.Popen(cmd, cwd=hub, env=penv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+           "--control-plane", _state.ENV["dirs"]["control_plane"], "--runtime", _state.ENV["dirs"]["runtime"], "--socket-mode", "666" if optout else "660"]
+    # observation only (AP-06): a sitecustomize in the ingress process writes its sys.modules at exit; it changes no behaviour
+    probe_dir = pathlib.Path(__file__).resolve().parents[1] / "mvp-applicability" / "plugin" / "ingress_probe"
+    dump_path = _state.results_dir() / "artifacts" / "ingress-modules.json"
+    dump_path.parent.mkdir(parents=True, exist_ok=True)
+    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MVP_INGRESS_MODULE_DUMP=str(module_dump),
+                PYTHONPATH=os.pathsep.join([str(hub), str(probe_dir)] + ([os.environ["PYTHONPATH"]] if os.environ.get("PYTHONPATH") else [])))
+    if not optout:
+        penv["HOME"] = "/nonexistent"
+    proc = subprocess.Popen(cmd, cwd=hub, env=penv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                            preexec_fn=None if optout else _drop(ident["ingress_uid"], ident["ingress_gid"], [], None))
     try:
         line = proc.stdout.readline()
         if line.strip() != "READY":
             proc.kill()
-            return {**obs, "status": "blocked", "ingress": {"probe_ran": False}, "blocked_reason": "ingress did not start: " + proc.stderr.read()[-500:]}
+            return blocked("ingress did not start: " + proc.stderr.read()[-500:])
         shutil.copy(hub / "tools" / "mvp_ingress" / "client.py", base / "client.py")
         (base / "probe.py").write_text(PROBE)
         for f in ("client.py", "probe.py"):
             os.chmod(base / f, 0o644)
         dest = state / "atomic" / "refunds.sqlite3"
+        ingress_ids = _ids(proc.pid)
+        real_uid, real_gid = ingress_ids["uid"][0], ingress_ids["gid"][0]
+        env_record = {"captured": False, "reason": "developer opt-out: no environment record is captured"}
+        if not optout:
+            # captured IN THIS RUN against the very process attacked below, as root, with the workflow's run id and qualification sha
+            env_record = capture_environment_record(hub, ident, profile, state=state, sock=sock, pid=proc.pid, dest=dest,
+                                                    record_path=_state.results_dir() / "artifacts" / "environment-record.json")
         good, hb = cases["good"], cases["hand_built_claim"]
         bodies = [bytes.fromhex(h) for h in cases["simulate_hex"]]
         bodies += [json.dumps({**good, "request_id": "case-1", k: "x"}).encode() for k in cases["forbidden_members"]]
@@ -184,10 +354,7 @@ def run(work):
             plan = base / f"plan-{phase}.json"
             plan.write_text(json.dumps({"direct": direct, "bodies_hex": hex_bodies}))
             os.chmod(plan, 0o644)
-            def drop():
-                os.setgroups([])
-                os.setgid(UNPRIV_UID)
-                os.setuid(UNPRIV_UID)
+            drop = _drop(ident["client_uid"], ident["client_gid"], ident["client_groups"], None)
             p = subprocess.run(["/usr/bin/python3", "-I", str(base / "probe.py"), str(state), str(base / "client.py"), sock, str(proc.pid), str(plan)],
                                preexec_fn=drop, env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent"}, capture_output=True, text=True, timeout=600)
             if p.returncode != 0:
@@ -195,14 +362,17 @@ def run(work):
             return json.loads(p.stdout)
 
         def snapshot():
-            return {"dest_tables": tables_digest(dest), "ledger": ledger_rows(state / "ingress.db"), "state_stat": state_tree_stat(state)}
+            def observe():
+                return {"dest_tables": tables_digest(dest), "ledger": [list(r) for r in ledger_rows(state / "ingress.db")], "state_stat": state_tree_stat(state, real_uid)}
+            return observe() if optout else _run_as(real_uid, real_gid, observe)
 
         before = snapshot()
         attack = client("attack", [b.hex() for b in bodies], True)
         if "error" in attack:
-            return {**obs, "status": "blocked", "ingress": {"probe_ran": False}, "blocked_reason": "unprivileged client failed to run: " + attack["error"]}
+            return {**obs, "status": "blocked", "ingress": {"probe_ran": False, "profile": mode}, "blocked_reason": "unprivileged client failed to run: " + attack["error"]}
         after_attack = snapshot()
-        sock_mode = oct(stat.S_IMODE(os.stat(sock).st_mode))
+        sock_st = os.stat(sock)
+        sock_mode = oct(stat.S_IMODE(sock_st.st_mode))
         legit = client("legit", [json.dumps(good).encode().hex(), json.dumps(good).encode().hex()], False)
         after_legit = snapshot()
         outcomes = {}
@@ -233,16 +403,25 @@ def run(work):
             reached.append("state_tree_modified")
         reached = sorted(set(reached))
         legit_counts = {"effects": after_legit["dest_tables"].get("effects", {}).get("n"), "claims_rows": after_legit["dest_tables"].get("execution_claims_v1", {}).get("n")}
-        conn = sqlite3.connect(dest.resolve().as_uri() + "?mode=ro", uri=True)
+        conn = sqlite3.connect(dest.resolve().as_uri() + "?mode=ro", uri=True) if optout else None
         try:
-            claim_states = dict(conn.execute("SELECT state, count(*) FROM execution_claims_v1 GROUP BY state").fetchall())
+            if conn is None:
+                claim_states = _run_as(real_uid, real_gid, lambda: dict(sqlite3.connect(dest.resolve().as_uri() + "?mode=ro", uri=True).execute(
+                    "SELECT state, count(*) FROM execution_claims_v1 GROUP BY state").fetchall()))
+            else:
+                claim_states = dict(conn.execute("SELECT state, count(*) FROM execution_claims_v1 GROUP BY state").fetchall())
         finally:
-            conn.close()
+            if conn is not None:
+                conn.close()
         direct_keys = [k for k in attack if k not in ("responses", "uid", "euid", "gid", "groups")]
         obs["ingress"] = {
-            "probe_ran": True, "hub_head": _state.ENV["heads"].get("hub"), "server_pid_alive_after": proc.poll() is None,
-            "ingress_uid": os.geteuid(), "client_uid": attack["uid"], "client_euid": attack["euid"], "client_groups": attack["groups"],
-            "client_is_distinct_unprivileged": attack["uid"] == attack["euid"] == UNPRIV_UID and os.geteuid() != UNPRIV_UID and attack["groups"] == [],
+            "profile": mode, "probe_ran": True, "hub_head": _state.ENV["heads"].get("hub"), "server_pid_alive_after": proc.poll() is None,
+            "ingress_uid": real_uid, "ingress_gid": real_gid, "ingress_is_root": real_uid == 0, "ingress_user": ident["ingress_user"],
+            "client_uid": attack["uid"], "client_euid": attack["euid"], "client_gid": attack["gid"], "client_groups": attack["groups"], "client_user": ident["client_user"],
+            "ipc_group": ident["ipc_group"], "ipc_gid": sock_st.st_gid, "socket_uid": sock_st.st_uid, "socket_gid": sock_st.st_gid,
+            "socket_directory": str(ipc_dir), "state_directory": str(state),
+            "client_is_distinct_unprivileged": (attack["uid"] == attack["euid"] == ident["client_uid"] and attack["uid"] not in (0, real_uid)
+                                                and sorted(attack["groups"]) == sorted(ident["client_groups"]) and (optout or ident["ipc_gid"] in attack["groups"])),
             "socket_mode": sock_mode, "state_tree_owner_only_before": before["state_stat"]["violations"] == [] and before["state_stat"]["top_mode"] == "0o700",
             "state_tree_owner_only_after": after_legit["state_stat"]["violations"] == [] and after_legit["state_stat"]["top_mode"] == "0o700",
             "state_tree_n_entries": after_legit["state_stat"]["n_entries"], "state_tree_top": [after_legit["state_stat"]["top_mode"], after_legit["state_stat"]["top_uid"]],
@@ -254,7 +433,8 @@ def run(work):
             "legit_after": {"responses": legit.get("responses"), **legit_counts, "claim_states": claim_states,
                             "exactly_one_effect_one_consumed_claim": legit_counts["effects"] == 1 and claim_states == {"consumed": 1}},
             "attacker_could_not_stop_ingress": proc.poll() is None,
-            "evidence_basis": "owner-side table content hashes before/after the attack phase, ledger rows, stat of the state tree, client uid/groups; not ingress self-report",
+            "environment_record": env_record,
+            "evidence_basis": "owner-side table content hashes before/after the attack phase (read as the ingress uid), ledger rows, stat of the state tree, client uid/groups; not ingress self-report",
             "kernel_hardening": env_info,
         }
         return {**obs, "status": "ran"}
@@ -264,6 +444,8 @@ def run(work):
             proc.wait(10)
         except subprocess.TimeoutExpired:
             proc.kill()
+        if module_dump.is_file():  # written at ingress exit by the observation-only sitecustomize
+            shutil.copy(module_dump, dump_path)
         shutil.rmtree(base, ignore_errors=True)
 
 

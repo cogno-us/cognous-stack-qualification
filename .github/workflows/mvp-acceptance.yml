@@ -1,0 +1,251 @@
+name: MVP acceptance (proposed)
+# Independently owned Qualification job: the complete selected MVP route at the EXACT candidate tuple (Architect ruling 7).
+# Dispatch only: it never runs on push, selects nothing, authorizes nothing (release HOLD) and changes no verdict. Qualification owns the oracle
+# and every verdict; this workflow proposes. It runs, on real components and the synthetic SQLite destination only:
+#   real claim provisioning (journal mode, operation identity) -> actual route B execution -> grant and approval revocation negatives ->
+#   duplicate-operation and lost-acknowledgement negatives (incl. ruling 4) -> Replay / Evidence Pack reconstruction -> the pinned Verifier ->
+#   custody/tamper and trusted-host ingress boundary checks -> the route C (Exchange) exclusion checks (ruling 5).
+# The tuple has ONE source, process/mvp-acceptance/candidate-identity.inputs.json (40-hex shas, nothing floating). A component input below overrides
+# one component for that run, is validated as 40-hex, and is recorded in tuple-resolved.json; moving the Runtime to the post-F3 sha is therefore an
+# input change only. Every checkout is verified to be at exactly its sha and pristine before any test runs.
+# The gate (tools/mvp_acceptance_gate.py) applies process/mvp-acceptance/mandatory-battery.proposed.v1.json: zero unexplained skips WITHIN that frozen
+# mandatory battery (a skipped, undiscovered, unexecuted or errored mandatory test is INCOMPLETE, never ACCEPT), exact Verifier dispositions, expectations
+# frozen expectation files byte-identical (the files named in the battery's unchanged_files_sha256), the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
+# the hub environment record, CAPTURED IN THE RUN against the very ingress process the suite attacks (dedicated non-root uid and group, 0660 socket in a separate IPC
+# directory, Yama ptrace_scope >= 1 set here via sudo sysctl; absent Yama is BLOCKED/INCOMPLETE) and bound to this run by a gate-side envelope (run_id, qualification_sha,
+# record hash, pinned capture script). hub_revision MUST name a hub sha containing tools/mvp_env_record/capture_env_record.py with sha256
+# 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51 (a preflight step right after the hub checkout exits 1 otherwise; the gate's INCOMPLETE stays as backup).
+# A Python 3.12 result is supplementary only. Unrelated historical suites are not required to be skip-free. The job fails unless the gate says ACCEPT.
+'on':
+  workflow_dispatch:
+    inputs:
+      control_plane_revision:
+        description: cogno-us/cognous-control-plane commit, 40-hex (blank uses the candidate identity inputs; overrides Control Plane for this run only)
+        required: false
+        default: ''
+        type: string
+      runtime_revision:
+        description: cogno-us/cognous-execution-runtime commit, 40-hex (blank uses the candidate identity inputs; overrides Runtime (the post-F3 sha goes here as an input change only) for this run only)
+        required: false
+        default: ''
+        type: string
+      replay_revision:
+        description: cogno-us/cognous-replay-bundle commit, 40-hex (blank uses the candidate identity inputs; overrides Replay for this run only)
+        required: false
+        default: ''
+        type: string
+      evidence_pack_revision:
+        description: cogno-us/cognous-governance-evidence-pack commit, 40-hex (blank uses the candidate identity inputs; overrides Evidence Pack for this run only)
+        required: false
+        default: ''
+        type: string
+      odes_revision:
+        description: cogno-us/open-decision-evidence-standard commit, 40-hex (blank uses the candidate identity inputs; overrides ODES (pin-checked only; the chain never imports it) for this run only)
+        required: false
+        default: ''
+        type: string
+      verifier_revision:
+        description: cogno-us/cognous-open-control-stack-verifier commit, 40-hex (blank uses the candidate identity inputs; overrides Verifier for this run only)
+        required: false
+        default: ''
+        type: string
+      manifest_revision:
+        description: cogno-us/cognous-action-manifest commit, 40-hex (blank uses the candidate identity inputs; overrides Action Manifest for this run only)
+        required: false
+        default: ''
+        type: string
+      hub_revision:
+        description: cogno-us/cognous-open-control-stack commit, 40-hex (blank uses the candidate identity inputs; overrides hub (trusted-host ingress) for this run only). MUST name a hub sha that contains tools/mvp_env_record/capture_env_record.py with sha256 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51 (hub PR #219, hub 3fff3dfb; script bytes identical to 050dcd67/0e2b52a0); the run exits 1 right after the hub checkout otherwise. The default hub sha predates the script.
+        required: false
+        default: ''
+        type: string
+      candidate_commitment_sha256:
+        description: sha256 of process/mvp-acceptance/candidate-commitment.proposed.v1.json as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
+        required: false
+        default: ''
+        type: string
+      qualification_revision:
+        description: Suite commit, 40-hex; must be blank or equal the workflow event commit (github.sha), anything else is refused so the running workflow and the checked-out suite cannot differ
+        required: false
+        default: ''
+        type: string
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      MVP_CP_DIR: ${{ github.workspace }}/components/control_plane
+      MVP_RUNTIME_DIR: ${{ github.workspace }}/components/runtime
+      MVP_REPLAY_DIR: ${{ github.workspace }}/components/replay
+      MVP_PACK_DIR: ${{ github.workspace }}/components/evidence_pack
+      MVP_ODES_DIR: ${{ github.workspace }}/components/odes
+      MVP_VERIFIER_DIR: ${{ github.workspace }}/components/verifier
+      MVP_MANIFEST_DIR: ${{ github.workspace }}/components/manifest
+      MVP_HUB_DIR: ${{ github.workspace }}/components/hub
+      MVP_PIN_FILE: ${{ github.workspace }}/results/mvp-acceptance/tuple-pin.resolved.json
+      MVP_ACCEPTANCE_DIR: ${{ github.workspace }}/results/mvp-acceptance
+      MVP_RESULTS_DIR: ${{ github.workspace }}/results/mvp-acceptance/mvp-chain
+      MVP_IDENTITY_FILE: ${{ github.workspace }}/process/mvp-acceptance/candidate-identity.inputs.json
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - name: Validate qualification_revision before it is used as a checkout ref (blank or the workflow commit only)
+        env:
+          QUAL_REV: ${{ inputs.qualification_revision }}
+        run: |
+          [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
+          [[ -z "$QUAL_REV" || "$QUAL_REV" == "$GITHUB_SHA" ]] || { echo "qualification_revision must be blank or equal the workflow commit $GITHUB_SHA"; exit 1; }
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ inputs.qualification_revision || github.sha }}
+          persist-credentials: false
+      - name: Resolve the tuple from the candidate identity inputs (40-hex only; overrides validated and recorded)
+        id: tuple
+        env:
+          MVP_OVERRIDE_CONTROL_PLANE: ${{ inputs.control_plane_revision }}
+          MVP_OVERRIDE_RUNTIME: ${{ inputs.runtime_revision }}
+          MVP_OVERRIDE_REPLAY: ${{ inputs.replay_revision }}
+          MVP_OVERRIDE_EVIDENCE_PACK: ${{ inputs.evidence_pack_revision }}
+          MVP_OVERRIDE_ODES: ${{ inputs.odes_revision }}
+          MVP_OVERRIDE_VERIFIER: ${{ inputs.verifier_revision }}
+          MVP_OVERRIDE_ACTION_MANIFEST: ${{ inputs.manifest_revision }}
+          MVP_OVERRIDE_HUB: ${{ inputs.hub_revision }}
+        run: |
+          mkdir -p results/mvp-acceptance/mvp-chain
+          python3 tools/mvp_acceptance_gate.py resolve --identity process/mvp-acceptance/candidate-identity.inputs.json \
+            --out-pin results/mvp-acceptance/tuple-pin.resolved.json --out-resolved results/mvp-acceptance/tuple-resolved.json \
+            --github-output "$GITHUB_OUTPUT" --github-env "$GITHUB_ENV" \
+            --qualification-sha "$(git rev-parse HEAD)"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: ${{ steps.tuple.outputs.control_plane }}
+          path: components/control_plane
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-execution-runtime
+          ref: ${{ steps.tuple.outputs.runtime }}
+          path: components/runtime
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-replay-bundle
+          ref: ${{ steps.tuple.outputs.replay }}
+          path: components/replay
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-governance-evidence-pack
+          ref: ${{ steps.tuple.outputs.evidence_pack }}
+          path: components/evidence_pack
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/open-decision-evidence-standard
+          ref: ${{ steps.tuple.outputs.odes }}
+          path: components/odes
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-open-control-stack-verifier
+          ref: ${{ steps.tuple.outputs.verifier }}
+          path: components/verifier
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-action-manifest
+          ref: ${{ steps.tuple.outputs.action_manifest }}
+          path: components/manifest
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-open-control-stack
+          ref: ${{ steps.tuple.outputs.hub }}
+          path: components/hub
+          persist-credentials: false
+      - name: Preflight the hub capture script (must exist with the pinned sha256; fail early, the gate stays the backup)
+        run: |
+          python3 tools/mvp_acceptance_gate.py preflight-hub --components-dir "$GITHUB_WORKSPACE/components"
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.13'
+      - run: python -m pip install --require-hashes -r .github/locks/cryptography-pydantic-pytest-a9a750.txt
+      - name: Verify Python 3.13, pydantic >= 2.12 and that every checkout is exactly its pinned sha and pristine
+        run: |
+          python - <<'PY'
+          import sys, pydantic
+          assert sys.version_info[:2] == (3, 13), sys.version
+          assert tuple(int(x) for x in pydantic.VERSION.split(".")[:2]) >= (2, 12), pydantic.VERSION
+          print("python", sys.version.split()[0], "pydantic", pydantic.VERSION)
+          PY
+          git config --global --add safe.directory '*'
+          sudo git config --global --add safe.directory '*'
+          python tools/mvp_acceptance_gate.py verify-checkouts --resolved results/mvp-acceptance/tuple-resolved.json --base "$GITHUB_WORKSPACE"
+      - name: Provision the approved ingress profile (dedicated non-root uid and group, separate IPC directory, Yama ptrace_scope >= 1); never a weaker substitute
+        run: |
+          # dedicated identities: ingress and client have their own primary groups; the socket group mvp-ipc has exactly those two members
+          [[ -z "$(getent passwd 65533)" ]] || { echo "uid 65533 (the outsider probe uid) is in use"; exit 1; }
+          sudo groupadd --system mvp-ingress
+          sudo groupadd --system mvp-client
+          sudo groupadd --system mvp-ipc
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin -g mvp-ingress -G mvp-ipc mvp-ingress
+          sudo useradd --system --no-create-home --shell /usr/sbin/nologin -g mvp-client -G mvp-ipc mvp-client
+          # the ingress (a different uid from the runner) must be able to read the component checkouts and this workspace; no write access is granted
+          sudo chmod -R go+rX,go-w "$GITHUB_WORKSPACE"
+          d="$GITHUB_WORKSPACE"; while [[ "$d" != "/" ]]; do sudo chmod go+x "$d"; d="$(dirname "$d")"; done
+          # Yama: absent or unsettable is recorded, not hidden: the suite reports the boundary test BLOCKED (verdict INCOMPLETE)
+          sudo sysctl -w kernel.yama.ptrace_scope=1 || echo "::warning::kernel.yama.ptrace_scope could not be set: the boundary test will be BLOCKED and the verdict INCOMPLETE"
+          cat /proc/sys/kernel/yama/ptrace_scope || true
+          echo "MVP_INGRESS_PROFILE=approved" >> "$GITHUB_ENV"
+          echo "MVP_INGRESS_USER=mvp-ingress" >> "$GITHUB_ENV"
+          echo "MVP_CLIENT_USER=mvp-client" >> "$GITHUB_ENV"
+          echo "MVP_IPC_GROUP=mvp-ipc" >> "$GITHUB_ENV"
+          echo "MVP_QUALIFICATION_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Anchor the frozen files to the main branch (blob ids read through the REST API, independent of this checkout)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python tools/mvp_acceptance_gate.py anchor --repo "$GITHUB_REPOSITORY" --ref main --out results/mvp-acceptance/anchor.json
+      - name: Collect the mandatory battery (discovery is recorded separately from execution)
+        run: |
+          set -o pipefail
+          d=results/mvp-acceptance
+          MVP_RESULTS_DIR="$d/collect-mvp-chain" python -m pytest --collect-only -q -p no:cacheprovider \
+            suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py | tee "$d/collected-mvp-chain.txt"
+          MVP_RESULTS_DIR="$d/collect-applicability" python -m pytest --collect-only -q -p no:cacheprovider \
+            suites/mvp-applicability/test_route_c_exclusion.py | tee "$d/collected-applicability.txt"
+      - name: Run the chain battery as root (NC4 starts the ingress as the dedicated non-root uid and the client as another; the hub environment record is captured in-run against that process); the exit status is recorded and judged by the gate, never suppressed
+        run: |
+          d=results/mvp-acceptance
+          set +e
+          MVP_EXCLUSION_TAG=mvp-chain \
+            sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin \
+            suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py \
+            -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-mvp-chain" --junitxml="$d/junit-mvp-chain.xml"
+          echo $? > "$d/pytest-exit-mvp-chain.txt"
+          exit 0
+      - name: Run the route C exclusion checks (ruling 5)
+        run: |
+          d=results/mvp-acceptance
+          set +e
+          MVP_EXCLUSION_TAG=applicability PYTHONPATH="$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" \
+            python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin suites/mvp-applicability/test_route_c_exclusion.py \
+            -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-applicability" --junitxml="$d/junit-applicability.xml"
+          echo $? > "$d/pytest-exit-applicability.txt"
+          exit 0
+      - name: Gate (zero unexplained skips in the mandatory battery, exact Verifier dispositions); fails unless ACCEPT
+        if: always()
+        env:
+          COMMITMENT_SHA256: ${{ inputs.candidate_commitment_sha256 }}
+        run: |
+          set -o pipefail
+          python3 tools/mvp_acceptance_gate.py gate --run-dir results/mvp-acceptance --expect-qualification-sha "$(git rev-parse HEAD)" \
+            --expect-commitment-sha256 "$COMMITMENT_SHA256" --require-python 3.13 \
+            --components-dir "$GITHUB_WORKSPACE/components" | tee results/mvp-acceptance/gate-summary.txt | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: mvp-acceptance-${{ steps.tuple.outputs.qualification }}
+          path: results/mvp-acceptance
