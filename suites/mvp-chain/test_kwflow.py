@@ -348,3 +348,14 @@ def test_launcher_isolation_helper_flags_the_shadowable_launch():
 
 def test_single_update_point_for_the_ingress_digest():
     assert {r["reviewed_ingress_tree_sha256"] for r in _kwflow.PINNED_SITES.values()} == {_kwflow.INGRESS_PY_TREE_SHA256}
+
+
+# ---- interpreter-pinned assertions (architect Round 5): ast_digest pins are honoured on CPython 3.13 only. On any other interpreter (the supplementary Python 3.12
+# workflow mvp-chain.yml) these assertions are SKIPPED with an explicit reason, never silently passed; a skipped instance in the authoritative 3.13 run would be
+# INCOMPLETE at the gate, and a passing supplementary run is not qualification of the 3.13 profile. The source predicates are not redesigned for 3.12.
+requires_313 = pytest.mark.skipif(_kwflow.pin_python() is None, reason="ast_digest pins are honoured on CPython 3.13 only; this interpreter is supplementary")
+for _name in ("test_baseline_covers_all_of_ingress_and_is_accepted_only_via_pins", "test_pins_are_content_addressed_unrelated_hub_commit_still_passes",
+              "test_any_byte_change_including_a_comment_fails_closed", "test_unmutated_ingress_still_passes_when_rebased_control",
+              "test_a_non_py_content_change_fails_the_recursive_digest_but_not_the_py_digest", "test_ast_digest_pins_fail_closed_except_on_the_recorded_interpreter",
+              "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule"):
+    globals()[_name] = requires_313(globals()[_name])

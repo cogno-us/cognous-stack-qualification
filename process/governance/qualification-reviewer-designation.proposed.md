@@ -2,10 +2,17 @@
 
 Status: DRAFT prepared by the builder for the Cognous operator. Not approved, not effective until the operator fills the disposition below. Non-authorizing; release and production HOLD. This file does not concern issue #218 and nothing is posted there.
 
+## Responsibilities (operator decisions of 2026-10-24; three separate roles)
+1. **Code review**: GitHub Copilot code review. Observed identity: `copilot-pull-request-reviewer[bot]`, review state COMMENTED (comment-only; NOT a GitHub approval). Commits it reviewed: #226 `94fc06bd`, #223 `b3123aee`, #225 `e931f18c`. The operator decided this review is sufficient for the code-review function.
+2. **Evidence review**: a separate LLM instance, independent of the builder and of the code reviewer, to be run AFTER the battery runs, inspecting the oracle, the candidate manifest, execution logs, checksums and environment records. Not yet performed.
+3. **Final adjudication**: the Cognous operator.
+
+**Merge actor**: the operator explicitly delegated the Qualification-repo merges to the coordinator Claude session acting under operator authority (decision 2026-10-24). The builder does not merge. Comment-only reviews are not repository approvals; independence of the evidence review remains with the separate LLM; final adjudication stays with the operator.
+
 ## Designation (proposed by the operator's decision of 2026-10-24)
 | Field | Value |
 |---|---|
-| Reviewer | GitHub Copilot code review (a separate LLM, independent of the builder) |
+| Reviewer (code review) | GitHub Copilot code review (a separate LLM, independent of the builder); observed as copilot-pull-request-reviewer[bot], COMMENTED |
 | Model / session identity | as exposed by GitHub per review; may be "not disclosed" |
 | Scope | Qualification PRs #226, #223 and #225; expectations v6 and v7; exact-candidate evidence; assessment of the trusted-host successor profile |
 | Independence | the reviewer makes no implementation changes and no retroactive alteration of mandatory criteria; it is not the builder |
@@ -34,3 +41,12 @@ Status: DRAFT prepared by the builder for the Cognous operator. Not approved, no
 | Findings | |
 | Operator disposition | (blank: for the operator) |
 | Date and authorized actor | (blank) |
+
+## Observed review activity (recorded by the builder; findings triaged on the PRs)
+| PR | Reviewer identity | State | Commit reviewed |
+|---|---|---|---|
+| #226 | copilot-pull-request-reviewer[bot] | COMMENTED | 94fc06bd |
+| #223 | copilot-pull-request-reviewer[bot] | COMMENTED | b3123aee |
+| #225 | copilot-pull-request-reviewer[bot] | COMMENTED | e931f18c |
+
+Material fixes were pushed afterwards and re-review was requested; the commits reviewed in any later review must be added to this table by the operator or the builder.

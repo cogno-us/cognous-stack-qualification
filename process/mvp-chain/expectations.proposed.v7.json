@@ -1309,6 +1309,12 @@
    "wording": "Code-level ingress provenance was demonstrated through independent source review and builder-side testing. Host process isolation was not independently qualified under the original restricted-host profile. NC4 remains INCOMPLETE.",
    "label_without_authorized_owner": "Candidate testing complete or partially complete; independent adjudication pending.",
    "successor_profile": "process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json (proposal; not adopted; the original profile is unchanged)"
+  },
+  "changelog_2026_10_24_review_fixes": {
+   "note": "Changes made after the independent code review (GitHub Copilot, comments on #223/#225/#226). Tightening only; no expectation row was loosened and no historical result was rewritten.",
+   "ruling4_negative_controls": "R4-02 (test_second_execute_with_the_same_claim_is_refused_claim_not_usable_not_attempted) and R4-06 (test_fresh_operation_identity_without_new_authority_cannot_reissue_the_same_effect) no longer accept an arbitrary exception as refusal evidence: only the documented RETURNED refusal outcomes pass (denied result with 'claim is not usable', not attempted, not acknowledged; or a non-authorized decision with reasons; or a denied execute) together with the independent readback showing exactly one effect. An unexpected exception, crash or missing evidence ERRORs the fixture (INCOMPLETE at the gate). Applied before the v6/v7 baseline.",
+   "gate": "non-object results.json/observations.json and <testsuite>-rooted JUnit reports fail closed (INCOMPLETE with a verdict document); G-11 stops requiring the nonexistent ipc.connection_policy.socket_group_policy field and keeps the dedicated-group requirement through the producer's ipc.socket_mode_owner_group check plus the socket_policy field; the capture invocation passes --allow-uid (the client uid) so identity.ingress_command can PASS; the workflow sets PYTHONPATH after sudo.",
+   "interpreters": "Python 3.12 (mvp-chain.yml) is supplementary and labelled so; interpreter-pinned kwflow assertions are skipped with a reason on non-3.13 interpreters and a passing supplementary run is not qualification of the 3.13 profile."
   }
  },
  "inventory_vs_claims": {

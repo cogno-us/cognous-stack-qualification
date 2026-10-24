@@ -36,6 +36,14 @@ class LostAck:
     """Raw observations of one lost-acknowledgement flow. No verdict is computed here."""
 
 
+def _unexpected(step, what):
+    """A documented refusal is a RETURNED denied or hold result. An exception is never refusal evidence: it propagates from the fixture, so the dependent tests
+    ERROR (INCOMPLETE at the gate) instead of passing."""
+    if not step["ok"]:
+        raise RuntimeError(f"unexpected exception from {what}, not a documented refusal outcome: {step['error']}")
+    return step["value"]
+
+
 @pytest.fixture(scope="module")
 def lost_ack():
     if _state.ENV["problems"]:
@@ -54,9 +62,8 @@ def lost_ack():
         obs.first_observation = copy.deepcopy(obs.first.observation) if isinstance(obs.first.observation, dict) else {}
         obs.ids_after_first = ctx.effect_ids()
         obs.claim_state_after_first = dest.claim_state(claim.claim_id)
-        step = _chain.attempt(lambda: ctx.execute(claim.claim_id))
-        obs.second_raised = None if step["ok"] else step["error"]
-        obs.second = step["value"] if step["ok"] else None
+        obs.second_raised = None
+        obs.second = _unexpected(_chain.attempt(lambda: ctx.execute(claim.claim_id)), "the second execute with the consumed claim")
         obs.ids_after_second = ctx.effect_ids()
         recon = _chain.attempt(lambda: dest.reconcile_claim(claim.claim_id, snapshot_envelope(flow.envelope(flow.d1))))
         obs.reconcile_raised = None if recon["ok"] else recon["error"]
@@ -71,21 +78,14 @@ def lost_ack():
         obs.fresh = {"operation_id": authority["operation_id"], "original_operation_id": original_operation,
                      "decision": None, "decision_reasons": None, "decision_raised": None, "claim_issued": False,
                      "claim_raised": None, "execute_status": None, "execute_raised": None, "executed": False}
-        d2 = _chain.attempt(lambda: flow.f.decide(flow.p, now=flow.NOW))
-        if d2["ok"]:
-            obs.fresh["decision"], obs.fresh["decision_reasons"] = d2["value"].result, list(d2["value"].reasons)
-            if d2["value"].result == "authorized":
-                c2 = _chain.attempt(lambda: ctx.provision(d2["value"]))
-                obs.fresh["claim_issued"] = c2["ok"]
-                obs.fresh["claim_raised"] = None if c2["ok"] else c2["error"]
-                if c2["ok"]:
-                    e2 = _chain.attempt(lambda: ctx.execute(c2["value"].claim_id, d2["value"]))
-                    obs.fresh["execute_raised"] = None if e2["ok"] else e2["error"]
-                    if e2["ok"]:
-                        obs.fresh["execute_status"] = e2["value"].status
-                        obs.fresh["executed"] = e2["value"].status == "executed"
-        else:
-            obs.fresh["decision_raised"] = d2["error"]
+        d2 = _unexpected(_chain.attempt(lambda: flow.f.decide(flow.p, now=flow.NOW)), "the decision for the fresh operation identity")
+        obs.fresh["decision"], obs.fresh["decision_reasons"] = d2.result, list(d2.reasons)
+        if d2.result == "authorized":
+            c2 = _unexpected(_chain.attempt(lambda: ctx.provision(d2)), "claim provisioning for the fresh operation identity")
+            obs.fresh["claim_issued"] = True
+            e2 = _unexpected(_chain.attempt(lambda: ctx.execute(c2.claim_id, d2)), "execute for the fresh operation identity")
+            obs.fresh["execute_status"] = e2.status
+            obs.fresh["executed"] = e2.status == "executed"
         obs.ids_final = ctx.effect_ids()
         yield obs
     finally:
@@ -100,13 +100,11 @@ def test_first_result_is_unknown_never_acknowledged_and_not_retry_eligible(lost_
 
 
 def test_second_execute_with_the_same_claim_is_refused_claim_not_usable_not_attempted(lost_ack):
-    if lost_ack.second is None:  # a refusal raised instead of returned: it must be a real exception, and nothing may have been committed
-        assert lost_ack.second_raised and lost_ack.second_raised.get("type"), lost_ack.second_raised
-    else:
-        second = lost_ack.second
-        assert second.status == "denied", second.status
-        assert second.attempted is False
-        assert second.acknowledged is False
+    second = lost_ack.second  # the documented refusal is a returned denied result; an exception ERRORs the fixture instead (see _unexpected)
+    assert second is not None and second.status == "denied", second
+    assert second.attempted is False
+    assert second.acknowledged is False
+    assert "claim is not usable" in (second.error or ""), second.error
     assert lost_ack.claim_state_after_first != "issued", lost_ack.claim_state_after_first  # the claim is no longer usable
     assert lost_ack.ids_after_second == lost_ack.ids_after_first
 
@@ -145,15 +143,11 @@ def test_fresh_operation_identity_without_new_authority_cannot_reissue_the_same_
     fresh = lost_ack.fresh
     detail = repr(fresh)
     # refused at a specific stage, with a recorded reason: not merely "something raised"
-    decision_refused = fresh["decision"] in ("hold", "refused", "denied") or (fresh["decision"] is not None and fresh["decision"] != "authorized")
+    decision_refused = fresh["decision"] is not None and fresh["decision"] != "authorized"
     if decision_refused:
         assert fresh["decision_reasons"], detail
-    elif fresh["decision_raised"] is not None:
-        assert fresh["decision_raised"].get("type") and (fresh["decision_raised"].get("code") or fresh["decision_raised"].get("message")), detail
-    elif fresh["claim_raised"] is not None:
-        assert fresh["claim_raised"].get("type") and (fresh["claim_raised"].get("code") or fresh["claim_raised"].get("message")), detail
-    else:
-        assert fresh["execute_status"] == "denied" or fresh["execute_raised"] is not None, detail
+    else:  # the decision authorized: the execute must then be a returned denied result (exceptions ERROR the fixture)
+        assert fresh["execute_status"] == "denied", detail
     assert fresh["executed"] is False, detail
     assert fresh["execute_status"] != "executed", detail
     assert lost_ack.ids_final == [lost_ack.expected_effect_id], detail  # still exactly the one original effect

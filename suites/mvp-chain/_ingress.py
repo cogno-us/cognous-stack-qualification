@@ -264,6 +264,7 @@ def capture_environment_record(hub, ident, profile, *, state, sock, pid, dest, r
     cmd = [sys.executable, "-I", str(script), "--state-dir", str(state), "--socket", sock, "--ingress-pid", str(pid),
            "--ingress-uid", str(ident["ingress_uid"]), "--ingress-gid", str(ident["ingress_gid"]),
            "--client-uid", str(ident["client_uid"]), "--client-gid", str(ident["client_gid"]), "--outsider-uid", str(rec_cfg["outsider_uid"]),
+           "--allow-uid", str(ident["client_uid"]),  # the SAME uid the ingress was started with (launch.py --allow-uid); without it the script records identity.ingress_command FAIL
            "--db", str(dest), "--authority-store", str(dest), "--ledger", str(pathlib.Path(state) / "ingress.db"),
            "--journal-mode", rec_cfg["journal_mode"], "--label", evidence_label, "--accept-unverified-pins", "--repo-root", str(hub), "--out", str(record_path)]
     for name, sha_ in sorted(heads.items()):

@@ -105,7 +105,7 @@ def env_record(tuple_shas, mutate=None, ingress_sources=None, comps=None):
     man = ENV_PROFILE["manifest"]
     rec = {"schema": "mvp-ingress-env-record/1", "evidence_label": f"hosted-runner acceptance run {RUN}, profile=approved",
            "python": {"version": "3.13.1", "implementation": "CPython"}, "isolation_limits": {"yama_ptrace_scope": "1"},
-           "ipc": {"connection_policy": {"socket_group_policy": "dedicated"}, "stat": {"path": "/run/ipc/ingress.sock", "type": "socket", "mode": "0660", "uid": IDS["ingress_uid"], "gid": IDS["ipc_gid"]}},
+           "ipc": {"connection_policy": {"peer_uid_allow_list": [IDS["client_uid"]], "socket_policy": "mode 0660, owner ingress uid, dedicated group of exactly the ingress and client identities"}, "stat": {"path": "/run/ipc/ingress.sock", "type": "socket", "mode": "0660", "uid": IDS["ingress_uid"], "gid": IDS["ipc_gid"]}},
            "filesystem": {"state_dir": "/var/lib/ingress/state"},
            "process_identity": {"ingress_uid": IDS["ingress_uid"], "ingress_gid": IDS["ingress_gid"], "client_uid": IDS["client_uid"], "client_gid": IDS["client_gid"],
                                 "ingress_process": {"uid": [IDS["ingress_uid"]] * 3}},
@@ -867,8 +867,8 @@ class RulingsTwoTests(GateTests):
         cases = [("interpreter differs", setp(["python", "version"], "3.13.9"), "FAIL"),
                  ("sources absent", setp(["configuration", "ingress_source_sha256"], KeyError), "INCOMPLETE"),
                  ("sources differ", setp(["configuration", "ingress_source_sha256"], {"tools/mvp_ingress/server.py": "0" * 64}), "FAIL"),
-                 ("group policy absent", setp(["ipc", "connection_policy"], KeyError), "INCOMPLETE"),
-                 ("group policy shared", setp(["ipc", "connection_policy", "socket_group_policy"], "shared"), "FAIL"),
+                 ("socket policy absent", setp(["ipc", "connection_policy"], KeyError), "INCOMPLETE"),
+                 ("dedicated group check fails", lambda rec: [c.update(status="FAIL") for c in rec["checks"] if c["id"] == "ipc.socket_mode_owner_group"], "FAIL"),
                  ("socket mode 0600", setp(["ipc", "stat", "mode"], "0600"), "FAIL"),
                  ("socket mode absent", setp(["ipc", "stat"], KeyError), "INCOMPLETE"),
                  ("socket inside state dir", setp(["ipc", "stat", "path"], "/var/lib/ingress/state/ingress.sock"), "FAIL"),
@@ -1028,8 +1028,9 @@ class IngressProfileTests(unittest.TestCase):
         self.assertEqual(env["capture_script_sha256"], hashlib.sha256((hub / "tools/mvp_env_record/capture_env_record.py").read_bytes()).hexdigest())
         argv = json.loads(record.read_text())["argv"]
         self.assertEqual(argv[argv.index("--label") + 1], "hosted-runner acceptance run run123, profile=approved")
-        for flag, val in (("--ingress-pid", "4242"), ("--ingress-uid", "990"), ("--client-uid", "991"), ("--journal-mode", "wal"), ("--outsider-uid", "65533")):
+        for flag, val in (("--ingress-pid", "4242"), ("--ingress-uid", "990"), ("--client-uid", "991"), ("--allow-uid", "991"), ("--journal-mode", "wal"), ("--outsider-uid", "65533")):
             self.assertEqual(argv[argv.index(flag) + 1], val)
+        self.assertEqual(argv.count("--allow-uid"), 1)  # exactly the client uid the ingress launcher was given
         self.assertIn("runtime=" + "b" * 40, argv)
         self.assertTrue(any(a.startswith("manifest_sha256.refund_integration_v1_1.manifest.json=") for a in argv))
         # no run id supplied: the envelope omits it (the gate then says INCOMPLETE), it never invents one
@@ -1486,6 +1487,51 @@ class CompositeIdentityAndLaunchTests(GateTests):
         obs = json.loads(json.dumps(good))
         del obs["nc_unmediated"]["launch"]
         self.assertEqual(verdict.evaluate_row(row, obs)["status"], verdict.FAIL)
+
+
+class CopilotReviewFixTests(GateTests):
+    """Review findings on #223 (valid fixes that TIGHTEN): non-object results.json, <testsuite>-rooted junit, sudo PYTHONPATH, required-control exceptions."""
+
+    def test_non_object_results_json_is_incomplete_with_a_verdict_document(self):
+        for body in ("[{}]", '"x"', "3", "null"):
+            with self.subTest(body):
+                self.build()
+                (self.run_dir / "mvp-chain/results.json").write_text(body)
+                v, checks, doc = self.verdict()
+                self.assertEqual(v, "INCOMPLETE")
+                self.assertEqual(checks["G-00"], "INCOMPLETE")
+
+    def test_non_object_observations_json_is_incomplete(self):
+        self.build()
+        (self.run_dir / "mvp-chain/observations.json").write_text("[]")
+        self.assertEqual(self.verdict()[0], "INCOMPLETE")
+
+    def test_junit_rooted_at_testsuite_is_validated_for_the_run_id(self):
+        self.build()
+        tag = "mvp-chain"
+        junit_path = self.run_dir / BATTERY["invocations"][tag]["junit"]
+        text = junit_path.read_text()
+        rooted = text.replace("<testsuites>", "").replace("</testsuites>", "")
+        junit_path.write_text(rooted)  # same run id: still PASS binding
+        self.assertEqual(self.verdict()[1]["G-10"], "PASS")
+        junit_path.write_text(rooted.replace(f'name="mvp-acceptance-{RUN}"', 'name="mvp-acceptance-stale"'))
+        v, checks, _ = self.verdict()
+        self.assertEqual(checks["G-10"], "INCOMPLETE")
+        self.assertEqual(v, "INCOMPLETE")
+
+    def test_workflow_sets_pythonpath_after_sudo_and_chain_workflow_selects_a_profile_explicitly(self):
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        self.assertIn('sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" python', wf)
+        self.assertNotIn('MVP_EXCLUSION_TAG=mvp-chain PYTHONPATH=', wf)
+        chain = (ROOT / ".github/workflows/mvp-chain.yml").read_text()
+        self.assertIn("MVP_INGRESS_PROFILE: developer-optout", chain)
+
+    def test_required_controls_do_not_accept_arbitrary_exceptions(self):
+        src = (ROOT / "suites/mvp-chain/test_ruling4_lost_ack.py").read_text()
+        self.assertIn("def _unexpected(", src)
+        self.assertNotIn("second_raised and", src)
+        self.assertNotIn('fresh["execute_raised"] is not None', src)
+        self.assertNotIn('decision_raised"].get("type")', src)
 
 
 if __name__ == "__main__":

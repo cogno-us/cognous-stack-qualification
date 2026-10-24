@@ -189,7 +189,11 @@ class Gate:
 
 def _read_json(gate: Gate, check_id: str, path: Path, what: str):
     try:
-        return json.loads(Path(path).read_text())
+        doc = json.loads(Path(path).read_text())
+        if not isinstance(doc, dict):  # a list, string or number would crash later readers: malformed artifacts are INCOMPLETE
+            gate.add(check_id, INCOMPLETE, f"{what} is not a JSON object ({type(doc).__name__}): {Path(path).name}")
+            return None
+        return doc
     except FileNotFoundError:
         gate.add(check_id, INCOMPLETE, f"{what} is missing: {path.name}")
     except (ValueError, OSError) as exc:
@@ -562,10 +566,14 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
         except (OSError, ValueError):
             pass  # reported by G-08
         try:
-            name = ET.parse(run_dir / inv["junit"]).getroot().find("testsuite").get("name") or ""
-            if run_id not in name:
-                problems.append(f"{inv['junit']} testsuite name does not carry the run_id")
-        except (OSError, ET.ParseError, AttributeError):
+            root = ET.parse(run_dir / inv["junit"]).getroot()
+            suites = [root] if root.tag == "testsuite" else root.findall("testsuite")  # a report rooted at <testsuite> is valid too
+            if not suites:
+                problems.append(f"{inv['junit']} has no testsuite element")
+            for suite in suites:
+                if run_id not in (suite.get("name") or ""):
+                    problems.append(f"{inv['junit']} testsuite name does not carry the run_id")
+        except (OSError, ET.ParseError):
             pass  # reported by G-05
     try:
         d = json.loads((run_dir / "mvp-chain" / "artifacts" / "ingress-modules.json").read_text())
@@ -947,11 +955,10 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         fail.append(f"record manifest_sha256 {recorded_man} is not the tuple's {man['path']}")
     # ipc, group policy, separate IPC directory, non-root ingress
     ipc = rec.get("ipc") or {}
-    policy = (ipc.get("connection_policy") or {}).get("socket_group_policy")
-    if policy is None:
-        incomplete.append("record has no ipc.connection_policy.socket_group_policy")
-    elif policy != profile["ipc"]["socket_group_policy"]:
-        fail.append(f"socket_group_policy {policy!r} != {profile['ipc']['socket_group_policy']!r}")
+    # the dedicated socket group (exactly the ingress and client identities) is verified by the producer's own check ipc.socket_mode_owner_group, which this gate
+    # requires to PASS with every other emitted check id; the producer emits no ipc.connection_policy.socket_group_policy field (it emits peer_uid_allow_list and socket_policy)
+    if (ipc.get("connection_policy") or {}).get("socket_policy") is None:
+        incomplete.append("record has no ipc.connection_policy.socket_policy")
     st = ipc.get("stat") if isinstance(ipc.get("stat"), dict) else None
     if st is None or "mode" not in st:
         incomplete.append("record has no ipc.stat (socket mode and type)")
