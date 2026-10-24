@@ -63,9 +63,9 @@
     "required_ids_note": "Reconciled against the ids the hub script at the pinned sha256 emits (also verified by running it: 32 ids on a bare host, of which the always-emitted PASS-or-better set is required). Not required by name: capture.exception, <section>.exception, filesystem.state_dir_present and filesystem.socket_present (BLOCKED markers emitted only on failure; any BLOCKED check already makes the verdict INCOMPLETE). A required id absent from the record is INCOMPLETE; one that is not PASS is INCOMPLETE (BLOCKED) or FAIL.",
     "capture_script": {
       "path": "tools/mvp_env_record/capture_env_record.py",
-      "sha256": "5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51",
+      "sha256": "faf8f26117b9e0d4616528250b97099c037117fd5df60c7032ac8347464af461",
       "hub_pr": "cogno-us/cognous-open-control-stack#219 head 3fff3dfb0fb909774cdae77557689dde4cb90f12 (script moved out of the ingress package; bytes identical to the approved 050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e and the test-only follow-up 0e2b52a0; sha256 computed from the file)",
-      "note": "Pinned because #219 is still moving. The script in the hub checkout at the tuple sha must have exactly these bytes (a different script is a NEW candidate: new profile version and commitment), and the run envelope must name this sha256. The candidate-identity hub sha (hub main) predates the script: a run needs hub_revision set to a sha that contains it, otherwise G-11 is INCOMPLETE.",
+      "note": "RE-PINNED to the script bytes at hub main 330ccc31 (hub PR #230); they differ from the earlier 5ae7beca/050dcd67 bytes, so the earlier statements about identical bytes describe the superseded pin. Pinned because the hub script is still moving. The script in the hub checkout at the tuple sha must have exactly these bytes (a different script is a NEW candidate: new profile version and commitment), and the run envelope must name this sha256. The candidate-identity hub sha (hub main) predates the script: a run needs hub_revision set to a sha that contains it, otherwise G-11 is INCOMPLETE.",
       "forbidden_paths": [
         "tools/mvp_ingress/capture_env_record.py"
       ],

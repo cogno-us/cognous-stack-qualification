@@ -1,0 +1,108 @@
+{
+ "schema": "cognous.mvp-chain-nc4-03-history/1",
+ "status": "RAW HISTORY, retained unedited in meaning. Not an acceptance. Builder-generated; Qualification must re-derive independently.",
+ "what": "Result of the v3 NC4-03 predicate (non-literal ** forwarding forbidden) on the pinned hub tools/mvp_ingress source, preserved before the v4 proposal replaces the predicate.",
+ "hub_pin": "43c526eb1c8df9f07942ac36a6b2d11e14775bd1 (tuple-pin.proposed.json hub sha 43c526eb whose tools/mvp_ingress files are byte-identical to the scanned checkout 810f509fb2932fff13ab773ec1b42f71cfd8ac5f)",
+ "scanned_files_sha256": {
+  "__init__.py": "a276ffbfe0f63fc9ef4f1c6b8a90ffe9c14badabaf54149ccad5c08cc193e638",
+  "client.py": "2693a4221d89fe5cf19c100c1a6334f7fcf37ff78daa6f31ea10de319466843a",
+  "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f",
+  "proposal.py": "2182acf7c38a5976ef4ade4457a290eb9020cba21f2d4cc8b6b0446de1a9484c",
+  "server.py": "340f9a3940f4c0af91349bdd9d341655880a65df99334710fa77b9bc16b7e920",
+  "synthetic_host.py": "40b624fceb52def7b13034ecfb5448806aa2c9d44784a4ee5d0a94388717646f"
+ },
+ "old_predicate_raw_observation": {
+  "files_scanned": [
+   "__init__.py",
+   "client.py",
+   "core.py",
+   "proposal.py",
+   "server.py",
+   "synthetic_host.py"
+  ],
+  "all_simulate_keywords_constant_none": true,
+  "non_literal_kwargs_forwarding": [
+   {
+    "file": "synthetic_host.py",
+    "line": 72,
+    "kwargs_forwarding_non_literal": true,
+    "callee": "ExecutionOperation",
+    "source": "{k: getattr(p, k) for k in names}"
+   },
+   {
+    "file": "synthetic_host.py",
+    "line": 39,
+    "kwargs_forwarding_non_literal": true,
+    "callee": "original",
+    "source": "k"
+   }
+  ]
+ },
+ "d1_simulate_ast_tests": "7 passed (pytest -k simulate in tests/test_mvp_ingress_boundary.py at the scanned checkout)",
+ "v3_NC4-03_verdict": {
+  "id": "NC4-03",
+  "mandatory": true,
+  "title": "SOURCE-LEVEL assertion only (not an execution observation): every simulate keyword in the pinned hub tools/mvp_ingress source is the constant None, no non-literal ** forwarding exists, and D1's own simulate AST tests pass",
+  "status": "FAIL",
+  "reason": "1 predicate(s) did not hold",
+  "failed": [
+   {
+    "obs": "nc_unmediated.source_level.non_literal_kwargs_forwarding",
+    "op": "empty",
+    "expected": null,
+    "observed": [
+     {
+      "file": "synthetic_host.py",
+      "line": 72,
+      "kwargs_forwarding_non_literal": true,
+      "callee": "ExecutionOperation",
+      "source": "{k: getattr(p, k) for k in names}"
+     },
+     {
+      "file": "synthetic_host.py",
+      "line": 39,
+      "kwargs_forwarding_non_literal": true,
+      "callee": "original",
+      "source": "k"
+     }
+    ]
+   }
+  ],
+  "expectations_sha256": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4"
+ },
+ "v4_NC4-03_verdict_on_same_source_PROPOSED": {
+  "id": "NC4-03",
+  "mandatory": true,
+  "title": "SOURCE-LEVEL assertion only (not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except proven fixed forms and three exactly pinned, fully recorded reviewed sites; the six authority-bearing fields (claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id, requested_permissions) have a trusted origin at every protected call; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass",
+  "status": "PASS",
+  "reason": "every predicate held on the recorded observations",
+  "failed": [],
+  "expectations_sha256": "0de2599c39bd0738dc25889b73588db7431d3be3a8f9ecd81071e658eea38927"
+ },
+ "note": "The v3 FAIL is preserved as recorded. The v3 file was not edited and no expectation was changed to obtain a PASS: v4 is a new file with a new predicate and a recorded reason.",
+ "v4_pin_records": {
+  "synthetic_host.py:SyntheticHost.__init__:original#1": {
+   "originating_hub_commit": "43c526eb1c8df9f07942ac36a6b2d11e14775bd1",
+   "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058",
+   "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
+   "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it",
+   "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API"
+  },
+  "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
+   "originating_hub_commit": "43c526eb1c8df9f07942ac36a6b2d11e14775bd1",
+   "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058",
+   "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
+   "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host",
+   "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)"
+  },
+  "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
+   "originating_hub_commit": "43c526eb1c8df9f07942ac36a6b2d11e14775bd1",
+   "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058",
+   "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
+   "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount, unit, request_id come from the client under non-prohibited keys), fixed 14 field names",
+   "protected_destination": "ExecutionOperation(...) constructor feeding ExecutionEnvelope for AtomicLocalControlPlaneExecutor.execute"
+  }
+ },
+ "ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058",
+ "ingress_tree_digest_serialization": "sha256 of the UTF-8 concatenation, over tools/mvp_ingress/*.py sorted by file name, of '<name>\\0<sha256 hex of file bytes>\\n'"
+}

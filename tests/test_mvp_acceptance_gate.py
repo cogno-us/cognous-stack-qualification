@@ -6,9 +6,12 @@ listed; a Verifier disposition that is not exactly the expected one is a REJECT;
 """
 import copy
 import hashlib
+import importlib.util
 import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -128,7 +131,7 @@ class GateTests(unittest.TestCase):
         self.root, self.commit = make_root(self.tmp / "root")
         self.build()
 
-    def build(self, *, collect_drop=(), junit_overrides=None, junit_drop=(), row_status=None, verifier_mutate=None, exclusion=None, env_mutate=None, envelope_mutate=None, ingress_mutate=None, no_record=False, script_on_hub=FAKE_SCRIPT):
+    def build(self, *, collect_drop=(), junit_overrides=None, junit_drop=(), row_status=None, verifier_mutate=None, exclusion=None, env_mutate=None, envelope_mutate=None, ingress_mutate=None, composite_mutate=None, no_record=False, script_on_hub=FAKE_SCRIPT):
         shutil.rmtree(self.run_dir, ignore_errors=True)
         rd = self.run_dir
         (rd / "mvp-chain/artifacts/verifier").mkdir(parents=True)
@@ -136,8 +139,16 @@ class GateTests(unittest.TestCase):
         ident = json.loads(identity.read_text())
         comps = {n: {"repository": c["repository"], "sha": c["sha"], "source": "candidate-identity", "verified_head": c["sha"], "pristine": True}
                  for n, c in ident["components"].items()}
+        cd = ident["composite"]
+        verified = {"hub": {"revision": cd["hub"]["revision"], "git_tree_ids": dict(cd["hub"]["git_tree_ids"]), "launcher_entry_point_is_file": True,
+                            "capture_script_sha256": cd["hub"]["capture_script_sha256"], "registry_catalogue_manifest_digest": cd["hub"]["registry_catalogue_manifest"]["digest"]},
+                    "python": {"version": cd["python"]["version"], "lock_files_sha256": dict(cd["python"]["lock_files_sha256"])},
+                    "environment_profile": {"sha256": cd["environment_profile"]["sha256"]}}
+        if composite_mutate:
+            composite_mutate(verified)
         (rd / "tuple-resolved.json").write_text(json.dumps({"identity_file": "process/mvp-acceptance/candidate-identity.inputs.json",
-                                                            "identity_sha256": G.sha256_file(identity), "qualification_sha": QSHA, "run_id": RUN, "overrides": {}, "components": comps}))
+                                                            "identity_sha256": G.sha256_file(identity), "qualification_sha": QSHA, "run_id": RUN, "overrides": {}, "components": comps,
+                                                            "composite_verified": verified}))
         anchor = {"ref": "main", "files": {rel: {"main_blob": G.blob_id(ROOT / rel)} for rel in G.frozen_files(ROOT)}}
         (rd / "anchor.json").write_text(json.dumps(anchor))
         hub = self.tmp / "components" / "hub" / "tools" / "mvp_ingress"
@@ -169,7 +180,7 @@ class GateTests(unittest.TestCase):
         (rd / "mvp-chain/artifacts/ingress-modules.json").write_text(json.dumps(
             {"run_id": RUN, "modules": {"os": "/usr/lib/os.py", "tools.mvp_ingress.server": "/hub/tools/mvp_ingress/server.py"}, "sys_path": ["/hub"]}))
         rows = [{"id": t["row"], "status": (row_status or {}).get(t["row"], "PASS")} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
-        v3 = BATTERY["oracle"]["unchanged_files_sha256"][BATTERY["oracle"]["expectations_in_force"]]
+        v3 = BATTERY["oracle"]["unchanged_files_sha256"][BATTERY["oracle"]["expectations_in_force"]]  # the oracle in force (v6 in this proposal)
         (rd / "mvp-chain/results.json").write_text(json.dumps({"run_id": RUN, "expectations_sha256": v3, "rows": rows, "counts": {},
                                                                "tuple": {"heads": {n: c["sha"] for n, c in comps.items()}}}))
         vrun = {}
@@ -501,7 +512,8 @@ class RulingsTwoTests(GateTests):
         for rel, digest in doc["files"].items():
             self.assertEqual(G.sha256_file(ROOT / rel), digest, f"{rel} changed: regenerate the commitment as a NEW versioned candidate (python tools/mvp_acceptance_gate.py commit)")
         self.assertIn("PROPOSED", doc["status"])
-        self.assertEqual(doc["candidate_version"], "mvp-qualification-candidate-v1")
+        self.assertEqual(doc["candidate_version"], f"mvp-qualification-candidate-v{G.COMMITMENT_VERSION}")
+        self.assertEqual(G.COMMITMENT_VERSION, 4)
 
     def test_commitment_requires_an_independent_hash_and_detects_any_change(self):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="")["checks"]}["G-12"], "INCOMPLETE")
@@ -694,7 +706,7 @@ class RulingsTwoTests(GateTests):
         self.assertEqual(real_pin["forbidden_paths"], ["tools/mvp_ingress/capture_env_record.py"])
         self.assertIn("3fff3dfb0fb909774cdae77557689dde4cb90f12", real_pin["hub_pr"])
         self.assertIn("050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e", real_pin["hub_pr"])
-        self.assertEqual(real_pin["sha256"], "5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51")
+        self.assertEqual(real_pin["sha256"], "faf8f26117b9e0d4616528250b97099c037117fd5df60c7032ac8347464af461")
         self.assertIn("0e2b52a0", real_pin["hub_pr"])
         self.assertIn("bytes identical to the approved 050dcd67", real_pin["hub_pr"].replace("050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e", "050dcd67"))
         # the envelope names a script other than the pinned one
@@ -900,7 +912,7 @@ class ResolveTests(unittest.TestCase):
         doc = self.run_resolve()
         self.assertEqual(sorted(doc["components"]), sorted(G.EXPECTED_COMPONENTS))
         short = {"control_plane": "7a4bcd40", "runtime": "c5e97e87", "replay": "40012b8c", "evidence_pack": "7b9511f2", "odes": "1a5e1d30",
-                 "verifier": "c0b8ba1f", "action_manifest": "fa170815", "hub": "5b76c58a"}  # final PROVISIONAL, UNQUALIFIED tuple
+                 "verifier": "c0b8ba1f", "action_manifest": "fa170815", "hub": "c897266b"}  # final PROVISIONAL, UNQUALIFIED tuple
         for name, prefix in short.items():
             self.assertTrue(doc["components"][name]["sha"].startswith(prefix), name)
             self.assertEqual(doc["components"][name]["source"], "candidate-identity")
@@ -1168,6 +1180,100 @@ class OracleMessageAndIdentityTests(unittest.TestCase):
         self.assertTrue(all(isinstance(v["sha"], str) and re.fullmatch(r"[0-9a-f]{40}", v["sha"]) for v in pin.values()), "no null or short sha in the pin file")
 
 
+class ComposedV6BatteryTests(unittest.TestCase):
+    """The composed v6 proposal is the oracle in force and the battery, the suite default and the workflow agree (proposal only; Qualification owns the oracle)."""
+    V6 = "process/mvp-chain/expectations.proposed.v6.json"
+    V7 = "process/mvp-chain/expectations.proposed.v7.json"
+
+    @staticmethod
+    def _entry(test_id):
+        return next(t for t in BATTERY["tests"] if t["id"] == test_id)
+
+    def test_v7_is_in_force_with_its_own_hash_and_v1_to_v3_and_v6_stay_listed(self):
+        oracle = BATTERY["oracle"]
+        self.assertEqual(oracle["expectations_in_force"], self.V7)
+        self.assertEqual(oracle["unchanged_files_sha256"][self.V7], G.sha256_file(ROOT / self.V7))
+        self.assertEqual(oracle["unchanged_files_sha256"][self.V6], G.sha256_file(ROOT / self.V6))
+        self.assertEqual(oracle["unchanged_files_sha256"][self.V6], "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a")
+        for v in (1, 2, 3):
+            rel = f"process/mvp-chain/expectations.proposed.v{v}.json"
+            self.assertEqual(oracle["unchanged_files_sha256"][rel], G.sha256_file(ROOT / rel))
+        self.assertIn(self.V7, G.frozen_files(ROOT))
+        self.assertIn(self.V6, G.frozen_files(ROOT))
+
+    def test_nc2_06_is_the_oracle_row_entry_of_test_mvp_chain_not_of_the_ambiguity_file(self):
+        entry = self._entry("NC2-06")
+        self.assertEqual({k: entry[k] for k in ("kind", "invocation", "file", "test", "row")},
+                         {"kind": "oracle_row", "invocation": "mvp-chain", "file": "suites/mvp-chain/test_mvp_chain.py", "test": "test_row[NC2-06]", "row": "NC2-06"})
+        ids = [t["id"] for t in BATTERY["tests"]]
+        self.assertEqual(ids[ids.index("NC2-05") + 1], "NC2-06")
+        self.assertEqual([t for t in BATTERY["tests"] if t["kind"] == "oracle_row" and t["file"].endswith("test_ingress_ambiguity.py")], [])
+
+    def test_g03_passes_with_v6_and_is_incomplete_without_nc2_06(self):
+        gate = G.Gate()
+        G.check_battery_covers_oracle(gate, ROOT, BATTERY)
+        self.assertEqual(gate.checks[0]["status"], "PASS", gate.checks[0]["detail"])
+        trimmed = copy.deepcopy(BATTERY)
+        trimmed["tests"] = [t for t in trimmed["tests"] if t["id"] != "NC2-06"]
+        gate = G.Gate()
+        G.check_battery_covers_oracle(gate, ROOT, trimmed)
+        self.assertEqual(gate.checks[0]["status"], "INCOMPLETE")
+        self.assertIn("NC2-06", gate.checks[0]["detail"])
+
+    def test_suite_default_expectations_is_the_oracle_in_force(self):
+        text = (ROOT / "suites/mvp-chain/conftest.py").read_text()
+        self.assertIn('ROOT / "process" / "mvp-chain" / "expectations.proposed.v7.json"', text)
+        self.assertNotIn('expectations.proposed.v3.json")', text)
+
+    def test_supplementary_entries_cover_exactly_the_collected_tests_of_the_two_files(self):
+        if importlib.util.find_spec("pytest") is None:  # the unittest-only CI jobs install no pytest; the pytest runs (and gate G-13 in a run) do check it
+            self.skipTest("pytest is not installed in this environment: the collection cross-check needs it")
+        env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+        out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "suites/mvp-chain/test_kwflow.py",
+                              "suites/mvp-chain/test_ingress_ambiguity.py"], cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
+        collected = {l.strip() for l in out.splitlines() if l.startswith("suites/mvp-chain/") and "::" in l}
+        listed = {f"{t['file']}::{t['test']}" for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
+        self.assertEqual(collected, listed)
+        kinds = {t["file"]: t["kind"] for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
+        self.assertEqual(kinds, {"suites/mvp-chain/test_kwflow.py": "supplementary_nc4_03_predicate",
+                                 "suites/mvp-chain/test_ingress_ambiguity.py": "supplementary_nc2_06_negative_control"})
+        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 183)
+        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc2_06_negative_control"]), 6)
+
+    def test_workflow_collect_and_run_lists_equal_the_battery_paths(self):
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        want = set(BATTERY["invocations"]["mvp-chain"]["paths"])
+        collect = wf[wf.index("--collect-only -q -p no:cacheprovider \\\n            suites/mvp-chain"):]
+        collect = collect[:collect.index("tee")]
+        run = wf[wf.index("-p exchange_exclusion_plugin \\\n            suites/mvp-chain"):]
+        run = run[:run.index("-o junit_suite_name")]
+        for label, block in (("collect", collect), ("run", run)):
+            self.assertEqual(set(re.findall(r"suites/mvp-chain/[A-Za-z0-9_]+\.py", block)), want, label)
+
+    def test_a_supplementary_test_that_is_skipped_or_missing_is_incomplete(self):
+        rows = [{"id": t["row"], "status": "PASS"} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
+        tmp = Path(tempfile.mkdtemp(prefix="supp-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        collected = {t["invocation"]: [] for t in BATTERY["tests"]}
+        junit = {tag: [] for tag in collected}
+        target = next(t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate")
+        for t in BATTERY["tests"]:
+            key = f"{t['file']}::{t['test']}"
+            collected[t["invocation"]].append(key)
+            if t is target:
+                junit[t["invocation"]].append((t["file"], t["test"], "skipped"))
+            else:
+                junit[t["invocation"]].append((t["file"], t["test"], "passed"))
+        for tag, inv in BATTERY["invocations"].items():
+            (tmp / inv["collected"]).write_text("\n".join(collected.get(tag, [])) + "\n")
+            cases = "".join(f'<testcase classname="{f[:-3].replace("/", ".")}" name="{n}">{"<skipped/>" if st == "skipped" else ""}</testcase>' for f, n, st in junit.get(tag, []))
+            (tmp / inv["junit"]).write_text(f'<testsuites><testsuite name="x">{cases}</testsuite></testsuites>')
+        gate = G.Gate()
+        G.check_battery_execution(gate, tmp, BATTERY, {"rows": rows})
+        status = {c["id"]: c for c in gate.checks}
+        self.assertEqual(status["G-05"]["status"], "INCOMPLETE", status["G-05"]["detail"])
+        self.assertIn(target["id"], status["G-05"]["detail"])
+
 class ImportAnalysisTests(unittest.TestCase):
     """The static import analysis behind the candidate commitment is cached by file CONTENT only; the resolution against a root is never cached."""
 
@@ -1190,6 +1296,196 @@ class ImportAnalysisTests(unittest.TestCase):
         self.assertEqual(G._local_imports(tmp / "b", "suites/t.py"), set())
         (tmp / "b" / "suites" / "bad.py").write_text("def broken(:\n")
         self.assertEqual(G._local_imports(tmp / "b", "suites/bad.py"), set())
+
+
+class RequiredControlsTests(unittest.TestCase):
+    """Architect rulings Q2, Q5, Q6: the three required negative controls NC7-01..03, the route-B mediation entries, limitations and inventory-versus-claims text."""
+    V7 = json.loads((ROOT / "process/mvp-chain/expectations.proposed.v7.json").read_text())
+    V6 = json.loads((ROOT / "process/mvp-chain/expectations.proposed.v6.json").read_text())
+
+    def _verdict(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        import verdict
+        return verdict
+
+    @staticmethod
+    def _refused():
+        return {"status": "denied", "attempted": False, "effect_count": 0}
+
+    def _obs(self):
+        refused = self._refused()
+        claim_refused = {"claim_ok": False, "effect_count": 0}
+        return {"nc_authority_gates": {
+            "status": "ran", "control": {"status": "executed", "effect_count": 1},
+            "unauthorized": {"forged_claim_id": dict(refused), "not_authorized_decision": {"decision_result": "hold", **claim_refused}},
+            "stale_or_mismatched": {"claim_expired": dict(refused), "authority_advanced_after_claim": dict(refused), "envelope_amount_mismatch": dict(refused),
+                                    "envelope_grant_revision_mismatch": dict(refused), "resolver_revision_changed_before_claim": dict(claim_refused)},
+            "evidence": {"missing": dict(refused), "invalid_state": dict(refused), "expired": dict(refused), "missing_at_claim_issuance": dict(claim_refused)}}}
+
+    def _rows(self):
+        return {r["id"]: r for r in self.V7["rows"] if r["id"].startswith("NC7-")}
+
+    def test_v7_is_v6_plus_exactly_the_three_required_controls_and_the_launch_isolation_row(self):
+        self.assertEqual(sorted(self._rows()), ["NC7-01", "NC7-02", "NC7-03"])
+        self.assertEqual([r for r in self.V7["rows"] if not r["id"].startswith("NC7-") and r["id"] not in ("NC4-04", "NC4-03")], [r for r in self.V6["rows"] if r["id"] != "NC4-03"])
+        nc403 = lambda doc: next(r for r in doc["rows"] if r["id"] == "NC4-03")
+        self.assertEqual([a["obs"] for a in nc403(self.V7)["all"]], [a["obs"] for a in nc403(self.V6)["all"]])  # same predicates; only the reviewed values (file list, digest) follow the launcher change
+        for key in ("schema", "statuses", "semantics", "operators"):
+            self.assertEqual(self.V7[key], self.V6[key])
+        self.assertEqual(sum(r.get("mandatory", True) for r in self.V7["rows"]), 41)
+        self.assertTrue(all(r["mandatory"] is True for r in self._rows().values()))
+        self.assertEqual(self.V7["supersedes"]["v6_sha256"], G.sha256_file(ROOT / "process/mvp-chain/expectations.proposed.v6.json"))
+
+    def test_expected_verdicts_are_computed_from_observations(self):
+        v = self._verdict()
+        for rid, row in self._rows().items():
+            self.assertEqual(v.evaluate_row(row, self._obs())["status"], v.PASS, rid)
+            self.assertEqual(v.evaluate_row(row, {})["status"], v.NOT_RUN, rid)
+            blocked = {"nc_authority_gates": {"status": "blocked", "blocked_reason": "x"}}
+            self.assertEqual(v.evaluate_row(row, blocked)["status"], v.BLOCKED, rid)
+
+    def test_each_refusal_predicate_fails_when_an_effect_was_committed_or_the_control_cannot_commit(self):
+        v = self._verdict()
+        cases = {"NC7-01": ["unauthorized.forged_claim_id", "unauthorized.not_authorized_decision"],
+                 "NC7-02": ["stale_or_mismatched.claim_expired", "stale_or_mismatched.authority_advanced_after_claim", "stale_or_mismatched.envelope_amount_mismatch",
+                            "stale_or_mismatched.envelope_grant_revision_mismatch", "stale_or_mismatched.resolver_revision_changed_before_claim"],
+                 "NC7-03": ["evidence.missing", "evidence.invalid_state", "evidence.expired", "evidence.missing_at_claim_issuance"]}
+        for rid, paths in cases.items():
+            row = self._rows()[rid]
+            for path in paths:
+                obs = self._obs()
+                node = obs["nc_authority_gates"]
+                for part in path.split("."):
+                    node = node[part]
+                node["effect_count"] = 1
+                self.assertEqual(v.evaluate_row(row, obs)["status"], v.FAIL, f"{rid} {path}")
+                obs = self._obs()
+                node = obs["nc_authority_gates"]
+                for part in path.split("."):
+                    node = node[part]
+                del node["effect_count"]
+                self.assertEqual(v.evaluate_row(row, obs)["status"], v.FAIL, f"{rid} {path} missing observation")
+            for control in ({"status": "denied", "effect_count": 0}, {"status": "executed", "effect_count": 2}):
+                obs = self._obs()
+                obs["nc_authority_gates"]["control"] = control
+                self.assertEqual(v.evaluate_row(row, obs)["status"], v.FAIL, f"{rid} control {control}")
+        obs = self._obs()
+        obs["nc_authority_gates"]["unauthorized"]["not_authorized_decision"]["decision_result"] = "authorized"
+        self.assertEqual(v.evaluate_row(self._rows()["NC7-01"], obs)["status"], v.FAIL)
+        obs = self._obs()
+        obs["nc_authority_gates"]["unauthorized"]["forged_claim_id"]["attempted"] = True
+        self.assertEqual(v.evaluate_row(self._rows()["NC7-01"], obs)["status"], v.FAIL)
+
+    def test_battery_lists_the_three_rows_as_oracle_rows_after_nc6_04(self):
+        ids = [t["id"] for t in BATTERY["tests"]]
+        self.assertEqual(ids[ids.index("NC6-04") + 1:ids.index("NC6-04") + 4], ["NC7-01", "NC7-02", "NC7-03"])
+        for rid in ("NC7-01", "NC7-02", "NC7-03"):
+            t = next(x for x in BATTERY["tests"] if x["id"] == rid)
+            self.assertEqual((t["kind"], t["invocation"], t["file"], t["test"], t["row"]), ("oracle_row", "mvp-chain", "suites/mvp-chain/test_mvp_chain.py", f"test_row[{rid}]", rid))
+
+    def test_route_b_mediation_entries_map_only_refusal_tests_and_characterisations_stay_non_mandatory(self):
+        med = [t for t in BATTERY["tests"] if t["kind"] == "supplementary_route_b_mediation"]
+        self.assertEqual(len(med), 16)
+        self.assertTrue(all(t["invocation"] == "d2-route-b" and t["file"] == "suites/mvp-d2-route-b/test_inventory_negatives.py" for t in med))
+        self.assertFalse([t for t in med if "REACHABLE" in t["test"]])
+        non = [t for t in BATTERY["non_mandatory_tests"] if t["invocation"] == "d2-route-b"]
+        self.assertEqual(len(non), 6)
+        self.assertEqual(len([t for t in non if "REACHABLE" in t["test"]]), 5)
+        inv = BATTERY["invocations"]["d2-route-b"]
+        self.assertEqual(inv["paths"], ["suites/mvp-d2-route-b/test_inventory_negatives.py"])
+        self.assertFalse(inv["runs_as_root"])
+        self.assertIn("suites/mvp-d2-route-b", G.SUITE_DIRS)
+
+    def test_d2_entries_equal_the_collected_tests_of_the_d2_file(self):
+        if importlib.util.find_spec("pytest") is None:
+            self.skipTest("pytest is not installed in this environment: the collection cross-check needs it")
+        if not (os.environ.get("D2_CONTROL_PLANE_DIR") and os.environ.get("D2_RUNTIME_DIR")):
+            self.skipTest("D2_CONTROL_PLANE_DIR and D2_RUNTIME_DIR (component checkouts) are needed to import the d2 file")
+        env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+        out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "suites/mvp-d2-route-b/test_inventory_negatives.py"],
+                             cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
+        collected = {l.strip() for l in out.splitlines() if l.startswith("suites/mvp-d2-route-b/") and "::" in l}
+        listed = {f"{t['file']}::{t['test']}" for t in BATTERY["tests"] + BATTERY["non_mandatory_tests"] if t["invocation"] == "d2-route-b"}
+        self.assertEqual(collected, listed)
+
+    def test_workflow_runs_and_collects_the_d2_invocation_with_the_tuple_pin(self):
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        self.assertIn("collected-d2-route-b.txt", wf)
+        self.assertIn("junit-d2-route-b.xml", wf)
+        self.assertIn("pytest-exit-d2-route-b.txt", wf)
+        self.assertGreaterEqual(wf.count('D2_CONTROL_PLANE_PIN="${{ steps.tuple.outputs.control_plane }}"'), 2)
+        self.assertIn("D2_RUNTIME_DIR: ${{ github.workspace }}/components/runtime", wf)
+
+    def test_os_kill_is_unqualified_and_inventory_is_not_claims(self):
+        lim = self.V7["limitations"]["os_level_process_kill"]
+        self.assertTrue(lim.startswith("UNQUALIFIED"))
+        self.assertIn("synthetic fault injection", lim)
+        self.assertIn("41", self.V7["inventory_vs_claims"]["unique_governance_claims"])
+        self.assertIn("not additional claims", self.V7["inventory_vs_claims"]["test_inventory"])
+        self.assertIn("claims", (ROOT / "process/mvp-acceptance/README.md").read_text())
+
+
+class CompositeIdentityAndLaunchTests(GateTests):
+    """Round 3/4: composite candidate identity (G-15) and the code-level launch isolation row NC4-04."""
+    IDENT = json.loads((ROOT / "process/mvp-acceptance/candidate-identity.inputs.json").read_text())
+
+    def test_declared_composite_values_match_the_real_repository_files(self):
+        c = self.IDENT["composite"]
+        self.assertEqual(c["hub"]["revision"], self.IDENT["components"]["hub"]["sha"])
+        self.assertEqual(c["environment_profile"]["sha256"], G.sha256_file(ROOT / c["environment_profile"]["path"]))
+        for rel, digest in c["python"]["lock_files_sha256"].items():
+            self.assertEqual(G.sha256_file(ROOT / rel), digest, rel)
+        self.assertEqual(c["hub"]["capture_script_sha256"], json.loads((ROOT / G.ENV_PROFILE_FILE).read_text())["hub_record"]["capture_script"]["sha256"])
+        self.assertEqual(c["hub"]["launcher_entry_point"], "tools/mvp_ingress/launch.py")
+        self.assertEqual(sorted(c["hub"]["git_tree_ids"]), ["tools/mvp_env_record", "tools/mvp_ingress"])
+
+    def test_composite_matches_is_pass(self):
+        self.assertEqual(self.verdict()[1]["G-15"], "PASS")
+
+    def test_every_composite_member_mismatch_is_fail_and_missing_is_incomplete(self):
+        cases = {"tree id ingress": lambda v: v["hub"]["git_tree_ids"].update({"tools/mvp_ingress": "0" * 40}),
+                 "tree id env record": lambda v: v["hub"]["git_tree_ids"].update({"tools/mvp_env_record": "0" * 40}),
+                 "launcher": lambda v: v["hub"].update(launcher_entry_point_is_file=False),
+                 "capture": lambda v: v["hub"].update(capture_script_sha256="0" * 64),
+                 "registry digest": lambda v: v["hub"].update(registry_catalogue_manifest_digest="sha256:" + "0" * 64),
+                 "python": lambda v: v["python"].update(version="3.12"),
+                 "lock": lambda v: v["python"]["lock_files_sha256"].update({next(iter(v["python"]["lock_files_sha256"])): "0" * 64}),
+                 "profile": lambda v: v["environment_profile"].update(sha256="0" * 64),
+                 "hub revision": lambda v: v["hub"].update(revision="1" * 40)}
+        for name, mut in cases.items():
+            with self.subTest(name):
+                self.build(composite_mutate=mut)
+                self.assertEqual(self.verdict()[1]["G-15"], "FAIL")
+        self.build()
+        doc = json.loads((self.run_dir / "tuple-resolved.json").read_text())
+        del doc["composite_verified"]
+        (self.run_dir / "tuple-resolved.json").write_text(json.dumps(doc))
+        self.assertEqual(self.verdict()[1]["G-15"], "INCOMPLETE")
+
+    def test_nc4_04_is_a_mandatory_oracle_row_with_launch_predicates_only(self):
+        rows = {r["id"]: r for r in RequiredControlsTests.V7["rows"]}
+        row = rows["NC4-04"]
+        self.assertTrue(row["mandatory"])
+        self.assertEqual({a["obs"] for a in row["all"]}, {f"nc_unmediated.launch.{k}" for k in ("argv_flags", "entry_point_is_launch_py", "allow_uid_present", "allow_uid_equals_client", "legacy_module_form_refused")})
+        self.assertIn("NOT host isolation", row["title"])
+        t = next(x for x in BATTERY["tests"] if x["id"] == "NC4-04")
+        self.assertEqual((t["kind"], t["test"], t["row"]), ("oracle_row", "test_row[NC4-04]", "NC4-04"))
+
+    def test_nc4_04_verdicts_from_synthetic_launch_evidence(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        import verdict
+        row = {r["id"]: r for r in RequiredControlsTests.V7["rows"]}["NC4-04"]
+        good = {"nc_unmediated": {"status": "ran", "launch": {"argv_flags": ["-I", "-B"], "entry_point_is_launch_py": True, "allow_uid_present": True,
+                                                              "allow_uid_equals_client": True, "legacy_module_form_refused": True}}}
+        self.assertEqual(verdict.evaluate_row(row, good)["status"], verdict.PASS)
+        for key, bad in (("argv_flags", ["-B"]), ("argv_flags", ["-I"]), ("entry_point_is_launch_py", False), ("allow_uid_present", False),
+                         ("allow_uid_equals_client", False), ("legacy_module_form_refused", False)):
+            obs = json.loads(json.dumps(good))
+            obs["nc_unmediated"]["launch"][key] = bad
+            self.assertEqual(verdict.evaluate_row(row, obs)["status"], verdict.FAIL, (key, bad))
+        obs = json.loads(json.dumps(good))
+        del obs["nc_unmediated"]["launch"]
+        self.assertEqual(verdict.evaluate_row(row, obs)["status"], verdict.FAIL)
 
 
 if __name__ == "__main__":
