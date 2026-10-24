@@ -180,7 +180,7 @@ class Gate:
 
     def verdict(self) -> str:
         statuses = {c["status"] for c in self.checks}
-        if INCOMPLETE in statuses:
+        if INCOMPLETE in statuses or statuses - {PASS, FAIL, INCOMPLETE}:  # a status this gate does not know is never an ACCEPT
             return INCOMPLETE
         if FAIL in statuses:
             return REJECT
@@ -926,7 +926,15 @@ def check_environment_record(gate: Gate, run_dir: Path, repo_root: Path, compone
         fail.append(f"schema {rec.get('schema')!r} != {profile['schema']!r}")
     if rec.get("record_sha256") != _record_digest(rec):
         fail.append("record_sha256 does not match the record body (altered or hand-edited)")
-    checks = {c.get("id"): c for c in rec.get("checks", []) if isinstance(c, dict)}
+    rows = [c for c in rec.get("checks", []) if isinstance(c, dict)]
+    ids = [c.get("id") for c in rows]
+    dup = sorted({str(i) for i in ids if ids.count(i) > 1})
+    if dup:  # the dict below would keep only the last row, hiding a FAIL behind a later PASS
+        fail.append(f"record has duplicate check ids (a later row could hide an earlier FAIL): {dup}")
+    odd = sorted({f"{c.get('id')}={c.get('status')!r}" for c in rows if c.get("status") not in ("PASS", "FAIL", "BLOCKED")})
+    if odd:
+        fail.append(f"record has check statuses outside PASS/FAIL/BLOCKED: {odd}")
+    checks = {c.get("id"): c for c in rows}
     derived = "FAIL" if any(c.get("status") == "FAIL" for c in checks.values()) else ("BLOCKED" if any(c.get("status") == "BLOCKED" for c in checks.values()) else "PASS")
     if rec.get("overall") != derived:
         fail.append(f"recorded overall {rec.get('overall')!r} disagrees with its checks ({derived})")

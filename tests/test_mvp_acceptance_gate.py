@@ -1648,7 +1648,7 @@ class CopilotReviewFix2Tests(GateTests):
         out = []
         for line in joined.splitlines():
             line = line.strip()
-            if "-m pytest" not in line and not any(f"mvp_acceptance_gate.py {c} " in line for c in ("anchor", "resolve", "verify-checkouts")):
+            if "-m pytest" not in line and not any(f"mvp_acceptance_gate.py {c} " in line for c in ("anchor", "resolve", "preflight-hub", "verify-checkouts")):
                 continue
             line = line.replace("${{ steps.tuple.outputs.control_plane }}", "$CP").replace("$GITHUB_WORKSPACE", "$WS").replace("python3 tools", "python tools")
             out.append(re.sub(r"\s+", " ", line))
@@ -1676,6 +1676,19 @@ class CopilotReviewFix2Tests(GateTests):
         for key, value in re.findall(r'echo "(MVP_[A-Z_]+)=([^"$]+)" >> "\$GITHUB_ENV"', wf_text):  # provisioning-step exports
             self.assertEqual(exported.get(key), value, key)
 
+    def test_runbook_lists_the_workflows_profile_provisioning_and_safe_directory_commands(self):
+        wf_text = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        runbook = (ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text()
+        block = wf_text.split("Provision the approved ingress profile", 1)[1].split("- name: Anchor", 1)[0]
+        lines = [l.strip().replace("$GITHUB_WORKSPACE", "$WS") for l in block.splitlines() if l.strip().startswith(("sudo ", "[[ -z", "d=", "cat /proc"))]
+        self.assertGreaterEqual(len(lines), 8)
+        for line in lines:
+            self.assertIn(line.replace('::warning::', ''), runbook.replace("::warning::", ""), line)
+        for line in ("git config --global --add safe.directory '*'", "sudo git config --global --add safe.directory '*'"):
+            self.assertIn(line, runbook)
+        self.assertIn("2 GB", runbook)
+        self.assertIn("NEVER at the Qualification root", runbook)
+
     def test_runbook_commands_mirror_the_workflow_steps(self):
         wf = self._commands((ROOT / ".github/workflows/mvp-acceptance.yml").read_text())
         rb = self._commands((ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text())
@@ -1695,6 +1708,13 @@ class CopilotReviewFix2Tests(GateTests):
         self.addCleanup(sys.path.remove, str(ROOT / "suites/mvp-chain"))
         for m in ("_chain", "_state"):
             sys.modules.pop(m, None)
+        try:
+            import pytest  # noqa: F401
+        except ImportError:  # the unittest-discover jobs install no pytest; _chain only touches it inside Ctx, which these tests never construct
+            import types
+            stub = types.ModuleType("pytest")
+            sys.modules["pytest"] = stub
+            self.addCleanup(sys.modules.pop, "pytest", None)
         import _chain
         self.addCleanup(lambda: [sys.modules.pop(m, None) for m in ("_chain", "_state")])
         return _chain
@@ -1740,6 +1760,33 @@ class CopilotReviewFix2Tests(GateTests):
             with self.subTest(bad):
                 self.assertEqual(_ingress.unexpected_probe_errors({**genuine, "open_destination": bad}), {"open_destination": bad})
                 self.assertIn("responses[0]", _ingress.unexpected_probe_errors({**genuine, "responses": [{"transport_error": bad}]}))
+
+    def test_g11_refuses_duplicate_check_ids_and_unknown_statuses(self):
+        def dup(rec):  # first FAIL, then PASS for the same id, overall PASS: the attack a last-row-wins dict would accept
+            row = next(c for c in rec["checks"] if c["id"] == "identity.ingress_not_root")
+            bad = dict(row, status="FAIL")
+            rec["checks"].insert(0, bad)
+            rec["overall"] = "PASS"
+        def warn(rec):
+            next(c for c in rec["checks"] if c["id"] == "isolation.ptrace_scope")["status"] = "WARN"
+            rec["overall"] = "PASS"
+        for label, mut in (("duplicate", dup), ("WARN", warn)):
+            with self.subTest(label):
+                self.build(env_mutate=mut)
+                v, checks, doc = self.verdict()
+                self.assertEqual(checks["G-11"], "FAIL")
+                self.assertNotEqual(v, "ACCEPT")
+
+    def test_an_unknown_gate_status_is_incomplete_never_accept(self):
+        g = G.Gate()
+        g.add("X-1", "PASS", "ok")
+        self.assertEqual(g.verdict(), "ACCEPT")
+        g.add("X-2", "WARN", "unknown")
+        self.assertEqual(g.verdict(), "INCOMPLETE")
+        h = G.Gate()
+        h.add("X-1", "FAIL", "f")
+        h.add("X-2", "MAYBE", "u")
+        self.assertEqual(h.verdict(), "INCOMPLETE")
 
     def test_every_attempt_call_site_in_the_chain_states_its_expected_refusals_or_is_listed_informational(self):
         import ast

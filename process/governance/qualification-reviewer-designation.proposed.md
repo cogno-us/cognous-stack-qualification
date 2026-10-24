@@ -48,6 +48,10 @@ Status: DRAFT prepared by the builder for the Cognous operator. Not approved, no
 | #226 | copilot-pull-request-reviewer[bot] | COMMENTED | 94fc06bd |
 | #223 | copilot-pull-request-reviewer[bot] | COMMENTED | b3123aee |
 | #225 | copilot-pull-request-reviewer[bot] | COMMENTED | e931f18c |
+| #225 | copilot-pull-request-reviewer[bot] | COMMENTED (comment-only; not an approval) | 25979b00 |
+| #225 | copilot-pull-request-reviewer[bot] | COMMENTED (comment-only; not an approval) | 528bee3f |
+| #225 | copilot-pull-request-reviewer[bot] | COMMENTED (comment-only; not an approval) | 9456ee10 |
+| #225 | copilot-pull-request-reviewer[bot] | COMMENTED (comment-only; "No open issues" on this head is not an approval or an evidence review) | 1024b7dc |
 
 Material fixes were pushed afterwards and re-review was requested; the commits reviewed in any later review must be added to this table by the operator or the builder.
 
@@ -55,8 +59,12 @@ Material fixes were pushed afterwards and re-review was requested; the commits r
 
 2026-10-24, operator statement in the coordinating session, verbatim: "there is no second llm for now. i grant approval."
 
-Interpretation, stated as the coordinator's reading and no broader: the operator approves (a) adoption of the successor trusted-host distinct-UID profile scope (the approved wording quoted in `process/mvp-acceptance/trusted-host-successor-profile.proposed.md`), and (b) this reviewer designation record (GitHub Copilot code review, identity copilot-pull-request-reviewer[bot], review state COMMENTED; Qualification merges delegated to the coordinator Claude session under operator authority).
+The operator statement above was RELAYED by the coordinating session, not verified by the builder. Interpretation, stated as the coordinator's reading and no broader: the operator approves (a) adoption of the successor trusted-host distinct-UID profile scope (the approved wording quoted in `process/mvp-acceptance/trusted-host-successor-profile.proposed.md`), and (b) this reviewer designation record (GitHub Copilot code review, identity copilot-pull-request-reviewer[bot], review state COMMENTED; Qualification merges delegated to the coordinator Claude session under operator authority).
 
 Not approved by that statement: adoption of the baseline record (`process/governance/qualification-baseline.proposed.md` stays PREPARED, NOT ADOPTED until #225 is merged and the final commitment and heads are fixed; the operator's adoption must reference exact digests), any acceptance, qualification, release or production decision.
 
 Evidence review: no second LLM is available now, so the separate evidence review is NOT performed (pending). Every report must say: **independent evidence review: not performed (no reviewer available)**. It must not claim independent qualification or independent evidence adjudication. Copilot code review is a code review and is not an evidence review.
+
+## Terminology (architect Round 6, 2026-10-24)
+
+Reviews or audits done by coordinator-directed Claude workers (including the loosening audit and the runbook rehearsal of #225) are called "builder-side inspection" everywhere. They are never described as independent and do not count toward CA04 or CA23 independence. Constitution revision 6f7f2731 is provisional guidance only; no adoption is claimed here. NC4-03 and NC4-04 limits are listed in `process/mvp-acceptance/README.md`; whether the uncovered mechanisms are reachable in the exact candidate is being established separately and is not claimed either way.

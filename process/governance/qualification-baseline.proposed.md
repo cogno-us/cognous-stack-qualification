@@ -7,10 +7,10 @@ Status: prepared input for the one exact Qualification baseline (target 2026-10-
 | expectations v3 (frozen) (`process/mvp-chain/expectations.proposed.v3.json`) | `e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4` |
 | expectations v6 (proposed baseline) (`process/mvp-chain/expectations.proposed.v6.json`) | `fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a` |
 | expectations v7 (in force: v6 + NC7-01..03 + NC4-04) (`process/mvp-chain/expectations.proposed.v7.json`) | `0dc17a1984e1c3c153f3cb6e3f7fdd4dad87cdc4414728a20df0f8174e402f6b` |
-| mandatory battery (`process/mvp-acceptance/mandatory-battery.proposed.v1.json`) | `b81c1d2c3a7310ec17d944b8e92e1717da903a97c95b7d54c6f419e201df6525` |
+| mandatory battery (`process/mvp-acceptance/mandatory-battery.proposed.v1.json`) | `a520e9e92534f196a48d4229d984231abbb71c23dfe63b573d919d2285bcdb16` |
 | candidate identity (tuple + composite) (`process/mvp-acceptance/candidate-identity.inputs.json`) | `e7484a0afa1758b3925801ae6cf70a718f676eaa593addb9c20d739b9654c7fb` |
-| gate (`tools/mvp_acceptance_gate.py`) | `885e4ce457eb30877f380b0f16b70a6f5e7836a707fb927fee4ad25e74fa31f3` |
-| acceptance workflow (`.github/workflows/mvp-acceptance.yml`) | `deabc77be43c3f01d19f500757a02fdf28d352eeb2d8ce6d7ddd4d86a016c6e3` |
+| gate (`tools/mvp_acceptance_gate.py`) | `90f90181b029e5f96768c717c5bf68398dcfb8ae23c4d404d2c2e369bf28c911` |
+| acceptance workflow (`.github/workflows/mvp-acceptance.yml`) | `f17f55ea8840c6c45ba87ed863c03e7470c069ec4fde47a15fb1d4f9f60067ba` |
 | environment profile (original, unchanged) (`process/mvp-acceptance/environment-profile.proposed.v1.json`) | `78518a9fa49e372203bb902e5ff59ec9dd5296234930c68d2cc6b5a42f4f9207` |
 | successor profile (proposal) (`process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json`) | `a8d7e526dd3d8488a399434651439f2c87d8c627e7995c20a421291eab0f1ea5` |
 | harness: _ingress.py (`suites/mvp-chain/_ingress.py`) | `99d011d0ba899d961e893d5e5ad2c5b5c63af314ddcf41faaa952ddd6a901e31` |
