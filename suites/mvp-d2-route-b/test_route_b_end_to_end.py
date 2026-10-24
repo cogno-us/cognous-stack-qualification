@@ -252,24 +252,8 @@ def test_approval_revoked_before_effect_is_refused_zero_effects(tmp_path):
         mp.undo()
 
 
-def test_approval_revocation_observed_behaviour_is_reversible_effect_follows_reactivation(tmp_path):
-    """CHARACTERISATION of the finding: _update_required_row lets a revoked approval go back to active; the issued claim
-    then executes. This asserts what the code does at the tuple; it does not endorse it."""
-    mp, flow, dest, ex, claim = _build(tmp_path)
-    try:
-        ref = _approval_ref(claim)
-        dest.set_approval_status(ref, status="revoked")
-        assert _run(flow, ex, claim).status == "denied"
-        dest.set_approval_status(ref, status="active")  # no error: not terminal
-        r = _run(flow, ex, claim)
-        assert r.status == "executed"
-        assert _effects(dest) == [flow.d1.effect_id]
-    finally:
-        mp.undo()
-
-
 def test_approval_revocation_is_terminal_like_grant_revocation(tmp_path):
-    """EXPECTATION (parity with grants: revoked is terminal per revision). Expected to FAIL at this tuple; not marked xfail."""
+    """EXPECTATION (parity with grants: revoked is terminal per revision). Not marked xfail. Failed at Runtime ec728da6; the F3 (Runtime PR #144) targets it."""
     mp, flow, dest, ex, claim = _build(tmp_path)
     try:
         ref = _approval_ref(claim)
