@@ -15,3 +15,9 @@ What it keeps: distinct ingress/client uids; non-root ingress; IPC group and fil
 What it excludes: same-uid adversaries, any code running as the ingress uid, privileged/root host compromise, tampering with the trusted Python installation.
 
 What it does not say: source review alone cannot establish deployed host isolation; without an environment with distinct identities the successor host-isolation claim is also INCOMPLETE; no successor qualification is claimed. It needs operator approval of the scope change and independent Qualification owner approval before any acceptance run.
+
+## Operator disposition (dated 2026-10-24; recorded by the builder at the coordinator's instruction)
+
+Operator statement, verbatim: "there is no second llm for now. i grant approval."
+
+Coordinator's reading, no broader: the operator approves adoption of this successor trusted-host distinct-UID profile SCOPE (the approved wording above). The file stays a separately identified proposal; the original restricted-host profile and its INCOMPLETE NC4 host requirements are unchanged. This does not approve the baseline record (still PREPARED, NOT ADOPTED), any acceptance run, qualification, release or production. Independent evidence review: not performed (no reviewer available); host-isolation properties not independently exercised stay INCOMPLETE.

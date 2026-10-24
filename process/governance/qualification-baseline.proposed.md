@@ -13,8 +13,8 @@ Status: prepared input for the one exact Qualification baseline (target 2026-10-
 | acceptance workflow (`.github/workflows/mvp-acceptance.yml`) | `deabc77be43c3f01d19f500757a02fdf28d352eeb2d8ce6d7ddd4d86a016c6e3` |
 | environment profile (original, unchanged) (`process/mvp-acceptance/environment-profile.proposed.v1.json`) | `78518a9fa49e372203bb902e5ff59ec9dd5296234930c68d2cc6b5a42f4f9207` |
 | successor profile (proposal) (`process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json`) | `a8d7e526dd3d8488a399434651439f2c87d8c627e7995c20a421291eab0f1ea5` |
-| harness: _ingress.py (`suites/mvp-chain/_ingress.py`) | `4224bbef0752e05071ad0de78dd0c9ac427df3647b9c6110db1c93c4032788aa` |
-| harness: _chain.py (`suites/mvp-chain/_chain.py`) | `a3c6774ef30c7201eaa082f97133bc76ff251e09e4e84064d6c43a6ad8bb0f97` |
+| harness: _ingress.py (`suites/mvp-chain/_ingress.py`) | `99d011d0ba899d961e893d5e5ad2c5b5c63af314ddcf41faaa952ddd6a901e31` |
+| harness: _chain.py (`suites/mvp-chain/_chain.py`) | `8899fa24b7389d46e345aed76cbc031e1481f7ea7ff345ab71c97dea8b2396b5` |
 | harness: _kwflow.py (`suites/mvp-chain/_kwflow.py`) | `ce84b3d299c033944b2bf12a2bf739edfc56e738beb13d92d77fe70f650ce70b` |
 | harness: verdict.py (`suites/mvp-chain/verdict.py`) | `6fd42002ccc2f7836a512888f871a9a71f7f7aee7ed12c0e6242d3c83cc6b0e4` |
 

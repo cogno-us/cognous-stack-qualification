@@ -67,11 +67,24 @@ def sha256_json(value) -> str:
     return sha256_bytes(json.dumps(value, sort_keys=True, default=str, separators=(",", ":")).encode())
 
 
-def attempt(fn):
+def attempt(fn, expected=None):
+    """Run fn and record the outcome. ``expected`` is the tuple of exception types that are a GENUINE refusal for this call: an exception of any other type is
+    not refusal evidence (a TypeError from a harness or component bug must never turn a negative control into a pass), so it propagates to run_scenario(), which
+    records the scenario as BLOCKED (INCOMPLETE verdict). ``expected=None`` (informational and success-path calls only) records any exception."""
     try:
         return {"ok": True, "value": fn()}
     except Exception as exc:  # noqa: BLE001
+        if expected is not None and not isinstance(exc, tuple(expected)):
+            raise
         return {"ok": False, "error": {"type": type(exc).__name__, "code": getattr(exc, "code", None), "message": str(exc)[:400]}}
+
+
+# Genuine refusal types of the candidate components: the Control Plane / executor refuse authority with PermissionError; the Replay, Pack and executor export
+# refuse malformed or contradicted evidence with ValueError subclasses (ImportContractError, validation errors); the destination store reports outages as sqlite3.Error / OSError.
+REFUSALS_AUTHORITY = (PermissionError,)
+REFUSALS_VALUE = (ValueError,)
+REFUSALS_STORE = (sqlite3.Error, OSError)
+NO_EXCEPTION = ()  # the component reports this refusal as a returned denied result; any raised exception is a harness or component error
 
 
 def err_of(step):
@@ -161,7 +174,7 @@ def replay_import(raw, proposal, export):
         bundle = import_bounded_workflow(copy.deepcopy(raw), proposal=copy.deepcopy(proposal), moltbot_export=copy.deepcopy(export),
                                          control_plane_revision=CONTROL_PLANE_P2_REVISION)
         return bundle
-    step = attempt(go)
+    step = attempt(go, expected=REFUSALS_VALUE)
     out = {"ok": step["ok"], "error": err_of(step)}
     if step["ok"]:
         bundle = step["value"]
@@ -179,7 +192,7 @@ def pack_import(manifest, bundle):
     def go():
         pack = import_manifest_reconstruction(manifest, bundle.model_dump(mode="json"))
         return pack, validate_evidence_pack(pack).valid
-    step = attempt(go)
+    step = attempt(go, expected=REFUSALS_VALUE)
     out = {"ok": step["ok"], "error": err_of(step), "valid": None}
     if step["ok"]:
         pack, valid = step["value"]
@@ -357,7 +370,7 @@ def nc_revocation(work):
     ctx = Ctx(work / "c")
     try:
         next(iter(ctx.flow.r.statuses.values())).status = "revoked"
-        step = attempt(ctx.provision)
+        step = attempt(ctx.provision, REFUSALS_AUTHORITY)
         obs["resolver_revoked"] = {"claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
     finally:
         ctx.close()
@@ -367,8 +380,8 @@ def nc_revocation(work):
         claim = ctx.provision()
         approval_ref = ctx.flow.r.contexts[ctx.flow.PROFILE]["grant"]["approval_refs"][0]
         ctx.dest.set_approval_status(approval_ref, status="revoked")
-        step = attempt(lambda: ctx.dest.set_approval_status(approval_ref, status="active"))
-        r = attempt(lambda: ctx.execute(claim.claim_id))
+        step = attempt(lambda: ctx.dest.set_approval_status(approval_ref, status="active"), REFUSALS_AUTHORITY)
+        r = attempt(lambda: ctx.execute(claim.claim_id), NO_EXCEPTION)
         obs["approval_terminality"] = {"reactivation_accepted": step["ok"], "reactivation_error": err_of(step),
                                        **(result_obs(r["value"]) if r["ok"] else {"status": None, "raised": err_of(r)}), "effect_count": ctx.count()}
     finally:
@@ -378,8 +391,8 @@ def nc_revocation(work):
         claim = ctx.provision()
         gid = ctx.flow.d1.binding.grant_id
         ctx.dest.set_grant_status(gid, status="revoked")
-        step = attempt(lambda: ctx.dest.set_grant_status(gid, status="active"))
-        r = attempt(lambda: ctx.execute(claim.claim_id))
+        step = attempt(lambda: ctx.dest.set_grant_status(gid, status="active"), REFUSALS_AUTHORITY)
+        r = attempt(lambda: ctx.execute(claim.claim_id), NO_EXCEPTION)
         obs["grant_terminality"] = {"reactivation_accepted": step["ok"], "reactivation_error": err_of(step),
                                     **(result_obs(r["value"]) if r["ok"] else {"status": None, "raised": err_of(r)}), "effect_count": ctx.count()}
     finally:
@@ -401,7 +414,7 @@ def nc_ambiguous(work):
         rec = first.observation if isinstance(first.observation, dict) else {}
         obs["recovery"] = {"retry_eligible": rec.get("retry_eligible"), "status": rec.get("status"), "state": rec.get("state"),
                            "reason": rec.get("reason"), "status_or_state": rec.get("status") if rec.get("status") not in (None, "unknown") else rec.get("state")}
-        retry = attempt(lambda: ctx.execute(claim.claim_id))
+        retry = attempt(lambda: ctx.execute(claim.claim_id), NO_EXCEPTION)
         obs["retry"] = {**result_obs(retry["value"]), "raised": False} if retry["ok"] else {"status": None, "raised": True, "error": err_of(retry)}
         obs["destination"]["effect_count"] = ctx.count()
         recon = attempt(lambda: ctx.dest.reconcile_claim(claim.claim_id, __import__("engine.safe_executor", fromlist=["x"]).snapshot_envelope(ctx.flow.envelope(ctx.flow.d1))))
@@ -446,9 +459,9 @@ def nc_duplicate(work):
         obs["first"] = result_obs(first)
         again = ctx.execute(claim.claim_id)
         obs["same_claim"] = {**result_obs(again), "effect_count": ctx.count()}
-        step = attempt(ctx.provision)
+        step = attempt(ctx.provision, REFUSALS_AUTHORITY)
         if step["ok"]:
-            second = attempt(lambda: ctx.execute(step["value"].claim_id))
+            second = attempt(lambda: ctx.execute(step["value"].claim_id), NO_EXCEPTION)
             if second["ok"]:
                 obs["second_claim"] = {**result_obs(second["value"]), "provisioned": True, "executed": second["value"].status == "executed", "effect_count": ctx.count()}
             else:
@@ -504,7 +517,7 @@ def nc_authority_gates(work):
     obs = {}
 
     def refused(ctx, claim_id, envelope=None):
-        step = attempt(lambda: ctx.executor.execute(envelope=envelope or ctx.flow.envelope(ctx.flow.d1), claim_id=claim_id))
+        step = attempt(lambda: ctx.executor.execute(envelope=envelope or ctx.flow.envelope(ctx.flow.d1), claim_id=claim_id), NO_EXCEPTION)
         base = result_obs(step["value"]) if step["ok"] else {"status": None, "raised": err_of(step)}
         return {**base, "effect_count": ctx.count(), "claim_state_after": ctx.dest.claim_state(claim_id)}
 
@@ -539,7 +552,7 @@ def nc_authority_gates(work):
     try:
         over = ctx.flow.p.model_copy(update={"amount": 100000.0})
         decision = ctx.flow.f.decide(over, now=ctx.flow.NOW)
-        step = attempt(lambda: ctx.executor.provision_claim(proposal=over, decision=decision, now=ctx.flow.NOW))
+        step = attempt(lambda: ctx.executor.provision_claim(proposal=over, decision=decision, now=ctx.flow.NOW), REFUSALS_AUTHORITY)
         obs["unauthorized"]["not_authorized_decision"] = {"decision_result": decision.result, "claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
     finally:
         ctx.close()
@@ -564,7 +577,7 @@ def nc_authority_gates(work):
     ctx = Ctx(work / "resolver")
     try:
         ctx.flow.publish_revision("2")
-        step = attempt(ctx.provision)
+        step = attempt(ctx.provision, REFUSALS_AUTHORITY)
         stale["resolver_revision_changed_before_claim"] = {"claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
     finally:
         ctx.close()
@@ -591,7 +604,7 @@ def nc_authority_gates(work):
     ctx = Ctx(work / "resolver_evidence")
     try:
         ctx.flow.r.evidence.clear()
-        step = attempt(ctx.provision)
+        step = attempt(ctx.provision, REFUSALS_AUTHORITY)
         obs["evidence"]["missing_at_claim_issuance"] = {"claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
     finally:
         ctx.close()
@@ -739,7 +752,7 @@ def nc_tamper(work):
         conn.execute("UPDATE effects SET amount=999.0")
         conn.commit()
         conn.close()
-        ex2 = attempt(lambda: ctx.export(result))
+        ex2 = attempt(lambda: ctx.export(result), REFUSALS_VALUE)
         if ex2["ok"]:
             t3 = replay_import(raw, prop, ex2["value"])
             t3.pop("_bundle", None)
@@ -781,7 +794,7 @@ def nc_custody(work):
         store = pathlib.Path(ctx.dest.path).parent
         gone = pathlib.Path(str(store) + ".gone")
         os.rename(store, gone)  # whole store directory (database and journal files) disappears; no stray empty database is created
-        step = attempt(lambda: ctx.execute(claim.claim_id))
+        step = attempt(lambda: ctx.execute(claim.claim_id), NO_EXCEPTION + REFUSALS_STORE)
         if step["ok"]:
             obs["destination_unavailable"] = {**result_obs(step["value"]), "raised": False}
             rec = step["value"].observation if isinstance(step["value"].observation, dict) else {}
@@ -799,7 +812,7 @@ def nc_custody(work):
         def broken(ref):
             raise TimeoutError("injected: authority store unreadable")
         ctx.flow.r.grant_status = broken
-        step = attempt(ctx.provision)
+        step = attempt(ctx.provision, REFUSALS_AUTHORITY)
         obs["authority_unreadable"] = {"claim_ok": step["ok"], "error": err_of(step), "effect_count": ctx.count()}
     finally:
         ctx.close()

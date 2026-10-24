@@ -1645,28 +1645,116 @@ class CopilotReviewFix2Tests(GateTests):
     def _commands(text):
         """Normalised pytest and gate-anchor command lines (continuations joined; workflow expressions and variables mapped to the runbook's names)."""
         joined = re.sub(r"\\\n\s*", " ", text)
-        out = set()
+        out = []
         for line in joined.splitlines():
             line = line.strip()
-            if "-m pytest" not in line and "mvp_acceptance_gate.py anchor" not in line:
+            if "-m pytest" not in line and not any(f"mvp_acceptance_gate.py {c} " in line for c in ("anchor", "resolve", "verify-checkouts")):
                 continue
-            line = line.replace("${{ steps.tuple.outputs.control_plane }}", "$CP").replace("$GITHUB_WORKSPACE", "$WS")
-            out.add(re.sub(r"\s+", " ", line))
+            line = line.replace("${{ steps.tuple.outputs.control_plane }}", "$CP").replace("$GITHUB_WORKSPACE", "$WS").replace("python3 tools", "python tools")
+            out.append(re.sub(r"\s+", " ", line))
         return out
+
+    def test_runbook_environment_exports_mirror_the_workflow(self):
+        wf_text = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        runbook = (ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text()
+        job_env = wf_text.split("    env:\n", 1)[1].split("    steps:", 1)[0]
+        wanted = {}
+        for line in job_env.splitlines():
+            m = re.match(r"\s+([A-Z0-9_]+): (.+)$", line)
+            if m:
+                wanted[m.group(1)] = m.group(2).strip().strip("'").replace("${{ github.workspace }}", "$WS")
+        self.assertIn("MVP_ACCEPTANCE_DIR", wanted)
+        exported = {}
+        for m in re.finditer(r'^export (.+)$', runbook, re.M):
+            for kv in re.finditer(r'([A-Z0-9_]+)=("([^"]*)"|\S+)', m.group(1)):
+                exported[kv.group(1)] = (kv.group(3) if kv.group(3) is not None else kv.group(2))
+        for key, value in wanted.items():
+            if key == "PYTHONDONTWRITEBYTECODE":
+                value = "1"
+            self.assertIn(key, exported, f"runbook does not export {key} as the workflow job does")
+            self.assertEqual(exported[key], value, key)
+        for key, value in re.findall(r'echo "(MVP_[A-Z_]+)=([^"$]+)" >> "\$GITHUB_ENV"', wf_text):  # provisioning-step exports
+            self.assertEqual(exported.get(key), value, key)
 
     def test_runbook_commands_mirror_the_workflow_steps(self):
         wf = self._commands((ROOT / ".github/workflows/mvp-acceptance.yml").read_text())
         rb = self._commands((ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text())
-        rb = {re.sub(r" \| tee .*$", "", c) for c in rb}
-        wf = {re.sub(r" \| tee .*$", "", c) for c in wf}
+        rb = [re.sub(r" \| tee .*$", "", c) for c in rb]
+        wf = [re.sub(r" \| tee .*$", "", c) for c in wf]
         self.assertTrue(any("anchor" in c for c in wf))
-        self.assertEqual(wf, rb)
+        self.assertEqual(wf, rb)  # same commands in the same order
         runbook = (ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text()
         wf_text = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
         for exit_file in re.findall(r'pytest-exit-[a-z0-9-]+\.txt', wf_text):
             self.assertIn(exit_file, runbook)
         gate_flags = set(re.findall(r"--[a-z0-9-]+", re.search(r"mvp_acceptance_gate.py gate (.*?)\| tee", re.sub(r"\\\n\s*", " ", wf_text)).group(1)))
         self.assertTrue(gate_flags <= set(re.findall(r"--[a-z0-9-]+", runbook)), gate_flags)
+
+    def _chain_module(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        self.addCleanup(sys.path.remove, str(ROOT / "suites/mvp-chain"))
+        for m in ("_chain", "_state"):
+            sys.modules.pop(m, None)
+        import _chain
+        self.addCleanup(lambda: [sys.modules.pop(m, None) for m in ("_chain", "_state")])
+        return _chain
+
+    def test_attempt_records_only_expected_refusal_types(self):
+        C = self._chain_module()
+        def raises(exc):
+            def f():
+                raise exc
+            return f
+        self.assertFalse(C.attempt(raises(PermissionError("no")), C.REFUSALS_AUTHORITY)["ok"])
+        self.assertFalse(C.attempt(raises(ValueError("no")), C.REFUSALS_VALUE)["ok"])
+        for exc in (TypeError("bug"), KeyError("k"), AttributeError("a"), RuntimeError("r")):
+            for expected in (C.REFUSALS_AUTHORITY, C.REFUSALS_VALUE, C.REFUSALS_STORE, C.NO_EXCEPTION):
+                with self.subTest(exc=type(exc).__name__, expected=expected):
+                    with self.assertRaises(type(exc)):
+                        C.attempt(raises(exc), expected)
+        with self.assertRaises(PermissionError):  # a declared-no-exception call: even a refusal type is an error
+            C.attempt(raises(PermissionError("x")), C.NO_EXCEPTION)
+
+    def test_an_arbitrary_exception_in_a_control_scenario_is_blocked_not_a_pass(self):
+        C = self._chain_module()
+        C.SCENARIOS["_t"] = lambda work: {"r": C.attempt(lambda: (_ for _ in ()).throw(TypeError("boom")), C.REFUSALS_AUTHORITY)}
+        self.addCleanup(C.SCENARIOS.pop, "_t", None)
+        self.addCleanup(C._state.OBS.pop, "_t", None)
+        obs = C.run_scenario("_t")
+        self.assertEqual(obs["status"], "blocked")
+        self.assertIn("TypeError", obs["blocked_reason"])
+
+    def test_probe_exceptions_that_are_not_genuine_refusals_are_probe_errors(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        self.addCleanup(sys.path.remove, str(ROOT / "suites/mvp-chain"))
+        for m in ("_ingress", "_state", "_kwflow"):
+            sys.modules.pop(m, None)
+        import _ingress
+        self.addCleanup(lambda: [sys.modules.pop(m, None) for m in ("_ingress", "_state", "_kwflow")])
+        genuine = {"uid": 65534, "euid": 65534, "gid": 1, "groups": [], "listdir_state": "PermissionError", "stat_destination": "FileNotFoundError",
+                   "sqlite_ledger": "OperationalError", "kill_ingress": "PermissionError",
+                   "responses": [{"outcome": "denied", "code": "x"}, {"transport_error": "ConnectionRefusedError"}]}
+        self.assertEqual(_ingress.unexpected_probe_errors(genuine), {})
+        self.assertEqual(_ingress.unexpected_probe_errors({**genuine, "proc_mem": "SUCCEEDED"}), {})  # a success is judged by the independent observations, not hidden
+        for bad in ("TypeError", "NameError", "ImportError", "AttributeError", "KeyError"):
+            with self.subTest(bad):
+                self.assertEqual(_ingress.unexpected_probe_errors({**genuine, "open_destination": bad}), {"open_destination": bad})
+                self.assertIn("responses[0]", _ingress.unexpected_probe_errors({**genuine, "responses": [{"transport_error": bad}]}))
+
+    def test_every_attempt_call_site_in_the_chain_states_its_expected_refusals_or_is_listed_informational(self):
+        import ast
+        src = (ROOT / "suites/mvp-chain/_chain.py").read_text()
+        informational = {"claim_step = attempt(ctx.provision)", "ex_step = attempt(lambda: ctx.execute(claim.claim_id))", "step = attempt(lambda: ctx.export(result))",
+                         "recon = attempt(lambda: ctx.dest.reconcile_claim", "exp = attempt(lambda: ctx.export(first))", "authority_writer_set_grant_status",
+                         "step = attempt(lambda: conn.execute("}  # success-path calls (a raised exception FAILS the row that needs ok) and informational baselines (no row)
+        tree, lines, bad = ast.parse(src), src.splitlines(), []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "attempt":
+                stated = len(node.args) >= 2 or any(k.arg == "expected" for k in node.keywords)
+                text = lines[node.lineno - 1].strip()
+                if not stated and not any(text.startswith(i) or i in text for i in informational):
+                    bad.append((node.lineno, text))
+        self.assertEqual(bad, [])
 
 
 if __name__ == "__main__":

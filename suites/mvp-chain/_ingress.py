@@ -70,6 +70,28 @@ print(json.dumps(out))
 '''
 
 
+# Genuine denial / transport-refusal exception names the unprivileged client may record. Any other exception type (TypeError, NameError, ImportError, ... from a harness or
+# probe bug) is not refusal evidence: the owner side treats it as a probe error and the scenario is BLOCKED (INCOMPLETE), never a pass.
+DENIAL_ERRORS = frozenset({"PermissionError", "FileNotFoundError", "NotADirectoryError", "IsADirectoryError", "ProcessLookupError", "OperationalError"})
+TRANSPORT_ERRORS = frozenset({"ConnectionRefusedError", "ConnectionResetError", "ConnectionAbortedError", "BrokenPipeError", "FileNotFoundError", "PermissionError",
+                              "TimeoutError", "socket.timeout", "timeout"})
+
+
+def unexpected_probe_errors(attack):
+    """Entries of an unprivileged-client attack observation that are neither SUCCEEDED, a genuine denial nor a genuine transport refusal."""
+    bad = {}
+    for key, value in attack.items():
+        if key in ("responses", "uid", "euid", "gid", "groups"):
+            continue
+        if value != "SUCCEEDED" and value not in DENIAL_ERRORS:
+            bad[key] = value
+    for i, resp in enumerate(attack.get("responses") or []):
+        err = resp.get("transport_error") if isinstance(resp, dict) else None
+        if err is not None and err not in TRANSPORT_ERRORS:
+            bad[f"responses[{i}]"] = err
+    return bad
+
+
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -419,6 +441,9 @@ def run(work):
         attack = client("attack", [b.hex() for b in bodies], True)
         if "error" in attack:
             return {**obs, "status": "blocked", "ingress": {"probe_ran": False, "profile": mode}, "blocked_reason": "unprivileged client failed to run: " + attack["error"]}
+        bad_probe = unexpected_probe_errors(attack)
+        if bad_probe:
+            return {**obs, "status": "blocked", "ingress": {"probe_ran": False, "profile": mode}, "blocked_reason": f"the unprivileged client recorded exceptions that are not genuine refusals (probe or harness error): {bad_probe}"}
         after_attack = snapshot()
         sock_st = os.stat(sock)
         sock_mode = oct(stat.S_IMODE(sock_st.st_mode))

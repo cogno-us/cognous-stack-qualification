@@ -10,13 +10,28 @@ Purpose: run the SAME battery as the `mvp-acceptance` workflow by hand when the 
 
 ## Steps
 1. Clone each component at exactly its tuple sha into its own directory (`git clone`, `git checkout <sha>`), then `git clean -fdx` each; verify `git rev-parse HEAD` and `git status --porcelain --ignored` empty. Record the heads. Hub: tree ids of `tools/mvp_ingress` and `tools/mvp_env_record` (`git rev-parse HEAD:<path>`).
-2. Resolve and verify: `python tools/mvp_acceptance_gate.py resolve ...` then `verify-checkouts` (writes `tuple-resolved.json` including `composite_verified`).
-3. Export the `MVP_*_DIR` / `MVP_*_REVISION` variables, `MVP_RUN_ID`, `MVP_QUALIFICATION_SHA`, `MVP_RESULTS_DIR=<empty run dir>`. Profile: `MVP_INGRESS_PROFILE` unset on a qualifying host; `developer-optout` only where no distinct identities exist (the run is then supplementary and the host layer stays INCOMPLETE).
-4. Anchor, collect and run, mirroring the workflow steps exactly (the commands below are compared with `.github/workflows/mvp-acceptance.yml` by a test; `WS` is the checkout root, `CP` the Control Plane tuple sha, `MVP_RUN_ID` the `run_id` in `tuple-resolved.json`, `PYTHONDONTWRITEBYTECODE=1`, no `__pycache__` anywhere under the suites). The anchor needs `GH_TOKEN`; without it `anchor.json` is missing and G-02c is INCOMPLETE. The exchange exclusion plugin (`-p exchange_exclusion_plugin`, `MVP_EXCLUSION_TAG`) writes the `exchange-exclusion-*.json` files G-08 requires; the chain results must land under `results/mvp-acceptance/mvp-chain/` (`MVP_RESULTS_DIR`). The chain battery runs as root on a qualifying host (NC4 starts the ingress and the client as different dedicated uids). The d2 run needs `D2_CONTROL_PLANE_DIR` and `D2_RUNTIME_DIR`. `git clean -fdx` the component checkouts between runs.
+2. Resolve and verify (the same commands as the workflow, in the same order; the resolve step writes the run-scoped variables, `MVP_RUN_ID` and the tuple values, to the file named by `GITHUB_ENV`, which you then source). `verify-checkouts` writes `tuple-resolved.json` including `composite_verified`:
 
 ```bash
-export WS="$PWD" CP=<control-plane tuple sha> D2_CONTROL_PLANE_DIR="$PWD/components/control_plane" D2_RUNTIME_DIR="$PWD/components/runtime"
-export MVP_RESULTS_DIR="$WS/results/mvp-acceptance/mvp-chain" PYTHONDONTWRITEBYTECODE=1
+export WS="$PWD" GITHUB_OUTPUT="$PWD/results/gh-output.txt" GITHUB_ENV="$PWD/results/gh-env.txt"
+mkdir -p results/mvp-acceptance/mvp-chain
+python3 tools/mvp_acceptance_gate.py resolve --identity process/mvp-acceptance/candidate-identity.inputs.json --out-pin results/mvp-acceptance/tuple-pin.resolved.json --out-resolved results/mvp-acceptance/tuple-resolved.json --github-output "$GITHUB_OUTPUT" --github-env "$GITHUB_ENV" --qualification-sha "$(git rev-parse HEAD)"
+set -a; . "$GITHUB_ENV"; set +a
+python tools/mvp_acceptance_gate.py verify-checkouts --resolved results/mvp-acceptance/tuple-resolved.json --base "$WS"
+```
+
+3. Export the `MVP_*_DIR` / `MVP_*_REVISION` variables, `MVP_RUN_ID`, `MVP_QUALIFICATION_SHA`, `MVP_RESULTS_DIR=<empty run dir>`. Profile: `MVP_INGRESS_PROFILE` unset on a qualifying host; `developer-optout` only where no distinct identities exist (the run is then supplementary and the host layer stays INCOMPLETE).
+4. Anchor, collect and run, mirroring the workflow steps exactly (the commands below are compared with `.github/workflows/mvp-acceptance.yml` by a test; `WS` is the checkout root, `CP` the Control Plane tuple sha, `MVP_RUN_ID` the `run_id` in `tuple-resolved.json`, `PYTHONDONTWRITEBYTECODE=1`, no `__pycache__` anywhere under the suites). The anchor needs `GH_TOKEN`; without it `anchor.json` is missing and G-02c is INCOMPLETE. The exchange exclusion plugin (`-p exchange_exclusion_plugin`, `MVP_EXCLUSION_TAG`) writes the `exchange-exclusion-*.json` files G-08 requires; the chain results must land under `results/mvp-acceptance/mvp-chain/` (`MVP_RESULTS_DIR`). The chain battery runs as root on a qualifying host (NC4 starts the ingress and the client as different dedicated uids). `MVP_ACCEPTANCE_DIR` is exported as in the workflow so the exclusion plugin's `exchange-exclusion-*.json` land directly under `results/mvp-acceptance/` (G-08). The environment exports below are compared with the workflow job `env:` by a test. The d2 run needs `D2_CONTROL_PLANE_DIR` and `D2_RUNTIME_DIR`. `git clean -fdx` the component checkouts between runs.
+
+```bash
+export WS="$PWD" CP=<control-plane tuple sha>
+export MVP_CP_DIR="$WS/components/control_plane" MVP_RUNTIME_DIR="$WS/components/runtime" MVP_REPLAY_DIR="$WS/components/replay" MVP_PACK_DIR="$WS/components/evidence_pack"
+export MVP_ODES_DIR="$WS/components/odes" MVP_VERIFIER_DIR="$WS/components/verifier" MVP_MANIFEST_DIR="$WS/components/manifest" MVP_HUB_DIR="$WS/components/hub"
+export MVP_PIN_FILE="$WS/results/mvp-acceptance/tuple-pin.resolved.json" MVP_ACCEPTANCE_DIR="$WS/results/mvp-acceptance" MVP_RESULTS_DIR="$WS/results/mvp-acceptance/mvp-chain"
+export MVP_IDENTITY_FILE="$WS/process/mvp-acceptance/candidate-identity.inputs.json" D2_CONTROL_PLANE_DIR="$WS/components/control_plane" D2_RUNTIME_DIR="$WS/components/runtime"
+export PYTHONDONTWRITEBYTECODE=1
+# approved profile on a qualifying host (the workflow's provisioning step): dedicated users and group, then
+export MVP_INGRESS_PROFILE=approved MVP_INGRESS_USER=mvp-ingress MVP_CLIENT_USER=mvp-client MVP_IPC_GROUP=mvp-ipc
 d=results/mvp-acceptance
 python tools/mvp_acceptance_gate.py anchor --repo "$GITHUB_REPOSITORY" --ref main --out results/mvp-acceptance/anchor.json
 MVP_RESULTS_DIR="$d/collect-mvp-chain" python -m pytest --collect-only -q -p no:cacheprovider suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py suites/mvp-chain/test_kwflow.py suites/mvp-chain/test_ingress_ambiguity.py | tee "$d/collected-mvp-chain.txt"
