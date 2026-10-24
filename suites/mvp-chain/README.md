@@ -91,7 +91,7 @@ Architect ruling Q2. Scenario `nc_authority_gates` (in `_chain.py`) drives the r
 * NC7-03: missing, invalid-state or expired evidence, and evidence missing at claim issuance, does not permit execution (zero effects).
 * Every row also requires the control case to execute exactly one effect, so a refusal cannot pass because nothing works at all.
 
-v7 is v6 plus these three rows (42 rows, 41 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (259 battery entries) is not the number of unique governance claims (41 mandatory rows).
+v7 is v6 plus these three rows (42 rows, 41 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (260 battery entries) is not the number of unique governance claims (41 mandatory rows).
 
 ## Run
 

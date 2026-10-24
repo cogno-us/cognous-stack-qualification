@@ -1237,7 +1237,7 @@ class ComposedV6BatteryTests(unittest.TestCase):
         kinds = {t["file"]: t["kind"] for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
         self.assertEqual(kinds, {"suites/mvp-chain/test_kwflow.py": "supplementary_nc4_03_predicate",
                                  "suites/mvp-chain/test_ingress_ambiguity.py": "supplementary_nc2_06_negative_control"})
-        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 182)
+        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 183)
         self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc2_06_negative_control"]), 6)
 
     def test_workflow_collect_and_run_lists_equal_the_battery_paths(self):
@@ -1327,7 +1327,9 @@ class RequiredControlsTests(unittest.TestCase):
 
     def test_v7_is_v6_plus_exactly_the_three_required_controls_and_the_launch_isolation_row(self):
         self.assertEqual(sorted(self._rows()), ["NC7-01", "NC7-02", "NC7-03"])
-        self.assertEqual([r for r in self.V7["rows"] if not r["id"].startswith("NC7-") and r["id"] != "NC4-04"], self.V6["rows"])
+        self.assertEqual([r for r in self.V7["rows"] if not r["id"].startswith("NC7-") and r["id"] not in ("NC4-04", "NC4-03")], [r for r in self.V6["rows"] if r["id"] != "NC4-03"])
+        nc403 = lambda doc: next(r for r in doc["rows"] if r["id"] == "NC4-03")
+        self.assertEqual([a["obs"] for a in nc403(self.V7)["all"]], [a["obs"] for a in nc403(self.V6)["all"]])  # same predicates; only the reviewed values (file list, digest) follow the launcher change
         for key in ("schema", "statuses", "semantics", "operators"):
             self.assertEqual(self.V7[key], self.V6[key])
         self.assertEqual(sum(r.get("mandatory", True) for r in self.V7["rows"]), 41)
