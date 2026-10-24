@@ -575,12 +575,13 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
                     problems.append(f"{inv['junit']} testsuite name does not carry the run_id")
         except (OSError, ET.ParseError):
             pass  # reported by G-05
-    try:
-        d = json.loads((run_dir / "mvp-chain" / "artifacts" / "ingress-modules.json").read_text())
-        if d.get("run_id") != run_id:
-            problems.append("ingress-modules.json carries a different run_id")
-    except (OSError, ValueError):
-        pass
+    for name in ingress_dump_names(run_dir):
+        try:
+            d = json.loads((run_dir / "mvp-chain" / "artifacts" / name).read_text())
+            if not isinstance(d, dict) or d.get("run_id") != run_id:
+                problems.append(f"{name} carries a different run_id")
+        except (OSError, ValueError):
+            pass  # reported by G-08
     gate.add("G-10", INCOMPLETE if problems else PASS, "artifacts, junit reports and the recorded Qualification commit belong to this run" if not problems else "; ".join(problems),
              run_id=run_id, qualification_sha=q)
     return resolved
@@ -1063,6 +1064,15 @@ def check_pytest_exits(gate: Gate, run_dir: Path, battery: dict):
              "each battery pytest invocation ran to completion (exit 0 or 1)" if not problems else "; ".join(problems), exits=seen)
 
 
+INGRESS_DUMPS_REQUIRED = ("ingress-modules.json", "ingress-modules-ambiguity.json")
+
+
+def ingress_dump_names(run_dir: Path) -> list[str]:
+    """The AP-06 module reports G-08 and G-10 read: the two required ones (plain NC4 ingress; wrapper-launched NC2-06 ingress) plus any other ingress-modules-*.json present."""
+    extra = sorted(p.name for p in (Path(run_dir) / "mvp-chain" / "artifacts").glob("ingress-modules-*.json")) if (Path(run_dir) / "mvp-chain" / "artifacts").is_dir() else []
+    return list(INGRESS_DUMPS_REQUIRED) + [n for n in extra if n not in INGRESS_DUMPS_REQUIRED]
+
+
 def check_exchange_exclusion(gate: Gate, run_dir: Path, battery: dict, mapping: dict):
     problems_incomplete, problems_fail = [], []
     for tag, inv in battery["invocations"].items():
@@ -1077,20 +1087,24 @@ def check_exchange_exclusion(gate: Gate, run_dir: Path, battery: dict, mapping: 
                     problems_fail.append(f"{tag}: {key} = {doc.get(key)!r}")
     roots = tuple(mapping["banned_exchange_module_roots"])
     path_pattern = re.compile(mapping["banned_exchange_path_pattern"])
-    dump = None
-    try:
-        dump = json.loads((run_dir / "mvp-chain" / "artifacts" / "ingress-modules.json").read_text())
-    except (OSError, ValueError):
-        problems_incomplete.append("mvp-chain/artifacts/ingress-modules.json missing or unreadable (the ingress process's loaded modules were not recorded)")
-    if dump is not None:
-        mods = dump.get("modules", {})
-        loaded = sorted(m for m in mods if m.split(".")[0] in roots)
-        by_file = sorted(m for m, f in mods.items() if isinstance(f, str) and path_pattern.search(f))
-        paths = [x for x in dump.get("sys_path", []) if isinstance(x, str) and path_pattern.search(x)]
-        if not mods:
-            problems_incomplete.append("ingress module dump is empty")
-        if loaded or by_file or paths:
-            problems_fail.append(f"ingress process: modules {loaded}, from exchange paths {by_file}, sys.path {paths}")
+    for name in ingress_dump_names(run_dir):  # one run-bound report per ingress process the battery launches (the plain NC4 ingress and each wrapper-launched ambiguity ingress)
+        dump = None
+        try:
+            dump = json.loads((run_dir / "mvp-chain" / "artifacts" / name).read_text())
+        except (OSError, ValueError):
+            problems_incomplete.append(f"mvp-chain/artifacts/{name} missing or unreadable (that ingress process's loaded modules were not recorded)")
+        if dump is not None and not isinstance(dump, dict):
+            problems_incomplete.append(f"mvp-chain/artifacts/{name} is not a JSON object")
+            dump = None
+        if dump is not None:
+            mods = dump.get("modules", {})
+            loaded = sorted(m for m in mods if m.split(".")[0] in roots)
+            by_file = sorted(m for m, f in mods.items() if isinstance(f, str) and path_pattern.search(f))
+            paths = [x for x in dump.get("sys_path", []) if isinstance(x, str) and path_pattern.search(x)]
+            if not mods:
+                problems_incomplete.append(f"ingress module dump {name} is empty")
+            if loaded or by_file or paths:
+                problems_fail.append(f"ingress process ({name}): modules {loaded}, from exchange paths {by_file}, sys.path {paths}")
     pattern = re.compile(mapping["banned_exchange_name_pattern"])
     for tag, inv in battery["invocations"].items():
         try:

@@ -75,6 +75,24 @@ def _calls(capture, stem):
     return out
 
 
+def validated_phase(phase, returncode, stdout, stderr):
+    """Output of one unprivileged-client phase, or an exception (run_scenario() then records BLOCKED). A nonzero exit, unparsable output, a recorded exception that is not
+    a genuine refusal, or a transport error (the request was never answered) can never count as a refusal or satisfy a negative control without exercising the mutation."""
+    if returncode != 0:
+        raise RuntimeError(f"unprivileged client phase {phase!r} exited {returncode}: {(stderr or '')[-300:]}")
+    try:
+        out = json.loads(stdout)
+    except ValueError as exc:
+        raise RuntimeError(f"unprivileged client phase {phase!r} printed unparsable output: {exc}") from None
+    if not isinstance(out, dict) or not isinstance(out.get("responses"), list) or not out["responses"]:
+        raise RuntimeError(f"unprivileged client phase {phase!r} recorded no responses")
+    bad = _ingress.unexpected_probe_errors(out)
+    transport = [i for i, r in enumerate(out["responses"]) if not isinstance(r, dict) or "transport_error" in r]
+    if bad or transport:
+        raise RuntimeError(f"unprivileged client phase {phase!r}: unexpected probe errors {bad}, transport errors/no outcome in responses {transport}")
+    return out
+
+
 def run(work, fault_mode=PRODUCT_MODES):
     hub = _state.ENV["dirs"].get("hub")
     if not hub:
@@ -96,7 +114,13 @@ def run(work, fault_mode=PRODUCT_MODES):
     wrapper = pathlib.Path(__file__).with_name("_ingress_fault_wrapper.py")
     cmd = _ingress.launch_cmd(hub, ["--state-dir", str(state), "--socket", sock, "--control-plane", _state.ENV["dirs"]["control_plane"],
                                     "--runtime", _state.ENV["dirs"]["runtime"], "--socket-mode", "666"], UNPRIV, pre=("wrapper", wrapper))
-    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MVP_FAULT_CAPTURE_DIR=str(capture), MVP_FAULT_MODE=fault_mode, MVP_FAULT_HUB=str(hub))
+    # AP-06 for THIS wrapper-launched ingress: the observation-only probe is installed next to the wrapper, its dump is run-bound (MVP_RUN_ID) and kept as its own
+    # report (ingress-modules-<name>.json) that the gate requires (G-08, G-10); the parent pytest plugin cannot see this child process.
+    probe_src = pathlib.Path(__file__).resolve().parents[1] / "mvp-applicability" / "plugin" / "ingress_probe" / "sitecustomize.py"
+    module_dump = capture / "ingress-modules.json"
+    dump_name = f"ingress-modules-{work.name.removeprefix('ingress-')}.json"
+    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MVP_FAULT_CAPTURE_DIR=str(capture), MVP_FAULT_MODE=fault_mode, MVP_FAULT_HUB=str(hub),
+                MVP_PRE_PROBE=str(probe_src), MVP_INGRESS_MODULE_DUMP=str(module_dump))
     penv.pop("PYTHONPATH", None)
     proc = subprocess.Popen(cmd, cwd=hub, env=penv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     obs = {"evidence_level": "supported-ingress", "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
@@ -125,7 +149,7 @@ def run(work, fault_mode=PRODUCT_MODES):
                 os.setuid(UNPRIV)
             p = subprocess.run(["/usr/bin/python3", "-I", str(base / "probe.py"), str(state), str(base / "client.py"), sock, str(proc.pid), str(plan)],
                                preexec_fn=drop, env={"PATH": "/usr/bin:/bin", "HOME": "/nonexistent"}, capture_output=True, text=True, timeout=600)
-            return {"error": p.stderr[-500:]} if p.returncode != 0 else json.loads(p.stdout)
+            return validated_phase(phase, p.returncode, p.stdout, p.stderr)
 
         def dest_tables():
             return _ingress.tables_digest(dest)
@@ -152,6 +176,10 @@ def run(work, fault_mode=PRODUCT_MODES):
         # owner-side reconciliation over the real destination, after the ingress is stopped (no second writer)
         proc.terminate()
         proc.wait(15)
+        if module_dump.is_file():  # written at exit by the observation-only probe; a missing file is INCOMPLETE at the gate (G-08)
+            dump_target = _state.results_dir() / "artifacts" / dump_name
+            dump_target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(module_dump, dump_target)
         recon_obs = {"ran": False}
         saved = None
         pk = capture / "envelope.pickle"

@@ -200,6 +200,9 @@ sys.argv = [lp] + sys.argv[4:]
 m = types.ModuleType("_mvp_pre")
 m.__file__ = path
 exec(compile(pathlib.Path(path).read_bytes(), path, "exec"), m.__dict__)
+extra = os.environ.get("MVP_PRE_PROBE")  # a second observation-only module (AP-06 dump) for a wrapper-launched ingress; also compiled from source bytes
+if extra:
+    exec(compile(pathlib.Path(extra).read_bytes(), extra, "exec"), types.ModuleType("_mvp_probe").__dict__)
 if kind == "wrapper":
     m.install(pathlib.Path(os.environ["MVP_FAULT_CAPTURE_DIR"]), m.parse_modes(os.environ.get("MVP_FAULT_MODE")))
 runpy.run_path(lp, run_name="__main__")

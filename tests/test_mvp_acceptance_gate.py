@@ -177,8 +177,9 @@ class GateTests(unittest.TestCase):
         self.ingress_obs = {"profile": "approved", "probe_ran": True, "ingress_is_root": False, **IDS}
         if ingress_mutate:
             ingress_mutate(self.ingress_obs)
-        (rd / "mvp-chain/artifacts/ingress-modules.json").write_text(json.dumps(
-            {"run_id": RUN, "modules": {"os": "/usr/lib/os.py", "tools.mvp_ingress.server": "/hub/tools/mvp_ingress/server.py"}, "sys_path": ["/hub"]}))
+        for dump_name in G.INGRESS_DUMPS_REQUIRED:  # one run-bound module report per ingress process (plain NC4 ingress; wrapper-launched NC2-06 ingress)
+            (rd / "mvp-chain/artifacts" / dump_name).write_text(json.dumps(
+                {"run_id": RUN, "modules": {"os": "/usr/lib/os.py", "tools.mvp_ingress.server": "/hub/tools/mvp_ingress/server.py"}, "sys_path": ["/hub"]}))
         rows = [{"id": t["row"], "status": (row_status or {}).get(t["row"], "PASS")} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
         v3 = BATTERY["oracle"]["unchanged_files_sha256"][BATTERY["oracle"]["expectations_in_force"]]  # the oracle in force (v6 in this proposal)
         (rd / "mvp-chain/results.json").write_text(json.dumps({"run_id": RUN, "expectations_sha256": v3, "rows": rows, "counts": {},
@@ -431,7 +432,7 @@ class ReviewFixTests(GateTests):
         self.assertEqual(self.verdict()[1]["G-02c"], "INCOMPLETE")
 
     def test_run_binding_and_qualification_sha(self):
-        for victim in ("mvp-chain/results.json", "exchange-exclusion-applicability.json", "mvp-chain/artifacts/ingress-modules.json"):
+        for victim in ("mvp-chain/results.json", "exchange-exclusion-applicability.json", "mvp-chain/artifacts/ingress-modules.json", "mvp-chain/artifacts/ingress-modules-ambiguity.json"):
             with self.subTest(victim):
                 self.build()
                 path = self.run_dir / victim
@@ -1787,6 +1788,73 @@ class CopilotReviewFix2Tests(GateTests):
         h.add("X-1", "FAIL", "f")
         h.add("X-2", "MAYBE", "u")
         self.assertEqual(h.verdict(), "INCOMPLETE")
+
+    def test_wrapper_launched_ingress_module_report_is_required_and_checked(self):
+        p = self.run_dir / "mvp-chain/artifacts/ingress-modules-ambiguity.json"
+        for mods, want in (({"experiments.x": "/w/components/exchange/x.py"}, "FAIL"), ({"ok": "/w/components/exchange/x.py"}, "FAIL"), ({}, "INCOMPLETE")):
+            with self.subTest(mods):
+                p.write_text(json.dumps({"run_id": RUN, "modules": mods, "sys_path": []}))
+                self.assertEqual(self.verdict()[1]["G-08"], want)
+        p.write_text(json.dumps({"run_id": RUN, "modules": {"os": "/usr/lib/os.py"}, "sys_path": ["/w/components/exchange"]}))
+        self.assertEqual(self.verdict()[1]["G-08"], "FAIL")  # sys.path alone
+        p.unlink()
+        v, checks, _ = self.verdict()
+        self.assertEqual(checks["G-08"], "INCOMPLETE")  # a missing report is INCOMPLETE, never a pass
+        self.assertNotEqual(v, "ACCEPT")
+        p.write_text("[]")
+        self.assertEqual(self.verdict()[1]["G-08"], "INCOMPLETE")
+
+    def test_an_extra_ingress_module_report_is_checked_too(self):
+        extra = self.run_dir / "mvp-chain/artifacts/ingress-modules-ambiguity-unbound.json"
+        extra.write_text(json.dumps({"run_id": RUN, "modules": {"experiments.x": "/w/x.py"}, "sys_path": []}))
+        self.assertEqual(self.verdict()[1]["G-08"], "FAIL")
+        extra.write_text(json.dumps({"run_id": "stale", "modules": {"os": "/usr/lib/os.py"}, "sys_path": []}))
+        self.assertEqual(self.verdict()[1]["G-10"], "INCOMPLETE")
+
+    def test_client_phase_exit_output_and_errors_are_validated(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        self.addCleanup(sys.path.remove, str(ROOT / "suites/mvp-chain"))
+        for m in ("_ingress_ambiguity", "_ingress", "_state", "_kwflow"):
+            sys.modules.pop(m, None)
+        import _ingress_ambiguity as amb
+        self.addCleanup(lambda: [sys.modules.pop(m, None) for m in ("_ingress_ambiguity", "_ingress", "_state", "_kwflow")])
+        ok = json.dumps({"uid": 65534, "euid": 65534, "gid": 65534, "groups": [], "responses": [{"outcome": "unknown", "code": "x"}]})
+        self.assertEqual(amb.validated_phase("first", 0, ok, "")["responses"][0]["outcome"], "unknown")
+        cases = {"nonzero exit": (1, ok), "unparsable": (0, "not json"), "not an object": (0, "[]"), "no responses": (0, json.dumps({"responses": []})),
+                 "transport error": (0, json.dumps({"responses": [{"transport_error": "ConnectionRefusedError"}]})),
+                 "unexpected exception type": (0, json.dumps({"responses": [{"transport_error": "TypeError"}]})),
+                 "unexpected attack type": (0, json.dumps({"listdir_state": "TypeError", "responses": [{"outcome": "x"}]}))}
+        for label, (rc, out) in cases.items():
+            with self.subTest(label):
+                with self.assertRaises(RuntimeError):
+                    amb.validated_phase("fresh", rc, out, "boom")
+
+    def test_the_boot_installs_the_probe_next_to_the_wrapper_and_it_writes_a_run_bound_dump(self):
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        self.addCleanup(sys.path.remove, str(ROOT / "suites/mvp-chain"))
+        for m in ("_ingress", "_state", "_kwflow"):
+            sys.modules.pop(m, None)
+        import _ingress
+        self.addCleanup(lambda: [sys.modules.pop(m, None) for m in ("_ingress", "_state", "_kwflow")])
+        d = self.tmp / "bootprobe"
+        d.mkdir()
+        (d / "pre.py").write_text("def install(*a):\n    pass\ndef parse_modes(x):\n    return x\n")
+        (d / "launch.py").write_text("import sys\nsys.exit(0)\n")
+        (d / "exch").mkdir()
+        (d / "exch/planted.py").write_text("X = 1\n")
+        dump = d / "dump.json"
+        env = {**os.environ, "MVP_PRE_PROBE": str(ROOT / "suites/mvp-applicability/plugin/ingress_probe/sitecustomize.py"), "MVP_INGRESS_MODULE_DUMP": str(dump),
+               "MVP_RUN_ID": RUN, "MVP_FAULT_CAPTURE_DIR": str(d), "MVP_FAULT_MODE": ""}
+        subprocess.run([sys.executable, "-I", "-B", "-c", _ingress.LAUNCH_BOOT, "wrapper", str(d / "pre.py"), str(d / "launch.py")], env=env, check=True, capture_output=True)
+        doc = json.loads(dump.read_text())
+        self.assertEqual(doc["run_id"], RUN)
+        self.assertIn("os", doc["modules"])
+        # a planted import in the wrapper-launched child is visible in its own report, which the gate refuses
+        (d / "pre2.py").write_text("import importlib.util, sys\ns = importlib.util.spec_from_file_location('experiments', %r)\nm = importlib.util.module_from_spec(s); sys.modules['experiments'] = m; s.loader.exec_module(m)\n"
+                                   "def install(*a):\n    pass\ndef parse_modes(x):\n    return x\n" % str(d / "exch/planted.py"))
+        dump.unlink()
+        subprocess.run([sys.executable, "-I", "-B", "-c", _ingress.LAUNCH_BOOT, "wrapper", str(d / "pre2.py"), str(d / "launch.py")], env=env, check=True, capture_output=True)
+        self.assertIn("experiments", json.loads(dump.read_text())["modules"])
 
     def test_every_attempt_call_site_in_the_chain_states_its_expected_refusals_or_is_listed_informational(self):
         import ast
