@@ -62,3 +62,17 @@ single-assignment binding, not full data flow.
 over an arbitrary obj, untrusted `envelope` callers), 7 positive, baseline = all of tools/mvp_ingress at 43c526eb (accepted only via complete pins; no-pins control FAILS),
 pin-field-missing tests (4), comment-only edit does not un-pin, semantic edit un-pins, sqlite exclusion, vanished-site detection, and 43 mutants of the ingress copy each failing, including the
 regression target `claim_id=fields["claim_id"]` at execute in `core._run` (rejected as ORIGIN_VIOLATION) and one mutant per remaining origin field.
+
+## NC4-03 predicate v5 (independent Q1 review; PROPOSED, builder-prepared)
+
+Narrowly scoped source-aware additions to `_kwflow.py` (no taint-analysis subsystem, no ingress change, `tools/mvp_ingress` untouched):
+
+1. literal-only protected keywords `attempt_id`, `budget_id`, `expires_at`, `decision_input_commitment`, `decision_input_profile_version`, `now` (only `now=host.now` is accepted) and the RuntimeProposal keys `evidence_refs`, `risk_metadata`, `run_id`, `expires_at`, `not_before`, `expected_side_effects`, `tenant_id`;
+2. rule `AUTHORITY_OBJECT_MUTATION`: attribute stores, `setattr`, `object.__setattr__` on non-self objects (including in helper functions); `DYNAMIC_PROPOSAL_CONSTRUCTION` (`model_validate`, `model_construct`, `vars`) and `DYNAMIC_ATTRIBUTE_ACCESS` (`__class__`, `__dict__`);
+3. rule `POSITIONAL_NON_LITERAL` for `ExecutionOperation`, `ExecutionEnvelope`, `execute`, `provision_claim`;
+4. rebinding by import-as, match capture, except-as and def/class of the tracked names;
+5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 7 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
+6. `ast_digest` pins carry `ast_digest_python` and are honoured on CPython 3.13 only (fail closed elsewhere), the observation records the interpreter;
+7. pin prose: `request_id` flows via `correlation_id` into the proposal commitment and is not among the 14 names.
+
+Every evading mutant of the review has a negative test (`test_v5_evading_mutant_is_rejected_by_its_source_aware_rule`, pins re-based so that only the new rule decides) and the unmodified ingress still passes. Not covered, not claimed: see `limitations.nc4_03_not_covered_not_claimed` in expectations v7.

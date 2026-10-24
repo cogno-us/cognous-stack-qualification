@@ -197,3 +197,141 @@ def test_mutant_ingress_fails(label, tmp_path):
     assert obs["violations"] or obs["pins_unmatched"], f"mutant ACCEPTED: {label}"
     if rule:
         assert rule[0] in {v["rule"] for v in obs["violations"]}, (label, [v["rule"] for v in obs["violations"]])
+
+
+# ---- v5: independent Q1 review of NC4-03 (12 evading mutants and their relatives), recursive tree, interpreter pin ---------------------------------------
+PROV = "claim = host.executor.provision_claim(proposal=proposal, decision=decision, now=host.now)"
+BP_RET = '''        return self.p0.model_copy(update={
+            "target": "urn:cognous:synthetic-account:" + fields["customer_id"],
+            "payload": payload, "payload_commitment": cp.commitment(payload),
+            "amount": float(fields["amount"]), "unit": fields["unit"], "correlation_id": fields["request_id"]})'''
+BP_TAIL = '"correlation_id": fields["request_id"]})'
+ENV_RET = "        return ExecutionEnvelope(EXECUTION_ENVELOPE_VERSION, d.decision_id, d.effect_id, op)\n"
+
+
+def _bp_update(extra):
+    return ("synthetic_host.py", BP_RET, BP_RET.replace(BP_TAIL, '"correlation_id": fields["request_id"], ' + extra + "})"))
+
+
+def _bp_post(post):
+    head = BP_RET.replace("        return self.p0.model_copy(update={", "        p = self.p0.model_copy(update={").replace(BP_TAIL, BP_TAIL)
+    return ("synthetic_host.py", BP_RET, head + "\n" + post + "        return p")
+
+
+V5_MUTANTS = {
+    "E01 provision_claim budget_id from client": ("core.py", PROV, PROV[:-1] + ", budget_id=fields['customer_id'])", "PROHIBITED_KEYWORD_NON_LITERAL"),
+    "E02 execute attempt_id from client": ("core.py", "claim_id=claim.claim_id, simulate=None)", "claim_id=claim.claim_id, simulate=None, attempt_id=fields['request_id'])", "PROHIBITED_KEYWORD_NON_LITERAL"),
+    "E03 provision_claim expires_at from client": ("core.py", PROV, PROV[:-1] + ", expires_at=fields['refund_reason'])", "PROHIBITED_KEYWORD_NON_LITERAL"),
+    "E04 provision_claim decision_input_commitment from client": ("core.py", PROV, PROV[:-1] + ", decision_input_commitment=fields['request_id'])", "PROHIBITED_KEYWORD_NON_LITERAL"),
+    "E04b provision_claim decision_input_profile_version from client": ("core.py", PROV, PROV[:-1] + ", decision_input_profile_version=fields['request_id'])", "PROHIBITED_KEYWORD_NON_LITERAL"),
+    "E05 decide now from client": ("core.py", "host.workflow.decide(proposal, now=host.now)", "host.workflow.decide(proposal, now=fields['amount'])", "PROHIBITED_KEYWORD_NON_LITERAL"),
+    "E07 object.__setattr__ on claim": ("core.py", "res = host.executor.execute(", "object.__setattr__(claim, 'claim_id', fields['request_id'])\n            res = host.executor.execute(", "AUTHORITY_OBJECT_MUTATION"),
+    "E08 attribute store on decision.binding": ("core.py", PROV, "decision.binding.grant_id = fields['request_id']\n            " + PROV, "AUTHORITY_OBJECT_MUTATION"),
+    "E09 setattr on proposal in _run": ("core.py", PROV, "setattr(proposal, 'authority_context_ref', fields['customer_id'])\n            " + PROV, "AUTHORITY_OBJECT_MUTATION"),
+    "E10 attribute store on p in build_proposal": _bp_post("        p.authority_context_ref = fields['customer_id']\n") + ("AUTHORITY_OBJECT_MUTATION",),
+    "E11 setattr on p in build_proposal": _bp_post("        setattr(p, 'requested_permissions', [fields['refund_reason']])\n") + ("AUTHORITY_OBJECT_MUTATION",),
+    "E12 build_proposal update gains RuntimeProposal fields": _bp_update('"risk_metadata": {"r": fields["refund_reason"]}, "evidence_refs": [fields["request_id"]], "run_id": fields["request_id"], '
+                                                                        '"expires_at": fields["refund_reason"], "not_before": fields["refund_reason"], "expected_side_effects": [fields["refund_reason"]]') + ("PROHIBITED_KEY_IN_FIXED_FORM",),
+    "E12b build_proposal update gains tenant_id": _bp_update('"tenant_id": fields["customer_id"]') + ("PROHIBITED_KEY_IN_FIXED_FORM",),
+    "E13 proposal built by model_validate": ("synthetic_host.py", BP_RET, '        return type(self.p0).model_validate({**self.p0.model_dump(), "actor": fields["customer_id"]})', "DYNAMIC_PROPOSAL_CONSTRUCTION"),
+    "E14 proposal built by __class__": ("synthetic_host.py", BP_RET, '        d = self.p0.model_dump()\n        return self.p0.__class__(**d)', "DYNAMIC_ATTRIBUTE_ACCESS"),
+    "E15 positional client value into ExecutionOperation in a new method": ("synthetic_host.py", ENV_RET,
+        ENV_RET + "\n    def envelope2(self, d, p, fields):\n        op = ExecutionOperation(p.actor, p.principal, 'i', fields['customer_id'])\n        return op\n", "POSITIONAL_NON_LITERAL"),
+    "E15b positional client value into ExecutionEnvelope": ("synthetic_host.py", ENV_RET, "        return ExecutionEnvelope(EXECUTION_ENVELOPE_VERSION, d.decision_id, p.payload['x'], op)\n", "POSITIONAL_NON_LITERAL"),
+    "E16 dynamic callee with attempt_id": ("core.py", "res = host.executor.execute(", "res = getattr(host.executor, 'exe' + 'cute')(attempt_id=fields['request_id'], ", "PROHIBITED_KEYWORD_NON_LITERAL"),
+    "E17 import-as rebinding of the claim name via match capture": ("core.py", "res = host.executor.execute(",
+        "from types import SimpleNamespace as claim_ns\n            match claim_ns(claim_id=fields['request_id']):\n                case claim_ns(claim_id=_) as claim:\n                    pass\n            res = host.executor.execute(", "ORIGIN_VIOLATION"),
+    "E17b import-as rebinding of the claim name": ("core.py", "res = host.executor.execute(", "from types import SimpleNamespace as claim\n            res = host.executor.execute(", "ORIGIN_VIOLATION"),
+    "E18 except-as rebinding of the claim name": ("core.py", "res = host.executor.execute(",
+        "try:\n                raise ValueError(fields['request_id'])\n            except ValueError as claim:\n                pass\n            res = host.executor.execute(", "ORIGIN_VIOLATION"),
+    "E19 helper function mutates the claim": ("core.py", "class IngressCore:", "def _poke(o, v):\n    object.__setattr__(o, 'claim_id', v)\n\n\nclass IngressCore:", "AUTHORITY_OBJECT_MUTATION"),
+    "E21 second execute call with attempt_id in a new method": ("core.py", "    def _run(self, fields, request_id) -> dict:",
+        "    def _alt(self, host, fields, claim, env):\n        return host.executor.execute(envelope=env, claim_id=claim.claim_id, attempt_id=fields['request_id'])\n\n    def _run(self, fields, request_id) -> dict:", "PROHIBITED_KEYWORD_NON_LITERAL"),
+}
+
+
+def _rebased_scan(root):
+    """Scan with the pins and the recursive digest re-based onto the mutated tree: only the source-aware rules decide (a plain edit would otherwise fail by un-pinning)."""
+    saved_pins = {k: dict(v) for k, v in _kwflow.PINNED_SITES.items()}
+    saved_tree = _kwflow.EXPECTED_TREE_SHA256
+    try:
+        _, tree = _kwflow.ingress_tree_manifest(sorted((root / "tools" / "mvp_ingress").glob("*.py")))
+        for r in _kwflow.PINNED_SITES.values():
+            r["reviewed_ingress_tree_sha256"] = tree
+        _kwflow.EXPECTED_TREE_SHA256 = _kwflow.tree_digest(_kwflow.tree_files(root))
+        return _kwflow.scan_dir(root)
+    finally:
+        _kwflow.PINNED_SITES.clear()
+        _kwflow.PINNED_SITES.update(saved_pins)
+        _kwflow.EXPECTED_TREE_SHA256 = saved_tree
+
+
+def test_unmutated_ingress_still_passes_when_rebased_control(tmp_path):
+    shutil.copytree(BASE / "tools" / "mvp_ingress", tmp_path / "tools" / "mvp_ingress")
+    obs = _rebased_scan(tmp_path)
+    assert obs["violations"] == [] and obs["pins_unmatched"] == [] and obs["required_sites_missing"] == []
+    assert len(obs["pinned_sites_used"]) == 3
+
+
+@pytest.mark.parametrize("label", sorted(V5_MUTANTS))
+def test_v5_evading_mutant_is_rejected_by_its_source_aware_rule(label, tmp_path):
+    dst = tmp_path / "tools" / "mvp_ingress"
+    shutil.copytree(BASE / "tools" / "mvp_ingress", dst)
+    fname, old, new, rule = V5_MUTANTS[label]
+    text = (dst / fname).read_text()
+    assert text.count(old) == 1, "mutation anchor not found exactly once"
+    (dst / fname).write_text(text.replace(old, new))
+    obs = _rebased_scan(tmp_path)
+    assert rule in {v["rule"] for v in obs["violations"]}, (label, [v["rule"] for v in obs["violations"]])
+    assert obs["pins_unmatched"] == [] or label.startswith("E15"), "the pinned sites must stay matched: the rule itself must reject the mutant"
+
+
+def test_real_hub_tree_is_unchanged_and_has_exactly_the_expected_files():
+    obs = _kwflow.scan_dir(BASE)
+    assert [r for r, k in obs["recursive_tree_files"]] == _kwflow.EXPECTED_TREE_FILES and all(k == "file" for _, k in obs["recursive_tree_files"])
+    assert len(_kwflow.EXPECTED_TREE_FILES) == 7 and obs["recursive_tree_sha256"] == _kwflow.EXPECTED_TREE_SHA256
+    assert obs["ingress_tree_sha256"] == "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"  # the *.py digest the pins bind is unchanged
+
+
+def _tree_copy(tmp_path):
+    shutil.copytree(BASE / "tools" / "mvp_ingress", tmp_path / "tools" / "mvp_ingress")
+    return tmp_path / "tools" / "mvp_ingress"
+
+
+@pytest.mark.parametrize("name,write", [
+    ("package shadowing proposal.py", lambda d: ((d / "proposal").mkdir(), (d / "proposal" / "__init__.py").write_text("raise SystemExit('shadow')\n"))),
+    ("non-py file", lambda d: (d / "ignored.txt").write_text("x")),
+    ("extension module", lambda d: (d / "proposal.cpython-313-x86_64-linux-gnu.so").write_bytes(b"\x7fELF")),
+    ("sitecustomize", lambda d: (d / "sitecustomize.py").write_text("")),
+    ("subpackage", lambda d: ((d / "sub").mkdir(), (d / "sub" / "__init__.py").write_text(""))),
+    ("empty directory", lambda d: (d / "emptydir").mkdir()),
+    ("symlink", lambda d: (d / "link.py").symlink_to("core.py")),
+    ("removed file", lambda d: (d / "BOUNDARY.md").unlink()),
+])
+def test_recursive_tree_rejects_extra_or_missing_entries(tmp_path, name, write):
+    d = _tree_copy(tmp_path)
+    write(d)
+    obs = _kwflow.scan_dir(tmp_path)
+    assert "INGRESS_TREE_FILE_LIST" in {v["rule"] for v in obs["violations"]}, name
+    assert "INGRESS_TREE_DIGEST" in {v["rule"] for v in obs["violations"]}, name
+
+
+def test_a_non_py_content_change_fails_the_recursive_digest_but_not_the_py_digest(tmp_path):
+    d = _tree_copy(tmp_path)
+    (d / "BOUNDARY.md").write_text((d / "BOUNDARY.md").read_text() + "\nedit\n")
+    obs = _kwflow.scan_dir(tmp_path)
+    assert obs["ingress_tree_sha256"] == "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
+    assert [v["rule"] for v in obs["violations"]] == ["INGRESS_TREE_DIGEST"]
+
+
+def test_ast_digest_pins_fail_closed_except_on_the_recorded_interpreter(monkeypatch):
+    assert all(r["ast_digest_python"] == "3.13" for r in _kwflow.PINNED_SITES.values())
+    monkeypatch.setattr(_kwflow, "PIN_PYTHON", "3.12")  # emulates running anywhere but the recorded interpreter
+    obs = _kwflow.scan_dir(BASE)
+    assert obs["ast_digest_python_match"] is False and obs["violations"] and obs["pinned_sites_used"] == []
+    assert obs["python_version"].count(".") == 2 and obs["ast_digest_python_required"] == "3.12"
+
+
+def test_pin_prose_states_that_request_id_flows_via_correlation_id():
+    text = _kwflow.PINNED_SITES["synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1"]["trusted_input_origin"]
+    assert "correlation_id" in text and "NOT among the 14 names" in text

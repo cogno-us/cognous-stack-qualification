@@ -91,7 +91,7 @@ Architect ruling Q2. Scenario `nc_authority_gates` (in `_chain.py`) drives the r
 * NC7-03: missing, invalid-state or expired evidence, and evidence missing at claim issuance, does not permit execution (zero effects).
 * Every row also requires the control case to execute exactly one effect, so a refusal cannot pass because nothing works at all.
 
-v7 is v6 plus these three rows (41 rows, 40 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (219 battery entries) is not the number of unique governance claims (40 mandatory rows).
+v7 is v6 plus these three rows (41 rows, 40 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (256 battery entries) is not the number of unique governance claims (40 mandatory rows).
 
 ## Run
 
@@ -134,3 +134,17 @@ Negative controls (tests, each must FAIL NC2-06): hook disabled (`ack.hook_fired
 - Approval revocation terminality (NC1-04) was expected to FAIL at Runtime `ec728da6` (a revoked approval could be reactivated). It must not be softened. At Runtime `c5e97e87` (F3 PR #144) the expectation is unchanged; whether it passes is a Qualification result, not asserted here.
 - Verifier run B uses a ledger derived by this harness; it is not a component artifact. Run A is the gated run.
 - Single Linux host and a single process; no claim about concurrent writers, process kill or financial finality.
+
+## NC4-03 predicate v5 (independent Q1 review; PROPOSED, builder-prepared)
+
+Narrowly scoped source-aware additions to `_kwflow.py` (no taint-analysis subsystem, no ingress change, `tools/mvp_ingress` untouched):
+
+1. literal-only protected keywords `attempt_id`, `budget_id`, `expires_at`, `decision_input_commitment`, `decision_input_profile_version`, `now` (only `now=host.now` is accepted) and the RuntimeProposal keys `evidence_refs`, `risk_metadata`, `run_id`, `expires_at`, `not_before`, `expected_side_effects`, `tenant_id`;
+2. rule `AUTHORITY_OBJECT_MUTATION`: attribute stores, `setattr`, `object.__setattr__` on non-self objects (including in helper functions); `DYNAMIC_PROPOSAL_CONSTRUCTION` (`model_validate`, `model_construct`, `vars`) and `DYNAMIC_ATTRIBUTE_ACCESS` (`__class__`, `__dict__`);
+3. rule `POSITIONAL_NON_LITERAL` for `ExecutionOperation`, `ExecutionEnvelope`, `execute`, `provision_claim`;
+4. rebinding by import-as, match capture, except-as and def/class of the tracked names;
+5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 7 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
+6. `ast_digest` pins carry `ast_digest_python` and are honoured on CPython 3.13 only (fail closed elsewhere), the observation records the interpreter;
+7. pin prose: `request_id` flows via `correlation_id` into the proposal commitment and is not among the 14 names.
+
+Every evading mutant of the review has a negative test (`test_v5_evading_mutant_is_rejected_by_its_source_aware_rule`, pins re-based so that only the new rule decides) and the unmodified ingress still passes. Not covered, not claimed: see `limitations.nc4_03_not_covered_not_claimed` in expectations v7.

@@ -10,7 +10,7 @@
    "process/mvp-chain/expectations.proposed.v2.json": "3a67d0a867447131bde11629fab9a84024d64d73f5d3fc9480cee996eb662245",
    "process/mvp-chain/expectations.proposed.v3.json": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4",
    "process/mvp-chain/expectations.proposed.v6.json": "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a",
-   "process/mvp-chain/expectations.proposed.v7.json": "a3284d18920f082757070b34cd691bfffdae39b76802d7d3a815b8595dcff1a7"
+   "process/mvp-chain/expectations.proposed.v7.json": "508be5da989efeffff6d429b0af3238067a2c7d91b45e09e02a77f6e0cfc3c37"
   },
   "note": "No expectation and no frozen file is changed to obtain a PASS: the gate refuses a different hash. v6 is the candidate mandatory expectation baseline (architect ruling Q1) and stays listed byte-identical; v7 is v6 plus the three required negative controls NC7-01..03 (architect ruling Q2), a builder-prepared proposal: Qualification owns the oracle and every verdict."
  },
@@ -1476,6 +1476,265 @@
    "test": "test_mutant_ingress_fails[host: pinned ExecutionOperation site changed (un-pins)]"
   },
   {
+   "id": "KW-144",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pin_record_missing_field_fails[ast_digest_python]"
+  },
+  {
+   "id": "KW-145",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_unmutated_ingress_still_passes_when_rebased_control"
+  },
+  {
+   "id": "KW-146",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E01 provision_claim budget_id from client]"
+  },
+  {
+   "id": "KW-147",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E02 execute attempt_id from client]"
+  },
+  {
+   "id": "KW-148",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E03 provision_claim expires_at from client]"
+  },
+  {
+   "id": "KW-149",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E04 provision_claim decision_input_commitment from client]"
+  },
+  {
+   "id": "KW-150",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E04b provision_claim decision_input_profile_version from client]"
+  },
+  {
+   "id": "KW-151",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E05 decide now from client]"
+  },
+  {
+   "id": "KW-152",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E07 object.__setattr__ on claim]"
+  },
+  {
+   "id": "KW-153",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E08 attribute store on decision.binding]"
+  },
+  {
+   "id": "KW-154",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E09 setattr on proposal in _run]"
+  },
+  {
+   "id": "KW-155",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E10 attribute store on p in build_proposal]"
+  },
+  {
+   "id": "KW-156",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E11 setattr on p in build_proposal]"
+  },
+  {
+   "id": "KW-157",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E12 build_proposal update gains RuntimeProposal fields]"
+  },
+  {
+   "id": "KW-158",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E12b build_proposal update gains tenant_id]"
+  },
+  {
+   "id": "KW-159",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E13 proposal built by model_validate]"
+  },
+  {
+   "id": "KW-160",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E14 proposal built by __class__]"
+  },
+  {
+   "id": "KW-161",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E15 positional client value into ExecutionOperation in a new method]"
+  },
+  {
+   "id": "KW-162",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E15b positional client value into ExecutionEnvelope]"
+  },
+  {
+   "id": "KW-163",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E16 dynamic callee with attempt_id]"
+  },
+  {
+   "id": "KW-164",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E17 import-as rebinding of the claim name via match capture]"
+  },
+  {
+   "id": "KW-165",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E17b import-as rebinding of the claim name]"
+  },
+  {
+   "id": "KW-166",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E18 except-as rebinding of the claim name]"
+  },
+  {
+   "id": "KW-167",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E19 helper function mutates the claim]"
+  },
+  {
+   "id": "KW-168",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_v5_evading_mutant_is_rejected_by_its_source_aware_rule[E21 second execute call with attempt_id in a new method]"
+  },
+  {
+   "id": "KW-169",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_real_hub_tree_is_unchanged_and_has_exactly_the_expected_files"
+  },
+  {
+   "id": "KW-170",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[package shadowing proposal.py-<lambda>]"
+  },
+  {
+   "id": "KW-171",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[non-py file-<lambda>]"
+  },
+  {
+   "id": "KW-172",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[extension module-<lambda>]"
+  },
+  {
+   "id": "KW-173",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[sitecustomize-<lambda>]"
+  },
+  {
+   "id": "KW-174",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[subpackage-<lambda>]"
+  },
+  {
+   "id": "KW-175",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[empty directory-<lambda>]"
+  },
+  {
+   "id": "KW-176",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[symlink-<lambda>]"
+  },
+  {
+   "id": "KW-177",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_recursive_tree_rejects_extra_or_missing_entries[removed file-<lambda>]"
+  },
+  {
+   "id": "KW-178",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_a_non_py_content_change_fails_the_recursive_digest_but_not_the_py_digest"
+  },
+  {
+   "id": "KW-179",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_ast_digest_pins_fail_closed_except_on_the_recorded_interpreter"
+  },
+  {
+   "id": "KW-180",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pin_prose_states_that_request_id_flows_via_correlation_id"
+  },
+  {
    "id": "AMB-01",
    "kind": "supplementary_nc2_06_negative_control",
    "invocation": "mvp-chain",
@@ -1700,7 +1959,7 @@
   "note": "Entries of kind supplementary_* are mandatory in the same sense as every other entry of tests (zero unexplained skips, a failure is a REJECT) but they are NOT oracle rows: supplementary_nc4_03_predicate lists every collected test of suites/mvp-chain/test_kwflow.py (self-tests of the NC4-03 data-flow predicate: negative and positive fixtures, pin records, tree digest, mutants); supplementary_nc2_06_negative_control lists the six tests of suites/mvp-chain/test_ingress_ambiguity.py (the supported-path test and five negative controls, each of which must FAIL the NC2-06 predicate). Listing them keeps G-13 (a collected test that is not committed is INCOMPLETE) satisfied and puts them under G-05/G-06. The NC2-06 oracle row itself is test_mvp_chain.py::test_row[NC2-06]. supplementary_route_b_mediation (MED-01..16, invocation d2-route-b) maps the existing route-B effect-path mediation tests of suites/mvp-d2-route-b/test_inventory_negatives.py (every test_REFUSED_* case, the Control Plane workflow-execute no-write check and the no-apply check; architect ruling Q5). The six remaining tests of that file are recorded as non-mandatory characterisations (D2C-01..06). Inventory counts are not governance claims: the unique claims are the oracle rows.",
   "counts": {
    "oracle_row": 40,
-   "supplementary_nc4_03_predicate": 143,
+   "supplementary_nc4_03_predicate": 180,
    "supplementary_nc2_06_negative_control": 6,
    "supplementary_route_b_mediation": 16
   }

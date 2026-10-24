@@ -505,7 +505,7 @@ class RulingsTwoTests(GateTests):
             self.assertEqual(G.sha256_file(ROOT / rel), digest, f"{rel} changed: regenerate the commitment as a NEW versioned candidate (python tools/mvp_acceptance_gate.py commit)")
         self.assertIn("PROPOSED", doc["status"])
         self.assertEqual(doc["candidate_version"], f"mvp-qualification-candidate-v{G.COMMITMENT_VERSION}")
-        self.assertEqual(G.COMMITMENT_VERSION, 2)
+        self.assertEqual(G.COMMITMENT_VERSION, 3)
 
     def test_commitment_requires_an_independent_hash_and_detects_any_change(self):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="")["checks"]}["G-12"], "INCOMPLETE")
@@ -1229,7 +1229,7 @@ class ComposedV6BatteryTests(unittest.TestCase):
         kinds = {t["file"]: t["kind"] for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
         self.assertEqual(kinds, {"suites/mvp-chain/test_kwflow.py": "supplementary_nc4_03_predicate",
                                  "suites/mvp-chain/test_ingress_ambiguity.py": "supplementary_nc2_06_negative_control"})
-        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 143)
+        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 180)
         self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc2_06_negative_control"]), 6)
 
     def test_workflow_collect_and_run_lists_equal_the_battery_paths(self):

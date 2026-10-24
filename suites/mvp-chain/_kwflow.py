@@ -33,41 +33,54 @@ import ast
 import hashlib
 import pathlib
 import re
+import sys
 
-PREDICATE_ID = "nc4-03.v4.strict-refinement-dataflow"
+PREDICATE_ID = "nc4-03.v5.strict-refinement-dataflow"
 PROTECTED_CALLS = frozenset({"execute", "execute_claim_atomic", "provision_claim", "decide", "bind_approval"})
 PROTECTED_CTORS = frozenset({"ExecutionOperation", "ExecutionEnvelope", "OperationIdentityProfile", "AtomicLocalControlPlaneExecutor",
                              "OperationIdentityAtomicAuthorityEffectDestination", "LocalExecutionPolicy"})
 PROTECTED = PROTECTED_CALLS | PROTECTED_CTORS | {"model_copy"}
+# v5 (architect ruling on the independent Q1 review): real parameters of the Control Plane / Runtime calls (atomic_local_control_plane_executor.py execute and
+# provision_claim) and RuntimeProposal fields that no client value may reach; each is literal-only, except ``now=host.now`` (the trusted host clock).
+EXTRA_PROHIBITED = (r"|attempt_id|budget_id|expires_at|decision_input_commitment|decision_input_profile_version|now|evidence_refs|risk_metadata|run_id|not_before"
+                    r"|expected_side_effects|tenant_id")
 BASE_PROHIBITED = re.compile(r"^(simulate|operation_id|operation_identity\w*|operation_override\w*|\w*writer\w*|set_(grant|approval|policy|evidence)_\w+)$")
 MAPPING_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|grant_id|grant_revision|effective_max_effects|authority_context_id|actor|principal|claim_id|idempotency_key"
-                              r"|manifest_id|manifest_version|manifest_digest|action_id|adapter_id|requirement_id|authority_context_ref|requested_permissions|effects)$")
+                              r"|manifest_id|manifest_version|manifest_digest|action_id|adapter_id|requirement_id|authority_context_ref|requested_permissions|effects"
+                                + EXTRA_PROHIBITED + r")$")
 # explicit keywords: BASE plus the names the real ingress never passes explicitly with a non-literal value (it passes claim_id, grant_id, grant_revision,
 # effective_max_effects, authority_context_id, requested_permissions explicitly on trusted call sites, so those stay mapping-only; disclosed in the proposal)
 EXPLICIT_PROHIBITED = re.compile(BASE_PROHIBITED.pattern[:-2] + r"|actor|principal|idempotency_key|manifest_id|manifest_version|manifest_digest|action_id|adapter_id"
-                                 r"|requirement_id|authority_context_ref|effects)$")
+                                 r"|requirement_id|authority_context_ref|effects" + EXTRA_PROHIBITED + r")$")
 SQLITE_RECEIVERS = frozenset({"c"})
 
+AUTH_ROOTS = frozenset({"claim", "decision", "binding", "proposal", "p", "d", "op", "envelope", "env", "res", "p0"})
+AUTH_CHAIN_ATTRS = frozenset({"binding", "p0"})
+POSITIONAL_GUARDED = frozenset({"ExecutionOperation", "ExecutionEnvelope", "execute", "provision_claim"})
+DYNAMIC_ATTRS = frozenset({"__class__", "__dict__", "__setattr__", "__setstate__", "__init__"})
+CONSTRUCTORS = frozenset({"model_validate", "model_construct", "model_validate_json", "model_validate_strings"})
+SETTERS = frozenset({"setattr", "delattr", "__setattr__", "__delattr__"})
+PIN_PYTHON = "3.13"  # ast.dump differs across 3.11/3.12/3.13: ast_digest pins are honoured on this interpreter only (fail closed elsewhere)
 PRODUCER_RECEIVER = {"decide": "host.workflow", "provision_claim": "host.executor", "build_proposal": "host"}
 ESCAPE_NAMES = PROTECTED_CALLS | {"envelope"}
 SIX = frozenset({"claim_id", "grant_id", "grant_revision", "effective_max_effects", "authority_context_id", "requested_permissions"})
 HUB_REVISION = "43c526eb1c8df9f07942ac36a6b2d11e14775bd1"
-PIN_FIELDS = ("reviewed_ingress_tree_sha256", "ast_digest", "trusted_input_origin", "protected_destination")
+PIN_FIELDS = ("reviewed_ingress_tree_sha256", "ast_digest", "ast_digest_python", "trusted_input_origin", "protected_destination")
 # Exact reviewed sites, keyed "file:qualname:callee#ordinal". ast_digest = sha256 over ast.dump (no line/col, so comments/blank lines/formatting are
 # irrelevant) of the call node plus its whole enclosing function; any semantic AST change invalidates the pin. A pin with a missing or empty
 # field makes the predicate fail (pin_records_incomplete).
 PINNED_SITES = {
     "synthetic_host.py:SyntheticHost.__init__:original#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest_python": PIN_PYTHON, "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
         "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it",
         "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API"},
     "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest_python": PIN_PYTHON, "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
         "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host",
         "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)"},
     "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
-        "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount, unit, request_id come from the client under non-prohibited keys), fixed 14 field names",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058", "ast_digest_python": PIN_PYTHON, "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
+        "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount and unit come from the client under non-prohibited keys; request_id flows via correlation_id into the proposal commitment and is NOT among the 14 names), fixed 14 field names",
         "protected_destination": "ExecutionOperation(...) constructor feeding ExecutionEnvelope for AtomicLocalControlPlaneExecutor.execute"},
 }
 REQUIRED_SITES = [  # exact-site pin of the real protected calls the oracle must see (file, qualname, callee, ordinal)
@@ -79,6 +92,16 @@ REQUIRED_SITES = [  # exact-site pin of the real protected calls the oracle must
     ("synthetic_host.py", "SyntheticHost.__init__", "AtomicLocalControlPlaneExecutor", 1),
     ("synthetic_host.py", "SyntheticHost.envelope", "ExecutionOperation", 1), ("synthetic_host.py", "SyntheticHost.envelope", "ExecutionEnvelope", 1)]
 EXPECTED_FILES = ["__init__.py", "client.py", "core.py", "proposal.py", "server.py", "synthetic_host.py"]
+# v5: the WHOLE tree under tools/mvp_ingress, recursively, as regular files (non-.py files, subpackages, extension modules included). The ast pins keep binding
+# the *.py digest above; this is a separate check.
+EXPECTED_TREE_SHA256 = "8d6611fc66e4decd6dccf58dfe8ac3cf6ad0484e52a7e5eb0b9e3127c7089387"  # sha256 over "<rel>\0<kind>\0<sha256>\n" of every entry, see tree_files()
+EXPECTED_TREE_FILES = ["BOUNDARY.md", "__init__.py", "client.py", "core.py", "proposal.py", "server.py", "synthetic_host.py"]
+
+
+def pin_python():
+    """The interpreter an ast_digest pin is honoured on: ``<major>.<minor>`` when it equals PIN_PYTHON, else None (every pin fails closed)."""
+    v = f"{sys.version_info[0]}.{sys.version_info[1]}"
+    return v if v == PIN_PYTHON else None
 
 
 def _is_const_str(n):
@@ -105,6 +128,7 @@ class Analyzer:
         self.alias, self.assign = {}, {}
         self.loads, self.stores, self.escapes = {}, {}, set()
         self.parent, self._memo = {}, {}
+        self.other_binds = {}
         self._index()
 
     # ---- indexing -------------------------------------------------------------
@@ -112,6 +136,8 @@ class Analyzer:
         for n in ast.walk(self.tree):
             for c in ast.iter_child_nodes(n):
                 self.parent[c] = n
+            for nm in self._binders(n):
+                self.other_binds.setdefault(nm, []).append(n)
             if isinstance(n, ast.Import):
                 for a in n.names:
                     if a.asname:
@@ -132,6 +158,21 @@ class Analyzer:
                         self.assign.setdefault("." + t.attr, []).append(n.value)
             elif isinstance(n, (ast.AugAssign, ast.AnnAssign, ast.NamedExpr)) and isinstance(getattr(n, "target", None), ast.Name):
                 self.assign.setdefault(n.target.id, []).append(getattr(n, "value", None))
+
+    @staticmethod
+    def _binders(n):
+        """Names bound by statements that are NOT plain ``Name`` stores: import (with or without as), except-as, match captures, def/class names."""
+        if isinstance(n, ast.alias):
+            return [n.asname or n.name.split(".")[0]]
+        if isinstance(n, ast.ExceptHandler) and n.name:
+            return [n.name]
+        if isinstance(n, (ast.MatchAs, ast.MatchStar)) and n.name:
+            return [n.name]
+        if isinstance(n, ast.MatchMapping) and n.rest:
+            return [n.rest]
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            return [n.name]
+        return []
 
     def names_of(self, e, depth=0):
         """Possible final callee names of an expression; 'UNRESOLVED' when it cannot be determined statically."""
@@ -231,7 +272,7 @@ class Analyzer:
     def _host_ok(self, call):
         """N5: `host` must be bound exactly once, in the enclosing function, as `host = self._host`, and must not be a parameter."""
         fn = self._enclosing_func(call)
-        if fn is None or "host" in self._arg_names(fn) or "host" in self.escapes:
+        if fn is None or "host" in self._arg_names(fn) or "host" in self.escapes or "host" in self.other_binds:
             return False
         stores = self.stores.get("host", [])
         if not stores or any(self._enclosing_func(st) is not fn for st in stores):
@@ -243,7 +284,7 @@ class Analyzer:
         """Scoped single-binding test: within the enclosing function of `use`, `ident` is not a parameter (of it or of an intervening lambda), is bound
         in no other scope, is not global/nonlocal, and every binding is a plain `ident = <producer call>`."""
         fn = self._enclosing_func(use)
-        if ident in self.escapes or (fn is not None and ident in self._arg_names(fn)):
+        if ident in self.escapes or ident in self.other_binds or (fn is not None and ident in self._arg_names(fn)):
             return False
         p = self.parent.get(use)
         while p is not None and p is not fn:
@@ -264,7 +305,8 @@ class Analyzer:
         if self._bound_only_from(node, node.id, producers):
             return True
         fn = self._enclosing_func(node)
-        return bool(fn and fn.name == "envelope" and node.id in params and node.id not in self.stores and node.id in self._arg_names(fn))
+        return bool(fn and fn.name == "envelope" and node.id in params and node.id not in self.stores and node.id not in self.other_binds
+                    and node.id in self._arg_names(fn))
 
     def origin_ok(self, field, v):
         if isinstance(v, ast.Constant):
@@ -281,6 +323,28 @@ class Analyzer:
         if field == "authority_context_id":  # the selected trusted authority context carried by the template-derived proposal
             return v.attr in ("authority_context_ref", "authority_context_id") and self._root_ok(v.value, {"build_proposal"}, {"p", "proposal"})
         return v.attr == "requested_permissions" and self._root_ok(v.value, {"build_proposal"}, {"p", "proposal"})  # derived from the authorized operation
+
+    def _positional_ok(self, a):
+        if isinstance(a, ast.Constant):
+            return True
+        if isinstance(a, ast.Name):
+            if re.fullmatch(r"[A-Z][A-Z0-9_]*", a.id) and a.id not in self.stores and all(isinstance(b, ast.alias) for b in self.other_binds.get(a.id, [])):
+                return True
+            fn = self._enclosing_func(a)
+            stores = self.stores.get(a.id, [])
+            if fn is None or not stores or a.id in self.escapes or a.id in self.other_binds or a.id in self._arg_names(fn):
+                return False
+            ps = [self.parent.get(st) for st in stores]
+            return all(isinstance(x, ast.Assign) and len(x.targets) == 1 and self._enclosing_func(x) is fn and isinstance(x.value, ast.Call)
+                       and isinstance(x.value.func, ast.Name) and x.value.func.id == "ExecutionOperation" for x in ps)
+        if isinstance(a, ast.Attribute):
+            root = a
+            while isinstance(root, ast.Attribute):
+                root = root.value
+            fn = self._enclosing_func(a)
+            return bool(isinstance(root, ast.Name) and fn and fn.name == "envelope" and root.id in self._arg_names(fn) and root.id not in self.stores
+                        and root.id not in self.other_binds and root.id in {"d", "p", "decision", "proposal"})
+        return False
 
     def check_envelope_caller(self, node, ordinal):
         if isinstance(node.func, ast.Attribute) and node.func.attr == "envelope":
@@ -313,7 +377,7 @@ class Analyzer:
         f = {"file": self.filename, "line": node.lineno, "rule": rule, "callee": callee, "detail": detail, "source": ast.unparse(node)[:160],
              "site": pid, "ast_digest": digest}
         rec = PINNED_SITES.get(pid)
-        pin = pid if (rec and rec.get("ast_digest") == digest and all(rec.get(k) for k in PIN_FIELDS)
+        pin = pid if (rec and rec.get("ast_digest") == digest and all(rec.get(k) for k in PIN_FIELDS) and rec.get("ast_digest_python") == pin_python()
                       and self.tree_digest and rec["reviewed_ingress_tree_sha256"] == self.tree_digest) else None
         (self.pinned if pin else self.findings).append({**f, "pinned": pin} if pin else f)
 
@@ -334,7 +398,28 @@ class Analyzer:
                 if hit and not (isinstance(par, ast.Call) and par.func is n):
                     self.record(n, "PROTECTED_CALLABLE_ESCAPES", "protected callable referenced as a value, not called directly", sorted(hit)[0], 0)
             self._shadow(n)
+            self._structural(n)
         return self
+
+    def _structural(self, n):
+        """v5 narrow, source-aware rules (not a taint analysis): attribute stores / setattr on authority objects, dynamic construction, dynamic attributes."""
+        if isinstance(n, ast.Attribute) and isinstance(n.ctx, (ast.Store, ast.Del)):
+            root, chain = n, []
+            while isinstance(root, ast.Attribute):
+                chain.append(root.attr)
+                root = root.value
+            if isinstance(root, ast.Name) and (root.id in AUTH_ROOTS or AUTH_CHAIN_ATTRS & set(chain[1:])):
+                self.record(n, "AUTHORITY_OBJECT_MUTATION", f"attribute store on {ast.unparse(n)[:50]}", "setattr", 0)
+        elif isinstance(n, ast.Call):
+            f = n.func
+            fname = f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else None
+            fname = self.alias.get(fname, fname)
+            if fname in SETTERS and not (n.args and isinstance(n.args[0], ast.Name) and n.args[0].id == "self"):
+                self.record(n, "AUTHORITY_OBJECT_MUTATION", f"{fname}(...) on a non-self object", "setattr", 0)
+            elif fname in CONSTRUCTORS or fname == "vars":
+                self.record(n, "DYNAMIC_PROPOSAL_CONSTRUCTION", f"{fname}(...) builds or exposes an object outside the model_copy(update=display) form", fname, 0)
+        elif isinstance(n, ast.Attribute) and isinstance(n.ctx, ast.Load) and n.attr in DYNAMIC_ATTRS and not (n.attr == "__init__" and ast.unparse(n.value) == "super()"):
+            self.record(n, "DYNAMIC_ATTRIBUTE_ACCESS", f"{n.attr} access", n.attr, 0)
 
     def _shadow(self, n):
         bound = []
@@ -383,7 +468,8 @@ class Analyzer:
             elif kw.arg in SIX and (protected or is_partial or "UNRESOLVED" in names):
                 if not self.origin_ok(kw.arg, kw.value):
                     self.record(node, "ORIGIN_VIOLATION", f"{kw.arg}={ast.unparse(kw.value)[:60]} has no trusted origin", callee, ordinal)
-            elif (protected or is_partial or "UNRESOLVED" in names) and EXPLICIT_PROHIBITED.match(kw.arg) and not _literal_ok(kw.arg, kw.value):
+            elif (protected or is_partial or "UNRESOLVED" in names) and EXPLICIT_PROHIBITED.match(kw.arg) and not _literal_ok(kw.arg, kw.value) \
+                    and not (kw.arg == "now" and ast.unparse(kw.value) == "host.now" and self._host_ok(node)):
                 self.record(node, "PROHIBITED_KEYWORD_NON_LITERAL", f"{kw.arg}={ast.unparse(kw.value)[:50]}", callee, ordinal)
             elif kw.arg == "update" and callee == "model_copy":
                 for rule, d in self.check_mapping(kw.value, None):
@@ -393,6 +479,10 @@ class Analyzer:
                 own = lam and isinstance(a.value, ast.Name) and a.value.id in lam
                 if not own and not isinstance(a.value, (ast.Tuple, ast.List)):
                     self.record(node, "OPAQUE_POSITIONAL_UNPACK", f"*{ast.unparse(a.value)[:50]} into protected/unresolved/protected-callable-receiving call", callee, ordinal)
+        if real and callee in POSITIONAL_GUARDED:
+            for a in node.args:
+                if not isinstance(a, ast.Starred) and not self._positional_ok(a):
+                    self.record(node, "POSITIONAL_NON_LITERAL", f"positional argument {ast.unparse(a)[:50]} into {callee} is neither a literal, a constant, a local ExecutionOperation, nor an attribute of the envelope() parameters", callee, ordinal)
         if forwards or real:
             self.examined.append({"file": self.filename, "line": node.lineno, "callee": callee, "protected": real, "forwards": forwards})
 
@@ -409,12 +499,52 @@ def ingress_tree_manifest(files):
     return pairs, hashlib.sha256("".join(f"{n}\0{h}\n" for n, h in pairs).encode()).hexdigest()
 
 
+def tree_files(hub):
+    """Every entry under tools/mvp_ingress, recursively: (relative posix path, kind, sha256 or None). kind is file, symlink, dir (empty or not listed as file)."""
+    root = pathlib.Path(hub) / "tools" / "mvp_ingress"
+    out = []
+    for p in sorted(root.rglob("*"), key=lambda q: q.relative_to(root).as_posix().encode()):
+        rel = p.relative_to(root).as_posix()
+        if p.is_symlink():
+            out.append((rel, "symlink", None))
+        elif p.is_file():
+            out.append((rel, "file", hashlib.sha256(p.read_bytes()).hexdigest()))
+        elif p.is_dir():
+            out.append((rel, "dir", None))
+        else:
+            out.append((rel, "special", None))
+    return out
+
+
+def tree_digest(entries):
+    return hashlib.sha256("".join(f"{r}\0{k}\0{h}\n" for r, k, h in entries).encode()).hexdigest()
+
+
+def tree_findings(entries):
+    """Violations for the recursive tree: exact regular-file list, no directory, symlink or special entry, nothing else."""
+    bad = []
+    names = [e[0] for e in entries if e[1] == "file"]
+    extra = sorted(set(names) - set(EXPECTED_TREE_FILES))
+    missing = sorted(set(EXPECTED_TREE_FILES) - set(names))
+    other = [f"{e[0]} ({e[1]})" for e in entries if e[1] != "file"]
+    if extra or missing or other:
+        bad.append({"file": "tools/mvp_ingress", "line": 0, "rule": "INGRESS_TREE_FILE_LIST", "callee": "tree", "site": "tree",
+                    "detail": f"unexpected files {extra}, missing files {missing}, non-regular entries {other}", "source": "", "ast_digest": ""})
+    if tree_digest(entries) != EXPECTED_TREE_SHA256:
+        bad.append({"file": "tools/mvp_ingress", "line": 0, "rule": "INGRESS_TREE_DIGEST", "callee": "tree", "site": "tree", "source": "", "ast_digest": "",
+                    "detail": "recursive tree digest differs from the reviewed one (any byte of any file under tools/mvp_ingress, including non-.py files)"})
+    return bad
+
+
 def scan_dir(hub, hub_revision=None):
     """hub_revision is INFORMATIONAL only (recorded, never gating): a pin is honoured by content (ingress tree digest), not by commit sha."""
     """Observation record for NC4-03 v4 (source-level). Keys are the ones expectations v4 reads."""
     files = sorted((pathlib.Path(hub) / "tools" / "mvp_ingress").glob("*.py"))
     findings, pinned, examined, sites = [], [], [], []
     pairs, tree = ingress_tree_manifest(files)
+    entries = tree_files(hub)
+    rec_digest = tree_digest(entries)
+    findings += tree_findings(entries)
     for f in files:
         a = Analyzer(f.read_text(), f.name, tree).run()
         findings += a.findings
@@ -428,6 +558,9 @@ def scan_dir(hub, hub_revision=None):
             "scanned_hub_revision": hub_revision, "hub_revision_verified": bool(hub_revision and re.fullmatch(r"[0-9a-f]{40}", hub_revision)),
             "pin_source_revision_mismatch": sorted(k for k, r in PINNED_SITES.items() if r.get("originating_hub_commit") != hub_revision),  # informational
             "files_scanned": [f.name for f in files],
+            "recursive_tree_files": [[r, k] for r, k, _ in entries], "recursive_tree_sha256": rec_digest,
+            "python_version": f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}", "ast_digest_python_required": PIN_PYTHON,
+            "ast_digest_python_match": pin_python() is not None,
             "violations": findings, "simulate_violations": [x for x in findings if x["rule"] == "SIMULATE_NOT_CONSTANT_NONE"],
             "client_fed_kwargs_to_protected": [x for x in findings if x["rule"] != "SIMULATE_NOT_CONSTANT_NONE"],
             "required_sites_missing": [list(s) for s in REQUIRED_SITES if s not in have],
