@@ -159,6 +159,8 @@ jobs:
           MVP_HUB_REVISION: ${{ steps.tuple.outputs.hub }}
           MVP_RESULTS_DIR: ${{ github.workspace }}/results/mvp-chain
           PYTHONDONTWRITEBYTECODE: '1'
+          # explicit supplementary profile: this workflow provisions no dedicated users, so the default (approved) profile would BLOCK NC4; a developer-optout run is never an acceptance (the whole-run verdict is INCOMPLETE)
+          MVP_INGRESS_PROFILE: developer-optout
         run: |
           mkdir -p results/mvp-chain
           sudo git config --global --add safe.directory '*'

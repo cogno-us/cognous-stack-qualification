@@ -220,8 +220,8 @@ jobs:
         run: |
           d=results/mvp-acceptance
           set +e
-          MVP_EXCLUSION_TAG=mvp-chain PYTHONPATH="$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" \
-            sudo -E env "PATH=$PATH" python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin \
+          MVP_EXCLUSION_TAG=mvp-chain \
+            sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin \
             suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py \
             -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-mvp-chain" --junitxml="$d/junit-mvp-chain.xml"
           echo $? > "$d/pytest-exit-mvp-chain.txt"
