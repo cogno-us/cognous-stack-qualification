@@ -514,7 +514,8 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
 
 
 # ------------------------------------------------------------------------------------------------ commitment and environment
-COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v1.json"
+COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v2.json"
+COMMITMENT_VERSION = int(re.search(r"\.v(\d+)\.json$", COMMITMENT_FILE).group(1))  # the candidate version follows the file name
 ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
 SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability")
 ABSENT_CANDIDATES = ("conftest.py", "suites/conftest.py", "tox.ini", "setup.cfg", "pyproject.toml")
@@ -646,9 +647,9 @@ def build_commitment(repo_root: Path, out: Path) -> dict:
     links = symlinks_in(root, files)
     if links:
         raise SystemExit(f"commit refused: symbolic links in the committed set: {links}")
-    doc = {"schema": "cognous.mvp-qualification-candidate-commitment/1", "candidate_version": "mvp-qualification-candidate-v1",
+    doc = {"schema": "cognous.mvp-qualification-candidate-commitment/1", "candidate_version": f"mvp-qualification-candidate-v{COMMITMENT_VERSION}",
            "status": "PROPOSED; pending independent Qualification acceptance and freeze (target 2026-10-27). Not frozen, not an acceptance; release HOLD.",
-           "supersession": "A change to any listed file is a NEW candidate: write candidate-commitment.proposed.v2.json (and new versions of the changed inputs) and re-run. "
+           "supersession": f"A change to any listed file is a NEW candidate: write candidate-commitment.proposed.v{COMMITMENT_VERSION + 1}.json (and new versions of the changed inputs) and re-run. "
                            "This file is never edited in place once frozen, and the gate compares the committed list to the files present, so an added, removed or changed "
                            "mandatory test, imported module, input, lock file, pytest.ini, gate or workflow is refused, as is any symbolic link in the set.",
            "independence": "The sha256 of THIS file must be supplied to the gate from outside this checkout (workflow input candidate_commitment_sha256, recorded by Qualification). "

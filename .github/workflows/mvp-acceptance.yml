@@ -10,7 +10,7 @@ name: MVP acceptance (proposed)
 # input change only. Every checkout is verified to be at exactly its sha and pristine before any test runs.
 # The gate (tools/mvp_acceptance_gate.py) applies process/mvp-acceptance/mandatory-battery.proposed.v1.json: zero unexplained skips WITHIN that frozen
 # mandatory battery (a skipped, undiscovered, unexecuted or errored mandatory test is INCOMPLETE, never ACCEPT), exact Verifier dispositions, expectations
-# frozen expectation files byte-identical (the files named in the battery's unchanged_files_sha256), the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
+# frozen expectation files byte-identical (the files named in the battery's unchanged_files_sha256: v1-v3 and the composed proposal v6, which is the oracle in force), the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
 # the hub environment record, CAPTURED IN THE RUN against the very ingress process the suite attacks (dedicated non-root uid and group, 0660 socket in a separate IPC
 # directory, Yama ptrace_scope >= 1 set here via sudo sysctl; absent Yama is BLOCKED/INCOMPLETE) and bound to this run by a gate-side envelope (run_id, qualification_sha,
 # record hash, pinned capture script). hub_revision MUST name a hub sha containing tools/mvp_env_record/capture_env_record.py with sha256
@@ -60,7 +60,7 @@ name: MVP acceptance (proposed)
         default: ''
         type: string
       candidate_commitment_sha256:
-        description: sha256 of process/mvp-acceptance/candidate-commitment.proposed.v1.json as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
+        description: sha256 of process/mvp-acceptance/candidate-commitment.proposed.v2.json as recorded by Qualification, outside this checkout (blank is an INCOMPLETE verdict)
         required: false
         default: ''
         type: string
@@ -213,7 +213,8 @@ jobs:
           set -o pipefail
           d=results/mvp-acceptance
           MVP_RESULTS_DIR="$d/collect-mvp-chain" python -m pytest --collect-only -q -p no:cacheprovider \
-            suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py | tee "$d/collected-mvp-chain.txt"
+            suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py \
+            suites/mvp-chain/test_kwflow.py suites/mvp-chain/test_ingress_ambiguity.py | tee "$d/collected-mvp-chain.txt"
           MVP_RESULTS_DIR="$d/collect-applicability" python -m pytest --collect-only -q -p no:cacheprovider \
             suites/mvp-applicability/test_route_c_exclusion.py | tee "$d/collected-applicability.txt"
       - name: Run the chain battery as root (NC4 starts the ingress as the dedicated non-root uid and the client as another; the hub environment record is captured in-run against that process); the exit status is recorded and judged by the gate, never suppressed
@@ -223,6 +224,7 @@ jobs:
           MVP_EXCLUSION_TAG=mvp-chain PYTHONPATH="$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" \
             sudo -E env "PATH=$PATH" python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin \
             suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py \
+            suites/mvp-chain/test_kwflow.py suites/mvp-chain/test_ingress_ambiguity.py \
             -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-mvp-chain" --junitxml="$d/junit-mvp-chain.xml"
           echo $? > "$d/pytest-exit-mvp-chain.txt"
           exit 0

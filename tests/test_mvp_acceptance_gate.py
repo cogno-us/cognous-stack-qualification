@@ -7,8 +7,10 @@ listed; a Verifier disposition that is not exactly the expected one is a REJECT;
 import copy
 import hashlib
 import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -169,7 +171,7 @@ class GateTests(unittest.TestCase):
         (rd / "mvp-chain/artifacts/ingress-modules.json").write_text(json.dumps(
             {"run_id": RUN, "modules": {"os": "/usr/lib/os.py", "tools.mvp_ingress.server": "/hub/tools/mvp_ingress/server.py"}, "sys_path": ["/hub"]}))
         rows = [{"id": t["row"], "status": (row_status or {}).get(t["row"], "PASS")} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
-        v3 = BATTERY["oracle"]["unchanged_files_sha256"][BATTERY["oracle"]["expectations_in_force"]]
+        v3 = BATTERY["oracle"]["unchanged_files_sha256"][BATTERY["oracle"]["expectations_in_force"]]  # the oracle in force (v6 in this proposal)
         (rd / "mvp-chain/results.json").write_text(json.dumps({"run_id": RUN, "expectations_sha256": v3, "rows": rows, "counts": {},
                                                                "tuple": {"heads": {n: c["sha"] for n, c in comps.items()}}}))
         vrun = {}
@@ -501,7 +503,8 @@ class RulingsTwoTests(GateTests):
         for rel, digest in doc["files"].items():
             self.assertEqual(G.sha256_file(ROOT / rel), digest, f"{rel} changed: regenerate the commitment as a NEW versioned candidate (python tools/mvp_acceptance_gate.py commit)")
         self.assertIn("PROPOSED", doc["status"])
-        self.assertEqual(doc["candidate_version"], "mvp-qualification-candidate-v1")
+        self.assertEqual(doc["candidate_version"], f"mvp-qualification-candidate-v{G.COMMITMENT_VERSION}")
+        self.assertEqual(G.COMMITMENT_VERSION, 2)
 
     def test_commitment_requires_an_independent_hash_and_detects_any_change(self):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="")["checks"]}["G-12"], "INCOMPLETE")
@@ -1166,6 +1169,95 @@ class OracleMessageAndIdentityTests(unittest.TestCase):
         pin = json.loads((ROOT / "process/mvp-chain/tuple-pin.proposed.json").read_text())["components"]
         self.assertEqual({k: v["sha"] for k, v in ident.items()}, {k: v["sha"] for k, v in pin.items()})
         self.assertTrue(all(isinstance(v["sha"], str) and re.fullmatch(r"[0-9a-f]{40}", v["sha"]) for v in pin.values()), "no null or short sha in the pin file")
+
+
+class ComposedV6BatteryTests(unittest.TestCase):
+    """The composed v6 proposal is the oracle in force and the battery, the suite default and the workflow agree (proposal only; Qualification owns the oracle)."""
+    V6 = "process/mvp-chain/expectations.proposed.v6.json"
+
+    @staticmethod
+    def _entry(test_id):
+        return next(t for t in BATTERY["tests"] if t["id"] == test_id)
+
+    def test_v6_is_in_force_with_its_own_hash_and_v1_to_v3_stay_listed(self):
+        oracle = BATTERY["oracle"]
+        self.assertEqual(oracle["expectations_in_force"], self.V6)
+        self.assertEqual(oracle["unchanged_files_sha256"][self.V6], G.sha256_file(ROOT / self.V6))
+        for v in (1, 2, 3):
+            rel = f"process/mvp-chain/expectations.proposed.v{v}.json"
+            self.assertEqual(oracle["unchanged_files_sha256"][rel], G.sha256_file(ROOT / rel))
+        self.assertIn(self.V6, G.frozen_files(ROOT))
+
+    def test_nc2_06_is_the_oracle_row_entry_of_test_mvp_chain_not_of_the_ambiguity_file(self):
+        entry = self._entry("NC2-06")
+        self.assertEqual({k: entry[k] for k in ("kind", "invocation", "file", "test", "row")},
+                         {"kind": "oracle_row", "invocation": "mvp-chain", "file": "suites/mvp-chain/test_mvp_chain.py", "test": "test_row[NC2-06]", "row": "NC2-06"})
+        ids = [t["id"] for t in BATTERY["tests"]]
+        self.assertEqual(ids[ids.index("NC2-05") + 1], "NC2-06")
+        self.assertEqual([t for t in BATTERY["tests"] if t["kind"] == "oracle_row" and t["file"].endswith("test_ingress_ambiguity.py")], [])
+
+    def test_g03_passes_with_v6_and_is_incomplete_without_nc2_06(self):
+        gate = G.Gate()
+        G.check_battery_covers_oracle(gate, ROOT, BATTERY)
+        self.assertEqual(gate.checks[0]["status"], "PASS", gate.checks[0]["detail"])
+        trimmed = copy.deepcopy(BATTERY)
+        trimmed["tests"] = [t for t in trimmed["tests"] if t["id"] != "NC2-06"]
+        gate = G.Gate()
+        G.check_battery_covers_oracle(gate, ROOT, trimmed)
+        self.assertEqual(gate.checks[0]["status"], "INCOMPLETE")
+        self.assertIn("NC2-06", gate.checks[0]["detail"])
+
+    def test_suite_default_expectations_is_the_oracle_in_force(self):
+        text = (ROOT / "suites/mvp-chain/conftest.py").read_text()
+        self.assertIn('ROOT / "process" / "mvp-chain" / "expectations.proposed.v6.json"', text)
+        self.assertNotIn('expectations.proposed.v3.json")', text)
+
+    def test_supplementary_entries_cover_exactly_the_collected_tests_of_the_two_files(self):
+        env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
+        out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "suites/mvp-chain/test_kwflow.py",
+                              "suites/mvp-chain/test_ingress_ambiguity.py"], cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
+        collected = {l.strip() for l in out.splitlines() if l.startswith("suites/mvp-chain/") and "::" in l}
+        listed = {f"{t['file']}::{t['test']}" for t in BATTERY["tests"] if t["kind"].startswith("supplementary_")}
+        self.assertEqual(collected, listed)
+        kinds = {t["file"]: t["kind"] for t in BATTERY["tests"] if t["kind"].startswith("supplementary_")}
+        self.assertEqual(kinds, {"suites/mvp-chain/test_kwflow.py": "supplementary_nc4_03_predicate",
+                                 "suites/mvp-chain/test_ingress_ambiguity.py": "supplementary_nc2_06_negative_control"})
+        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 143)
+        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc2_06_negative_control"]), 6)
+
+    def test_workflow_collect_and_run_lists_equal_the_battery_paths(self):
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        want = set(BATTERY["invocations"]["mvp-chain"]["paths"])
+        collect = wf[wf.index("--collect-only -q -p no:cacheprovider \\\n            suites/mvp-chain"):]
+        collect = collect[:collect.index("tee")]
+        run = wf[wf.index("-p exchange_exclusion_plugin \\\n            suites/mvp-chain"):]
+        run = run[:run.index("-o junit_suite_name")]
+        for label, block in (("collect", collect), ("run", run)):
+            self.assertEqual(set(re.findall(r"suites/mvp-chain/[A-Za-z0-9_]+\.py", block)), want, label)
+
+    def test_a_supplementary_test_that_is_skipped_or_missing_is_incomplete(self):
+        rows = [{"id": t["row"], "status": "PASS"} for t in BATTERY["tests"] if t["kind"] == "oracle_row"]
+        tmp = Path(tempfile.mkdtemp(prefix="supp-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        collected = {t["invocation"]: [] for t in BATTERY["tests"]}
+        junit = {tag: [] for tag in collected}
+        target = next(t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate")
+        for t in BATTERY["tests"]:
+            key = f"{t['file']}::{t['test']}"
+            collected[t["invocation"]].append(key)
+            if t is target:
+                junit[t["invocation"]].append((t["file"], t["test"], "skipped"))
+            else:
+                junit[t["invocation"]].append((t["file"], t["test"], "passed"))
+        for tag, inv in BATTERY["invocations"].items():
+            (tmp / inv["collected"]).write_text("\n".join(collected.get(tag, [])) + "\n")
+            cases = "".join(f'<testcase classname="{f[:-3].replace("/", ".")}" name="{n}">{"<skipped/>" if st == "skipped" else ""}</testcase>' for f, n, st in junit.get(tag, []))
+            (tmp / inv["junit"]).write_text(f'<testsuites><testsuite name="x">{cases}</testsuite></testsuites>')
+        gate = G.Gate()
+        G.check_battery_execution(gate, tmp, BATTERY, {"rows": rows})
+        status = {c["id"]: c for c in gate.checks}
+        self.assertEqual(status["G-05"]["status"], "INCOMPLETE", status["G-05"]["detail"])
+        self.assertIn(target["id"], status["G-05"]["detail"])
 
 
 if __name__ == "__main__":

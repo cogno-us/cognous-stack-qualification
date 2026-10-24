@@ -7,7 +7,7 @@ MVP_VERIFIER_DIR, MVP_MANIFEST_DIR, MVP_HUB_DIR). The expected shas come from th
 process/mvp-chain/tuple-pin.proposed.json). Every component revision is a run parameter: MVP_<NAME>_REVISION (40-hex, named by rev_env in the pin file) replaces that component's pin-file
 sha (a PENDING null pin requires it) and each override is recorded in the results. Any mismatch, dirty checkout, unset variable or
 module imported from outside its pinned tree fails every test; nothing skips. Missing components are never papered over.
-Statuses are computed from process/mvp-chain/expectations.proposed.v3.json (MVP_EXPECTATIONS overrides the path) and the recorded
+Statuses are computed from process/mvp-chain/expectations.proposed.v6.json (the builder's composed proposal: v3 plus the NC4-03 row of #222 and the NC2-06 row of #224; MVP_EXPECTATIONS overrides the path, for example to reproduce v3) and the recorded
 observations only; see verdict.py.
 """
 from __future__ import annotations
@@ -49,7 +49,7 @@ def pin_file() -> Path:
 
 
 def expectations_file() -> Path:
-    return Path(os.environ.get("MVP_EXPECTATIONS") or ROOT / "process" / "mvp-chain" / "expectations.proposed.v3.json")
+    return Path(os.environ.get("MVP_EXPECTATIONS") or ROOT / "process" / "mvp-chain" / "expectations.proposed.v6.json")
 
 
 def _wire():

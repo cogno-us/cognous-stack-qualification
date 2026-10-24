@@ -4,20 +4,23 @@
  "rule": "Zero unexplained skips within THIS list. A listed test that is skipped, not discovered (absent from the collection), not executed (absent from the junit report, or errored before it could run) or whose oracle row is BLOCKED or NOT RUN makes the verdict INCOMPLETE (non-ACCEPT). A row that is NOT APPLICABLE counts only if it is listed under declared_not_applicable with a justification; any other NOT APPLICABLE is INCOMPLETE. A FAIL is a REJECT, never softened. Tests outside this list (other suites, historical suites, mvp-chain KL-01 which is non-mandatory) are neither required to be skip-free nor able to change the verdict.",
  "verdict_precedence": "INCOMPLETE over REJECT over ACCEPT. ACCEPT is a proposal for the owner only; it never authorizes anything and release stays HOLD.",
  "oracle": {
-  "expectations_in_force": "process/mvp-chain/expectations.proposed.v3.json",
+  "expectations_in_force": "process/mvp-chain/expectations.proposed.v6.json",
   "unchanged_files_sha256": {
    "process/mvp-chain/expectations.proposed.v1.json": "828df48ddedfbe66977d64f095556cf31e64015bb57107b4b5d02d95867abf7d",
    "process/mvp-chain/expectations.proposed.v2.json": "3a67d0a867447131bde11629fab9a84024d64d73f5d3fc9480cee996eb662245",
-   "process/mvp-chain/expectations.proposed.v3.json": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4"
+   "process/mvp-chain/expectations.proposed.v3.json": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4",
+   "process/mvp-chain/expectations.proposed.v6.json": "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a"
   },
-  "note": "No expectation and no frozen file is changed to obtain a PASS: the gate refuses a different hash."
+  "note": "No expectation and no frozen file is changed to obtain a PASS: the gate refuses a different hash. v6 is the builder's composition of the v3 rows with the NC4-03 row of PR #222 and the NC2-06 row of PR #224 (proposal only; Qualification owns and freezes the oracle; v1-v3 stay byte-identical)."
  },
  "invocations": {
   "mvp-chain": {
    "paths": [
     "suites/mvp-chain/test_mvp_chain.py",
     "suites/mvp-chain/test_verdict_engine.py",
-    "suites/mvp-chain/test_ruling4_lost_ack.py"
+    "suites/mvp-chain/test_ruling4_lost_ack.py",
+    "suites/mvp-chain/test_kwflow.py",
+    "suites/mvp-chain/test_ingress_ambiguity.py"
    ],
    "junit": "junit-mvp-chain.xml",
    "collected": "collected-mvp-chain.txt",
@@ -208,6 +211,14 @@
    "file": "suites/mvp-chain/test_mvp_chain.py",
    "test": "test_row[NC2-05]",
    "row": "NC2-05"
+  },
+  {
+   "id": "NC2-06",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC2-06]",
+   "row": "NC2-06"
   },
   {
    "id": "NC3-01",
@@ -426,6 +437,1049 @@
    "invocation": "applicability",
    "file": "suites/mvp-applicability/test_route_c_exclusion.py",
    "test": "test_ap05_historical_files_are_byte_identical_to_the_recorded_hashes"
+  },
+  {
+   "id": "KW-001",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_fixture_inventory"
+  },
+  {
+   "id": "KW-002",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n01_comprehension_over_client_items]"
+  },
+  {
+   "id": "KW-003",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n02_inline_comprehension_client_keys]"
+  },
+  {
+   "id": "KW-004",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n03_inline_comprehension_literal_names_with_simulate]"
+  },
+  {
+   "id": "KW-005",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n04_lambda_proxy_to_execute_exposed]"
+  },
+  {
+   "id": "KW-006",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n05_intermediate_dict_chain]"
+  },
+  {
+   "id": "KW-007",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n06_update_with_client_mapping]"
+  },
+  {
+   "id": "KW-008",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n07_inline_display_client_fed_simulate]"
+  },
+  {
+   "id": "KW-009",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n08_functools_partial_client_kwargs]"
+  },
+  {
+   "id": "KW-010",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n09_functools_partial_client_simulate]"
+  },
+  {
+   "id": "KW-011",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n10_explicit_client_simulate]"
+  },
+  {
+   "id": "KW-012",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n11_alias_of_claim_api]"
+  },
+  {
+   "id": "KW-013",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n12_dynamic_getattr_callee]"
+  },
+  {
+   "id": "KW-014",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n13_authority_writer_capability]"
+  },
+  {
+   "id": "KW-015",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n14_operation_identity_override]"
+  },
+  {
+   "id": "KW-016",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n15_client_claim_id_in_fixed_form]"
+  },
+  {
+   "id": "KW-017",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n16_subscript_store_client_key]"
+  },
+  {
+   "id": "KW-018",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n17_helper_function_proxy]"
+  },
+  {
+   "id": "KW-019",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n18_dict_union]"
+  },
+  {
+   "id": "KW-020",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n19_star_args_from_client]"
+  },
+  {
+   "id": "KW-021",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n20_import_alias_then_star_args]"
+  },
+  {
+   "id": "KW-022",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n21_helper_mutation_alias_update]"
+  },
+  {
+   "id": "KW-023",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n22_helper_mutation_poison_call]"
+  },
+  {
+   "id": "KW-024",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n23_closure_mutation]"
+  },
+  {
+   "id": "KW-025",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n24_global_mutation]"
+  },
+  {
+   "id": "KW-026",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n25_names_list_mutated_via_global_then_comprehension]"
+  },
+  {
+   "id": "KW-027",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n26_nonprotected_helper_receives_protected_callable]"
+  },
+  {
+   "id": "KW-028",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n27_pool_submit_protected_callable]"
+  },
+  {
+   "id": "KW-029",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n28_starmap_protected_callable]"
+  },
+  {
+   "id": "KW-030",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n29_dunder_call]"
+  },
+  {
+   "id": "KW-031",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n30_nonprotected_callee_is_still_banned]"
+  },
+  {
+   "id": "KW-032",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n31_fixed_looking_dict_call_not_a_carve_out]"
+  },
+  {
+   "id": "KW-033",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n32_model_copy_update_client_mapping]"
+  },
+  {
+   "id": "KW-034",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n33_model_copy_update_client_actor]"
+  },
+  {
+   "id": "KW-035",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n34_decide_with_client_kwargs]"
+  },
+  {
+   "id": "KW-036",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n35_bind_approval_with_client_kwargs]"
+  },
+  {
+   "id": "KW-037",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n36_comprehension_names_aliased]"
+  },
+  {
+   "id": "KW-038",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n37_lambda_proxy_stored_on_attribute]"
+  },
+  {
+   "id": "KW-039",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n38_model_copy_double_star_update]"
+  },
+  {
+   "id": "KW-040",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n39_model_copy_update_client_manifest_digest]"
+  },
+  {
+   "id": "KW-041",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n40_model_copy_update_client_effects]"
+  },
+  {
+   "id": "KW-042",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n41_fixed_display_client_requested_permissions]"
+  },
+  {
+   "id": "KW-043",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n42_explicit_client_action_id]"
+  },
+  {
+   "id": "KW-044",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n43_explicit_client_adapter_id_on_constructor]"
+  },
+  {
+   "id": "KW-045",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n44_comprehension_literal_names_with_requirement_id]"
+  },
+  {
+   "id": "KW-046",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n45_generic_comprehension_arbitrary_obj_inline_names]"
+  },
+  {
+   "id": "KW-047",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n46_generic_comprehension_arbitrary_obj_bound_once]"
+  },
+  {
+   "id": "KW-048",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n47_client_claim_id_reaches_execute]"
+  },
+  {
+   "id": "KW-049",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n48_claim_id_from_request_attribute]"
+  },
+  {
+   "id": "KW-050",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n49_claim_id_from_reassigned_name]"
+  },
+  {
+   "id": "KW-051",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n50_client_grant_id]"
+  },
+  {
+   "id": "KW-052",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n51_client_grant_revision_in_display]"
+  },
+  {
+   "id": "KW-053",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n52_client_effective_max_effects]"
+  },
+  {
+   "id": "KW-054",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n53_client_authority_context_id]"
+  },
+  {
+   "id": "KW-055",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n54_client_requested_permissions]"
+  },
+  {
+   "id": "KW-056",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n55_decision_binding_outside_envelope_function]"
+  },
+  {
+   "id": "KW-057",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n56_envelope_called_with_untrusted_arguments]"
+  },
+  {
+   "id": "KW-058",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n57_grant_id_from_proposal_not_decision]"
+  },
+  {
+   "id": "KW-059",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n58_claim_bound_in_other_function_used_as_parameter]"
+  },
+  {
+   "id": "KW-060",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n59_claim_rebound_from_client_in_other_scope]"
+  },
+  {
+   "id": "KW-061",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n60_claim_bound_in_two_scopes_even_from_producers]"
+  },
+  {
+   "id": "KW-062",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n61_module_level_decide_shadow]"
+  },
+  {
+   "id": "KW-063",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n62_module_level_provision_claim_shadow]"
+  },
+  {
+   "id": "KW-064",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n63_local_def_shadow_inside_function]"
+  },
+  {
+   "id": "KW-065",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n64_import_shadow]"
+  },
+  {
+   "id": "KW-066",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n65_producer_on_wrong_receiver]"
+  },
+  {
+   "id": "KW-067",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n66_bare_name_producer_without_def]"
+  },
+  {
+   "id": "KW-068",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n67_envelope_alias_called]"
+  },
+  {
+   "id": "KW-069",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n68_envelope_via_getattr]"
+  },
+  {
+   "id": "KW-070",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n69_host_is_a_parameter]"
+  },
+  {
+   "id": "KW-071",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n70_host_bound_from_client_fields]"
+  },
+  {
+   "id": "KW-072",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_negative_fixture_is_rejected[n71_host_bound_twice]"
+  },
+  {
+   "id": "KW-073",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_positive_fixture_is_accepted[p01_inline_display_fixed_keys]"
+  },
+  {
+   "id": "KW-074",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_positive_fixture_is_accepted[p04_nested_display]"
+  },
+  {
+   "id": "KW-075",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_positive_fixture_is_accepted[p05_closed_lambda_proxy]"
+  },
+  {
+   "id": "KW-076",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_positive_fixture_is_accepted[p06_constant_operation_identity_enable]"
+  },
+  {
+   "id": "KW-077",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_positive_fixture_is_accepted[p07_model_copy_fixed_update]"
+  },
+  {
+   "id": "KW-078",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_positive_fixture_is_accepted[p08_no_kwargs_forwarding_at_all]"
+  },
+  {
+   "id": "KW-079",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_positive_fixture_is_accepted[p09_six_fields_trusted_origins]"
+  },
+  {
+   "id": "KW-080",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_baseline_covers_all_of_ingress_and_is_accepted_only_via_pins"
+  },
+  {
+   "id": "KW-081",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pin_record_missing_field_fails[reviewed_ingress_tree_sha256]"
+  },
+  {
+   "id": "KW-082",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pin_record_missing_field_fails[ast_digest]"
+  },
+  {
+   "id": "KW-083",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pin_record_missing_field_fails[trusted_input_origin]"
+  },
+  {
+   "id": "KW-084",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pin_record_missing_field_fails[protected_destination]"
+  },
+  {
+   "id": "KW-085",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pins_are_content_addressed_unrelated_hub_commit_still_passes[None]"
+  },
+  {
+   "id": "KW-086",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pins_are_content_addressed_unrelated_hub_commit_still_passes[0000000000000000000000000000000000000000]"
+  },
+  {
+   "id": "KW-087",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pins_are_content_addressed_unrelated_hub_commit_still_passes[43c526eb]"
+  },
+  {
+   "id": "KW-088",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_pins_are_content_addressed_unrelated_hub_commit_still_passes[7b38ae6200000000000000000000000000000000]"
+  },
+  {
+   "id": "KW-089",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_tree_digest_serialization_is_the_documented_one"
+  },
+  {
+   "id": "KW-090",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_history_per_file_hashes_are_consistent_with_the_tree_digest"
+  },
+  {
+   "id": "KW-091",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_any_byte_change_including_a_comment_fails_closed[__init__.py]"
+  },
+  {
+   "id": "KW-092",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_any_byte_change_including_a_comment_fails_closed[client.py]"
+  },
+  {
+   "id": "KW-093",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_any_byte_change_including_a_comment_fails_closed[core.py]"
+  },
+  {
+   "id": "KW-094",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_any_byte_change_including_a_comment_fails_closed[proposal.py]"
+  },
+  {
+   "id": "KW-095",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_any_byte_change_including_a_comment_fails_closed[server.py]"
+  },
+  {
+   "id": "KW-096",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_any_byte_change_including_a_comment_fails_closed[synthetic_host.py]"
+  },
+  {
+   "id": "KW-097",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_semantic_ast_change_unpins"
+  },
+  {
+   "id": "KW-098",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_without_pins_the_baseline_fails"
+  },
+  {
+   "id": "KW-099",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_sqlite_receiver_not_counted_as_protected"
+  },
+  {
+   "id": "KW-100",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_vanished_required_site_is_reported"
+  },
+  {
+   "id": "KW-101",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: ** into non-protected helper receiving execute]"
+  },
+  {
+   "id": "KW-102",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: **fields into execute]"
+  },
+  {
+   "id": "KW-103",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: CLIENT claim_id reaches execute (regression target)]"
+  },
+  {
+   "id": "KW-104",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F1 claim bound in another function, used as parameter]"
+  },
+  {
+   "id": "KW-105",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F1 claim rebound from client in another scope]"
+  },
+  {
+   "id": "KW-106",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F2 bare-name producer]"
+  },
+  {
+   "id": "KW-107",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F2 decide shadowed by import]"
+  },
+  {
+   "id": "KW-108",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F2 module-level provision_claim shadow]"
+  },
+  {
+   "id": "KW-109",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F2 producer on wrong receiver]"
+  },
+  {
+   "id": "KW-110",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F3 envelope alias]"
+  },
+  {
+   "id": "KW-111",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: F3 envelope via getattr]"
+  },
+  {
+   "id": "KW-112",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: N5 host as a parameter]"
+  },
+  {
+   "id": "KW-113",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: N5 host rebound from client fields]"
+  },
+  {
+   "id": "KW-114",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: __call__]"
+  },
+  {
+   "id": "KW-115",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: claim name reassigned from client fields]"
+  },
+  {
+   "id": "KW-116",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: claim_id from client display]"
+  },
+  {
+   "id": "KW-117",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: client kwargs into decide]"
+  },
+  {
+   "id": "KW-118",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: client simulate]"
+  },
+  {
+   "id": "KW-119",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: closure mutation]"
+  },
+  {
+   "id": "KW-120",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: comprehension over client fields into provision_claim]"
+  },
+  {
+   "id": "KW-121",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: display with client requested_permissions]"
+  },
+  {
+   "id": "KW-122",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: envelope called with client-derived arguments]"
+  },
+  {
+   "id": "KW-123",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: explicit client action_id into execute]"
+  },
+  {
+   "id": "KW-124",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: functools.partial with client fields]"
+  },
+  {
+   "id": "KW-125",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: helper mutation via alias]"
+  },
+  {
+   "id": "KW-126",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: helper mutation via poison call]"
+  },
+  {
+   "id": "KW-127",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: import alias then client star-args]"
+  },
+  {
+   "id": "KW-128",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: lambda proxy fed by client fields]"
+  },
+  {
+   "id": "KW-129",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: pool.submit(execute)]"
+  },
+  {
+   "id": "KW-130",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: starmap(execute)]"
+  },
+  {
+   "id": "KW-131",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[core: update() with client fields]"
+  },
+  {
+   "id": "KW-132",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: build_proposal update gains client effects]"
+  },
+  {
+   "id": "KW-133",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: build_proposal update gains client manifest_digest]"
+  },
+  {
+   "id": "KW-134",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: client authority_context_id]"
+  },
+  {
+   "id": "KW-135",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: client effective_max_effects]"
+  },
+  {
+   "id": "KW-136",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: client grant_id]"
+  },
+  {
+   "id": "KW-137",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: client grant_revision]"
+  },
+  {
+   "id": "KW-138",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: client requested_permissions]"
+  },
+  {
+   "id": "KW-139",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: comprehension keys from non-literal iterable]"
+  },
+  {
+   "id": "KW-140",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: model_copy ** update from client]"
+  },
+  {
+   "id": "KW-141",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: model_copy update from client mapping]"
+  },
+  {
+   "id": "KW-142",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: names list gains simulate]"
+  },
+  {
+   "id": "KW-143",
+   "kind": "supplementary_nc4_03_predicate",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_kwflow.py",
+   "test": "test_mutant_ingress_fails[host: pinned ExecutionOperation site changed (un-pins)]"
+  },
+  {
+   "id": "AMB-01",
+   "kind": "supplementary_nc2_06_negative_control",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ingress_ambiguity.py",
+   "test": "test_ingress_ambiguous_acknowledgement_supported_path"
+  },
+  {
+   "id": "AMB-02",
+   "kind": "supplementary_nc2_06_negative_control",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ingress_ambiguity.py",
+   "test": "test_negative_control_hook_disabled_nc2_06_must_fail"
+  },
+  {
+   "id": "AMB-03",
+   "kind": "supplementary_nc2_06_negative_control",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ingress_ambiguity.py",
+   "test": "test_negative_control_caller_controlled_simulate_nc2_06_must_fail"
+  },
+  {
+   "id": "AMB-04",
+   "kind": "supplementary_nc2_06_negative_control",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ingress_ambiguity.py",
+   "test": "test_negative_control_before_commit_nc2_06_must_fail"
+  },
+  {
+   "id": "AMB-05",
+   "kind": "supplementary_nc2_06_negative_control",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ingress_ambiguity.py",
+   "test": "test_negative_control_second_commit_allowed_nc2_06_must_fail"
+  },
+  {
+   "id": "AMB-06",
+   "kind": "supplementary_nc2_06_negative_control",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_ingress_ambiguity.py",
+   "test": "test_negative_control_unbound_fresh_request_nc2_06_must_fail"
   }
  ],
  "non_mandatory_tests": [
@@ -443,7 +1497,15 @@
   {
    "placeholder": "NC4-03-origin-rule-negative-mutations",
    "rows": [],
-   "status": "PLACEHOLDER. Architect rulings #2 items 1-2: the new origin-rule negative mutation expectations (claim_id from the governed claim of the trusted execution path; grant id/revision from the authoritative decision or snapshot) become battery rows ONLY after Qualification freezes the corrected NC4-03 predicate. No row is invented here; the gate refuses a placeholder that carries rows."
+   "status": "PLACEHOLDER. Architect rulings #2 items 1-2: the new origin-rule negative mutation expectations (claim_id from the governed claim of the trusted execution path; grant id/revision from the authoritative decision or snapshot) become battery rows ONLY after Qualification freezes the corrected NC4-03 predicate. No row is invented here; the gate refuses a placeholder that carries rows. The NC4-03 predicate self-tests (suites/mvp-chain/test_kwflow.py) are listed as supplementary entries, which are not oracle rows and do not freeze the predicate; this placeholder still holds no rows."
   }
- ]
+ ],
+ "supplementary_entries": {
+  "note": "Entries of kind supplementary_* are mandatory in the same sense as every other entry of tests (zero unexplained skips, a failure is a REJECT) but they are NOT oracle rows: supplementary_nc4_03_predicate lists every collected test of suites/mvp-chain/test_kwflow.py (self-tests of the NC4-03 data-flow predicate: negative and positive fixtures, pin records, tree digest, mutants); supplementary_nc2_06_negative_control lists the six tests of suites/mvp-chain/test_ingress_ambiguity.py (the supported-path test and five negative controls, each of which must FAIL the NC2-06 predicate). Listing them keeps G-13 (a collected test that is not committed is INCOMPLETE) satisfied and puts them under G-05/G-06. The NC2-06 oracle row itself is test_mvp_chain.py::test_row[NC2-06].",
+  "counts": {
+   "oracle_row": 37,
+   "supplementary_nc4_03_predicate": 143,
+   "supplementary_nc2_06_negative_control": 6
+  }
+ }
 }
