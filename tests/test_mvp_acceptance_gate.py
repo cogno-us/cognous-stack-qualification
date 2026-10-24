@@ -912,7 +912,7 @@ class ResolveTests(unittest.TestCase):
         doc = self.run_resolve()
         self.assertEqual(sorted(doc["components"]), sorted(G.EXPECTED_COMPONENTS))
         short = {"control_plane": "7a4bcd40", "runtime": "c5e97e87", "replay": "40012b8c", "evidence_pack": "7b9511f2", "odes": "1a5e1d30",
-                 "verifier": "c0b8ba1f", "action_manifest": "fa170815", "hub": "330ccc31"}  # final PROVISIONAL, UNQUALIFIED tuple
+                 "verifier": "c0b8ba1f", "action_manifest": "fa170815", "hub": "c897266b"}  # final PROVISIONAL, UNQUALIFIED tuple
         for name, prefix in short.items():
             self.assertTrue(doc["components"][name]["sha"].startswith(prefix), name)
             self.assertEqual(doc["components"][name]["source"], "candidate-identity")

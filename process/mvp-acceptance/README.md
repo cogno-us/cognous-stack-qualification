@@ -28,7 +28,7 @@ unchanged); `suites/mvp-d2-route-b` runs as its own invocation (`d2-route-b`, Ru
 `tools/mvp_acceptance_gate.py resolve` reads the identity file, applies per-component `workflow_dispatch` inputs (each validated as 40-hex lower
 case; branches, tags and short shas are refused), and writes the resolved pin file the suites read plus `tuple-resolved.json`. `verify-checkouts`
 requires each checkout to be at exactly its sha and pristine before any test runs, and the gate compares the heads the suite saw. The
-identity file names the final PROVISIONAL, UNQUALIFIED tuple (Control Plane `7a4bcd40`, Runtime `c5e97e87` (post-F3), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `330ccc31`); it mirrors `process/mvp-chain/tuple-pin.proposed.json`. A different component sha is a `*_revision` input for one run, or a changed identity value and therefore a new candidate (new commitment).
+identity file names the final PROVISIONAL, UNQUALIFIED tuple (Control Plane `7a4bcd40`, Runtime `c5e97e87` (post-F3), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `c897266b`); it mirrors `process/mvp-chain/tuple-pin.proposed.json`. A different component sha is a `*_revision` input for one run, or a changed identity value and therefore a new candidate (new commitment).
 
 ## Gate verdicts
 

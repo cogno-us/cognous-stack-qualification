@@ -117,10 +117,13 @@ def test_semantic_ast_change_unpins(tmp_path):
     assert obs["pins_unmatched"] and obs["violations"]
 
 
+PINNED_SITES_ORIG = tuple(_kwflow.PINNED_SITES)  # keyed by site, not by line number (line numbers move with every hub edit)
+
+
 def test_without_pins_the_baseline_fails(monkeypatch):
     monkeypatch.setattr(_kwflow, "PINNED_SITES", {})
     obs = _kwflow.scan_dir(BASE)
-    assert {v["line"] for v in obs["violations"]} >= {93, 98, 126}
+    assert {v["site"] for v in obs["violations"]} >= set(PINNED_SITES_ORIG)
 
 
 def test_sqlite_receiver_not_counted_as_protected():

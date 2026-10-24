@@ -12,7 +12,7 @@
     "odes": {"repository": "cogno-us/open-decision-evidence-standard", "sha": "1a5e1d300250d832e611633f0bf8f762e398c0ec", "env": "MVP_ODES_DIR", "rev_env": "MVP_ODES_REVISION", "note": "pin-checked only: the chain never imports or exercises ODES"},
     "verifier": {"repository": "cogno-us/cognous-open-control-stack-verifier", "sha": "c0b8ba1f55b75db787a320f3de0f79342c6f6826", "env": "MVP_VERIFIER_DIR", "rev_env": "MVP_VERIFIER_REVISION"},
     "action_manifest": {"repository": "cogno-us/cognous-action-manifest", "sha": "fa170815ef96a54c233d0dd9da821b60debabf8b", "env": "MVP_MANIFEST_DIR", "rev_env": "MVP_MANIFEST_REVISION"},
-    "hub": {"repository": "cogno-us/cognous-open-control-stack", "sha": "330ccc315b40d7c32041ab50e0de48ee0fda0ec3", "env": "MVP_HUB_DIR", "rev_env": "MVP_HUB_REVISION", "note": "hub main 330ccc31: contains the trusted-host ingress tools/mvp_ingress and tools/mvp_env_record/capture_env_record.py (sha256 faf8f26117b9e0d4616528250b97099c037117fd5df60c7032ac8347464af461); hub main 330ccc31 also carries the isolated launcher tools/mvp_ingress/launch.py (hub PR #230)"}
+    "hub": {"repository": "cogno-us/cognous-open-control-stack", "sha": "c897266b7ce4b921889519087fa8b1863b4302e3", "env": "MVP_HUB_DIR", "rev_env": "MVP_HUB_REVISION", "note": "hub main c897266b: contains the trusted-host ingress tools/mvp_ingress and tools/mvp_env_record/capture_env_record.py (sha256 faf8f26117b9e0d4616528250b97099c037117fd5df60c7032ac8347464af461); hub main c897266b also carries the isolated launcher tools/mvp_ingress/launch.py (hub PR #230)"}
   },
   "excluded_components": {
     "exchange": {"repository": "cogno-us/cognous-governed-exchange", "status": "EXCLUDED and NOT INVOKED in the MVP candidate manifest (route C); see process/mvp-acceptance/mvp-applicability.proposed.v1.json. It is not a member of this tuple and is never checked out by the acceptance workflow."}
@@ -20,10 +20,10 @@
   "composite": {
     "status": "PROPOSED composite candidate identity (architect Round 3 Q3). The gate compares each declared value with the value verify-checkouts computed from the actual checkout and files; a mismatch is FAIL, a missing verification is INCOMPLETE. Qualification-owned; non-authorizing; UNQUALIFIED.",
     "hub": {
-      "revision": "330ccc315b40d7c32041ab50e0de48ee0fda0ec3",
+      "revision": "c897266b7ce4b921889519087fa8b1863b4302e3",
       "provenance": "hub main after PR #230 (isolated ingress launcher + peer-UID allowlist); also the tuple hub sha above",
       "git_tree_ids": {
-        "tools/mvp_ingress": "3908b61a9fbd0d37de7cdb6017da1758d309cd12",
+        "tools/mvp_ingress": "656b506d752fb9241181097689054342a8d8fe86",
         "tools/mvp_env_record": "b446e30acd8727be29a1ebc0204d947874035514"
       },
       "launcher_entry_point": "tools/mvp_ingress/launch.py",

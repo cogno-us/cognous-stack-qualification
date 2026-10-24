@@ -880,7 +880,7 @@
     {
      "obs": "nc_unmediated.source_level.kwflow.ingress_tree_sha256",
      "op": "eq",
-     "value": "dfacb714b91b4a3687be2133c1dfe82150916b34d27dbb0b5454ace190bbad0a"
+     "value": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591"
     },
     {
      "obs": "nc_unmediated.source_level.all_simulate_keywords_constant_none",
@@ -1301,7 +1301,8 @@
   "nc4_03_source_predicate_v5": "NC4-03 is a SOURCE-LEVEL, narrowly scoped static predicate (v5, builder-prepared after the independent Q1 review; no taint-analysis subsystem, no ingress change). v5 adds: literal-only protected keywords (attempt_id, budget_id, expires_at, decision_input_commitment, decision_input_profile_version, now except host.now) on execute/provision_claim/decide, and RuntimeProposal update keys (evidence_refs, risk_metadata, run_id, expires_at, not_before, expected_side_effects, tenant_id); no attribute stores, setattr or object.__setattr__ on non-self objects; no model_validate/model_construct/__class__/__dict__; no non-literal positional arguments into ExecutionOperation, ExecutionEnvelope, execute or provision_claim; import-as, match-capture, except-as and def/class rebinding of the tracked names; a separate recursive check of everything under tools/mvp_ingress (exact list of 7 regular files incl. BOUNDARY.md, no directory, symlink or extension module, recursive sha256); ast_digest pins honoured only on CPython 3.13 (ast.dump differs across 3.11/3.12/3.13). The *.py tree digest ea37100d... that the pins bind is unchanged.",
   "nc4_03_not_covered_not_claimed": "NOT FIXABLE HERE and NOT CLAIMED as covered: (1) hub-root or standard-library name shadowing through the current-directory-first sys.path when the ingress runs `python -m tools.mvp_ingress.server` (would need -P or -I, an ingress change, i.e. an architect escalation); (2) IPC peer authentication default allowed_uids=None; (3) Yama/ptrace and other host properties; (4) Control Plane and Runtime code is not followed (imports are not followed); (5) values under non-prohibited fixed keys, and mutation by a helper that receives a non-authority-named object, are not taint-tracked.",
   "executor_level_scope_of_NC7": "NC7-01..03 are executor-level controls on route B at the candidate tuple (Runtime c5e97e87). They are not ingress-level evidence (NC4-01..03 and NC2-06 are), and they say nothing about code with direct access to the destination database or the authority writers (see the D2 REACHABLE characterisations, which are recorded and not mandatory).",
-  "launch_isolation_scope": "NC4-04 is code-level launch isolation evidence taken from the live ingress process's argv and the refusal of the old entry point. It does not qualify the host (Yama, dedicated identities; see the environment record) and says nothing about a tampered interpreter, stdlib or site-packages."
+  "launch_isolation_scope": "NC4-04 is code-level launch isolation evidence taken from the live ingress process's argv and the refusal of the old entry point. It does not qualify the host (Yama, dedicated identities; see the environment record) and says nothing about a tampered interpreter, stdlib or site-packages.",
+  "launch_precheck_scope": "Hub-recorded limitation: the launcher's pre-checks emulate source, package and extension files only. A stray sourceless .pyc, a zip, an __init__ extension module or a site-packages `tools` package may run before the launcher refuses, or crash it (fail-closed); this is outside NC4-04 and NC4-03 coverage."
  },
  "inventory_vs_claims": {
   "unique_governance_claims": "mandatory oracle rows: 41 in v7 (37 in v6). Each row is one claim.",

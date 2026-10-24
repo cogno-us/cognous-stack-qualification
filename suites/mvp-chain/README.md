@@ -31,7 +31,7 @@ is imported from outside its pinned tree.
 
 Every component revision is a run parameter: `MVP_<NAME>_REVISION=<40-hex>` (`MVP_CP_`, `_RUNTIME_`, `_REPLAY_`, `_PACK_`, `_ODES_`, `_VERIFIER_`, `_MANIFEST_`, `_HUB_`)
 replaces that component's pin-file sha for the run and is recorded under `overrides` in `results.json`. The pin file is the single source of the
-tuple (the workflow reads it). Current proposed tuple (PROVISIONAL, UNQUALIFIED; see `process/mvp-chain/tuple-pin.proposed.json`, which is the single source): Control Plane `7a4bcd40`, Runtime `c5e97e87` (main after the merged Runtime F3, PR #144; pre-F3 `ec728da6`), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `330ccc31` (ingress and `tools/mvp_env_record/capture_env_record.py`). Replay, Pack and ODES are re-tied to Runtime `c5e97e87` at these pins.
+tuple (the workflow reads it). Current proposed tuple (PROVISIONAL, UNQUALIFIED; see `process/mvp-chain/tuple-pin.proposed.json`, which is the single source): Control Plane `7a4bcd40`, Runtime `c5e97e87` (main after the merged Runtime F3, PR #144; pre-F3 `ec728da6`), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `c897266b` (ingress and `tools/mvp_env_record/capture_env_record.py`). Replay, Pack and ODES are re-tied to Runtime `c5e97e87` at these pins.
 To reproduce the earlier unpatched run: `MVP_CP_REVISION=0a41faa9...`, `MVP_REPLAY_REVISION=028f63d1...`, `MVP_PACK_REVISION=a3ebbb90...`.
 
 **ODES is pin-checked but not exercised**: the chain never imports ODES (no schema validation or fixture of ODES runs here), so for ODES the "exact tuple"

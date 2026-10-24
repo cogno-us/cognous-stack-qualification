@@ -64,11 +64,11 @@ PIN_PYTHON = "3.13"  # ast.dump differs across 3.11/3.12/3.13: ast_digest pins a
 PRODUCER_RECEIVER = {"decide": "host.workflow", "provision_claim": "host.executor", "build_proposal": "host"}
 ESCAPE_NAMES = PROTECTED_CALLS | {"envelope"}
 SIX = frozenset({"claim_id", "grant_id", "grant_revision", "effective_max_effects", "authority_context_id", "requested_permissions"})
-HUB_REVISION = "330ccc315b40d7c32041ab50e0de48ee0fda0ec3"
+HUB_REVISION = "c897266b7ce4b921889519087fa8b1863b4302e3"
 # SINGLE POINT OF UPDATE for a changed ingress tree (hub launcher change): the *.py tree digest the pins bind, and EXPECTED_TREE_SHA256 / EXPECTED_TREE_FILES below.
 # After changing them run ``python suites/mvp-chain/_kwflow.py <hub_checkout>`` and paste the printed ast_digest of each pin; expectations v7 NC4-03 carries the same
 # digest once (obs ingress_tree_sha256), the battery lists v7's own sha256, and the commitment is regenerated.
-INGRESS_PY_TREE_SHA256 = "dfacb714b91b4a3687be2133c1dfe82150916b34d27dbb0b5454ace190bbad0a"
+INGRESS_PY_TREE_SHA256 = "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591"
 PIN_FIELDS = ("reviewed_ingress_tree_sha256", "ast_digest", "ast_digest_python", "trusted_input_origin", "protected_destination")
 # Exact reviewed sites, keyed "file:qualname:callee#ordinal". ast_digest = sha256 over ast.dump (no line/col, so comments/blank lines/formatting are
 # irrelevant) of the call node plus its whole enclosing function; any semantic AST change invalidates the pin. A pin with a missing or empty
@@ -98,7 +98,7 @@ REQUIRED_SITES = [  # exact-site pin of the real protected calls the oracle must
 EXPECTED_FILES = ["__init__.py", "client.py", "core.py", "launch.py", "proposal.py", "server.py", "synthetic_host.py"]
 # v5: the WHOLE tree under tools/mvp_ingress, recursively, as regular files (non-.py files, subpackages, extension modules included). The ast pins keep binding
 # the *.py digest above; this is a separate check.
-EXPECTED_TREE_SHA256 = "aa69a4d022bab47328ebec4d461aaa892ad9db6d5890a0b4d5ab30cfeefaede2"  # sha256 over "<rel>\0<kind>\0<sha256>\n" of every entry, see tree_files()
+EXPECTED_TREE_SHA256 = "2e26cc205fc7aca5f15ea27dc7ea8dfd82bb874961f2757db17c88f3c73d72b5"  # sha256 over "<rel>\0<kind>\0<sha256>\n" of every entry, see tree_files()
 EXPECTED_TREE_FILES = ["BOUNDARY.md", "__init__.py", "client.py", "core.py", "launch.py", "proposal.py", "server.py", "synthetic_host.py"]
 
 
