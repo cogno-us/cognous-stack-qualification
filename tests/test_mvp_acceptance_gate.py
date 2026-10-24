@@ -1562,5 +1562,112 @@ class CopilotReviewFixTests(GateTests):
         self.assertNotIn('decision_raised"].get("type")', src)
 
 
+class CopilotReviewFix2Tests(GateTests):
+    """Review findings on #225 528bee3f (valid fixes that TIGHTEN): bytecode beside pre-launch modules, baseline digests, runbook mirroring the workflow."""
+
+    def _g12(self, doc=None):
+        return {c["id"]: c for c in (doc or self.gate())["checks"]}["G-12"]
+
+    def _plant_and_run(self, mode):
+        import py_compile
+        d = self.tmp / f"boot-{mode}"
+        d.mkdir()
+        pre, other, launch = d / "pre.py", d / "other.py", d / "launch.py"
+        pre.write_text("print('MARK:srce!')\n")
+        other.write_text("print('MARK:pyc!!')\n")  # same size as pre.py
+        os.utime(other, (os.stat(pre).st_atime, os.stat(pre).st_mtime))
+        launch.write_text("import sys\nprint('LAUNCHED', sys.argv[1:])\n")
+        cache = importlib.util.cache_from_source(str(pre))
+        mode_enum = {"timestamp": py_compile.PycInvalidationMode.TIMESTAMP, "checked": py_compile.PycInvalidationMode.CHECKED_HASH,
+                     "unchecked": py_compile.PycInvalidationMode.UNCHECKED_HASH}[mode]
+        py_compile.compile(str(other), cfile=cache, doraise=True, invalidation_mode=mode_enum)
+        if mode == "checked":  # a checked-hash pyc needs the hash of the SOURCE it is placed beside
+            import importlib._bootstrap_external as be
+            data = bytearray(Path(cache).read_bytes())
+            data[8:16] = be._imp.source_hash(be._RAW_MAGIC_NUMBER, pre.read_bytes())
+            Path(cache).write_bytes(bytes(data))
+        sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
+        try:
+            sys.modules.pop("_ingress", None)
+            import _ingress as ing
+        finally:
+            sys.path.remove(str(ROOT / "suites/mvp-chain"))
+            sys.modules.pop("_ingress", None)
+            sys.modules.pop("_state", None)
+        control = subprocess.run([sys.executable, "-I", "-B", "-c",
+                                  "import importlib.util,sys\ns=importlib.util.spec_from_file_location('m',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m)", str(pre)],
+                                 capture_output=True, text=True)
+        out = subprocess.run([sys.executable, "-I", "-B", "-c", ing.LAUNCH_BOOT, "probe", str(pre), str(launch), "--x"], capture_output=True, text=True)
+        return control.stdout, out.stdout, out.stderr
+
+    def test_a_planted_pyc_beside_a_pre_launch_module_never_runs_in_place_of_the_source(self):
+        for mode in ("timestamp", "checked", "unchecked"):
+            with self.subTest(mode):
+                control, out, err = self._plant_and_run(mode)
+                self.assertIn("MARK:pyc!!", control, "control: the import-system loader WOULD run the planted bytecode")
+                self.assertIn("MARK:srce!", out, err)
+                self.assertNotIn("MARK:pyc!!", out)
+                self.assertIn("LAUNCHED", out)
+
+    def test_a_pycache_directory_beside_committed_modules_is_a_g12_fail(self):
+        for rel in ("suites/mvp-chain/__pycache__", "suites/mvp-applicability/plugin/__pycache__", "suites/mvp-applicability/plugin/ingress_probe/__pycache__",
+                    "tools/__pycache__", "suites/__pycache__", "__pycache__"):
+            with self.subTest(rel):
+                shutil.rmtree(self.tmp / "pc", ignore_errors=True)
+                root, commit = make_root(self.tmp / "pc")
+                self.assertEqual(self._g12(self.gate(root, commit))["status"], "PASS")
+                (root / rel).mkdir(parents=True)
+                (root / rel / "x.cpython-313.pyc").write_bytes(b"x")
+                c = self._g12(self.gate(root, commit))
+                self.assertEqual(c["status"], "FAIL", c["detail"])
+                self.assertIn("__pycache__", c["detail"])
+
+    def test_baseline_record_digests_equal_the_committed_files(self):
+        text = (ROOT / G.BASELINE_FILE).read_text()
+        self.assertEqual(G.baseline_rows_in(text), G.baseline_rows(ROOT), "regenerate with: python tools/mvp_acceptance_gate.py baseline")
+        self.assertIn("NOT ADOPTED", text)
+
+    def test_baseline_rewrite_is_idempotent_and_fixes_a_stale_digest(self):
+        root = self.tmp / "bl"
+        (root / "process/governance").mkdir(parents=True)
+        for _, rel in G.BASELINE_ITEMS:
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            (root / rel).write_text(rel)
+        (root / G.BASELINE_FILE).write_text("head\n\n| Item | sha256 |\n|---|---|\n| stale (`x`) | `0` |\n\ntail\n")
+        G.write_baseline(root)
+        first = (root / G.BASELINE_FILE).read_text()
+        G.write_baseline(root)
+        self.assertEqual(first, (root / G.BASELINE_FILE).read_text())
+        self.assertEqual(G.baseline_rows_in(first), G.baseline_rows(root))
+        self.assertTrue(first.endswith("\ntail\n"))
+
+    @staticmethod
+    def _commands(text):
+        """Normalised pytest and gate-anchor command lines (continuations joined; workflow expressions and variables mapped to the runbook's names)."""
+        joined = re.sub(r"\\\n\s*", " ", text)
+        out = set()
+        for line in joined.splitlines():
+            line = line.strip()
+            if "-m pytest" not in line and "mvp_acceptance_gate.py anchor" not in line:
+                continue
+            line = line.replace("${{ steps.tuple.outputs.control_plane }}", "$CP").replace("$GITHUB_WORKSPACE", "$WS")
+            out.add(re.sub(r"\s+", " ", line))
+        return out
+
+    def test_runbook_commands_mirror_the_workflow_steps(self):
+        wf = self._commands((ROOT / ".github/workflows/mvp-acceptance.yml").read_text())
+        rb = self._commands((ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text())
+        rb = {re.sub(r" \| tee .*$", "", c) for c in rb}
+        wf = {re.sub(r" \| tee .*$", "", c) for c in wf}
+        self.assertTrue(any("anchor" in c for c in wf))
+        self.assertEqual(wf, rb)
+        runbook = (ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text()
+        wf_text = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        for exit_file in re.findall(r'pytest-exit-[a-z0-9-]+\.txt', wf_text):
+            self.assertIn(exit_file, runbook)
+        gate_flags = set(re.findall(r"--[a-z0-9-]+", re.search(r"mvp_acceptance_gate.py gate (.*?)\| tee", re.sub(r"\\\n\s*", " ", wf_text)).group(1)))
+        self.assertTrue(gate_flags <= set(re.findall(r"--[a-z0-9-]+", runbook)), gate_flags)
+
+
 if __name__ == "__main__":
     unittest.main()

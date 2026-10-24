@@ -170,12 +170,14 @@ def yama_block_reason(ptrace_scope):
 
 # Isolated launch form (hub tools/mvp_ingress/launch.py; the old `-m tools.mvp_ingress.server` form exits 2): ``python -I -B -c BOOT <kind> <pre.py> <launch.py> ARGS --allow-uid UID``.
 # BOOT loads one observation/fault module by FILE PATH (never via sys.path or PYTHONPATH), then runs launch.py unchanged as __main__ (runpy), so -I stays in force.
-LAUNCH_BOOT = """import sys, runpy, importlib.util, os, pathlib
+# The module is compiled from the SOURCE BYTES read here and executed in a fresh namespace: it never goes through the import system's bytecode cache, so a planted
+# __pycache__ .pyc (timestamp, hash or unchecked-hash header) beside it cannot run in place of the committed source (-B only blocks writing .pyc files).
+LAUNCH_BOOT = """import sys, runpy, types, os, pathlib
 kind, path, lp = sys.argv[1:4]
 sys.argv = [lp] + sys.argv[4:]
-spec = importlib.util.spec_from_file_location("_mvp_pre", path)
-m = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(m)
+m = types.ModuleType("_mvp_pre")
+m.__file__ = path
+exec(compile(pathlib.Path(path).read_bytes(), path, "exec"), m.__dict__)
 if kind == "wrapper":
     m.install(pathlib.Path(os.environ["MVP_FAULT_CAPTURE_DIR"]), m.parse_modes(os.environ.get("MVP_FAULT_MODE")))
 runpy.run_path(lp, run_name="__main__")

@@ -620,6 +620,26 @@ def workflow_pythonpath_dirs(root: Path) -> list[str]:
     return sorted(set(re.findall(r"PYTHONPATH=\"\$GITHUB_WORKSPACE/([A-Za-z0-9._/-]+)\"", wf)))
 
 
+def pycache_dirs(root: Path) -> list[str]:
+    """Every __pycache__ directory under the committed suites, the sys.path directories and the workflow PYTHONPATH directories. The workflow runs with
+    PYTHONDONTWRITEBYTECODE=1 on a fresh checkout, so none can legitimately exist: one beside a committed module could be a planted bytecode file that runs in
+    place of the committed source (the commitment hashes sources only), so its presence is a G-12 failure."""
+    root, found = Path(root), set()
+    for rel in set(SUITE_DIRS) | set(SYSPATH_DIRS) | set(workflow_pythonpath_dirs(root)):
+        base = root / rel
+        if not base.is_dir():
+            continue
+        if rel in SYSPATH_DIRS and rel != ".":
+            walk = [base]  # a sys.path directory itself; subdirectories are covered when they are suites or workflow dirs
+        else:
+            walk = [Path(dp) for dp, _, _ in os.walk(base, followlinks=False)] if rel != "." else [base]
+        for d in walk:
+            for ent in os.scandir(d):
+                if ent.name == "__pycache__":
+                    found.add(str(Path(ent.path).relative_to(root)))
+    return sorted(found)
+
+
 def syspath_entries(root: Path) -> list[str]:
     """Everything that can satisfy an import directly from a sys.path directory: all files (importable ones at the repository root), symlinks and the
     __init__ file of each package directory. Not recursive beyond that: a subdirectory without an __init__ is only a namespace portion and loses to any regular module."""
@@ -783,6 +803,9 @@ def check_commitment(gate: Gate, repo_root: Path, expect_sha: str | None, commit
     links = symlinks_in(repo_root, set(present) | set(committed))
     if links:
         problems.append(f"symbolic links in or above the committed set: {links}")
+    caches = pycache_dirs(repo_root)
+    if caches:
+        problems.append(f"__pycache__ directories exist beside committed modules (bytecode could run in place of the committed source; the workflow sets PYTHONDONTWRITEBYTECODE=1): {caches}")
     planted = sorted(c for c in doc.get("must_remain_absent", []) if (Path(repo_root) / c).exists() or (Path(repo_root) / c).is_symlink())
     if planted:
         problems.append(f"files that must remain absent now exist (they would change collection or configuration): {planted}")
@@ -1136,6 +1159,48 @@ def preflight_hub(repo_root: Path, components_dir: Path) -> list[str]:
     return [f"{o} is present in the hub checkout: the capture script must not be carried inside the ingress package" for o in old]
 
 
+BASELINE_FILE = "process/governance/qualification-baseline.proposed.md"
+BASELINE_ITEMS = (
+    ("expectations v3 (frozen)", "process/mvp-chain/expectations.proposed.v3.json"),
+    ("expectations v6 (proposed baseline)", "process/mvp-chain/expectations.proposed.v6.json"),
+    ("expectations v7 (in force: v6 + NC7-01..03 + NC4-04)", "process/mvp-chain/expectations.proposed.v7.json"),
+    ("mandatory battery", "process/mvp-acceptance/mandatory-battery.proposed.v1.json"),
+    ("candidate identity (tuple + composite)", "process/mvp-acceptance/candidate-identity.inputs.json"),
+    ("gate", "tools/mvp_acceptance_gate.py"),
+    ("acceptance workflow", ".github/workflows/mvp-acceptance.yml"),
+    ("environment profile (original, unchanged)", "process/mvp-acceptance/environment-profile.proposed.v1.json"),
+    ("successor profile (proposal)", "process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json"),
+    ("harness: _ingress.py", "suites/mvp-chain/_ingress.py"),
+    ("harness: _chain.py", "suites/mvp-chain/_chain.py"),
+    ("harness: _kwflow.py", "suites/mvp-chain/_kwflow.py"),
+    ("harness: verdict.py", "suites/mvp-chain/verdict.py"),
+)
+
+
+def baseline_rows(repo_root: Path) -> list[str]:
+    """The digest table rows of the baseline record, computed from the files themselves (never typed)."""
+    return [f"| {label} (`{rel}`) | `{sha256_file(Path(repo_root) / rel)}` |" for label, rel in BASELINE_ITEMS]
+
+
+def baseline_rows_in(text: str) -> list[str]:
+    lines = text.splitlines()
+    start = lines.index("| Item | sha256 |") + 2
+    end = start
+    while end < len(lines) and lines[end].startswith("|"):
+        end += 1
+    return lines[start:end]
+
+
+def write_baseline(repo_root: Path) -> None:
+    path = Path(repo_root) / BASELINE_FILE
+    lines = path.read_text().splitlines()
+    start = lines.index("| Item | sha256 |") + 2
+    end = start
+    while end < len(lines) and lines[end].startswith("|"):
+        end += 1
+    path.write_text("\n".join(lines[:start] + baseline_rows(repo_root) + lines[end:]) + "\n")
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -1168,7 +1233,12 @@ def main(argv=None) -> int:
     c_ = sub.add_parser("commit")
     c_.add_argument("--repo-root", default=str(ROOT))
     c_.add_argument("--out", default=COMMITMENT_FILE)
+    b_ = sub.add_parser("baseline", help="rewrite the digest table of the (not adopted) baseline record from the files")
+    b_.add_argument("--repo-root", default=str(ROOT))
     args = parser.parse_args(argv)
+    if args.cmd == "baseline":
+        write_baseline(Path(args.repo_root))
+        return 0
     if args.cmd == "resolve":
         overrides = {n: os.environ[OVERRIDE_ENV + n.upper()] for n in EXPECTED_COMPONENTS if os.environ.get(OVERRIDE_ENV + n.upper())}
         resolve(Path(args.identity), overrides, Path(args.out_pin), Path(args.out_resolved), Path(args.github_output) if args.github_output else None,

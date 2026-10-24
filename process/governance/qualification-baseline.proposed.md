@@ -9,11 +9,11 @@ Status: prepared input for the one exact Qualification baseline (target 2026-10-
 | expectations v7 (in force: v6 + NC7-01..03 + NC4-04) (`process/mvp-chain/expectations.proposed.v7.json`) | `0dc17a1984e1c3c153f3cb6e3f7fdd4dad87cdc4414728a20df0f8174e402f6b` |
 | mandatory battery (`process/mvp-acceptance/mandatory-battery.proposed.v1.json`) | `b81c1d2c3a7310ec17d944b8e92e1717da903a97c95b7d54c6f419e201df6525` |
 | candidate identity (tuple + composite) (`process/mvp-acceptance/candidate-identity.inputs.json`) | `e7484a0afa1758b3925801ae6cf70a718f676eaa593addb9c20d739b9654c7fb` |
-| gate (`tools/mvp_acceptance_gate.py`) | `51d7fa54caf807a21648c3aae391e59e4bede955346cfcd770317a1975fb9e72` |
+| gate (`tools/mvp_acceptance_gate.py`) | `885e4ce457eb30877f380b0f16b70a6f5e7836a707fb927fee4ad25e74fa31f3` |
 | acceptance workflow (`.github/workflows/mvp-acceptance.yml`) | `deabc77be43c3f01d19f500757a02fdf28d352eeb2d8ce6d7ddd4d86a016c6e3` |
 | environment profile (original, unchanged) (`process/mvp-acceptance/environment-profile.proposed.v1.json`) | `78518a9fa49e372203bb902e5ff59ec9dd5296234930c68d2cc6b5a42f4f9207` |
 | successor profile (proposal) (`process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json`) | `a8d7e526dd3d8488a399434651439f2c87d8c627e7995c20a421291eab0f1ea5` |
-| harness: _ingress.py (`suites/mvp-chain/_ingress.py`) | `320690e9fd1c56c87b72cf37c92001e82097f636807057b0b15afe4b457f1d87` |
+| harness: _ingress.py (`suites/mvp-chain/_ingress.py`) | `4224bbef0752e05071ad0de78dd0c9ac427df3647b9c6110db1c93c4032788aa` |
 | harness: _chain.py (`suites/mvp-chain/_chain.py`) | `a3c6774ef30c7201eaa082f97133bc76ff251e09e4e84064d6c43a6ad8bb0f97` |
 | harness: _kwflow.py (`suites/mvp-chain/_kwflow.py`) | `ce84b3d299c033944b2bf12a2bf739edfc56e738beb13d92d77fe70f650ce70b` |
 | harness: verdict.py (`suites/mvp-chain/verdict.py`) | `6fd42002ccc2f7836a512888f871a9a71f7f7aee7ed12c0e6242d3c83cc6b0e4` |
