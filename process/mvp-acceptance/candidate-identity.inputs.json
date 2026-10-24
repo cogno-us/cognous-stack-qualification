@@ -1,18 +1,18 @@
 {
   "schema": "cognous.mvp-candidate-identity-inputs/1",
   "status": "PROPOSED input of the mvp-acceptance workflow; not frozen, not selected, not an acceptance. Qualification owns the oracle and every verdict; this file only names the candidate tuple.",
-  "candidate": "OCS MVP best current tuple (pre post-F3 Runtime)",
+  "candidate": "OCS MVP final candidate tuple (PROVISIONAL, UNQUALIFIED; post-F3 Runtime c5e97e87), mirrors process/mvp-chain/tuple-pin.proposed.json",
   "scenario": "matched $10 synthetic refund, Linux single-host, route B AtomicLocalControlPlaneExecutor with operation identity (journal mode), trusted-host ingress",
-  "how_to_change": "Replace one component's 40-hex sha here, or name it in the matching workflow_dispatch input for one run (the input overrides this file and is recorded in tuple-resolved.json). A branch, tag, short sha or blank-and-floating value is refused. Moving the Runtime to the post-F3 sha is a change of the runtime value only; no other file changes.",
+  "how_to_change": "Replace one component's 40-hex sha here, or name it in the matching workflow_dispatch input for one run (the input overrides this file and is recorded in tuple-resolved.json). A branch, tag, short sha or blank-and-floating value is refused. The Runtime is already at the post-F3 sha c5e97e87 (pre-F3 was ec728da6); any later move is a change of that component value only, and a new candidate (the candidate commitment must then be recomputed).",
   "components": {
     "control_plane": {"repository": "cogno-us/cognous-control-plane", "sha": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c", "env": "MVP_CP_DIR", "rev_env": "MVP_CP_REVISION"},
-    "runtime": {"repository": "cogno-us/cognous-execution-runtime", "sha": "ec728da6dc301a664b331ac8986afd6e850a1273", "env": "MVP_RUNTIME_DIR", "rev_env": "MVP_RUNTIME_REVISION"},
-    "replay": {"repository": "cogno-us/cognous-replay-bundle", "sha": "ab421ad0fdc6a24999273adf82455968953598ae", "env": "MVP_REPLAY_DIR", "rev_env": "MVP_REPLAY_REVISION"},
-    "evidence_pack": {"repository": "cogno-us/cognous-governance-evidence-pack", "sha": "79ae34d9dc0ca37cabd67b10793a46a972b986fd", "env": "MVP_PACK_DIR", "rev_env": "MVP_PACK_REVISION"},
-    "odes": {"repository": "cogno-us/open-decision-evidence-standard", "sha": "eae95dd3d8aab97b0fa64aa31f7ad830ec75530c", "env": "MVP_ODES_DIR", "rev_env": "MVP_ODES_REVISION", "note": "pin-checked only: the chain never imports or exercises ODES"},
+    "runtime": {"repository": "cogno-us/cognous-execution-runtime", "sha": "c5e97e87dd239c821b1b4a406a55dcd03c5bc61f", "env": "MVP_RUNTIME_DIR", "rev_env": "MVP_RUNTIME_REVISION"},
+    "replay": {"repository": "cogno-us/cognous-replay-bundle", "sha": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842", "env": "MVP_REPLAY_DIR", "rev_env": "MVP_REPLAY_REVISION"},
+    "evidence_pack": {"repository": "cogno-us/cognous-governance-evidence-pack", "sha": "7b9511f2c6d56d424f17b078826594abd29f6c96", "env": "MVP_PACK_DIR", "rev_env": "MVP_PACK_REVISION"},
+    "odes": {"repository": "cogno-us/open-decision-evidence-standard", "sha": "1a5e1d300250d832e611633f0bf8f762e398c0ec", "env": "MVP_ODES_DIR", "rev_env": "MVP_ODES_REVISION", "note": "pin-checked only: the chain never imports or exercises ODES"},
     "verifier": {"repository": "cogno-us/cognous-open-control-stack-verifier", "sha": "c0b8ba1f55b75db787a320f3de0f79342c6f6826", "env": "MVP_VERIFIER_DIR", "rev_env": "MVP_VERIFIER_REVISION"},
     "action_manifest": {"repository": "cogno-us/cognous-action-manifest", "sha": "fa170815ef96a54c233d0dd9da821b60debabf8b", "env": "MVP_MANIFEST_DIR", "rev_env": "MVP_MANIFEST_REVISION"},
-    "hub": {"repository": "cogno-us/cognous-open-control-stack", "sha": "43c526eb1c8df9f07942ac36a6b2d11e14775bd1", "env": "MVP_HUB_DIR", "rev_env": "MVP_HUB_REVISION", "note": "hub main containing the trusted-host ingress tools/mvp_ingress"}
+    "hub": {"repository": "cogno-us/cognous-open-control-stack", "sha": "5b76c58a8bacb9efe6ed6c08e51ab7db7d03bc12", "env": "MVP_HUB_DIR", "rev_env": "MVP_HUB_REVISION", "note": "hub main 5b76c58a: contains the trusted-host ingress tools/mvp_ingress and tools/mvp_env_record/capture_env_record.py (sha256 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51)"}
   },
   "excluded_components": {
     "exchange": {"repository": "cogno-us/cognous-governed-exchange", "status": "EXCLUDED and NOT INVOKED in the MVP candidate manifest (route C); see process/mvp-acceptance/mvp-applicability.proposed.v1.json. It is not a member of this tuple and is never checked out by the acceptance workflow."}

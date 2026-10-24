@@ -10,7 +10,7 @@ name: MVP acceptance (proposed)
 # input change only. Every checkout is verified to be at exactly its sha and pristine before any test runs.
 # The gate (tools/mvp_acceptance_gate.py) applies process/mvp-acceptance/mandatory-battery.proposed.v1.json: zero unexplained skips WITHIN that frozen
 # mandatory battery (a skipped, undiscovered, unexecuted or errored mandatory test is INCOMPLETE, never ACCEPT), exact Verifier dispositions, expectations
-# v1-v3 byte-identical, the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
+# frozen expectation files byte-identical (the files named in the battery's unchanged_files_sha256), the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
 # the hub environment record, CAPTURED IN THE RUN against the very ingress process the suite attacks (dedicated non-root uid and group, 0660 socket in a separate IPC
 # directory, Yama ptrace_scope >= 1 set here via sudo sysctl; absent Yama is BLOCKED/INCOMPLETE) and bound to this run by a gate-side envelope (run_id, qualification_sha,
 # record hash, pinned capture script). hub_revision MUST name a hub sha containing tools/mvp_env_record/capture_env_record.py with sha256

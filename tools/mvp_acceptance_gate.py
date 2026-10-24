@@ -218,6 +218,15 @@ def check_tuple(gate: Gate, run_dir: Path, repo_root: Path, results: dict | None
              tuple={n: {"sha": c.get("sha"), "source": c.get("source")} for n, c in comps.items()}, overrides=resolved.get("overrides", {}))
 
 
+def _version_labels(paths) -> list[str]:
+    """Short labels (v1, v2, v3, v6, ...) of expectations files named in the battery, derived from the file names so the messages follow the battery."""
+    out = []
+    for rel in paths:
+        m = re.search(r"expectations\.proposed\.(v\d+)", str(rel))
+        out.append(m.group(1) if m else Path(str(rel)).name)
+    return sorted(out, key=lambda x: (len(x), x))
+
+
 def check_oracle(gate: Gate, repo_root: Path, battery: dict, results: dict | None):
     unchanged = battery["oracle"]["unchanged_files_sha256"]
     wrong = {}
@@ -226,11 +235,11 @@ def check_oracle(gate: Gate, repo_root: Path, battery: dict, results: dict | Non
         if actual != digest:
             wrong[rel] = {"recorded": digest, "actual": actual}
     gate.add("G-02", FAIL if wrong else PASS,
-             "expectations v1, v2 and v3 are byte-identical to their recorded hashes" if not wrong else f"frozen expectation changed: {wrong}")
+             f"the frozen expectation files ({', '.join(_version_labels(unchanged))}) are byte-identical to their recorded hashes" if not wrong else f"frozen expectation changed: {wrong}")
     if results is not None:
         in_force = battery["oracle"]["unchanged_files_sha256"][battery["oracle"]["expectations_in_force"]]
         used = results.get("expectations_sha256")
-        gate.add("G-02b", PASS if used == in_force else FAIL, "the suite judged against expectations v3" if used == in_force
+        gate.add("G-02b", PASS if used == in_force else FAIL, f"the suite judged against the expectations in force ({_version_labels([battery['oracle']['expectations_in_force']])[0]})" if used == in_force
                  else f"the suite used expectations sha256 {used}, not the recorded {in_force}")
 
 

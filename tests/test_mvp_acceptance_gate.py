@@ -7,6 +7,7 @@ listed; a Verifier disposition that is not exactly the expected one is a REJECT;
 import copy
 import hashlib
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -898,8 +899,8 @@ class ResolveTests(unittest.TestCase):
     def test_identity_inputs_are_a_full_pinned_tuple_without_exchange(self):
         doc = self.run_resolve()
         self.assertEqual(sorted(doc["components"]), sorted(G.EXPECTED_COMPONENTS))
-        short = {"control_plane": "7a4bcd40", "runtime": "ec728da6", "replay": "ab421ad0", "evidence_pack": "79ae34d9", "odes": "eae95dd3",
-                 "verifier": "c0b8ba1f", "action_manifest": "fa170815", "hub": "43c526eb"}
+        short = {"control_plane": "7a4bcd40", "runtime": "c5e97e87", "replay": "40012b8c", "evidence_pack": "7b9511f2", "odes": "1a5e1d30",
+                 "verifier": "c0b8ba1f", "action_manifest": "fa170815", "hub": "5b76c58a"}  # final PROVISIONAL, UNQUALIFIED tuple
         for name, prefix in short.items():
             self.assertTrue(doc["components"][name]["sha"].startswith(prefix), name)
             self.assertEqual(doc["components"][name]["source"], "candidate-identity")
@@ -1130,6 +1131,41 @@ class HardeningTests(unittest.TestCase):
         text = (ROOT / "process/mvp-acceptance/README.md").read_text()
         self.assertIn("system `/usr/bin/python3 -I`", text)
         self.assertIn("apply to the ingress and the suite only, never to the probe client", text)
+
+
+class OracleMessageAndIdentityTests(unittest.TestCase):
+    """G-02 and G-02b messages follow the battery (not a hard-coded 'v1, v2 and v3'); the identity file mirrors the committed tuple pin."""
+
+    @staticmethod
+    def _checks(results):
+        gate = G.Gate()
+        G.check_oracle(gate, ROOT, BATTERY, results)
+        return {c["id"]: c for c in gate.checks}
+
+    def test_version_labels_come_from_the_file_names(self):
+        self.assertEqual(G._version_labels(["process/mvp-chain/expectations.proposed.v6.json", "process/mvp-chain/expectations.proposed.v1.json",
+                                            "process/mvp-chain/expectations.proposed.v3.json"]), ["v1", "v3", "v6"])
+        self.assertEqual(G._version_labels(["x/other.json"]), ["other.json"])
+
+    def test_g02_and_g02b_details_name_the_battery_files(self):
+        in_force_file = BATTERY["oracle"]["expectations_in_force"]
+        sha = BATTERY["oracle"]["unchanged_files_sha256"][in_force_file]
+        checks = self._checks({"expectations_sha256": sha})
+        labels = G._version_labels(BATTERY["oracle"]["unchanged_files_sha256"])
+        self.assertEqual(checks["G-02"]["status"], "PASS")
+        self.assertIn(", ".join(labels), checks["G-02"]["detail"])
+        self.assertEqual(checks["G-02b"]["status"], "PASS")
+        self.assertIn(f"({G._version_labels([in_force_file])[0]})", checks["G-02b"]["detail"])
+
+    def test_g02b_fails_when_the_suite_used_another_expectations_file(self):
+        self.assertEqual(self._checks({"expectations_sha256": "0" * 64})["G-02b"]["status"], "FAIL")
+        self.assertEqual(self._checks({})["G-02b"]["status"], "FAIL")
+
+    def test_identity_inputs_equal_the_committed_tuple_pin(self):
+        ident = json.loads((ROOT / "process/mvp-acceptance/candidate-identity.inputs.json").read_text())["components"]
+        pin = json.loads((ROOT / "process/mvp-chain/tuple-pin.proposed.json").read_text())["components"]
+        self.assertEqual({k: v["sha"] for k, v in ident.items()}, {k: v["sha"] for k, v in pin.items()})
+        self.assertTrue(all(isinstance(v["sha"], str) and re.fullmatch(r"[0-9a-f]{40}", v["sha"]) for v in pin.values()), "no null or short sha in the pin file")
 
 
 if __name__ == "__main__":

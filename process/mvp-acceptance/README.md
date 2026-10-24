@@ -28,8 +28,8 @@ design; the same behaviours are exercised here by mvp-chain.
 
 `tools/mvp_acceptance_gate.py resolve` reads the identity file, applies per-component `workflow_dispatch` inputs (each validated as 40-hex lower
 case; branches, tags and short shas are refused), and writes the resolved pin file the suites read plus `tuple-resolved.json`. `verify-checkouts`
-requires each checkout to be at exactly its sha and pristine before any test runs, and the gate compares the heads the suite saw. To run
-the post-F3 Runtime later, pass `runtime_revision` (or replace the one `runtime` value in the identity file); no other file changes.
+requires each checkout to be at exactly its sha and pristine before any test runs, and the gate compares the heads the suite saw. The
+identity file names the final PROVISIONAL, UNQUALIFIED tuple (Control Plane `7a4bcd40`, Runtime `c5e97e87` (post-F3), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `5b76c58a`); it mirrors `process/mvp-chain/tuple-pin.proposed.json`. A different component sha is a `*_revision` input for one run, or a changed identity value and therefore a new candidate (new commitment).
 
 ## Gate verdicts
 
@@ -47,8 +47,7 @@ the post-F3 Runtime later, pass `runtime_revision` (or replace the one `runtime`
 * A changed expectation v1, v2 or v3 is a `REJECT` (G-02); the gate never edits one.
 * A `FAIL` row is a `REJECT`; the job fails unless the gate says `ACCEPT`.
 
-At the current tuple the oracle itself records known failures (for example NC1-04, approval revocation is reversible at the Runtime); the
-gate does not soften them, so a run is expected to be non-ACCEPT until the owner's corrections land.
+The oracle's own FAIL rows are never softened by the gate. Whether any row fails at the final tuple (for example NC1-04, approval revocation terminality, which failed at the pre-F3 Runtime `ec728da6`) is a result of a run, not asserted here; no dispatched run exists yet.
 
 ## Candidate commitment, environment record, Python 3.13 (Architect rulings #2 item 6)
 
