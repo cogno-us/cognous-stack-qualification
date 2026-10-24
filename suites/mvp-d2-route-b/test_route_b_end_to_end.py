@@ -5,8 +5,8 @@ provision_local_execution_claim), real persisted decision, operation id derived 
 SPDX-License-Identifier: Apache-2.0
 Scope: synthetic $10-class refund fixtures of the Control Plane test package; builder tests, no Qualification verdict.
 Local builder evidence, not wired to CI; not a Qualification verdict. test_REACHABLE_* tests (other file) PASS when a hole exists.
-test_approval_revocation_is_terminal_like_grant_revocation asserts the terminal expectation and FAILS at this tuple; it is left
-failing, not marked xfail.
+test_approval_revocation_is_terminal_like_grant_revocation asserts the terminal expectation. It failed at Runtime ec728da6 and
+passes at Runtime c5e97e87 (F3); it is not marked xfail.
 """
 from __future__ import annotations
 
