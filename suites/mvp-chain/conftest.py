@@ -204,12 +204,14 @@ def pytest_sessionfinish(session, exitstatus):
     exp_path = expectations_file()
     exp_bytes = exp_path.read_bytes()
     expectations = json.loads(exp_bytes)
+    _state.OBS["run"] = {"run_id": os.environ.get("MVP_RUN_ID")}
     obs_bytes = json.dumps(_state.OBS, indent=2, sort_keys=True, default=str).encode() + b"\n"
     (out / "observations.json").write_bytes(obs_bytes)
     results = verdict.evaluate_all(expectations, _state.OBS)
     document = {
         "schema": "cognous.mvp-chain-results/1",
         "acceptance_declared": False,
+        "run_id": os.environ.get("MVP_RUN_ID"),
         "note": "Raw observations plus statuses computed only from the proposed expectations file. Not an acceptance, not a release decision; production HOLD unchanged.",
         "expectations_file": str(exp_path),
         "expectations_sha256": hashlib.sha256(exp_bytes).hexdigest(),

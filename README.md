@@ -101,7 +101,7 @@ What these show: the catalog and its provenance records are consistent, and this
 | Area | Contents |
 |---|---|
 | [`scenarios/`](scenarios/README.md) | `catalog.json` (40 Cognous cases), `coverage-map.json`, and `ai-security-wiki/` (656 imported reference cases, `applicability.json`, CC BY-SA 4.0) |
-| [`suites/`](suites/README.md) | 19 executable suite directories (see the [suites index](suites/README.md)) |
+| [`suites/`](suites/README.md) | 20 executable suite directories (see the [suites index](suites/README.md)) |
 | `tools/` | See the table below |
 | [`process/`](docs/README.md) | `testing/` (bounded comparison process), `adversarial/` (batch-1 tests T01 to T20, [README](process/adversarial/README.md)), `release-gate/` (inventory twin), `v1-validation/`, and retained runtime-authority and security-runtime profile files |
 | [`results/`](results/README.md) | Retained evidence and workflow metadata: `workflows/` (append-only), `v1-validation/`, `security-runtime-*`, `serial/`, `comparisons/`, `verifier-mutation/`, `readme-commentary/` and others. Retained files are not rewritten |
@@ -146,7 +146,7 @@ The repository has 69 workflows (retained, not edited by documentation changes):
 | Upstream import | `upstream-wiki-refresh.yml` (opens a PR for review; never merges) |
 | Controller | `v1-validation.yml` (dispatch only; plan, freeze check, suites, aggregate) |
 | Delegated component workflows (50) | `<repository>--<name>.yml`: the original test commands of the relocated suites, run against pinned components (dispatch or `workflow_call`) |
-| Profile and candidate runs | `operation-identity-profile.yml`, `mvp-chain.yml` (proposed MVP chain harness, dispatch only; see [`suites/mvp-chain/`](suites/mvp-chain/README.md); the local, CI-unwired route-B builder suite is [`suites/mvp-d2-route-b/`](suites/mvp-d2-route-b/README.md)), `outside-holder-profile.yml`, `verifier-mutation-report.yml`, `runtime-authority-candidate.yml`, `security-runtime-qualification.yml`, `security-runtime-f5b-qualification.yml`, `security-coverage.yml`, `serial-qualification.yml`, `remediation-compatibility-pr.yml` |
+| Profile and candidate runs | `operation-identity-profile.yml`, `mvp-acceptance.yml` (proposed independently owned acceptance job over the exact candidate tuple, dispatch only; see [`process/mvp-acceptance/`](process/mvp-acceptance/README.md)), `mvp-chain.yml` (proposed MVP chain harness, dispatch only; see [`suites/mvp-chain/`](suites/mvp-chain/README.md); the local, CI-unwired route-B builder suite is [`suites/mvp-d2-route-b/`](suites/mvp-d2-route-b/README.md)), `outside-holder-profile.yml`, `verifier-mutation-report.yml`, `runtime-authority-candidate.yml`, `security-runtime-qualification.yml`, `security-runtime-f5b-qualification.yml`, `security-coverage.yml`, `serial-qualification.yml`, `remediation-compatibility-pr.yml` |
 | Dashboard and capture | `capture-qualification-run.yml`, `qualification-dashboard.yml`, `publish-qualification-dashboard.yml` |
 | Paid provider pilots | `claude-agent-pilot.yml`, `openai-agent-pilot.yml` (the paid jobs run in the reviewer-gated `provider-keys` environment; keys are environment secrets) |
 
