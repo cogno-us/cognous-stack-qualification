@@ -94,10 +94,10 @@ def run(work, fault_mode=PRODUCT_MODES):
     capture = base / "capture"  # owner-only, OUTSIDE the state tree and the client's reach
     capture.mkdir(mode=0o700)
     wrapper = pathlib.Path(__file__).with_name("_ingress_fault_wrapper.py")
-    cmd = [sys.executable, str(wrapper), "--state-dir", str(state), "--socket", sock, "--control-plane", _state.ENV["dirs"]["control_plane"],
-           "--runtime", _state.ENV["dirs"]["runtime"], "--socket-mode", "666"]
-    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MVP_FAULT_CAPTURE_DIR=str(capture), MVP_FAULT_MODE=fault_mode,
-                PYTHONPATH=os.pathsep.join([str(hub)] + ([os.environ["PYTHONPATH"]] if os.environ.get("PYTHONPATH") else [])))
+    cmd = _ingress.launch_cmd(hub, ["--state-dir", str(state), "--socket", sock, "--control-plane", _state.ENV["dirs"]["control_plane"],
+                                    "--runtime", _state.ENV["dirs"]["runtime"], "--socket-mode", "666"], UNPRIV, pre=("wrapper", wrapper))
+    penv = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", MVP_FAULT_CAPTURE_DIR=str(capture), MVP_FAULT_MODE=fault_mode, MVP_FAULT_HUB=str(hub))
+    penv.pop("PYTHONPATH", None)
     proc = subprocess.Popen(cmd, cwd=hub, env=penv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     obs = {"evidence_level": "supported-ingress", "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
            "fault_injection": {"where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",

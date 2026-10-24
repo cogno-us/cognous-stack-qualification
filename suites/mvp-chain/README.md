@@ -31,7 +31,7 @@ is imported from outside its pinned tree.
 
 Every component revision is a run parameter: `MVP_<NAME>_REVISION=<40-hex>` (`MVP_CP_`, `_RUNTIME_`, `_REPLAY_`, `_PACK_`, `_ODES_`, `_VERIFIER_`, `_MANIFEST_`, `_HUB_`)
 replaces that component's pin-file sha for the run and is recorded under `overrides` in `results.json`. The pin file is the single source of the
-tuple (the workflow reads it). Current proposed tuple (PROVISIONAL, UNQUALIFIED; see `process/mvp-chain/tuple-pin.proposed.json`, which is the single source): Control Plane `7a4bcd40`, Runtime `c5e97e87` (main after the merged Runtime F3, PR #144; pre-F3 `ec728da6`), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `5b76c58a` (ingress and `tools/mvp_env_record/capture_env_record.py`). Replay, Pack and ODES are re-tied to Runtime `c5e97e87` at these pins.
+tuple (the workflow reads it). Current proposed tuple (PROVISIONAL, UNQUALIFIED; see `process/mvp-chain/tuple-pin.proposed.json`, which is the single source): Control Plane `7a4bcd40`, Runtime `c5e97e87` (main after the merged Runtime F3, PR #144; pre-F3 `ec728da6`), Replay `40012b8c`, Evidence Pack `7b9511f2`, ODES `1a5e1d30`, Verifier `c0b8ba1f`, Action Manifest `fa170815`, hub `330ccc31` (ingress and `tools/mvp_env_record/capture_env_record.py`). Replay, Pack and ODES are re-tied to Runtime `c5e97e87` at these pins.
 To reproduce the earlier unpatched run: `MVP_CP_REVISION=0a41faa9...`, `MVP_REPLAY_REVISION=028f63d1...`, `MVP_PACK_REVISION=a3ebbb90...`.
 
 **ODES is pin-checked but not exercised**: the chain never imports ODES (no schema validation or fixture of ODES runs here), so for ODES the "exact tuple"
@@ -91,7 +91,7 @@ Architect ruling Q2. Scenario `nc_authority_gates` (in `_chain.py`) drives the r
 * NC7-03: missing, invalid-state or expired evidence, and evidence missing at claim issuance, does not permit execution (zero effects).
 * Every row also requires the control case to execute exactly one effect, so a refusal cannot pass because nothing works at all.
 
-v7 is v6 plus these three rows (41 rows, 40 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (258 battery entries) is not the number of unique governance claims (40 mandatory rows).
+v7 is v6 plus these three rows (42 rows, 41 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (259 battery entries) is not the number of unique governance claims (41 mandatory rows).
 
 ## Run
 
@@ -143,7 +143,7 @@ Narrowly scoped source-aware additions to `_kwflow.py` (no taint-analysis subsys
 2. rule `AUTHORITY_OBJECT_MUTATION`: attribute stores, `setattr`, `object.__setattr__` on non-self objects (including in helper functions); `DYNAMIC_PROPOSAL_CONSTRUCTION` (`model_validate`, `model_construct`, `vars`) and `DYNAMIC_ATTRIBUTE_ACCESS` (`__class__`, `__dict__`);
 3. rule `POSITIONAL_NON_LITERAL` for `ExecutionOperation`, `ExecutionEnvelope`, `execute`, `provision_claim`;
 4. rebinding by import-as, match capture, except-as and def/class of the tracked names;
-5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 7 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
+5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 8 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
 6. `ast_digest` pins carry `ast_digest_python` and are honoured on CPython 3.13 only (fail closed elsewhere), the observation records the interpreter;
 7. pin prose: `request_id` flows via `correlation_id` into the proposal commitment and is not among the 14 names.
 

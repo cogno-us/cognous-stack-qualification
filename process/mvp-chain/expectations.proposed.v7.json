@@ -37,7 +37,7 @@
   "composition": {
    "base": "expectations.proposed.v6.json (38 rows, 37 mandatory)",
    "added": "NC7-01, NC7-02, NC7-03 (inserted before KL-01; mandatory)",
-   "row_count": "41 rows, 40 mandatory (KL-01 remains non-mandatory)"
+   "row_count": "42 rows, 41 mandatory (KL-01 remains non-mandatory); v7 = v6 + NC7-01..03 + NC4-04 (launch isolation, hub PR #230)"
   },
   "reasons": {
    "NC7-01..03": "Architect ruling Q2 requires three mandatory negative controls that no earlier row stated as such: (1) unauthorized execution must not commit an effect; (2) stale or mismatched authority must prevent an unauthorized effect; (3) missing, invalid or expired required evidence must not permit execution. Expected verdicts are computed from raw observations recorded by suites/mvp-chain/_chain.py scenario nc_authority_gates (status, attempted, error text, independent read-only effect count, claim state), never from a desired outcome; an authorized control case through the same Ctx must commit exactly one effect so a refusal cannot be an artefact of a harness that cannot commit. The predicates require refusal, not attempted, and zero effects; they do not pin error strings (recorded for readers). Existing rows that overlap: NC1-01..05 (revocation), NC3-01..03 (duplicates), NC4-02 (ingress adversarial inputs: effect count unchanged); they are cited as related evidence, not re-used as these rows, because none of them observes a never-issued claim, a not-authorized decision, an expired claim, an advanced revision, an envelope mismatch or any evidence state."
@@ -833,6 +833,7 @@
       "__init__.py",
       "client.py",
       "core.py",
+      "launch.py",
       "proposal.py",
       "server.py",
       "synthetic_host.py"
@@ -879,7 +880,7 @@
     {
      "obs": "nc_unmediated.source_level.kwflow.ingress_tree_sha256",
      "op": "eq",
-     "value": "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
+     "value": "dfacb714b91b4a3687be2133c1dfe82150916b34d27dbb0b5454ace190bbad0a"
     },
     {
      "obs": "nc_unmediated.source_level.all_simulate_keywords_constant_none",
@@ -889,6 +890,38 @@
      "obs": "nc_unmediated.source_level.d1_ast_test_exit_code",
      "op": "eq",
      "value": 0
+    }
+   ]
+  },
+  {
+   "id": "NC4-04",
+   "mandatory": true,
+   "scenario": "nc_unmediated",
+   "title": "CODE-LEVEL launch isolation of the real ingress process (hub PR #230 launcher): observed on the LIVE process's own argv, the ingress is started as `python -I -B ... tools/mvp_ingress/launch.py` with a mandatory --allow-uid equal to the one unprivileged client uid, and the superseded `python -m tools.mvp_ingress.server` entry point is refused (exit 2). This is NOT host isolation: dedicated uids, Yama ptrace_scope and the environment record are a separate claim that stays INCOMPLETE without a qualifying host. Mitigates cwd-first / PYTHONPATH module shadowing and planted bytecode for the launcher path only; not a defence against code running as the ingress uid or root, a tampered interpreter, stdlib or site-packages.",
+   "all": [
+    {
+     "obs": "nc_unmediated.launch.argv_flags",
+     "op": "contains_all",
+     "value": [
+      "-I",
+      "-B"
+     ]
+    },
+    {
+     "obs": "nc_unmediated.launch.entry_point_is_launch_py",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.launch.allow_uid_present",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.launch.allow_uid_equals_client",
+     "op": "true"
+    },
+    {
+     "obs": "nc_unmediated.launch.legacy_module_form_refused",
+     "op": "true"
     }
    ]
   },
@@ -1267,10 +1300,11 @@
   "os_level_process_kill": "UNQUALIFIED. True OS-level process kill and crash recovery are not exercised by any row. NC2-01..06, ruling 4 and NC6-02/03 use the existing synthetic fault injection (simulate='lost_ack', an owner-side post-commit wrapper, an unavailable or unreadable store). Accepted for the 2026-10-31 target under architect ruling Q2 unless the MVP claim promises OS-kill recovery; if it does, this stays UNQUALIFIED/INCOMPLETE.",
   "nc4_03_source_predicate_v5": "NC4-03 is a SOURCE-LEVEL, narrowly scoped static predicate (v5, builder-prepared after the independent Q1 review; no taint-analysis subsystem, no ingress change). v5 adds: literal-only protected keywords (attempt_id, budget_id, expires_at, decision_input_commitment, decision_input_profile_version, now except host.now) on execute/provision_claim/decide, and RuntimeProposal update keys (evidence_refs, risk_metadata, run_id, expires_at, not_before, expected_side_effects, tenant_id); no attribute stores, setattr or object.__setattr__ on non-self objects; no model_validate/model_construct/__class__/__dict__; no non-literal positional arguments into ExecutionOperation, ExecutionEnvelope, execute or provision_claim; import-as, match-capture, except-as and def/class rebinding of the tracked names; a separate recursive check of everything under tools/mvp_ingress (exact list of 7 regular files incl. BOUNDARY.md, no directory, symlink or extension module, recursive sha256); ast_digest pins honoured only on CPython 3.13 (ast.dump differs across 3.11/3.12/3.13). The *.py tree digest ea37100d... that the pins bind is unchanged.",
   "nc4_03_not_covered_not_claimed": "NOT FIXABLE HERE and NOT CLAIMED as covered: (1) hub-root or standard-library name shadowing through the current-directory-first sys.path when the ingress runs `python -m tools.mvp_ingress.server` (would need -P or -I, an ingress change, i.e. an architect escalation); (2) IPC peer authentication default allowed_uids=None; (3) Yama/ptrace and other host properties; (4) Control Plane and Runtime code is not followed (imports are not followed); (5) values under non-prohibited fixed keys, and mutation by a helper that receives a non-authority-named object, are not taint-tracked.",
-  "executor_level_scope_of_NC7": "NC7-01..03 are executor-level controls on route B at the candidate tuple (Runtime c5e97e87). They are not ingress-level evidence (NC4-01..03 and NC2-06 are), and they say nothing about code with direct access to the destination database or the authority writers (see the D2 REACHABLE characterisations, which are recorded and not mandatory)."
+  "executor_level_scope_of_NC7": "NC7-01..03 are executor-level controls on route B at the candidate tuple (Runtime c5e97e87). They are not ingress-level evidence (NC4-01..03 and NC2-06 are), and they say nothing about code with direct access to the destination database or the authority writers (see the D2 REACHABLE characterisations, which are recorded and not mandatory).",
+  "launch_isolation_scope": "NC4-04 is code-level launch isolation evidence taken from the live ingress process's argv and the refusal of the old entry point. It does not qualify the host (Yama, dedicated identities; see the environment record) and says nothing about a tampered interpreter, stdlib or site-packages."
  },
  "inventory_vs_claims": {
-  "unique_governance_claims": "mandatory oracle rows: 40 in v7 (37 in v6). Each row is one claim.",
+  "unique_governance_claims": "mandatory oracle rows: 41 in v7 (37 in v6). Each row is one claim.",
   "test_inventory": "the acceptance battery lists more test entries than claims: supplementary entries (KW-001..182 substantiate the single claim NC4-03; AMB-01..06 substantiate NC2-06; the route-B mediation entries map existing mvp-d2-route-b tests) are inventory, not additional claims. Inventory counts must not be cited as governance coverage."
  }
 }

@@ -71,7 +71,7 @@ Narrowly scoped source-aware additions to `_kwflow.py` (no taint-analysis subsys
 2. rule `AUTHORITY_OBJECT_MUTATION`: attribute stores, `setattr`, `object.__setattr__` on non-self objects (including in helper functions); `DYNAMIC_PROPOSAL_CONSTRUCTION` (`model_validate`, `model_construct`, `vars`) and `DYNAMIC_ATTRIBUTE_ACCESS` (`__class__`, `__dict__`);
 3. rule `POSITIONAL_NON_LITERAL` for `ExecutionOperation`, `ExecutionEnvelope`, `execute`, `provision_claim`;
 4. rebinding by import-as, match capture, except-as and def/class of the tracked names;
-5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 7 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
+5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 8 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
 6. `ast_digest` pins carry `ast_digest_python` and are honoured on CPython 3.13 only (fail closed elsewhere), the observation records the interpreter;
 7. pin prose: `request_id` flows via `correlation_id` into the proposal commitment and is not among the 14 names.
 

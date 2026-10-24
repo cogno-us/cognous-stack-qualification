@@ -64,22 +64,22 @@ PIN_PYTHON = "3.13"  # ast.dump differs across 3.11/3.12/3.13: ast_digest pins a
 PRODUCER_RECEIVER = {"decide": "host.workflow", "provision_claim": "host.executor", "build_proposal": "host"}
 ESCAPE_NAMES = PROTECTED_CALLS | {"envelope"}
 SIX = frozenset({"claim_id", "grant_id", "grant_revision", "effective_max_effects", "authority_context_id", "requested_permissions"})
-HUB_REVISION = "43c526eb1c8df9f07942ac36a6b2d11e14775bd1"
+HUB_REVISION = "330ccc315b40d7c32041ab50e0de48ee0fda0ec3"
 # SINGLE POINT OF UPDATE for a changed ingress tree (hub launcher change): the *.py tree digest the pins bind, and EXPECTED_TREE_SHA256 / EXPECTED_TREE_FILES below.
 # After changing them run ``python suites/mvp-chain/_kwflow.py <hub_checkout>`` and paste the printed ast_digest of each pin; expectations v7 NC4-03 carries the same
 # digest once (obs ingress_tree_sha256), the battery lists v7's own sha256, and the commitment is regenerated.
-INGRESS_PY_TREE_SHA256 = "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
+INGRESS_PY_TREE_SHA256 = "dfacb714b91b4a3687be2133c1dfe82150916b34d27dbb0b5454ace190bbad0a"
 PIN_FIELDS = ("reviewed_ingress_tree_sha256", "ast_digest", "ast_digest_python", "trusted_input_origin", "protected_destination")
 # Exact reviewed sites, keyed "file:qualname:callee#ordinal". ast_digest = sha256 over ast.dump (no line/col, so comments/blank lines/formatting are
 # irrelevant) of the call node plus its whole enclosing function; any semantic AST change invalidates the pin. A pin with a missing or empty
 # field makes the predicate fail (pin_records_incomplete).
 PINNED_SITES = {
     "synthetic_host.py:SyntheticHost.__init__:original#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": INGRESS_PY_TREE_SHA256, "ast_digest_python": PIN_PYTHON, "ast_digest": "6e674d7b5d28e15ec8e0e4fc67305b7b24f747ffeb707ff61cb40d79806456ae",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": INGRESS_PY_TREE_SHA256, "ast_digest_python": PIN_PYTHON, "ast_digest": "e08eafdddaa93bc754dbeb7c8e1179067b1de3ba987eddadb74e430a4358800b",
         "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it",
         "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API"},
     "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
-        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": INGRESS_PY_TREE_SHA256, "ast_digest_python": PIN_PYTHON, "ast_digest": "894a4c5b60e1e98d252d85c62f64422d5ace664c4c64a23800936f160596fbbb",
+        "originating_hub_commit": HUB_REVISION, "reviewed_ingress_tree_sha256": INGRESS_PY_TREE_SHA256, "ast_digest_python": PIN_PYTHON, "ast_digest": "c8eddfd868f8cdb1c007a62e5fafe1d85208c4eae6a08d21feedb1547ca6cd07",
         "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host",
         "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)"},
     "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
@@ -95,11 +95,11 @@ REQUIRED_SITES = [  # exact-site pin of the real protected calls the oracle must
     ("synthetic_host.py", "SyntheticHost.__init__", "LocalExecutionPolicy", 1),
     ("synthetic_host.py", "SyntheticHost.__init__", "AtomicLocalControlPlaneExecutor", 1),
     ("synthetic_host.py", "SyntheticHost.envelope", "ExecutionOperation", 1), ("synthetic_host.py", "SyntheticHost.envelope", "ExecutionEnvelope", 1)]
-EXPECTED_FILES = ["__init__.py", "client.py", "core.py", "proposal.py", "server.py", "synthetic_host.py"]
+EXPECTED_FILES = ["__init__.py", "client.py", "core.py", "launch.py", "proposal.py", "server.py", "synthetic_host.py"]
 # v5: the WHOLE tree under tools/mvp_ingress, recursively, as regular files (non-.py files, subpackages, extension modules included). The ast pins keep binding
 # the *.py digest above; this is a separate check.
-EXPECTED_TREE_SHA256 = "8d6611fc66e4decd6dccf58dfe8ac3cf6ad0484e52a7e5eb0b9e3127c7089387"  # sha256 over "<rel>\0<kind>\0<sha256>\n" of every entry, see tree_files()
-EXPECTED_TREE_FILES = ["BOUNDARY.md", "__init__.py", "client.py", "core.py", "proposal.py", "server.py", "synthetic_host.py"]
+EXPECTED_TREE_SHA256 = "aa69a4d022bab47328ebec4d461aaa892ad9db6d5890a0b4d5ab30cfeefaede2"  # sha256 over "<rel>\0<kind>\0<sha256>\n" of every entry, see tree_files()
+EXPECTED_TREE_FILES = ["BOUNDARY.md", "__init__.py", "client.py", "core.py", "launch.py", "proposal.py", "server.py", "synthetic_host.py"]
 
 
 def pin_python():

@@ -2,7 +2,7 @@
 
 SPDX-License-Identifier: Apache-2.0
 
-Started by _ingress_ambiguity.py, as the owner uid, INSTEAD of ``python -m tools.mvp_ingress.server``; it then runs the pinned hub
+Started by _ingress_ambiguity.py, as the owner uid, INSTEAD of the plain launch (hub launch.py with -I; this module is loaded by file path first); it then runs the pinned hub
 ``tools.mvp_ingress.server.main`` unchanged (same argv, same request schema, same ``simulate=None`` in IngressCore). The only
 difference from the real ingress process is this owner-side seam, enabled solely by the environment of the process the owner
 starts (a client cannot set it and nothing on the wire selects it). ``MVP_FAULT_MODE`` is REQUIRED: a comma-separated set of tokens
@@ -118,7 +118,11 @@ def install(capture_dir: pathlib.Path, modes):
         dest_cls.execute_claim_atomic = atomic_unbudgeted
 
     if "bind_fresh" in modes:
-        from tools.mvp_ingress import synthetic_host as sh
+        sys.path.append(os.environ["MVP_FAULT_HUB"])  # appended only for this import (the launcher is run with -I; PYTHONPATH is ignored)
+        try:
+            from tools.mvp_ingress import synthetic_host as sh
+        finally:
+            sys.path.remove(os.environ["MVP_FAULT_HUB"])
         original_build = sh.SyntheticHost.build_proposal
 
         def build(self, fields):
@@ -148,6 +152,5 @@ def install(capture_dir: pathlib.Path, modes):
 
 
 if __name__ == "__main__":
-    install(pathlib.Path(os.environ["MVP_FAULT_CAPTURE_DIR"]), parse_modes(os.environ.get("MVP_FAULT_MODE")))
-    from tools.mvp_ingress.server import main
-    sys.exit(main())
+    sys.stderr.write("refused: this module is loaded by file path by _ingress.launch_cmd (python -I -B -c ...), then the hub launch.py runs unchanged\n")
+    sys.exit(2)

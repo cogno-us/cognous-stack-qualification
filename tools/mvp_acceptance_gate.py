@@ -109,6 +109,39 @@ def _git(path: Path, *args: str) -> str:
     return subprocess.run(["git", "-C", str(path), *args], check=True, capture_output=True, text=True, timeout=60).stdout.strip()
 
 
+def _composite_verified(doc: dict, base: Path) -> dict:
+    """Values of the composite candidate identity computed from the actual checkouts and committed files (compared with the declared ones by G-15)."""
+    out = {}
+    try:
+        declared = load(ROOT / doc["identity_file"]).get("composite", {})
+    except Exception:  # noqa: BLE001
+        return out
+    hub = Path(base) / doc["components"]["hub"]["dir"]
+    h = declared.get("hub", {})
+    trees = {}
+    for rel in h.get("git_tree_ids", {}):
+        try:
+            trees[rel] = _git(hub, "rev-parse", f"HEAD:{rel}")
+        except Exception:  # noqa: BLE001
+            trees[rel] = None
+    out["hub"] = {"revision": doc["components"]["hub"]["sha"], "git_tree_ids": trees}
+    launcher = h.get("launcher_entry_point")
+    out["hub"]["launcher_entry_point_is_file"] = bool(launcher) and (hub / launcher).is_file()
+    cs = hub / "tools/mvp_env_record/capture_env_record.py"
+    out["hub"]["capture_script_sha256"] = sha256_file(cs) if cs.is_file() else None
+    reg = h.get("registry_catalogue_manifest", {})
+    try:
+        out["hub"]["registry_catalogue_manifest_digest"] = json.loads((hub / reg["path"]).read_text()).get(reg.get("digest_field", "digest"))
+    except Exception:  # noqa: BLE001
+        out["hub"]["registry_catalogue_manifest_digest"] = None
+    py = declared.get("python", {})
+    out["python"] = {"version": f"{sys.version_info[0]}.{sys.version_info[1]}",
+                     "lock_files_sha256": {rel: (sha256_file(ROOT / rel) if (ROOT / rel).is_file() else None) for rel in py.get("lock_files_sha256", {})}}
+    ep = declared.get("environment_profile", {})
+    out["environment_profile"] = {"sha256": sha256_file(ROOT / ep["path"]) if ep.get("path") and (ROOT / ep["path"]).is_file() else None}
+    return out
+
+
 def verify_checkouts(resolved_path: Path, base: Path) -> dict:
     doc = load(resolved_path)
     problems = []
@@ -130,6 +163,7 @@ def verify_checkouts(resolved_path: Path, base: Path) -> dict:
         if kind != "commit":
             problems.append(f"{name}: {comp['sha']} is a {kind}, not a commit")
     doc["checkout_problems"] = problems
+    doc["composite_verified"] = _composite_verified(doc, base)
     Path(resolved_path).write_text(json.dumps(doc, indent=2, sort_keys=True) + "\n")
     if problems:
         raise SystemExit("verify-checkouts refused:\n  " + "\n  ".join(problems))
@@ -185,6 +219,36 @@ def parse_junit(path: Path) -> dict[str, str]:
 
 def parse_collected(path: Path) -> set[str]:
     return {line.strip() for line in Path(path).read_text().splitlines() if "::" in line and not line.startswith(("=", "-", " "))}
+
+
+def check_composite(gate: Gate, run_dir: Path, repo_root: Path):
+    """G-15 composite candidate identity: component shas (G-01) plus the declared hub tree ids, launcher entry point, capture script, registry catalogue digest,
+    Python version and lock files, and environment profile, each compared with the value computed from the checkout/files by verify-checkouts."""
+    resolved = _read_json(gate, "G-15", run_dir / "tuple-resolved.json", "resolved tuple")
+    if resolved is None:
+        return
+    declared = load(repo_root / resolved.get("identity_file", "")).get("composite")
+    if not declared:
+        gate.add("G-15", INCOMPLETE, "the candidate identity has no composite block")
+        return
+    seen = resolved.get("composite_verified")
+    if not isinstance(seen, dict) or not seen:
+        gate.add("G-15", INCOMPLETE, "no composite verification recorded by verify-checkouts")
+        return
+    h, sh = declared.get("hub", {}), seen.get("hub", {})
+    pairs = [("hub revision", h.get("revision"), sh.get("revision")),
+             ("hub revision equals the tuple hub sha", h.get("revision"), resolved.get("components", {}).get("hub", {}).get("sha")),
+             ("launcher entry point present", True, sh.get("launcher_entry_point_is_file")),
+             ("capture script sha256", h.get("capture_script_sha256"), sh.get("capture_script_sha256")),
+             ("registry catalogue manifest digest", h.get("registry_catalogue_manifest", {}).get("digest"), sh.get("registry_catalogue_manifest_digest")),
+             ("python version", declared.get("python", {}).get("version"), seen.get("python", {}).get("version")),
+             ("environment profile sha256", declared.get("environment_profile", {}).get("sha256"), seen.get("environment_profile", {}).get("sha256"))]
+    for rel, want in h.get("git_tree_ids", {}).items():
+        pairs.append((f"git tree id {rel}", want, sh.get("git_tree_ids", {}).get(rel)))
+    for rel, want in declared.get("python", {}).get("lock_files_sha256", {}).items():
+        pairs.append((f"lock file {rel}", want, seen.get("python", {}).get("lock_files_sha256", {}).get(rel)))
+    bad = [f"{what}: declared {want!r}, observed {got!r}" for what, want, got in pairs if want != got or want is None]
+    gate.add("G-15", FAIL if bad else PASS, "composite identity matches the checkouts and committed files" if not bad else "; ".join(bad), compared=[p[0] for p in pairs])
 
 
 def check_tuple(gate: Gate, run_dir: Path, repo_root: Path, results: dict | None):
@@ -515,7 +579,7 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
 
 
 # ------------------------------------------------------------------------------------------------ commitment and environment
-COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v3.json"
+COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v4.json"
 COMMITMENT_VERSION = int(re.search(r"\.v(\d+)\.json$", COMMITMENT_FILE).group(1))  # the candidate version follows the file name
 ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
 SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability", "suites/mvp-d2-route-b")
@@ -1025,6 +1089,7 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
     guarded("G-04", check_environment, gate, gate_exp, observations)
     guarded("G-04b", check_interpreter, gate, require_python)
     guarded("G-11", check_environment_record, gate, run_dir, repo_root, components_dir, observations)
+    guarded("G-15", check_composite, gate, run_dir, repo_root)
     commitment_sha = guarded("G-12", check_commitment, gate, repo_root, expect_commitment)
     guarded("G-13", check_uncommitted_tests, gate, run_dir, battery)
     guarded("G-14", check_pending_rows, gate, battery)

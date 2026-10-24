@@ -82,14 +82,14 @@ def test_tree_digest_serialization_is_the_documented_one():
     assert [n for n, _ in _kwflow.scan_dir(BASE)["ingress_tree_manifest"]] == _kwflow.EXPECTED_FILES
 
 
-def test_history_per_file_hashes_are_consistent_with_the_tree_digest():
+def test_history_per_file_hashes_are_self_consistent_and_record_the_superseded_pre_launcher_tree():
+    """The history file is a historical record of the PRE-launcher hub tree (digest ea37100d..., six *.py files): it is not rewritten, only checked for self-consistency."""
     hist = json.loads((pathlib.Path(__file__).resolve().parents[2] / "process" / "mvp-chain" / "history" / "nc4-03-v3-predicate-result.json").read_text())
     per_file = hist["scanned_files_sha256"]
-    assert sorted(per_file) == _kwflow.EXPECTED_FILES
+    assert sorted(per_file) == ["__init__.py", "client.py", "core.py", "proposal.py", "server.py", "synthetic_host.py"]
     digest = hashlib.sha256("".join(f"{n}\0{per_file[n]}\n" for n in sorted(per_file, key=lambda x: x.encode())).encode()).hexdigest()
-    assert digest == hist["ingress_tree_sha256"] == _kwflow.scan_dir(BASE)["ingress_tree_sha256"]
-    for p in (BASE / "tools" / "mvp_ingress").glob("*.py"):
-        assert hashlib.sha256(p.read_bytes()).hexdigest() == per_file[p.name]
+    assert digest == hist["ingress_tree_sha256"] == "ea37100d0827aea08c1c83303c911234e193854978d3313ae6d106688f2a9058"
+    assert hist["ingress_tree_sha256"] != _kwflow.INGRESS_PY_TREE_SHA256
 
 
 @pytest.mark.parametrize("fname", _kwflow.EXPECTED_FILES)
@@ -120,7 +120,7 @@ def test_semantic_ast_change_unpins(tmp_path):
 def test_without_pins_the_baseline_fails(monkeypatch):
     monkeypatch.setattr(_kwflow, "PINNED_SITES", {})
     obs = _kwflow.scan_dir(BASE)
-    assert {v["line"] for v in obs["violations"]} >= {39, 44, 72}
+    assert {v["line"] for v in obs["violations"]} >= {93, 98, 126}
 
 
 def test_sqlite_receiver_not_counted_as_protected():
@@ -289,7 +289,7 @@ def test_v5_evading_mutant_is_rejected_by_its_source_aware_rule(label, tmp_path)
 def test_real_hub_tree_is_unchanged_and_has_exactly_the_expected_files():
     obs = _kwflow.scan_dir(BASE)
     assert [r for r, k in obs["recursive_tree_files"]] == _kwflow.EXPECTED_TREE_FILES and all(k == "file" for _, k in obs["recursive_tree_files"])
-    assert len(_kwflow.EXPECTED_TREE_FILES) == 7 and obs["recursive_tree_sha256"] == _kwflow.EXPECTED_TREE_SHA256
+    assert len(_kwflow.EXPECTED_TREE_FILES) == 8 and obs["recursive_tree_sha256"] == _kwflow.EXPECTED_TREE_SHA256
     assert obs["ingress_tree_sha256"] == _kwflow.INGRESS_PY_TREE_SHA256  # the *.py digest the pins bind is unchanged
 
 
