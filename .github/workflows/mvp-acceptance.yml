@@ -13,7 +13,7 @@ name: MVP acceptance (proposed)
 # v1-v3 byte-identical, the candidate commitment (hash of the proposed inputs, gate, workflow and mandatory test sources, supplied from outside) and
 # the hub environment record, CAPTURED IN THE RUN against the very ingress process the suite attacks (dedicated non-root uid and group, 0660 socket in a separate IPC
 # directory, Yama ptrace_scope >= 1 set here via sudo sysctl; absent Yama is BLOCKED/INCOMPLETE) and bound to this run by a gate-side envelope (run_id, qualification_sha,
-# record hash, pinned capture script). hub_revision MUST name a hub sha containing tools/mvp_ingress/capture_env_record.py with sha256
+# record hash, pinned capture script). hub_revision MUST name a hub sha containing tools/mvp_env_record/capture_env_record.py with sha256
 # 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51 (a preflight step right after the hub checkout exits 1 otherwise; the gate's INCOMPLETE stays as backup).
 # A Python 3.12 result is supplementary only. Unrelated historical suites are not required to be skip-free. The job fails unless the gate says ACCEPT.
 'on':
@@ -55,7 +55,7 @@ name: MVP acceptance (proposed)
         default: ''
         type: string
       hub_revision:
-        description: cogno-us/cognous-open-control-stack commit, 40-hex (blank uses the candidate identity inputs; overrides hub (trusted-host ingress) for this run only). MUST name a hub sha that contains tools/mvp_ingress/capture_env_record.py with sha256 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51 (hub PR #219, approved head 050dcd67; hub 0e2b52a0 carries identical script bytes); the run exits 1 right after the hub checkout otherwise. The default hub sha predates the script.
+        description: cogno-us/cognous-open-control-stack commit, 40-hex (blank uses the candidate identity inputs; overrides hub (trusted-host ingress) for this run only). MUST name a hub sha that contains tools/mvp_env_record/capture_env_record.py with sha256 5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51 (hub PR #219, hub 3fff3dfb; script bytes identical to 050dcd67/0e2b52a0); the run exits 1 right after the hub checkout otherwise. The default hub sha predates the script.
         required: false
         default: ''
         type: string

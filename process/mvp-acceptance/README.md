@@ -72,7 +72,7 @@ All of these stay **PROPOSED** pending independent Qualification acceptance and 
   checkouts readable and sets `kernel.yama.ptrace_scope=1` with `sudo sysctl` (absent Yama is BLOCKED/INCOMPLETE, never a weaker run). `_ingress.py`
   then starts the ingress as `mvp-ingress` (non-root, no supplementary groups) with a 0660 socket in a SEPARATE setgid IPC directory (group `mvp-ipc`,
   2751: others may traverse but not list or write, so the outsider probe is denied by the socket's own mode and group) the client traverses, and its 0700 state directory elsewhere; the client runs as `mvp-client` with the `mvp-ipc` group; owner-side
-  observations are made as the ingress uid. The hub script `tools/mvp_ingress/capture_env_record.py` (hub PR #219, approved head 050dcd67; hub 0e2b52a0, a test-only follow-up, carries identical script bytes) is run as root against the live
+  observations are made as the ingress uid. The hub script `tools/mvp_env_record/capture_env_record.py` (hub PR #219, hub 3fff3dfb; script bytes identical to 050dcd67/0e2b52a0) is run as root against the live
   process with a run-bound `--label` (`hosted-runner acceptance run <run_id>, profile=approved`; required, the gate checks it names this run), the actual uids, gids, pid, database, ledger, tuple pins, source pins and the tuple's action-manifest file, and writes
   `mvp-chain/artifacts/environment-record.json` unchanged. A gate-side **envelope** (`environment-record.envelope.json`) binds `run_id` and
   `qualification_sha` (supplied by the workflow as `MVP_RUN_ID` and `MVP_QUALIFICATION_SHA`; the hub script has no flags for them and its deterministic
@@ -91,7 +91,7 @@ All of these stay **PROPOSED** pending independent Qualification acceptance and 
 * **Interpreters.** The probe client that attacks the ingress runs under the system `/usr/bin/python3 -I` (an isolated, unprivileged interpreter), while the
   ingress and the capture script run under the workflow's CPython 3.13. The interpreter-match checks (`python.interpreter_matches_ingress`, the record's
   `python.version` equal to the suite's interpreter, `--require-python 3.13`) apply to the ingress and the suite only, never to the probe client.
-  `hub_revision` must name a hub sha whose `tools/mvp_ingress/capture_env_record.py` has the pinned sha256; the workflow checks this right after the hub
+  `hub_revision` must name a hub sha whose `tools/mvp_env_record/capture_env_record.py` has the pinned sha256; the workflow checks this right after the hub
   checkout (`preflight-hub`) and exits 1 otherwise. `qualification_revision` must be blank or equal the workflow commit.
 * **Python (G-04, G-04b).** The workflow uses 3.13, asserts it, and the gate (`--require-python 3.13`) refuses to run its verdict as qualifying on
   any other interpreter. A Python 3.12 result is supplementary and cannot qualify the 3.13 profile. `mvp-chain.yml` on main is not changed.

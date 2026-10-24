@@ -143,6 +143,7 @@ class GateTests(unittest.TestCase):
         hub.mkdir(parents=True, exist_ok=True)
         (hub / "server.py").write_text("print('x')\n")
         script = self.tmp / "components" / "hub" / ENV_PROFILE["capture_script"]["path"]
+        script.parent.mkdir(parents=True, exist_ok=True)
         if script_on_hub is None:
             script.unlink(missing_ok=True)
         else:
@@ -151,8 +152,6 @@ class GateTests(unittest.TestCase):
         man.parent.mkdir(parents=True, exist_ok=True)
         man.write_bytes(FAKE_MANIFEST)
         sources = {"tools/mvp_ingress/server.py": G.sha256_file(hub / "server.py")}
-        if script_on_hub is not None:
-            sources["tools/mvp_ingress/capture_env_record.py"] = G.sha256_file(script)
         self.record_path = rd / "mvp-chain/artifacts/environment-record.json"
         self.envelope_path = rd / "mvp-chain/artifacts/environment-record.envelope.json"
         if not no_record:
@@ -690,11 +689,13 @@ class RulingsTwoTests(GateTests):
     def test_capture_script_is_pinned_in_the_profile_and_at_the_tuple_hub_sha(self):
         real_pin = ENV_PROFILE["capture_script"]
         self.assertRegex(real_pin["sha256"], r"^[0-9a-f]{64}$")
-        self.assertEqual(real_pin["path"], "tools/mvp_ingress/capture_env_record.py")
+        self.assertEqual(real_pin["path"], "tools/mvp_env_record/capture_env_record.py")
+        self.assertEqual(real_pin["forbidden_paths"], ["tools/mvp_ingress/capture_env_record.py"])
+        self.assertIn("3fff3dfb0fb909774cdae77557689dde4cb90f12", real_pin["hub_pr"])
         self.assertIn("050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e", real_pin["hub_pr"])
         self.assertEqual(real_pin["sha256"], "5ae7beca645bf9cf6676c77996656ba7cdaaf4e5413c8c69741e1c7f269f1a51")
         self.assertIn("0e2b52a0", real_pin["hub_pr"])
-        self.assertIn("identical script bytes", real_pin["hub_pr"])
+        self.assertIn("bytes identical to the approved 050dcd67", real_pin["hub_pr"].replace("050dcd670ff23faf0a5e33d3bd6cb0db5e65c74e", "050dcd67"))
         # the envelope names a script other than the pinned one
         self.build(envelope_mutate=lambda e: e.update(capture_script_sha256="a" * 64))
         c = self.g11()
@@ -793,6 +794,15 @@ class RulingsTwoTests(GateTests):
         self.assertEqual(ENV_PROFILE["ipc"]["directory_mode"], "2751")
         self.assertEqual(ENV_PROFILE["ipc"]["socket_mode"], "0660")
 
+    def test_g11_fails_when_the_script_is_also_carried_inside_the_ingress_package(self):
+        self.build()
+        self.assertEqual(self.g11()["status"], "PASS")
+        old = self.tmp / "components/hub/tools/mvp_ingress/capture_env_record.py"
+        old.write_bytes(FAKE_SCRIPT)
+        c = self.g11()
+        self.assertEqual(c["status"], "FAIL")
+        self.assertIn("inside the ingress package", c["detail"])
+
     def test_component_pins_and_manifest_are_the_tuples(self):
         def pin(name, value):
             return lambda r: r["configuration"]["source_pins"].update({name: value}) if value else r["configuration"]["source_pins"].pop(name)
@@ -805,7 +815,7 @@ class RulingsTwoTests(GateTests):
         self.build(env_mutate=lambda r: r["configuration"].pop("manifest_sha256"))
         self.assertEqual(self.g11()["status"], "INCOMPLETE")
 
-    HUB_EMITTED_IDS = (  # every check id the hub capture script (PR #219 approved head 050dcd67) always emits when the inputs are given; the *.exception and *_present ids are BLOCKED markers emitted only on failure
+    HUB_EMITTED_IDS = (  # every check id the hub capture script (PR #219 hub 3fff3dfb, script bytes identical to 050dcd67) always emits when the inputs are given; the *.exception and *_present ids are BLOCKED markers emitted only on failure
         "capture.evidence_label", "configuration.journal_mode", "configuration.pins_and_manifests", "filesystem.ancestors_not_writable_by_others", "filesystem.no_acl_entries",
         "filesystem.no_extra_group_access", "filesystem.state_tree_owner_only", "identity.client_distinct_unprivileged", "identity.declared",
         "identity.ingress_command", "identity.ingress_not_root", "identity.ingress_process", "invocation.client_entry_point",
@@ -983,8 +993,9 @@ class IngressProfileTests(unittest.TestCase):
         import os
         hub = self.tmp / "hub"
         (hub / "tools/mvp_ingress").mkdir(parents=True)
+        (hub / "tools/mvp_env_record").mkdir(parents=True)
         (hub / "tools/mvp_ingress/server.py").write_text("x = 1\n")
-        (hub / "tools/mvp_ingress/capture_env_record.py").write_text(
+        (hub / "tools/mvp_env_record/capture_env_record.py").write_text(
             "import json, sys\nout = sys.argv[sys.argv.index('--out') + 1]\nrec = {'schema': 'mvp-ingress-env-record/1', 'overall': 'PASS', 'record_sha256': 'f' * 64, 'argv': sys.argv[1:]}\n"
             "open(out, 'w').write(json.dumps(rec, sort_keys=True))\nsys.exit(0)\n")
         man = self.tmp / "manifest"
@@ -1001,7 +1012,7 @@ class IngressProfileTests(unittest.TestCase):
         env = json.loads((record.parent / "environment-record.envelope.json").read_text())
         self.assertEqual((env["run_id"], env["qualification_sha"], env["record_sha256"]), ("run123", "9" * 40, "f" * 64))
         self.assertEqual(env["record_file_sha256"], hashlib.sha256(record.read_bytes()).hexdigest())
-        self.assertEqual(env["capture_script_sha256"], hashlib.sha256((hub / "tools/mvp_ingress/capture_env_record.py").read_bytes()).hexdigest())
+        self.assertEqual(env["capture_script_sha256"], hashlib.sha256((hub / "tools/mvp_env_record/capture_env_record.py").read_bytes()).hexdigest())
         argv = json.loads(record.read_text())["argv"]
         self.assertEqual(argv[argv.index("--label") + 1], "hosted-runner acceptance run run123, profile=approved")
         for flag, val in (("--ingress-pid", "4242"), ("--ingress-uid", "990"), ("--client-uid", "991"), ("--journal-mode", "wal"), ("--outsider-uid", "65533")):
@@ -1019,6 +1030,7 @@ class IngressProfileTests(unittest.TestCase):
     def test_capture_script_absent_from_the_hub_checkout_is_reported_not_faked(self):
         hub = self.tmp / "hub2"
         (hub / "tools/mvp_ingress").mkdir(parents=True)
+        (hub / "tools/mvp_env_record").mkdir(parents=True)
         profile = json.loads((ROOT / G.ENV_PROFILE_FILE).read_text())
         res = self.I.capture_environment_record(hub, {}, profile, state="s", sock="x", pid=1, dest="d", record_path=self.tmp / "r.json")
         self.assertFalse(res["captured"])
@@ -1067,6 +1079,18 @@ class HardeningTests(unittest.TestCase):
         real.write_bytes(b"x")
         f.symlink_to(real)
         self.assertEqual(len(G.preflight_hub(ROOT, self.tmp / "components")), 1)
+
+    def test_script_left_at_the_old_ingress_path_fails_preflight_and_g11(self):
+        old = self.tmp / "components/hub/tools/mvp_ingress/capture_env_record.py"
+        root, _ = make_root(self.tmp / "root")
+        self.hub_script(FAKE_SCRIPT)
+        self.assertEqual(G.preflight_hub(root, self.tmp / "components"), [])
+        old.parent.mkdir(parents=True, exist_ok=True)
+        old.write_bytes(FAKE_SCRIPT)
+        problems = G.preflight_hub(root, self.tmp / "components")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("inside the ingress package", problems[0])
+        self.assertEqual(G.main(["preflight-hub", "--components-dir", str(self.tmp / "components"), "--repo-root", str(root)]), 1)
 
     def test_preflight_passes_for_the_pinned_bytes(self):
         root, _ = make_root(self.tmp / "root")  # profile pinned to the stand-in script
