@@ -3,9 +3,18 @@
  "profile_id": "trusted-host-successor",
  "version": "proposed.v1",
  "status": "PROPOSED successor profile, builder-prepared. NOT adopted, NOT qualified, NOT an acceptance and NOT a release decision. It SUPPLEMENTS and does not replace, edit or overwrite environment-profile.proposed.v1.json (the original restricted-host profile with its Yama requirement) or any of its history; the original profile and its INCOMPLETE NC4 host requirements stay in force until the operator approves a scope change AND the independent Qualification owner approves this profile, before any acceptance run.",
+ "approved_scope_wording": "OCS MVP trusted-host, distinct-UID execution profile. The supported boundary assumes trusted host administration, an uncompromised Python runtime, a separately privileged ingress identity, and unprivileged clients restricted to the authenticated IPC interface. Same-UID hostile execution, ingress-UID compromise, privileged host compromise and interpreter tampering are outside the supported threat model.",
+ "approval_state": "scope wording approved by the architect (2026-10-24), subject to operator adoption; not adopted; no successor qualification is claimed",
  "supersedes": null,
- "original_profile": {"path": "process/mvp-acceptance/environment-profile.proposed.v1.json", "unchanged": true, "yama_ptrace_scope_required": true},
- "approval_required": ["operator approval of the scope change (no Yama host will be provisioned)", "independent Qualification owner approval of this profile (identity recorded in the Qualification repository, see owner-designation-request.proposed.md)"],
+ "original_profile": {
+  "path": "process/mvp-acceptance/environment-profile.proposed.v1.json",
+  "unchanged": true,
+  "yama_ptrace_scope_required": true
+ },
+ "approval_required": [
+  "operator approval of the scope change (no Yama host will be provisioned)",
+  "independent Qualification owner approval of this profile (identity recorded in the Qualification repository, see owner-designation-request.proposed.md)"
+ ],
  "claim": "Under this profile the host-isolation claim is the narrower: a separately identified unprivileged client uid cannot reach the designated ingress's authority, state or effects except through the allowlisted IPC socket, on a trusted host. It makes no successor-qualification statement.",
  "excluded_adversaries": [
   "an adversary running as the same uid as the ingress",
@@ -30,6 +39,28 @@
   "no independently captured environment record for the run",
   "any retained requirement above not observed"
  ],
- "result_labels": {"host_isolation_under_successor_profile": "INCOMPLETE until observed on an environment with distinct identities and independently adjudicated", "nc4_overall_under_original_profile": "INCOMPLETE"},
- "limits": ["builder-prepared proposal", "no successor qualification is claimed", "release and production stay HOLD", "non-authorizing"]
+ "result_labels": {
+  "host_isolation_under_successor_profile": "INCOMPLETE until observed on an environment with distinct identities and independently adjudicated",
+  "nc4_overall_under_original_profile": "INCOMPLETE"
+ },
+ "limits": [
+  "builder-prepared proposal",
+  "no successor qualification is claimed",
+  "release and production stay HOLD",
+  "non-authorizing"
+ ],
+ "mandatory_within_profile": [
+  "distinct ingress and client UIDs",
+  "non-root ingress",
+  "restricted IPC and filesystem permissions",
+  "explicit SO_PEERCRED allowlisting",
+  "fail-closed ingress",
+  "standard Linux credential and ptrace restrictions",
+  "Yama is NOT mandatory"
+ ],
+ "evidence_rules": [
+  "no host provisioning or search: existing environments only, for bounded tests",
+  "any host-isolation property not independently exercised stays INCOMPLETE",
+  "container evidence is not substituted for host evidence without a justified equivalence assessment"
+ ]
 }
