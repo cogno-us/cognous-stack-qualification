@@ -3,7 +3,7 @@
 D2_CONTROL_PLANE_DIR  Control Plane checkout (its tests/ package supplies the synthetic fixtures)
 D2_RUNTIME_DIR        Runtime checkout
 D2_CONTROL_PLANE_PIN  expected Control Plane HEAD; must be one of the two accepted tuples below (default 0a41faa9...)
-Every test FAILS (never skips) unless: both variables are set; Runtime HEAD == ec728da6...; Control Plane HEAD == D2_CONTROL_PLANE_PIN;
+Every test FAILS (never skips) unless: both variables are set; Runtime HEAD == c5e97e87...; Control Plane HEAD == D2_CONTROL_PLANE_PIN;
 both checkouts are git checkouts with a clean working tree (untracked, non-ignored files count as dirty); pydantic >= 2.12.
 Local builder evidence, not wired to CI. Not a Qualification verdict.
 SPDX-License-Identifier: Apache-2.0
@@ -16,7 +16,7 @@ import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-RUNTIME_PIN = "ec728da6dc301a664b331ac8986afd6e850a1273"
+RUNTIME_PIN = "c5e97e87dd239c821b1b4a406a55dcd03c5bc61f"
 CP_PINS = {"0a41faa972699f7ec3063967a14cd9bdd3e67d27", "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c"}
 _MISSING = [v for v in ("D2_CONTROL_PLANE_DIR", "D2_RUNTIME_DIR") if not os.environ.get(v)]
 
