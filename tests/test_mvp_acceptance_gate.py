@@ -6,6 +6,7 @@ listed; a Verifier disposition that is not exactly the expected one is a REJECT;
 """
 import copy
 import hashlib
+import importlib.util
 import json
 import os
 import re
@@ -1213,6 +1214,8 @@ class ComposedV6BatteryTests(unittest.TestCase):
         self.assertNotIn('expectations.proposed.v3.json")', text)
 
     def test_supplementary_entries_cover_exactly_the_collected_tests_of_the_two_files(self):
+        if importlib.util.find_spec("pytest") is None:  # the unittest-only CI jobs install no pytest; the pytest runs (and gate G-13 in a run) do check it
+            self.skipTest("pytest is not installed in this environment: the collection cross-check needs it")
         env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
         out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "suites/mvp-chain/test_kwflow.py",
                               "suites/mvp-chain/test_ingress_ambiguity.py"], cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
