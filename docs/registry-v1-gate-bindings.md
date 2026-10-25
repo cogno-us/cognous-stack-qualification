@@ -9,8 +9,8 @@ QPR-1 is the bounded prerequisite for EXT-S5-1 (gate catalogue and predeclaratio
 | File | Purpose |
 |---|---|
 | `process/registry-v1/gate-bindings.proposed.v1.json` | One row per gate QG-01..QG-14 from the merged plan matrix (registry `d2c472e4`, matrix sha-256 `e81b5fad…04bd`). Each row binds the plan's scenario ids, existing test references, sprint, mode, known gaps, the count of predeclared new test items and the digest of the plan row |
-| `process/registry-v1/validate_gate_bindings.py` | Rejects a missing or inconsistent binding. Run `python3 -I process/registry-v1/validate_gate_bindings.py`; add `--matrix <copy of the plan matrix>` to check for drift |
-| `tests/test_gate_bindings.py` | 27 focused unit tests, positive and negative. They execute no qualification scenario |
+| `process/registry-v1/validate_gate_bindings.py` | Rejects a missing or inconsistent binding. Run `python3 -I process/registry-v1/validate_gate_bindings.py`; add `--matrix <copy of the plan matrix>` to check for drift (it checks the stored row digest and re-derives every copied binding field from the source row) |
+| `tests/test_gate_bindings.py` | 31 focused unit tests, positive and negative. They execute no qualification scenario |
 
 ## What it does and does not do
 

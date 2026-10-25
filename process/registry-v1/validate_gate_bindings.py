@@ -10,6 +10,7 @@ SPDX-License-Identifier: Apache-2.0
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -23,6 +24,7 @@ MATRIX_SHA256 = 'e81b5fad1dfcc9bcb002111a17e7bd79117efa53cfc81b3198fbcb75b2dd04b
 GATE_IDS = [f'QG-{i:02d}' for i in range(1, 15)]
 INACTIVE_GATE = 'QG-02'
 ALL_SCOPE_GATE = 'QG-14'
+REGISTRY_SANDBOX = '/home/claude/cognous-ocs-registry/'
 MODE = 'PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED'
 INACTIVE_STATUS = 'INACTIVE_MAX_AMOUNT_DEFERRED'
 ORIGINS = {'qualification-repository', 'registry-builder-repository', 'descriptive-no-path'}
@@ -106,8 +108,9 @@ def validate(table=None, root=ROOT, matrix_rows=None):
         require(scope in SCOPES, f'{gid}: unknown scenario_scope')
         ids = [e['id'] for e in gate.get('scenario_ids', [])]
         require(len(ids) == len(set(ids)), f'{gid}: duplicate scenario id')
+        require((scope == 'all_canonical_scenarios') == (gid == ALL_SCOPE_GATE), f'{gid}: only QG-14 may bind all scenarios, and QG-14 must')
         if scope == 'all_canonical_scenarios':
-            require(gid == ALL_SCOPE_GATE and not ids, f'{gid}: only QG-14 may bind all scenarios, with no listed ids')
+            require(not ids, f'{gid}: all-scenario scope lists no ids')
         else:
             require(bool(ids), f'{gid}: no scenario ids bound')
         for sid in ids:
@@ -125,11 +128,44 @@ def validate(table=None, root=ROOT, matrix_rows=None):
     return {'gates': len(rows), 'active': active, 'inactive': [INACTIVE_GATE]}
 
 
+def _reference(text):
+    if text.startswith(REGISTRY_SANDBOX):
+        rel = text[len(REGISTRY_SANDBOX):]
+        return {'ref': rel, 'origin': 'registry-builder-repository', 'path': re.split(r'::| \(| \[', rel)[0].strip()}
+    m = re.match(r'(suites|process|tests|tools)/[^\s:(\[]*', text)
+    if m:
+        return {'ref': text, 'origin': 'qualification-repository', 'path': m.group(0)}
+    return {'ref': text, 'origin': 'descriptive-no-path', 'path': None}
+
+
+def expected_binding(m):
+    """The binding fields a plan matrix row determines: the single normalization used to write and to check the table."""
+    ids, scope = [], 'listed'
+    for text in m['scenario_ids']:
+        if text == 'all':
+            scope = 'all_canonical_scenarios'
+            continue
+        found = re.match(r'^([A-Z0-9-]+)(?: \((\w+)\))?$', text)
+        require(found, f"{m['gate_id']}: unparseable scenario id {text!r}")
+        ids.append({'id': found.group(1), **({'plan_annotation': found.group(2)} if found.group(2) else {})})
+    return {'mandatory': m['v1_status'] == 'ACTIVE', 'text': m['name'],
+            'gate': {'sprint': m['sprint'], 'v1_status': m['v1_status'], 'qualification_mode': m['qualification_mode'],
+                     'scenario_scope': scope, 'scenario_ids': ids,
+                     'existing_test_refs': [_reference(t) for t in m['existing_test_ids']],
+                     'predeclared_new_test_items': len(m['new_tests_needed'])}}
+
+
 def compare_to_matrix(table, matrix_rows):
-    """Optional drift check against a copy of the plan matrix supplied as data (not imported, not fetched)."""
+    """Optional drift check against a copy of the plan matrix supplied as data (not imported, not fetched).
+    Checks the stored row digest and re-derives every copied binding field from the source row."""
     require([m['gate_id'] for m in matrix_rows] == GATE_IDS, 'Matrix gates differ from QG-01..QG-14')
     for row, m in zip(table['requirements'], matrix_rows):
-        require(row['gate']['plan_row_sha256'] == row_digest(m), f"{row['id']}: plan row changed since the binding was written")
+        gid = row['id']
+        require(row['gate']['plan_row_sha256'] == row_digest(m), f'{gid}: plan row changed since the binding was written')
+        want = expected_binding(m)
+        require(row['mandatory'] == want['mandatory'] and row['text'] == want['text'], f'{gid}: mandatory or text differs from the source row')
+        for key, value in want['gate'].items():
+            require(row['gate'].get(key) == value, f'{gid}: {key} differs from the source matrix row')
 
 
 def main(argv=None):

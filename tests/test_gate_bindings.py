@@ -88,6 +88,9 @@ class Rejections(unittest.TestCase):
     def test_all_scope_only_for_qg14(self):
         self.rejects(lambda t: row(t, 'QG-01')['gate'].update(scenario_scope='all_canonical_scenarios'), 'only QG-14')
 
+    def test_qg14_cannot_narrow_to_a_listed_scope(self):
+        self.rejects(lambda t: row(t, 'QG-14')['gate'].update(scenario_scope='listed', scenario_ids=[{'id': 'D01'}]), 'QG-14 must')
+
     def test_missing_existing_path(self):
         def edit(t):
             row(t, 'QG-03')['gate']['existing_test_refs'][0]['path'] = 'suites/does-not-exist.py'
@@ -122,17 +125,64 @@ class Rejections(unittest.TestCase):
         self.rejects(lambda t: t['requirements'][0].update(kind='tests', selectors=[]), 'at least one selector')
 
 
+def synthetic_matrix():
+    rows = []
+    for i, gid in enumerate(g.GATE_IDS):
+        rows.append({'gate_id': gid, 'name': f'name {gid}', 'sprint': 'S5-2', 'v1_status': 'INACTIVE_MAX_AMOUNT_DEFERRED' if gid == 'QG-02' else 'ACTIVE',
+                     'qualification_mode': g.MODE, 'scenario_ids': ['all'] if gid == 'QG-14' else ['C11', 'D02 (NO_TEST)'],
+                     'existing_test_ids': ['suites/v1-scenarios/test_scn_c11.py (parametrized)', '/home/claude/cognous-ocs-registry/tests/test_x.py::test_y', 'some descriptive row'],
+                     'new_tests_needed': ['a', 'b', 'c'][: 1 + i % 3]})
+    return rows
+
+
+def synthetic_table(rows):
+    t = copy.deepcopy(TABLE)
+    for r, m in zip(t['requirements'], rows):
+        want = g.expected_binding(m)
+        r['mandatory'], r['text'] = want['mandatory'], want['text']
+        r['gate'].update(want['gate'])
+        r['gate']['plan_row_sha256'] = g.row_digest(m)
+    return t
+
+
 class MatrixDrift(unittest.TestCase):
-    def test_changed_plan_row_is_detected_and_unchanged_passes(self):
-        rows = [{'gate_id': gid, 'name': gid} for gid in g.GATE_IDS]
-        t = copy.deepcopy(TABLE)
-        for r, m in zip(t['requirements'], rows):
-            r['gate']['plan_row_sha256'] = g.row_digest(m)
-        g.compare_to_matrix(t, rows)
+    def test_unchanged_matrix_passes(self):
+        rows = synthetic_matrix()
+        g.compare_to_matrix(synthetic_table(rows), rows)
+
+    def test_changed_plan_row_is_detected_by_digest(self):
+        rows = synthetic_matrix()
+        t = synthetic_table(rows)
         rows[3] = dict(rows[3], name='changed')
         with self.assertRaises(ValueError) as cm:
             g.compare_to_matrix(t, rows)
         self.assertIn('QG-04', str(cm.exception))
+
+    def test_binding_edited_while_source_and_digest_stay_intact_is_detected(self):
+        rows = synthetic_matrix()
+        edits = {
+            'sprint': lambda gate: gate.update(sprint='S9-9'),
+            'item count': lambda gate: gate.update(predeclared_new_test_items=99),
+            'scenario list': lambda gate: gate.update(scenario_ids=[{'id': 'D01'}]),
+            'references': lambda gate: gate.update(existing_test_refs=gate['existing_test_refs'][:1]),
+            'scope': lambda gate: gate.update(scenario_scope='all_canonical_scenarios', scenario_ids=[]),
+            'status': lambda gate: gate.update(v1_status='INACTIVE_MAX_AMOUNT_DEFERRED'),
+        }
+        for name, edit in edits.items():
+            with self.subTest(edit=name):
+                t = synthetic_table(rows)
+                edit(row(t, 'QG-01')['gate'])
+                with self.assertRaises(ValueError) as cm:
+                    g.compare_to_matrix(t, rows)
+                self.assertIn('QG-01', str(cm.exception))
+        t = synthetic_table(rows)
+        row(t, 'QG-01')['text'] = 'edited'
+        with self.assertRaises(ValueError):
+            g.compare_to_matrix(t, rows)
+
+    def test_validate_passes_the_matrix_through(self):
+        with self.assertRaises(ValueError):
+            g.validate(synthetic_table(synthetic_matrix()), matrix_rows=synthetic_matrix()[:13])
 
 
 class NothingHistoricalChanges(unittest.TestCase):
