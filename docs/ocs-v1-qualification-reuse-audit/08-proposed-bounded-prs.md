@@ -22,7 +22,7 @@ Every PR below shares these properties (the plan's "Std-Q"): qualification repos
 | Does not touch | `requirements.json`, `freeze-manifest.json`, `v1_validation.py`, `mvp_acceptance_gate.py`, release-gate files, any result |
 | Checks that run | `catalog-validation`, `qualification-dashboard` (every PR); migration integrity only if a path under `suites/` or `tools/` named in its filter changes |
 | Acceptance | 14 rows matching the plan digest; QG-02 inactive and excluded from every total; a test fails on any status outside the closed sets or any "qualified" word without a designation record |
-| Risk | Low. First task is to settle whether `validate_requirements` runs without the V1 freeze (UNVERIFIED); if not, reimplement only the row checks |
+| Risk | Low. First task is to settle whether `validate_requirements` runs without the V1 freeze (a reviewer read `tools/v1_validation.py:831-862` as freeze-independent; still to be confirmed by running it); if not, reimplement only the row checks |
 | Estimate | 2 to 3 engineer-days |
 | Blocked on | Nothing |
 

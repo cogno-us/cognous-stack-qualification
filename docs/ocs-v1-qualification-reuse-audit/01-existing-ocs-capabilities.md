@@ -16,7 +16,7 @@ The registry is not a subject yet. `cognous-ocs-registry` appears in no workflow
 
 ### Five Runtime allowlists (F1a: actions, adapters, units; F1b: institutions, authority domains)
 
-- `suites/v1-scenarios/test_scn_c11.py` varies one policy dimension at a time (`POLICY_DIMS`: institution, authority_domain, adapter, action, target_prefix, unit, max_amount). It swaps in a stricter policy and asserts refusal, zero destination effects and no recorded attempt, on Route A and Route B, with positive controls and a determinism rerun. All five in-scope allowlists are covered as refusal oracles. **SOURCE FACT**
+- `suites/v1-scenarios/test_scn_c11.py` varies one policy dimension at a time (`POLICY_DIMS`: institution, authority_domain, adapter, action, target_prefix, unit, max_amount). It swaps in a stricter policy and asserts refusal, zero destination effects and refusal and zero effects on both routes (Route A also asserts no recorded attempt), with positive controls and a determinism rerun. All five in-scope allowlists are covered as refusal oracles. **SOURCE FACT**
 - `suites/v1-probes/test_runtime_probes.py` repeats this at the executor level without the Control Plane, including a control that the in-scope operation executes. **SOURCE FACT**
 - Not covered: values arriving from a registry record, superset and narrowing cases (the oracles only swap to a disjoint set), the empty-set case per allowlist, and the pre-construction deny-all path. **SOURCE FACT**
 
@@ -24,13 +24,13 @@ The registry is not a subject yet. `cognous-ocs-registry` appears in no workflow
 
 - Pattern covered: `test_add_molt_verify.py` E3 (59 s authorized, 61 s `grant_status_stale_or_future`; per-item keys ignored), class bounds 5 s and 120 s, `operation-identity/test_freshness_profile.py` (stalled check refused, outage extension to 200 s with a signer), purpose-cache inclusive edge. **SOURCE FACT**
 - Notable constraint found in E3: changing the class bound also yields `runtime_authority_approval_mismatch`, because the catalogue digest is approval-bound. A registry change to this value forces re-approval. **SOURCE FACT**
-- Not covered: approval-age behaviour. `approval_max_age_seconds` appears in exactly one place, `process/adversarial/tests/test_t15_profile_forwarding.py:52`, as a constructor parameter checked for forwarding completeness. It is not exercised for freshness. **SOURCE FACT**
+- Not covered: approval-age behaviour. `approval_max_age_seconds` appears in test or tool code only at `process/adversarial/tests/test_t15_profile_forwarding.py:52` (a `setattr` loop over four age attributes, not a constructor call; elsewhere it appears only in `docs/registry-v1-scope-assessment/`) checked for forwarding completeness. It is not exercised for freshness. **SOURCE FACT**
 
 ### Atomic Route B
 
 - `test_local_authority_effect.py` and `test_worker21_atomic_authority_effect.py` cover invalidation before the transaction, expiry evaluated after the lock wait, claim, budget and effect committing together, process termination at transaction boundaries, concurrent same-claim and competing effects. Reusable harness pieces: `MutableClock`, `BarrierDestinationMixin`, `setup_case`, `setup_atomic`. **SOURCE FACT**
 - They assert the authority boundary, not registry policy at it. The local policy check runs before the destination transaction (shown by C11 Route B and `test_w2_refusal_history.py`); no test asserts its placement or races a policy change against the transaction. This is GAP-G3-02 and R10 Options A/B/C are unimplemented. **SOURCE FACT**
-- Route C is marked EXCLUDED / NOT INVOKED in `suites/mvp-applicability`, and `suites/mvp-d2-route-b` is not wired to CI. Both are usable as Route-B-only controls. **SOURCE FACT**
+- Route C is marked EXCLUDED / NOT INVOKED in `suites/mvp-applicability`, and in `suites/mvp-d2-route-b` only `test_inventory_negatives.py` runs in CI (`mvp-acceptance.yml`); `test_route_b_end_to_end.py` is not wired. Both are usable as Route-B-only controls. **SOURCE FACT**
 
 ### Claim-carried effective-policy identity
 
@@ -51,7 +51,7 @@ The registry is not a subject yet. `cognous-ocs-registry` appears in no workflow
 ### Durable negative evidence
 
 - `suites/_refusal_template.py` and `docs/refusal-test-template.md` define five legs: (a) no ledger row for the effect id, read through an independent read-only connection; (b) a refusal row naming the failed check and expected and observed input versions; (c) a positive control at the same enforcement point and policy version; (d) mutation, with the refusal writer disabled leg (b) must fail while the effect is still blocked; (e) provenance. **SOURCE FACT**
-- `test_refusal_evidence.py` reconstructs every typed source field and rejects eleven substitution or loss mutations; `test_wp_c_budget_stop_recovery.py` D12-021 keeps sixty refusals durable across restart. Refusal rows are `hold`, never `deny`. **SOURCE FACT**
+- `test_refusal_evidence.py` reconstructs every typed source field and rejects eleven substitution or loss mutations; `test_wp_c_budget_stop_recovery.py` D12-021 has a sixty-refusal durability test and, separately, a three-refusal restart test. Decisions in the cited tests are `hold`; executor results are `denied`. **SOURCE FACT**
 - A refusal never means expired, revoked or inactive: `classify_holders` returns `witnessed_refusals` and `unenumerated_authority_needing_containment`. **SOURCE FACT**
 - Not covered: registry-code carriage as structured evidence, deny-all distinct from a policy-check denial, and a mutation proving a decision does not depend on message text. The mvp-chain README states error strings are recorded but not pinned. **SOURCE FACT**
 
@@ -79,14 +79,14 @@ Immutability elsewhere under `results/` is convention: no test or check forbids 
 | MVP-chain verdicts | PASS, FAIL, BLOCKED, NOT RUN, NOT APPLICABLE | `suites/mvp-chain/verdict.py:11` |
 | Selected V1 verdict | PASS, FAIL, INCOMPLETE | `tools/v1_validation.py` (`verdict`) |
 | MVP gate verdicts | ACCEPT, REJECT, INCOMPLETE (INCOMPLETE > REJECT > ACCEPT; `authorizes: false`) | `tools/mvp_acceptance_gate.py` |
-| Crosswalk evidence_status | PASS_RECORDED, FAIL_RECORDED, BLOCKED, NOT_RUN, KNOWN_LIMIT_ASSERTED, COLLECTED_ONLY, NO_TEST, UNKNOWN | `method/validate_crosswalk.py:33-35` |
+| Crosswalk evidence_status | PASS_RECORDED, FAIL_RECORDED, BLOCKED, NOT_RUN, KNOWN_LIMIT_ASSERTED, COLLECTED_ONLY, NO_TEST, UNKNOWN | `docs/registry-v1-scope-assessment/method/validate_crosswalk.py:32-33` |
 | Crosswalk existing_protection | ENFORCED_AND_EVIDENCED, IMPLEMENTED_NOT_QUALIFIED, PARTIALLY_ENFORCED, KNOWN_GAP, NOT_APPLICABLE, UNKNOWN | same |
 
 `PASS_RECORDED` means a historical, developer-run, named case at the g8-r10 controller pins. It is not a PASS and does not transfer to Control Plane `7a4bcd40` or Runtime `c5e97e87`. The P1 plan also uses `BUILDER_TESTED`, an evidence label for registry-repository tests, which is not a verdict in this repository. **SOURCE FACT**
 
 ## 5. CI and test harness
 
-- 70 workflows, about 7.5k lines; all use SHA-pinned actions and `contents: read`. 49 are delegated owner-repository suites (`<repo>--<name>.yml`): dispatch or call, inputs `source_revision` and `qualification_revision`, two checkouts, `tools/install_suite.py` overlaying relocated tests, hash-pinned dependency locks, and a mandatory `relocation-*` identity artifact. **SOURCE FACT**
+- 70 workflows, about 7.5k lines; all use SHA-pinned actions; 68 grant `contents: read` only, and `capture-qualification-run.yml` and `upstream-wiki-refresh.yml` have write permissions. 50 are delegated owner-repository suites (`<repo>--<name>.yml`): dispatch or call, inputs `source_revision` and `qualification_revision`, two checkouts, `tools/install_suite.py` overlaying relocated tests, hash-pinned dependency locks, and a mandatory `relocation-*` identity artifact. **SOURCE FACT**
 - Templates for exact-revision composition: `operation-identity-profile.yml` and `outside-holder-profile.yml` (`workflow_call`, `control_plane_revision` and `runtime_revision` inputs). Controllers: `v1-validation.yml` (plan, freeze, aggregate), `mvp-acceptance.yml` (resolve, verify-checkouts, commit, gate). **SOURCE FACT**
 - Only `catalog-validation.yml` and `qualification-dashboard.yml` run on every pull request; neither reads a docs directory listing. Nothing automatically gates a registry change, because all delegated workflows are dispatch or call only. **SOURCE FACT**
 - Environment hazards that affect reuse: many suites hard-fail on unset checkout variables (`MVP_*_DIR`, `ADV_*_DIR`, `ARB_REFUSAL_*`); Runtime CI skips atomic tests when `agent_control_plane` is not on the path; `mvp-d2-route-b` and `mvp-d09` need pydantic 2.12 or later, but two of the locks pin 2.11.9; some `operation-identity` tests are designed to fail on specific pins. **SOURCE FACT**

@@ -27,7 +27,7 @@ Model it on `operation-identity-profile.yml` and `outside-holder-profile.yml`: `
 
 Constraints it must meet, all from the existing repository:
 
-- The plan's host driver imports no registry-host code; tests drive the registry through its own interface. How is not specified in the plan. **UNVERIFIED**
+- The plan's EXT-S5-4 card calls for a host driver importing no registry-host code (the workflow itself is introduced at S5-2); tests drive the registry through its own interface. How is not specified in the plan. **UNVERIFIED**
 - Pins are inputs. Defaults, if any, follow the existing literal-pin convention, which `tests/test_e4_workflow_pin_literals.py` and `test_f_t3_1_workflow_pin_structure.py` check for V1 validation only; whether they extend to a new workflow is **UNVERIFIED**.
 - Python and pydantic: the mvp suites need Python 3.13 with pydantic 2.12 or later (lock `a9a750`: 2.13.5). Choosing the 2.11.9 locks would break them.
 - `tests/test_privileged_workflow_dependencies.py` requires every requirement to be hashed.
@@ -42,7 +42,7 @@ Native suites (for example `mvp-chain`, `operation-identity`, `v1-scenarios`) al
 | Need | Existing helper |
 |---|---|
 | Policy-refusal oracle for each allowlist, Routes A and B | `v1-scenarios/test_scn_c11.py` (`POLICY_DIMS`, `stricter`, flow helpers); `v1-probes/test_runtime_probes.py::op_and_policy` |
-| Route B atomic fixtures, clock, barrier | `cognous-execution-runtime/tests/test_local_authority_effect.py` (`MutableClock`, `BarrierDestinationMixin`, `setup_atomic`) |
+| Route B atomic fixtures, clock, barrier | `cognous-execution-runtime/tests/test_local_authority_effect.py` (`MutableClock`, `setup_atomic`) and `test_worker21_atomic_authority_effect.py` (`BarrierDestinationMixin`, `setup_case`) |
 | Flow, effect ids, observe/require | `operation-identity/_oi_flow.py`, `process/adversarial/tests/_adv.py`, `conftest.py` |
 | Verdict computation | `suites/mvp-chain/verdict.py` (pure function) |
 | Refusal, positive control, mutation, provenance legs | `suites/_refusal_template.py` |

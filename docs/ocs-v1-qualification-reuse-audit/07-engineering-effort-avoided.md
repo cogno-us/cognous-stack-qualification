@@ -4,7 +4,7 @@
 
 Nothing here authorizes a migration, approves a pin, selects or activates a record, or changes a qualification verdict. Implementation is not authorized.
 
-**Every figure in this section is a REASONED INFERENCE, not a measurement.** The Constitution (CA08, CA13) says code volume, commit intervals and worker counts are not substitutes for measured effort, and active hours are unknown unless measured. Line counts below are the only measured quantity (`wc -l`, at the pinned heads). The conversion to engineer-days is an assumption and could be wrong by a wide margin.
+**Every figure in this section is a REASONED INFERENCE, not a measurement.** The Constitution says active hours are unknown unless measured (CA08) and forbids claims from projection (CA13); its evidence section (line 142) says code volume, commit intervals and worker counts are not measures. Line counts below are the only measured quantity (`wc -l`, at the pinned heads). The conversion to engineer-days is an assumption and could be wrong by a wide margin.
 
 ## 1. Method and assumptions
 
@@ -18,7 +18,7 @@ Nothing here authorizes a migration, approves a pin, selects or activates a reco
 | # | Duplicate that is not needed | Existing asset (measured) | Lines | Estimate (engineer-days) |
 |---|---|---|---|---|
 | E1 | Registry-specific collector, pin and freeze handling, suite overlay, immutable evidence writer, trajectory record, failure register, refusal template | `tools/v1_validation.py` 1,378; `suites/_pins.py` 249; `tools/qualification_results.py` 159; `tools/install_suite.py` 127; `tools/trajectory_contract.py` 166; `tools/capture_workflow_run.py` 65; `tools/failure_register.py` 101; `suites/_refusal_template.py` 330 | 2,575 | 17 to 26 |
-| E2 | Route B atomic, policy-refusal, adversarial-flow and verdict test harness for the new cases | `test_scn_c11.py` 495 (harness part); `_oi_flow.py` 209; `mvp-chain/_chain.py` 819 and `verdict.py` 101; `_adv.py` 176; atomic fixtures in `test_local_authority_effect.py` (959, harness part) | about 1,500 to 2,000 reusable | 10 to 20 |
+| E2 | Route B atomic, policy-refusal, adversarial-flow and verdict test harness for the new cases | `test_scn_c11.py` 495 (harness part); `_oi_flow.py` 209; `mvp-chain/_chain.py` 819 and `verdict.py` 101; `_adv.py` 176; atomic fixtures in `test_local_authority_effect.py` (959, harness part) | about roughly 1,500 to 2,000 (an estimate; the listed files total 2,759 lines) reusable | 10 to 20 |
 | E3 | Workflow conventions: exact-revision inputs, pins, locks, identity artifact, hashed installs, SHA-pinned actions | `operation-identity-profile.yml` 86 lines as the template; conventions across 70 workflows | 86 template | 2 to 4 |
 | E4 | Reporting and dashboard for registry results | `tools/build_dashboard.py` 191; schemas | about 200 | 2 to 4 |
 | E5 | An ISSBench-style harness built for OCS: evidence log, comparator, provenance checker, freeze verification, attempt scripts | `issbench/*.py` 1,433; 104 files in `scripts/` (not counted) | 1,433+ | 10 to 20 |
