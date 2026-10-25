@@ -1,0 +1,929 @@
+{
+ "schema": "ocs-registry-v1-gate-bindings",
+ "version": "proposed.v1",
+ "status_note": "PROPOSED and UNADOPTED. Preparation record for EXT-S5-1. It binds the plan gates to existing inventory and references. It is not a result, not a verdict and not a qualification claim. QG-02 is INACTIVE. Independent Tier 1 qualification: NOT STARTED.",
+ "plan_source": {
+  "repository": "cogno-us/cognous-ocs-registry",
+  "revision": "d2c472e4a09543228bad62235e07a0dedfd7f48b",
+  "pull_request": 22,
+  "matrix_path": "docs/p1-extraction-plan/data/qualification-gate-matrix.json",
+  "matrix_sha256": "e81b5fad1dfcc9bcb002111a17e7bd79117efa53cfc81b3198fbcb75b2dd04bd",
+  "gate_count": 14
+ },
+ "contract_refs": [
+  {
+   "repository": "cogno-us/cognous-ocs-registry",
+   "revision": "d2c472e4a09543228bad62235e07a0dedfd7f48b",
+   "path": "docs/p1-extraction-plan/07-independent-qualification-matrix.md",
+   "role": "gate definitions and independence requirement"
+  },
+  {
+   "repository": "cogno-us/cognous-ocs-registry",
+   "revision": "d2c472e4a09543228bad62235e07a0dedfd7f48b",
+   "path": "docs/p1-extraction-plan/11-ext-pr-execution-cards.md",
+   "role": "EXT-S5-1 card (gate catalogue and predeclaration)"
+  },
+  {
+   "repository": "cogno-us/cognous-ocs-registry",
+   "revision": "d2c472e4a09543228bad62235e07a0dedfd7f48b",
+   "path": "docs/p1-extraction-plan/06-pr-and-sprint-execution-plan.md",
+   "role": "sprint plan; S5 is PREPARE-only until G-6"
+  },
+  {
+   "repository": "cogno-us/cognous-stack-qualification",
+   "revision": "bc8797d4b801b64432461dc9f9dd09a390063f4b",
+   "path": "docs/registry-v1-scope-assessment/data/canonical-scenario-crosswalk.json",
+   "role": "scenario inventory the scenario ids resolve against"
+  },
+  {
+   "repository": "cogno-us/cognous-stack-qualification",
+   "revision": "bc8797d4b801b64432461dc9f9dd09a390063f4b",
+   "path": "scenarios/catalog.json",
+   "role": "Cognous scenario catalogue the scenario ids resolve against"
+  },
+  {
+   "repository": "cogno-us/cognous-stack-qualification",
+   "revision": "bc8797d4b801b64432461dc9f9dd09a390063f4b",
+   "path": "process/v1-validation/v1-2026-10-16-a/requirements.json",
+   "role": "requirement-row model reused (tools/v1_validation.py validate_requirements)"
+  },
+  {
+   "repository": "cogno-us/cognous-stack-qualification",
+   "revision": "bc8797d4b801b64432461dc9f9dd09a390063f4b",
+   "path": "docs/ocs-v1-qualification-reuse-audit/data/gate-coverage.json",
+   "role": "source of the known_gaps text"
+  },
+  {
+   "repository": "cogno-us/cognous-engineering-constitution",
+   "revision": "1c2e920f4e58e07a52e8e2408a506cf7dbc1292b",
+   "path": "ENGINEERING_CONSTITUTION.md",
+   "role": "pinned constitutional baseline"
+  },
+  {
+   "repository": "cogno-us/cognous-engineering-constitution",
+   "revision": "a4dd11115e47e27e8f0731a622fe950f7fbf2fc2",
+   "path": "addenda/RISK_BASED_TESTING.md",
+   "role": "adopted testing addendum (Architect ruling D3)"
+  }
+ ],
+ "requirements": [
+  {
+   "id": "QG-01",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Differential old/new evaluator, five DIRECT fields (allowed_actions, allowed_adapters, allowed_units, allowed_institutions, allowed_authority_domains)",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-01",
+   "gate": {
+    "sprint": "S5-2",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C11"
+     },
+     {
+      "id": "C02"
+     },
+     {
+      "id": "D02"
+     },
+     {
+      "id": "C18"
+     },
+     {
+      "id": "TC-L06-009"
+     },
+     {
+      "id": "TC-L06-011"
+     },
+     {
+      "id": "TC-L06-013"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/v1-scenarios/test_scn_c11.py (parametrized [action][adapter][unit][institution][authority_domain][max_amount])",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c11.py"
+     },
+     {
+      "ref": "suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_out_of_scope_operation_denied_with_no_effect[...]",
+      "origin": "qualification-repository",
+      "path": "suites/v1-probes/test_runtime_probes.py"
+     },
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py::test_actor_principal_institution_domain_substitution",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py"
+     },
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_local_restriction_prevents_sandbox_dispatch",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_openshell_environment.py"
+     },
+     {
+      "ref": "tests/test_s05_equivalence.py::test_G1_exhaustive_equivalence_nonwidening_and_ordering",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s05_equivalence.py"
+     },
+     {
+      "ref": "tests/test_s05_equivalence.py::test_G2_per_field_exhaustive",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s05_equivalence.py"
+     },
+     {
+      "ref": "tests/test_s05_equivalence.py::test_X_end_to_end_results_equal_frozen_expectations_and_each_other",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s05_equivalence.py"
+     },
+     {
+      "ref": "tests/test_s01_baseline_local_policy.py",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s01_baseline_local_policy.py"
+     }
+    ],
+    "predeclared_new_test_items": 8,
+    "known_gaps": [
+     "Refusal oracles for all five allowlists exist (Q04). No test builds a policy from a registry record; no grid; no deny-all test."
+    ],
+    "plan_row_sha256": "341c5e682fa56dd76e3cae8a8f1bf0ffcf5ea4ecffadcc10e4851bf613928440"
+   }
+  },
+  {
+   "id": "QG-02",
+   "kind": "gap",
+   "mandatory": false,
+   "text": "max_amount differential (conditional on D6 and a code hard cap) [INACTIVE: max_amount deferred, not in V1]",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-02",
+   "gate": {
+    "sprint": "S5-3",
+    "v1_status": "INACTIVE_MAX_AMOUNT_DEFERRED",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C11"
+     },
+     {
+      "id": "C16"
+     },
+     {
+      "id": "C18"
+     },
+     {
+      "id": "TC-L06-014"
+     },
+     {
+      "id": "TC-L06-016"
+     },
+     {
+      "id": "TC-L06-024"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/v1-scenarios/test_scn_c11.py [max_amount]",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c11.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c16.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c16.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c18.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c18.py"
+     },
+     {
+      "ref": "suites/v1-probes/test_runtime_probes.py::...[amount-1000.01]",
+      "origin": "qualification-repository",
+      "path": "suites/v1-probes/test_runtime_probes.py"
+     },
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_competing_effects_share_atomic_budget_across_processes",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py"
+     }
+    ],
+    "predeclared_new_test_items": 7,
+    "known_gaps": [
+     "max_amount is deferred and not in V1. Existing C11[max_amount], C16, C18 stay as they are. Reported inactive, never PASS."
+    ],
+    "plan_row_sha256": "d3be71ea63fd1a2f66325e92dbbae304a2918ee26a70207467b1493aeadde2c3"
+   }
+  },
+  {
+   "id": "QG-03",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "F4 status_max_age_seconds and approval_max_age_seconds differential",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-03",
+   "gate": {
+    "sprint": "S5-3",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C01"
+     },
+     {
+      "id": "C17"
+     },
+     {
+      "id": "C06"
+     },
+     {
+      "id": "D03"
+     },
+     {
+      "id": "H01"
+     },
+     {
+      "id": "TC-L06-015"
+     },
+     {
+      "id": "TC-D09-009"
+     },
+     {
+      "id": "TC-D09-016"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/v1-scenarios/test_add_molt_verify.py::test_add_molt_verify_e3_grant_status_freshness_is_not_per_item",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_add_molt_verify.py"
+     },
+     {
+      "ref": "suites/v1-probes/test_control_plane_probes.py::test_probe_clock_uncertainty_*",
+      "origin": "qualification-repository",
+      "path": "suites/v1-probes/test_control_plane_probes.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c01.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c01.py"
+     },
+     {
+      "ref": "suites/wiki-derived/test_wp_a_grant_lifecycle.py (TC-D09-009/016)",
+      "origin": "qualification-repository",
+      "path": "suites/wiki-derived/test_wp_a_grant_lifecycle.py"
+     },
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_grant_expiry_first_prevents_effect",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py"
+     }
+    ],
+    "predeclared_new_test_items": 13,
+    "known_gaps": [
+     "Adjacent tests exist for the boundary pattern and current bounds (Q06) and the current fixed approval window (TC-L06-015). No configurable or registry-narrowed approval-age test, no registry-narrowed bound, no extension-ceiling test."
+    ],
+    "plan_row_sha256": "fb76e39c9cfff876b153f993f88af65b9df694b5cb4936d714dd50038b37c20f"
+   }
+  },
+  {
+   "id": "QG-04",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "F5 ActionClass.max_status_age_seconds differential",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-04",
+   "gate": {
+    "sprint": "S5-3",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C01"
+     },
+     {
+      "id": "TC-L05-012"
+     },
+     {
+      "id": "TC-L05-013"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/v1-scenarios/test_add_molt_verify.py::test_add_molt_verify_e3_grant_status_freshness_is_not_per_item",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_add_molt_verify.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c01.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c01.py"
+     }
+    ],
+    "predeclared_new_test_items": 9,
+    "known_gaps": [
+     "Thin: two references. TC-L05-013 is NOT_RUN and cannot detect the bounded_tolerance toggle (GAP-G4-05)."
+    ],
+    "plan_row_sha256": "ed891ebddded1bf25e0e794af8a7b04bd275d8eca033af4af2e8c7b0c5751522"
+   }
+  },
+  {
+   "id": "QG-05",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Configuration change tests (selection, supersession, rollback, epoch)",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-05",
+   "gate": {
+    "sprint": "S5-4",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C20",
+      "plan_annotation": "NO_TEST"
+     },
+     {
+      "id": "C21",
+      "plan_annotation": "NO_TEST"
+     },
+     {
+      "id": "C19",
+      "plan_annotation": "NO_TEST"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "tests/test_r08_selection.py::ResolveTests",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_selection.py"
+     },
+     {
+      "ref": "tests/test_r08_spec_conformance.py::test_QC01..QC06",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_spec_conformance.py"
+     },
+     {
+      "ref": "tests/test_r08_spec_conformance.py::test_QV09_stale_epoch_floor",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_spec_conformance.py"
+     },
+     {
+      "ref": "tests/test_r08_regressions.py::test_a2_rollback_attempts_refused",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_regressions.py"
+     },
+     {
+      "ref": "tests/test_r08_regressions.py::test_a2_conflicting_effective_selections",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_regressions.py"
+     },
+     {
+      "ref": "tests/test_r08_regressions.py::test_a2_unauthorized_higher_epoch_does_not_supersede",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_regressions.py"
+     },
+     {
+      "ref": "tests/test_s04_overlay.py::test_N5..N7_N16",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s04_overlay.py"
+     }
+    ],
+    "predeclared_new_test_items": 18,
+    "known_gaps": [
+     "No qualification-repository test. Builder tests in the registry repo use a FakeVerifier."
+    ],
+    "plan_row_sha256": "b8172a74808164e09f34fa33ed4300eb3ae72445d7026120a2c167e200a9d2eb"
+   }
+  },
+  {
+   "id": "QG-06",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Required-policy refusal",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-06",
+   "gate": {
+    "sprint": "S5-4",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "TC-L05-013"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "tests/test_r08_compose_decision.py::test_required_refusal_never_returns_caller_policy",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_compose_decision.py"
+     },
+     {
+      "ref": "tests/test_r08_compose_decision.py::test_missing_required_selection_never_falls_back_to_broader_caller",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_compose_decision.py"
+     },
+     {
+      "ref": "tests/test_r08_compose_decision.py::test_five_way_distinction_has_distinct_observable_outcomes",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_compose_decision.py"
+     },
+     {
+      "ref": "tests/test_r08_compose_decision.py::test_invalid_participation_value_fails_closed_as_required",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_compose_decision.py"
+     },
+     {
+      "ref": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py::test_wiki_l05_013_*",
+      "origin": "qualification-repository",
+      "path": "suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py"
+     }
+    ],
+    "predeclared_new_test_items": 8,
+    "known_gaps": [
+     "Thin: TC-L05-013 only. Builder tests are at decision-function level, none at an effect boundary."
+    ],
+    "plan_row_sha256": "fa352c519583600320f1ac3823337f793cfcbd0ab979896fa1aea5b141553907"
+   }
+  },
+  {
+   "id": "QG-07",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Scope narrowing, never widening",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-07",
+   "gate": {
+    "sprint": "S5-2",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C11"
+     },
+     {
+      "id": "D02"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "tests/test_s05_equivalence.py::test_G1_exhaustive_equivalence_nonwidening_and_ordering",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s05_equivalence.py"
+     },
+     {
+      "ref": "tests/test_r08_compose_decision.py::test_exhaustive_small_universe_matches_set_intersection_and_never_widens",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_compose_decision.py"
+     },
+     {
+      "ref": "tests/test_r08_spec_conformance.py::test_QD04_never_widens_over_a_full_grid",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_spec_conformance.py"
+     },
+     {
+      "ref": "tests/test_s04_overlay.py::test_P2_registry_values_exceeding_caller_permissions_never_widen",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s04_overlay.py"
+     }
+    ],
+    "predeclared_new_test_items": 5,
+    "known_gaps": [
+     "Builder tests only, 2 to 3 values per field. Consumer path has no caller."
+    ],
+    "plan_row_sha256": "38ef63e266f7df8c7d79c9a9bdd1edbf694b452a98aa482d3ef994a7b7b8ba2f"
+   }
+  },
+  {
+   "id": "QG-08",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Revocation and expiry",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-08",
+   "gate": {
+    "sprint": "S5-4",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "D03"
+     },
+     {
+      "id": "C07"
+     },
+     {
+      "id": "C17"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_invalidation_transaction_first_prevents_effect",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py"
+     },
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_effect_transaction_first_preserves_effect_then_invalidation",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py"
+     },
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_grant_expiry_first_prevents_effect",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py"
+     },
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py::test_evidence_expiry_first_prevents_effect",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_worker21_atomic_authority_effect.py"
+     },
+     {
+      "ref": "process/mvp-chain/expectations.proposed.v7.json rows NC1-01..05, NC7-02, NC7-03 (builder proposal)",
+      "origin": "qualification-repository",
+      "path": "process/mvp-chain/expectations.proposed.v7.json"
+     },
+     {
+      "ref": "tests/test_r08_spec_conformance.py::test_QV08_exact_boundary_instants",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_spec_conformance.py"
+     },
+     {
+      "ref": "tests/test_r08_spec_conformance.py::test_QV10_revoked_selection",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_spec_conformance.py"
+     },
+     {
+      "ref": "tests/test_r08_regressions.py::test_a2_revoked_selection_not_rescued_by_lineage_and_resolver_ignores_revocation",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_regressions.py"
+     }
+    ],
+    "predeclared_new_test_items": 11,
+    "known_gaps": [
+     "Authority-level revocation and expiry well covered (Q09). No selection-level test."
+    ],
+    "plan_row_sha256": "65407615f1e67979cbeebe5d05bdcce8d2865bf053ee75ec678cff30394f2ea8"
+   }
+  },
+  {
+   "id": "QG-09",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Atomic effect-boundary tests",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-09",
+   "gate": {
+    "sprint": "S5-4",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C07"
+     },
+     {
+      "id": "D07"
+     },
+     {
+      "id": "D03"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_expiry_is_evaluated_after_waiting_for_transaction_lock",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py"
+     },
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_same_claim_concurrent_processes_commit_at_most_once",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py"
+     },
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_process_termination_transaction_boundaries",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py"
+     },
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py::test_competing_effects_share_atomic_budget_across_processes",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_local_authority_effect.py"
+     }
+    ],
+    "predeclared_new_test_items": 12,
+    "known_gaps": [
+     "Atomic authority boundary covered (Q08). Not registry policy at that boundary; policy check runs outside the transaction (GAP-G3-02)."
+    ],
+    "plan_row_sha256": "80ad38be9479abb05132fae13eabe3274be3ec448feb5036a4059618d63f0b38"
+   }
+  },
+  {
+   "id": "QG-10",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Cross-component policy consistency",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-10",
+   "gate": {
+    "sprint": "S5-4",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "D01"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "process/mvp-chain/expectations.proposed.v7.json rows CHAIN-01..06, VER-01..04 (builder proposal)",
+      "origin": "qualification-repository",
+      "path": "process/mvp-chain/expectations.proposed.v7.json"
+     },
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py::test_permitted_positive_control",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py"
+     },
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_safe_executor.py::test_pinned_control_plane_ordinary_execution",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_safe_executor.py"
+     }
+    ],
+    "predeclared_new_test_items": 6,
+    "known_gaps": [
+     "Thin: MVP chain rows are builder proposals; no test compares Runtime-effective policy with Control Plane policy for registry values."
+    ],
+    "plan_row_sha256": "ba75e068cd11d86ce7ba9cf4217ea0dd93c46d533f61021c74a51cd9b995ea1b"
+   }
+  },
+  {
+   "id": "QG-11",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Evidence and replay verification",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-11",
+   "gate": {
+    "sprint": "S5-5",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "C03"
+     },
+     {
+      "id": "C04"
+     },
+     {
+      "id": "C12"
+     },
+     {
+      "id": "C13"
+     },
+     {
+      "id": "C14"
+     },
+     {
+      "id": "D08"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/cognous-replay-bundle/tests/test_refusal_evidence.py::test_evidence_substitution_or_loss_is_rejected",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-replay-bundle/tests/test_refusal_evidence.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c03.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c03.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c04.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c04.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c12.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c12.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c13.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c13.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_d08.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_d08.py"
+     },
+     {
+      "ref": "process/mvp-chain rows NC5-01..05, NC6-01..04",
+      "origin": "qualification-repository",
+      "path": "process/mvp-chain"
+     }
+    ],
+    "predeclared_new_test_items": 4,
+    "known_gaps": [
+     "Refusal and evidence substitution tests exist (Q12). None carries a registry record or selection identity."
+    ],
+    "plan_row_sha256": "19cec87d37590284c9e3961a28b31b3ff7b2bc15ff7a48f59197204c6d1f0f73"
+   }
+  },
+  {
+   "id": "QG-12",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Independent negative tests",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-12",
+   "gate": {
+    "sprint": "S5-5",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "D02"
+     },
+     {
+      "id": "C02"
+     },
+     {
+      "id": "C03"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "tests/test_s04_overlay.py::test_N1..N27",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s04_overlay.py"
+     },
+     {
+      "ref": "tests/test_r08_integrity.py",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_r08_integrity.py"
+     },
+     {
+      "ref": "tests/test_s06_integrity.py",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s06_integrity.py"
+     },
+     {
+      "ref": "process/adversarial (candidate, not crosswalk)",
+      "origin": "qualification-repository",
+      "path": "process/adversarial"
+     },
+     {
+      "ref": "v1-probes and fix2-probes KNOWN_GAP rows (not protection)",
+      "origin": "descriptive-no-path",
+      "path": null
+     }
+    ],
+    "predeclared_new_test_items": 10,
+    "known_gaps": [
+     "Thin: v1-probes and fix2-probes KNOWN_GAP rows are limits, not protection. No independent adversarial run."
+    ],
+    "plan_row_sha256": "7049925a2f82dffe96a180c6942a01df5ac47138caa05b8fa426ca5204ed5437"
+   }
+  },
+  {
+   "id": "QG-13",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Regression and disclosure",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-13",
+   "gate": {
+    "sprint": "S6-2",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "listed",
+    "scenario_ids": [
+     {
+      "id": "D01"
+     },
+     {
+      "id": "C02"
+     },
+     {
+      "id": "C12"
+     },
+     {
+      "id": "C13"
+     },
+     {
+      "id": "C14"
+     },
+     {
+      "id": "D07"
+     },
+     {
+      "id": "C07"
+     },
+     {
+      "id": "C10"
+     },
+     {
+      "id": "C11"
+     }
+    ],
+    "existing_test_refs": [
+     {
+      "ref": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py::test_permitted_positive_control",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py"
+     },
+     {
+      "ref": "suites/cognous-execution-runtime/tests/test_safe_executor.py::test_pinned_control_plane_ordinary_execution",
+      "origin": "qualification-repository",
+      "path": "suites/cognous-execution-runtime/tests/test_safe_executor.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c02.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c02.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c12.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c12.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c13.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c13.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c14.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c14.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_d07.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_d07.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c07.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c07.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c10.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c10.py"
+     },
+     {
+      "ref": "suites/v1-scenarios/test_scn_c11.py",
+      "origin": "qualification-repository",
+      "path": "suites/v1-scenarios/test_scn_c11.py"
+     },
+     {
+      "ref": "tests/test_s06_integrity.py",
+      "origin": "registry-builder-repository",
+      "path": "tests/test_s06_integrity.py"
+     }
+    ],
+    "predeclared_new_test_items": 5,
+    "known_gaps": [
+     "Most existing tests are reusable for a rerun at exact pins. 11 undeclared Runtime known-limit tests and GAP-G4-09 come first."
+    ],
+    "plan_row_sha256": "c330abf420de4e8adb90de26ed5373c3cb0490fbbc72abbb072a58d2c01e70ac"
+   }
+  },
+  {
+   "id": "QG-14",
+   "kind": "gap",
+   "mandatory": true,
+   "text": "Process: exact-head independent run by designated owner",
+   "source": "cognous-ocs-registry docs/p1-extraction-plan/data/qualification-gate-matrix.json row QG-14",
+   "gate": {
+    "sprint": "S5-1/S5-6/S6-4",
+    "v1_status": "ACTIVE",
+    "qualification_mode": "PREPARE_ONLY_UNTIL_INDEPENDENT_LEAD_DESIGNATED",
+    "qualified": false,
+    "scenario_scope": "all_canonical_scenarios",
+    "scenario_ids": [],
+    "existing_test_refs": [],
+    "predeclared_new_test_items": 5,
+    "known_gaps": [
+     "Process gate. No independent lead designated (GAP-G4-13)."
+    ],
+    "plan_row_sha256": "ee4a0b812f65466a3b0b8a02e139148ec221ef7d1662644202ca3d3fef90d132"
+   }
+  }
+ ]
+}
