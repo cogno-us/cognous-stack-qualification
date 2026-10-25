@@ -1,0 +1,1964 @@
+{
+ "status": "PREPARATION: definitions only; no key, record, claim or database has been created",
+ "library": [
+  {
+   "id": "FXB-CLOCK",
+   "name": "Controllable clock",
+   "definition": "A clock schedule the runner sets (lock-time clock, check-time clock, rollback jump). Reusable now.",
+   "readiness": "READY_NO_V1_CODE"
+  },
+  {
+   "id": "FXB-SETS",
+   "name": "Caller and registry set grids",
+   "definition": "The five-set relation grid in data/fixture-grids.json. Reusable now.",
+   "readiness": "READY_NO_V1_CODE"
+  },
+  {
+   "id": "FXB-AGES",
+   "name": "Age value, boundary and invalid-input grids",
+   "definition": "Valid pairs, invalid inputs, boundary offsets in data/fixture-grids.json. Reusable now.",
+   "readiness": "READY_NO_V1_CODE"
+  },
+  {
+   "id": "FXB-KEYS",
+   "name": "Synthetic signing keys",
+   "definition": "Throw-away key pairs generated at run time and discarded: signer A, signer B, a revoked key, an unknown key. Never an operational root. Verifier adapter format is not final.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-TRUST",
+   "name": "Trust snapshot",
+   "definition": "Snapshot with version, expiry, per-scope min_epochs and issuer/key revocations; stale, expired and downgraded variants.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-RECORD",
+   "name": "Typed registry records",
+   "definition": "Records for the five-set family and the F4/F5 age families: valid, widened, dropped field, unknown family, re-digested, wrong participation.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-SELECT",
+   "name": "Selection statements",
+   "definition": "Select and withdraw statements with epochs, supersession, validity interval and scope key.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-CALLER",
+   "name": "Caller policies and profiles",
+   "definition": "Caller LocalExecutionPolicy sets; Control Plane caller age values and ActionClass profile.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-CLAIM",
+   "name": "Authorization claims",
+   "definition": "Claim with and without the claim-carried effective-policy binding; substituted, swapped and missing variants.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-APPROVAL",
+   "name": "Approvals",
+   "definition": "Approval bound to profile P0 and to narrowed profile P1, with approval generation; the narrow-then-withdraw sequence.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-STATE",
+   "name": "Durable-state images",
+   "definition": "SQLite images of selection state, revoked set and activation log: healthy, truncated, missing table, corrupted rows, restored-older, never seeded from a claim.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-RACE",
+   "name": "Transaction-stage barriers",
+   "definition": "Hooks at named transaction stages (such as the destination _transaction_stage) to order revocation against the commit lock; repetition and seed recorded.",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-ROUTE",
+   "name": "Route hosts",
+   "definition": "A Route B atomic host (V1) and a Route A host (characterization only, never credited).",
+   "readiness": "NEEDS_V1_FORMAT"
+  },
+  {
+   "id": "FXB-EVIDENCE",
+   "name": "Receipts, failure rows and replay inputs",
+   "definition": "Committed receipts and failure rows carrying identity and exact causes; substituted and omitted identity variants.",
+   "readiness": "NEEDS_V1_FORMAT"
+  }
+ ],
+ "per_control": [
+  {
+   "fixture_id": "FX-B-001",
+   "control_id": "NC-001",
+   "attack_class": "forged_selection",
+   "description": "FX-B-001: Synthetic selection statement S1 for scope X, valid in all respects, signed by synthetic key K1 present in the synthetic trust snapshot; signature then altered by one bit.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-002",
+   "control_id": "NC-002",
+   "attack_class": "forged_selection",
+   "description": "FX-B-002: Selection S3 whose content is widened (record pin swapped) and whose statement digest is recomputed to match; signature is the one over the original content.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-003",
+   "control_id": "NC-003",
+   "attack_class": "forged_selection",
+   "description": "FX-B-003: Trust snapshot lists key K2 for issuer I2 authorised only for consumer C-other; I2 signs a selection naming consumer C-target.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-004",
+   "control_id": "NC-004",
+   "attack_class": "forged_selection",
+   "description": "FX-B-004: Attacker key K3 (synthetic) signs a structurally perfect selection; K3 is in no snapshot issuer entry.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-005",
+   "control_id": "NC-005",
+   "attack_class": "forged_selection",
+   "description": "FX-B-005: Record R4 with allowed_actions widened by one synthetic action; its own digest recomputed so R4 is self-consistent; selection S4 (validly signed) pins the digest of the original R4.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-006",
+   "control_id": "NC-006",
+   "attack_class": "forged_selection",
+   "description": "FX-B-006: Record and selection declaring family 'f9-unregistered-family', otherwise well-formed and validly signed.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-007",
+   "control_id": "NC-007",
+   "attack_class": "forged_selection",
+   "description": "FX-B-007: Record R7 omitting allowed_units; validly signed and pinned.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-008",
+   "control_id": "NC-008",
+   "attack_class": "forged_selection",
+   "description": "FX-B-008: Record R8 in the F1a family carrying an extra member allowed_target_prefixes=['*'] (a non-V1 field); validly signed.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-009",
+   "control_id": "NC-009",
+   "attack_class": "forged_selection",
+   "description": "FX-B-009: Validly signed selection with participation=optional; consumer operation is required.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-010",
+   "control_id": "NC-010",
+   "attack_class": "forged_selection",
+   "description": "FX-B-010: Selections S11a and S11b, both validly signed by the authorised issuer, same scope key and epoch, different record pins, no supersedes link.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-011",
+   "control_id": "NC-011",
+   "attack_class": "forged_selection",
+   "description": "FX-B-011: Active S12 at epoch 3; new valid signed S12b at epoch 4 for the same scope with no supersedes reference.",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-012",
+   "control_id": "NC-012",
+   "attack_class": "forged_selection",
+   "description": "FX-B-012: A genuine r08-v1 signature and payload re-labelled with r08-v2 contract_version (or the reverse).",
+   "base_fixtures": [
+    "FXB-KEYS",
+    "FXB-TRUST",
+    "FXB-RECORD",
+    "FXB-SELECT"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-013",
+   "control_id": "NC-013",
+   "attack_class": "hostile_input",
+   "description": "FX-B-013: Selection text containing '\"epoch\":1' and later '\"epoch\":9' in one object.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-STATE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-014",
+   "control_id": "NC-014",
+   "attack_class": "hostile_input",
+   "description": "FX-B-014: Selection text with epoch 1.0 in one variant and NaN/Infinity tokens in a second.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-STATE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-015",
+   "control_id": "NC-015",
+   "attack_class": "hostile_input",
+   "description": "FX-B-015: Synthetic document of MAX_DOCUMENT_BYTES+1 encoded bytes.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-STATE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-016",
+   "control_id": "NC-016",
+   "attack_class": "policy_digest_substitution",
+   "description": "FX-B-016: Claim bound at issuance to selection (S, epoch 4, policy digest PD-narrow); between issuance and commit the stored claim carries PD-broad for the same selection id.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-017",
+   "control_id": "NC-017",
+   "attack_class": "policy_digest_substitution",
+   "description": "FX-B-017: Evidence/replay package for an effect governed by selection S/epoch 4, with the policy identity members replaced by another valid identity.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-018",
+   "control_id": "NC-018",
+   "attack_class": "policy_digest_substitution",
+   "description": "FX-B-018: Evidence for a registry-governed effect with record id/version/digest, selection id and epoch removed.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-019",
+   "control_id": "NC-019",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-019: Active selection S-T1 for tenant T1; claim for an operation of tenant T2 carries the T1 binding tuple with consistent commitment.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-020",
+   "control_id": "NC-020",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-020: Binding pins (R, v2); trusted row pins (R, v3).",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-021",
+   "control_id": "NC-021",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-021: Row epoch 4; claim binding epoch 5 (claim issued from a selection the consumer never activated).",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-022",
+   "control_id": "NC-022",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-022: Two active scopes with bindings B-1 and B-2; stored claim for scope 1 has its binding member replaced by B-2, claim commitment left as issued.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-023",
+   "control_id": "NC-023",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-023: Same as above but the attacker recomputes the claim commitment so the claim is self-consistent.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-024",
+   "control_id": "NC-024",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-024: Scope has an activated required selection; claim issued on the baseline (no-binding) profile.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-025",
+   "control_id": "NC-025",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-025: FX: Scope selection optional; claim on the baseline profile; selection since revoked.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-026",
+   "control_id": "NC-026",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-026: Binding pins evaluator build E-1; the executor's registered evaluator is build E-2 (valid but different).",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-027",
+   "control_id": "NC-027",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-027: Claim binding carries the fingerprint of a different valid trust snapshot than the one the row was activated under.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-028",
+   "control_id": "NC-028",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-028: Executor passes an effective-policy identity string as a keyword argument; claim has no binding (B-lite carriage rejected).",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-029",
+   "control_id": "NC-029",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-029: Empty selection-state store; claim carries a complete, self-consistent binding tuple for a real, validly signed selection.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-030",
+   "control_id": "NC-030",
+   "attack_class": "claim_identity_mismatch",
+   "description": "FX-B-030: Selection valid_until T+60s; claim requested with expires_at T+600s.",
+   "base_fixtures": [
+    "FXB-CLAIM",
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-031",
+   "control_id": "NC-031",
+   "attack_class": "expiry",
+   "description": "FX-B-031: Active selection with valid_until = T0; gate clock T0+1s.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-032",
+   "control_id": "NC-032",
+   "attack_class": "expiry",
+   "description": "FX-B-032: Selection valid_until = T0+5s; gate passes at T0+1s; barrier pauses before BEGIN IMMEDIATE; clock advanced to T0+6s.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-033",
+   "control_id": "NC-033",
+   "attack_class": "expiry",
+   "description": "FX-B-033: Selection [valid_from, valid_until) with lock-time clock set to exactly valid_until.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-034",
+   "control_id": "NC-034",
+   "attack_class": "expiry",
+   "description": "FX-B-034: Same selection, lock-time clock = valid_until minus one tick.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-035",
+   "control_id": "NC-035",
+   "attack_class": "expiry",
+   "description": "FX-B-035: Gate reads clock T0 (valid); lock-time clock is T0+10m (expired). Host exposes both clocks distinctly.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-036",
+   "control_id": "NC-036",
+   "attack_class": "expiry",
+   "description": "FX-B-036: Time source healthy at the gate; unavailable inside the transaction.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-037",
+   "control_id": "NC-037",
+   "attack_class": "expiry",
+   "description": "FX-B-037: Selection expired at T0; host clock moved back to T0 minus 1h before the gate.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-038",
+   "control_id": "NC-038",
+   "attack_class": "expiry",
+   "description": "FX-B-038: Trust snapshot valid_until = T0; gate clock T0+1s; selection otherwise valid.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-039",
+   "control_id": "NC-039",
+   "attack_class": "expiry",
+   "description": "FX-B-039: Snapshot valid at the gate, expired at the lock; revocation/expiry rows in Runtime state unchanged.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-CLOCK",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-040",
+   "control_id": "NC-040",
+   "attack_class": "revocation",
+   "description": "FX-B-040: Trust snapshot lists (selection id S, epoch 4) revoked; selection otherwise valid.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-041",
+   "control_id": "NC-041",
+   "attack_class": "revocation",
+   "description": "FX-B-041: Snapshot revokes key K1; selection signed by K1 with a valid signature.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-042",
+   "control_id": "NC-042",
+   "attack_class": "revocation",
+   "description": "FX-B-042: Gate passes; barrier before BEGIN IMMEDIATE; trusted revocation row inserted for (S, epoch 4); barrier released.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-043",
+   "control_id": "NC-043",
+   "attack_class": "revocation",
+   "description": "FX-B-043: Claim binding and commitment verify; Runtime revoked-set row exists for the pair; no registry reachable.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-044",
+   "control_id": "NC-044",
+   "attack_class": "revocation",
+   "description": "FX-B-044: Gate passes under key K1; snapshot revoking K1 is synced before the lock; the selection's own pair is not individually revoked.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-045",
+   "control_id": "NC-045",
+   "attack_class": "revocation",
+   "description": "FX-B-045: Gate passes; issuer I1 dropped from the synced snapshot before the lock.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-046",
+   "control_id": "NC-046",
+   "attack_class": "revocation",
+   "description": "FX-B-046: Effect commits at lock time L; revocation row written at L plus one tick; a second operation follows.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-047",
+   "control_id": "NC-047",
+   "attack_class": "concurrent_revocation",
+   "description": "FX-B-047: Two actors; revoker holds the lock first (barrier); effect transaction queued behind it.",
+   "base_fixtures": [
+    "FXB-RACE",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-048",
+   "control_id": "NC-048",
+   "attack_class": "concurrent_revocation",
+   "description": "FX-B-048: Effect transaction acquires the lock; revoker blocked behind it.",
+   "base_fixtures": [
+    "FXB-RACE",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-049",
+   "control_id": "NC-049",
+   "attack_class": "concurrent_revocation",
+   "description": "FX-B-049: Same fixture without a barrier; random start offsets within the lock-acquisition window.",
+   "base_fixtures": [
+    "FXB-RACE",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-050",
+   "control_id": "NC-050",
+   "attack_class": "concurrent_revocation",
+   "description": "FX-B-050: Effect commits; acknowledgement lost (TimeoutError); revocation arrives; client reconciles.",
+   "base_fixtures": [
+    "FXB-RACE",
+    "FXB-STATE",
+    "FXB-CLOCK",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-051",
+   "control_id": "NC-051",
+   "attack_class": "required_policy_absence",
+   "description": "FX-B-051: Selection source raises/timeouts; caller policy is wider than any registry policy would be.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-052",
+   "control_id": "NC-052",
+   "attack_class": "required_policy_absence",
+   "description": "FX-B-052: Validly shaped selection; trust snapshot argument absent.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-053",
+   "control_id": "NC-053",
+   "attack_class": "required_policy_absence",
+   "description": "FX-B-053: All digests correct; verifier dependency absent.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-054",
+   "control_id": "NC-054",
+   "attack_class": "required_policy_absence",
+   "description": "FX-B-054: Head of the chain is an authenticated withdraw statement (supersedes prior select at a lower epoch).",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-055",
+   "control_id": "NC-055",
+   "attack_class": "required_policy_absence",
+   "description": "FX-B-055: Verified, in-window selection delivered; no activation row exists; guard must refuse without evaluating the selection.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-056",
+   "control_id": "NC-056",
+   "attack_class": "required_policy_absence",
+   "description": "FX-B-056: Consumer restarted with an empty or just-created state store; sync has not yet run.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-TRUST",
+    "FXB-STATE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-057",
+   "control_id": "NC-057",
+   "attack_class": "scope_required_ratchet",
+   "description": "FX-B-057: Scope key persisted scope_required=true; call arrives with participation=optional and a failing (expired) selection.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CALLER"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-058",
+   "control_id": "NC-058",
+   "attack_class": "scope_required_ratchet",
+   "description": "FX-B-058: Validly signed new-epoch selection with participation=optional for a scope with scope_required=true.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CALLER"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-059",
+   "control_id": "NC-059",
+   "attack_class": "scope_required_ratchet",
+   "description": "FX-B-059: Local/UI request 'set scope_required=false' for a ratcheted scope.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CALLER"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-060",
+   "control_id": "NC-060",
+   "attack_class": "scope_required_ratchet",
+   "description": "FX-B-060: scope_required=true persisted; consumer restarted; optional-presenting call.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CALLER"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-061",
+   "control_id": "NC-061",
+   "attack_class": "epoch_downgrade",
+   "description": "FX-B-061: Row epoch 5 for the scope key; activation request for a validly signed epoch 4 selection.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-062",
+   "control_id": "NC-062",
+   "attack_class": "epoch_downgrade",
+   "description": "FX-B-062: Row epoch 5 (record R-a); a validly signed epoch 5 selection pinning record R-b.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-063",
+   "control_id": "NC-063",
+   "attack_class": "epoch_downgrade",
+   "description": "FX-B-063: Gate passes with claim epoch 4; barrier; a newer valid selection epoch 5 for the same scope is activated; barrier released.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-064",
+   "control_id": "NC-064",
+   "attack_class": "epoch_downgrade",
+   "description": "FX-B-064: Gate passes under selection S-a epoch 4; barrier; selection S-b (same scope, epoch 5, valid supersession) activated; release.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-065",
+   "control_id": "NC-065",
+   "attack_class": "epoch_downgrade",
+   "description": "FX-B-065: Previous attempt refused selection_epoch_stale; same claim and selection replayed unchanged.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-066",
+   "control_id": "NC-066",
+   "attack_class": "epoch_downgrade",
+   "description": "FX-B-066: Selection-state table unreadable (I/O error injected) during the guard.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-STATE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-067",
+   "control_id": "NC-067",
+   "attack_class": "trust_snapshot_version",
+   "description": "FX-B-067: Floor 9; snapshot version 8, otherwise valid and unexpired.",
+   "base_fixtures": [
+    "FXB-TRUST",
+    "FXB-KEYS"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-068",
+   "control_id": "NC-068",
+   "attack_class": "trust_snapshot_version",
+   "description": "FX-B-068: Snapshot v7 revokes (S,4); older snapshot v6 lacks that revocation; floor = 7.",
+   "base_fixtures": [
+    "FXB-TRUST",
+    "FXB-KEYS"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-069",
+   "control_id": "NC-069",
+   "attack_class": "trust_snapshot_version",
+   "description": "FX-B-069: Accepted snapshot v7 (fingerprint F-a); a second v7 with fingerprint F-b.",
+   "base_fixtures": [
+    "FXB-TRUST",
+    "FXB-KEYS"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-070",
+   "control_id": "NC-070",
+   "attack_class": "trust_snapshot_version",
+   "description": "FX-B-070: Floor values 'x', True, 0, -1.",
+   "base_fixtures": [
+    "FXB-TRUST",
+    "FXB-KEYS"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-071",
+   "control_id": "NC-071",
+   "attack_class": "stale_approval_revival",
+   "description": "FX-B-071: Approval commitment computed over profile P0 (class bound 60); effective profile P1 narrows the class bound to 20.",
+   "base_fixtures": [
+    "FXB-APPROVAL",
+    "FXB-CALLER",
+    "FXB-AGES"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-072",
+   "control_id": "NC-072",
+   "attack_class": "stale_approval_revival",
+   "description": "FX-B-072: Approval bound to P1; narrowing withdrawn so the effective profile reverts to P0.",
+   "base_fixtures": [
+    "FXB-APPROVAL",
+    "FXB-CALLER",
+    "FXB-AGES"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-073",
+   "control_id": "NC-073",
+   "attack_class": "stale_approval_revival",
+   "description": "FX-B-073: Approval A0 bound to P0 issued before narrowing; P1 applied (A0 invalidated); P1 withdrawn.",
+   "base_fixtures": [
+    "FXB-APPROVAL",
+    "FXB-CALLER",
+    "FXB-AGES"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-074",
+   "control_id": "NC-074",
+   "attack_class": "stale_approval_revival",
+   "description": "FX-B-074: Search the V1 public surface and registry/host adapters for any function that rebinds, rewrites or migrates existing approvals to a new profile commitment.",
+   "base_fixtures": [
+    "FXB-APPROVAL",
+    "FXB-CALLER",
+    "FXB-AGES"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-075",
+   "control_id": "NC-075",
+   "attack_class": "stale_approval_revival",
+   "description": "FX-B-075: Approval bound to P1; effective grant derived under P0.",
+   "base_fixtures": [
+    "FXB-APPROVAL",
+    "FXB-CALLER",
+    "FXB-AGES"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-076",
+   "control_id": "NC-076",
+   "attack_class": "stale_approval_revival",
+   "description": "FX-B-076: CP effective status bound 20; Runtime per-call view carries 60 (stale copy).",
+   "base_fixtures": [
+    "FXB-APPROVAL",
+    "FXB-CALLER",
+    "FXB-AGES"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-077",
+   "control_id": "NC-077",
+   "attack_class": "restore_rollback",
+   "description": "FX-B-077: State DB replaced by an older copy (epoch 3) while the external min_epochs floor and last acknowledged log head say epoch 5.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-078",
+   "control_id": "NC-078",
+   "attack_class": "restore_rollback",
+   "description": "FX-B-078: Consistent older copy of every selection table (revoked set, high-water, log) restored; no external floor or acknowledgement exists.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-079",
+   "control_id": "NC-079",
+   "attack_class": "restore_rollback",
+   "description": "FX-B-079: Backup taken before (S,4) was revoked; restore, re-baseline per the ADR, then sync the current snapshot that revokes (S,4).",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-080",
+   "control_id": "NC-080",
+   "attack_class": "restore_rollback",
+   "description": "FX-B-080: Backup taken before scope X became required; restored; first call presents optional.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-081",
+   "control_id": "NC-081",
+   "attack_class": "restore_rollback",
+   "description": "FX-B-081: After a detected restore, a local call or a claim presents a new baseline (epoch and floor).",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-082",
+   "control_id": "NC-082",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-082: Table authority_selection_state_v1 dropped after init; consumer restarted (CREATE TABLE IF NOT EXISTS recreates it empty).",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-083",
+   "control_id": "NC-083",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-083: Table authority_selection_revocations_v1 dropped; selection (S,4) was revoked earlier.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-084",
+   "control_id": "NC-084",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-084: Table selection_activation_log_v1 dropped; state rows intact.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-085",
+   "control_id": "NC-085",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-085: Revocation row for (S,4) removed; log has the terminal revoke entry; selection otherwise valid and activated.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-086",
+   "control_id": "NC-086",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-086: Last 3 log entries removed; state rows reflect them.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-087",
+   "control_id": "NC-087",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-087: Row epoch 5 edited to 3 by SQL; log and floor unchanged.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-088",
+   "control_id": "NC-088",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-088: Snapshot JSON cut in the middle of an object.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-089",
+   "control_id": "NC-089",
+   "attack_class": "durable_state_loss",
+   "description": "FX-B-089: Snapshot path replaced by a symlink to attacker content; variant FIFO; variant owned by another uid.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-090",
+   "control_id": "NC-090",
+   "attack_class": "deny_all_vs_evaluator",
+   "description": "FX-B-090: Caller allowed_actions={a1}, record allowed_actions={a2}: disjoint; all other dimensions overlap.",
+   "base_fixtures": [
+    "FXB-SETS",
+    "FXB-CALLER",
+    "FXB-RECORD",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-091",
+   "control_id": "NC-091",
+   "attack_class": "deny_all_vs_evaluator",
+   "description": "FX-B-091: Caller allowed_units={u1}, record {u2}: disjoint.",
+   "base_fixtures": [
+    "FXB-SETS",
+    "FXB-CALLER",
+    "FXB-RECORD",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-092",
+   "control_id": "NC-092",
+   "attack_class": "deny_all_vs_evaluator",
+   "description": "FX-B-092: Caller allowed_institutions={i1}, record {i2}: disjoint.",
+   "base_fixtures": [
+    "FXB-SETS",
+    "FXB-CALLER",
+    "FXB-RECORD",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-093",
+   "control_id": "NC-093",
+   "attack_class": "deny_all_vs_evaluator",
+   "description": "FX-B-093: Non-empty effective sets; operation institution not in allowed_institutions (and also failing the action check, to prove order).",
+   "base_fixtures": [
+    "FXB-SETS",
+    "FXB-CALLER",
+    "FXB-RECORD",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-094",
+   "control_id": "NC-094",
+   "attack_class": "deny_all_vs_evaluator",
+   "description": "FX-B-094: Non-empty effective sets; operation passes institution, domain, adapter, action; unit not allowed.",
+   "base_fixtures": [
+    "FXB-SETS",
+    "FXB-CALLER",
+    "FXB-RECORD",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-095",
+   "control_id": "NC-095",
+   "attack_class": "deny_all_vs_evaluator",
+   "description": "FX-B-095: LocalExecutionPolicy constructed by the host with allowed_actions=frozenset() (accepted by __post_init__); no registry involvement.",
+   "base_fixtures": [
+    "FXB-SETS",
+    "FXB-CALLER",
+    "FXB-RECORD",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-096",
+   "control_id": "NC-096",
+   "attack_class": "deny_all_vs_evaluator",
+   "description": "FX-B-096: Required registry age policy resolves to no usable bound (all inputs refused).",
+   "base_fixtures": [
+    "FXB-SETS",
+    "FXB-CALLER",
+    "FXB-RECORD",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-097",
+   "control_id": "NC-097",
+   "attack_class": "confused_deputy",
+   "description": "FX-B-097: Validly signed F1a selection delivered to the F4/F5 consumer.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-098",
+   "control_id": "NC-098",
+   "attack_class": "confused_deputy",
+   "description": "FX-B-098: Validly signed F4 record (status/approval ages) presented to the Runtime consumer.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-099",
+   "control_id": "NC-099",
+   "attack_class": "confused_deputy",
+   "description": "FX-B-099: Active, in-window selection for the scope; no grant for the operation; no issued claim.",
+   "base_fixtures": [
+    "FXB-RECORD",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-100",
+   "control_id": "NC-100",
+   "attack_class": "string_decision",
+   "description": "FX-B-100: Destination raises PermissionError('selection_revoked') from a grant/identity check unrelated to the registry.",
+   "base_fixtures": [
+    "FXB-EVIDENCE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-101",
+   "control_id": "NC-101",
+   "attack_class": "string_decision",
+   "description": "FX-B-101: Test-double policy raising ValueError('local unit restriction') from check().",
+   "base_fixtures": [
+    "FXB-EVIDENCE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-102",
+   "control_id": "NC-102",
+   "attack_class": "string_decision",
+   "description": "FX-B-102: Commit guard refusal raised through the destination PermissionError channel.",
+   "base_fixtures": [
+    "FXB-EVIDENCE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-103",
+   "control_id": "NC-103",
+   "attack_class": "string_decision",
+   "description": "FX-B-103: Copy of the outcome map with 'selection_expired' removed.",
+   "base_fixtures": [
+    "FXB-EVIDENCE",
+    "FXB-CALLER",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-104",
+   "control_id": "NC-104",
+   "attack_class": "sync_manufacture",
+   "description": "FX-B-104: Sync payload: structurally valid select for scope X with a bad signature.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-105",
+   "control_id": "NC-105",
+   "attack_class": "sync_manufacture",
+   "description": "FX-B-105: Sync payload: validly signed select for the exact revoked pair (S,4).",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-106",
+   "control_id": "NC-106",
+   "attack_class": "sync_manufacture",
+   "description": "FX-B-106: Captured earlier sync package (epoch 3) delivered after epoch 5 is active.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-107",
+   "control_id": "NC-107",
+   "attack_class": "sync_manufacture",
+   "description": "FX-B-107: Snapshot v8 (higher version) omits the revocation of (S,4) that v7 listed.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-108",
+   "control_id": "NC-108",
+   "attack_class": "sync_manufacture",
+   "description": "FX-B-108: Local call / SQL path attempting activation_state='active' for a scope.",
+   "base_fixtures": [
+    "FXB-STATE",
+    "FXB-SELECT",
+    "FXB-TRUST"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-109",
+   "control_id": "NC-109",
+   "attack_class": "invalid_optional_as_withdrawal",
+   "description": "FX-B-109: Optional scope previously narrowed; new statement with an invalid signature.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-RECORD",
+    "FXB-CALLER",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-110",
+   "control_id": "NC-110",
+   "attack_class": "invalid_optional_as_withdrawal",
+   "description": "FX-B-110: Optional scope; narrowing selection expired.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-RECORD",
+    "FXB-CALLER",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-111",
+   "control_id": "NC-111",
+   "attack_class": "invalid_optional_as_withdrawal",
+   "description": "FX-B-111: Active selection S epoch 3; withdraw statement for S at epoch 4 with an invalid signature.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-RECORD",
+    "FXB-CALLER",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-112",
+   "control_id": "NC-112",
+   "attack_class": "invalid_optional_as_withdrawal",
+   "description": "FX-B-112: Withdraw statement at epoch 4 omitting supersedes.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-RECORD",
+    "FXB-CALLER",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-113",
+   "control_id": "NC-113",
+   "attack_class": "invalid_optional_as_withdrawal",
+   "description": "FX-B-113: Withdraw statement including record id/version/digest members.",
+   "base_fixtures": [
+    "FXB-SELECT",
+    "FXB-RECORD",
+    "FXB-CALLER",
+    "FXB-EVIDENCE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-114",
+   "control_id": "NC-114",
+   "attack_class": "outage_extension",
+   "description": "FX-B-114: Class bound caller 60, registry-narrowed 20; configured signer signs an extension to 50 within max_age_extension_seconds.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-CLOCK"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-115",
+   "control_id": "NC-115",
+   "attack_class": "outage_extension",
+   "description": "FX-B-115: Extension row whose from_max_age_seconds differs from the trusted class base.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-CLOCK"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-116",
+   "control_id": "NC-116",
+   "attack_class": "outage_extension",
+   "description": "FX-B-116: to_max_age - base exceeds max_age_extension_seconds.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-CLOCK"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-117",
+   "control_id": "NC-117",
+   "attack_class": "outage_extension",
+   "description": "FX-B-117: Irreversible class with a validly signed extension.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-CLOCK"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-118",
+   "control_id": "NC-118",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-118: registry values 10**30, 2**53, ceiling+1",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-119",
+   "control_id": "NC-119",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-119: Caller status age float('nan') (and a second variant inf, a third True) with a valid registry value 30.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-120",
+   "control_id": "NC-120",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-120: Required participation; registry age invalid (None); caller age 60.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-121",
+   "control_id": "NC-121",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-121: BoundedAuthorizationWorkflow built directly (no helper) with status_max_age_seconds=inf on the no-profile path; stale observation.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-122",
+   "control_id": "NC-122",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-122: Variants True, False. Fixture iterates the listed variants; each variant is a separate retained result.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-123",
+   "control_id": "NC-123",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-123: Variants 60.0, 0.5, 1e3. Fixture iterates the listed variants; each variant is a separate retained result.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-124",
+   "control_id": "NC-124",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-124: Variants float('nan'), float('inf'), float('-inf'). Fixture iterates the listed variants; each variant is a separate retained result.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-125",
+   "control_id": "NC-125",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-125: Variants '60', None, Decimal('60'), an int subclass instance. Fixture iterates the listed variants; each variant is a separate retained result.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-126",
+   "control_id": "NC-126",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-126: Variants -1 and 0 (the existing constructor does not treat 0 as deny-all: _fresh accepts age 0 at bounded.py:2017-2024; the helper floor is >= 1). Fixture iterates the listed variants; each variant is a separate retained result.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-127",
+   "control_id": "NC-127",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-127: All variants of the five rows above applied to approval_max_age_seconds. Fixture iterates the listed variants; each variant is a separate retained result.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-128",
+   "control_id": "NC-128",
+   "attack_class": "freshness_invalid_input",
+   "description": "FX-B-128: All variants applied to ActionClass.max_status_age_seconds (the existing ge=0 field admits 0 and pydantic lax coercion, erratum 3). Fixture iterates the listed variants; each variant is a separate retained result.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CALLER",
+    "FXB-RECORD"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-129",
+   "control_id": "NC-129",
+   "attack_class": "freshness_boundary",
+   "description": "FX-B-129: Caller bound 60, registry 30; grant status observed 31s before now.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CLOCK",
+    "FXB-CALLER"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-130",
+   "control_id": "NC-130",
+   "attack_class": "freshness_boundary",
+   "description": "FX-B-130: Caller 60, registry 30; approval observed 31s ago.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CLOCK",
+    "FXB-CALLER"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-131",
+   "control_id": "NC-131",
+   "attack_class": "freshness_boundary",
+   "description": "FX-B-131: Class bound caller 60, registry 20; grant status 21s old on the profile path.",
+   "base_fixtures": [
+    "FXB-AGES",
+    "FXB-CLOCK",
+    "FXB-CALLER"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-132",
+   "control_id": "NC-132",
+   "attack_class": "route_a_bypass",
+   "description": "FX-B-132: Selection revoked after the gate-time narrowing; operation submitted through the Route A direct executor with a policy built at the gate.",
+   "base_fixtures": [
+    "FXB-ROUTE",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-133",
+   "control_id": "NC-133",
+   "attack_class": "route_a_bypass",
+   "description": "FX-B-133: Qualification test/record whose title or claim says Route A is registry-protected.",
+   "base_fixtures": [
+    "FXB-ROUTE",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-134",
+   "control_id": "NC-134",
+   "attack_class": "route_a_bypass",
+   "description": "FX-B-134: Scope with an activated required selection; the same operation is submitted via Route A.",
+   "base_fixtures": [
+    "FXB-ROUTE",
+    "FXB-SELECT",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "BLOCKED_ON_CONTRACT"
+  },
+  {
+   "fixture_id": "FX-B-135",
+   "control_id": "NC-135",
+   "attack_class": "evidence_integrity",
+   "description": "FX-B-135: Refusal fixtures containing unique canary strings in the raw input, signature, caller sets and snapshot.",
+   "base_fixtures": [
+    "FXB-EVIDENCE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-136",
+   "control_id": "NC-136",
+   "attack_class": "evidence_integrity",
+   "description": "FX-B-136: Network sentinel (socket creation raises) active during BEGIN IMMEDIATE; registry endpoint unreachable; selection valid and unexpired.",
+   "base_fixtures": [
+    "FXB-EVIDENCE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-137",
+   "control_id": "NC-137",
+   "attack_class": "transaction_integrity",
+   "description": "FX-B-137: Crash injected after the guard passes and before the commit; selection revoked while the process is down.",
+   "base_fixtures": [
+    "FXB-RACE",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-138",
+   "control_id": "NC-138",
+   "attack_class": "transaction_integrity",
+   "description": "FX-B-138: Fault injected after the effect write and before the claim/budget update, with the guard passing.",
+   "base_fixtures": [
+    "FXB-RACE",
+    "FXB-STATE",
+    "FXB-ROUTE"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  },
+  {
+   "fixture_id": "FX-B-139",
+   "control_id": "NC-139",
+   "attack_class": "evidence_integrity",
+   "description": "FX-B-139: Network sentinel active during BEGIN IMMEDIATE; registry endpoint unreachable; selection revoked before the lock.",
+   "base_fixtures": [
+    "FXB-EVIDENCE",
+    "FXB-CLAIM"
+   ],
+   "readiness": "DEFINITION_ONLY_NEEDS_V1_FORMAT",
+   "status": "PREPARED"
+  }
+ ]
+}
