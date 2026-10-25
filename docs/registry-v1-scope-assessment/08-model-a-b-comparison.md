@@ -21,20 +21,20 @@ Fields with disposition DIRECT or CONDITIONAL, by family (manifest, joined to qu
 | F1b | Runtime | 2 | 0 | 2 | 0 | 0 | 0 |
 | F1c | Runtime | 0 | 1 | 1 | 0 | 0 | 0 |
 | F4 | Control Plane | 0 | 7 | 2 | 5 | 0 | 5 |
-| F5 | Control Plane | 0 | 3 | 2 | 1 | 1 | 0 |
-| **Candidate families (F1a, F1b, F1c, F4, F5)** | | **5** | **11** | **10** | **6** | **1** | **5** |
+| F5 | Control Plane | 0 | 2 | 1 | 1 | 1 | 0 |
+| **Candidate families (F1a, F1b, F1c, F4, F5)** | | **5** | **10** | **9** | **6** | **1** | **5** |
 | F6 | Runtime | 0 | 1 | 0 | 1 | 1 | 0 |
 | F3 | Runtime, Control Plane | 0 | 2 | 0 | 2 | 1 | 1 |
 | F7 | Control Plane | 0 | 1 | 0 | 1 | 0 | 1 |
 | F11 | Control Plane | 0 | 4 | 0 | 4 | 4 | 0 |
 | F8, F9, F10 | | 0 | 0 | 0 | 0 | 0 | 0 |
-| **All families** | | **5** | **19** | **10** | **14** | **7** | **7** |
+| **All families** | | **5** | **18** | **9** | **14** | **7** | **7** |
 
 Reading the table:
 
 1. **On the Runtime, Model B adds nothing to Model A.** All five DIRECT fields (`allowed_actions`, `allowed_adapters`, `allowed_units`, `allowed_institutions`, `allowed_authority_domains`) and `max_amount` are varied by a BENEFICIAL scenario (C11 varies every policy dimension including `unit`; TC-L06-009/011/013 vary action and adapter). The handoff's earlier working note that B-over-A on the Runtime was "3 DIRECT fields" is superseded by this join. The Runtime increment of B over A is decision-gated fields only (F6 permissions mapping, OpenShell timeout).
-2. **On the Control Plane, the whole B-over-A increment is conditional and mostly unsupported by a benefit scenario.** Of the 6 additional candidate-family fields, 5 have no canonical benefit mapping at all (observation, identity and mandate age bounds; the anchor-to-inputs flag and the age-extension limit) and 1 (`requires_revocation_assurance`) is tied only to an UNKNOWN scenario. Benefit and complexity are REASONED INFERENCE.
-3. **Model A as counted includes one field that should not be extracted in any model:** `ActionClass.on_unreadable` (CP-F5-02) is a relaxing toggle (`refuse` | `bounded_tolerance`) and R07 keeps such toggles in code. Its row is conditional only on whether a tightening-only reading is ruled (W8-014); effective Model A is therefore 9 fields, 5 of them direct.
+2. **On the Control Plane, the whole B-over-A increment is conditional and mostly unsupported by a benefit scenario.** Of the 6 additional candidate-family fields, 5 have no `BENEFIT_IDENTIFIED` mapping (observation, identity and mandate age bounds; the anchor-to-inputs flag and the age-extension limit). Three of those five map to scenarios whose outcome does not depend on the value (`GOVERNABLE_VALUE_EXISTS_OUTCOME_INDEPENDENT`: C06 for the observation bound, D03 for the identity and mandate bounds); the other two map to no canonical scenario. The sixth (`requires_revocation_assurance`) is tied only to a scenario rated UNKNOWN in the crosswalk (`BENEFIT_UNDETERMINED` in the three-question view). Benefit and complexity are REASONED INFERENCE.
+3. **`ActionClass.on_unreadable` (CP-F5-02) is excluded from both models.** It is a relaxing toggle (`refuse` | `bounded_tolerance`) that a registry value could only move toward relaxation, so it fails extractability clause (c) and stays code (P0 05, R07, GAP-G2-03). The Control Plane worker first rated it conditional; review reclassified it `CODE_OWNED_GUARDRAIL`. Model A is therefore 9 fields, 5 of them direct.
 
 ## 3. Comparison by family
 
@@ -81,16 +81,16 @@ Model choice is moot for these families. Whether to include them at all is the r
 | Added qualification burden | Per-scalar composition tests, clock-domain tests | Roughly proportional to field count |
 | Consequence of deferral | Windows stay constructor arguments and evidence-row values; the fail-closed missing-policy hold is a code invariant either way | Same, so deferring the five extra fields costs no mapped benefit |
 
-### F5: per-action-class authority declarations (Control Plane, 3 conditional fields)
+### F5: per-action-class authority declarations (Control Plane, 2 conditional fields)
 
-| Dimension | Model A (2 fields) | Model B (3 fields) |
+| Dimension | Model A (1 field) | Model B (2 fields) |
 |---|---|---|
-| Incremental governance capability | `max_status_age_seconds` (C01, TC-D09-016) and `on_unreadable` (C01) | Adds `requires_revocation_assurance` (UNKNOWN scenario TC-L05-012 only) |
-| Values externalized | 2, of which `on_unreadable` is a relaxing toggle that should stay code | 3 |
+| Incremental governance capability | `max_status_age_seconds` (C01, TC-D09-016) | Adds `requires_revocation_assurance` (scenario TC-L05-012, rated UNKNOWN, only) |
+| Values externalized | 1 (`on_unreadable` is a relaxing toggle and stays code in both models) | 2 |
 | Engineering effort | HIGH: `max_status_age_seconds` has at least four consumers; needs the same Control Plane adapter as F4 | Slightly higher |
 | Architectural complexity | W8-014 open; the authority profile is hashed into the approval commitment (`runtime_authority.py:186,268`), so a changed profile value changes the commitment | Same |
-| New security exposure | `on_unreadable=bounded_tolerance` can relax a refusal, and the Wiki known-limit test cannot detect it (GAP-G4-05) | Same |
-| Added qualification burden | Toggle-cannot-relax negatives; commitment-stability tests | Plus revocation-assurance semantics |
+| New security exposure | The excluded `on_unreadable=bounded_tolerance` toggle can relax a refusal and the Wiki known-limit test cannot detect it (GAP-G4-05); the kept fields are age and assurance values | Same |
+| Added qualification burden | Registry-cannot-reach-`on_unreadable` negative; commitment-stability tests | Plus revocation-assurance semantics |
 | Consequence of deferral | Declarations stay in the authority profile; no enforcement lost | Same |
 
 ### Families outside the candidate set (Model B only, all decision-gated)
@@ -107,9 +107,9 @@ Model choice is moot for these families. Whether to include them at all is the r
 
 On the evidence in sections 2 and 3, the V1 boundary that the evidence supports is **Model-A-shaped on fields and Model-B-shaped on architecture**:
 
-1. **Mandatory: F1a and F1b, the five Runtime DIRECT fields.** Models A and B coincide, every field has a BENEFICIAL scenario, and these are the only rows where all four extractability clauses pass on source read at the pin with no open D1/D5/D6/D9/D12 dependency. Mandatory means these are the fields a V1 registry claim would rest on; it presupposes R09 and R10.
-2. **Conditional, each on its named prerequisite:** F1c `max_amount` (D6, numeric encoding, a code hard cap and floor); F4 `status_max_age_seconds` and `approval_max_age_seconds` (W6-042, per-scalar composition, a code floor and validation that the constructor lacks today, a Control Plane adapter); F5 `max_status_age_seconds` (W8-014, same adapter). No conditional field becomes mandatory by ranking: F4 ranks first under two weightings in [04](04-prioritization-analysis.md) yet has no direct row.
-3. **Not in V1 on this evidence:** the six candidate-family fields only Model B adds (five without any benefit scenario), `on_unreadable` and every other relaxing toggle, F6, F1d, F3, F7, F11, F8, F9, F10. The reason is not that they are worthless; it is that each has either no mapped benefit scenario, an open ruling, or a clause-(b) failure, and each adds qualification burden that the current evidence (nothing qualified at the current heads, no independent qualification owner) cannot absorb.
+1. **Mandatory: F1a and F1b, the five Runtime DIRECT fields.** Models A and B coincide, every field has a BENEFICIAL scenario, and these are the only rows where all four extractability clauses pass on source read at the pin with no open D1/D5/D6/D9/D12 dependency. One interaction is noted, not decided: narrowing `allowed_units` leaves the single unit-less `max_amount` comparison unchanged (`safe_executor.py:425-426`), so multi-unit ceiling semantics are an existing property that the `max_amount` row (D6) owns. Mandatory means these are the fields a V1 registry claim would rest on; it presupposes R09 and R10.
+2. **Conditional, each on its named prerequisite:** F1c `max_amount` (D6, numeric encoding, a code hard cap and floor); F4 `status_max_age_seconds` and `approval_max_age_seconds` (W6-042, per-scalar composition, a code floor and validation that the constructor lacks today, a Control Plane adapter); F5 `max_status_age_seconds` (W6-042 and W8-014, same adapter). No conditional field becomes mandatory by ranking: F4 ranks first under two weightings in [04](04-prioritization-analysis.md) yet has no direct row.
+3. **Not in V1 on this evidence:** the six candidate-family fields only Model B adds (five without any benefit scenario), `on_unreadable` and every other relaxing toggle (including `target_match=legacy-prefix`), F6, F1d, F3, F7, F11, F8, F9, F10. The reason is not that they are worthless; it is that each has either no mapped benefit scenario, an open ruling, or a clause-(b) failure, and each adds qualification burden that the current evidence (nothing qualified at the current heads, no independent qualification owner) cannot absorb.
 4. **Design the typed adapter and family-dispatch table (P0 G1) so Model B is additive.** Choosing a narrow V1 field set does not require a narrow architecture. A `family -> (payload validator, composer, evaluator binding, caller normalizer)` table lets later fields join without redesign.
 
 This reverses neither the earlier family recommendation in [01](01-executive-assessment.md) section 4 (F1a + F1b mandatory; F1c, F4, F5 conditional; the rest deferred) nor any ruling: it gives that recommendation a field-level basis. It depends on decisions it cannot make: D1, D4, D6, D12, W8-014, the numeric encoding, and the R09/R10 platform work.

@@ -22,8 +22,8 @@ Code-owned constitutional guardrails stay in code. The registry holds typed para
 | Disposition | Runtime | Control Plane | Total |
 |---|---|---|---|
 | DIRECT_EXTRACTION | 5 | 0 | 5 |
-| CONDITIONAL_EXTRACTION | 3 | 16 | 19 |
-| CODE_OWNED_GUARDRAIL | 11 | 35 | 46 |
+| CONDITIONAL_EXTRACTION | 3 | 15 | 18 |
+| CODE_OWNED_GUARDRAIL | 11 | 36 | 47 |
 | UNRESOLVED | 5 | 10 | 15 |
 | NOT_RELEVANT_TO_V1 | 0 | 11 | 11 |
 | **All rows** | 24 | 72 | 96 |
@@ -40,7 +40,7 @@ By family (a row naming several families counts under each):
 | F1d | 0 | 0 | 3 | 2 | 0 | 5 |
 | F3 | 0 | 2 | 7 | 1 | 1 | 11 |
 | F4 | 0 | 7 | 3 | 5 | 0 | 15 |
-| F5 | 0 | 3 | 9 | 0 | 0 | 12 |
+| F5 | 0 | 2 | 10 | 0 | 0 | 12 |
 | F6 | 0 | 1 | 1 | 1 | 0 | 3 |
 | F7 | 0 | 1 | 4 | 4 | 2 | 11 |
 | F8 | 0 | 0 | 6 | 1 | 4 | 11 |
@@ -48,7 +48,7 @@ By family (a row naming several families counts under each):
 
 ## All rows
 
-Long-form fields (current value source, existing guardrail, configuration value, cross-field and cross-component dependencies, required qualification, exclusion impact, basis) are in the JSONL/CSV; the table is the index.
+Long-form fields (current value source, existing guardrail, configuration value, cross-field and cross-component dependencies, required qualification, exclusion impact, basis) are in the JSONL/CSV; the table is the index. The `CP-` prefix means the Control Plane half of the inventory; CP-F4-15 and CP-F7-07 cite Runtime source (the enforcing code for those two is in the Runtime) and carry the Runtime pin. CP-F5-02 (`on_unreadable`) was reclassified to `CODE_OWNED_GUARDRAIL` after review because it is a relaxing toggle.
 
 | Field | Component | Family | Configurable field | Disposition | Governance benefit | Complexity | Decisions named | Verification |
 |---|---|---|---|---|---|---|---|---|
@@ -56,27 +56,26 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | CP-F11-02 | Control Plane | F11 | RedactionConfig.redact_targets | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W9-002 | SOURCE_VERIFIED |
 | CP-F11-03 | Control Plane | F11 | RedactionConfig.redact_final_output | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W9-002 | SOURCE_VERIFIED |
 | CP-F11-04 | Control Plane | F11 | RedactionConfig.redact_reasons | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W9-002 | SOURCE_VERIFIED |
-| CP-F3-07 | Control Plane | F3 | FreshnessProfile.lease_acquire_timeout_seconds (seconds to wait for the per-check lease) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W8-041 | SOURCE_VERIFIED |
-| CP-F4-01 | Control Plane | F4 | ObservationPolicy.max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | W6-042 | SOURCE_VERIFIED |
-| CP-F4-04 | Control Plane | F4 | status_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | W6-042 | SOURCE_VERIFIED |
-| CP-F4-05 | Control Plane | F4 | identity_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | LOW | HIGH | - | SOURCE_VERIFIED |
-| CP-F4-06 | Control Plane | F4 | mandate_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | LOW | HIGH | - | SOURCE_VERIFIED |
-| CP-F4-07 | Control Plane | F4 | approval_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | - | SOURCE_VERIFIED |
-| CP-F4-09 | Control Plane | F4 | FreshnessProfile.anchor_deadline_to_inputs (bool) | CONDITIONAL_EXTRACTION | LOW | HIGH | W8-014 | SOURCE_VERIFIED |
-| CP-F4-11 | Control Plane | F4 | FreshnessProfile.max_age_extension_seconds (int seconds) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | W8-014 | SOURCE_VERIFIED |
-| CP-F5-01 | Control Plane | F5 | ActionClass.max_status_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | W6-042,W8-014 | SOURCE_VERIFIED |
-| CP-F5-02 | Control Plane | F5 | ActionClass.on_unreadable (refuse / bounded_tolerance) | CONDITIONAL_EXTRACTION | MEDIUM | MEDIUM | W8-014 | SOURCE_VERIFIED |
-| CP-F5-03 | Control Plane | F5 | ActionClass.requires_revocation_assurance (bool) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | W8-014 | SOURCE_VERIFIED |
-| CP-F7-08 | Control Plane | F7 | MergeProfile.funded_authorities (list of principal names) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D12 | SOURCE_VERIFIED |
-| CP-F4-02 | Control Plane | F4 | ObservationPolicy.clock_tolerance_seconds (int seconds) | UNRESOLVED | LOW | HIGH | W6-042 | SOURCE_VERIFIED |
-| CP-F4-03 | Control Plane | F4 | BoundedAuthorizationWorkflow clock_tolerance_seconds (int seconds) | UNRESOLVED | LOW | HIGH | W6-042 | SOURCE_VERIFIED |
+| CP-F3-07 | Control Plane | F3 | FreshnessProfile.lease_acquire_timeout_seconds (seconds to wait for the per-check lease) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,D4,W8-041 | SOURCE_VERIFIED |
+| CP-F4-01 | Control Plane | F4 | ObservationPolicy.max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,W6-042 | SOURCE_VERIFIED |
+| CP-F4-04 | Control Plane | F4 | status_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,W6-042 | SOURCE_VERIFIED |
+| CP-F4-05 | Control Plane | F4 | identity_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | LOW | HIGH | D4,W6-042 | SOURCE_VERIFIED |
+| CP-F4-06 | Control Plane | F4 | mandate_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | LOW | HIGH | D4,W6-042 | SOURCE_VERIFIED |
+| CP-F4-07 | Control Plane | F4 | approval_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,W6-042 | SOURCE_VERIFIED |
+| CP-F4-09 | Control Plane | F4 | FreshnessProfile.anchor_deadline_to_inputs (bool) | CONDITIONAL_EXTRACTION | LOW | HIGH | D4,W8-014 | SOURCE_VERIFIED |
+| CP-F4-11 | Control Plane | F4 | FreshnessProfile.max_age_extension_seconds (int seconds) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D4,W8-014 | SOURCE_VERIFIED |
+| CP-F5-01 | Control Plane | F5 | ActionClass.max_status_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,W6-042,W8-014 | SOURCE_VERIFIED |
+| CP-F5-03 | Control Plane | F5 | ActionClass.requires_revocation_assurance (bool) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D4,W8-014 | SOURCE_VERIFIED |
+| CP-F7-08 | Control Plane | F7 | MergeProfile.funded_authorities (list of principal names) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D12,D4 | SOURCE_VERIFIED |
+| CP-F4-02 | Control Plane | F4 | ObservationPolicy.clock_tolerance_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D4,W6-042 | SOURCE_VERIFIED |
+| CP-F4-03 | Control Plane | F4 | BoundedAuthorizationWorkflow clock_tolerance_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D4,W6-042 | SOURCE_VERIFIED |
 | CP-F4-08 | Control Plane | F4 | requirement.evidence[].max_age_seconds (int seconds, authority-context data) | UNRESOLVED | LOW | HIGH | D1,W6-004,W6-005 | SOURCE_VERIFIED |
-| CP-F4-12 | Control Plane | F4 | FreshnessProfile.reaper_interval_seconds (int seconds) | UNRESOLVED | LOW | MEDIUM | D1,W8-041 | SOURCE_VERIFIED |
-| CP-F4-13 | Control Plane | F4 | FreshnessProfile.lease_acquire_timeout_seconds (float seconds) | UNRESOLVED | NONE | MEDIUM | D1 | SOURCE_VERIFIED |
-| CP-F7-01 | Control Plane | F7 | DedupeProfile.dedupe_ttl_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D12,W3-063,W9-027 | SOURCE_VERIFIED |
-| CP-F7-02 | Control Plane | F7 | DedupeProfile.provider_horizon_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D12,W3-063,W9-027 | SOURCE_VERIFIED |
-| CP-F7-03 | Control Plane | F7 | DedupeProfile.escalation_deadline_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D12 | SOURCE_VERIFIED |
-| CP-F7-07 | Control Plane | F7 | DedupeTtlOperationDestination dedupe_ttl_seconds | UNRESOLVED | LOW | HIGH | D12,W3-062,W3-063 | SOURCE_VERIFIED |
+| CP-F4-12 | Control Plane | F4 | FreshnessProfile.reaper_interval_seconds (int seconds) | UNRESOLVED | LOW | MEDIUM | D1,D4,W8-041 | SOURCE_VERIFIED |
+| CP-F4-13 | Control Plane | F4 | FreshnessProfile.lease_acquire_timeout_seconds (float seconds) | UNRESOLVED | NONE | MEDIUM | D1,D4 | SOURCE_VERIFIED |
+| CP-F7-01 | Control Plane | F7 | DedupeProfile.dedupe_ttl_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D12,D4,W3-063,W9-027 | SOURCE_VERIFIED |
+| CP-F7-02 | Control Plane | F7 | DedupeProfile.provider_horizon_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D12,D4,W3-063,W9-027 | SOURCE_VERIFIED |
+| CP-F7-03 | Control Plane | F7 | DedupeProfile.escalation_deadline_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D12,D4 | SOURCE_VERIFIED |
+| CP-F7-07 | Control Plane | F7 | DedupeTtlOperationDestination dedupe_ttl_seconds | UNRESOLVED | LOW | HIGH | D12,D4,W3-062,W3-063 | SOURCE_VERIFIED |
 | CP-F8-04 | Control Plane | F8 | PolicyConfig.allowed_tools / blocked_tools (JSON file) | UNRESOLVED | MEDIUM | MEDIUM | D1,W4-014 | SOURCE_VERIFIED |
 | CP-F11-05 | Control Plane | F11 | RedactionConfig.replacement (default "[REDACTED]") | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
 | CP-F11-06 | Control Plane | F11 | RedactionConfig.keep_fingerprints (default False) | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
@@ -89,6 +88,7 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | CP-F4-10 | Control Plane | F4 | FreshnessProfile.nonce (bool) | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
 | CP-F4-14 | Control Plane | F4 | RuleRevisionProfile.signers / host_digests / host_rule_kinds | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | CP-F4-15 | Control Plane | F4 | Recovery synthetic-observation window (86400 s literal, lower bound 0) | CODE_OWNED_GUARDRAIL | NONE | MEDIUM | - | SOURCE_VERIFIED |
+| CP-F5-02 | Control Plane | F5 | ActionClass.on_unreadable (refuse / bounded_tolerance) | CODE_OWNED_GUARDRAIL | MEDIUM | MEDIUM | - | SOURCE_VERIFIED |
 | CP-F5-04 | Control Plane | F5 | ActionClass.irreversible plus reversibility, reversible_until, reversal_cost, reads_protec | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | CP-F5-05 | Control Plane | F5 | RuntimeAuthorityProfile.actions map (membership of action classes) and ActionClass.class_i | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | CP-F5-06 | Control Plane | F5 | RuntimeAuthorityProfile.allow_synthetic_resolver (bool) | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
@@ -96,7 +96,7 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | CP-F5-08 | Control Plane | F5 | RuntimeAuthorityProfile.catalogue_version (str) | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
 | CP-F5-09 | Control Plane | F5 | Presence of the opt-in sub-profiles (operation_identity, freshness, holder_inventory, merg | CODE_OWNED_GUARDRAIL | MEDIUM | HIGH | - | SOURCE_VERIFIED |
 | CP-F5-10 | Control Plane | F5 | RuntimeAuthorityProfile.holder_inventory (HolderInventory: inventory_id, recorded_by, reco | CODE_OWNED_GUARDRAIL | LOW | HIGH | - | SOURCE_VERIFIED |
-| CP-F5-11 | Control Plane | F5 | EvidenceCriterion (minimum_count, members) in the runtime_authority extension (as named in source) | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
+| CP-F5-11 | Control Plane | F5 | EvidenceCriterion (minimum_count, members) in the runtime_authority extension (as named in | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | CP-F5-12 | Control Plane | F5 | Profile snapshot and approval commitment binding | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | CP-F7-04 | Control Plane | F7 | Ordering rule provider_horizon <= escalation_deadline < dedupe_ttl | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
 | CP-F7-05 | Control Plane | F7 | Ledger gates dedupe_unresolved_attempt_blocks_new_key and dedupe_operation_effect_applied  | CODE_OWNED_GUARDRAIL | MEDIUM | HIGH | - | SOURCE_VERIFIED |
@@ -129,13 +129,13 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | RT-F1a-03 | Runtime | F1a | allowed_units | DIRECT_EXTRACTION | MEDIUM | LOW | - | SOURCE_VERIFIED |
 | RT-F1b-01 | Runtime | F1b | allowed_institutions | DIRECT_EXTRACTION | MEDIUM | LOW | - | SOURCE_VERIFIED |
 | RT-F1b-02 | Runtime | F1b | allowed_authority_domains | DIRECT_EXTRACTION | MEDIUM | LOW | - | SOURCE_VERIFIED |
-| RT-F1c-01 | Runtime | F1c | max_amount | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D6 | SOURCE_VERIFIED |
-| RT-F3-03 | Runtime | F3 | OpenShellConfig.timeout_seconds | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W2-082 | SOURCE_VERIFIED |
+| RT-F1c-01 | Runtime | F1c | max_amount | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,D6 | SOURCE_VERIFIED |
+| RT-F3-03 | Runtime | F3 | OpenShellConfig.timeout_seconds | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,D4,W2-082 | SOURCE_VERIFIED |
 | RT-F6-01 | Runtime | F6 | permissions mapping {agent_id: [action strings]} | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D5 | SOURCE_VERIFIED |
 | RT-F1c-02 | Runtime | F1c | max_effects (policy ceiling) | UNRESOLVED | LOW | HIGH | D1,D6,W8-091 | SOURCE_VERIFIED |
-| RT-F1d-01 | Runtime | F1d | allowed_target_prefixes | UNRESOLVED | LOW | HIGH | D9,W1-029 | SOURCE_VERIFIED |
+| RT-F1d-01 | Runtime | F1d | allowed_target_prefixes | UNRESOLVED | LOW | HIGH | D4,D9,W1-029 | SOURCE_VERIFIED |
 | RT-F1d-02 | Runtime | F1d | target_match ('segment' default / 'exact' / 'legacy-prefix') | UNRESOLVED | NONE | HIGH | D1,D9,W1-029 | SOURCE_VERIFIED |
-| RT-F3-04 | Runtime | F3 | OpenShellConfig cpu/memory/runtime (pinned to a named profile; not independently qualified) | UNRESOLVED | NONE | HIGH. | D1,W2-082 | SOURCE_VERIFIED |
+| RT-F3-04 | Runtime | F3 | OpenShellConfig cpu/memory/runtime (pinned to a named profile; not independently qualified | UNRESOLVED | NONE | HIGH. | D1,W2-082 | SOURCE_VERIFIED |
 | RT-F6-02 | Runtime | F6 | agents_absent_from_record (registry-record silence for an agent present in the caller file | UNRESOLVED | NONE | HIGH | D5 | SOURCE_VERIFIED |
 | RT-F1b-03 | Runtime | F1b | trusted_institution_id / trusted_authority_domain (adapter constructor args; NOT policy da | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | RT-F1c-03 | Runtime | F1c | exact-one-effect rule (op.effects must equal 1) - adjacent to max_effects | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |

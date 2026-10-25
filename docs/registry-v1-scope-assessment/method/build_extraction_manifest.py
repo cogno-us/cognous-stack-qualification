@@ -50,7 +50,7 @@ for o in rows:
 
 for o in rows:
     t = ' '.join([o['disposition_basis']])
-    o['decisions_named'] = ','.join(sorted(set(re.findall(r'\b(D(?:1|5|6|9|12)|W\d-\d{3})\b', t)))) if o['recommended_disposition'] in ('CONDITIONAL_EXTRACTION', 'UNRESOLVED') else ''
+    o['decisions_named'] = ','.join(sorted(set(re.findall(r'\b(D(?:1|4|5|6|9|12)|W\d-\d{3})\b', t)))) if o['recommended_disposition'] in ('CONDITIONAL_EXTRACTION', 'UNRESOLVED') else ''
     o['governance_benefit_level'] = o['central_governance_benefit'].split(' ')[0].strip('-:').upper()
     o['complexity_level'] = o['extraction_complexity'].split(' ')[0].strip('-:').upper()
 cols = KEYS + ['decisions_named', 'governance_benefit_level', 'complexity_level']
