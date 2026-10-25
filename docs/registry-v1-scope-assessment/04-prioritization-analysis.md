@@ -68,7 +68,7 @@ The 36 in-scope rows mapped to `NONE` (mandatory gate or evidence logic, or gran
 | G qualification maturity | 0.05 | 0.05 | 0.10 |
 | H dependency ease | 0.075 | 0.05 | 0.20 |
 
-Weights are a documented choice, not an estimate of anything; they are written down so a reviewer can change them (`method/build_assessment.py`).
+Weights are a documented choice, not an estimate of anything; they are written down so a reviewer can change them. `method/build_assessment.py` documents how the lane outputs were joined and weighted, but its lane input files are not committed, so the stage cannot be re-run from this checkout; the committed `data/` and `appendix/` files are the authoritative outputs. A reviewer who changes a weight must restore the lane inputs or recompute from `data/family-metrics-and-scores.json`.
 
 ## 5. Composites and order
 

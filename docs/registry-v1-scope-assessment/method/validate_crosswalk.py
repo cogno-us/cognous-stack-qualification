@@ -17,7 +17,10 @@ def chk(name, ok, detail=''):
     if not ok: fails.append(name)
 ids = [r['scenario_id'] for r in cw]
 chk('row_count_696', len(cw) == 696 and len(set(ids)) == 696, f'{len(cw)} rows, {len(set(ids))} distinct')
-chk('csv_matches_json', [r['scenario_id'] for r in csvrows] == ids, f'{len(csvrows)} csv rows')
+def _norm(x):
+    return '' if x is None else (';'.join(map(str, x)) if isinstance(x, list) else str(x))
+_diff = [(c['scenario_id'], k) for c, j in zip(csvrows, cw) for k in c if _norm(j.get(k)) != c[k]]
+chk('csv_matches_json', [r['scenario_id'] for r in csvrows] == ids and not _diff and all(set(c) == set(j) for c, j in zip(csvrows, cw)), f'{len(csvrows)} csv rows; all columns compared; differences: {_diff[:5]}')
 catids = [s['id'] for s in cat]; wids = [c['id'] for c in app['cases']]
 chk('catalog_ids_exact', [r['scenario_id'] for r in cw[:40]] == catids and set(catids) <= set(ids), f'{len(catids)} catalog ids, source order preserved')
 chk('wiki_ids_exact', set(wids) == set(ids[40:]) and len(wids) == 656, f'{len(wids)} wiki ids from applicability.json')
@@ -92,7 +95,8 @@ slids = {r['scenario_id'] for r in sl}
 chk('manifest_field_ids_unique', len({m['field_id'] for m in mf}) == len(mf), f'{len(mf)} rows')
 chk('manifest_scenario_ids_resolve', all(x == 'NONE' or x in set(ids) or x in slids for m in mf for x in m['scenario_id'].split(';') if x), 'canonical, suite-local or NONE')
 chk('manifest_verified_rows_have_pin', all(m['source_pin'] for m in mf if m['verification'] == 'SOURCE_VERIFIED'))
-chk('manifest_direct_rows_name_no_open_decision', all(not m['decisions_named'] for m in mf if m['recommended_disposition'] == 'DIRECT_EXTRACTION'))
+_BLOCK = re.compile(r'(?i)(depends on|waits on|blocked by|pending|requires)\s+(open\s+)?(D1|D4|D5|D6|D9|D12|W\d-\d{3})\b')
+chk('manifest_direct_rows_name_no_open_decision', not [m['field_id'] for m in mf if m['recommended_disposition'] == 'DIRECT_EXTRACTION' and _BLOCK.search(m['disposition_basis'])], 'independent text check of disposition_basis (not the derived decisions_named column); a mention such as "D6 interaction noted" is not a dependency')
 chk('manifest_no_relaxing_toggle_direct', not any(('legacy-prefix' in m['configurable_field'] or 'on_unreadable' in m['configurable_field']) and m['recommended_disposition'] == 'DIRECT_EXTRACTION' for m in mf))
 json.dump(res, open(D + 'validation-report.json', 'w'), indent=1)
 for k, v in res.items(): print(('PASS ' if v['ok'] else 'FAIL ') + k + ' :: ' + str(v['detail'])[:160])

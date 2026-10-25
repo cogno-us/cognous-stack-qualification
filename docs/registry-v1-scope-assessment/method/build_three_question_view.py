@@ -46,6 +46,7 @@ def smallest_profile(fs):
 out = []
 for r in rows:
     fs = fams(r)
+    has_unmapped = 'UNMAPPED' in r['registry_family'].replace(' ', '').split(',')
     if r['priority'] == 'OUT_OF_SCOPE':
         qb, qc, basis = B_NA, 'NOT_ASSESSED', 'crosswalk priority OUT_OF_SCOPE (not a registry-parameter candidate); not assessed for Q-B or Q-C'
     else:
@@ -71,9 +72,9 @@ for r in rows:
         'q_a_qualification_status': r['qualification_status'],
         'q_b_governance_benefit': qb,
         'q_b_basis_registry_dependency': r['registry_dependency'],
-        'mapped_families': ','.join(fs) if fs else r['registry_family'],
+        'mapped_families': r['registry_family'].replace(' ', ''),
         'q_c_v1_necessity_basis': qc,
-        'smallest_covering_profile': smallest_profile(fs) if (fs and r['priority'] != 'OUT_OF_SCOPE') else '',
+        'smallest_covering_profile': ('NONE_UNMAPPED_CONSTRAINT' if has_unmapped else smallest_profile(fs)) if (fs and r['priority'] != 'OUT_OF_SCOPE') else '',
         'q_c_note': basis,
     })
 

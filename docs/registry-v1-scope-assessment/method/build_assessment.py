@@ -4,6 +4,8 @@
 SPDX-License-Identifier: Apache-2.0
 Joins the six lane outputs (A..F) into the canonical crosswalk, family metrics, scores and sensitivity tables.
 Run:  python3 build_assessment.py <LANES_DIR> <OUT_DIR>      (stdlib only)
+NOTE: the six lane input files (A-wiki-rows.jsonl, B-catalog-rows.jsonl, B-suitelocal-rows.jsonl, C-suitelocal-rows.jsonl, C-routes.jsonl, E-outcomes.jsonl, D-families.json) are NOT committed in this package.
+The committed data/ and appendix/ files are the authoritative outputs; this script documents how they were joined and cannot be re-run from a checkout.
 """
 import csv, json, sys, collections as C
 LANES, OUT = sys.argv[1].rstrip('/') + '/', sys.argv[2].rstrip('/') + '/'
@@ -54,7 +56,7 @@ def row(r, kind, ew):
     else:
         qs = qstat_cat(r['scenario_id'])
     rt = (route.get(r['scenario_id']) or {}).get('component_route') or r.get('component_route') or ''
-    return {'scenario_id': r['scenario_id'], 'scenario_source': r['scenario_source'] if kind=='wiki' else 'cognous scenarios/catalog.json v1.0.0 (qualification@998d39c5)',
+    return {'scenario_id': r['scenario_id'], 'scenario_source': (r['scenario_source'] if kind=='wiki' else ("suite-local claim group, suite '%s' (qualification@998d39c5); not a catalog scenario" % r['scenario_id'].split(':')[1] if kind=='suite' else 'cognous scenarios/catalog.json v1.0.0 (qualification@998d39c5)')),
             'scenario_title': r['scenario_title'], 'applicability': r['applicability'], 'customer_security_outcome': oc,
             'test_ids': ';'.join(r['test_ids']), 'test_suite': ';'.join(r['test_suite']) if isinstance(r['test_suite'], list) else (r['test_suite'] or ''),
             'component_route': rt, 'source_commit': commit_str(r.get('enforcement_component'), kind),

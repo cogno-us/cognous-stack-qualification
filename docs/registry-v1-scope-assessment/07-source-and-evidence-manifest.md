@@ -47,7 +47,7 @@ What each artifact speaks for: the inventory page's counts and "PASS" states spe
 | Controller run history | 23 result directories under `results/v1-validation/v1-2026-10-16-a/` = **21 distinct workflow runs** + `addenda-merge-1` (no workflow run) + `final-linux-1-39032930011-reduced-scope` (a derivation of `final-linux-1`, not a run) | directory listing; Lane F. Historical runs do not qualify the current heads; collection is not execution |
 | Controller scenario rows (catalog, newest run g8-r10) | **0 PASS, 27 INCONCLUSIVE, 13 NOT RUN** | `results/v1-validation/v1-2026-10-16-a/g8-r10-39690459403/requirements-matrix.md`; D01, D03, D04 are INCONCLUSIVE on named matched-refund assertions |
 | Controller selected verdict | PASS over 39 rows after the D15 scope reduction (36 rows moved out after results were seen); unreduced mandatory INCOMPLETE (40 PASS, 30 INCONCLUSIVE, 5 NOT RUN of 75) | `summary.md` (Lane F) |
-| Wiki cases with a recorded run | **0 of 656** (all NOT RUN); wiki-derived tests are not collected by the controller; a local run at r13 recorded 285 pass / 5 fail (4 of the 5 not tied to cases) | `docs/test-inventory.md`, `docs/v1-known-limits.md:248` |
+| Wiki cases with a recorded run | **0 of 656** (all NOT RUN); wiki-derived tests are not collected by the controller; a local run at the r13 pins recorded 285 pass / 5 fail; `docs/v1-known-limits.md:342` names all five (TC-L06-022, TC-L15-019, TC-L09-004, TC-L06-018 and the retired TC-L06-040 test) and says they failed the same way at the previous pins; line 248 is the earlier r10 measurement. Outside the controller verdict; the cases stay NOT RUN | `docs/test-inventory.md`, `docs/v1-known-limits.md:248,342` |
 | Suite-local claims (supplement) | 162 (Lane B 53, Lane C 109) | Grouped claims, not test functions and not scenarios; excluded from the 696 |
 | Inventory suite rows | 42 (+5 rows the inventory omits: MVP chain, MVP applicability, MVP D09, MVP D2 route B, g2-r10 comparison) | Lane F |
 | Known-limit tests | 75 enumerated in the inventory, 71 after withdrawals (matches the controller declared set); Runtime head has 11 further `*_known_limit` tests in neither | Lane F |
@@ -144,6 +144,8 @@ Six lanes with disjoint file ownership ran in parallel; one integration lead joi
 - Suite-local IDs are unique, prefixed `SL:`, and disjoint from the 696.
 
 ## 6. Source-access limitations and other limitations
+
+- **Reproducibility.** `method/build_assessment.py` (and the lane stage it consumes) needs the original lane input files, which are not committed; it cannot be re-run from a checkout. The committed `data/` and `appendix/` files are the authoritative outputs. The scripts that can be re-run from the committed data are `fill_docs.py`, `render_tables.py`, `build_three_question_view.py`, `build_extraction_manifest.py` and `validate_crosswalk.py`.
 
 - Shallow clones: no diff against historical pins; Runtime moved from `ec728da6` to `c5e97e87` after the last controller run.
 - Repositories not cloned (section 1): rows for Exchange, Replay, Pack, ODES, Verifier, BitRep, Index, Action Manifest enforcement are UNVERIFIED.
