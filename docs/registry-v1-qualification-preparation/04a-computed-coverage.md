@@ -4,16 +4,16 @@ Counts are rows tagged with each gate. They count PREPARED expectations only. Th
 
 | Gate | V1 status | Oracles (QO) | of which blocked | Negative controls (NC) | of which blocked | Differential cases (DF) | of which blocked | Gap |
 |---|---|---|---|---|---|---|---|---|
-| QG-01 | ACTIVE | 23 | 0 | 6 | 0 | 43 | 2 |  |
+| QG-01 | ACTIVE | 23 | 1 | 6 | 0 | 43 | 2 |  |
 | QG-02 | INACTIVE_MAX_AMOUNT_DEFERRED | 0 | 0 | 0 | 0 | 0 | 0 | INACTIVE |
 | QG-03 | ACTIVE | 19 | 1 | 20 | 3 | 20 | 3 |  |
-| QG-04 | ACTIVE | 22 | 1 | 20 | 3 | 27 | 3 |  |
+| QG-04 | ACTIVE | 22 | 1 | 20 | 3 | 28 | 3 |  |
 | QG-05 | ACTIVE | 22 | 0 | 34 | 2 | 1 | 0 |  |
 | QG-06 | ACTIVE | 15 | 1 | 32 | 3 | 4 | 1 |  |
-| QG-07 | ACTIVE | 18 | 0 | 8 | 0 | 21 | 0 |  |
-| QG-08 | ACTIVE | 13 | 0 | 47 | 6 | 2 | 0 |  |
-| QG-09 | ACTIVE | 24 | 1 | 44 | 6 | 8 | 1 |  |
-| QG-10 | ACTIVE | 13 | 2 | 20 | 3 | 8 | 1 |  |
+| QG-07 | ACTIVE | 18 | 1 | 8 | 0 | 21 | 0 |  |
+| QG-08 | ACTIVE | 14 | 0 | 47 | 6 | 2 | 0 |  |
+| QG-09 | ACTIVE | 25 | 1 | 45 | 6 | 8 | 1 |  |
+| QG-10 | ACTIVE | 13 | 2 | 20 | 3 | 9 | 1 |  |
 | QG-11 | ACTIVE | 5 | 2 | 7 | 3 | 1 | 0 |  |
 | QG-12 | ACTIVE | 16 | 0 | 50 | 8 | 8 | 1 |  |
 | QG-13 | ACTIVE | 3 | 0 | 20 | 4 | 49 | 1 |  |
@@ -23,9 +23,9 @@ Counts are rows tagged with each gate. They count PREPARED expectations only. Th
 
 | Item | Rows | PREPARED | BLOCKED_ON_CONTRACT |
 |---|---|---|---|
-| Oracles | 116 | 111 | 5 |
-| Negative controls | 138 | 119 | 19 |
-| Differential cases | 102 | 97 | 5 |
+| Oracles | 117 | 111 | 6 |
+| Negative controls | 139 | 120 | 19 |
+| Differential cases | 103 | 98 | 5 |
 
 ## Negative controls by attack class
 
@@ -37,7 +37,7 @@ Counts are rows tagged with each gate. They count PREPARED expectations only. Th
 | deny_all_vs_evaluator | 7 |
 | durable_state_loss | 8 |
 | epoch_downgrade | 6 |
-| evidence_integrity | 2 |
+| evidence_integrity | 3 |
 | expiry | 9 |
 | forged_selection | 12 |
 | freshness_boundary | 3 |

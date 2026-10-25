@@ -9,7 +9,7 @@ Status: **PREPARATION.** This package contains prepared expectations only. Nothi
 | B1 | **No independent qualification lead is designated (GAP-G4-13).** The lead must not be the builder, the Architect, Copilot or a dependent worker | Without a lead every run is PREPARE-mode, labelled "builder-side inspection; Tier 1 not qualified", and QG-14 cannot close | Independent qualification owner / operator |
 | B2 | **No V1 candidate exists.** Implementation is not authorized; EXT-S1-1 has not started | There is nothing to freeze or execute | Architect (implementation authorization) |
 | B3 | **Contract and ruling items are open** (table below) | Rows tagged `BLOCKED_ON_CONTRACT` stay BLOCKED; BLOCKED is never waived | Architect, component owners |
-| B4 | **V1 serialization is not fixed** (records, selection statements, claims, snapshots, durable state) | 138 per-control fixtures are definition-only; the ready part is the contract-derived grids | `EXT-S1-1`, `EXT-S1-5`, `EXT-S4-0` |
+| B4 | **V1 serialization is not fixed** (records, selection statements, claims, snapshots, durable state) | 139 per-control fixtures are definition-only; the ready part is the contract-derived grids | `EXT-S1-1`, `EXT-S1-5`, `EXT-S4-0` |
 | B5 | **No real verifier or operational trust root.** The registry tests use a test double; the Ed25519 adapter (`EXT-S1-7`) is not built; trust root and key ceremony are operator-gated | Authenticity can be evidenced only with synthetic keys; GAP-G3-07 stays open | Operator |
 | B6 | **Independent evidence review is not available** (the operator recorded "no second llm for now") | Evidence review must be recorded as not performed until a reviewer exists | Operator |
 | B7 | **Existing coverage gaps** the package cannot close by design: 11 undeclared Runtime known-limit tests (GAP-G4-07); no MVP oracle row for a `LocalExecutionPolicy` denial (GAP-G4-09); no scenario-level PASS and nothing at current heads (GAP-G4-01, 02) | QG-13 and QG-14 depend on the owners | Component and qualification owners |
@@ -17,7 +17,7 @@ Status: **PREPARATION.** This package contains prepared expectations only. Nothi
 
 ## Open contract and ruling items behind `BLOCKED_ON_CONTRACT` rows
 
-Counts are generated in [04a](04a-computed-coverage.md): oracles 5, negative controls 19, differential cases 5.
+Counts are generated in [04a](04a-computed-coverage.md): oracles 6, negative controls 19, differential cases 5.
 
 | Open item | Rows waiting |
 |---|---|
@@ -25,7 +25,7 @@ Counts are generated in [04a](04a-computed-coverage.md): oracles 5, negative con
 | O-1: R6 mechanics (how an outage extension is held under the effective narrowed limit) | QO-115, NC-114 |
 | O-3: claim member list; OPEN-Q3/Q5: structured code carrier at commit time | QO-104, QO-105, NC-102 |
 | O-4: upper bound (`AGE_MAX`) and refusal/HOLD code names for invalid age values | QO-052, DF-067, DF-068, NC-118 |
-| Route B trusted-context independence (the atomic executor has no institution/domain check; it exists on Route A only) | DF-037 |
+| Route B trusted-context independence (the atomic executor has no institution/domain check; it exists on Route A only) | QO-018, DF-037 |
 | No-registry-input path versus invalid caller ages the constructor accepts today (the cards say both "byte-identical" and "invalid caller refuses") | DF-066 |
 | v2 domain-separation cause; Evidence/Replay refusal vocabulary | NC-012, NC-017, NC-018 |
 | Cause for a claim epoch ahead of the row; equal-epoch activation cause | NC-021, NC-062 |
@@ -42,7 +42,7 @@ The lane workers could not open the rulings document, so they derived ruling-bas
 
 - **Approval revival (QO-065, NC-073).** The ruling is explicit: no automatic revival; a withdrawn narrowing must not reactivate an older approval; the old approval stays invalid. Both rows are now PREPARED with `REFUSE`. Only the exact cause name remains open (`NEW_CODE_PROPOSED`); the plan's earlier "not guaranteed" wording is superseded.
 - **Stale or rolled-back epoch (OPEN-Q12).** Rows use REFUSE with a specific stale-epoch cause and HOLD only for genuinely indeterminate authority state. `data/ld02-outcome-map.json` in the P1 plan still shows HOLD for `selection_epoch_stale`; its owner must update it at ratification. The rows are not edited to match the map.
-- **Outcome-vocabulary alignment items for the ratification** (rows differ from the vetted-but-unratified LD-02 map): `participation_mismatch` for a required scope (QO-034, QO-035: REFUSE versus map HOLD) and `selection_revoked` as terminal (QO-090, QO-092: REFUSE versus map HOLD). Rows asserting a Runtime gate DENY with the conceptual cause carried as structured detail (QO-079, QO-081, NC-100) follow the map's Route B commit entry.
+- **Outcome-vocabulary alignment items for the ratification** (the LD-02 map is vetted but unratified): `participation_mismatch` for a required scope (QO-034, QO-035) and `selection_revoked` as terminal (QO-090, QO-092) were aligned to the map's HOLD classification; the ratification must confirm or change them. The map's HOLD for `selection_epoch_stale` is not followed (OPEN-Q12 ruling). Rows asserting a Runtime gate DENY with the conceptual cause carried as structured detail (QO-079, QO-081, NC-100) follow the map's Route B commit entry.
 - **B-lite is rejected and claim-carried identity is mandatory.** No row relies on keyword-argument carriage; identity-without-binding rows (QO-095, NC-028) assert it is not authority.
 - This reconciliation is a conflict scan, not a line-by-line review. The independent oracle author or lead must still confirm every `RULING` row against the primary text before freeze.
 

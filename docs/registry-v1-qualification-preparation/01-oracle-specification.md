@@ -2,7 +2,7 @@
 
 Status: **PREPARATION ONLY. This is not independent Tier 1 qualification.** No V1 implementation exists, nothing here was executed, and no row below is a result. Every row is a prepared expectation with status `NOT_RUN`; the candidate state is `NOT_QUALIFIED`. Historical `PASS_RECORDED` cases are at the g8-r10 pins and do not carry over. Known-limit assertions are not PASS. Copilot review is technical review, not qualification. RELEASE: HOLD. PUBLICATION: HOLD. PRODUCTION: HOLD.
 
-Machine-readable rows: [`data/oracles.jsonl`](data/oracles.jsonl) (116 rows, `QO-001` to `QO-116`, one JSON object per line). This page explains the method and lists what is blocked. If the two disagree, the JSONL is the specification and this page is the defect.
+Machine-readable rows: [`data/oracles.jsonl`](data/oracles.jsonl) (117 rows, `QO-001` to `QO-117`, one JSON object per line). This page explains the method and lists what is blocked. If the two disagree, the JSONL is the specification and this page is the defect.
 
 ## 1. Scope
 
@@ -25,7 +25,7 @@ Eight V1 fields: Runtime `allowed_actions`, `allowed_adapters`, `allowed_units`,
 - **Not read:** registry builder tests and oracles (`tests/test_r08_*`, `tests/test_s05_*`, `tests/s05_oracle.py`, `r08_support.py`), `docs/r08-s01/qualification-spec.md` (the QS13 amendment), and any builder implementation behaviour. No file under `registry_successor/` or `tests/` was opened.
 - **Indirect contamination note (19 rows carry `read_contamination`).** `data/ld02-outcome-map.json` was vetted by its author against builder `decision.py`. It is on the permitted list and is used only as a contract proposal (outcome names, `can_authorize_action`, deny-all convention). Rows that lean on it say so in `read_contamination`. A reviewer who treats the map as builder-derived should discount those rows to "contract proposal".
 - **Map versus ruling conflict, resolved in favour of the ruling.** The map still reads HOLD for `selection_epoch_stale` pending OPEN-Q12. The oracles follow the Architect resolution given to this lane: a stale or rolled-back epoch is REFUSE with a specific cause (QO-083, QO-084, QO-089 cite this; QO-087 is the HOLD case), and HOLD only when authority state is indeterminate. The map cell should be updated by its owner; the oracle is not adjusted to match it.
-- **Not readable in this lane.** The Architect final-rulings project document (`claude/ocs-p1-architect-final-rulings-2026-10-25.md`) could not be opened because the Projects read tool was not available to this worker. Ruling-based rows therefore cite the ruling content as recorded in the P1 plan (docs 04, 07, 10, 11) and in the lane brief. Before the freeze commit the lead should confirm each `RULING` row against the primary text; the row most exposed is the approval-revival row (QO-065, section 5).
+- **Rulings document.** The lane workers could not open the Architect final-rulings project document. The integration owner read it and corrected the conflicting rows (QO-065, QO-034/035, QO-090/092); see doc 08 "Reconciliation". The independent oracle author or lead must still confirm every `RULING` row against the primary text before freeze.
 - Source at the pins was fetched read-only into a scratch directory outside every repository (`git fetch --depth=1`); nothing was executed or modified.
 - Roles stay separate (07): oracle author (this lane, blind), builder (never edits expectations), runner, evidence reviewer, final adjudicator (operator). No independent qualification lead is designated, so any later execution is "builder-side inspection; Tier 1 not qualified".
 
@@ -33,13 +33,13 @@ Eight V1 fields: Runtime `allowed_actions`, `allowed_adapters`, `allowed_units`,
 
 | # | Topic slug | Rows | Count | Blocked | Subject |
 |---|---|---|---|---|---|
-| 1 | `allowlist_narrowing` | QO-001 to QO-018 | 18 | 0 | Allowlist narrowing (five Runtime fields) |
+| 1 | `allowlist_narrowing` | QO-001 to QO-018 | 18 | 1 | Allowlist narrowing (five Runtime fields) |
 | 2 | `empty_set_deny_all` | QO-019 to QO-028 | 10 | 1 | Empty-set deny-all (preconstruction versus evaluator denial) |
 | 3 | `required_optional_participation` | QO-029 to QO-036 | 8 | 0 | Required and optional participation; scope_required ratchet (A4) |
 | 4 | `freshness_limit_narrowing` | QO-037 to QO-059 | 23 | 1 | Freshness-limit narrowing (three Control Plane ages) |
-| 5 | `approval_profile_commitment` | QO-060 to QO-065 | 6 | 1 | Approval and profile commitment |
+| 5 | `approval_profile_commitment` | QO-060 to QO-065 | 6 | 0 | Approval and profile commitment |
 | 6 | `policy_selection_withdrawal` | QO-066 to QO-074 | 9 | 0 | Policy selection and withdrawal (A1); no registry authority over grants |
-| 7 | `revocation_expiry` | QO-075 to QO-082 | 8 | 0 | Revocation and expiry (activation and commit) |
+| 7 | `revocation_expiry` | QO-075 to QO-082, QO-117 | 9 | 0 | Revocation and expiry (activation and commit) |
 | 8 | `activation_epoch_rollback` | QO-083 to QO-093 | 11 | 0 | Activation epoch and rollback (A2) |
 | 9 | `claim_carried_identity` | QO-094 to QO-105 | 12 | 2 | Claim-carried policy identity |
 | 10 | `atomic_effect_time_validation` | QO-106 to QO-116 | 11 | 1 | Atomic effect-time validation (Route B) and R6 |
@@ -63,14 +63,14 @@ Each waits for an open decision. They are retained so the gap is visible; they a
 
 | Oracle | Title | Waits for |
 |---|---|---|
+| QO-018 | Route B trusted-context independence: the atomic executor has no institution or domain check (the cited check is on Route A only) | Same open item as DF-037: Route B trusted-context independence is unspecified |
 | QO-028 | Control Plane consumption of a registry deny-all result is undecided | OPEN-Q6: Control Plane outcome for registry deny-all (ADR EXT-S4-0) |
 | QO-052 | registry bound above the ADR maximum is refused | O-4: F4/F5 upper-bound constants recorded in the EXT-S1-1 ADR (not yet written) |
-| QO-065 | old P0 approval stays invalid after narrowing then withdrawal | Approval-revival ruling text vs docs/p1-extraction-plan/07 disclosure: no generation or revocation mechanism is authorized; commitment equality alone would re-accept A0 (final rulings doc not readable in this lane) |
 | QO-104 | no string-based security decision: a message text that spells a registry code is not a cause | OPEN-Q3 / OPEN-Q5: form of the structured code carrier at commit time (ADR EXT-S4-0) |
 | QO-105 | claim member list agrees between the registry identity projection and the claim | O-3: claim member list frozen in the EXT-S1-1 ADR / EXT-S4-0 ADR |
 | QO-115 | R6: an extension row whose base was computed from the caller value is invalid | O-1: whether R6 is met by profile narrowing alone or needs a source change in runtime_authority.py / freshness.py / bounded.py |
 
-Further caveats that do **not** block a row but should be read with it: (a) commit-time rows state the outcome (`DENY`, no effect row, claim unconsumed) and a structured cause; the carrier form for that cause is OPEN-Q3/Q5, so no oracle may compare an exception message string; (b) rows that name `NEW_CODE_PROPOSED` causes fix the symbolic cause, and the final string comes from the EXT-S1-1 / EXT-S4-0 ADRs; (c) QO-065 conflicts in wording with 07 ("revival of an older P0 approval is not guaranteed and is disclosed"), which is why it is blocked rather than guessed.
+Further caveats that do **not** block a row but should be read with it: (a) commit-time rows state the outcome (`DENY`, no effect row, claim unconsumed) and a structured cause; the carrier form for that cause is OPEN-Q3/Q5, so no oracle may compare an exception message string; (b) rows that name `NEW_CODE_PROPOSED` causes fix the symbolic cause, and the final string comes from the EXT-S1-1 / EXT-S4-0 ADRs; (c) QO-065 is PREPARED from the Architect final ruling on approval revival (no automatic revival); only its exact cause name is `NEW_CODE_PROPOSED`. The older P1 plan wording ("not guaranteed and is disclosed") is superseded by that ruling.
 
 ## 6. How expectations are frozen
 

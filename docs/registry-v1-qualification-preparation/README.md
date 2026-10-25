@@ -50,3 +50,5 @@ python3 docs/registry-v1-qualification-preparation/method/validate_preparation.p
 ## Vocabulary
 
 `PREPARED` is an expectation written and frozen-intent, not a result. `BLOCKED_ON_CONTRACT` waits for a named open decision and is never waived. Existing evidence statuses are unchanged: `PASS_RECORDED` is a named historical case at the g8-r10 pins, `KNOWN_LIMIT_ASSERTED` is not PASS, D01/D03/D04 stay INCONCLUSIVE, and collection is not execution.
+
+`result_kind` (on every oracle, control and case row): `PROTECTION` asserts a protection and counts toward its gate; `PAIR_CONTROL` is the positive or over-refusal companion of a protection row; `DISCLOSURE_ONLY` characterizes an unprotected limit or absent capability, is recorded as CHARACTERIZED, and is never PASS or protection. Aggregation rules are in doc 06.

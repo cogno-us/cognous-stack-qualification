@@ -63,4 +63,14 @@ This preparation worker does **not** become the independent qualification lead b
 | NOT_RUN | Not executed (the constitutional addendum's NOT EXECUTED). Preserved as NOT_RUN |
 | INACTIVE | The gate does not apply to the V1 profile (QG-02, `max_amount` deferred); the addendum's N/A. Reported as inactive, never as PASS |
 
-A gate is PASS only if every ACTIVE control it owns is PASS and its reviewer requirements are met. No gate may be reported PASS "by analogy" to builder tests. Only a designated lead may write a Tier 1 verdict; otherwise the candidate reads "NOT INDEPENDENTLY QUALIFIED".
+### Result kind and aggregation
+
+Every oracle, control and case row carries `result_kind`:
+
+| result_kind | Meaning | Aggregation |
+|---|---|---|
+| PROTECTION | The row asserts a protection: the frozen outcome and exact cause must hold (and, for controls, the mutation leg must flip it) | Counts toward the gate. PASS requires the expected outcome, exact cause and, for controls, a failing mutation leg |
+| PAIR_CONTROL | A positive or over-refusal companion of a protection row (for example the accept leg at a boundary) | Must match its own expected accept or refuse outcome; counts toward the gate together with its partner; the partner's mutation direction applies |
+| DISCLOSURE_ONLY | A characterization of an unprotected limit or absent capability (known limits, `NOT_PROTECTED_ASSERTED`, `ABSENT_CAPABILITY_ASSERTED`) | Recorded as CHARACTERIZED with its raw evidence. Never PASS, never counted as protection, never able to close a gate. It does not block a gate on its own and must still be listed in the gate's disclosure section |
+
+A gate is PASS only if every ACTIVE PROTECTION and PAIR_CONTROL row it owns is PASS, every DISCLOSURE_ONLY row it owns is recorded as CHARACTERIZED with evidence, and its reviewer requirements are met. No gate may be reported PASS "by analogy" to builder tests. Only a designated lead may write a Tier 1 verdict; otherwise the candidate reads "NOT INDEPENDENTLY QUALIFIED".

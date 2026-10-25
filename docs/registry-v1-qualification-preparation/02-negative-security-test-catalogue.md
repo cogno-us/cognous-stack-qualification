@@ -4,7 +4,7 @@
 
 **Synthetic fixtures are defined separately by the lead.** Each control names a placeholder `FX-B-nnn` and an abstract description of the synthetic input. The ids are per control; the lead may merge fixtures that turn out to be identical. All keys, signatures, ids and digests must be synthetic, never reused real material, with no network, paid or credentialed execution.
 
-Machine-readable rows: [`data/negative-controls.jsonl`](data/negative-controls.jsonl) (138 rows, one JSON object per line). This page is the human catalogue; the JSONL is authoritative for field values.
+Machine-readable rows: [`data/negative-controls.jsonl`](data/negative-controls.jsonl) (139 rows, one JSON object per line). This page is the human catalogue; the JSONL is authoritative for field values.
 
 ## 1. Scope and boundaries
 
@@ -18,11 +18,11 @@ Machine-readable rows: [`data/negative-controls.jsonl`](data/negative-controls.j
 
 | Measure | Count |
 |---|---|
-| Controls | 138 |
-| `PREPARED` (expectation derivable from a contract, ruling or pinned source) | 118 |
-| `BLOCKED_ON_CONTRACT` (named open decision) | 20 |
-| Scope RUNTIME / REGISTRY / CONTROL_PLANE / CROSS | 67 / 29 / 26 / 16 |
-| Basis type CONTRACT / RULING / SOURCE_CHARACTERIZATION / INVENTORY | 121 / 3 / 14 / 0 |
+| Controls | 139 |
+| `PREPARED` (expectation derivable from a contract, ruling or pinned source) | 120 |
+| `BLOCKED_ON_CONTRACT` (named open decision) | 19 |
+| Scope RUNTIME / REGISTRY / CONTROL_PLANE / CROSS | 68 / 29 / 26 / 16 |
+| Basis type CONTRACT / RULING / SOURCE_CHARACTERIZATION / INVENTORY | 122 / 3 / 14 / 0 |
 | Race or repeat controls | 12 |
 | Distinct existing registry codes asserted (of 48 mapped: 46 `r08-v1` plus 2 v2-only) | 29 |
 | Distinct `NEW_CODE_PROPOSED` names | 35 |
@@ -72,7 +72,7 @@ Columns: id, title, expected outcome, expected exact cause (existing code shown 
 | scope_required ratchet | 4 | 4 | 0 |
 | Epoch downgrade | 6 | 5 | 1 |
 | Stale trust-snapshot version | 4 | 4 | 0 |
-| Stale approval revival and approval/profile mismatch | 6 | 4 | 2 |
+| Stale approval revival and approval/profile mismatch | 6 | 5 | 1 |
 | Restore and rollback | 5 | 4 | 1 |
 | Missing or corrupted durable state | 8 | 7 | 1 |
 | Registry deny-all versus evaluator denial (OPEN-Q6) | 7 | 6 | 1 |
@@ -84,9 +84,9 @@ Columns: id, title, expected outcome, expected exact cause (existing code shown 
 | Invalid freshness inputs | 11 | 10 | 1 |
 | Narrowed freshness boundary | 3 | 3 | 0 |
 | Route A bypass (out of V1) | 3 | 2 | 1 |
-| Evidence and reachability | 2 | 2 | 0 |
+| Evidence and reachability | 3 | 3 | 0 |
 | Transaction integrity | 2 | 2 | 0 |
-| **Total** | **138** | **118** | **20** |
+| **Total** | **139** | **120** | **19** |
 
 ### 4.1 Forged selection (12)
 
@@ -243,7 +243,7 @@ Caller-profile approval against narrowed profile, P1 approval after withdrawal, 
 |---|---|---|---|---|
 | NC-071 | Approval issued under the caller profile, evaluated against the narrowed profile | HOLD | reason runtime_authority_approval_mismatch (existing Control Plane reason; decision result=hold) | PREPARED |
 | NC-072 | Approval bound to narrowed P1 fails after the narrowing is withdrawn | HOLD | reason runtime_authority_approval_mismatch (commitment P1 vs P0) | PREPARED |
-| NC-073 | Older P0 approval after narrowing (P1) was applied and then withdrawn: must not be revived | UNSPECIFIED | NEW_CODE_PROPOSED: approval_revival_unspecified | BLOCKED |
+| NC-073 | Older P0 approval after narrowing (P1) was applied and then withdrawn: must not be revived | REFUSE | NEW_CODE_PROPOSED: approval_stale_policy_generation (name to be fixed by the ADR; the refusal itself is ruled) | PREPARED |
 | NC-074 | No generalized approval-history migration capability exists | ABSENT_CAPABILITY_ASSERTED | no migration path; A0 stays runtime_authority_approval_mismatch under P1; only a newly issued approval validates | PREPARED |
 | NC-075 | Approval valid but the grant derives from another profile | HOLD_OR_REFUSE_PER_ADR | NEW_CODE_PROPOSED: grant_profile_disagreement | BLOCKED |
 | NC-076 | Control Plane and Runtime profile disagreement never takes the broader side | REFUSE | NEW_CODE_PROPOSED: cross_component_policy_disagreement | PREPARED |
@@ -383,7 +383,7 @@ Route A is not credited as protected. Attack-class slug: `route_a_bypass`.
 | NC-133 | Any test or evidence named as Route A protection is rejected | REFUSE | catalogue/result classification check fails naming the offending test | PREPARED |
 | NC-134 | Required-scope operation routed over Route A to skip the commit guard | UNSPECIFIED | NEW_CODE_PROPOSED: route_a_required_scope_handling | BLOCKED |
 
-### 4.24 Evidence and reachability (2)
+### 4.24 Evidence and reachability (3)
 
 No leakage into evidence; no network inside a transaction. Attack-class slug: `evidence_integrity`.
 
@@ -391,6 +391,7 @@ No leakage into evidence; no network inside a transaction. Attack-class slug: `e
 |---|---|---|---|---|
 | NC-135 | Evidence never records raw input, signature bytes, caller policy values or trust-snapshot content | REFUSE | scan finds zero canaries | PREPARED |
 | NC-136 | No registry call, socket or network I/O inside a transaction; an unreachable registry behaves identically | REFUSE | sentinel records zero attempts; outcome identical with registry reachable and unreachable | PREPARED |
+| NC-139 | Revoked fixture: refusal happens with zero socket attempts inside the transaction | REFUSE | selection revoked cause carried as structured detail; sentinel records zero attempts; outcome identical with the registry reachable and unreachable; positive pair is NC-136 | PREPARED |
 
 ### 4.25 Transaction integrity (2)
 
@@ -407,7 +408,7 @@ Each row names `mutation_leg`: the **single** check which, if disabled, must mak
 
 1. **Two legs per control.** Leg 1 runs the control against the unmodified candidate and records the observed outcome and cause. Leg 2 runs the same frozen fixture against a scratch copy of the candidate in which exactly the named check is disabled. The control is credited only if leg 2 flips (the refusal disappears, the cause changes, or an effect commits). A control whose mutant still passes proves nothing and is reported as a non-discriminating control.
 2. **One mutation, one control.** The mutation must be the narrowest edit that removes that check. Where one check guards several controls (for example the signature-verify call) the same mutant is reused, and every control it guards must flip.
-3. **Mutants live outside every source repository** (scratch copy, patch file kept in the evidence bundle). `engine/safe_executor.py` blob `2fc880da` is never edited; evaluator-denial controls (NC rows in 4.15) mutate only the registry adapter, not the evaluator.
+3. **Mutants live outside every source repository** (scratch copy, patch file kept in the evidence bundle). `engine/safe_executor.py` blob `2fc880da` is never edited; evaluator-denial controls (NC rows in 4.15) mutate only the registry adapter, not the evaluator, with one declared exception: NC-093 (preserved evaluator first-failing check and reason text) names a disposable mutant copy of the candidate that reorders or merges the evaluator checks. That mutant is never the pinned baseline, is never committed, and the `safe_executor.py` blob is verified unchanged before and after the run.
 4. **Pair controls run the mutation in the over-refusal direction** (for example tightening `<` to `<=` at the boundary); the paired positive must flip to a refusal.
 5. **Known-limit and capability-absence rows** (`NOT_PROTECTED_ASSERTED`, `ABSENT_CAPABILITY_ASSERTED`) use a labelling or surface mutation instead: remove the label, or add the forbidden capability. `tools/adversarial_mutations.py` in the Control Plane was named by `EXT-S4-4` but its contents are unverified and were not read.
 6. Mutation legs for commit-time controls cannot be exercised until `EXT-S4-2` exists; until then they are design text only.
@@ -432,7 +433,6 @@ These controls are prepared as test intent only. Their expectation cannot be fix
 | NC-044 | Issuer key revoked between check and commit | Does sync translate a key revocation into revocation rows for every selection that key signed, or is key revocation gate-only? EXT-S4-0 ADR open; the lead brief expects before/after-lock coverage. |
 | NC-045 | Issuer revoked between check and commit | Same open decision as key revocation: issuer-removal propagation to activation rows at commit. |
 | NC-062 | Activation at an equal epoch with different content | EXT-S4-0 ADR: equal-epoch activation is refused (A2) but whether its cause is selection_epoch_stale, selection_conflict or a new code is unspecified; the cause must not be collapsed. |
-| NC-073 | Older P0 approval after narrowing (P1) was applied and then withdrawn: must not be revived | Lead brief (Architect final ruling on approval revival): old approval stays invalid. P1 plan 07 and 11 EXT-S3-4: revival of an older P0 approval 'is not guaranteed by V1 (no generation or revocation mechanism is authorized) and is disclosed'. A P0 approval's commitment matches P0 again, so 'stays invalid' needs a mechanism no document authorizes. The final-rulings document was not readable; reconcile before freeze. |
 | NC-075 | Approval valid but the grant derives from another profile | No document names the reason for 'approval bound to narrowed profile but grant from another profile' (reverse of the mismatch case). |
 | NC-081 | Re-baseline attempted by an unauthenticated local call or from a claim | EXT-S4-0 ADR: who may re-baseline, with what authenticated artifact, is not specified anywhere read. |
 | NC-089 | Trust snapshot file is a symlink, FIFO or foreign-owner file | Custody design (who loads the snapshot, ownership/permission rules, resulting code) is operator-gated and unspecified; V1 has no operational trust root. |
@@ -446,7 +446,7 @@ These controls are prepared as test intent only. Their expectation cannot be fix
 ### Tensions between sources (recorded, not resolved)
 
 - **Stale epoch outcome (OPEN-Q12).** The outcome map keeps `selection_epoch_stale` as HOLD pending the Architect; the lead brief instructs REFUSE with a specific cause and HOLD only for indeterminate state. The controls follow the brief (REFUSE) and say so in `contract_note`. Both are denied-with-no-effect, so the effect-side assertions are unaffected.
-- **Approval revival (NC for P0 revival).** The brief states an old approval "stays invalid" after narrowing is withdrawn. p1/07 and p1/11 `EXT-S3-4` say revival of an older P0 approval "is not guaranteed by V1 (no generation or revocation mechanism is authorized) and is disclosed". A P0 approval's commitment matches P0 again, so "stays invalid" needs a mechanism no document authorizes. Held as BLOCKED; the P1-approval-after-withdrawal control (commitment mismatch P1 to P0) is prepared.
+- **Approval revival (NC-073).** Resolved against the primary text of the Architect final ruling: no automatic revival; the old approval stays invalid after a narrowing is withdrawn; fresh approval or authorized new issuance is required; approval generation and policy identity are preserved enough to prevent stale reuse; no generalized approval-history migration. The earlier P1 plan wording ("not guaranteed and is disclosed") is superseded. The refusal is ruled; only the exact cause name is `NEW_CODE_PROPOSED`. The baseline's commitment re-match is recorded as a characterization (DF-086), not as the candidate requirement (DF-103).
 - **Un-revocation by a newer snapshot.** The control that a newer snapshot omitting a revocation does not un-revoke rests on revocation being terminal for `(selection_id, epoch)` (p1/04 lifecycle table). If the Architect intends snapshot-driven un-revocation, that control must be revisited; its `contract_note` says so.
 
 ## 7. Proposed new code names
@@ -473,7 +473,7 @@ Descriptive names for causes the plan describes without a literal code. All are 
 | `authority_state_indeterminate` | NC-066 |
 | `trust_snapshot_fingerprint_conflict` | NC-069 |
 | `trust_snapshot_floor_invalid` | NC-070 |
-| `approval_revival_unspecified` | NC-073 |
+| `approval_stale_policy_generation` | NC-073 |
 | `grant_profile_disagreement` | NC-075 |
 | `cross_component_policy_disagreement` | NC-076 |
 | `authority_state_restore_unbaselined` | NC-077, NC-080 |
@@ -495,7 +495,7 @@ Descriptive names for causes the plan describes without a literal code. All are 
 
 **Read (contracts, rulings as transcribed in the plan, pinned source):** p1 README/02-11, `ld02-outcome-map.json`, `qualification-gate-matrix.json`; ADR-REG-TR01; the Runtime source at `c5e97e87` (`engine/safe_executor.py`, `engine/atomic_local_control_plane_executor.py`) and the Control Plane source at `7a4bcd40` (`bounded.py`, `runtime_authority.py`, `freshness.py`), read-only from scratch fetches.
 
-**Not read / could not read:** the Architect final-rulings document (`claude/ocs-p1-architect-final-rulings-2026-10-25.md`) was **not** readable by this worker (no project reading tool was available). A1 to A4 are taken from the transcription in p1/04, rulings 1 to 16 from p1/10, and OPEN-Q3/Q5/Q6/Q12, R6 and O-1 to O-5 from the outcome map and p1/11. Approval-revival and "no generalized approval-history migration" are taken from the lead brief (`basis_type` RULING). `laneH.md` (outcome map open-question reference) was not found. Existing qualification-repo suites and `docs/v1-known-limits.md` were consulted for provenance only.
+**Rulings document:** the lane workers could not open the Architect final-rulings document; the integration owner read it and corrected NC-073 and the outcome-map divergences (doc 08, Reconciliation). Every `RULING` row still needs confirmation against the primary text by the independent lead before freeze.
 
 **Contamination:** registry builder tests and oracles (`tests/test_r08_*`, `tests/test_s05_*`, `tests/s05_oracle.py`, `r08_support.py`, `docs/r08-s01/qualification-spec.md`) were **not** opened. `read_contamination` is `none` on every row.
 

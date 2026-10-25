@@ -48,6 +48,7 @@ for name in ID_RE:
         if r.get('status') not in STATUS: errs.append('%s %s bad status %s' % (name, i, r.get('status')))
         if r.get('basis_type') not in BASIS: errs.append('%s %s bad basis_type %s' % (name, i, r.get('basis_type')))
         if r.get('status') == 'BLOCKED_ON_CONTRACT' and not r.get('blocked_on'): errs.append('%s %s blocked without blocked_on' % (name, i))
+        if r.get('result_kind') not in ('PROTECTION', 'PAIR_CONTROL', 'DISCLOSURE_ONLY'): errs.append('%s %s bad result_kind %s' % (name, i, r.get('result_kind')))
         g = r.get('gates') or []
         if 'QG-02' in g: errs.append('%s %s tags inactive QG-02' % (name, i))
         for x in g:

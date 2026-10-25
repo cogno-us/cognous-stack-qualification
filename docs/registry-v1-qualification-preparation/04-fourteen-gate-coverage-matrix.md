@@ -233,7 +233,7 @@ forged_selection, substituted_digest, mismatched_claim_identity, expired_selecti
 - existing zero-bound behaviour at the pin characterized (_fresh accepts an observation at now and a future one within tolerance when the bound is 0); the new helper floor >= 1 refuses values below 1 before _fresh
 - irreversible class never raised by an extension
 - effective profile equals the profile hashed into approval_commitment
-- approval bound to narrowed profile P1 passes while P1 is in force (positive control); after narrowing is withdrawn it fails by commitment mismatch (P1 to P0); an approval hashing the caller profile is refused against the narrowed profile; revival of an older P0 approval is not guaranteed and is disclosed, not asserted
+- approval bound to narrowed profile P1 passes while P1 is in force (positive control); after narrowing is withdrawn it fails by commitment mismatch (P1 to P0); an approval hashing the caller profile is refused against the narrowed profile; an older P0 approval stays invalid after the narrowing is withdrawn (no automatic revival; Architect final ruling; fresh approval or authorized new issuance required; no generalized approval-history migration), asserted by QO-065, NC-073 and DF-103, while the baseline commitment re-match (DF-086) is recorded as a characterization only
 - relaxing toggles cannot be set or influenced from any registry payload
 - a detector exists that fails if the bounded_tolerance toggle is opted in
 
@@ -261,7 +261,7 @@ forged_selection, substituted_digest, mismatched_claim_identity, expired_selecti
 - C01 PASS_RECORDED for named historical cases only
 - TC-L05-012/013 are NOT_RUN and TC-L05-013 cannot detect the bounded_tolerance toggle (GAP-G4-05)
 - no test exists for registry-narrowed class bounds or commitment equality (CP-F5-12)
-- the 'revival of an older P0 approval' behaviour has no test and no V1 mechanism
+- the baseline has no test for revival and no generation or revocation mechanism; the candidate requirement (no automatic revival) is carried by QO-065, NC-073 and DF-103
 
 **Missing oracle coverage candidates:**
 - per-class min oracles for classes 5 and 120
@@ -274,7 +274,7 @@ forged_selection, substituted_digest, mismatched_claim_identity, expired_selecti
 
 **Fail criteria.** A class bound is raised, an approval bound to the caller profile passes against the narrowed one, a relaxing toggle is reachable, or an extension lifts a narrowed class.
 
-**Block criteria.** BLOCKED if the approval-revival disclosure scope or R5/R6 mechanics lack a readable ruling, or EXT-S3-4 (per-class min, approval binding, extension limit) is absent so the mapping is not representable.
+**Block criteria.** BLOCKED if the approval-revival ruling's exact cause name or the R5/R6 mechanics are unresolved, or EXT-S3-4 (per-class min, approval binding, extension limit) is absent so the mapping is not representable.
 
 **Depends on unfinished V1:** yes: EXT-S1-4 (F5 family), EXT-S3-3, EXT-S3-4 (per-class narrowing, approval binding R5, extension limit R6)
 
@@ -783,7 +783,7 @@ forged_selection, substituted_digest, mismatched_claim_identity, expired_selecti
 - additivity and signing-domain separation controls
 - symlink/FIFO/oversize controls
 
-**Pass criteria.** Every frozen negative control is refused as expected and every mutation leg fails its case; classification table complete; designated independent lead verdict.
+**Pass criteria.** Every frozen negative control (result_kind PROTECTION) produces its own frozen expected outcome and exact cause, and every mutation leg fails its case; PAIR_CONTROL rows match their expected accept or refuse leg; DISCLOSURE_ONLY rows are characterized and never counted as protection; classification table complete; designated independent lead verdict.
 
 **Fail criteria.** Any hostile input accepted, any control without a failing mutation leg, or a limit presented as protection.
 

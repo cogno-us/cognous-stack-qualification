@@ -2,7 +2,7 @@
 
 Status: **PREPARATION ONLY. This is not qualification. Nothing was run.** No V1 candidate exists. No test in this plan was collected or executed; no result, pass, fail or count of passing tests is claimed. Expected results are fixed from the FROZEN baseline (source read at the pins) and from approved contracts and rulings, never from candidate behaviour. Independent Tier 1 qualification is not claimed (no designated independent lead; Copilot review is technical review, not qualification). RELEASE: HOLD. PUBLICATION: HOLD. PRODUCTION: HOLD.
 
-Lane C of the registry V1 qualification preparation. Companion data: [`data/differential-cases.jsonl`](data/differential-cases.jsonl) (102 cases, `DF-001` to `DF-102`).
+Lane C of the registry V1 qualification preparation. Companion data: [`data/differential-cases.jsonl`](data/differential-cases.jsonl) (103 cases, `DF-001` to `DF-103`).
 
 ## 1. Scope and pins
 
@@ -49,18 +49,18 @@ The lane brief names two effective-set grids without defining them. This plan re
 |---|---|---|
 | BYTE_IDENTICAL | 32 | Candidate output (records, bytes, verdicts) must equal the frozen baseline exactly. |
 | REASON_EQUIVALENT | 10 | Same denial and same reason text / code string as the frozen evaluator for the same effective input. |
-| NARROWER_ONLY | 37 | Candidate may only refuse earlier or more; any acceptance the baseline would refuse is a FAIL (no widening). |
+| NARROWER_ONLY | 38 | Candidate may only refuse earlier or more; any acceptance the baseline would refuse is a FAIL (no widening). |
 | UNCHANGED_FILE | 9 | A frozen file or tree has the same blob/tree id as at the pin. |
 | KNOWN_LIMIT_PRESERVED | 7 | A disclosed limit is carried forward unchanged; never PASS. |
 | CHECK_ORDER_PRESERVED | 7 | Evaluator first-failure ordering unchanged. |
-| **Total** | **102** | 97 PREPARED, 5 BLOCKED_ON_CONTRACT |
+| **Total** | **103** | 98 PREPARED, 5 BLOCKED_ON_CONTRACT |
 
 ### By scope
 
 | scope | Cases |
 |---|---|
 | V1_ROUTE_B | 42 |
-| CONTROL_PLANE_HOST_FACTORY | 34 |
+| CONTROL_PLANE_HOST_FACTORY | 35 |
 | ALL_ROUTES_SOURCE_FILE | 9 |
 | ROUTE_A_OUT_OF_V1_CHARACTERIZATION_ONLY_NOT_CREDITED | 8 |
 | REGISTRY_REPO_V1_REGRESSION | 7 |
@@ -106,6 +106,7 @@ Route A rows (`ROUTE_A_OUT_OF_V1_CHARACTERIZATION_ONLY_NOT_CREDITED`) are retain
 | No-binding claim path; Control Plane preserved set | DF-090, DF-091 |
 | Historical known limits C07, C10, C11, D07 | DF-092 to DF-095 |
 | Registry r08-v1 golden and additivity; frozen sets; unedited tests; vocabulary; version separation | DF-096 to DF-102 |
+| Candidate requirement: no approval revival after a narrowing is withdrawn (ruling) | DF-103 |
 
 ## 5. Baseline characterization summary (source at the pins)
 
@@ -121,13 +122,13 @@ Known-limit assertions are never PASS. These rows carry the limit forward and mu
 |---|---|---|
 | DF-074 | Non-finite and overflow caller bounds are characterized limits of the unvalidated constructor, preserved as limits (not protection) | NO_TEST |
 | DF-080 | Twice-the-bound dispatch characteristic is preserved and scales with the narrowed bound (never beyond twice the caller bound) | NO_TEST |
-| DF-086 | Approval issued under the effective (narrowed) profile passes; withdrawing narrowing reverts to P0 and the P1 approval then mismatches; revival of an older P0 approval is not guaranteed | NO_TEST |
+| DF-086 | Baseline characterization only: the commitment is a function of the profile dump, so an approval re-matches the profile it was issued under; this is not the candidate requirement (DF-103) | NO_TEST |
 | DF-092 | Known limit C07 (concurrent authority change): residual check-to-commit race stays disclosed; assertion is not PASS | KNOWN_LIMIT_ASSERTED |
 | DF-093 | Known limit C10 (executor confinement): no OpenShell destination / container isolation in the reference; not protection | KNOWN_LIMIT_ASSERTED |
 | DF-094 | Known limit C11 (credential and permission boundaries): no credential broker; local-credential holder bypass is characterised; allow-list narrowing is not a credential boundary | KNOWN_LIMIT_ASSERTED |
 | DF-095 | Known limit D07 (restore boundary): no external anchor; some restores re-admit effects after history erasure; revoked-set rollback is disclosed | KNOWN_LIMIT_ASSERTED |
 
-The first three rows of this table (DF-074, DF-080, DF-086) are Control Plane characterized limits (non-finite and overflow bounds, twice-the-bound dispatch, approval revival), which are source-characterized and **not** historical crosswalk limits; DF-092 to DF-095 (C07, C10, C11, D07) are the historical crosswalk limits (`docs/v1-known-limits.md` lines 47, 50, 51, 40). No existing assertion is reclassified.
+The first three rows of this table (DF-074, DF-080, DF-086) are Control Plane characterized limits (non-finite and overflow bounds, twice-the-bound dispatch, the commitment re-match characterization), which are source-characterized and **not** historical crosswalk limits; DF-092 to DF-095 (C07, C10, C11, D07) are the historical crosswalk limits (`docs/v1-known-limits.md` lines 47, 50, 51, 40). No existing assertion is reclassified.
 
 ### `existing_test_status` legend
 
