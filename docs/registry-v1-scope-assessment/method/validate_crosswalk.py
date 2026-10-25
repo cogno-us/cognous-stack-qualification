@@ -92,7 +92,11 @@ tqv = list(csv.DictReader(open(D + 'three-question-view.csv')))
 chk('three_question_view_matches_crosswalk', [r['scenario_id'] for r in tqv] == ids and all(r['q_a_existing_protection'] == c['existing_protection'] and r['q_a_evidence_status_named_cases_only'] == c['evidence_status'] and r['q_a_qualification_status'] == c['qualification_status'] for r, c in zip(tqv, csvrows)), f'{len(tqv)} rows; question A copied verbatim')
 mf = [json.loads(l) for l in open(D + 'configuration-extraction-manifest.jsonl')]
 slids = {r['scenario_id'] for r in sl}
-chk('manifest_field_ids_unique', len({m['field_id'] for m in mf}) == len(mf), f'{len(mf)} rows')
+_sh = C.defaultdict(list)
+for m in mf:
+    if m.get('shared_underlying_field'): _sh[m['shared_underlying_field']].append(m)
+_dupok = all(len([m for m in g if not m['duplicate_of']]) == 1 and len({m['recommended_disposition'] for m in g}) == 1 for g in _sh.values())
+chk('manifest_field_ids_unique', len({m['field_id'] for m in mf}) == len(mf) and _dupok, f'{len(mf)} rows; {len(_sh)} shared underlying field group(s), one governing row and one disposition each; eligible distinct fields {sum(1 for m in mf if m["recommended_disposition"] in ("DIRECT_EXTRACTION","CONDITIONAL_EXTRACTION") and not m["duplicate_of"])}')
 chk('manifest_scenario_ids_resolve', all(x == 'NONE' or x in set(ids) or x in slids for m in mf for x in m['scenario_id'].split(';') if x), 'canonical, suite-local or NONE')
 chk('manifest_verified_rows_have_pin', all(m['source_pin'] for m in mf if m['verification'] == 'SOURCE_VERIFIED'))
 _BLOCK = re.compile(r'(?i)(depends on|waits on|blocked by|pending|requires)\s+(open\s+)?(D1|D4|D5|D6|D9|D12|W\d-\d{3})\b')

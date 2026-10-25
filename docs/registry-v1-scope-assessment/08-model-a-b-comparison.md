@@ -2,7 +2,7 @@
 
 **Status: documentation-only analysis. Non-authorizing. Draft for Architect review. RELEASE: HOLD. PUBLICATION: HOLD. PRODUCTION: HOLD.** Nothing here selects a scope, authorizes a migration or approves P1 extraction. The recommendation below is an **analytical recommendation, not an adopted scope**; scope is frozen only by the operator (plan v1.3 section 8).
 
-Labels as in [01](01-executive-assessment.md): SOURCE FACT, REASONED INFERENCE, CUSTOMER HYPOTHESIS, UNVERIFIED. Counts come from the [extraction manifest](09-configuration-extraction-handoff.md) (96 rows: 24 Runtime at `c5e97e87`, 72 Control Plane at `7a4bcd40`) joined to the [three-question view](data/three-question-view.csv). A "field" is one manifest row with disposition `DIRECT_EXTRACTION` or `CONDITIONAL_EXTRACTION`. **A count of fields is not a count of safe migratable values**: every `CONDITIONAL_EXTRACTION` row waits on a named ruling or prerequisite, and no row is approved, qualified or scheduled.
+Labels as in [01](01-executive-assessment.md): SOURCE FACT, REASONED INFERENCE, CUSTOMER HYPOTHESIS, UNVERIFIED. Counts come from the [extraction manifest](09-configuration-extraction-handoff.md) (96 rows: 24 Runtime at `c5e97e87`, 72 Control Plane at `7a4bcd40`) joined to the [three-question view](data/three-question-view.csv). A "field" is one **distinct underlying configurable field** whose governing manifest row has disposition `DIRECT_EXTRACTION` or `CONDITIONAL_EXTRACTION`. Duplicate inventory rows for the same underlying field are counted once (see "Duplicate-field accounting" below). **A count of fields is not a count of safe migratable values**: every `CONDITIONAL_EXTRACTION` row waits on a named ruling or prerequisite, and no row is approved, qualified or scheduled.
 
 ## 1. The two models
 
@@ -24,11 +24,17 @@ Fields with disposition DIRECT or CONDITIONAL, by family (manifest, joined to qu
 | F5 | Control Plane | 0 | 2 | 1 | 1 | 1 | 0 |
 | **Candidate families (F1a, F1b, F1c, F4, F5)** | | **5** | **10** | **9** | **6** | **1** | **5** |
 | F6 | Runtime | 0 | 1 | 0 | 1 | 1 | 0 |
-| F3 | Runtime, Control Plane | 0 | 2 | 0 | 2 | 1 | 1 |
+| F3 | Runtime | 0 | 1 | 0 | 1 | 1 | 0 |
 | F7 | Control Plane | 0 | 1 | 0 | 1 | 0 | 1 |
 | F11 | Control Plane | 0 | 4 | 0 | 4 | 4 | 0 |
 | F8, F9, F10 | | 0 | 0 | 0 | 0 | 0 | 0 |
-| **All families** | | **5** | **18** | **9** | **14** | **7** | **7** |
+| **All families (Model B = 22)** | | **5** | **17** | **9** | **13** | **7** | **6** |
+
+**Corrected counts (Architect ruling, Option B).** Manifest dispositions across the 96 inventory rows: DIRECT 5, CONDITIONAL 17, UNRESOLVED 16, CODE_OWNED_GUARDRAIL 47, NOT_RELEVANT_TO_V1 11. **Model A: 9. Model B: 22. Model B-only: 13.** These are eligible-field counts under this methodology, not implementation or qualification results.
+
+**Duplicate-field accounting.** CP-F3-07 (family F3) and CP-F4-13 (family F4) are two inventory rows for one underlying field, `FreshnessProfile.lease_acquire_timeout_seconds`. Both rows are kept for traceability under their own families. Both are `UNRESOLVED` (D1, W8-041; classification unreviewed), CP-F4-13 is the governing row, CP-F3-07 carries `duplicate_of = CP-F4-13`, and the field is counted once and excluded from the Model B population. Before this ruling CP-F3-07 was `CONDITIONAL_EXTRACTION`, which admitted an unresolved field into Model B (Copilot finding 7); that raised the earlier figures to 18 conditional, Model B 23 and B-only 14. 95 distinct underlying fields sit behind the 96 inventory rows.
+
+**Operator scope decision after this analysis.** The operator subsequently approved V1 "Option B, eight configurable fields, atomic Route B only": the five Runtime allow-list fields plus the Control Plane `status_max_age_seconds`, `approval_max_age_seconds` and `ActionClass.max_status_age_seconds`. `max_amount` is not added, and the V1 profile is not expanded. That decision is recorded here for reference; this document's section 4 is an earlier analytical recommendation that listed `max_amount` as conditional, and where the two differ the operator decision governs. Nothing in this package changes the execution-route boundary or authorizes implementation.
 
 Reading the table:
 
@@ -98,7 +104,7 @@ Model choice is moot for these families. Whether to include them at all is the r
 | Family | Fields | Why they add little in V1 |
 |---|---|---|
 | F6 | 1 conditional (permissions mapping) | Only consumer is the unsupported legacy `AgentEngine`, which executes nothing; D5 open; the enforcing path is Control Plane grants (GAP-G3-05) |
-| F3 | 2 conditional (OpenShell timeout, lease-acquire timeout) | Convenience limits; D1 open; hostile-input admission bounds are code-owned guardrails in both models |
+| F3 | 1 conditional (OpenShell timeout); the lease-acquire timeout is a duplicate of CP-F4-13 and is UNRESOLVED | Convenience limits; D1 open; hostile-input admission bounds are code-owned guardrails in both models |
 | F7 | 1 conditional (`funded_authorities`) | D12 open; dedupe numbers never gate dispatch (only the profile's presence does), and the duplicate-effect protection is an owner decision on defaults (GAP-G1-01), not a registry parameter |
 | F11 | 4 conditional (redaction toggles) | `redact_tool_execution_result` ignores `redact_payloads`; a toggle that widens redaction output is a leakage risk; D1 and W9-002 open; tied only to one UNKNOWN known-limit Wiki row |
 | F8, F9, F10 | 0 | No consumed policy value (F8), must-agree literals with no benefit scenario (F9), non-gating diagnostic (F10) |

@@ -53,10 +53,25 @@ for o in rows:
     o['decisions_named'] = ','.join(sorted(set(re.findall(r'\b(D(?:1|4|5|6|9|12)|W\d-\d{3})\b', t)))) if o['recommended_disposition'] in ('CONDITIONAL_EXTRACTION', 'UNRESOLVED') else ''
     o['governance_benefit_level'] = o['central_governance_benefit'].split(' ')[0].strip('-:').upper()
     o['complexity_level'] = o['extraction_complexity'].split(' ')[0].strip('-:').upper()
-cols = KEYS + ['decisions_named', 'governance_benefit_level', 'complexity_level']
+    o.setdefault('shared_underlying_field', ''); o.setdefault('duplicate_of', '')
+cols = KEYS + ['decisions_named', 'governance_benefit_level', 'complexity_level', 'shared_underlying_field', 'duplicate_of']
 order = {'DIRECT_EXTRACTION': 0, 'CONDITIONAL_EXTRACTION': 1, 'UNRESOLVED': 2, 'CODE_OWNED_GUARDRAIL': 3, 'NOT_RELEVANT_TO_V1': 4}
 rows.sort(key=lambda o: (o['field_id'].split('-')[0], order[o['recommended_disposition']], o['field_id']))
 
+# duplicate-field accounting: rows naming the same underlying field must have exactly one governing row (duplicate_of empty),
+# every duplicate_of must reference a governing row, and all rows of a group must share one disposition.
+_grp = C.defaultdict(list)
+for o in rows:
+    if o['shared_underlying_field']: _grp[o['shared_underlying_field']].append(o)
+_ids = {o['field_id']: o for o in rows}
+for sf, g in _grp.items():
+    gov = [o for o in g if not o['duplicate_of']]
+    if len(gov) != 1: errs.append(f'shared field {sf}: {len(gov)} governing rows (need exactly 1)')
+    if len({o['recommended_disposition'] for o in g}) != 1: errs.append(f'shared field {sf}: conflicting dispositions')
+    for o in g:
+        if o['duplicate_of'] and (o['duplicate_of'] not in _ids or _ids[o['duplicate_of']]['shared_underlying_field'] != sf or _ids[o['duplicate_of']]['duplicate_of']): errs.append(f"{o['field_id']}: bad duplicate_of {o['duplicate_of']}")
+for o in rows:
+    if o['duplicate_of'] and not o['shared_underlying_field']: errs.append(f"{o['field_id']}: duplicate_of without shared_underlying_field")
 if errs:
     print('FAIL'); [print(' ', e) for e in errs]; sys.exit(1)
 
@@ -75,7 +90,12 @@ byc = C.Counter(('Runtime' if o['field_id'].startswith('RT') else 'Control Plane
 t2 = ['| Disposition | Runtime | Control Plane | Total |', '|---|---|---|---|']
 for d in DISP:
     t2.append(f"| {d} | {byc[('Runtime', d)]} | {byc[('Control Plane', d)]} | {cnt[d]} |")
-t2.append(f"| **All rows** | {sum(v for (c, _), v in byc.items() if c == 'Runtime')} | {sum(v for (c, _), v in byc.items() if c == 'Control Plane')} | {len(rows)} |")
+t2.append(f"| **All inventory rows** | {sum(v for (c, _), v in byc.items() if c == 'Runtime')} | {sum(v for (c, _), v in byc.items() if c == 'Control Plane')} | {len(rows)} |")
+_dups = [o for o in rows if o['duplicate_of']]
+_elig = [o for o in rows if o['recommended_disposition'] in ('DIRECT_EXTRACTION', 'CONDITIONAL_EXTRACTION') and not o['duplicate_of']]
+t2.append(f"| Duplicate inventory rows (same underlying field, counted once) | {sum(1 for o in _dups if o['field_id'].startswith('RT'))} | {sum(1 for o in _dups if o['field_id'].startswith('CP'))} | {len(_dups)} |")
+t2.append(f"| **Distinct underlying configurable fields** | | | {len(rows) - len(_dups)} |")
+t2.append(f"| Eligible (DIRECT + CONDITIONAL) distinct fields, the Model B population | | | {len(_elig)} |")
 fam = C.defaultdict(C.Counter)
 for o in rows:
     for fm in re.split(r'[;,]\s*', o['registry_family']):

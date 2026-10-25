@@ -11,6 +11,8 @@ Machine-readable form: [data/configuration-extraction-manifest.jsonl](data/confi
 - **Extractability test** (reused from the P0 readiness document, not invented): a value is extractable only if (a) it is already caller, constructor or profile data, (b) a code-owned hard bound or floor remains, (c) the registry value can only narrow what the caller permits, and (d) refusal is deterministic and never widens. Relaxing toggles, guards, check order, reason texts, `__post_init__` validation, vocabularies and lifecycle stay code.
 - **`central_governance_benefit` and `extraction_complexity`** are REASONED INFERENCE from the mapped scenario's recorded outcome and the source; no customer demand, revenue or adoption data was used or invented. Benefit is a property of the field (question B in [01 section 1a](01-executive-assessment.md)); it is not a finding that existing code fails to enforce.
 - **`exclusion_impact`** states the governance capability lost if the field is not externalized (central change control not gained), never an enforcement that would be lost.
+- **Duplicate-field accounting.** Where two inventory rows describe the same underlying configurable field, both are kept for traceability under their own families, exactly one row governs, the other carries `duplicate_of`, they share one disposition, and the field is counted once. The builder and validator reject conflicting dispositions or a group without exactly one governing row.
+- **Operator V1 scope decision (recorded, not changed here).** The operator approved V1 "Option B, eight configurable fields, atomic Route B only": `allowed_actions`, `allowed_adapters`, `allowed_units`, `allowed_institutions`, `allowed_authority_domains`, `status_max_age_seconds`, `approval_max_age_seconds` and `ActionClass.max_status_age_seconds`. `max_amount` is not added. The manifest is analytical evidence for P1 planning; it is not independent operational qualification and authorizes no implementation.
 - **Dispositions** are the five the Architect named. `DIRECT_EXTRACTION` means the four clauses are met on source reading of the inspected code (a judgement, not a test result) and no open decision (D1, D5, D6, D9, D12, W8-014) is named; it does not mean approved, qualified or scheduled. `CONDITIONAL_EXTRACTION` names the decision or prerequisite it waits on. `UNRESOLVED` means the source cannot decide it. `CODE_OWNED_GUARDRAIL` rows are listed so that nothing adjacent to a configurable field is silently left out.
 
 ## Constraints from P0 that every row respects
@@ -22,13 +24,16 @@ Code-owned constitutional guardrails stay in code. The registry holds typed para
 | Disposition | Runtime | Control Plane | Total |
 |---|---|---|---|
 | DIRECT_EXTRACTION | 5 | 0 | 5 |
-| CONDITIONAL_EXTRACTION | 3 | 15 | 18 |
+| CONDITIONAL_EXTRACTION | 3 | 14 | 17 |
 | CODE_OWNED_GUARDRAIL | 11 | 36 | 47 |
-| UNRESOLVED | 5 | 10 | 15 |
+| UNRESOLVED | 5 | 11 | 16 |
 | NOT_RELEVANT_TO_V1 | 0 | 11 | 11 |
-| **All rows** | 24 | 72 | 96 |
+| **All inventory rows** | 24 | 72 | 96 |
+| Duplicate inventory rows (same underlying field, counted once) | 0 | 1 | 1 |
+| **Distinct underlying configurable fields** | | | 95 |
+| Eligible (DIRECT + CONDITIONAL) distinct fields, the Model B population | | | 22 |
 
-By family (a row naming several families counts under each):
+By family (a row naming several families counts under each; the duplicate row CP-F3-07 is included under F3 and CP-F4-13 under F4):
 
 | Family | DIRECT_EXTRACTION | CONDITIONAL_EXTRACTION | CODE_OWNED_GUARDRAIL | UNRESOLVED | NOT_RELEVANT_TO_V1 | Rows |
 |---|---|---|---|---|---|---|
@@ -38,7 +43,7 @@ By family (a row naming several families counts under each):
 | F1b | 2 | 0 | 2 | 0 | 0 | 4 |
 | F1c | 0 | 1 | 4 | 1 | 0 | 6 |
 | F1d | 0 | 0 | 3 | 2 | 0 | 5 |
-| F3 | 0 | 2 | 7 | 1 | 1 | 11 |
+| F3 | 0 | 1 | 7 | 2 | 1 | 11 |
 | F4 | 0 | 7 | 3 | 5 | 0 | 15 |
 | F5 | 0 | 2 | 10 | 0 | 0 | 12 |
 | F6 | 0 | 1 | 1 | 1 | 0 | 3 |
@@ -48,7 +53,7 @@ By family (a row naming several families counts under each):
 
 ## All rows
 
-Long-form fields (current value source, existing guardrail, configuration value, cross-field and cross-component dependencies, required qualification, exclusion impact, basis) are in the JSONL/CSV; the table is the index. The `CP-` prefix means the Control Plane half of the inventory; CP-F4-15 and CP-F7-07 cite Runtime source (the enforcing code for those two is in the Runtime) and carry the Runtime pin. CP-F5-02 (`on_unreadable`) was reclassified to `CODE_OWNED_GUARDRAIL` after review because it is a relaxing toggle.
+Long-form fields (current value source, existing guardrail, configuration value, cross-field and cross-component dependencies, required qualification, exclusion impact, basis) are in the JSONL/CSV; the table is the index. The `CP-` prefix means the Control Plane half of the inventory; CP-F4-15 and CP-F7-07 cite Runtime source (the enforcing code for those two is in the Runtime) and carry the Runtime pin. CP-F5-02 (`on_unreadable`) was reclassified to `CODE_OWNED_GUARDRAIL` after review because it is a relaxing toggle. CP-F3-07 and CP-F4-13 are two inventory rows for one underlying field, `FreshnessProfile.lease_acquire_timeout_seconds`; both are `UNRESOLVED`, CP-F4-13 governs, CP-F3-07 carries `duplicate_of = CP-F4-13` (columns `shared_underlying_field`, `duplicate_of`), and the field is counted once and excluded from the Model B population (Architect ruling, Option B).
 
 | Field | Component | Family | Configurable field | Disposition | Governance benefit | Complexity | Decisions named | Verification |
 |---|---|---|---|---|---|---|---|---|
@@ -56,7 +61,6 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | CP-F11-02 | Control Plane | F11 | RedactionConfig.redact_targets | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W9-002 | SOURCE_VERIFIED |
 | CP-F11-03 | Control Plane | F11 | RedactionConfig.redact_final_output | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W9-002 | SOURCE_VERIFIED |
 | CP-F11-04 | Control Plane | F11 | RedactionConfig.redact_reasons | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,W9-002 | SOURCE_VERIFIED |
-| CP-F3-07 | Control Plane | F3 | FreshnessProfile.lease_acquire_timeout_seconds (seconds to wait for the per-check lease) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D1,D4,W8-041 | SOURCE_VERIFIED |
 | CP-F4-01 | Control Plane | F4 | ObservationPolicy.max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,W6-042 | SOURCE_VERIFIED |
 | CP-F4-04 | Control Plane | F4 | status_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,W6-042 | SOURCE_VERIFIED |
 | CP-F4-05 | Control Plane | F4 | identity_max_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | LOW | HIGH | D4,W6-042 | SOURCE_VERIFIED |
@@ -67,6 +71,7 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | CP-F5-01 | Control Plane | F5 | ActionClass.max_status_age_seconds (int seconds) | CONDITIONAL_EXTRACTION | MEDIUM | HIGH | D4,W6-042,W8-014 | SOURCE_VERIFIED |
 | CP-F5-03 | Control Plane | F5 | ActionClass.requires_revocation_assurance (bool) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D4,W8-014 | SOURCE_VERIFIED |
 | CP-F7-08 | Control Plane | F7 | MergeProfile.funded_authorities (list of principal names) | CONDITIONAL_EXTRACTION | LOW | MEDIUM | D12,D4 | SOURCE_VERIFIED |
+| CP-F3-07 | Control Plane | F3 | FreshnessProfile.lease_acquire_timeout_seconds (seconds to wait for the per-check lease) | UNRESOLVED | LOW | MEDIUM | D1,D4,W8-041 | SOURCE_VERIFIED |
 | CP-F4-02 | Control Plane | F4 | ObservationPolicy.clock_tolerance_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D4,W6-042 | SOURCE_VERIFIED |
 | CP-F4-03 | Control Plane | F4 | BoundedAuthorizationWorkflow clock_tolerance_seconds (int seconds) | UNRESOLVED | LOW | HIGH | D4,W6-042 | SOURCE_VERIFIED |
 | CP-F4-08 | Control Plane | F4 | requirement.evidence[].max_age_seconds (int seconds, authority-context data) | UNRESOLVED | LOW | HIGH | D1,W6-004,W6-005 | SOURCE_VERIFIED |
