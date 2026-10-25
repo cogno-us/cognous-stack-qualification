@@ -22,7 +22,7 @@ QPR-1 is the bounded prerequisite for EXT-S5-1 (gate catalogue and predeclaratio
 
 ## Reuse versus new
 
-Reused: `validate_requirements` in `tools/v1_validation.py` (the existing requirement-row model: unique ids, row structure), the existing scenario inventory, and the plan matrix as data. New: the binding table, one validator of about 130 lines, and the tests. Gate rows use the existing row shape with `kind: "gap"` (no executable test exists yet) and `mandatory` true or false; the binding fields are extra keys, which the row model ignores.
+Reused: `validate_requirements` in `tools/v1_validation.py` (the existing requirement-row model: unique ids, row structure), the existing scenario inventory, and the plan matrix as data. New: the binding table, one validator of about 150 lines, and the tests. Gate rows use the existing row shape with `kind: "gap"` (no executable test exists yet) and `mandatory` true or false; the binding fields are extra keys, which the row model ignores.
 
 ## Findings from the discovery work
 
@@ -33,7 +33,7 @@ Reused: `validate_requirements` in `tools/v1_validation.py` (the existing requir
 ## Known gaps and limitations
 
 - Existing-test references listed by the plan for the **registry builder** (26 of 74) are recorded with their repository-relative path but are **not checked** here; this repository does not read the registry. They remain builder-side evidence only.
-- Four plan references are descriptive with no path (for example `v1-probes and fix2-probes KNOWN_GAP rows`); they are kept verbatim and not path-checked, apart from three that name a directory or file in `process/`.
+- Of the 74 plan references, 47 name a path in this repository and are checked for existence (four of them are row groups in `process/`, checked at file or directory level), 26 are registry-builder tests (not checked), and one is descriptive with no path (`v1-probes and fix2-probes KNOWN_GAP rows (not protection)`), kept verbatim.
 - References resolve to files, not to individual tests; a renamed test inside an existing file is not detected.
 - `known_gaps` text is the audit's adjacent-test note per gate, not a coverage claim. Gates QG-05, 07 and 14 have no adjacent tests; QG-04 and QG-06 have only weak ones.
 - The plan's sandbox paths (`/home/claude/cognous-ocs-registry/…`) are normalised to relative registry paths.
