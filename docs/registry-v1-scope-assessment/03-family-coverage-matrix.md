@@ -33,20 +33,20 @@ Evaluator citations are `RT:` Runtime `c5e97e87` and `CP:` Control Plane `7a4bcd
 - **What the registry adds.** Central, versioned, authenticated change control of the allow-lists; the "next call" change behaviour is tested only in NOT RUN Wiki-derived tests (TC-L06-011, TC-L06-013).
 - **Decisions.** D2, D3, D7, D13; D11 (sequencing). No UNRESOLVED S02 row maps to F1a (Lane D).
 - **Qualification needed.** An MVP-tuple oracle row for a `LocalExecutionPolicy` denial (none exists; GAP-G4-09); effect-time binding tests (GAP-G3-02); independent run at exact heads.
-- **Exclusion consequence.** Allow-lists stay host constructor literals. No enforced capability is lost.
+- **Governance capability lost on exclusion.** Central, versioned, authenticated change control of the allow-lists; they stay host constructor literals changed by redeploy. No enforcement is lost.
 
 ### F1b Institution / authority-domain allow-lists (complexity 2)
 - **Scenarios.** BENEFICIAL: C11. UNKNOWN: C18. UNNECESSARY: D02.
 - **Evaluator.** Same dataclass and `check` as F1a (`RT:engine/safe_executor.py:360-361`); operands come from the Control Plane context; the Route A adapter also takes `trusted_institution_id` / `trusted_authority_domain` as separate constructor values.
 - **Decisions.** D11 (preferred first extension; an architectural priority, not permission), D2, D3, D7, D13. No UNRESOLVED S02 row maps to F1b.
-- **Exclusion consequence.** As F1a. Excluding F1b while including F1a leaves C11 and C18 partly covered.
+- **Governance capability lost on exclusion.** As F1a. Excluding F1b while including F1a leaves C11 and C18 partly covered.
 
 ### F1c Ceilings: `max_amount`, `max_effects` (complexity 4)
 - **Scenarios.** BENEFICIAL: C11. UNKNOWN: C16, C18, TC-D13-003, TC-L06-014, TC-L06-016, TC-L06-024, TC-L09-014. UNNECESSARY: D02.
 - **Evaluator.** Ceiling check in `RT:engine/safe_executor.py` (exact-one-effect re-asserted at `:316`); the effective `max_effects` operand is computed in Control Plane `bounded.py:2570`. Two ends must agree.
 - **Why seven rows are UNKNOWN.** D6 (code invariant versus caller configuration versus governed parameter) and S02 row W8-091 are open. They are not resolved here and the ceilings are not migrated by this assessment.
 - **Protected without migration.** The budget behaviour is tested in the catalog (C16, historical named-case PASS) and exact under load in Wiki-derived tests that are NOT RUN. The Verifier checks `effective_max_effects` only against the proposal export and ledger (GAP-G1-05).
-- **Exclusion consequence.** Ceilings remain host constructor literals and manifest limits. Importantly for the Architect's question on financial/quantitative limits: no source text here establishes a finance domain; the family governs effect budgets.
+- **Governance capability lost on exclusion.** Fleet-wide central tightening of the local ceilings; they remain host constructor literals and manifest limits. Importantly for the Architect's question on financial/quantitative limits: no source text here establishes a finance domain; the family governs effect budgets.
 
 ### F1d Target prefixes and match mode (complexity 5)
 - **Scenarios.** UNKNOWN: TC-L06-014, TC-L07-012.
@@ -56,14 +56,14 @@ Evaluator citations are `RT:` Runtime `c5e97e87` and `CP:` Control Plane `7a4bcd
 ### F3 Size, depth and timeout budgets (complexity 3)
 - **Scenarios.** UNKNOWN: D06 (unsupported by its own text: needs measured limits against a predeclared profile that does not exist). UNNECESSARY: C10.
 - **Evaluator.** `RT:engine/safe_executor.py:147-155` literals (1 MiB, depth 32, 10000 nodes). They are hostile-input bounds that need a code-owned floor and ceiling if ever migrated.
-- **Exclusion consequence.** None observed. Not unexpectedly critical.
+- **Governance capability lost on exclusion.** None observed for a V1 scenario. Not unexpectedly critical.
 
 ### F4 Observation, status and approval freshness (complexity 5)
 - **Scenarios.** BENEFICIAL: C01, TC-D09-009, TC-D09-016, TC-L06-015. UNKNOWN: H01. UNNECESSARY: D03, A03, C06, C17.
 - **Evaluator.** Split across `CP:src/agent_control_plane/bounded.py:411-413` (`ObservationPolicy`), `:1858,:1901` (`observation_policy_missing` hold), `:2398-2399` (grant-status age) and Runtime evidence-row `max_age_seconds`. The CLI hard-codes 300/5. A source comment at `bounded.py:1782-1784` says the window is narrowed, not closed.
 - **Decisions.** D1 (W6-042 and the 60-versus-300 relationship, which stays a distinction between different quantities), D4 per scalar.
 - **Qualification needed.** Per-scalar composition tests (units, order, floor, direction); clock-domain tests. TC-L06-015 is rated severity 5 for the whole Wiki subject, but OCS claims only hold, rejection and expiry.
-- **Exclusion consequence.** Freshness windows stay constructor arguments and evidence-row values; the fail-closed missing-policy hold is a code invariant and is unaffected.
+- **Governance capability lost on exclusion.** Central tuning of freshness windows; they stay constructor arguments and evidence-row values; the fail-closed missing-policy hold is a code invariant and is unaffected.
 
 ### F5 Per-action-class authority declarations (complexity 4)
 - **Scenarios.** BENEFICIAL: C01, TC-D09-016. UNKNOWN: H01, C05, TC-L05-012. UNNECESSARY: D03, TC-L05-013.

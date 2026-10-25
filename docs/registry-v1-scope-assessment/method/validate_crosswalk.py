@@ -85,6 +85,15 @@ chk('wiki_in_scope_without_test_matches_inventory', notest == sorted(['TC-D09-00
 chk('suite_local_ids_unique_prefixed', len({r['scenario_id'] for r in sl}) == len(sl) and all(r['scenario_id'].startswith('SL:') for r in sl), f'{len(sl)} suite-local claims')
 chk('suite_local_not_in_canonical_denominator', not ({r['scenario_id'] for r in sl} & set(ids)))
 chk('priority_vocab', {r['priority'] for r in cw} <= {'P1', 'P2', 'P3', 'P4', 'OUT_OF_SCOPE'})
+tqv = list(csv.DictReader(open(D + 'three-question-view.csv')))
+chk('three_question_view_matches_crosswalk', [r['scenario_id'] for r in tqv] == ids and all(r['q_a_existing_protection'] == c['existing_protection'] and r['q_a_evidence_status'] == c['evidence_status'] for r, c in zip(tqv, csvrows)), f'{len(tqv)} rows; question A copied verbatim')
+mf = [json.loads(l) for l in open(D + 'configuration-extraction-manifest.jsonl')]
+slids = {r['scenario_id'] for r in sl}
+chk('manifest_field_ids_unique', len({m['field_id'] for m in mf}) == len(mf), f'{len(mf)} rows')
+chk('manifest_scenario_ids_resolve', all(x == 'NONE' or x in set(ids) or x in slids for m in mf for x in m['scenario_id'].split(';') if x), 'canonical, suite-local or NONE')
+chk('manifest_verified_rows_have_pin', all(m['source_pin'] for m in mf if m['verification'] == 'SOURCE_VERIFIED'))
+chk('manifest_direct_rows_name_no_open_decision', all(not m['decisions_named'] for m in mf if m['recommended_disposition'] == 'DIRECT_EXTRACTION'))
+chk('manifest_no_relaxing_toggle_direct', not any(('legacy-prefix' in m['configurable_field'] or 'on_unreadable' in m['configurable_field']) and m['recommended_disposition'] == 'DIRECT_EXTRACTION' for m in mf))
 json.dump(res, open(D + 'validation-report.json', 'w'), indent=1)
 for k, v in res.items(): print(('PASS ' if v['ok'] else 'FAIL ') + k + ' :: ' + str(v['detail'])[:160])
 sys.exit(1 if fails else 0)

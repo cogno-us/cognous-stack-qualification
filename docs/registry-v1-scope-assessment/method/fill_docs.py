@@ -11,5 +11,5 @@ for f in sorted(glob.glob(D + '*.md')):
     s = open(f).read(); n = 0
     def r(m):
         global n; n += 1; return T[m.group(1)].rstrip('\n')
-    s2 = re.sub(r'\{\{(T_[A-Z0-9]+)\}\}', r, s)
+    s2 = re.sub(r'\{\{(T_[A-Z0-9_]+)\}\}', r, s)
     if n: open(f, 'w').write(s2); print(f.split('/')[-1], n, 'tables')

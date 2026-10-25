@@ -44,6 +44,7 @@ What each artifact speaks for: the inventory page's counts and "PASS" states spe
 | Wiki-derived tests | 290 items = 262 test functions + 28 from parametrization (AST count; pytest not installed); 253 functions map to case ids, 9 skeleton tests carry no case id | Lanes A and F; 25 of the 290 come from 5 dynamically parametrised functions, so counts are lower bounds in places |
 | In-scope Wiki cases with a wiki-derived test | 61 of 65; none for TC-D09-004, TC-D13-003, TC-L02-002, TC-L08-033 | Lane A mapping; the inventory prose (39 of 65; none of 20 APPLICABLE) is stale against its own table |
 | Coverage-map entries | 40 mappings; 57 test entries pointing at 49 distinct tests (8 shared by two scenarios); statuses 32 PARTIAL, 6 UNIMPLEMENTED, 2 DEFERRED; **7 scenarios with zero tests** (A01, H02, C05, C15, C19, C20, C21) | `coverage-map.json`; every mapping says "Static source association; proposed coverage, not accepted execution" |
+| Controller run history | 23 result directories under `results/v1-validation/v1-2026-10-16-a/` = **21 distinct workflow runs** + `addenda-merge-1` (no workflow run) + `final-linux-1-39032930011-reduced-scope` (a derivation of `final-linux-1`, not a run) | directory listing; Lane F. Historical runs do not qualify the current heads; collection is not execution |
 | Controller scenario rows (catalog, newest run g8-r10) | **0 PASS, 27 INCONCLUSIVE, 13 NOT RUN** | `results/v1-validation/v1-2026-10-16-a/g8-r10-39690459403/requirements-matrix.md`; D01, D03, D04 are INCONCLUSIVE on named matched-refund assertions |
 | Controller selected verdict | PASS over 39 rows after the D15 scope reduction (36 rows moved out after results were seen); unreduced mandatory INCOMPLETE (40 PASS, 30 INCONCLUSIVE, 5 NOT RUN of 75) | `summary.md` (Lane F) |
 | Wiki cases with a recorded run | **0 of 656** (all NOT RUN); wiki-derived tests are not collected by the controller; a local run at r13 recorded 285 pass / 5 fail (4 of the 5 not tied to cases) | `docs/test-inventory.md`, `docs/v1-known-limits.md:248` |
@@ -57,13 +58,66 @@ Duplicate accounting rules applied: scenarios are counted by distinct ID; a test
 
 Crosswalk `evidence_status` over the 696 rows:
 
-{{T_EVID}}
+| Evidence status | All 696 rows |
+|---|---|
+| KNOWN_LIMIT_ASSERTED | 4 |
+| NOT_RUN | 67 |
+| NO_TEST | 602 |
+| PASS_RECORDED | 23 |
 
 `NO_TEST` is dominated by the 591 NOT_APPLICABLE Wiki cases (no test by construction). `PASS_RECORDED` means **named executed cases passed** in a recorded run at a historical pin, never whole-scenario acceptance. `KNOWN_LIMIT_ASSERTED` rows pass by asserting a limit and are evidence of a KNOWN_GAP.
 
 Per-suite evidence (Lane F, 47 rows; the evidence status vocabulary is Lane F's mapping of the inventory state and retained artifacts, a judgement call for overlay rows):
 
-{{T_SUITES}}
+| Suite | Gate | Inventory count (basis) | Inventory state | Evidence status (Lane F) | Known-limit tests | Pin named / latest controller pin | Historical pin does not speak for current heads |
+|---|---|---|---|---|---|---|---|
+| C1-01 | OCS-1 | 3071 (measured_native) | ENV | FAIL_RECORDED | 4 | ODES 2893d935 (r10) / ODES e86a25a1 | True |
+| C1-02 | OCS-1 | 1611 (measured_native) | PASS | PASS_RECORDED | None | Verifier dc09a98f / n/a (no controller job) | True |
+| C1-03 | OCS-1 | 952 (measured_native) | PASS | PASS_RECORDED | 11 | Control Plane 2bac7875 (r10) / CP 0a41faa9 (r13) | True |
+| C1-03a | OCS-1 | 14 (measured_native) | ENV | PASS_RECORDED | None | Control Plane (earlier value kept; pin not stated) / n/a | True |
+| C1-04 | OCS-1 | 512 (measured_native) | PASS | PASS_RECORDED | None | Runtime 6b16962d (r10) / Runtime ec728da6 (r13) | True |
+| C1-04a | OCS-2 (overlay, per X-09) | 786 (measured_overlay) | ENV | BLOCKED | None | Runtime + overlay (earlier value kept) / n/a | True |
+| C1-05 | OCS-1 | 1183 (measured_native) | ENV | PASS_RECORDED | 5 | Replay 6a6a4774 (r10) / Replay 028f63d1 (r13) | True |
+| C1-05a | OCS-2 (overlay) | 1105 (measured_overlay) | ENV | BLOCKED | 5 | Replay + overlay (older main) / n/a | True |
+| C1-06 | OCS-1 | 366 (measured_native) | ENV | PASS_RECORDED | None | Evidence pack fd030615 (r10) / Pack a3ebbb90 (r13) | True |
+| C1-06a | OCS-2 (overlay) | 483 (measured_overlay) | ENV | BLOCKED | None | Pack + overlay (earlier value kept) / n/a | True |
+| C1-07 | OCS-1 | 311 (measured_native) | PASS | PASS_RECORDED | None | Exchange fdc2a410 (r10) / Exchange 7f7569b0 (r13) | True |
+| C1-07a | OCS-2 (overlay) | 312 (measured_overlay) | ENV | BLOCKED | None | Exchange + overlay (earlier value kept) / n/a | True |
+| C1-08 | OCS-1 | 545 (measured_native) | PASS | PASS_RECORDED | None | Ergonomics (earlier value kept; no pin stated) / n/a (no controller job) | True |
+| C1-09 | OCS-1 | 491 (measured_native) | PASS | PASS_RECORDED | 0 | Institutional governance 0124adcd / 9b5ab721 (r13) | True |
+| C1-10 | OCS-1 | 245 (measured_native) | PASS | PASS_RECORDED | None | Action manifest ff549082 (r10) / fa170815 (r13) | True |
+| C1-11 | OCS-1 | 81 (measured_native) | PASS | PASS_RECORDED | None | Attestation 5b5077da / bitrep 981036c3 | True |
+| C1-12 | OCS-1 | 121 (measured_native) | PASS | PASS_RECORDED | None | Registry d17b8ac2 / the_index b2485998 | True |
+| C1-13 | OCS-1 | 257 (measured_native) | PASS | PASS_RECORDED | None | Private orchestrator (earlier value kept) / n/a | True |
+| C1-14 | OCS-1 | 413 (collected_at_main) | PASS | PASS_RECORDED | None | qualification main bf865632 (not present in this single-commit snapshot) / controller qual-tooling job at harness 4a57a309 | False |
+| C1-15 | OCS-1 | 653 (measured_native) | PASS | PASS_RECORDED | 0 | Hub 8517818f (r10 hub pin) / hub-tests job at hub 8517818f | True |
+| C1-15a | OCS-1 (unmeasured) | None (tool_reported) | NOT_RUN_HERE | NOT_RUN | None | Hub tools / n/a | False |
+| X-01 | OCS-2 | 223 (collected_at_main) | PARTIAL | PASS_RECORDED | 6 | frozen/r10 pins, nine probe jobs / r13 pins | True |
+| X-02 | OCS-2 | 213 (collected_at_main) | PASS | PASS_RECORDED | 6 | r10 pins (README still names r9 heads) / n/a | True |
+| X-03 | OCS-2 | None (workflow_defined) | NOT_RUN_HERE | PASS_RECORDED | None | r10 profile (command names r13) / r13 profile | True |
+| X-04 | OCS-2 | None (workflow_defined) | NOT_RUN_HERE | NOT_RUN | None | n/a / n/a | False |
+| X-05 | OCS-2 | 1093 (collected_at_main) | NOT_RUN_HERE | PASS_RECORDED | 0 | r10 pins / r13 pins | True |
+| X-06 | OCS-2 | 50 (collected_at_main) | PASS | PASS_RECORDED | None | main (inventory run) / n/a | True |
+| X-07 | OCS-2 | 17 (collected_at_main) | PASS | PASS_RECORDED | None | main (inventory run) / n/a | True |
+| X-08 | OCS-2 | None (workflow_defined) | NOT_RUN_HERE | UNKNOWN | None | verifier/ODES checkouts / n/a | True |
+| X-09 | OCS-2 | 5763 (collected_at_inventory) | ENV | BLOCKED | None | overlays at pinned producers / n/a | True |
+| X-10 | OCS-2 | 417 (measured_native) | PASS | PASS_RECORDED | None | orchestrator own recorded revisions / n/a | True |
+| X-11 | OCS-2 | 38 (measured_native) | FAIL | FAIL_RECORDED | None | main (inventory run) / n/a | True |
+| X-12 | OCS-2 | 261 (collected_at_inventory) | PARTIAL | PASS_RECORDED | None | main / n/a | True |
+| X-13 | OCS-2 | None (plan) | PLAN | NO_TEST | None | n/a / n/a | False |
+| X-14 | OCS-2 | None (plan) | PLAN | NO_TEST | None | n/a / n/a | False |
+| X-15 | controller (not a suite) | 131 (declared) | NOT_RUN_HERE | UNKNOWN | None | frozen pins / r13 pins (g8) | False |
+| X-16 | OCS-2 | 84 (measured_native) | PARTIAL | PASS_RECORDED | None | orchestrator pins / matched-refund-rerun job in g8 | True |
+| X-17 | OCS-2 | None (workflow_defined) | NOT_RUN_HERE | NOT_RUN | None | n/a / n/a | False |
+| X-18 | OCS-2 | 6 (collected_at_main) | NOT_RUN_HERE | COLLECTED_ONLY | 0 | main / n/a | False |
+| X-19 | OCS-2 | 136 (collected_at_main) | NOT_RUN_HERE | PASS_RECORDED | 4 | components.json names earlier revs; run at r10 with ADV_ALLOW_REVISION_DRIFT=1 / n/a | True |
+| W-I | OCS-3 (reported, non-gating am.77-79) | 64 (collected_at_main) | NOT_RUN | COLLECTED_ONLY | 6 | r10 pins / r13 pins | True |
+| W-X | OCS-3 (reported, non-gating am.77-79) | 217 (collected_at_main) | NOT_RUN | COLLECTED_ONLY | 29 | r10 pins / r13 pins | True |
+| MVP-chain | none (MVP acceptance candidate, proposed) | None (not in inventory) | ABSENT_FROM_INVENTORY | NOT_RUN | None | n/a / n/a | False |
+| MVP-d2-route-b | none | None (not in inventory) | ABSENT_FROM_INVENTORY | COLLECTED_ONLY | 5 | n/a / n/a | False |
+| MVP-d09 | none | None (not in inventory) | ABSENT_FROM_INVENTORY | COLLECTED_ONLY | None | pre-F3 Runtime ec728da6 / n/a | True |
+| MVP-applicability | none | None (not in inventory) | ABSENT_FROM_INVENTORY | NOT_RUN | None | n/a / n/a | False |
+| CMP-g2-r10 | separate observation (never replaces gate) | None (run output) | ABSENT_FROM_INVENTORY (inventory says comparison extension does not exist yet) | PASS_RECORDED | None | n/a / g2-r10 candidate (r10 pins), qual commit 32ed1916, hub 8517818f, 2026-10-20 | True |
 
 Claims about who ran what: every recorded result is **developer-run, synthetic, Cognous-configured**; the "independent scans/reviews" cited in the refreeze log and known-limits page are not identified, so independence cannot be established; no independent Tier 1 qualification owner is designated (D13). The 25/25 actual-agent pilot is described in the dashboard but its raw artifact is not in the checkout. The comparator applications (OPA; LangGraph plus OPA) are configured by Cognous.
 
@@ -82,7 +136,7 @@ Six lanes with disjoint file ownership ran in parallel; one integration lead joi
 
 `priority`, `registry_dependency`, `existing_protection`, severity and all scores are REASONED INFERENCE (rules stated in [04](04-prioritization-analysis.md)). The crosswalk's `component_route` comes from Lane C for the 40 catalog scenarios (driver docstrings, not executed drivers) and from Lane A for Wiki rows.
 
-### Validation (method/validate_crosswalk.py; 26 checks, all pass at the time of writing)
+### Validation (method/validate_crosswalk.py; 32 checks: the original 26 plus six on the three-question view and the extraction manifest, all pass at the time of writing)
 
 - 696 rows, 696 distinct IDs; catalog IDs and order equal `scenarios/catalog.json`; Wiki IDs equal `applicability.json` and `ai-security-wiki/catalog.json`; Wiki classification counts and each per-ID classification preserved (20/45/591).
 - Controlled vocabularies hold for dependency, protection, evidence status and family; no row assigns F8 as a candidate; no canonical row is `ENFORCED_AND_EVIDENCED`; known-limit rows never count as protection; all 656 Wiki rows are NOT RUN; 21 columns per row.

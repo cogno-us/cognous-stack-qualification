@@ -9,6 +9,8 @@ Non-authorizing. Machine-readable twin with full source references and remediati
 | **G3** | **Integration gap.** The registry may express the policy but cannot reliably bind it to the operational enforcement boundary. | Component owners (R10); the registry cannot close it alone. |
 | **G4** | **Evidence / qualification gap.** The protection may exist but has insufficient proof. | Qualification owner. |
 
+**Class and owner confirmation (P1 reconciliation).** Each gap was re-checked against the four classes and its owning component; no gap changed class. In particular: operation identity / dedupe defaulting OFF stays **G1** (GAP-G1-01, a component default the registry cannot change; D12 and the mandatory profile are separate rulings); the missing consumption path (GAP-G3-01), unauthenticated selection (GAP-G3-07) and missing effect-time binding (GAP-G3-02, GAP-G3-03) stay **G3**; missing independent evidence stays **G4** (GAP-G4-01/02 no scenario-level PASS and nothing at the current heads, GAP-G4-09 no MVP oracle row for a `LocalExecutionPolicy` denial, GAP-G4-13 no independent qualification owner). "Registry migration necessary?" answers whether closing the gap needs registry work; it never says the gap is a registry defect.
+
 Severity (REASONED INFERENCE): High = could permit an uncontrolled effect, a boundary bypass or an unsupported public claim; Medium = limits what can be claimed or governed; Low = housekeeping or out of V1 scope.
 
 | ID | Class | Scenarios | Component | Severity | Registry migration necessary? | Owner | Phase |

@@ -25,8 +25,8 @@ A separate supplement, [data/suite-local-claims-supplement.csv](data/suite-local
 | `existing_protection` | `ENFORCED_AND_EVIDENCED / IMPLEMENTED_NOT_QUALIFIED / PARTIALLY_ENFORCED / KNOWN_GAP / NOT_APPLICABLE / UNKNOWN` | REASONED INFERENCE |
 | `existing_configuration_mechanism` | How an operator sets the value today (constructor, profile, manifest, resolver data, none) | SOURCE FACT |
 | `registry_family` | `F1a ... F11`, `NONE`, `UNMAPPED` (comma-joined) | REASONED INFERENCE against the R07 taxonomy |
-| `registry_dependency` | `REQUIRED / BENEFICIAL / UNNECESSARY / UNKNOWN` | REASONED INFERENCE |
-| `exclusion_impact` | Consequence of excluding the mapped family; begins with `OBSERVATION=FIXED_CODE_INVARIANT` or `CONFIGURABLE_VALUE` for catalog rows | REASONED INFERENCE |
+| `registry_dependency` | `REQUIRED / BENEFICIAL / UNNECESSARY / UNKNOWN`: whether the scenario's **required observation** depends on a registry-supplied value. `UNNECESSARY` means no governable value exists for the scenario, or a value exists but the outcome does not depend on it; it never says central governance has no value (see "Three questions" below) | REASONED INFERENCE |
+| `exclusion_impact` | Governance capability lost by excluding the mapped family (central change control not gained, not enforcement lost); begins with `OBSERVATION=FIXED_CODE_INVARIANT` or `CONFIGURABLE_VALUE` for catalog rows | REASONED INFERENCE |
 | `evidence_status` | `PASS_RECORDED / FAIL_RECORDED / BLOCKED / NOT_RUN / KNOWN_LIMIT_ASSERTED / COLLECTED_ONLY / NO_TEST / UNKNOWN` | recorded artifacts (Lane F) |
 | `qualification_status` | What the controller artifacts say, quoted, never upgraded; always "not independently qualified" | SOURCE FACT |
 | `known_limitations` | Known-limit tests and reasons; known-limit assertions are not protection | SOURCE FACT |
@@ -34,6 +34,10 @@ A separate supplement, [data/suite-local-claims-supplement.csv](data/suite-local
 | `priority_rationale` | One sentence generated from the rule | REASONED INFERENCE |
 
 Severity (1-5) used by the priority rule is in [data/lane-E-outcomes.jsonl](data/lane-E-outcomes.jsonl).
+
+## Three questions (derived view)
+
+One column cannot carry three different questions, so [data/three-question-view.csv](data/three-question-view.csv) / [json](data/three-question-view.json) (built by `method/build_three_question_view.py`, read-only on the crosswalk, 696 rows) separates them: **A** does existing OCS code enforce the protection (`existing_protection`, `evidence_status` copied verbatim); **B** would central registry management improve governance of it (`q_b_governance_benefit`); **C** is registry management necessary for the V1 capability (`q_c_v1_necessity_basis`, `smallest_covering_profile`). No scenario is re-rated and `registry_dependency` keeps its meaning. Explanation and counts: [01 section 1a](01-executive-assessment.md).
 
 ## Rules enforced in the data and checked by [validation](07-source-and-evidence-manifest.md)
 

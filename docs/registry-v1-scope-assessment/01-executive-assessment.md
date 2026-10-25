@@ -14,6 +14,18 @@ Labels: **SOURCE FACT** (a file was read; cited), **REASONED INFERENCE**, **CUST
 5. **Existing OCS enforcement defects and known limits are not registry features** and are kept with their owning components in the [gap register](05-gap-register.md). 33 gaps: 6 G1, 6 G2, 8 G3, 13 G4.
 6. **Nothing is qualified.** No scenario-level PASS exists in any controller run; no recorded evidence speaks for the current component heads; all 656 Wiki cases are NOT RUN; no independent qualification owner is designated (D13).
 
+### 1a. Three questions the registry-dependency rating must not conflate
+
+The `registry_dependency` column answers one narrow thing: does the scenario's **required observation** depend on a registry-supplied value (REQUIRED / BENEFICIAL / UNNECESSARY / UNKNOWN). Read alone it is easy to over-read, so the assessment keeps three questions apart (derived view: [data/three-question-view.csv](data/three-question-view.csv), built by `method/build_three_question_view.py`; nothing in the crosswalk is re-rated):
+
+| Question | Asks | Where it is answered |
+|---|---|---|
+| **A. Existing enforcement** | Does OCS code already enforce the protection, and is that evidenced? | `existing_protection` and `evidence_status` (copied verbatim) |
+| **B. Governance benefit** | Would central, versioned registry management improve the customer's ability to govern the protection? | `q_b_governance_benefit` (derived from `registry_dependency` plus whether a governable value is mapped) |
+| **C. V1 necessity** | Is registry management necessary for the V1 capability? | `q_c_v1_necessity_basis`: by definition of the operator-approved V1 profile (plan v1.3 section 1) for any selected family; this corpus cannot establish it independently |
+
+**UNNECESSARY does not mean "central governance has no value".** It means one of two narrower things: no deployment-tunable value exists for the scenario (mandatory gate logic, evidence format, relaxing toggle, method scenario), or a value exists but the scenario's outcome does not depend on it. The view separates them (`NO_GOVERNABLE_VALUE` versus `GOVERNABLE_VALUE_EXISTS_OUTCOME_INDEPENDENT`). Among the 105 in-scope canonical rows: 17 `BENEFIT_IDENTIFIED`, 24 `BENEFIT_UNDETERMINED`, 10 `GOVERNABLE_VALUE_EXISTS_OUTCOME_INDEPENDENT`, 54 `NO_GOVERNABLE_VALUE`. A protection can be fully enforced (A) and still benefit from central change control (B); and "no scenario requires the registry" (the finding above) is a statement about the corpus, not about B or C.
+
 ## 2. What OCS already protects, and where the registry could matter
 
 In-scope canonical rows: 105 (40 catalog + 20 APPLICABLE + 45 PARTLY_COVERED Wiki). The 591 NOT_APPLICABLE Wiki cases are retained in the crosswalk with their recorded reason and are not scored.
@@ -102,7 +114,7 @@ Reading: audit/provenance and agent permission boundaries dominate the in-scope 
 
 **Required R09/R10 capabilities** (from the register, not new requirements): authenticated selection and activation independent of record status (R09, D2, D3); a named Runtime/Control Plane hook that applies a selected policy and binds it at effect time, R10 Option A or B; fail-closed behaviour when a required policy is unavailable (D7, design capability only); typed refusal classes already proposed in R07.
 
-**Exclusion consequences** are per family in [03](03-family-coverage-matrix.md). In short: excluding F1a/F1b leaves nothing registry-governed; excluding F1c/F4/F5 leaves ceilings, freshness windows and authority-profile fields as host constructor literals (as today, no protection lost); excluding F6/F1d/F7 loses no enforced capability because none is consumed or ruled today.
+**Governance capability lost on exclusion** is stated per family in [03](03-family-coverage-matrix.md) and per field in the [extraction manifest](09-configuration-extraction-handoff.md) (`exclusion_impact`). It is the central change-control capability the customer would not gain, never an enforcement that would be lost: enforcement stays in component code either way. In short: excluding F1a/F1b leaves no registry-governed policy value, so allow-lists stay per-host constructor literals changed by redeploy, with no registry-pinned policy identity in evidence; excluding F1c/F4/F5 leaves ceilings, freshness windows and authority-profile fields as host constructor literals and manifest limits (no centrally versioned fleet-wide tightening, but no existing protection removed); excluding F6/F1d/F7 loses no governance capability that is consumed or ruled today. Model A versus Model B (extract only what the selected scenarios need, or all safe fields of the selected owners) is compared in [08](08-model-a-b-comparison.md).
 
 ## 5. Sensitivity of the family order
 
