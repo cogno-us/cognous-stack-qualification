@@ -22,7 +22,7 @@ The `registry_dependency` column answers one narrow thing: does the scenario's *
 |---|---|---|
 | **A. Existing enforcement** | Does OCS code already enforce the protection, and is that evidenced? | `existing_protection` and `evidence_status` (copied verbatim) |
 | **B. Governance benefit** | Would central, versioned registry management improve the customer's ability to govern the protection? | `q_b_governance_benefit` (derived from `registry_dependency` plus whether a governable value is mapped) |
-| **C. V1 necessity** | Is registry management necessary for the V1 capability? | `q_c_v1_necessity_basis`: by definition of the operator-approved V1 profile (plan v1.3 section 1) for any selected family; this corpus cannot establish it independently |
+| **C. V1 necessity** | Is registry management necessary for the V1 capability? | `q_c_v1_necessity_basis`: by definition of the V1 profile as written in draft plan v1.3 section 1 (not approved or frozen by this package) for any selected family; this corpus cannot establish it independently |
 
 **UNNECESSARY does not mean "central governance has no value".** It means one of two narrower things: no deployment-tunable value exists for the scenario (mandatory gate logic, evidence format, relaxing toggle, method scenario), or a value exists but the scenario's outcome does not depend on it. The view separates them (`NO_GOVERNABLE_VALUE` versus `GOVERNABLE_VALUE_EXISTS_OUTCOME_INDEPENDENT`). Among the 105 in-scope canonical rows: 17 `BENEFIT_IDENTIFIED`, 24 `BENEFIT_UNDETERMINED`, 10 `GOVERNABLE_VALUE_EXISTS_OUTCOME_INDEPENDENT`, 54 `NO_GOVERNABLE_VALUE`. A protection can be fully enforced (A) and still benefit from central change control (B); and "no scenario requires the registry" (the finding above) is a statement about the corpus, not about B or C.
 
@@ -45,7 +45,7 @@ Registry dependency of the 105 in-scope rows (Lane A and B ratings; REASONED INF
 | UNKNOWN | 24 |
 | UNNECESSARY | 64 |
 
-Existing protection (controlled vocabulary; `ENFORCED_AND_EVIDENCED` is 0 among canonical rows because no scenario has a scenario-level controller PASS. 13 of the 162 suite-local claims carry it on the strength of recorded named-case results at historical pins only; none speaks for the current heads):
+Existing protection (controlled vocabulary; `ENFORCED_AND_EVIDENCED` is 0 among canonical rows because no scenario has a scenario-level controller PASS. 13 of the 162 suite-local claims carry it on the strength of recorded named-case results at historical pins only; none speaks for the current heads; the label is not a qualification and rests on developer-run, builder-tested named cases):
 
 | Existing protection | In-scope canonical rows |
 |---|---|

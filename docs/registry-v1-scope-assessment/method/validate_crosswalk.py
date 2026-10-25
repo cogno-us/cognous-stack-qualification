@@ -86,7 +86,7 @@ chk('suite_local_ids_unique_prefixed', len({r['scenario_id'] for r in sl}) == le
 chk('suite_local_not_in_canonical_denominator', not ({r['scenario_id'] for r in sl} & set(ids)))
 chk('priority_vocab', {r['priority'] for r in cw} <= {'P1', 'P2', 'P3', 'P4', 'OUT_OF_SCOPE'})
 tqv = list(csv.DictReader(open(D + 'three-question-view.csv')))
-chk('three_question_view_matches_crosswalk', [r['scenario_id'] for r in tqv] == ids and all(r['q_a_existing_protection'] == c['existing_protection'] and r['q_a_evidence_status'] == c['evidence_status'] for r, c in zip(tqv, csvrows)), f'{len(tqv)} rows; question A copied verbatim')
+chk('three_question_view_matches_crosswalk', [r['scenario_id'] for r in tqv] == ids and all(r['q_a_existing_protection'] == c['existing_protection'] and r['q_a_evidence_status_named_cases_only'] == c['evidence_status'] and r['q_a_qualification_status'] == c['qualification_status'] for r, c in zip(tqv, csvrows)), f'{len(tqv)} rows; question A copied verbatim')
 mf = [json.loads(l) for l in open(D + 'configuration-extraction-manifest.jsonl')]
 slids = {r['scenario_id'] for r in sl}
 chk('manifest_field_ids_unique', len({m['field_id'] for m in mf}) == len(mf), f'{len(mf)} rows')

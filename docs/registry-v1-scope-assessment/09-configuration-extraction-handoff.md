@@ -11,7 +11,7 @@ Machine-readable form: [data/configuration-extraction-manifest.jsonl](data/confi
 - **Extractability test** (reused from the P0 readiness document, not invented): a value is extractable only if (a) it is already caller, constructor or profile data, (b) a code-owned hard bound or floor remains, (c) the registry value can only narrow what the caller permits, and (d) refusal is deterministic and never widens. Relaxing toggles, guards, check order, reason texts, `__post_init__` validation, vocabularies and lifecycle stay code.
 - **`central_governance_benefit` and `extraction_complexity`** are REASONED INFERENCE from the mapped scenario's recorded outcome and the source; no customer demand, revenue or adoption data was used or invented. Benefit is a property of the field (question B in [01 section 1a](01-executive-assessment.md)); it is not a finding that existing code fails to enforce.
 - **`exclusion_impact`** states the governance capability lost if the field is not externalized (central change control not gained), never an enforcement that would be lost.
-- **Dispositions** are the five the Architect named. `DIRECT_EXTRACTION` means the four clauses pass on the inspected source and no open decision (D1, D5, D6, D9, D12, W8-014) is named; it does not mean approved, qualified or scheduled. `CONDITIONAL_EXTRACTION` names the decision or prerequisite it waits on. `UNRESOLVED` means the source cannot decide it. `CODE_OWNED_GUARDRAIL` rows are listed so that nothing adjacent to a configurable field is silently left out.
+- **Dispositions** are the five the Architect named. `DIRECT_EXTRACTION` means the four clauses are met on source reading of the inspected code (a judgement, not a test result) and no open decision (D1, D5, D6, D9, D12, W8-014) is named; it does not mean approved, qualified or scheduled. `CONDITIONAL_EXTRACTION` names the decision or prerequisite it waits on. `UNRESOLVED` means the source cannot decide it. `CODE_OWNED_GUARDRAIL` rows are listed so that nothing adjacent to a configurable field is silently left out.
 
 ## Constraints from P0 that every row respects
 
@@ -96,7 +96,7 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | CP-F5-08 | Control Plane | F5 | RuntimeAuthorityProfile.catalogue_version (str) | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
 | CP-F5-09 | Control Plane | F5 | Presence of the opt-in sub-profiles (operation_identity, freshness, holder_inventory, merg | CODE_OWNED_GUARDRAIL | MEDIUM | HIGH | - | SOURCE_VERIFIED |
 | CP-F5-10 | Control Plane | F5 | RuntimeAuthorityProfile.holder_inventory (HolderInventory: inventory_id, recorded_by, reco | CODE_OWNED_GUARDRAIL | LOW | HIGH | - | SOURCE_VERIFIED |
-| CP-F5-11 | Control Plane | F5 | EvidenceCriterion (minimum_count, members) in the approved runtime_authority extension | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
+| CP-F5-11 | Control Plane | F5 | EvidenceCriterion (minimum_count, members) in the runtime_authority extension (as named in source) | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | CP-F5-12 | Control Plane | F5 | Profile snapshot and approval commitment binding | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | CP-F7-04 | Control Plane | F7 | Ordering rule provider_horizon <= escalation_deadline < dedupe_ttl | CODE_OWNED_GUARDRAIL | NONE | LOW | - | SOURCE_VERIFIED |
 | CP-F7-05 | Control Plane | F7 | Ledger gates dedupe_unresolved_attempt_blocks_new_key and dedupe_operation_effect_applied  | CODE_OWNED_GUARDRAIL | MEDIUM | HIGH | - | SOURCE_VERIFIED |
@@ -135,7 +135,7 @@ Long-form fields (current value source, existing guardrail, configuration value,
 | RT-F1c-02 | Runtime | F1c | max_effects (policy ceiling) | UNRESOLVED | LOW | HIGH | D1,D6,W8-091 | SOURCE_VERIFIED |
 | RT-F1d-01 | Runtime | F1d | allowed_target_prefixes | UNRESOLVED | LOW | HIGH | D9,W1-029 | SOURCE_VERIFIED |
 | RT-F1d-02 | Runtime | F1d | target_match ('segment' default / 'exact' / 'legacy-prefix') | UNRESOLVED | NONE | HIGH | D1,D9,W1-029 | SOURCE_VERIFIED |
-| RT-F3-04 | Runtime | F3 | OpenShellConfig cpu/memory/runtime (pinned to qualified profile) | UNRESOLVED | NONE | HIGH. | D1,W2-082 | SOURCE_VERIFIED |
+| RT-F3-04 | Runtime | F3 | OpenShellConfig cpu/memory/runtime (pinned to a named profile; not independently qualified) | UNRESOLVED | NONE | HIGH. | D1,W2-082 | SOURCE_VERIFIED |
 | RT-F6-02 | Runtime | F6 | agents_absent_from_record (registry-record silence for an agent present in the caller file | UNRESOLVED | NONE | HIGH | D5 | SOURCE_VERIFIED |
 | RT-F1b-03 | Runtime | F1b | trusted_institution_id / trusted_authority_domain (adapter constructor args; NOT policy da | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |
 | RT-F1c-03 | Runtime | F1c | exact-one-effect rule (op.effects must equal 1) - adjacent to max_effects | CODE_OWNED_GUARDRAIL | NONE | HIGH | - | SOURCE_VERIFIED |

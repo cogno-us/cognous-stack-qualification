@@ -67,7 +67,7 @@ Crosswalk `evidence_status` over the 696 rows:
 
 `NO_TEST` is dominated by the 591 NOT_APPLICABLE Wiki cases (no test by construction). `PASS_RECORDED` means **named executed cases passed** in a recorded run at a historical pin, never whole-scenario acceptance. `KNOWN_LIMIT_ASSERTED` rows pass by asserting a limit and are evidence of a KNOWN_GAP.
 
-Per-suite evidence (Lane F, 47 rows; the evidence status vocabulary is Lane F's mapping of the inventory state and retained artifacts, a judgement call for overlay rows):
+Per-suite evidence (Lane F, 47 rows; the evidence status vocabulary is Lane F's mapping of the inventory state and retained artifacts, a judgement call for overlay rows). Legend: `PASS_RECORDED` means named cases passed at the pin shown, not that anything ran in this package or at the current heads; inventory state `NOT_RUN_HERE` means no run in this package; X-19's recorded run used a revision-drift override (`ADV_ALLOW_REVISION_DRIFT=1`), which weakens what it can claim:
 
 | Suite | Gate | Inventory count (basis) | Inventory state | Evidence status (Lane F) | Known-limit tests | Pin named / latest controller pin | Historical pin does not speak for current heads |
 |---|---|---|---|---|---|---|---|
@@ -156,4 +156,4 @@ Six lanes with disjoint file ownership ran in parallel; one integration lead joi
 
 ## 7. Confirmation of scope
 
-This pull request adds files only under `docs/registry-v1-scope-assessment/`. No code, test, suite, expectation file, workflow, schema, scenario catalog, coverage map, results, process or pin file was modified; no existing document was edited; the adopted registry plan was not modified. The scripts in `method/` are analysis aids, are not wired to any workflow, and are not repository tooling.
+This pull request adds files only under `docs/registry-v1-scope-assessment/`. No code, test, suite, expectation file, workflow, schema, scenario catalog, coverage map, results, process or pin file was modified; no existing document was edited; the registry plan (v1.3, draft) was not modified. The scripts in `method/` are analysis aids, are not wired to any workflow, and are not repository tooling.

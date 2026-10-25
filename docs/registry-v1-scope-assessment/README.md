@@ -4,7 +4,7 @@
 
 Question: using the **existing** Cognous qualification corpus (the AI Security Wiki cases, the V1 scenario catalog and batteries, the security-runtime and MVP suites), which OCS Registry rule families are necessary, valuable, redundant or deferrable for a V1 release profile?
 
-It does not create a scenario catalog or a qualification framework, move or rewrite any suite, change any expectation or verdict, authorize or perform any migration, approve a pin, select or activate any record, or modify the adopted registry plan (plan v1.3 is the current draft; this package changes neither). The Architect's R07 rulings are treated as design guidance, not implementation authority. Decisions D1, D5, D6 and D12 and the 32 UNRESOLVED S02 rows are referenced as open and are not resolved here.
+It does not create a scenario catalog or a qualification framework, move or rewrite any suite, change any expectation or verdict, authorize or perform any migration, approve a pin, select or activate any record, or modify the registry plan (plan v1.3, draft; this package changes no plan version). The Architect's R07 rulings are treated as design guidance, not implementation authority. Decisions D1, D5, D6 and D12 and the 32 UNRESOLVED S02 rows are referenced as open and are not resolved here.
 
 ## Deliverables
 

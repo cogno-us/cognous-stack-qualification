@@ -62,12 +62,13 @@ for r in rows:
             qc, basis = 'NOT_REGISTRY_PARAMETER_RELATED', 'no governable parameter mapped; registry management is not part of what this scenario would need'
         else:
             qc = 'BY_PROFILE_DEFINITION_IF_FAMILY_SELECTED'
-            basis = ('under plan v1.3 section 1 the operator-approved V1 profile must be externally governed, so registry management is '
+            basis = ('under plan v1.3 section 1 the V1 profile as defined in draft plan v1.3 section 1 (not approved or frozen by this package) must be externally governed, so registry management is '
                      'necessary for the selected fields by definition; this corpus cannot establish it independently')
     out.append({
         'scenario_id': r['scenario_id'],
         'q_a_existing_protection': r['existing_protection'],
-        'q_a_evidence_status': r['evidence_status'],
+        'q_a_evidence_status_named_cases_only': r['evidence_status'],
+        'q_a_qualification_status': r['qualification_status'],
         'q_b_governance_benefit': qb,
         'q_b_basis_registry_dependency': r['registry_dependency'],
         'mapped_families': ','.join(fs) if fs else r['registry_family'],
