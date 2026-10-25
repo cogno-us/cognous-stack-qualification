@@ -43,6 +43,10 @@ Exact immutable commit SHA; read-only checkout; no untrusted workflow execution;
 | Conflicts | If a stricter existing requirement conflicts with the addendum, the stricter rule is kept. The one conflict found (BLOCKED / NOT EXECUTED wording) is resolved by D2 and [11](11-status-vocabulary-crosswalk.md) |
 | Not resolved | A different revision, `6f7f2731`, is called provisional guidance in the project status record. Whether it is adopted is still UNVERIFIED and is not decided here |
 
-## 4. Limits
+## 4. Sprint alignment
+
+Architect directive (2026-10-25): qualification preparation belongs to the existing S5 workstream, not a parallel program. QPR-1 maps directly to **EXT-S5-1** (the gate catalogue and predeclaration deliverable in `docs/p1-extraction-plan/06-pr-and-sprint-execution-plan.md` of the registry repository) as a bounded prerequisite. It creates no new sprint, qualification framework, release gate or dependency that blocks S1 to S4 implementation. Oracle expectations are not modified or finalized by this worker; independent authorship and predeclaration stay with EXT-S5-1. QPR-2, QPR-3 and QPR-4 are not started, no further qualification infrastructure is authorized, and S5 stays PREPARE-only until G-6. Work stops when QPR-1 reaches reviewed draft status.
+
+## 5. Limits
 
 This closeout changes only documentation under `docs/ocs-v1-qualification-reuse-audit/`. No historical test result, expectation, fixture, workflow, status or scenario was edited. Copilot review and passing CI are technical review, not independent qualification.

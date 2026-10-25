@@ -68,12 +68,12 @@
  {
   "id": "Q07",
   "repo": "QUAL",
-  "capability": "Registry-narrowed freshness bound (effective = min), approval_max_age_seconds behaviour, outage-extension ceiling, extension-base mutation leg",
-  "where": "none (approval_max_age_seconds appears only as a forwarding-completeness parameter in process/adversarial/tests/test_t15_profile_forwarding.py:52)",
+  "capability": "Registry-narrowed freshness bound (effective = min), configurable approval_max_age_seconds, outage-extension ceiling, extension-base mutation leg",
+  "where": "adjacent: suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py:603-619 (TC-L06-015, current fixed approval window); forwarding completeness only: process/adversarial/tests/test_t15_profile_forwarding.py:52",
   "classification": "MISSING — BUILD ONLY IF NECESSARY",
   "v1_scope_items": "three CP freshness bounds",
   "gates": "QG-03, QG-04",
-  "disposition": "Approval-age behaviour has no test. Blocked on the Control Plane changes in the plan.",
+  "disposition": "The current fixed approval window has an adjacent oracle (TC-L06-015; recorded status not promoted). No test of a configurable or registry-narrowed approval bound, extension ceiling or mutation leg. Blocked on the Control Plane changes in the plan.",
   "label": "SOURCE FACT"
  },
  {

@@ -42,7 +42,7 @@ def main(root):
 
     need(len(cj) == len(cc), "capability JSON and CSV row counts differ")
     for a, b in zip(cj, cc):
-        need(all(str(a[k]) == b[k] for k in b), f"capability {a['id']}: JSON and CSV differ")
+        need(set(a) == set(b) and all(str(a[k]) == b[k] for k in a), f"capability {a['id']}: JSON and CSV differ (full row, including key set)")
     ids = [r["id"] for r in cj]
     need(len(ids) == len(set(ids)), "duplicate capability id")
     for r in cj:
@@ -58,7 +58,7 @@ def main(root):
     need(len(gj) == 14 and len(gc) == 14, "expected 14 gate rows")
     need([g["gate_id"] for g in gj] == [f"QG-{i:02d}" for i in range(1, 15)], "gate ids not QG-01..QG-14 in order")
     for a, b in zip(gj, gc):
-        need(all(str(a[k]) == b[k] for k in b), f"{a['gate_id']}: JSON and CSV differ")
+        need(set(a) == set(b) and all(str(a[k]) == b[k] for k in a), f"{a['gate_id']}: JSON and CSV differ (full row, including key set)")
     for g in gj:
         need(g["qualification_side_coverage"] in COVERAGE, f"{g['gate_id']}: coverage word")
         need(g["qualified"] is False, f"{g['gate_id']}: must not be marked qualified")
