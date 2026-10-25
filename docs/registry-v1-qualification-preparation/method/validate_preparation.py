@@ -65,10 +65,29 @@ gd = json.load(open(P + 'data/gate-definitions.json'))
 if [g['gate_id'] for g in gd] != GATES: errs.append('gate-definitions must list QG-01..QG-14 in order')
 for g in gd:
     for s in g.get('source_scenario_ids') or []:
-        sid = s if isinstance(s, str) else s.get('scenario_id')
+        sid = s if isinstance(s, str) else (s.get('id') or s.get('scenario_id'))
         if sid not in canon: errs.append('%s scenario id not in crosswalk: %s' % (g['gate_id'], sid))
     if g['gate_id'] == 'QG-02' and g.get('v1_status') != 'INACTIVE_MAX_AMOUNT_DEFERRED': errs.append('QG-02 must be INACTIVE')
     if g['gate_id'] != 'QG-02' and g.get('v1_status') != 'ACTIVE': errs.append('%s must be ACTIVE' % g['gate_id'])
+
+# every control-class slug named by a gate must be covered by at least one prepared control class
+SLUG_TO_CLASSES = {
+    'forged_selection': ['forged_selection'], 'substituted_digest': ['policy_digest_substitution'],
+    'mismatched_claim_identity': ['claim_identity_mismatch'], 'expired_selection': ['expiry'], 'revoked_selection': ['revocation'],
+    'required_absence': ['required_policy_absence', 'scope_required_ratchet', 'invalid_optional_as_withdrawal'],
+    'epoch_downgrade': ['epoch_downgrade', 'trust_snapshot_version'], 'concurrent_revocation': ['concurrent_revocation'],
+    'stale_approval_revival': ['stale_approval_revival'], 'restore_rollback': ['restore_rollback'],
+    'durable_state_missing_or_corrupt': ['durable_state_loss'], 'registry_denyall_vs_evaluator_denial': ['deny_all_vs_evaluator'],
+    'invalid_freshness_input': ['freshness_invalid_input', 'freshness_boundary'], 'outage_extension_widening': ['outage_extension'],
+    'confused_deputy': ['confused_deputy'], 'string_based_decision': ['string_decision'], 'route_a_not_credited': ['route_a_bypass']}
+_have = {r['attack_class'] for r in data['negative-controls']}
+for g in gd:
+    for slug in g.get('expected_negative_controls') or []:
+        if slug not in SLUG_TO_CLASSES: errs.append('%s unknown control slug %s' % (g['gate_id'], slug))
+        elif not (set(SLUG_TO_CLASSES[slug]) & _have): errs.append('%s slug %s has no prepared control class' % (g['gate_id'], slug))
+        else:
+            ok = [r for r in data['negative-controls'] if r['attack_class'] in SLUG_TO_CLASSES[slug] and g['gate_id'] in r['gates']]
+            if not ok: notes.append('%s expects %s but no control of that class is tagged to it' % (g['gate_id'], slug))
 
 # computed coverage
 cov = {g: C.Counter() for g in GATES}
@@ -92,8 +111,16 @@ for name, label in (('oracles', 'Oracles'), ('negative-controls', 'Negative cont
     out.append('| %s | %d | %d | %d |' % (label, len(rs), len(rs) - b, b))
 out += ['', '## Negative controls by attack class', '', '| Attack class | Controls |', '|---|---|']
 for k, v in sorted(cls.items()): out.append('| %s | %d |' % (k, v))
+out += ['', '## Gate-to-control-class tagging gaps', '',
+        'Each line is a control class that the gate definition (`data/gate-definitions.json`, `expected_negative_controls`) expects but for which no prepared control is tagged to that gate. These are coverage gaps in the preparation, or places where tagging must be reviewed. They are not failures of any implementation.', '',
+        '| Gate | Expected control class (gate slug) |', '|---|---|']
+for n in notes:
+    gate, rest = n.split(' expects ', 1)
+    out.append('| %s | %s |' % (gate, rest.split(' but no control')[0]))
+out += ['', 'Total gaps: %d.' % len(notes)]
 if not errs:
     open(P + '04a-computed-coverage.md', 'w').write('\n'.join(out) + '\n')
+for n in notes: print('  note:', n)
 print('FAIL' if errs else 'OK', {k: len(v) for k, v in data.items()}, len(gd), 'gates')
 for e in errs[:60]: print(' ', e)
 sys.exit(1 if errs else 0)
