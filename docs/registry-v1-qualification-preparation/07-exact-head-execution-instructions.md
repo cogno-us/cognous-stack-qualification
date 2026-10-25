@@ -2,6 +2,8 @@
 
 Status: **PREPARATION. Instructions for a future run. Nothing here has been executed, and no V1 candidate exists.** Placeholders in angle brackets are filled at freeze time. The commands are templates, not tested procedures; the lead validates them against the frozen candidate before relying on them. This document does not designate an executor and creates no verdict. RELEASE: HOLD. PUBLICATION: HOLD. PRODUCTION: HOLD.
 
+**Cadence.** Per the constitutional addendum ([Risk-based testing](https://github.com/cogno-us/cognous-engineering-constitution/blob/main/addenda/RISK_BASED_TESTING.md)), this procedure is the Level 3 milestone run: execute it once per approved freeze and again only for the scope affected by a material remediation. Do not run it after every implementation PR; implementation PRs use Level 1 and Level 2 testing owned by the implementing workers. Reuse the existing qualification infrastructure for execution; introduce no new runner or dashboard.
+
 ## Preconditions (any unmet condition means STOP, status BLOCKED)
 
 | # | Precondition | Evidence |

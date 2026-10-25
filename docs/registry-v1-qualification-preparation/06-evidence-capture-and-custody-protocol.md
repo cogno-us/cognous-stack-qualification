@@ -60,7 +60,7 @@ This preparation worker does **not** become the independent qualification lead b
 | PASS | The control ran at the frozen candidate and produced the frozen expected outcome with the frozen exact cause, and the mutation leg failed as required |
 | FAIL | A resolved expectation was contradicted, including a collapsed or substituted cause, a committed effect where none is allowed, or a mutation that did not fail the control |
 | BLOCKED | The mapping is not representable, a contract or ruling is unresolved, or a prerequisite artifact is missing. BLOCKED is never waived and never reported as PASS |
-| NOT_RUN | Not executed. Preserved as NOT_RUN |
-| INACTIVE | The gate does not apply to the V1 profile (QG-02, `max_amount` deferred). Reported as inactive, never as PASS |
+| NOT_RUN | Not executed (the constitutional addendum's NOT EXECUTED). Preserved as NOT_RUN |
+| INACTIVE | The gate does not apply to the V1 profile (QG-02, `max_amount` deferred); the addendum's N/A. Reported as inactive, never as PASS |
 
 A gate is PASS only if every ACTIVE control it owns is PASS and its reviewer requirements are met. No gate may be reported PASS "by analogy" to builder tests. Only a designated lead may write a Tier 1 verdict; otherwise the candidate reads "NOT INDEPENDENTLY QUALIFIED".

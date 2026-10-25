@@ -46,6 +46,10 @@ The lane workers could not open the rulings document, so they derived ruling-bas
 - **B-lite is rejected and claim-carried identity is mandatory.** No row relies on keyword-argument carriage; identity-without-binding rows (QO-095, NC-028) assert it is not authority.
 - This reconciliation is a conflict scan, not a line-by-line review. The independent oracle author or lead must still confirm every `RULING` row against the primary text before freeze.
 
+## Testing policy
+
+Governed by the constitutional addendum on risk-based testing and milestone qualification (constitution PR #4): continuous Level 1 and Level 2 testing by the implementers, comprehensive Level 3 qualification at a frozen milestone. Passing CI and Copilot review remain technical review, not independent qualification, and this addendum changes cadence, not the independence requirement. No conflict with a mandatory existing requirement was found.
+
 ## Limits of the package
 
 - **Not executed.** No test, fixture or harness was run against any component. The validator checks structure and cross-references only.

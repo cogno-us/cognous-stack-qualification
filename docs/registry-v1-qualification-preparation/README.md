@@ -22,6 +22,12 @@ Eight configurable fields. Runtime: `allowed_actions`, `allowed_adapters`, `allo
 | 8 | [`08-known-limitations-and-qualification-blockers.md`](08-known-limitations-and-qualification-blockers.md) | Known limitations and qualification blockers |
 | — | `method/validate_preparation.py`, `method/fixture_grids.py`, `method/build_fixtures.py` | Stdlib-only validators and generators. They read and write only inside this directory and execute no test |
 
+## Testing policy alignment
+
+This package follows the constitutional addendum [Risk-based development testing and milestone qualification](https://github.com/cogno-us/cognous-engineering-constitution/blob/main/addenda/RISK_BASED_TESTING.md) (constitution PR #4). It is Level 3 preparation: expectations are prepared now and the full applicable battery runs once, at an approved freeze, not repeatedly during implementation. Level 1 and Level 2 testing of implementation PRs belongs to the implementing workers and is not duplicated here. The high-consequence areas the addendum names (authorization and approval, policy selection and activation, claim-carried identity, authority-to-effect, revocation and expiry, canonical state, recovery) are exactly where this package concentrates its negative controls, so that those risks are exercised before merge as well as at the milestone. Status vocabulary maps as: `NOT_RUN` = NOT EXECUTED; an `INACTIVE` gate (QG-02) = N/A; PASS, FAIL and BLOCKED are unchanged. Technical review and passing CI are not independent qualification. No conflict with an existing constitutional or project requirement was found; the stricter existing requirements (independent Tier 1 lead, frozen expectations, no PASS from builder tests) are kept.
+
+**No duplicate framework.** The scripts in `method/` only validate and generate this package's data. They are not a verifier, runner, dashboard or evidence platform. Execution at the freeze reuses the existing qualification infrastructure in this repository (for example `tools/` and the serial qualification runner); no new runner is introduced.
+
 ## Reproduce the checks (reads and writes only inside this directory)
 
 ```bash
