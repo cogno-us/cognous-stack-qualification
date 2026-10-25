@@ -4,7 +4,7 @@
 
 Nothing here authorizes a migration, approves a pin, selects or activates a record, or changes a qualification verdict. Implementation is not authorized. Labels as in [01](01-existing-ocs-capabilities.md).
 
-`cognous-issbench-v2` was read at `5e05ecf71894731d2816ecabc764d8962652b5b9` as a read-only reference. Nothing was run, and no ISSBench file is copied, linked or required by anything in this package. Capabilities are compared, not ISS-specific oracles. Rows are IDs I01 to I13 in [data/capability-matrix.csv](data/capability-matrix.csv).
+`cognous-issbench-v2` was read at `5e05ecf71894731d2816ecabc764d8962652b5b9` as a read-only reference. No ISSBench script or test was run, and no ISSBench file is copied, linked or required by anything in this package. Capabilities are compared, not ISS-specific oracles. Rows are IDs I01 to I13 in [data/capability-matrix.csv](data/capability-matrix.csv).
 
 ## 1. Headline
 

@@ -68,7 +68,7 @@ The registry is not a subject yet. `cognous-ocs-registry` appears in no workflow
 | Failure register, declared limits | `schemas/failure-register.schema.json`, `tools/declared_limits.py` | Re-statused, never deleted |
 | Retention | `docs/qualification-dashboard-guide.md` | Compact manifests in Git; larger logs in expiring artifacts. A hash or URL does not preserve bytes |
 
-Immutability elsewhere under `results/` is convention: no test or check forbids editing `results/v1-validation`, `serial`, `verifier-mutation` or `security-*`, and I found no verifier for their `SHA256SUMS*` files. **SOURCE FACT**
+Immutability elsewhere under `results/` is convention: no test or check forbids editing `results/v1-validation`, `serial`, `verifier-mutation` or `security-*`, and I did not find a verifier for their `SHA256SUMS*` files (not exhaustively searched; doc 09 section 3). **REASONED INFERENCE**
 
 ## 4. Status vocabulary (closed; no value is added here)
 

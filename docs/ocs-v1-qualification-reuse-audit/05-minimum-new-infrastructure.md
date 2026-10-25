@@ -50,7 +50,7 @@ Native suites (for example `mvp-chain`, `operation-identity`, `v1-scenarios`) al
 
 Copying any of these would be new duplication (see Q29 for the existing example, `_index_signing.py`). **REASONED INFERENCE**
 
-**Unavailable is BLOCKED, not skip.** The Constitution says a required check that is missing, disabled, unsupported or unavailable cannot become PASS or non-applicability, and that an unresolved mapping is BLOCKED or NOT ASSESSED. Existing suites already mix hard-fail and skip on unset environment (a hard-failing and a skipping copy of the same refusal test both exist). The new `conftest.py` should choose hard-fail with a typed reason for every missing prerequisite so that nothing reads as a silent pass. It must not map to a new status: the existing computed result is INCONCLUSIVE or NOT RUN. **REASONED INFERENCE**
+**Unavailable is a typed hard failure, not a skip.** The Constitution says a required check that is missing, disabled, unsupported or unavailable cannot become PASS or non-applicability, and that an unresolved mapping is BLOCKED or NOT ASSESSED. Existing suites already mix hard-fail and skip on unset environment (a hard-failing and a skipping copy of the same refusal test both exist). The new `conftest.py` should choose hard-fail with a typed reason for every missing prerequisite so that nothing reads as a silent pass. It must not map to a new status: the existing computed result is INCONCLUSIVE or NOT RUN. **REASONED INFERENCE**
 
 ## 5. What is deliberately not built
 

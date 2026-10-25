@@ -12,6 +12,7 @@ Nothing here authorizes a migration, approves a pin, selects or activates a reco
 | `cogno-us/cognous-issbench-v2` (read-only reference) | `5e05ecf71894731d2816ecabc764d8962652b5b9` | shallow clone of default branch; nothing written to it |
 | `cogno-us/cognous-ocs-registry` (read-only, plan only) | `d2c472e4a09543228bad62235e07a0dedfd7f48b` | `main`, the PR #22 merge (final head `b34fa6613f225f944ca839d521a4f8a972b89cec`); read only `docs/p1-extraction-plan/`; the registry source tree was not audited |
 | `data/qualification-gate-matrix.json` in the registry plan | sha-256 `e81b5fad1dfcc9bcb002111a17e7bd79117efa53cfc81b3198fbcb75b2dd04bd` | the source of the 14 gate rows in `data/gate-coverage.*` |
+| Risk-based testing addendum (`addenda/RISK_BASED_TESTING.md`) | constitution `main` `a4dd11115e47e27e8f0731a622fe950f7fbf2fc2` | read after the audit was drafted; later than the pinned `1c2e920f`. Its own text says it is interpretive, not a new article, and that adoption is a separate decision under `ADOPTION.md`; the Architect notice of 2026-10-25 directs the three workers to adopt it. See README "Testing cadence" |
 | `cogno-us/cognous-engineering-constitution` | `1c2e920f4e58e07a52e8e2408a506cf7dbc1292b` | read at this revision (`ENGINEERING_CONSTITUTION.md`, `ADOPTION.md`). A different revision, `6f7f2731`, is called provisional guidance in the project status record. Whether either is formally adopted for this program is **UNVERIFIED**; `ADOPTION.md` says publication and possession do not establish adoption |
 | Control Plane / Runtime candidate | `7a4bcd40b3b49e61ff3c294dcca53b52f460b22c` / `c5e97e87dd239c821b1b4a406a55dcd03c5bc61f` | named by the plan and the prior assessment; **not cloned or read here**. All statements about their code come from this repository's tests and docs |
 | Historical controller pins | Control Plane `0a41faa9`, Runtime `ec728da6` (g8-r10) | what `PASS_RECORDED` refers to; historical evidence does not speak for the current heads |
@@ -42,7 +43,7 @@ The reviewers' other findings (for example the per-workflow family counts, the I
 - GitHub branch protection, required status checks and rulesets for either repository (no CODEOWNERS, PR template, CONTRIBUTING, CLAUDE.md or AGENTS.md exists here).
 - Whether `validate_requirements` runs without the V1 freeze for component names; how the planned host driver reaches the registry without importing it; whether the workflow pin-literal tests extend to a new workflow.
 - Whether `SHA256SUMS*` files outside `results/workflows` are checked by any job.
-- Whether the repository's unit-test suite passes at `be1994a9`. The clone is single-commit, so history and pin diffs are not available; the three PR #227 commit messages were read through the REST API only.
+- Whether the unit-test suite passes at the pin `be1994a9` itself (the 780-test run above was on the final draft tree, which differs from the pin only by this package). The clone is single-commit, so history and pin diffs are not available; the three PR #227 commit messages were read through the REST API only.
 
 ## 4. Corrections and stale statements found, not edited
 

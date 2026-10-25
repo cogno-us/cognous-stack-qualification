@@ -18,13 +18,13 @@ Coverage counts only tests that exist in *this* repository. Builder tests in the
 |---|---|---|---|---|---|
 | QG-01 | ACTIVE | 4 / 4 | 8 | **PARTIAL** | Refusal oracles for all five allowlists exist (Q04). No test builds a policy from a registry record; no grid; no deny-all test. |
 | QG-02 | INACTIVE_MAX_AMOUNT_DEFERRED | 5 / 0 | 7 | **INACTIVE** | max_amount is deferred and not in V1. Existing C11[max_amount], C16, C18 stay as they are. Reported inactive, never PASS. |
-| QG-03 | ACTIVE | 5 / 0 | 13 | **PARTIAL** | Boundary pattern and current bounds covered (Q06). No approval-age behaviour test, no registry-narrowed bound, no extension-ceiling test. |
+| QG-03 | ACTIVE | 5 / 0 | 13 | **PARTIAL** | Adjacent tests exist for the boundary pattern and current bounds (Q06). No approval-age behaviour test, no registry-narrowed bound, no extension-ceiling test. |
 | QG-04 | ACTIVE | 2 / 0 | 9 | **PARTIAL** | Thin: two references. TC-L05-013 is NOT_RUN and cannot detect the bounded_tolerance toggle (GAP-G4-05). |
 | QG-05 | ACTIVE | 0 / 7 | 18 | **NONE** | No qualification-repository test. Builder tests in the registry repo use a FakeVerifier. |
 | QG-06 | ACTIVE | 1 / 4 | 8 | **PARTIAL** | Thin: TC-L05-013 only. Builder tests are at decision-function level, none at an effect boundary. |
 | QG-07 | ACTIVE | 0 / 4 | 5 | **NONE** | Builder tests only, 2 to 3 values per field. Consumer path has no caller. |
-| QG-08 | ACTIVE | 5 / 3 | 11 | **PARTIAL** | Authority-level revocation and expiry well covered (Q09). No selection-level test. |
-| QG-09 | ACTIVE | 4 / 0 | 12 | **PARTIAL** | Atomic authority boundary covered (Q08). Not registry policy at that boundary; policy check runs outside the transaction (GAP-G3-02). |
+| QG-08 | ACTIVE | 5 / 3 | 11 | **PARTIAL** | Adjacent authority-level revocation and expiry tests exist (Q09). No selection-level test. |
+| QG-09 | ACTIVE | 4 / 0 | 12 | **PARTIAL** | Adjacent atomic authority-boundary tests exist (Q08). Not registry policy at that boundary; policy check runs outside the transaction (GAP-G3-02). |
 | QG-10 | ACTIVE | 3 / 0 | 6 | **PARTIAL** | Thin: MVP chain rows are builder proposals; no test compares Runtime-effective policy with Control Plane policy for registry values. |
 | QG-11 | ACTIVE | 7 / 0 | 4 | **PARTIAL** | Refusal and evidence substitution tests exist (Q12). None carries a registry record or selection identity. |
 | QG-12 | ACTIVE | 2 / 3 | 10 | **PARTIAL** | Thin: v1-probes and fix2-probes KNOWN_GAP rows are limits, not protection. No independent adversarial run. |

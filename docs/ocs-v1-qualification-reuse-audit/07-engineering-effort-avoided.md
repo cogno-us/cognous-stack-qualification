@@ -34,7 +34,7 @@ Rounded: **about 41 to 74 engineer-days**. UNVERIFIED against any actual schedul
 | QPR-2 registry-subject profile workflow | 1 to 2 | one workflow copying a pattern of 86 lines, plus pin checks |
 | QPR-3 suite directory `conftest.py` and import map | 2 to 4 | about 50 to 120 lines plus import checks across five helper modules |
 | QPR-4 allowlist and capture option (optional, expected not built) | 0 to 0.5 | two small edits |
-| **Total** | **about 6 to 10** (5 to 9.5 before rounding) | |
+| **Total** | **about 5 to 9.5** | |
 
 Ratio: roughly 4 to 15 times less than the duplicate path (41 against 9.5 at the closest, 74 against 5 at the widest), with the wide error bars above. The comparison is only meaningful if the assumptions in section 1 hold. **REASONED INFERENCE**
 
