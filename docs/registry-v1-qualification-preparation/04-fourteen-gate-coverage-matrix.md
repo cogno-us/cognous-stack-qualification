@@ -46,7 +46,7 @@ Source note: the Architect final rulings file (`claude/ocs-p1-architect-final-ru
 - Only a designated independent lead writes a Tier 1 verdict. The builder, Architect, Copilot or any dependent worker may not be the lead. Copilot review is technical review, not qualification. Builder-side inspection never counts toward independence.
 - Synthetic data only; no network, paid, credentialed or production execution; no real key material.
 - A mutation leg applies to every refusal family: disable exactly one refusal check and the case must fail.
-- Race and clock gates (QG-03, QG-08, QG-09 at minimum) require repeated runs with every raw log retained; one run is not evidence.
+- Race and clock gates (QG-03, QG-08, QG-09 at minimum) require repeated runs with every raw log retained; one run is not evidence; the repeat counts are test-design proposals set at milestone qualification (doc 02 section 5), with deterministic schedule-controlled tests preferred.
 - The verdict transfers only to the exact candidate and profile; pins listed below are filled at freeze. Analysed baselines (Runtime `c5e97e87`, Control Plane `7a4bcd40`, registry `d2c472e4`, qualification `be1994a9`, evaluator blob `2fc880da`) are analysed baseline only, not the candidate.
 - Route A is out of V1: Route A results are characterization context and earn no credit (negative class route_a_not_credited).
 
@@ -192,7 +192,7 @@ forged_selection, substituted_digest, mismatched_claim_identity, expired_selecti
 - candidate pin record (the five head SHAs, evaluator blob, trust snapshot id)
 - skip/xfail/error list preserved verbatim (a skip is not evidence)
 - mutation-leg log (one refusal check disabled per case; case must fail)
-- repeated-run logs (minimum run count predeclared at freeze; every run retained, single runs do not qualify) with per-run seeds/orderings
+- repeated-run logs (run count predeclared at freeze by the independent lead from the race structure, failure consequence and deterministic coverage; no fixed minimum is adopted; every run retained, single runs do not qualify) with per-run seeds/orderings
 - clock-source record and injected-clock transcript for boundary cases
 - old-vs-new differential table at real _fresh
 
@@ -505,7 +505,7 @@ forged_selection, substituted_digest, mismatched_claim_identity, expired_selecti
 - candidate pin record (the five head SHAs, evaluator blob, trust snapshot id)
 - skip/xfail/error list preserved verbatim (a skip is not evidence)
 - mutation-leg log (one refusal check disabled per case; case must fail)
-- repeated-run logs (minimum run count predeclared at freeze; every run retained, single runs do not qualify) with per-run seeds/orderings
+- repeated-run logs (run count predeclared at freeze by the independent lead; no fixed minimum is adopted; every run retained, single runs do not qualify) with per-run seeds/orderings
 - injected clock transcript (check-time vs lock-time)
 - revocation-table state before/after
 
@@ -577,7 +577,7 @@ forged_selection, substituted_digest, mismatched_claim_identity, expired_selecti
 - candidate pin record (the five head SHAs, evaluator blob, trust snapshot id)
 - skip/xfail/error list preserved verbatim (a skip is not evidence)
 - mutation-leg log (one refusal check disabled per case; case must fail)
-- repeated-run logs (minimum run count predeclared at freeze; every run retained, single runs do not qualify) with per-run seeds/orderings
+- repeated-run logs (run count predeclared at freeze by the independent lead; no fixed minimum is adopted; every run retained, single runs do not qualify) with per-run seeds/orderings
 - network sentinel log for in-transaction registry reachability
 - fault-injection stage record (stage, outcome, post-state)
 - durable failure-row dump

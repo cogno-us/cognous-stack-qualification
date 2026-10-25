@@ -112,12 +112,29 @@ for name, label in (('oracles', 'Oracles'), ('negative-controls', 'Negative cont
     out.append('| %s | %d | %d | %d |' % (label, len(rs), len(rs) - b, b))
 out += ['', '## Negative controls by attack class', '', '| Attack class | Controls |', '|---|---|']
 for k, v in sorted(cls.items()): out.append('| %s | %d |' % (k, v))
-out += ['', '## Gate-to-control-class tagging gaps', '',
-        'Each line is a control class that the gate definition (`data/gate-definitions.json`, `expected_negative_controls`) expects but for which no prepared control is tagged to that gate. These are coverage gaps in the preparation, or places where tagging must be reviewed. They are not failures of any implementation.', '',
-        '| Gate | Expected control class (gate slug) |', '|---|---|']
+CLS = {'MISSING REQUIRED CONTROL', 'EXISTING CONTROL NEEDS TAGGING', 'CONTRACT-BLOCKED', 'JUSTIFIED NOT APPLICABLE'}
+gc = json.load(open(P + 'data/coverage-gap-classification.json'))['gaps']
+gmap = {}
+for e in gc:
+    k = (e['gate_id'], e['control_slug'])
+    if k in gmap: errs.append('duplicate gap classification %s' % (k,))
+    gmap[k] = e
+    if e.get('classification') not in CLS: errs.append('bad gap classification %s' % (k,))
+    if e.get('classification') == 'JUSTIFIED NOT APPLICABLE' and not e.get('justification_source'): errs.append('N/A without justification_source %s' % (k,))
+    if e.get('classification') == 'CONTRACT-BLOCKED' and not e.get('blocked_on'): errs.append('contract-blocked gap without blocked_on %s' % (k,))
+computed = set()
 for n in notes:
     gate, rest = n.split(' expects ', 1)
-    out.append('| %s | %s |' % (gate, rest.split(' but no control')[0]))
+    computed.add((gate, rest.split(' but no control')[0]))
+for k in computed - set(gmap): errs.append('gap without classification %s' % (k,))
+for k in set(gmap) - computed: errs.append('classification for a gap that no longer exists %s' % (k,))
+out += ['', '## Gate-to-control-class tagging gaps', '',
+        'Each line is a control class that the gate definition (`data/gate-definitions.json`, `expected_negative_controls`) expects but for which no prepared control is tagged to that gate. All gaps are preserved as genuine preparation deficiencies; a gate having rows does not make its coverage complete. Each gap is classified in [`data/coverage-gap-classification.json`](data/coverage-gap-classification.json) as one of MISSING REQUIRED CONTROL, EXISTING CONTROL NEEDS TAGGING, CONTRACT-BLOCKED or JUSTIFIED NOT APPLICABLE (a source-backed justification is required). The classification is a preparation judgment for the independent lead and the QPR-1 gate binding to confirm. No row is created to fill a count. They are not failures of any implementation.', '',
+        '| Gate | Expected control class (gate slug) | Classification |', '|---|---|---|']
+for (gate, slug) in sorted(computed):
+    out.append('| %s | %s | %s |' % (gate, slug, gmap.get((gate, slug), {}).get('classification', '?')))
+cc = C.Counter(e['classification'] for e in gc)
+out += ['', 'Classification totals: ' + '; '.join('%s %d' % (k, cc[k]) for k in sorted(cc)) + '.']
 out += ['', 'Total gaps: %d.' % len(notes)]
 if not errs:
     open(P + '04a-computed-coverage.md', 'w').write('\n'.join(out) + '\n')

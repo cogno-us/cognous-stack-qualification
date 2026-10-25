@@ -39,3 +39,5 @@ Status: **PREPARATION. Instructions for a future run. Nothing here has been exec
 ## What the run must not do
 
 Run any integration test against incomplete components and call it qualification; rewrite expected results to match new code; credit Route A; credit `max_amount` or QG-02; treat Copilot review as qualification; report a gate PASS from builder tests; or write a Tier 1 verdict without a designated lead.
+
+Repeat counts for race controls are decided by the independent lead at the milestone run, not fixed here (doc 02 section 5). Deterministic schedule-controlled execution is preferred to repetition alone.

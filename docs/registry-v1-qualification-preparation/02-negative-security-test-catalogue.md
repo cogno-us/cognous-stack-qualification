@@ -415,7 +415,7 @@ Each row names `mutation_leg`: the **single** check which, if disabled, must mak
 
 ### Race and repeat protocol
 
-12 controls carry `race_or_repeat=true` and a `repeat_requirement`. Barrier-driven controls (via the Runtime `_transaction_stage` hook named in `EXT-S4-2`) require at least 5 consecutive identical results; unsynchronised races require at least 200 runs per ordering. **These minima are proposed by this lane, not taken from a contract**; the lead may raise them. Raw logs, per-run timestamps (gate, lock, revocation write, receipt `checked_at`) and the count of each ordering are retained. One run is not evidence (p1/08 risk 22).
+12 controls carry `race_or_repeat=true` and a `repeat_requirement`. Race and repeat counts are **test-design proposals, not adopted constitutional thresholds** (Architect closeout ruling, PR #228). Prefer deterministic, schedule-controlled race tests (the Runtime `_transaction_stage` barrier named in `EXT-S4-2`) over relying on repetition alone. The proposed figures, at least 5 barrier-driven repetitions and at least 200 unsynchronised repetitions per ordering, are starting points only. At milestone qualification the independent lead sets the counts from the race structure, the failure consequence, deterministic versus probabilistic coverage, the available execution evidence and independent judgment, and records the reasoning. The numeric minima must not be made mandatory without evidence. Raw logs, per-run timestamps (gate, lock, revocation write, receipt `checked_at`) and the count of each ordering are retained. One run is not evidence (p1/08 risk 22).
 
 ## 6. `BLOCKED_ON_CONTRACT` controls
 
@@ -447,9 +447,12 @@ These controls are prepared as test intent only. Their expectation cannot be fix
 
 - **Stale epoch outcome (OPEN-Q12).** The outcome map keeps `selection_epoch_stale` as HOLD pending the Architect; the lead brief instructs REFUSE with a specific cause and HOLD only for indeterminate state. The controls follow the brief (REFUSE) and say so in `contract_note`. Both are denied-with-no-effect, so the effect-side assertions are unaffected.
 - **Approval revival (NC-073).** Resolved against the primary text of the Architect final ruling: no automatic revival; the old approval stays invalid after a narrowing is withdrawn; fresh approval or authorized new issuance is required; approval generation and policy identity are preserved enough to prevent stale reuse; no generalized approval-history migration. The earlier P1 plan wording ("not guaranteed and is disclosed") is superseded. The refusal is ruled; only the exact cause name is `NEW_CODE_PROPOSED`. The baseline's commitment re-match is recorded as a characterization (DF-086), not as the candidate requirement (DF-103).
+- **LD-02 map versus Architect closeout rulings.** The vetted-but-unratified map keeps HOLD for `selection_epoch_stale`, `participation_mismatch` and `selection_revoked`. The binding rulings are: a definitive condition is REFUSE; unknown, unavailable or indeterminate authoritative state is HOLD; terminal revocation is never an ordinary retryable HOLD. Rows follow the rulings (see doc 08, LD-02 remediation). The discrepancy belongs to the Registry contract owner; this package edits no Registry file.
 - **Un-revocation by a newer snapshot.** The control that a newer snapshot omitting a revocation does not un-revoke rests on revocation being terminal for `(selection_id, epoch)` (p1/04 lifecycle table). If the Architect intends snapshot-driven un-revocation, that control must be revisited; its `contract_note` says so.
 
 ## 7. Proposed new code names
+
+**Provisional traceability aids only.** The 35 `NEW_CODE_PROPOSED` names belong to the applicable Registry, Runtime or Control Plane contract owner. This package specifies the required distinctions between negative outcomes; it does not standardize component reason-code vocabulary. Exact strings are frozen only after contract ratification, and no implementation may hard-code a proposed name as a final requirement (for example `approval_stale_policy_generation` is PROVISIONAL; the refusal behaviour is required regardless of spelling).
 
 Descriptive names for causes the plan describes without a literal code. All are `NEW_CODE_PROPOSED`; none exists in `registry_successor/common.py` `CODES`.
 
@@ -509,5 +512,5 @@ Fields carried by the rows: `NONE` (103), `status_max_age_seconds` (13), `Action
 
 - Define the `FX-B-nnn` fixtures (shared fixtures can serve many rows: one signed selection, one trust snapshot, one activated store, one claim, one age grid).
 - Decide the `BLOCKED_ON_CONTRACT` items in section 6 and the proposed code names in section 7 before freeze; no expectation may be edited after a result is seen.
-- Confirm the proposed race minima in section 5.
+- Decide the repeat counts for the race controls at milestone qualification (section 5; the figures there are test-design proposals).
 - This catalogue is builder-independent preparation. It confers no qualification, and no row may be read as a PASS, a protection claim or a verdict.

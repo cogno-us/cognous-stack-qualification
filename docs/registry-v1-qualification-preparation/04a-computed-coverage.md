@@ -59,42 +59,44 @@ Counts are rows tagged with each gate. They count PREPARED expectations only. Th
 
 ## Gate-to-control-class tagging gaps
 
-Each line is a control class that the gate definition (`data/gate-definitions.json`, `expected_negative_controls`) expects but for which no prepared control is tagged to that gate. These are coverage gaps in the preparation, or places where tagging must be reviewed. They are not failures of any implementation.
+Each line is a control class that the gate definition (`data/gate-definitions.json`, `expected_negative_controls`) expects but for which no prepared control is tagged to that gate. All gaps are preserved as genuine preparation deficiencies; a gate having rows does not make its coverage complete. Each gap is classified in [`data/coverage-gap-classification.json`](data/coverage-gap-classification.json) as one of MISSING REQUIRED CONTROL, EXISTING CONTROL NEEDS TAGGING, CONTRACT-BLOCKED or JUSTIFIED NOT APPLICABLE (a source-backed justification is required). The classification is a preparation judgment for the independent lead and the QPR-1 gate binding to confirm. No row is created to fill a count. They are not failures of any implementation.
 
-| Gate | Expected control class (gate slug) |
-|---|---|
-| QG-01 | string_based_decision |
-| QG-01 | mismatched_claim_identity |
-| QG-01 | route_a_not_credited |
-| QG-03 | required_absence |
-| QG-03 | string_based_decision |
-| QG-03 | expired_selection |
-| QG-04 | mismatched_claim_identity |
-| QG-04 | required_absence |
-| QG-05 | revoked_selection |
-| QG-05 | expired_selection |
-| QG-05 | concurrent_revocation |
-| QG-06 | epoch_downgrade |
-| QG-06 | durable_state_missing_or_corrupt |
-| QG-07 | mismatched_claim_identity |
-| QG-07 | string_based_decision |
-| QG-08 | stale_approval_revival |
-| QG-09 | forged_selection |
-| QG-09 | epoch_downgrade |
-| QG-09 | string_based_decision |
-| QG-10 | confused_deputy |
-| QG-10 | route_a_not_credited |
-| QG-11 | mismatched_claim_identity |
-| QG-11 | forged_selection |
-| QG-11 | required_absence |
-| QG-12 | expired_selection |
-| QG-12 | epoch_downgrade |
-| QG-12 | concurrent_revocation |
-| QG-12 | stale_approval_revival |
-| QG-12 | restore_rollback |
-| QG-12 | registry_denyall_vs_evaluator_denial |
-| QG-12 | invalid_freshness_input |
-| QG-12 | outage_extension_widening |
-| QG-12 | route_a_not_credited |
+| Gate | Expected control class (gate slug) | Classification |
+|---|---|---|
+| QG-01 | mismatched_claim_identity | JUSTIFIED NOT APPLICABLE |
+| QG-01 | route_a_not_credited | JUSTIFIED NOT APPLICABLE |
+| QG-01 | string_based_decision | MISSING REQUIRED CONTROL |
+| QG-03 | expired_selection | JUSTIFIED NOT APPLICABLE |
+| QG-03 | required_absence | JUSTIFIED NOT APPLICABLE |
+| QG-03 | string_based_decision | JUSTIFIED NOT APPLICABLE |
+| QG-04 | mismatched_claim_identity | JUSTIFIED NOT APPLICABLE |
+| QG-04 | required_absence | JUSTIFIED NOT APPLICABLE |
+| QG-05 | concurrent_revocation | JUSTIFIED NOT APPLICABLE |
+| QG-05 | expired_selection | EXISTING CONTROL NEEDS TAGGING |
+| QG-05 | revoked_selection | EXISTING CONTROL NEEDS TAGGING |
+| QG-06 | durable_state_missing_or_corrupt | EXISTING CONTROL NEEDS TAGGING |
+| QG-06 | epoch_downgrade | EXISTING CONTROL NEEDS TAGGING |
+| QG-07 | mismatched_claim_identity | EXISTING CONTROL NEEDS TAGGING |
+| QG-07 | string_based_decision | JUSTIFIED NOT APPLICABLE |
+| QG-08 | stale_approval_revival | JUSTIFIED NOT APPLICABLE |
+| QG-09 | epoch_downgrade | EXISTING CONTROL NEEDS TAGGING |
+| QG-09 | forged_selection | JUSTIFIED NOT APPLICABLE |
+| QG-09 | string_based_decision | CONTRACT-BLOCKED |
+| QG-10 | confused_deputy | EXISTING CONTROL NEEDS TAGGING |
+| QG-10 | route_a_not_credited | JUSTIFIED NOT APPLICABLE |
+| QG-11 | forged_selection | EXISTING CONTROL NEEDS TAGGING |
+| QG-11 | mismatched_claim_identity | EXISTING CONTROL NEEDS TAGGING |
+| QG-11 | required_absence | JUSTIFIED NOT APPLICABLE |
+| QG-12 | concurrent_revocation | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | epoch_downgrade | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | expired_selection | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | invalid_freshness_input | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | outage_extension_widening | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | registry_denyall_vs_evaluator_denial | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | restore_rollback | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | route_a_not_credited | EXISTING CONTROL NEEDS TAGGING |
+| QG-12 | stale_approval_revival | EXISTING CONTROL NEEDS TAGGING |
+
+Classification totals: CONTRACT-BLOCKED 1; EXISTING CONTROL NEEDS TAGGING 18; JUSTIFIED NOT APPLICABLE 13; MISSING REQUIRED CONTROL 1.
 
 Total gaps: 33.
