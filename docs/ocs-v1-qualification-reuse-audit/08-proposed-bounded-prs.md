@@ -2,7 +2,7 @@
 
 **Status: documentation-only analysis. Non-authorizing. Draft for Architect review. RELEASE: HOLD. PUBLICATION: HOLD. PRODUCTION: HOLD.**
 
-Nothing here authorizes a migration, approves a pin, selects or activates a record, or changes a qualification verdict. **These PRs are proposals only. None is started, authorized or implied, and none is to be started from this document.** The Architect issues any implementation authorization separately. Per the standing rulings: no auto-merge, exact-head verification, green checks, and bounded merge authority on each.
+Nothing here authorizes a migration, approves a pin, selects or activates a record, or changes a qualification verdict. **These PRs are proposals only. None is started or implied by this document.** Architect rulings after review (doc 10): QPR-1 authorized after PR #229 closes; QPR-2 permitted in principle but not authorized in this batch; QPR-3 deferred; QPR-4 not authorized. The Architect issues any implementation authorization separately. Per the standing rulings: no auto-merge, exact-head verification, green checks, and bounded merge authority on each.
 
 ## 1. How these fit the existing plan
 

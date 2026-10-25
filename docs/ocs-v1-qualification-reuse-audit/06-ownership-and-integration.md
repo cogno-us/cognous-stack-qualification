@@ -4,6 +4,8 @@
 
 Nothing here authorizes a migration, approves a pin, selects or activates a record, or changes a qualification verdict. Implementation is not authorized. Roles follow the Constitution (CA04, CA08, CA20, CA23) and the P1 plan; they are recommendations for the Architect, not designations. Assigning a title does not manufacture independence.
 
+> **Architect ruling D1 (recorded in [10](10-architect-dispositions-and-adoption-record.md)): Reading A is permitted** for a pinned, read-only subject checkout. The Reading A / Reading B question below is answered; QPR-2 remains not authorized in this batch.
+
 ## 1. Ownership
 
 | Asset | Recommended owner | Why |

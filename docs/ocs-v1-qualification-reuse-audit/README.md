@@ -19,6 +19,8 @@ This package does not implement any change, add or edit a test, expectation, fix
 | 7 | Estimated engineering effort avoided | [07-engineering-effort-avoided.md](07-engineering-effort-avoided.md) |
 | 8 | Proposed bounded implementation PRs | [08-proposed-bounded-prs.md](08-proposed-bounded-prs.md) |
 | | Sources, pins, limits, corrections | [09-source-and-evidence-manifest.md](09-source-and-evidence-manifest.md) |
+| | Architect dispositions D1-D4 and constitutional adoption record | [10-architect-dispositions-and-adoption-record.md](10-architect-dispositions-and-adoption-record.md) |
+| | Status vocabulary crosswalk (no schema change) | [11-status-vocabulary-crosswalk.md](11-status-vocabulary-crosswalk.md) |
 
 Data: [`data/capability-matrix.csv`](data/capability-matrix.csv) and `.json` (44 capabilities, each in exactly one of the five classes), [`data/gate-coverage.csv`](data/gate-coverage.csv) and `.json` (QG-01..QG-14). [`method/validate_audit.py`](method/validate_audit.py) checks the data is closed-vocabulary and self-consistent; it is not repository tooling and is wired to no workflow.
 
@@ -49,6 +51,10 @@ Data: [`data/capability-matrix.csv`](data/capability-matrix.csv) and `.json` (44
 | No independent Tier 1 claim | None made |
 
 Source pins and limitations: [09](09-source-and-evidence-manifest.md). Base: `cognous-stack-qualification` main `be1994a961e4e40612d999972ede6547a3729887`.
+
+## Architect rulings (closeout)
+
+The Architect accepted this assessment and ruled on D1 to D4: Reading A permitted for pinned subject checkout (QPR-2 not authorized in this batch); existing closed status vocabulary preserved with a documentation crosswalk; the Risk-Based Testing Addendum adopted for the OCS Registry V1 program (existing pin kept); QPR-1 authorized after this PR closes. See [10](10-architect-dispositions-and-adoption-record.md) and [11](11-status-vocabulary-crosswalk.md). The "one Architect question" and "Reported conflict" statements below and in doc 06 are answered by those rulings.
 
 ## Testing cadence
 
