@@ -51,19 +51,19 @@ def _kinds(doc):
     return len(kinds), kinds.count("typed_only"), kinds.count("recomputable")
 
 
-def historical_164_problems(doc, raw):
+def historical_164_problems(doc, raw, check_bytes=True):
     """The historical assertion: the frozen 0.2 registry. Returns a list of problems (empty = holds)."""
     problems = []
     if doc.get("version") != V02:
         problems.append(f"version {doc.get('version')!r} != {V02}")
     if _kinds(doc) != (164, 163, 1):
         problems.append(f"kinds {_kinds(doc)} != (164, 163, 1)")
-    if _blob(raw) != BLOB[V02] or hashlib.sha256(raw).hexdigest() != SHA256[V02]:
+    if check_bytes and (_blob(raw) != BLOB[V02] or hashlib.sha256(raw).hexdigest() != SHA256[V02]):
         problems.append("bytes are not the frozen 0.2 file")
     return problems
 
 
-def successor_172_problems(doc, raw, frozen_doc):
+def successor_172_problems(doc, raw, frozen_doc, check_bytes=True):
     """The successor assertion: the immutable 0.3 registry (the 164 entries of 0.2 unchanged and in order, plus eight)."""
     problems = []
     if doc.get("version") != V03:
@@ -79,7 +79,7 @@ def successor_172_problems(doc, raw, frozen_doc):
         entry = doc["codes"].get(c)
         if not entry or entry.get("reason_kind") != "typed_only":
             problems.append(f"{c} is not typed_only")
-    if _blob(raw) != BLOB[V03] or hashlib.sha256(raw).hexdigest() != SHA256[V03]:
+    if check_bytes and (_blob(raw) != BLOB[V03] or hashlib.sha256(raw).hexdigest() != SHA256[V03]):
         problems.append("bytes are not the pinned 0.3 file")
     return problems
 
@@ -93,6 +93,7 @@ def cp():
     head, dirty = _git("rev-parse", "HEAD"), _git("status", "--porcelain")
     assert head == CP_SHA, f"Control Plane HEAD {head} != pin {CP_SHA}"
     assert not dirty, "Control Plane checkout is not pristine"
+    assert not _git("status", "--porcelain", "--ignored"), "Control Plane checkout has ignored/untracked files"
     return {label: _load(label) for label in FILES}
 
 
@@ -103,6 +104,9 @@ def test_pin_record_matches_the_constants_in_this_suite():
         r = rec["registries"][label]
         assert (r["file"], r["git_blob"], r["sha256"]) == (FILES[label], BLOB[label], SHA256[label])
     assert rec["registries"][V02]["codes"] == 164 and rec["registries"][V03]["codes"] == 172 and rec["added_in_0_3"] == ADDED_IN_0_3
+    assert (rec["registries"][V02]["typed_only"], rec["registries"][V02]["recomputable"]) == (163, 1)
+    assert (rec["registries"][V03]["typed_only"], rec["registries"][V03]["recomputable"]) == (171, 1)
+    assert rec["registries"][V02]["frozen"] is True and rec["registries"][V03]["immutable_successor_of"] == V02
     assert "0a41faa972699f7ec3063967a14cd9bdd3e67d27" in rec["control_plane"]["historical_pins_not_replaced"]
 
 
@@ -123,8 +127,9 @@ def test_historical_0_1_registry_is_unchanged(cp):
 def test_frozen_0_2_is_byte_identical_to_the_pre_r6_main(cp):
     for label in (V01, V02):
         assert _git("rev-parse", f"{BASE_SHA}:{FILES[label]}") == BLOB[label] == _git("rev-parse", f"{CP_SHA}:{FILES[label]}")
-    with pytest.raises(subprocess.CalledProcessError):
-        _git("cat-file", "-e", f"{BASE_SHA}:{FILES[V03]}")            # 0.3 did not exist before R6
+    _git("cat-file", "-e", f"{BASE_SHA}^{{commit}}")                    # the base commit is present (full history)
+    absent = subprocess.run(["git", "-C", os.environ["REASONS_CP_DIR"], "cat-file", "-e", f"{BASE_SHA}:{FILES[V03]}"], capture_output=True)
+    assert absent.returncode != 0                                       # 0.3 did not exist before R6
 
 
 def test_successor_172_assertion_holds_on_the_immutable_0_3_registry(cp):
@@ -167,13 +172,23 @@ def _mutated(doc, how):
     return d, (json.dumps(d, indent=2) + "\n").encode()
 
 
-@pytest.mark.parametrize("how", ["drop_one", "append_code", "reorder_added", "edit_old_entry", "relabel_version", "added_recomputable"])
-def test_a_tampered_successor_registry_fails_the_172_assertion(cp, how):
+EXPECT_172 = {"drop_one": "kinds", "append_code": "kinds", "reorder_added": "eight added codes", "edit_old_entry": "unchanged and in order",
+              "relabel_version": "version", "added_recomputable": "kinds"}
+EXPECT_164 = {"drop_one": "kinds", "append_code": "kinds", "edit_old_entry": None, "relabel_version": "version"}
+
+
+@pytest.mark.parametrize("how", sorted(EXPECT_172))
+def test_a_tampered_successor_registry_fails_the_172_assertion_structurally(cp, how):
+    """Digest checks are OFF here, so only the structural checks can catch the tamper; the specific defect must be named."""
     mutated, raw = _mutated(cp[V03][0], how)
-    assert successor_172_problems(mutated, raw, cp[V02][0]), how
+    problems = successor_172_problems(mutated, raw, cp[V02][0], check_bytes=False)
+    assert any(EXPECT_172[how] in p for p in problems), (how, problems)
+    assert successor_172_problems(mutated, raw, cp[V02][0]), how           # and the digest check also rejects it
 
 
-@pytest.mark.parametrize("how", ["drop_one", "append_code", "edit_old_entry", "relabel_version"])
+@pytest.mark.parametrize("how", sorted(EXPECT_164))
 def test_a_tampered_historical_registry_fails_the_164_assertion(cp, how):
     mutated, raw = _mutated(cp[V02][0], how)
-    assert historical_164_problems(mutated, raw), how
+    if EXPECT_164[how]:
+        assert any(EXPECT_164[how] in p for p in historical_164_problems(mutated, raw, check_bytes=False)), how
+    assert historical_164_problems(mutated, raw), how                       # edit_old_entry is caught by the pinned digests alone
