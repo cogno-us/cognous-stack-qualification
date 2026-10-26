@@ -31,7 +31,6 @@ The directories below were written here, not relocated. They have no source comm
 | [`verifier-mutation/`](verifier-mutation/README.md) | Report-only measurement of the independent verifier against damaged traces; includes a vendored copy of the verification-report contract in `contract/` (do not edit) | X-08 | `python -m unittest tests.test_verifier_mutation_harness` for the harness proof; the report command is in its README |
 | [`security-runtime/`](security-runtime/) | Merged-source chain cases, each run twice from fresh stores; no README, driven by the runner | X-03 | `python tools/run_security_runtime.py --profile <profile> --prepare-work --components DIR --out OUT` (see the inventory row) |
 | [`runtime-authority/`](runtime-authority/) | Runtime-authority candidate chain (control plane, runtime, Replay, Evidence Pack); a candidate, never selected; no README | X-04 | `python tools/run_runtime_authority.py --components components --out results/runtime-authority` |
-| [`reasons-successor/`](reasons-successor/) | Reasons 0.2 (164) and 0.3 (172) separate assertions pinned to Control Plane `fff27ebf`; substitution negatives; builder-authored, not a verdict | R6 | `REASONS_CP_DIR=<checkout at pin> python -m pytest suites/reasons-successor` |
 
 Probe suites report known limits as strict expected failures; a strict expected failure is shown as skipped or xfailed by pytest, never as a pass. The suites above do not select component revisions, grant authority or authorize production.
 
