@@ -343,6 +343,14 @@ def _unbound_required(tmp_path):
     return gov, env, raw
 
 
+def test_a11_legacy_claim_through_an_unconfigured_destination_on_a_governed_database(tmp_path, ev):
+    gov, env, raw = _unbound_required(tmp_path)
+    plain = AtomicAuthorityEffectDestination(gov.e.root, clock=lambda: gov.e.now)  # same database, selection store NOT configured
+    result = execute(plain, env, raw["claim_id"])
+    snapshot_ev(ev, gov, result)
+    verdict(ev, "HELD" if result.status != "executed" and effects(gov) == 0 and (typed(result) or {}).get("refusal_class") == "HOLD" else "BREACH")
+
+
 def test_d01_restore_of_database_and_host_held_anchor_together(tmp_path, ev):
     gov = g.Gov(tmp_path)
     raw, env = bound_raw(gov)
@@ -619,3 +627,17 @@ def test_i04_control_plane_refuses_a_binding_the_approval_did_not_commit_to(ev):
         verdict(ev, "INCONCLUSIVE", "honest issuance fixture could not be established; tampered-binding refusal not meaningful")
     else:
         verdict(ev, "HELD" if str(data.get("tampered", "")).startswith("refused") else "BREACH")
+
+
+def test_i05_control_plane_issuance_under_pydantic_2_11(ev):
+    py = os.environ.get("V07_PY211")
+    assert py and Path(py).exists(), "V07_PY211 must name a Python with pydantic 2.11.9 (mandatory case; never skipped)"
+    root = COMPONENTS / "control_plane"
+    data, cp = probe("cp_issue", python=py, extra_path=[CP, root], cwd=root)
+    ev["observed"] = data | {"returncode": cp.returncode, "stderr": cp.stderr[-500:]}
+    if not data:
+        verdict(ev, "HELD", "Control Plane V02 issuance fails closed under pydantic 2.11.9 (process error); no claim produced")
+    elif str(data.get("tampered", "")).startswith("issued"):
+        verdict(ev, "BREACH", "tampered binding issued under 2.11.9")
+    else:
+        verdict(ev, "HELD", f"honest={data.get('honest')}; tampered={data.get('tampered')}")

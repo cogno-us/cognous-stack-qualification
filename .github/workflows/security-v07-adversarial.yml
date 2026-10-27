@@ -49,7 +49,7 @@ jobs:
       - name: Build the pydantic 2.11.9 interpreter used by case I03 (hash-locked)
         run: |
           python -m venv "$RUNNER_TEMP/py211"
-          "$RUNNER_TEMP/py211/bin/python" -m pip install -q --require-hashes -r .github/locks/pydantic-pytest-f8aeba.txt
+          "$RUNNER_TEMP/py211/bin/python" -m pip install -q --require-hashes -r .github/locks/pydantic211-pynacl-pytest-v07.txt
           "$RUNNER_TEMP/py211/bin/python" -c "import pydantic; assert pydantic.VERSION == '2.11.9', pydantic.VERSION"
       - name: Run the V07 adversarial cases
         env:

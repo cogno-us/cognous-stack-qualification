@@ -43,3 +43,13 @@ Budget: max 50 targeted case executions (parametrized and reruns counted). Plann
 | I04 | P3-A | Control Plane materializes a claim with a binding whose digest disagrees with the approval | Control Plane refuses |
 
 Classification of any BREACH follows THREAT_MODEL.md. This file is not edited after execution; results are in `results.json` and `FINDINGS.md`.
+
+## Addendum A — two cases added after the first execution wave and before they were run
+The first wave (37 cases, commit `591ee470`) was executed once. Reviewing its observations, two further cases were declared here, then executed:
+
+| ID | Pri | Attack | Secure oracle |
+|---|---|---|---|
+| A11 | P0 | binding-less legacy claim executed through a destination object that does NOT configure the selection store, on a database that holds a required governed scope | HOLD; zero effects (no permissive fallback by opening the same database without the store) |
+| I05 | P3-D | Control Plane V02 issuance of a bound claim under pydantic 2.11.9 (successor-capable dependency missing) | issuance fails closed or still refuses a tampered binding; no claim with an unverifiable binding |
+
+I03 in the first wave refused because its hand-built binding was invalid, so it did not isolate the pydantic 2.11 behaviour; I05 is the stronger probe. I03 is kept and reported as weak evidence.
