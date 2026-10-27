@@ -635,7 +635,9 @@ def test_i05_control_plane_issuance_under_pydantic_2_11(ev):
     root = COMPONENTS / "control_plane"
     data, cp = probe("cp_issue", python=py, extra_path=[CP, root], cwd=root)
     ev["observed"] = data | {"returncode": cp.returncode, "stderr": cp.stderr[-500:]}
-    if not data:
+    if not data and re.search(r"ModuleNotFoundError|ImportError: .*(cryptography|nacl)", cp.stderr):
+        verdict(ev, "INCONCLUSIVE", "harness environment lacks a dependency of the Control Plane test support; not a security result")
+    elif not data:
         verdict(ev, "HELD", "Control Plane V02 issuance fails closed under pydantic 2.11.9 (process error); no claim produced")
     elif str(data.get("tampered", "")).startswith("issued"):
         verdict(ev, "BREACH", "tampered binding issued under 2.11.9")
