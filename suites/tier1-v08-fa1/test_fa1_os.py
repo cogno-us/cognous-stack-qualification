@@ -28,7 +28,7 @@ from engine.authorization_pin import PinReader
 from host.authorization_pin import TrustedAuthorizationInstaller
 
 HERE = Path(__file__).resolve().parent
-CHILD = HERE / "fa1_child.py"
+CHILD = Path(os.environ.get("V08_FA1_CHILD") or (HERE / "fa1_child.py"))   # CI stages it where the throwaway OS users can traverse
 RUNTIME = Path(os.environ.get("V08_COMPONENTS_DIR", "")).resolve() / "runtime"
 CP_SRC = Path(os.environ.get("V08_COMPONENTS_DIR", "")).resolve() / "control_plane" / "src"
 ZERO = {"effects": 0, "attempts": 0, "authority_effect_receipts_v1": 0, "budget_used": 0}

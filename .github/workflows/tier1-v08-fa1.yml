@@ -43,12 +43,14 @@ jobs:
       - name: Stage the pinned components where two throwaway OS users can read them
         run: |
           sudo cp -a components /opt/fa1-components
+          sudo cp suites/tier1-v08-fa1/fa1_child.py /opt/fa1-components/fa1_child.py
           sudo chmod -R a+rX /opt/fa1-components
           sudo git config --system --add safe.directory '*'
           sudo mkdir -p "$GITHUB_WORKSPACE/fa1-evidence" && sudo chmod 777 "$GITHUB_WORKSPACE/fa1-evidence"
       - name: Run the 30 F-A1 cases as root (real useradd/setpriv identities)
         env:
           V08_COMPONENTS_DIR: /opt/fa1-components
+          V08_FA1_CHILD: /opt/fa1-components/fa1_child.py
           V08_FA1_RESULTS_DIR: ${{ github.workspace }}/fa1-evidence
         run: sudo -E env "PATH=$PATH" python -m pytest suites/tier1-v08-fa1 -q -p no:cacheprovider -rA --junitxml=fa1-evidence/junit.xml
       - name: Gate on failures, skips, breaches, inconclusive and blocked cases

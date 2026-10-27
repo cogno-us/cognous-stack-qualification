@@ -74,3 +74,7 @@ refused `pin_required_binding_absent`.
 
 ## CI
 GitHub CI at the exact heads is carried by `.github/workflows/tier1-v08-fa1.yml` (runs the full 30 cases as root, then `suites/tier1-v08-fa1/gate.py`). CI references are appended below as they complete.
+
+## CI note 1 (appended, head e5770b1b, GitHub Actions run 40537445066)
+
+The first CI run at e5770b1b reported 28 of 30 cases passing and failed only FA1-05 and FA1-06a (real two-identity OS cases; verdict NONE, `pins.sqlite3` never created). Cause: an ordinary harness/CI defect, not a product result. The installer child script was launched as the throwaway installer user from the runner workspace under the runner's home directory, which that user cannot traverse, so no store was written and no isolation claim was evaluated. Both cases remain unresolved (INCONCLUSIVE) until a CI run at the repaired harness shows them executing. Repair: the child is staged next to the pinned components under /opt (`V08_FA1_CHILD`). No product code, pinned head, allowlist or acceptance criterion changed. The 30 local executions are not rerun.
