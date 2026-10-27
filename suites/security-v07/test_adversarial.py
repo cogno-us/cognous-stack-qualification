@@ -102,9 +102,14 @@ def bound_raw(gov, env=None, claim_id="adv-1", binding="current", **over):
     return g.make_claim(env, gov.now, binding=b, claim_id=claim_id), env
 
 
+def _base_path(extra=()):
+    """PYTHONPATH for subprocess probes: Runtime tests/engine, then (as fallback, after any caller-chosen older/other copy) the pinned Control Plane."""
+    return [str(COMPONENTS / "runtime" / "tests"), str(COMPONENTS / "runtime"), *map(str, extra), str(COMPONENTS / "control_plane" / "src")]
+
+
 def probe(mode, *args, python=None, extra_path=(), cwd=None, timeout=180):
     env = dict(os.environ)
-    env["PYTHONPATH"] = os.pathsep.join([str(COMPONENTS / "runtime" / "tests"), str(COMPONENTS / "runtime"), *map(str, extra_path)])
+    env["PYTHONPATH"] = os.pathsep.join(_base_path(extra_path))
     cp = subprocess.run([python or sys.executable, str(Path(__file__).resolve().parent / "_probe.py"), mode, *map(str, args)],
                         env=env, capture_output=True, text=True, timeout=timeout, cwd=cwd)
     line = [x for x in cp.stdout.splitlines() if x.startswith("V07PROBE ")]
@@ -222,7 +227,7 @@ def test_c01_os_process_withdrawal_racing_a_stream_of_executions(tmp_path, ev):
         env = mkenv(i)
         assert provision(gov, g.make_claim(env, gov.now, binding=g.binding_of(gov.state()), claim_id=f"race-{i}")) is True
     proc = subprocess.Popen([sys.executable, str(Path(__file__).resolve().parent / "_probe.py"), "withdraw", str(tmp_path), "1.5"],
-                            env={**os.environ, "PYTHONPATH": os.pathsep.join([str(COMPONENTS / "runtime" / "tests"), str(COMPONENTS / "runtime")])},
+                            env={**os.environ, "PYTHONPATH": os.pathsep.join(_base_path())},
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     statuses = []
     for i in range(n):
@@ -250,7 +255,7 @@ def test_c02_two_processes_execute_the_same_claim(tmp_path, ev):
     env, cid = gov.claim()
     start = time.time() + 4.0
     procs = [subprocess.Popen([sys.executable, str(Path(__file__).resolve().parent / "_probe.py"), "exec_one", str(tmp_path), cid, str(start)],
-                              env={**os.environ, "PYTHONPATH": os.pathsep.join([str(COMPONENTS / "runtime" / "tests"), str(COMPONENTS / "runtime")])},
+                              env={**os.environ, "PYTHONPATH": os.pathsep.join(_base_path())},
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) for _ in range(2)]
     outs = [p.communicate(timeout=120) for p in procs]
     results = [json.loads([x for x in o.splitlines() if x.startswith("V07PROBE ")][-1][len("V07PROBE "):]) for o, _ in outs]
@@ -307,6 +312,9 @@ def test_c05_process_killed_between_effect_insert_and_commit(tmp_path, ev):
     ev["observed"].update(exit_code=cp.returncode, counts=gov.counts(), claim_state=state)
     retry = execute(gov.dest, env, cid)
     ev["observed"].update(retry_status=retry.status, counts_after_retry=gov.counts())
+    if cp.returncode != 9:
+        verdict(ev, "INCONCLUSIVE", f"crash probe did not terminate at the stage (exit {cp.returncode}); stderr: {cp.stderr[-300:]}")
+        return
     verdict(ev, "HELD" if cp.returncode == 9 and state == "issued" and retry.status == "executed" and effects(gov) == 1 else "BREACH")
 
 
@@ -317,6 +325,9 @@ def test_c06_process_killed_immediately_after_commit(tmp_path, ev):
     before = effects(gov)
     replay = execute(gov.dest, env, cid)
     ev["observed"].update(exit_code=cp.returncode, effects_after_crash=before, replay_status=replay.status, counts=gov.counts())
+    if cp.returncode != 9:
+        verdict(ev, "INCONCLUSIVE", f"crash probe did not terminate at the stage (exit {cp.returncode}); stderr: {cp.stderr[-300:]}")
+        return
     verdict(ev, "HELD" if cp.returncode == 9 and before == 1 and replay.status != "executed" and effects(gov) == 1 else "BREACH")
 
 

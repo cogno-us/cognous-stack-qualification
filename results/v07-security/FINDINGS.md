@@ -41,3 +41,20 @@ A01 A02 A03 A04 A05 A06 A07 A10 A11 HELD; **A08 BREACH (F-01)**; A09 CHARACTERIZ
 
 ## Disposition
 No CRITICAL or HIGH finding was demonstrated under the stated classification. **PASS with one MEDIUM finding (F-01); BLOCK if the Architect escalates F-01 to HIGH.** Standing holds unchanged: V08–V09 not authorized; Ed25519 SECURITY-HELD; Tier 1 not started; Release / Publication / Production HOLD.
+
+## Addendum B: CI run at `9151ae02` failed on a harness defect (not a component finding)
+
+The first CI run of this suite (head `9151ae02`) failed. The cause was in the harness, not in the components. The subprocess probes (C02, C05, C06) were launched with a `PYTHONPATH` that omitted the pinned Control Plane `src/`. On my workstation that package was importable from the environment, which hid the defect. In the hash-locked CI environment it was not, so the probe processes exited 1 before reaching their stage.
+
+Observed in CI, from the gate annotations of that run:
+- C02: `IndexError` (the probe printed no result line), recorded FAILED.
+- C05 and C06: recorded `BREACH`. These were false results. A crash probe that never reached its stage was being read as a durability failure.
+
+Repairs (harness only, no component touched):
+- The probe `PYTHONPATH` now includes the pinned Control Plane `src/`, after any caller-chosen older copy.
+- C05 and C06 now record INCONCLUSIVE, never BREACH, when the crash probe does not exit 9 at the stage. A harness fault can no longer be reported as a breach.
+- The gate now emits `::error` annotations for failed cases and for a missing results file, so a CI failure is readable without downloading job logs.
+
+Re-check in a clean hash-locked venv (Python 3.13 locally; CI uses 3.12) with the pydantic 2.11.9 venv for I03 and I05: I01, I02, I03 and I05 passed with unchanged verdicts, and after the repair C02, C05 and C06 are all HELD (exit code 9 observed at both crash stages).
+
+Execution accounting: 40 local executions before CI, 4 environment checks (I01, I02, I03, I05), and 3 post-repair checks (C02, C05, C06) plus 3 pre-repair reproductions of the CI failure (C02, C05, C06), which gives the 50-execution ceiling. The earlier local verdicts for C02, C05 and C06 (HELD) were obtained with the probe path working and stand. The pre-repair CI verdicts are retained here as invalid harness results, not as findings.
