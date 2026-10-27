@@ -17,6 +17,21 @@ def annotate(msg):
     print("::error title=V08 gate::" + msg.replace("%", "%25").replace("\r", "").replace("\n", "%0A")[:1500])
 
 
+def diagnostics(obj, path="", out=None):
+    """Collect non-empty error/stderr-like members of the observed evidence so a CI failure is readable without downloading logs."""
+    out = [] if out is None else out
+    if isinstance(obj, dict):
+        for k, val in obj.items():
+            if k in ("harness_error", "stderr", "stderr_tail", "error", "exc_msg", "exc_type") and val:
+                out.append(f"{path}/{k}={str(val)[-350:]!r}")
+            else:
+                diagnostics(val, f"{path}/{k}", out)
+    elif isinstance(obj, list):
+        for i, val in enumerate(obj):
+            diagnostics(val, f"{path}[{i}]", out)
+    return "; ".join(out)[:1300]
+
+
 for a in areas:
     f = root / a / "results.json"
     if not f.exists():
@@ -37,6 +52,8 @@ for a in areas:
             bad.append(f"{short}: {c.get('outcome')}: {c.get('failure', '')[-600:]}")
         if v in ("BREACH", "INCONCLUSIVE", "BLOCKED", "NONE"):
             bad.append(f"{short}: verdict {v}: {c.get('note')}")
+        if v in ("INCONCLUSIVE", "BLOCKED", "NONE"):
+            annotate(f"{short}: diagnostics: " + diagnostics(c.get("observed")))
 for area, items in manifest["mandatory_scenarios"].items():
     for s in items:
         if s.get("mandatory"):
