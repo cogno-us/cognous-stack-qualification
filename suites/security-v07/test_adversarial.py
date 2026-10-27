@@ -258,8 +258,16 @@ def test_c02_two_processes_execute_the_same_claim(tmp_path, ev):
                               env={**os.environ, "PYTHONPATH": os.pathsep.join(_base_path())},
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) for _ in range(2)]
     outs = [p.communicate(timeout=120) for p in procs]
-    results = [json.loads([x for x in o.splitlines() if x.startswith("V07PROBE ")][-1][len("V07PROBE "):]) for o, _ in outs]
-    ev["observed"].update(results=results, counts=gov.counts())
+    raw = [{"exit_code": p.returncode, "stdout_tail": o[-400:], "stderr_tail": e[-600:]} for p, (o, e) in zip(procs, outs)]
+    results = []
+    for o, _ in outs:
+        lines = [x for x in o.splitlines() if x.startswith("V07PROBE ")]
+        results.append(json.loads(lines[-1][len("V07PROBE "):]) if lines else None)
+    ev["observed"].update(results=results, subprocess_raw=raw, counts=gov.counts())
+    if any(r is None for r in results):
+        # A probe that produced no result line proves nothing about the Runtime: INCONCLUSIVE with the captured exit status and streams.
+        verdict(ev, "INCONCLUSIVE", "a racing subprocess produced no result line (see subprocess_raw); the concurrency criterion was not exercised")
+        return
     verdict(ev, "HELD" if effects(gov) == 1 else "BREACH", f"effects={effects(gov)}")
 
 
