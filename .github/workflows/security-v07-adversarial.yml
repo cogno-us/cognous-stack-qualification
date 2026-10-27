@@ -70,7 +70,7 @@ jobs:
           import os, sys, xml.etree.ElementTree as ET
           root = ET.parse(os.environ["GITHUB_WORKSPACE"] + "/v07-evidence/junit-v05-runtime.xml").getroot()
           suite = root if root.tag == "testsuite" else root.find("testsuite")
-          print({k: suite.get(k) for k in ("tests", "failures", "errors", "skipped")})
+          print("::notice title=V05 + Runtime F-01 modules at patched Runtime::" + str({k: suite.get(k) for k in ("tests", "failures", "errors", "skipped")}))
           sys.exit(0 if int(suite.get("tests")) > 0 and not int(suite.get("skipped")) and not int(suite.get("errors")) and not int(suite.get("failures")) else 1)
           PY
       - name: Regression - the unchanged V06 end-to-end suite re-pointed at the patched Registry and Runtime (a skip or failure fails the run)
@@ -85,7 +85,7 @@ jobs:
           import json, sys
           doc = json.load(open("v07-evidence/v06-at-patched-pins/results.json"))
           c = doc["counts"]
-          print(json.dumps({"counts": c, "pins": doc["exact_pins"]}, indent=1))
+          print("::notice title=V06 suite at patched pins::" + json.dumps({"counts": c, "pins": doc["exact_pins"]}, sort_keys=True))
           sys.exit(0 if c["executed"] > 0 and c["SKIP"] == 0 and c["FAILED"] == 0 else 1)
           PY
       - name: Gate on harness failures, skips and unaccepted breaches

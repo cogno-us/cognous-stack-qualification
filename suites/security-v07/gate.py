@@ -48,5 +48,6 @@ if not required <= present:
     bad.append(f"requalification cases missing: {sorted(required - present)}")
 for b in bad:
     annotate(b)
+print("::notice title=V07 gate::" + json.dumps({"counts": c, "verdicts": results["verdicts"], "pins": results.get("exact_pins")}, sort_keys=True))
 print(json.dumps({"counts": c, "verdicts": results["verdicts"], "accepted": sorted(accepted)}, indent=1))
 sys.exit(1 if bad else 0)
