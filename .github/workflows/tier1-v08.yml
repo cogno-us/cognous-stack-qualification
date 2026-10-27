@@ -1,0 +1,68 @@
+name: Tier 1 V08 qualification
+on:
+  pull_request:
+    paths:
+      - suites/tier1-v08/**
+      - results/v08-tier1/**
+      - .github/workflows/tier1-v08.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tier1:
+    name: tier 1 qualification (frozen pins; any failure, skip, breach, inconclusive or blocked case fails)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-ocs-registry
+          ref: a1169a05afb917862f4a0f5865e278f4168ed171
+          path: components/registry
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: 1bee3696ee6cd8037d142cdbcdb6020e052b0480
+          path: components/control_plane
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-execution-runtime
+          ref: ac247dafbce3aacde37695575d457cf958b22560
+          path: components/runtime
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: e66e5f163c5d5c112ff345a2f332b4c3893ee183
+          path: components/control_plane_legacy
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -q --require-hashes -r .github/locks/v07-pydantic212-pynacl-cryptography-pytest.txt
+      - name: Build the pydantic 2.11.9 interpreter for dependency-absence cases (hash-locked)
+        run: |
+          python -m venv "$RUNNER_TEMP/py211"
+          "$RUNNER_TEMP/py211/bin/python" -m pip install -q --require-hashes -r .github/locks/v07-pydantic211-pynacl-cryptography-pytest.txt
+          "$RUNNER_TEMP/py211/bin/python" -c "import pydantic; assert pydantic.VERSION == '2.11.9', pydantic.VERSION"
+      - name: Run the V08 Tier 1 cases
+        env:
+          V08_COMPONENTS_DIR: ${{ github.workspace }}/components
+          V08_RESULTS_DIR: ${{ github.workspace }}/v08-evidence
+          V08_PY211: ${{ runner.temp }}/py211/bin/python
+        run: python -m pytest suites/tier1-v08 -q -p no:cacheprovider -rA --junitxml=v08-evidence/junit.xml
+      - name: Gate on failures, skips, breaches, inconclusive and blocked cases
+        if: always()
+        run: python suites/tier1-v08/gate.py v08-evidence results/v08-tier1/qualification-manifest.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v08-tier1-evidence
+          path: v08-evidence
+          if-no-files-found: error
