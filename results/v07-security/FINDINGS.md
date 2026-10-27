@@ -86,3 +86,6 @@ Execution accounting: 40 local executions before CI, 4 environment checks (I01, 
 
 ## Unqualified boundaries (final)
 Ed25519 soundness (SECURITY-HELD); anchor custody; Registry-to-Control-Plane publication; production deployment; independent human review (assessor is the builder identity); no Control-Plane-issued claim was carried through the Runtime guard; Runtime-side verification of successor claims under pydantic 2.11.9; the `claim_json` lock-time authentication gap (D08); the F1AB caller-owned dimensions (A09).
+
+## Addendum D: requalification after the F-01 remediation
+The F-01 remediation merged as Runtime `ac247daf` (Registry Amendment 3 at `a1169a05`). The requalification record is `requalification/REQUALIFICATION.md`; the sections above are the historical record and are not rewritten. Result: A08 HELD at the patched Runtime; PASS (same-builder) with the residual limits listed there.
