@@ -90,7 +90,12 @@ jobs:
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
         name: relocation-cognous-execution-runtime-focused-${{ strategy.job-index }}-${{ github.run_attempt }}
-        path: |
-          qualification-evidence/
-          successor-junit.xml
+        path: qualification-evidence/
         if-no-files-found: error
+    - name: Retain successor-profile junit result
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      with:
+        name: worker21-successor-junit-${{ github.run_attempt }}
+        path: successor-junit.xml
+        if-no-files-found: ignore
