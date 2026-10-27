@@ -1,0 +1,728 @@
+{
+ "cases": [
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a01_explicit_null_binding_on_a_successor_profile_claim",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "provision": "ValidationError: 1 validation error for TenantLocalExecutionClaim\n  Value error, policy_binding is inconsistent with the claim profile or the claim scope [type=value_error, input_value={'profile': 'urn:cognous:...2612"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a02_legacy_downgrade_of_a_bound_claim_over_a_required_scope",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "provision": true,
+    "refused_with": {
+     "cause": "scope_required_without_binding",
+     "code": "selection_missing",
+     "refusal_class": "REFUSE"
+    },
+    "selection_refusal": {
+     "cause": "scope_required_without_binding",
+     "code": "selection_missing",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a03_activation_ref_naming_a_real_non_activate_log_entry",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "provision": true,
+    "selection_refusal": {
+     "cause": "activation_ref",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a04_unknown_binding_member_policy_generation_injected",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "provision": "ValidationError: 1 validation error for TenantLocalExecutionClaim\npolicy_binding\n  Value error, policy_binding is not a valid ocs-policy-binding/1 object (policy_generation) [type=value_error, input_value={'binding_pr"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a05_claim_provisioned_after_the_selection_was_withdrawn",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "provision": true,
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_withdrawn",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a06_revoked_selection_epoch_pair_after_issue_on_an_optional_scope",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_revoked",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a07_claim_altered_without_recomputing_the_commitment",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "claim_rows": 0,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "provision": "PermissionError: execution claim commitment is invalid"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a08_claim_effective_policy_digest_replaced_by_a_wider_policys_digest",
+   "expected": null,
+   "note": "effect committed: {'provision': True, 'counts_effects_attempts_receipts_budget': (1, 1, 1, 1), 'status': 'executed', 'attempted': True, 'selection_refusal': None, 'registry_payload_actions': ['act-list']}",
+   "observed": {
+    "attempted": true,
+    "counts_effects_attempts_receipts_budget": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "provision": true,
+    "registry_payload_actions": [
+     "act-list"
+    ],
+    "selection_refusal": null,
+    "status": "executed"
+   },
+   "outcome": "PASSED",
+   "verdict": "BREACH"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a09_caller_owned_dimensions_widened_with_the_registry_sets_unchanged",
+   "expected": null,
+   "note": "amount 5000 > default cap 1000 under a narrowed Registry policy: executed; max_amount and target prefixes are outside the F1AB payload (caller-owned)",
+   "observed": {
+    "attempted": true,
+    "counts_effects_attempts_receipts_budget": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "provision": true,
+    "selection_refusal": null,
+    "status": "executed"
+   },
+   "outcome": "PASSED",
+   "verdict": "CHARACTERIZED"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a10_supersession_to_epoch_2_refuses_the_epoch_1_claim",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "stale_policy_generation",
+     "code": "selection_epoch_stale",
+     "refusal_class": "REFUSE_STALE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c01_os_process_withdrawal_racing_a_stream_of_executions",
+   "expected": null,
+   "note": "monotone=True guard_heads_below_withdraw=True",
+   "observed": {
+    "denied": 110,
+    "executed": 50,
+    "first_denied_index": 50,
+    "max_guard_head_of_effects": 3,
+    "probe_stderr": "",
+    "withdraw_sequence": 4
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c02_two_processes_execute_the_same_claim",
+   "expected": null,
+   "note": "effects=1",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "results": [
+     {
+      "mode": "exec_one",
+      "pid": 771,
+      "status": "denied",
+      "typed": null
+     },
+     {
+      "mode": "exec_one",
+      "pid": 772,
+      "status": "executed",
+      "typed": null
+     }
+    ]
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c03_two_claims_sharing_one_budget_executed_concurrently",
+   "expected": null,
+   "note": "effects=1 budget_used=1",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "provisioned": [
+     true,
+     true
+    ],
+    "results": {
+     "0": "executed",
+     "1": "denied"
+    }
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c04_concurrent_authority_writers_leave_a_verifiable_store",
+   "expected": null,
+   "note": "errors=[]",
+   "observed": {
+    "head": [
+     5,
+     "sha256:56a495723b5dbd6c8363977e42d0765a3d1ac7d1f7e97b17393d97bba1ada0e3"
+    ],
+    "store_state": "known",
+    "writer_errors": []
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c05_process_killed_between_effect_insert_and_commit",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "claim_state": "issued",
+    "counts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "counts_after_retry": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "exit_code": 9,
+    "retry_status": "executed"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c06_process_killed_immediately_after_commit",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "effects_after_crash": 1,
+    "exit_code": 9,
+    "replay_status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c07_long_lived_destination_does_not_cache_authority",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_withdrawn",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d01_restore_of_database_and_host_held_anchor_together",
+   "expected": null,
+   "note": "consistent rollback of DB and anchor: effect committed (disclosed undetectable, ADR 3.6)",
+   "observed": {
+    "attempted": true,
+    "counts_effects_attempts_receipts_budget": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "selection_refusal": null,
+    "status": "executed"
+   },
+   "outcome": "PASSED",
+   "verdict": "CHARACTERIZED"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d02_anchor_ahead_of_the_store",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "anchor_ahead",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d03_anchor_head_hash_altered",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "anchor_hash_mismatch",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d04_ratchet_row_deleted_then_binding_less_claim",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "table_mismatch:selection_scope_required_v1",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d05_generation_counter_lowered",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "table_mismatch:selection_generation_v1",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d06_selection_tables_dropped_while_a_store_is_configured",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "schema_missing",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d07_database_file_truncated_after_provisioning",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "status": "unknown"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d08_stored_claim_row_altered_after_provisioning",
+   "expected": null,
+   "note": "claim_json edited in place (commitment not recomputed): effect committed; requires write access to the database",
+   "observed": {
+    "attempted": true,
+    "counts_effects_attempts_receipts_budget": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "selection_refusal": null,
+    "status": "executed"
+   },
+   "outcome": "PASSED",
+   "verdict": "CHARACTERIZED"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t01_replay_of_an_older_trust_snapshot",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "accepted": false,
+    "head_after": [
+     4,
+     "sha256:a9f035a193624d3488f56e71dea0246da3d107b58e303c1cb6fa9e8d02ed1ca6"
+    ],
+    "head_before": [
+     4,
+     "sha256:a9f035a193624d3488f56e71dea0246da3d107b58e303c1cb6fa9e8d02ed1ca6"
+    ],
+    "refusal": "SelectionRefusal: trust_snapshot_version_stale"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t02_later_snapshot_cannot_unrevoke_an_issuer_key",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "issuer_key_revoked",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied",
+    "unrevoking_snapshot": "refused: trust_snapshot_invalid [revocation_omitted]"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t03_resubmitted_epoch_1_activation_after_epoch_2",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "accepted": false,
+    "epoch_now": 2,
+    "refusal": "SelectionRefusal: selection_epoch_stale"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t04_resubmitted_old_activation_after_withdrawal_cannot_resurrect",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "accepted": false,
+    "refusal": "SelectionRefusal: selection_epoch_stale",
+    "status_now": "withdrawn"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t05_lineage_substitution_with_a_different_selection_id",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "accepted": false,
+    "refusal": {
+     "cause": "lineage_replacement_prohibited",
+     "code": "selection_conflict"
+    }
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t06_record_identity_substitution_under_a_pinned_statement",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "accepted": false,
+    "activation_rows": 0,
+    "refusal": {
+     "code": "field_invalid",
+     "type": "SelectionRefusal"
+    }
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t07_duplicate_key_statement_text_is_not_accepted",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "accepted": false,
+    "activation_rows": 0,
+    "refusal": "SelectionRefusal: json_duplicate_key [selection_parse]"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t08_missing_or_raising_verifier_never_activates",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "activation_rows": 0,
+    "outcomes": {
+     "none": "SelectionRefusal",
+     "raising": "SelectionRefusal"
+    }
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_i01_runtime_wrapper_workflow_reusable_pin",
+   "expected": null,
+   "note": "Runtime wrapper calls the reusable qualification workflow at ['1c1755ff4ea719cfa12f72bcd8c81dd51cff7fb2']; V06 qualified revision is ae12221831bc39beea6dbf0ae7fda726baeecf1f: STALE (coverage gap, not an exploit)",
+   "observed": {
+    "reusable_workflow_refs": [
+     "1c1755ff4ea719cfa12f72bcd8c81dd51cff7fb2"
+    ]
+   },
+   "outcome": "PASSED",
+   "verdict": "CHARACTERIZED"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_i02_successor_claim_on_the_older_control_plane_fixture",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "claims": 0,
+    "effects": 0,
+    "error": "execution claim commitment is invalid",
+    "error_type": "PermissionError",
+    "mode": "successor_old",
+    "pid": 779,
+    "provision": "refused",
+    "pydantic": "2.14.1",
+    "returncode": 0,
+    "stderr": ""
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_i03_successor_claim_with_v02_under_pydantic_2_11",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "claims": 0,
+    "effects": 0,
+    "error": "1 validation error for LocalExecutionClaim\npolicy_binding\n  Value error, policy_binding is not a valid ocs-policy-binding/1 object (record_id) [type=value_error, input_value={'binding_profile': 'ocs-policy-binding/1'}, input_type=dict]\n    ",
+    "error_type": "ValidationError",
+    "mode": "successor_211",
+    "pid": 780,
+    "provision": "refused",
+    "pydantic": "2.11.9",
+    "returncode": 0,
+    "stderr": ""
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_i04_control_plane_refuses_a_binding_the_approval_did_not_commit_to",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "honest": "issued",
+    "mode": "cp_issue",
+    "pid": 781,
+    "returncode": 0,
+    "stderr": "",
+    "tampered": "refused: PermissionError policy binding refused at claim issuance: policy binding is inconsistent with the approval-side policy binding"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Bounded synthetic adversarial assessment by the builder identity; not an independent-party review, not a production security qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 37,
+  "SKIP": 0,
+  "executed": 37
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "943ab1831e39fadac1eb2a414ae322ccfa09bc6a",
+  "runtime": "4199a6c793cd9ec37a5fd451f7d99265dcf634fd"
+ },
+ "harness_commit": "591ee470f8552feaf91f264123eb8fe26238728c",
+ "qualification_v06_pin": "ae12221831bc39beea6dbf0ae7fda726baeecf1f",
+ "schema": "v07-security-results/1",
+ "verdicts": {
+  "BREACH": 1,
+  "CHARACTERIZED": 4,
+  "HELD": 32
+ }
+}
