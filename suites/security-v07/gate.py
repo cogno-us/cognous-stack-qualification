@@ -31,6 +31,21 @@ for case in results["cases"]:
         f = accepted.get(short)
         if f is None or f["severity"] in ("CRITICAL", "HIGH"):
             bad.append(f"{short}: BREACH not accepted ({f})")
+# Requalification: the historical A08 BREACH (Runtime 4199a6c7) must now be HELD with the typed refusal and nothing committed.
+# The patched result is judged on its own evidence; the historical breach is kept in historical_findings.json and is never an allowance.
+a08 = [c for c in results["cases"] if c["case"].endswith("test_a08_claim_effective_policy_digest_replaced_by_a_wider_policys_digest")]
+if len(a08) != 1:
+    bad.append("A08: not present exactly once")
+else:
+    obs = a08[0].get("observed") or {}
+    counts = obs.get("counts_effects_attempts_receipts_budget")
+    if (a08[0].get("verdict") != "HELD" or (obs.get("selection_refusal") or {}).get("code") != "policy_identity_mismatch"
+            or not counts or any(counts[:3])):
+        bad.append(f"A08: patched result is not HELD/policy_identity_mismatch/zero-evidence: {a08[0].get('verdict')} {obs}")
+required = {"A12", "A13", "A14", "A15", "A16", "A17", "A18"}
+present = {c["case"].split("::")[-1].split("_")[1].upper() for c in results["cases"]}
+if not required <= present:
+    bad.append(f"requalification cases missing: {sorted(required - present)}")
 for b in bad:
     annotate(b)
 print(json.dumps({"counts": c, "verdicts": results["verdicts"], "accepted": sorted(accepted)}, indent=1))

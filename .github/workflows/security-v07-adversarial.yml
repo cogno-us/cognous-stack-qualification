@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-ocs-registry
-          ref: 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+          ref: a1169a05afb917862f4a0f5865e278f4168ed171
           path: components/registry
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           repository: cogno-us/cognous-execution-runtime
-          ref: 4199a6c793cd9ec37a5fd451f7d99265dcf634fd
+          ref: ac247dafbce3aacde37695575d457cf958b22560
           path: components/runtime
           persist-credentials: false
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -57,6 +57,37 @@ jobs:
           V07_EVIDENCE_DIR: ${{ github.workspace }}/v07-evidence
           V07_PY211: ${{ runner.temp }}/py211/bin/python
         run: python -m pytest suites/security-v07 -q -p no:cacheprovider -rA --junitxml=v07-evidence/junit.xml
+      - name: Regression - V05 effect-time guard module and the Runtime F-01 module at the patched Runtime (a skip or failure fails the run)
+        if: always()
+        working-directory: components/runtime
+        env:
+          OCS_REGISTRY_PIN_DIR: ${{ github.workspace }}/components/registry
+          PYTHONPATH: .:tests:${{ github.workspace }}/components/control_plane/src
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/v07-evidence"
+          python -m pytest tests/test_registry_selection_effect_guard.py tests/test_f01_policy_containment.py -q -p no:cacheprovider -rA --junitxml="$GITHUB_WORKSPACE/v07-evidence/junit-v05-runtime.xml"
+          python - <<'PY'
+          import os, sys, xml.etree.ElementTree as ET
+          root = ET.parse(os.environ["GITHUB_WORKSPACE"] + "/v07-evidence/junit-v05-runtime.xml").getroot()
+          suite = root if root.tag == "testsuite" else root.find("testsuite")
+          print({k: suite.get(k) for k in ("tests", "failures", "errors", "skipped")})
+          sys.exit(0 if int(suite.get("tests")) > 0 and not int(suite.get("skipped")) and not int(suite.get("errors")) and not int(suite.get("failures")) else 1)
+          PY
+      - name: Regression - the unchanged V06 end-to-end suite re-pointed at the patched Registry and Runtime (a skip or failure fails the run)
+        if: always()
+        env:
+          V06_COMPONENTS_DIR: ${{ github.workspace }}/components
+          V06_EVIDENCE_DIR: ${{ github.workspace }}/v07-evidence/v06-at-patched-pins
+          V06_PIN_OVERRIDES: '{"registry": "a1169a05afb917862f4a0f5865e278f4168ed171", "runtime": "ac247dafbce3aacde37695575d457cf958b22560"}'
+        run: |
+          python -m pytest suites/e2e-governed-effect -q -p no:cacheprovider -rA --junitxml=v07-evidence/junit-v06-at-patched-pins.xml
+          python - <<'PY'
+          import json, sys
+          doc = json.load(open("v07-evidence/v06-at-patched-pins/results.json"))
+          c = doc["counts"]
+          print(json.dumps({"counts": c, "pins": doc["exact_pins"]}, indent=1))
+          sys.exit(0 if c["executed"] > 0 and c["SKIP"] == 0 and c["FAILED"] == 0 else 1)
+          PY
       - name: Gate on harness failures, skips and unaccepted breaches
         if: always()
         run: python suites/security-v07/gate.py v07-evidence/results.json results/v07-security/accepted_findings.json

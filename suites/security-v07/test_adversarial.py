@@ -662,3 +662,83 @@ def test_i05_control_plane_issuance_under_pydantic_2_11(ev):
         verdict(ev, "BREACH", "tampered binding issued under 2.11.9")
     else:
         verdict(ev, "HELD", f"honest={data.get('honest')}; tampered={data.get('tampered')}")
+
+
+# ================================================================================================================= F-01 requalification
+# Independently built: the executor policy is widened in exactly ONE of the five F1a sets; the claim supplier carries the digest of that widened policy
+# and the commitment is recomputed (make_claim). The activated record (default fixture) allows only the base member of each set.
+FIVE = ("allowed_actions", "allowed_adapters", "allowed_units", "allowed_institutions", "allowed_authority_domains")
+EXTRA_MEMBER = {"allowed_actions": "act-extra", "allowed_adapters": "a-extra", "allowed_units": "u-extra",
+                "allowed_institutions": "inst-extra", "allowed_authority_domains": "domain-extra"}
+
+
+def _zero(gov):
+    with sqlite3.connect(gov.dest.path) as conn:
+        return {t: conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in ("effects", "attempts", "authority_effect_receipts_v1")}
+
+
+def _widen_one(tmp_path, ev, field):
+    gov = g.Gov(tmp_path)
+    widened = g.effect_policy(**{field: frozenset(v4.PAYLOAD[field]) | {EXTRA_MEMBER[field]}})
+    digest = sa.policy_digest_of(widened)
+    assert digest != v4.effective_digest()
+    env = g.envelope()  # the envelope stays inside the record; the attack is the policy, not the operation
+    raw = g.make_claim(env, gov.now, binding=g.binding_of(gov.state(), effective_policy_digest=digest), claim_id=f"rq-{field}")
+    ok, result = attempt_claim(ev, gov, raw, policy=widened, env=env)
+    z = _zero(gov)
+    ev["observed"].update(zero_evidence=z, claim_digest_is_widened=digest, record_set=sorted(v4.PAYLOAD[field]))
+    refused_ok = (ok is True and result is not None and result.status == "denied" and not result.attempted
+                  and (typed(result) or {}).get("code") == "policy_identity_mismatch" and all(v == 0 for v in z.values()))
+    verdict(ev, "HELD" if refused_ok else "BREACH", f"widened {field}: {'refused policy_identity_mismatch, zero effects/attempts/receipts' if refused_ok else ev['observed']}")
+
+
+def test_a12_widen_allowed_actions_with_a_recomputed_commitment(tmp_path, ev):
+    _widen_one(tmp_path, ev, "allowed_actions")
+
+
+def test_a13_widen_allowed_adapters_with_a_recomputed_commitment(tmp_path, ev):
+    _widen_one(tmp_path, ev, "allowed_adapters")
+
+
+def test_a14_widen_allowed_units_with_a_recomputed_commitment(tmp_path, ev):
+    _widen_one(tmp_path, ev, "allowed_units")
+
+
+def test_a15_widen_allowed_institutions_with_a_recomputed_commitment(tmp_path, ev):
+    _widen_one(tmp_path, ev, "allowed_institutions")
+
+
+def test_a16_widen_allowed_authority_domains_with_a_recomputed_commitment(tmp_path, ev):
+    _widen_one(tmp_path, ev, "allowed_authority_domains")
+
+
+def _wide_record_gov(tmp_path):
+    gov = g.Gov(tmp_path, activate=False)
+    payload = {k: sorted(set(v4.PAYLOAD[k]) | {EXTRA_MEMBER[k]}) for k in FIVE}
+    rec = v4.reg_record(payload=payload)
+    gov.stmt = v4.select_stmt(rec)
+    gov.e.activate(gov.stmt, rec=rec)
+    return gov, payload
+
+
+def _positive(tmp_path, ev, equal):
+    gov, payload = _wide_record_gov(tmp_path)
+    policy = g.effect_policy(**({k: frozenset(payload[k]) for k in FIVE} if equal else {}))
+    env = g.envelope(action_id="act-extra") if equal else g.envelope()
+    digest = sa.policy_digest_of(policy)
+    raw = g.make_claim(env, gov.now, binding=g.binding_of(gov.state(), effective_policy_digest=digest), claim_id="rq-pos")
+    ok, result = attempt_claim(ev, gov, raw, policy=policy, env=env)
+    z = _zero(gov)
+    ev["observed"].update(zero_evidence=z, policy_is_subset_of_record=all(set(getattr(policy, k)) <= set(payload[k]) for k in FIVE),
+                          policy_strictly_narrower=all(set(getattr(policy, k)) < set(payload[k]) for k in FIVE))
+    good = ok is True and result is not None and result.status == "executed" and z == {"effects": 1, "attempts": 1, "authority_effect_receipts_v1": 1}
+    verdict(ev, "HELD" if good else "BREACH", ("legitimate " + ("equal" if equal else "narrower") + " policy executes with one effect and one receipt") if good
+            else f"a legitimate policy was refused or mis-recorded (over-enforcement): {ev['observed']}")
+
+
+def test_a17_strictly_narrower_policy_than_the_record_still_executes(tmp_path, ev):
+    _positive(tmp_path, ev, equal=False)
+
+
+def test_a18_equal_policy_still_executes(tmp_path, ev):
+    _positive(tmp_path, ev, equal=True)

@@ -15,12 +15,16 @@ from pathlib import Path
 
 import pytest
 
+# Requalification pins (F-01 remediation merged): Registry with r08-v2 Amendment 3, Runtime with the effect-time containment check.
 PINS = {
-    "registry": "943ab1831e39fadac1eb2a414ae322ccfa09bc6a",
+    "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
     "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
-    "runtime": "4199a6c793cd9ec37a5fd451f7d99265dcf634fd",
+    "runtime": "ac247dafbce3aacde37695575d457cf958b22560",
     "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",  # intentionally older fixture: no successor profile
 }
+# The pins of the ORIGINAL V07 assessment (head 878002c6): A08 was a BREACH at these. Retained as history, not used for checkout.
+HISTORICAL_PINS = {"registry": "943ab1831e39fadac1eb2a414ae322ccfa09bc6a", "runtime": "4199a6c793cd9ec37a5fd451f7d99265dcf634fd"}
+HISTORICAL_ASSESSMENT_HEAD = "878002c62a0e8c6987af69d29667b64822108b59"
 V06_QUALIFICATION = "ae12221831bc39beea6dbf0ae7fda726baeecf1f"
 REPO = Path(__file__).resolve().parents[2]
 COMPONENTS = Path(os.environ.get("V07_COMPONENTS_DIR", "")).resolve() if os.environ.get("V07_COMPONENTS_DIR") else None
@@ -98,6 +102,8 @@ def pytest_sessionfinish(session, exitstatus):
         "counts": {"executed": len(_CASES), **counts, "BLOCKED": 0},
         "verdicts": verdicts,
         "qualification_v06_pin": V06_QUALIFICATION,
+        "requalification": {"historical_pins": HISTORICAL_PINS, "historical_assessment_head": HISTORICAL_ASSESSMENT_HEAD,
+                            "note": "pins above are the patched requalification pins; the original A08 BREACH was recorded at the historical pins"},
         "cases": _CASES,
     }
     (EVIDENCE_DIR / "results.json").write_text(json.dumps(doc, indent=1, sort_keys=True, default=str))
