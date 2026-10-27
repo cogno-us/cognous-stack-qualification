@@ -12,13 +12,14 @@ import os
 import pickle
 import subprocess
 import sqlite3
+import sys
 from pathlib import Path
 
 import _tr
 from _tr import sa, v4
 
 COMP = Path(os.environ["V08_COMPONENTS_DIR"]).resolve()
-PY_MAIN = "/home/claude/venv-cp/bin/python"
+PY_MAIN = sys.executable  # the interpreter running this suite (was a workstation path in the worker draft; CI has no such path)
 PY_OLD = os.environ.get("V08_PY211", "/home/claude/venv/bin/python")
 PROBE = str(Path(__file__).resolve().parent / "_probe_effect.py")
 
