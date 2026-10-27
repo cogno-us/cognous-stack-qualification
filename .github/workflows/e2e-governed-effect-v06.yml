@@ -6,6 +6,7 @@ on:
       - .github/locks/pydantic212-pynacl-pytest-v06.*
       - .github/workflows/e2e-governed-effect-v06.yml
       - .github/workflows/cognous-execution-runtime--worker21-authority-effect.yml
+      - .github/workflows/cognous-execution-runtime--worker21-legacy-pin-compat.yml
   workflow_dispatch:
 permissions:
   contents: read
@@ -65,9 +66,15 @@ jobs:
           name: v06-e2e-evidence-${{ github.sha }}
           path: v06-evidence
           if-no-files-found: error
-  worker21-reusable:
-    name: Worker21 reusable workflow (successor on V02 + legacy on older pin)
+  worker21-successor:
+    name: Worker21 successor qualification (reusable)
     uses: ./.github/workflows/cognous-execution-runtime--worker21-authority-effect.yml
+    with:
+      source_revision: 4199a6c793cd9ec37a5fd451f7d99265dcf634fd
+      qualification_revision: ${{ github.event.pull_request.head.sha || github.sha }}
+  worker21-legacy-pin:
+    name: Worker21 legacy compatibility (reusable)
+    uses: ./.github/workflows/cognous-execution-runtime--worker21-legacy-pin-compat.yml
     with:
       source_revision: 4199a6c793cd9ec37a5fd451f7d99265dcf634fd
       qualification_revision: ${{ github.event.pull_request.head.sha || github.sha }}

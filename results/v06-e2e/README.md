@@ -29,3 +29,4 @@ No skipped case was counted as passed; the CI step fails on any SKIP.
 - Synthetic SQLite destination only; no real effect, network, credential, or external dispatch.
 - The Runtime wrapper `worker21-authority-effect.yml` still calls the reusable workflow at its older pinned SHA; moving that pin is a Runtime-repository change outside this sprint.
 - Python 3.12 only in CI for this workflow.
+- Legacy compatibility on the older pin lives in its own reusable workflow (`cognous-execution-runtime--worker21-legacy-pin-compat.yml`) because the repo tooling (`tools/rc_env.py`) requires one checkout job per default recipe.
