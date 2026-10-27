@@ -1,0 +1,863 @@
+{
+ "area": "trust",
+ "cases": [
+  {
+   "case": "suites/tier1-v08/trust/test_tr2_tamper.py::test_c06_pinned_row_and_identity_substitution_in_the_activation_table",
+   "expected": "Rows the chain pins only indirectly (statement_json via selection_digest, record_json via the statement's record pin) and the identity columns cannot be substituted: widening the record payload (digest untouched; digest columns recomputed to match), non-canonical or duplicate-key or valid_until-extended statement text, and swapped selection_id / record_digest / selection_digest / participation columns each make the store unknown; the effect is refused store_unknown / HOLD with zero effects and the claim unconsumed. Any variant that lets the effect commit is a BREACH.",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "positive_control_untampered_twin_executes": {
+      "attempted": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "error": "",
+      "failure_class": null,
+      "ok": true,
+      "status": "executed",
+      "typed": null
+     },
+     "statement_text_duplicate_key": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "statement_text_noncanonical": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "statement_valid_until_extended_with_column": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "swap_participation_to_optional": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "swap_record_digest": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "swap_scope_json_operation": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "swap_selection_digest": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "swap_selection_id": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "widen_record_payload_all_digest_columns_recomputed": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "widen_record_payload_digest_untouched": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-3",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr2_tamper.py::test_c07_table_level_unrevocation_of_a_revoked_selection_is_detected",
+   "expected": "Once a snapshot revoked the selection the effect is refused selection_revoked (control). Flipping activation_state back to active, deleting the revoked-pair row, rolling policy_generation back, or all three, makes the store unknown and the effect is refused store_unknown / HOLD; the claim bound to the revoked selection never executes (0 effects).",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "control_revocation_is_live": {
+      "attempted": false,
+      "breach": false,
+      "error": "selection_revoked",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "selection_revoked",
+       "refusal_class": "REFUSE"
+      }
+     },
+     "delete_revoked_pair_row": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_revoked_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_revoked_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_revoked_v1",
+      "verify_state": "unknown"
+     },
+     "flip_delete_and_roll_generation_back": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "flip_state_to_active": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-2",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr4_restore.py::test_c08_restoring_an_older_database_never_resurrects_revoked_authority",
+   "expected": "A claim whose selection was revoked after a database copy was taken: control refuses selection_revoked. After the OLDER copy is restored while the host anchor stays current, verify() is unknown with cause anchor_ahead, the effect is refused store_unknown / HOLD with zero effects and the claim unconsumed, writers and readers also HOLD, and the refused attempts do not move the anchor.",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "control_revocation_is_live_before_restore": {
+      "attempted": false,
+      "breach": false,
+      "error": "selection_revoked",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "selection_revoked",
+       "refusal_class": "REFUSE"
+      }
+     },
+     "older_db_with_current_anchor_effect_hold": {
+      "attempted": false,
+      "breach": false,
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_ahead]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_ahead",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "verify_cause": "anchor_ahead",
+      "verify_state": "unknown"
+     },
+     "writers_readers_hold_and_anchor_not_moved": {
+      "anchor_unchanged": true,
+      "ok": true,
+      "reader": {
+       "cause": "anchor_ahead",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "writer": {
+       "cause": "anchor_ahead",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      }
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-4",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr4_restore.py::test_c09_anchor_absent_altered_foreign_or_ahead_fails_closed",
+   "expected": "For a healthy known store and a good claim, each anchor condition (absent, digest altered, head hash altered, garbage, empty, foreign store, head ahead, replayed digest wrong, evidence head ahead, floor higher than store, wrong version, extra member) makes the store unknown and the effect is refused store_unknown / HOLD with zero effects and the claim unconsumed; with the genuine anchor restored the SAME claim executes (1 effect, 1 receipt).",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "anchor_absent": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_absent]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_absent",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_absent",
+      "verify_state": "unknown"
+     },
+     "anchor_digest_altered": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_invalid]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_invalid",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_invalid",
+      "verify_state": "unknown"
+     },
+     "anchor_empty": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_unreadable]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_unreadable",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_unreadable",
+      "verify_state": "unknown"
+     },
+     "anchor_evidence_head_ahead": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_evidence_ahead]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_evidence_ahead",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_evidence_ahead",
+      "verify_state": "unknown"
+     },
+     "anchor_extra_member": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_invalid]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_invalid",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_invalid",
+      "verify_state": "unknown"
+     },
+     "anchor_floor_above_store": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_floor_mismatch]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_floor_mismatch",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_floor_mismatch",
+      "verify_state": "unknown"
+     },
+     "anchor_garbage": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_unreadable]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_unreadable",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_unreadable",
+      "verify_state": "unknown"
+     },
+     "anchor_head_ahead_of_store": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_ahead]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_ahead",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_ahead",
+      "verify_state": "unknown"
+     },
+     "anchor_head_hash_altered": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_hash_mismatch]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_hash_mismatch",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_hash_mismatch",
+      "verify_state": "unknown"
+     },
+     "anchor_of_another_store": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_store_mismatch]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_store_mismatch",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_store_mismatch",
+      "verify_state": "unknown"
+     },
+     "anchor_replayed_digest_wrong": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_digest_mismatch]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_digest_mismatch",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_digest_mismatch",
+      "verify_state": "unknown"
+     },
+     "anchor_wrong_version": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_invalid]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_invalid",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_invalid",
+      "verify_state": "unknown"
+     },
+     "genuine_anchor_same_claim_executes": {
+      "attempted": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "error": "",
+      "failure_class": null,
+      "ok": true,
+      "status": "executed",
+      "typed": null
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-4",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr4_restore.py::test_c10_consistent_restore_of_database_and_anchor_is_the_disclosed_limit",
+   "expected": "Disclosed limit (ADR 3.6): restoring database AND anchor together to a point before a revocation is undetectable by construction. Expected observation: the store verifies known and the effect against the formerly revoked selection COMMITS. That is recorded CHARACTERIZED (not a pass, not a defect against the documented contract). Also observed: a stale anchor over the current (revoked) database is accepted (store ahead of anchor, chain unbroken) and does NOT weaken the revocation.",
+   "mandatory": true,
+   "note": "ADR EXT-S4-0 3.6 disclosed limit reproduced: a consistent restore of database and anchor to a point before the revocation is undetectable and the formerly revoked selection's effect committed (1 effect). Mitigation is operator custody and anchor cadence (out of scope for the synthetic host-file anchor). This is NOT a pass.",
+   "observed": {
+    "probes": {
+     "consistent_db_and_anchor_restore_before_revocation": {
+      "attempted": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "error": "",
+      "failure_class": null,
+      "informational": true,
+      "status": "executed",
+      "typed": null,
+      "verify_cause": null,
+      "verify_state": "known"
+     },
+     "control_revocation_is_live": {
+      "attempted": false,
+      "breach": false,
+      "error": "selection_revoked",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "selection_revoked",
+       "refusal_class": "REFUSE"
+      }
+     },
+     "stale_anchor_over_current_db_revocation_still_enforced": {
+      "attempted": false,
+      "breach": false,
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "selection_revoked",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "selection_revoked",
+       "refusal_class": "REFUSE"
+      },
+      "verify_cause": null,
+      "verify_state": "known"
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-4",
+   "verdict": "CHARACTERIZED"
+  }
+ ],
+ "claim": "Independent TEST DESIGN by an AI qualification worker of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 5,
+  "SKIP": 0,
+  "executed": 5
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "ace064cf334309b5c1e8c5bae2cc7fd0d25ad3c0",
+ "qualification_v07_pin": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+ "run_number": 3,
+ "schema": "v08-tier1-results/1",
+ "verdicts": {
+  "CHARACTERIZED": 1,
+  "HELD": 4
+ },
+ "worker": "c"
+}

@@ -1,0 +1,487 @@
+{
+ "area": "trust",
+ "cases": [
+  {
+   "case": "suites/tier1-v08/trust/test_tr5_deps.py::test_c11_missing_raising_verifier_and_dependency_absence_never_activate_or_execute",
+   "expected": "(a) A non-admitted, None, subclass-raising, genuinely-raising or always-False verifier never activates: typed refusal (verifier_unavailable / signature_invalid) or an exception, store byte-identical, state not_activated; the genuine verifier then activates (control). (b) With the Registry packages unimportable, writers refuse verifier_unavailable/HOLD and the effect is refused store_unknown/HOLD with zero effects; restored, the claim executes. (c) A duplicate-key selection text is refused with the store unchanged (non-canonical whitespace is recorded). (d) In separate processes: Registry absent -> effect not executed, 0 effects, claim issued; binding validator blocked -> not executed, 0 effects; legacy Control Plane -> successor claim refused at provisioning with 0 claim rows. PyNaCl-blocked execution and pydantic 2.11.9 provisioning are recorded as informational observations.",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "control_genuine_verifier_activates": {
+      "activation_ref": "sha256:703ed95d929132b3fdeadc001e5a87069c4e96eaaddff7ef2dd04c865379d781",
+      "ok": true,
+      "status": "active"
+     },
+     "duplicate_key_selection_text": {
+      "ok": true,
+      "refusal": {
+       "cause": "selection_parse",
+       "code": "json_duplicate_key",
+       "refusal_class": "REFUSE"
+      },
+      "unchanged": true
+     },
+     "genuine_verifier_always_false": {
+      "breach": false,
+      "ok": true,
+      "refusal": {
+       "cause": "verification",
+       "code": "signature_invalid",
+       "refusal_class": "REFUSE"
+      },
+      "unchanged": true
+     },
+     "genuine_verifier_raising": {
+      "breach": false,
+      "ok": true,
+      "refusal": {
+       "cause": "verification",
+       "code": "signature_invalid",
+       "refusal_class": "REFUSE"
+      },
+      "unchanged": true
+     },
+     "informational_process_pydantic_2_11_9_provisions_successor_claim": {
+      "db": {
+       "claim_states": [
+        "issued"
+       ],
+       "claims": 1,
+       "effects": 0
+      },
+      "exit": 0,
+      "informational": true,
+      "mode": "provision",
+      "phase": "done",
+      "provisioned": true,
+      "pydantic": "2.11.9",
+      "python": "3.13.17"
+     },
+     "informational_process_pynacl_blocked_effect_time": {
+      "db": {
+       "claim_states": [
+        "consumed"
+       ],
+       "claims": 1,
+       "effects": 1
+      },
+      "error": "",
+      "exit": 0,
+      "failure_class": null,
+      "informational": true,
+      "mode": "execute_no_nacl",
+      "nacl_loaded": false,
+      "parent_db": {
+       "claim_states": [
+        "consumed"
+       ],
+       "claims": 1,
+       "effects": 1
+      },
+      "phase": "done",
+      "pydantic": "2.14.1",
+      "python": "3.13.17",
+      "status": "executed",
+      "typed": null
+     },
+     "noncanonical_whitespace_selection_text": {
+      "activated": true,
+      "informational": true,
+      "note": "pretty-printed (non-canonical whitespace) envelope text was accepted; the signature covers the canonical statement",
+      "status": "active"
+     },
+     "process_binding_validator_blocked": {
+      "breach": false,
+      "db": {
+       "claim_states": [
+        "issued"
+       ],
+       "claims": 1,
+       "effects": 0
+      },
+      "error": "ImportError",
+      "exit": 0,
+      "failure_class": "dispatch_error",
+      "mode": "execute_no_binding_validator",
+      "nacl_loaded": false,
+      "ok": true,
+      "parent_db": {
+       "claim_states": [
+        "issued"
+       ],
+       "claims": 1,
+       "effects": 0
+      },
+      "phase": "done",
+      "pydantic": "2.14.1",
+      "python": "3.13.17",
+      "status": "unknown",
+      "typed": null
+     },
+     "process_legacy_control_plane_refuses_successor_claim": {
+      "breach": false,
+      "db": {
+       "claim_states": [],
+       "claims": 0,
+       "effects": 0
+      },
+      "exc_msg": "execution claim commitment is invalid",
+      "exc_type": "PermissionError",
+      "exit": 0,
+      "mode": "provision",
+      "ok": true,
+      "parent_db": {
+       "claim_states": [],
+       "claims": 0,
+       "effects": 0
+      },
+      "phase": "done",
+      "provisioned": false,
+      "pydantic": "2.14.1",
+      "python": "3.13.17"
+     },
+     "process_registry_absent": {
+      "breach": false,
+      "db": {
+       "claim_states": [
+        "issued"
+       ],
+       "claims": 1,
+       "effects": 0
+      },
+      "error": "store_unknown [registry_unavailable_for_policy_digest]",
+      "exit": 0,
+      "failure_class": "authority_hold",
+      "mode": "execute",
+      "nacl_loaded": false,
+      "ok": true,
+      "parent_db": {
+       "claim_states": [
+        "issued"
+       ],
+       "claims": 1,
+       "effects": 0
+      },
+      "phase": "done",
+      "pydantic": "2.14.1",
+      "python": "3.13.17",
+      "status": "denied",
+      "typed": {
+       "cause": "registry_unavailable_for_policy_digest",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      }
+     },
+     "registry_unimportable_in_runtime_process": {
+      "activate": {
+       "cause": "registry_unavailable",
+       "code": "verifier_unavailable",
+       "refusal_class": "HOLD"
+      },
+      "after_restore": {
+       "attempted": true,
+       "error": "",
+       "failure_class": null,
+       "status": "executed",
+       "typed": null
+      },
+      "after_restore_counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "attempted": false,
+      "breach": false,
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [registry_unavailable_for_policy_digest]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "sync": {
+       "cause": "registry_unavailable",
+       "code": "verifier_unavailable",
+       "refusal_class": "HOLD"
+      },
+      "typed": {
+       "cause": "registry_unavailable_for_policy_digest",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "verify": [
+       "unknown",
+       "registry_unavailable_for_policy_digest"
+      ]
+     },
+     "verifier_none": {
+      "breach": false,
+      "ok": true,
+      "refusal": {
+       "cause": "verifier_not_admitted",
+       "code": "verifier_unavailable",
+       "refusal_class": "HOLD"
+      },
+      "unchanged": true
+     },
+     "verifier_plain_object": {
+      "breach": false,
+      "ok": true,
+      "refusal": {
+       "cause": "verifier_not_admitted",
+       "code": "verifier_unavailable",
+       "refusal_class": "HOLD"
+      },
+      "unchanged": true
+     },
+     "verifier_subclass_raising": {
+      "breach": false,
+      "ok": true,
+      "refusal": {
+       "cause": "verifier_not_admitted",
+       "code": "verifier_unavailable",
+       "refusal_class": "HOLD"
+      },
+      "unchanged": true
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-5",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr6_tr7.py::test_c12_guard_evidence_equals_durable_state_and_claims_no_attestation",
+   "expected": "For an executed effect the retained guard evidence equals durable state field by field (activation_ref, policy_generation, selection id/epoch, trust snapshot version and fingerprint, log head sequence and hash == store head == host anchor head, effective policy digest), the stored receipt row equals the returned receipt, independent_attestation is False, and the only attestation/certification/independence-named members anywhere in the receipt or result evidence are independent_attestation=False.",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "guard_evidence_equals_durable_state": {
+      "checks": {
+       "activation_ref": true,
+       "effective_policy_digest": true,
+       "executed": true,
+       "guard_present_and_binding_verified": true,
+       "independent_attestation_is_false": true,
+       "log_head_hash_vs_store": true,
+       "log_head_sequence_vs_store": true,
+       "log_head_vs_host_anchor": true,
+       "participation": true,
+       "policy_generation": true,
+       "receipt_row_equals_returned_receipt": true,
+       "scope_required": true,
+       "selection_epoch": true,
+       "selection_id": true,
+       "single_effect_single_receipt": true,
+       "store_known_after": true,
+       "trust_snapshot_fingerprint": true,
+       "trust_snapshot_version": true
+      },
+      "ok": true
+     },
+     "no_attestation_claim_beyond_explicit_false": {
+      "claim_phrases_present": [],
+      "members_named_attest_certif_independent": [
+       [
+        "receipt.selection_guard.independent_attestation",
+        false
+       ],
+       [
+        "control_plane_evidence.authority_receipt.selection_guard.independent_attestation",
+        false
+       ]
+      ],
+      "ok": true
+     },
+     "refusal_evidence_is_typed_data_without_attestation_language": {
+      "ok": true,
+      "typed": {
+       "cause": null,
+       "code": "selection_revoked",
+       "refusal_class": "REFUSE"
+      }
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-6",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr6_tr7.py::test_c13_tr7_reexamination_of_v07_low_findings",
+   "expected": "Characterization (no pass is claimed): (a) amount ceiling and target prefixes are owned by the caller's executor policy and are NOT part of the Registry payload, so a caller policy wider than anything the Registry bound still executes while a narrower one denies locally; (b) the lock-time path does not re-verify claim_commitment: a claim_json edited after provisioning (without recomputing the commitment) is honoured; (d) the Runtime wrapper workflow pins are recorded with their relation to the qualified revision. (c) consistent DB+anchor rollback is case C10. Any probe where the recorded behavior is tighter than the documented finding is reported as such.",
+   "mandatory": true,
+   "note": "A09: amount ceiling caller-owned=True; target prefix caller-owned=True (Registry payload members: ['allowed_actions', 'allowed_adapters', 'allowed_authority_domains', 'allowed_institutions', 'allowed_units']) | D08: control refused stale binding=True; claim_json edited without recomputing claim_commitment EXECUTED (commitment not re-verified) at lock time | I01: 1 distinct wrapper pin(s); any equals the qualified revision: False. Limitations are characterized, not passed.",
+   "observed": {
+    "probes": {
+     "A09_amount_ceiling_is_caller_owned": {
+      "caller_owned": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "informational": true,
+      "narrow_policy": {
+       "attempted": false,
+       "error": "local amount restriction",
+       "failure_class": "policy_denial",
+       "status": "denied",
+       "typed": null
+      },
+      "registry_payload_members": [
+       "allowed_actions",
+       "allowed_adapters",
+       "allowed_authority_domains",
+       "allowed_institutions",
+       "allowed_units"
+      ],
+      "wide_policy": {
+       "attempted": true,
+       "error": "",
+       "failure_class": null,
+       "status": "executed",
+       "typed": null
+      }
+     },
+     "A09_target_prefix_is_caller_owned": {
+      "caller_owned": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "informational": true,
+      "narrow_policy": {
+       "attempted": false,
+       "error": "local target restriction",
+       "failure_class": "policy_denial",
+       "status": "denied",
+       "typed": null
+      },
+      "wide_policy": {
+       "attempted": true,
+       "error": "",
+       "failure_class": null,
+       "status": "executed",
+       "typed": null
+      }
+     },
+     "D08_claim_json_edited_without_recomputing_commitment": {
+      "control_ok": true,
+      "control_refused_policy_identity_mismatch": true,
+      "counts_after_edit": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "counts_after_ignored_member_edit": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "edited_claim_refused": false,
+      "edited_commitment_unchanged": true,
+      "edited_executed": true,
+      "edited_outcome": {
+       "attempted": true,
+       "error": "",
+       "failure_class": null,
+       "status": "executed",
+       "typed": null
+      },
+      "ignored_member_outcome": {
+       "attempted": false,
+       "error": "ValidationError",
+       "failure_class": "dispatch_error",
+       "status": "denied",
+       "typed": null
+      },
+      "informational": true,
+      "stale_binding_control": {
+       "attempted": false,
+       "error": "policy_identity_mismatch [activation_ref]",
+       "failure_class": "authority_hold",
+       "status": "denied",
+       "typed": {
+        "cause": "activation_ref",
+        "code": "policy_identity_mismatch",
+        "refusal_class": "REFUSE"
+       }
+      }
+     },
+     "I01_runtime_wrapper_workflow_pin": {
+      "any_pin_equals_qualified_revision": false,
+      "distinct_pins": 1,
+      "informational": true,
+      "pins": [
+       {
+        "commit_known_in_this_repo": false,
+        "equals_this_checkout_head": false,
+        "equals_v07_pin": false,
+        "is_ancestor_of_v07_pin": null,
+        "pin": "1c1755ff4ea719cfa12f72bcd8c81dd51cff7fb2",
+        "workflows": [
+         "durable-refusal.yml",
+         "live-openshell-readiness.yml",
+         "openappa-conjunction.yml",
+         "openappa-embedded-runtime.yml",
+         "openappa-local-resume.yml",
+         "openappa-trajectory.yml",
+         "openappa-wire-fixtures.yml",
+         "openshell-image-qualification.yml",
+         "python-safety.yml",
+         "worker21-authority-effect.yml"
+        ]
+       }
+      ],
+      "qualified_revision_v07": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+      "this_checkout_head": "ace064cf334309b5c1e8c5bae2cc7fd0d25ad3c0"
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-7",
+   "verdict": "CHARACTERIZED"
+  }
+ ],
+ "claim": "Independent TEST DESIGN by an AI qualification worker of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 3,
+  "SKIP": 0,
+  "executed": 3
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "ace064cf334309b5c1e8c5bae2cc7fd0d25ad3c0",
+ "qualification_v07_pin": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+ "run_number": 4,
+ "schema": "v08-tier1-results/1",
+ "verdicts": {
+  "CHARACTERIZED": 1,
+  "HELD": 2
+ },
+ "worker": "c"
+}
