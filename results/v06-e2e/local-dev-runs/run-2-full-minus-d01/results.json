@@ -1,0 +1,583 @@
+{
+ "cases": [
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_d02_legacy_compatibility_claim_executes_on_the_older_control_plane_pin",
+   "expected": "older CP has no successor symbol; legacy claim provisioned and executed; one effect",
+   "observed": {
+    "claims": 1,
+    "cp_file": "/tmp/claude-0/-home-claude/139dd095-4028-5533-a993-4a7fc4b564f0/scratchpad/comp/control_plane_legacy/src/agent_control_plane/local_authority_effect.py",
+    "effects": 1,
+    "has_successor_symbol": false,
+    "provision": "accepted",
+    "status": "executed"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_d03_successor_claim_is_refused_not_downgraded_on_the_older_control_plane_pin",
+   "expected": "PermissionError/ValidationError at provisioning; zero claims; zero effects; no downgrade to the legacy profile",
+   "observed": {
+    "claims": 0,
+    "cp_file": "/tmp/claude-0/-home-claude/139dd095-4028-5533-a993-4a7fc4b564f0/scratchpad/comp/control_plane_legacy/src/agent_control_plane/local_authority_effect.py",
+    "effects": 0,
+    "error": "execution claim commitment is invalid",
+    "error_type": "PermissionError",
+    "has_successor_symbol": false,
+    "provision": "refused"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_d04_successor_profile_claim_without_a_binding_is_refused_on_v02",
+   "expected": "refused at provisioning or by the guard; no effect",
+   "observed": {
+    "counts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "error": "1 validation error for TenantLocalExecutionClaim\n  Value error, policy_binding is inconsistent with the claim profile or the claim scope [type=value_error, input_value={'profile': 'urn:cognous:...f142"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_a01_valid_bound_claim_commits_the_synthetic_effect",
+   "expected": "status executed; exactly one effect",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "status": "executed"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_a02_the_atomic_receipt_retains_the_guard_evidence_and_equals_the_returned_one",
+   "expected": "retained receipt == returned receipt; selection_guard present with log head",
+   "observed": {
+    "receipt": {
+     "attempt_id": "f20d1c42-f3ac-45d4-b819-01c606853947",
+     "checked_at": "2026-10-25T12:00:00+00:00",
+     "claim_id": "claim-1",
+     "decision_id": "decision-1",
+     "effect_id": "effect-1",
+     "grant_id": "urn:cognous:grant:atomic",
+     "grant_revision": "1",
+     "grant_state_commitment": "sha256:875b584e33a020f3a4f1789c44c51442c78cb9706decb7500fc9373737d2473b",
+     "grant_status": "active",
+     "profile": "urn:cognous:profiles:local-authority-effect:0.1.0-proposed",
+     "selection_guard": {
+      "activation_ref": "sha256:703ed95d929132b3fdeadc001e5a87069c4e96eaaddff7ef2dd04c865379d781",
+      "applied": true,
+      "checked_at": "2026-10-25T12:00:00.000000Z",
+      "effective_policy_digest": "sha256:de9fec85c514c17393f3caaef64f8f355998cad56900895e35039414ffecff81",
+      "independent_attestation": false,
+      "log_head_hash": "sha256:703ed95d929132b3fdeadc001e5a87069c4e96eaaddff7ef2dd04c865379d781",
+      "log_head_sequence": 3,
+      "participation": "required",
+      "policy_generation": 1,
+      "result": "binding_verified",
+      "scope_required": true,
+      "selection_epoch": 1,
+      "selection_id": "sel-test-1",
+      "trust_snapshot_fingerprint": "sha256:aa65ee331e22946568c10e583e6280aefe199e1304564187b3eeca2aed0cf5c1",
+      "trust_snapshot_version": 1
+     },
+     "status_version_source": "local_authority_row_commitment"
+    }
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_a03_the_receipt_binds_the_activation_generation_and_trust_snapshot",
+   "expected": "guard evidence names the active activation_ref, policy_generation and snapshot version",
+   "observed": {
+    "guard": {
+     "activation_ref": "sha256:703ed95d929132b3fdeadc001e5a87069c4e96eaaddff7ef2dd04c865379d781",
+     "applied": true,
+     "checked_at": "2026-10-25T12:00:00.000000Z",
+     "effective_policy_digest": "sha256:de9fec85c514c17393f3caaef64f8f355998cad56900895e35039414ffecff81",
+     "independent_attestation": false,
+     "log_head_hash": "sha256:703ed95d929132b3fdeadc001e5a87069c4e96eaaddff7ef2dd04c865379d781",
+     "log_head_sequence": 3,
+     "participation": "required",
+     "policy_generation": 1,
+     "result": "binding_verified",
+     "scope_required": true,
+     "selection_epoch": 1,
+     "selection_id": "sel-test-1",
+     "trust_snapshot_fingerprint": "sha256:aa65ee331e22946568c10e583e6280aefe199e1304564187b3eeca2aed0cf5c1",
+     "trust_snapshot_version": 1
+    }
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_a04_optional_participation_selection_executes",
+   "expected": "executed; participation optional recorded",
+   "observed": {
+    "participation": "optional",
+    "status": "executed"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_b01_withdrawal_before_the_effect_refuses_without_an_effect",
+   "expected": "REFUSE selection_withdrawn; zero effects/attempts/receipts",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_withdrawn",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_b02_selection_revocation_before_the_effect_refuses",
+   "expected": "REFUSE selection_revoked; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_revoked",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_b03_issuer_key_revocation_before_the_effect_refuses",
+   "expected": "REFUSE issuer_key_revoked; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "issuer_key_revoked",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_b04_after_a_committed_effect_withdrawal_stops_every_subsequent_effect",
+   "expected": "first effect stands (not undone); a second claim after withdrawal refuses; effects stay at 1",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_withdrawn",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_r01_a_revocation_racing_the_guard_cannot_commit_before_the_effect",
+   "expected": "transition blocks while guard+insert hold the lock; effect commits first; revocation lands after after_commit",
+   "failure": "1)}))\n>       gov, result, names, state = _race(tmp_path, ev, \"after_selection_guard\", lambda other, _gov: other.dest.sync_selection(\"snapshot\", trust=revoking))\n                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nsuites/e2e-governed-effect/test_e2e_governed_effect.py:237: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-235/test_r01_a_revocation_racing_t0')\nev = {'case': 'suites/e2e-governed-effect/test_e2e_governed_effect.py::test_r01_a_revocation_racing_the_guard_cannot_commit...on blocks while guard+insert hold the lock; effect commits first; revocation lands after after_commit', 'observed': {}}\nstage_to_race = 'after_selection_guard'\naction = <function test_r01_a_revocation_racing_the_guard_cannot_commit_before_the_effect.<locals>.<lambda> at 0x7f8f6bf97b00>\n\n    def _race(tmp_path, ev, stage_to_race, action):\n        gov = g.Gov(tmp_path)\n        env, cid = gov.claim()\n        timeline: list = []\n        state = {}\n    \n        class Racing(AtomicAuthorityEffectDestination):\n            def _transaction_stage(self, stage):\n                timeline.append((stage, time.monotonic()))\n                if stage == stage_to_race:\n                    t = _racer(gov, timeline, action)\n                    state[\"thread\"] = t\n                    t.start()\n                    time.sleep(0.5)  # the lock is held by this transaction: the transition must still be waiting\n                    state[\"blocked_while_locked\"] = t.is_alive()\n                return None\n    \n        racing = Racing(gov.e.root, clock=lambda: gov.e.now)\n        racing.configure_selection_authority(gov.e.anchor)\n        result = run_executor(racing, env, cid)\n>       state[\"thread\"].join(timeout=30)\n        ^^^^^^^^^^^^^^^\nE       KeyError: 'thread'\n\nsuites/e2e-governed-effect/test_e2e_governed_effect.py:227: KeyError",
+   "observed": {},
+   "outcome": "FAILED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_r02_a_withdrawal_racing_between_insert_and_commit_cannot_interleave",
+   "expected": "withdrawal waits for the lock held across insert->commit; ordering: after_commit before transition_committed",
+   "failure": "rawal waits for the lock held across insert->commit; ordering: after_commit before transition_committed\"\n>       gov, result, names, state = _race(tmp_path, ev, \"after_effect_insert_before_commit\",\n                                          lambda other, gv: other.withdraw(v4.withdraw_stmt(gv.stmt, 2)))\n\nsuites/e2e-governed-effect/test_e2e_governed_effect.py:246: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\ntmp_path = PosixPath('/tmp/pytest-of-root/pytest-235/test_r02_a_withdrawal_racing_b0')\nev = {'case': 'suites/e2e-governed-effect/test_e2e_governed_effect.py::test_r02_a_withdrawal_racing_between_insert_and_comm...wal waits for the lock held across insert->commit; ordering: after_commit before transition_committed', 'observed': {}}\nstage_to_race = 'after_effect_insert_before_commit'\naction = <function test_r02_a_withdrawal_racing_between_insert_and_commit_cannot_interleave.<locals>.<lambda> at 0x7f8f6bf96980>\n\n    def _race(tmp_path, ev, stage_to_race, action):\n        gov = g.Gov(tmp_path)\n        env, cid = gov.claim()\n        timeline: list = []\n        state = {}\n    \n        class Racing(AtomicAuthorityEffectDestination):\n            def _transaction_stage(self, stage):\n                timeline.append((stage, time.monotonic()))\n                if stage == stage_to_race:\n                    t = _racer(gov, timeline, action)\n                    state[\"thread\"] = t\n                    t.start()\n                    time.sleep(0.5)  # the lock is held by this transaction: the transition must still be waiting\n                    state[\"blocked_while_locked\"] = t.is_alive()\n                return None\n    \n        racing = Racing(gov.e.root, clock=lambda: gov.e.now)\n        racing.configure_selection_authority(gov.e.anchor)\n        result = run_executor(racing, env, cid)\n>       state[\"thread\"].join(timeout=30)\n        ^^^^^^^^^^^^^^^\nE       KeyError: 'thread'\n\nsuites/e2e-governed-effect/test_e2e_governed_effect.py:227: KeyError",
+   "observed": {},
+   "outcome": "FAILED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_r03_r04_a_transition_committed_before_begin_refuses_with_no_effect[withdraw]",
+   "expected": "REFUSE (withdrawn/revoked) at the lock-time check; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_withdrawn",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_r03_r04_a_transition_committed_before_begin_refuses_with_no_effect[revoke]",
+   "expected": "REFUSE (withdrawn/revoked) at the lock-time check; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_revoked",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_s01_a_claim_tied_to_an_earlier_activation_generation_refuses_at_effect_time",
+   "expected": "REFUSE_STALE selection_epoch_stale, cause stale_policy_generation; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "stale_policy_generation",
+     "code": "selection_epoch_stale",
+     "refusal_class": "REFUSE_STALE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_s02_a_foreign_activation_ref_refuses",
+   "expected": "REFUSE policy_identity_mismatch",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "activation_ref",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_s03_a_substituted_record_identity_refuses",
+   "expected": "REFUSE record_identity_mismatch",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "record_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_s04_a_substituted_selection_digest_refuses",
+   "expected": "REFUSE policy_identity_mismatch; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "selection_digest",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_p01_a_permitted_action_inside_the_effective_policy_executes",
+   "expected": "act-list is in the Registry policy: executed",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "status": "executed"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_p02_an_action_outside_the_effective_policy_is_denied",
+   "expected": "act-extra is not in the Registry policy: denied (policy_denial); zero effects",
+   "observed": {
+    "counts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "failure_class": "policy_denial",
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_p03_a_caller_policy_broader_than_the_registry_policy_cannot_widen_authority",
+   "expected": "REFUSE policy_identity_mismatch: the caller's wider policy is not the effective policy",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "effective_policy_digest",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_p04_a_caller_policy_narrower_than_the_registry_policy_still_wins",
+   "expected": "the registry allows act-list but the caller does not: denied (the registry never expands the caller)",
+   "observed": {
+    "counts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "failure_class": "policy_denial",
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_l01_a_legacy_claim_cannot_bypass_a_required_governed_scope",
+   "expected": "REFUSE selection_missing; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "scope_required_without_binding",
+     "code": "selection_missing",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_l02_a_legacy_claim_cannot_bypass_an_active_optional_selection",
+   "expected": "REFUSE selection_missing",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "active_selection_without_binding",
+     "code": "selection_missing",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_l03_the_explicitly_permitted_never_activated_legacy_path_is_preserved",
+   "expected": "executed with applied=False, fallback caller_policy, reason never_activated",
+   "observed": {
+    "guard": {
+     "applied": false,
+     "checked_at": "2026-10-25T12:00:00.000000Z",
+     "fallback": "caller_policy",
+     "fallback_reason": "never_activated",
+     "independent_attestation": false,
+     "log_head_hash": "sha256:35d45340a3a05ce745523f022c7c99923f51718f04ee915937b1af9b4bce5cd1",
+     "log_head_sequence": 2,
+     "registry_code": "not_activated",
+     "result": "fallback_caller_policy"
+    },
+    "status": "executed"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_g01_an_expired_current_trust_snapshot_is_a_hold",
+   "expected": "HOLD trust_snapshot_expired; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "trust_snapshot_expired",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_g02_a_corrupted_durable_authority_row_is_a_hold",
+   "expected": "HOLD store_unknown; zero effects",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "table_mismatch:selection_activation_v1",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_g03_a_governed_claim_with_no_configured_authority_store_is_a_hold",
+   "expected": "HOLD store_unknown (missing required verifier/store): no permissive fallback",
+   "observed": {
+    "selection_refusal": {
+     "cause": "selection_store_not_configured",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_g04_a_critical_evidence_write_failure_prevents_the_effect",
+   "expected": "guard-evidence write raises: status != executed; zero effects/receipts; claim stays issued",
+   "observed": {
+    "claim_state": "issued",
+    "counts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_g05_a_failure_between_effect_insert_and_commit_leaves_no_effect",
+   "expected": "failure at after_effect_insert_before_commit rolls the whole transaction back: zero effects/receipts",
+   "observed": {
+    "counts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  },
+  {
+   "case": "suites/e2e-governed-effect/test_e2e_governed_effect.py::test_g06_a_restored_older_authority_database_is_a_hold",
+   "expected": "HOLD store_unknown: the anchor records a later head than the restored database",
+   "observed": {
+    "selection_refusal": {
+     "cause": "anchor_ahead",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED"
+  }
+ ],
+ "claim": "Bounded synthetic local qualification only. Not independent attestation, not production security qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 2,
+  "PASSED": 30,
+  "SKIP": 0,
+  "executed": 32
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "943ab1831e39fadac1eb2a414ae322ccfa09bc6a",
+  "runtime": "4199a6c793cd9ec37a5fd451f7d99265dcf634fd"
+ },
+ "harness_commit": "1a7002c5403c600e3d75660684e4f97e6d3821c1",
+ "schema": "v06-e2e-results/1"
+}

@@ -53,7 +53,7 @@ def old_pin(mode):
     env = dict(os.environ)
     env["PYTHONPATH"] = os.pathsep.join([str(COMPONENTS / "runtime" / "tests"), str(COMPONENTS / "runtime"),
                                          str(COMPONENTS / "control_plane_legacy" / "src")])
-    cp = subprocess.run([sys.executable, "-I", str(PROBE), mode], env={**env, "PYTHONSAFEPATH": ""}, capture_output=True, text=True, timeout=120)
+    cp = subprocess.run([sys.executable, str(PROBE), mode], env=env, capture_output=True, text=True, timeout=120)
     line = [x for x in cp.stdout.splitlines() if x.startswith("V06PROBE ")]
     assert line, (cp.returncode, cp.stdout[-800:], cp.stderr[-1200:])
     return json.loads(line[-1][len("V06PROBE "):])
@@ -195,10 +195,10 @@ def test_b04_after_a_committed_effect_withdrawal_stops_every_subsequent_effect(t
 # ============================================================================================ R: authority-to-effect race
 def _racer(g_, timeline, action):  # action(other_env, gov)
     """A second connection to the same durable store that performs one authority transition (it needs the BEGIN IMMEDIATE lock)."""
-    other = v4.Env(g_.tmp)
-    other.trust, other.now = g_.e.trust, g_.e.now
     def go():
         timeline.append(("transition_started", time.monotonic()))
+        other = v4.Env(g_.tmp)  # a separate connection, opened by the racing party itself
+        other.trust, other.now = g_.e.trust, g_.e.now
         action(other, g_)
         timeline.append(("transition_committed", time.monotonic()))
     return threading.Thread(target=go)
