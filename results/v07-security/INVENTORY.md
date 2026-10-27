@@ -53,3 +53,29 @@ The first wave (37 cases, commit `591ee470`) was executed once. Reviewing its ob
 | I05 | P3-D | Control Plane V02 issuance of a bound claim under pydantic 2.11.9 (successor-capable dependency missing) | issuance fails closed or still refuses a tampered binding; no claim with an unverifiable binding |
 
 I03 in the first wave refused because its hand-built binding was invalid, so it did not isolate the pydantic 2.11 behaviour; I05 is the stronger probe. I03 is kept and reported as weak evidence.
+
+## Addendum B — F-01 requalification (declared before any execution at the patched pins)
+**Pins under requalification:** Registry `a1169a05afb917862f4a0f5865e278f4168ed171` (includes Amendment 3), Runtime `ac247dafbce3aacde37695575d457cf958b22560` (includes the F-01 remediation, merge of PR #148), Control Plane V02 `1bee3696ee6cd8037d142cdbcdb6020e052b0480` (unchanged), older Control Plane fixture `e66e5f16` (unchanged). The original assessment head `878002c6` and its results (A08 BREACH at Runtime `4199a6c7`) are preserved in this directory and are not rewritten. The assessor is the same builder identity that wrote the remediation (not an independent-party review).
+
+**New independently built cases (new code in `suites/security-v07/test_adversarial.py`; the Runtime's own F-01 tests are not reused as proof).** Each widens ONE of the five F1a sets in the executor policy and has the claim supplier carry the digest of that widened policy with a recomputed commitment, with the activated record allowing only the base member:
+
+| ID | Attack / probe | Secure oracle |
+|---|---|---|
+| A12 | widen `allowed_actions` | refused `policy_identity_mismatch`; zero effects, attempts, receipts, budget |
+| A13 | widen `allowed_adapters` | same |
+| A14 | widen `allowed_units` | same |
+| A15 | widen `allowed_institutions` | same |
+| A16 | widen `allowed_authority_domains` | same |
+| A17 | activated record allows two members per set; policy is the strict subset (base members) | executes; one effect, one receipt |
+| A18 | same record; policy equal to the record | executes; one effect, one receipt |
+
+**Existing case rerun unchanged:** A08 (expected at the patched pins: HELD with typed `policy_identity_mismatch`, zero effects, zero receipts).
+
+**Regression selection (directly affected capabilities only; no full historical rerun):**
+- V05 module `tests/test_registry_selection_effect_guard.py` at the patched Runtime: S-01 withdrawn, S-04 stale generation, B-03 substituted record triple, B-04 digest mismatch, C-01 racing revocation, E-01 evidence-write failure, L-03 required-scope legacy bypass, X-01 corrupt activation row.
+- V06 end-to-end suite at the patched pins (pin override in its conftest; default behaviour unchanged): A01 valid bound, P04 narrower caller policy, S01 stale generation, B01/B02 withdrawal and revocation, R01 racing revocation, S03 substituted record, G02 corrupt row HOLD, G04 evidence-write failure, L01 required-scope legacy bypass, L03 permitted legacy, D04 successor-profile claim without binding.
+- V07 concurrency, corruption and replay: C01, C02, C05, C06, C07, D02, T03, I04.
+
+Budget: 50 local executions (parametrized cases and reruns counted individually); planned about 36. GitHub CI runs the configured suites at the patched pins and is separate.
+
+**Gate rule for this requalification:** no BREACH is accepted (the accepted-findings list is empty); a failed or skipped mandatory case, or any INCONCLUSIVE, fails; A08 must be HELD with typed `policy_identity_mismatch` and zero receipts. The historical A08 BREACH is retained in `historical_findings.json`, which the gate does not read as an allowlist.
