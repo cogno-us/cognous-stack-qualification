@@ -1,0 +1,46 @@
+# Worker B (atomicity) findings
+
+Assessor: Worker B, fresh AI session, no prior implementation involvement, same organization. Independent test design within the same organization; NOT independent external qualification.
+Pins (all matched at run time): Registry a1169a05, Control Plane V02 1bee3696, Runtime ac247daf (F-01), legacy CP e66e5f16, qualification V07 90e0e56e. Python 3.13 venv-cp, pydantic 2.14.1.
+Inventory commit (before any execution): 479ce9ee063ccaa46613ba6869bc329ef3488680.
+
+## Executions: 15 of 15 used
+Run 1: 14 items (13 PASSED, 1 FAILED harness error). Run 2: 1 item (the combined B-07/B-12 re-execution, PASSED). Evidence: `runs/run-001.json`, `runs/run-002.json`, `ledger.jsonl` (15 lines), `results.json` (harness output of the LAST session only), `results-consolidated.json` (derived merge, flagged as such; the two superseded run-1 entries are kept under `superseded_cases`).
+
+## Verdict table (final)
+| Case | Scenario | Verdict | Positive evidence (distinct OS processes unless noted) |
+|---|---|---|---|
+| B-01 | AT-1 mandatory | HELD | E parked after a passed guard holding the write lock; R (revocation) launched and still blocked 1.2 s later; R returned only after release. E committed 1 effect with receipt log head 3; R's entries are 4 (sync) and 5 (revoke), after E's commit event. Post: 1 effect/attempt/receipt, claim consumed, budget 1, store known at head 5; a later claim refused `selection_revoked` REFUSE. |
+| B-02 | AT-1 mandatory | HELD | R parked at `before_commit` with the revocation transaction open; E proven waiting (`before_begin` logged, `after_begin` only after the release, later than R's return). E refused `selection_revoked` REFUSE; 0 effects/attempts/receipts, claim issued, budget 0, effect-bearing tables hash-identical, store known at head 5. |
+| B-03 | AT-2 mandatory | HELD | 4 processes, one claim: statuses executed/denied/denied/denied; denials "execution claim is not usable"; 1 effect/attempt/receipt, budget 1. |
+| B-04 | AT-2 mandatory | HELD | 4 distinct claims, one budget (max 2), 4 processes: 2 executed, 2 denied "authoritative effect budget exhausted"; budget row used 2/2; 2 consumed + 2 issued claims; attempts = receipts = effects = 2. |
+| B-05 | AT-3 mandatory | HELD (in-process by design, not a concurrency claim) | Receipt-evidence hook failure and commit-stage failure (after effect, attempt and budget rows were written in the open transaction): the injection fired once each; status denied/dispatch_error; 0 effects/attempts/events/receipts, claim issued, budget 0; every table except the separate failure record byte-identical; clean retry then commits exactly 1 effect. |
+| B-06 | AT-4 | HELD | SIGKILL (rc -9) at `after_effect_insert_before_commit`: nothing committed, store known, fresh-process retry commits exactly 1. SIGKILL at `after_commit`: 1 effect/receipt, claim consumed, reconcile `applied` (retry_eligible false), replay refused "execution claim is not usable", still 1 effect and budget 1. |
+| B-07 | AT-4 | HELD (run 2) | Revocation writer SIGKILLed at its 2nd uncommitted log insert: store known, log head still 3, no revoked row, anchor bytes unchanged, every table hash-identical to the pre-crash dump, selection active; claim then executes once with receipt head 3. |
+| B-08 | AT-5 mandatory | HELD | DROP TABLE selection_activation_v1: in-process (store already configured) HOLD `store_unknown` cause `schema_missing`; fresh process: HOLD cause `table_mismatch:selection_activation_v1` (the store constructor recreates the empty table, replay then disagrees). 0 effects, claim issued. |
+| B-09 | AT-5 mandatory | HELD | Damaged row (valid_until pushed out): HOLD `table_mismatch:selection_activation_v1`, 0 effects. |
+| B-10 | AT-5 mandatory | HELD | Edited log entry (trigger dropped, policy_generation rewritten, stored hash kept): HOLD `log_integrity:entry_hash_mismatch`, 0 effects. |
+| B-11 | AT-5 mandatory | CHARACTERIZED | Database file truncated to 50% (94208 of 188416 bytes): the fresh process raised an untyped `sqlite3.DatabaseError: database disk image is malformed` before any effect. No effect committed (fails closed) but it is NOT a typed HOLD and no claim evidence is recorded. |
+| B-12 | AT-6 | HELD (run 2) | Revocation first proven effective (claim-2 `selection_revoked`); older DB file restored over the store (log head back to 3, anchor at 5): claim-1 refused `store_unknown` HOLD cause `anchor_ahead`, 0 effects (revocation not resurrected). Anchor deleted: HOLD cause `anchor_absent`, 0 effects; re-genesis baseline refused (`store_unknown`, cause `anchor_absent`), no new log row, no anchor re-created. |
+| B-13 | AT-6 | HELD | Anchor head 3 -> 5 -> 5 across two processes; the restarted process verifies known at 5; older anchor `advance` returns `stale` with file bytes unchanged; equal-position different-hash raises `anchor_equal_position_conflict`, bytes unchanged; post-restart execution commits 1 effect with receipt head 5. |
+| B-14 | AT-7 | HELD (in-process by design) | Full-table row-hash dump of every table plus the anchor bytes before/after nine refusals (unknown claim, duplicate attempt id after the guard passed, operation mismatch, shared budget exhausted after the guard passed, claim outside validity interval, claim after revocation, stale-epoch re-activation, older snapshot, withdrawal of a revoked row): all raised the expected errors and every dump was identical. Control: one effect committed and one revocation committed. |
+
+No BREACH, no BLOCKED, no INCONCLUSIVE in the final verdicts. The mandatory scenarios AT-1, AT-2, AT-3, AT-5 each have at least one HELD case; AT-5 B-11 is CHARACTERIZED (see below).
+
+## Deviations and harness defects (disclosed, nothing hidden)
+1. Run 1 recorded B-07 as BREACH and B-12 as a harness FAILED. Both were HARNESS DEFECTS in this suite, not findings about the components:
+   - B-07: the check "every table identical to the pre-crash dump" was evaluated after the retry process had legitimately committed an effect, so the dump differed. All checks on the real post-kill state (store known, head unchanged, no revoked rows, anchor unchanged, selection active) were green in run 1.
+   - B-12: the older database file was copied in place over a file the parent test process still had open, which corrupted the parent's own view (`disk I/O error` in the parent's row counts). The child's result was already correct (HOLD `anchor_ahead`). Confirmed in a scratch script outside pytest that an atomic `os.replace` restore reads cleanly.
+   Both were rewritten (dump taken right after the kill; restore by atomic replace) and re-executed as ONE combined item (`test_b07_b12_rerun_combined`) because only one execution remained. The combined case carries scenario id `AT-4+AT-6` and mandatory=False (neither is a mandatory scenario). The run-1 BREACH/FAILED records stay in `runs/run-001.json` unmodified.
+2. Before the first execution I ran two small scratch scripts (outside pytest, not counted by the ledger) to check that the fixture, the exec/revoke/restart probe scripts and their imports work. They did not execute any test body. A third scratch script, after run 1, reproduced the B-12 restore defect.
+3. The budget gate counts `-k`-deselected items (the conftest hook runs before deselection); the run-2 item was selected by node id instead.
+4. B-07 hooks the store's 2nd `after_log_insert` as declared in the inventory.
+5. `results.json` is overwritten by the harness each session; `results-consolidated.json` is a script-derived merge. CI (fresh directory) will regenerate everything.
+
+## Characterized limitations and observations
+- B-11: physical truncation surfaces as an untyped `sqlite3.DatabaseError` from the destination constructor, not a typed HOLD. Fail-closed in effect; owner: Runtime (typed handling of an unreadable database at open).
+- B-08: because `SelectionAuthorityStore.__init__` runs `CREATE TABLE IF NOT EXISTS`, a dropped selection table is recreated empty by a restarting process; the store is still `unknown` (HOLD) because replay and tables disagree, so no authority is lost, but the cause string is `table_mismatch`, not `schema_missing`, in a restarted process.
+- The ADR's disclosed window is unchanged: the anchor advances after COMMIT (`_advance_anchor`), so a store may briefly be ahead of an intact older anchor and is accepted if the chain verifies (observed implicitly in B-02: E ran against a store ahead of the anchor and saw the revocation). A restore to a point between the last anchor update and the store head is undetectable by construction.
+
+## Not qualified (remained)
+Ed25519 soundness (out of scope); production anchor custody; power-loss / fsync durability and torn filesystem writes beyond SIGKILL and truncation; withdrawal-race variants (revocation stands in for authority change; withdrawal uses the same lock; B-14 only covers a refused withdrawal); WAL-file-specific corruption; more than 4 concurrent processes; claim-level edits of grant/approval/policy rows (the pre-existing "authoritative ... state unavailable/invalid" paths) were not part of AT-5 here; a kill at `before_begin`/`after_begin`/`after_selection_guard` stages (only before-commit, after-commit and the writer mid-transition were killed).
