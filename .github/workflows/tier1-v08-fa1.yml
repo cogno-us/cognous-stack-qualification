@@ -1,0 +1,62 @@
+name: Tier 1 V08 F-A1 qualification
+on:
+  pull_request:
+    paths:
+      - suites/tier1-v08-fa1/**
+      - results/v08-fa1/**
+      - .github/workflows/tier1-v08-fa1.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  fa1:
+    name: F-A1 qualification at exact heads (any failure, skip, breach, inconclusive or blocked case fails; real OS identities need root)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-ocs-registry
+          ref: 1a4de32605519c505142b1ba3a57fa5b259b0b2c
+          path: components/registry
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: 0fd44d03d69aa49f8022472aedd0f8187a8e8ea9
+          path: components/control_plane
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-execution-runtime
+          ref: ad1805e22b1dee4f3201a228f85e1c4599bbebe5
+          path: components/runtime
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -q --require-hashes -r .github/locks/v07-pydantic212-pynacl-cryptography-pytest.txt
+      - name: Stage the pinned components where two throwaway OS users can read them
+        run: |
+          sudo cp -a components /opt/fa1-components
+          sudo chmod -R a+rX /opt/fa1-components
+          sudo git config --system --add safe.directory '*'
+          sudo mkdir -p "$GITHUB_WORKSPACE/fa1-evidence" && sudo chmod 777 "$GITHUB_WORKSPACE/fa1-evidence"
+      - name: Run the 30 F-A1 cases as root (real useradd/setpriv identities)
+        env:
+          V08_COMPONENTS_DIR: /opt/fa1-components
+          V08_FA1_RESULTS_DIR: ${{ github.workspace }}/fa1-evidence
+        run: sudo -E env "PATH=$PATH" python -m pytest suites/tier1-v08-fa1 -q -p no:cacheprovider -rA --junitxml=fa1-evidence/junit.xml
+      - name: Gate on failures, skips, breaches, inconclusive and blocked cases
+        if: always()
+        run: python suites/tier1-v08-fa1/gate.py fa1-evidence
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: v08-fa1-evidence
+          path: fa1-evidence
+          if-no-files-found: error

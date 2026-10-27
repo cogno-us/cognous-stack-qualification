@@ -272,7 +272,7 @@ def test_fa1_11_revocation_serializes_with_effects_in_flight(tmp_path, ev):
           and term_epoch > max(epochs) and any(r.outcome == "complete" for r in done) and v_last == "HELD" and c["effects"] == 1)
     # the parked effect committed BEFORE the revocation became effective; nothing committed with the previous pin afterwards
     finish(ev, "HELD" if ok else "INCONCLUSIVE", installer_while_in_flight=pending_result.outcome, mid=mid, statuses_after=after, receipt_pin_epochs=epochs,
-           terminal_epoch=term_epoch, in_flight_results={c_[:10]: out[c_].status for c_ in cids[:3]}, later_claim_typed=typed_last, counts=c,
+           terminal_epoch=term_epoch, in_flight_results={f"claim-{i + 1}": out[c_].status for i, c_ in enumerate(cids[:3])}, later_claim_typed=typed_last, counts=c,
            reconcile=[r.outcome for r in done])
 
 
@@ -315,7 +315,8 @@ def test_fa1_13_unavailable_fence_holder_keeps_the_transition_pending_and_holds_
         anchor = fmt.anchor_decode(rig.icfg.anchor_path.read_bytes())
         held = rig.run(cid)
         log = rig.installer.read_log()
-        completed_logged = any(e.get("outcome") == "complete" for e in log)
+        # only a TERMINAL completion for this decision counts (the earlier install of the pin also logs outcome "complete")
+        completed_logged = any(e.get("action") == "terminal" and e.get("outcome") == "complete" and e.get("decision_id") == rig.decision_id for e in log)
     vh, typed = judge(held, rig.counts(), "store_unknown", "HOLD", "pin_transition_pending")
     done = rig.installer.reconcile()
     res = rig.run(cid)
