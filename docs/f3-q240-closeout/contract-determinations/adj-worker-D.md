@@ -1,0 +1,110 @@
+# Worker D: contract and interface applicability (same-lineage review, not independent)
+
+## 1. Scope
+Read-only. I read Registry records 02, 03, 06, 11, 12, 13, 14 (`git show origin/main:`, copies in `/tmp/claude-0/work/adj/D/`), Control Plane 739efe7d source (`authorization_pin_export.py`, `local_authority_effect.py:425-480`, `bounded.py:1675-1715, 2262-2302, 2610-2625`, `registry_governed_lifecycle.py`, `registry_governed_policy.py`, `registry_f4_age_governance.py`, `effective_configuration_binding.py`), the dossier 08, and bounded-evidence README/limitations/contract-coverage plus run1/run2 JSONL counts. I ran nothing. Members: `scope.authority_domain` (AD), `host_profile_digest` (HPD), `effective_profile_digest` (EPD). Interfaces: execute, pin-export, claim.
+
+Record numbering note: record 12 as merged has Class A = items 1 and 2 only. Item 4 is "C for members unreachable by pin-export; F4-reachable members remain in A (items 1, 2)". Item 7 (`provision_local_execution_claim`) is Class B (deferred). Nothing in 12 says "not independently demonstrated" except item 1 (fallback for AD). Item 2 has no fallback status.
+
+## 2. Authority order and classification of each text
+| Tier | Text | Status |
+|---|---|---|
+| T1 frozen | 02 s4 rules 1-6 (esp. rule 2, L52; EPD "equals `catalogue_digest` for profile-bearing workflows, else null", L48; D-06.6) and 03 expectations 1 and 8 (L23) | Frozen, unaltered (blobs in 14 s2) |
+| T1 controlling acceptance | 12 s1 items 1, 2, 4 (Class A/C) | Builder-prepared from an Architect directive "as reported" (12 header); no signature recorded; used as controlling per brief |
+| T2 interpretation | 06 s3/s5 (A execute durable refusal; B pin-export read-only `unknown`/payload None, no `EffectTimeRefusal`; C claim `PermissionError`, no claim, no refusal write), 11 s2/s8 | Builder-prepared; Architect adoption in principle; 11 says no signature, human adoption PENDING; prospective only |
+| T3 builder evidence-method | 12 item 1 "independent isolation ... all else equal ... execute and pin-export"; item 2 "two independent fixtures"; item 4 basis ("developer test helper"); PROTOCOL.md; dossier 08 | Method requirements authored by the builder |
+| T4 historical oracle | original FAIL (23 assertions: 22 pin-export members + A06), A19/G1/G2/D-1 | Preserved, not rescored |
+
+Frozen vs interpretation: 03 L23 requires execute AND pin-export to "refuse with `authorization_binding_changed` and a durable `EffectTimeRefusal`". Under T1 that literal obligation on pin-export stands; 06/11 B is a prospective reading that pin-export need not write a refusal. The original FAIL stands; any pass on pin-export is "under successor interpretation, adoption pending".
+
+## 3. Contradictions and tensions (with authority order)
+1. **03 L23 vs 06/11 B (pin-export durable refusal).** T1 literal controls; 06/11 is T2, unsigned. Source supports 06's factual description (`authorization_pin_export.py:181-188` returns `_unknown`; no `append_refusal`; only `bounded.py:1694` appends). Not resolved by evidence; it is a human adoption item (11 s7, 13 decision 1).
+2. **Claim issuance has no explicit frozen durable-refusal obligation.** 03 L23 names only "execute AND pin-export". 02 s4 rule 2 (L52) says "Execute and pin-export claim recompute the live member", which is ambiguous ("pin-export claim" may mean the claim path of pin-export, or claim issuance). So the bounded package's wording that the frozen-literal reading of "03 L23" would require a durable refusal on claim (limitations.md #2; README FC-H1) is, on my reading of 03, an overstatement: the claim obligation rests on 02 L52 ambiguity plus 06 scope C. Inconvenient either way: if 02 L52 does cover claim issuance, the claim legs would not meet a durable-refusal literal (0 refusals, FC-H1-A07, N-CLAIM-JOINT-A04). Unresolved. T1 text decides; I cannot.
+3. **Record 12 Class A status vs record 13 decision 3.** 12 puts items 1 and 2 inside the acceptance boundary; 13 (same date, same author class) lists as an Architect decision "whether items 1 and 2 of 12 ... must be independently demonstrated before acceptance". Brief says treat 12 as controlling; I do, but record that 13 leaves its force open.
+4. **12 item 4 "F4 family declaration only" vs code.** Pin-export requires a configured profile with a valid `policy_binding` (`authorization_pin_export.py:117-122`); the F4-dedicated workflow refuses any profile (`registry_f4_age_governance.py:110-111`), so it cannot be pin-exported; the pin-capable shape is the composition that declares only non-profile slots (F4 ages, observation slots), and construction refuses a `policy_binding` profile when any profile-bearing family is declared (`registry_governed_policy.py:333-334`). So item 4 is source-true in direction but its wording ("F4 only") is narrower than the code (also observation slots) and its stated basis is a developer helper (T3).
+5. **Item 1 requires pin-export for AD; item 4 keeps F4-reachable members in A.** Consistent, but both collide with source: a live Y world on pin-export is refused at `:144-147` (`binding_digest`/catalogue guard, `PermissionError`) before any ECB comparison.
+6. **Docs vs source.** `docs/effective-configuration-binding.md:127` (malformed live configuration yields pin-export `unknown`) vs source: `BindingInvalid` becomes `RegistrySelectionRefused` (a `PermissionError`, `registry_governed_lifecycle.py:65, 277`) and `authorization_pin_export.py:176-177` re-raises. Under 06 B ("return the documented non-authorizing outcome") that path raises, not `unknown`. Not exercised.
+7. **Claim non-journal branch.** `local_authority_effect.py:438-441` with no profile calls `_resolve` without stage/decision, so the lifecycle `_resolve` takes the MINT branch (`registry_governed_lifecycle.py:270-272`) and `current != decision.binding` is plain model equality, with no classification and no legacy handling. Mismatch still refuses by inequality; but the LOAD-BEARING note at `:281` (60.0 == 60) is not applied on that branch. Source-only; UNVERIFIED by any run. 11 s8 also says this class of unexercised branch.
+
+## 4. Interface applicability from source (739efe7)
+- **Execute** (all governed lifecycles): `bounded.py:1690-1711` appends `EffectTimeRefusal` for any `reasons` or `current != persisted.binding`; `authorization_binding_changed` is added when reasons are empty (`:1692-1693`) or via the lifecycle's own add (`registry_governed_lifecycle.py:281-283`). Raises `PermissionError`, no attempt row, before `destination.apply`. Reachable for AD (joint), HPD, EPD (joint).
+- **Pin-export**: reachable only for a workflow with `runtime_authority_profile` carrying a selected, valid `policy_binding` and no profile-bearing family. Order: persisted-decision checks, `binding_digest` and catalogue guards (`:141-149`, `PermissionError`), `_resolve(stage="claim")` (`:170-173`), `current != current_binding` -> `_classify`/`_unknown` (`:181-189`). In this shape live HPD = `profile_digest(self._gp_host)` and EPD = `profile_digest(held)` (`registry_governed_policy.py:482-483`); with no profile-bearing family the held profile is the host profile, so HPD and EPD co-move with `catalogue_digest` and with `side.binding_digest` guards. AD lives in the host body that `binding_digest` covers. Therefore a live change of any of the three is refused at `:144-147` or by the base resolve before the ECB can be the unique refuser. Persisted-side perturbation is reachable (A19/G1, per dossier).
+- **Claim issuance** (`local_authority_effect.py:425-466`): shares `_resolve(stage="claim")` and `_record_check`; refusal is the generic `PermissionError` at `:455-458`. Reachable for all families and for AD via the journal branch (N-CLAIM-JOINT executed) and the non-journal branch (unexercised).
+
+## 5. Per-member architectural acceptance test (answers 1-9)
+
+### AD `scope.authority_domain`
+1. Invariant: a decision minted under authority domain X must not execute, export an active pin or yield a claim when the live ECB scope is Y; execute writes `authorization_binding_changed` durably.
+2. Strongest evidence: N-CLAIM-JOINT (run1/run2 identical): base diff exactly `{manifest_digest, proposal_commitment}` (A10, row 26), ECB diff exactly `{digest, scope.authority_domain}` (A11, row 27), generic `PermissionError` (A02), refusals delta 0 (A04, row 20), controls C0/C2 issue claims, C1 guard-first. D-1 Q2-A3 graft (unsigned store) for execute; A19 and G1/G2 persisted-side. Joint, not isolated.
+3. Counterexample: any run where live domain is Y, base binding diff otherwise empty, and execute/claim/pin-export accepts (kill: a comparison-side mutant that ignores the leaf; none run).
+4. Isolation under valid authority: NOT reachable. The leaf is the manifest `authority_context.authority_domain` held since construction (`registry_governed_lifecycle.py:81-89`); `manifest_digest` enters the proposal and binding (`bounded.py:2618-2619, 2584`), so a supported Y world moves `manifest_digest`/`proposal_commitment`, or trips `authority_domain_mismatch` (`bounded.py:2297-2298`) or `manifest_authority_changed` first.
+5. Why: the same manifest is committed elsewhere; "all else equal" is not a state the supported model expresses. (Basis is source reading; non-natural graft/seam-patch routes exist and are not supported interfaces.)
+6. Controlling contract: 03 expectations 1 and 8 require refusal on perturbation, not an isolation construction. The isolation construction comes from 12 item 1 (T3 method), which itself prescribes the fallback "not independently demonstrated for this member".
+7. Decomposition can establish the underlying refusal property in part (persisted-side perturbation, derivation correctness, natural joint refusal, guard order); it cannot establish single-member sensitivity of the live leaf.
+8. Unqualified: live single-member sensitivity on all three interfaces; pin-export live behavior (no case run); claim non-journal branch; comparison-side mutant; the read-only `configuration_binding_status` surface (dossier open interface).
+9. Prospective change: none needed to accept the fallback status already written in item 1; Option B is not a route for AD (no frozen definition equates it to another member).
+**Verdicts:** isolation STRUCTURALLY UNREACHABLE (supported interfaces; conditional on source reading). Refusal property: PARTIALLY DEMONSTRATED (execute persisted/graft, claim joint natural, pin-export persisted-only under frozen-literal FAIL / successor-conditional). Item 1 status: "not independently demonstrated for this member."
+
+### HPD `host_profile_digest`
+1. Invariant: a decision minted under host profile H must be refused by execute, pin-export and claim when only the host profile digest of the live ECB differs.
+2. Evidence: FC-H1 (claim, masked-host, 34 PASS rows/run) and FC-H2 (execute, second workflow, 27) with diff-isolation (base diff empty, ECB diff `{digest, host_profile_digest}`); D-1 Q3-H1 execute; FC-H3a/b unmasked controls (14/17) not isolating. n=1 each, shared D-1 fixtures, same lineage.
+3. Counterexample: masked-host world accepted (a mutant dropping `host_profile_digest` from the live member).
+4. Reachable under valid authority: yes on execute and claim via masking (effective = min(host, Registry); `registry_f5_class_age_governance.py:121-122, 169-172`). Pin-export live: not reachable (see s4); persisted-side only.
+5. Pin-export: pin-capable shape has host = held = catalogue and profile-bearing families cannot carry `policy_binding`.
+6. Contract requires refusal on perturbation, not the masking construction; "two independent fixtures" is 12 item 2 (T3), reading R1/R2 unresolved. 12 item 2 does not itself require a pin-export run; 03 L23 does for every member.
+7. Decomposition: partly (masked-host is itself a decomposition of the masked-host limit).
+8. Unqualified: pin-export live leg; third family; "two independent" reading; independence of fixtures; masked-host limit (12 wording is broader than the CP text, dossier s4); mutants.
+9. None required if Architect accepts FC-H1+FC-H2 as the two; otherwise further independent fixtures.
+**Verdicts:** execute/claim isolation PARTIALLY DEMONSTRATED (n=1 each, same-lineage); pin-export live isolation STRUCTURALLY UNREACHABLE; item 2 sufficiency CONTRACTUALLY UNRESOLVED.
+
+### EPD `effective_profile_digest`
+1. Invariant: refusal when the live effective profile digest differs from the persisted one.
+2. Evidence: FXE-JOINT (102 PASS rows in `bq_evidence.jsonl` per run; base diff `{approval_commitment, catalogue_digest}`, ECB diff `{digest, effective_profile_digest}`; controls C0-C3); D-1 Q3-E1/E2; A19 persisted-side.
+3. Counterexample: a live state in which EPD differs while `catalogue_digest` and `approval_commitment` are equal and the workflow still executes. Not constructible by supported means (dossier I1-I4; I verified the minting/`_resolve` co-derivation shape at `registry_governed_lifecycle.py:263-285` and the profile-bound pin guard `:146`, but did not re-derive I3 at `runtime_authority.py:236-242`).
+4. Isolation: not reachable.
+5. Why: 02 L48 defines EPD as equal to `catalogue_digest` for profile-bearing workflows (else null), the approval commitment is profile-injective, and both are read in one `_resolve`. Also pin-export guard-first at `:146`.
+6. The frozen contract requires the refusal property; it defines EPD in a way that makes a separate-isolation construction impossible. 12 item 2 gives no fallback.
+7. Yes in principle: independently verified decomposition (source derivation, persisted perturbation per interface, joint end-to-end, impossibility argument) would establish the refusal obligation but not single-member live sensitivity.
+8. Unqualified: live-derivation mutant (dropping the EPD member from the live side) not run; pin-export/claim live; read-only classifier surface.
+9. A prospective clarification (Proposal B) is required before decomposed evidence can count as Class A satisfaction.
+**Verdicts:** isolation STRUCTURALLY UNREACHABLE (inference from definition+construction, conditional on A1-A3); refusal property PARTIALLY DEMONSTRATED; whether joint evidence satisfies 12 item 2 CONTRACTUALLY UNRESOLVED.
+
+## 6. Counts check (tests vs assertions)
+Bounded run: 14 pytest tests, 14 passed per run. Assertion/precondition PASS rows counted by me in `raw/run1/d1_evidence.jsonl` and `raw/run2`: FC-H1 34, FC-H2 27, FC-H3a 14, FC-H3b 17, N-CLAIM-JOINT 82; FXE-JOINT 102 (in `bq_evidence.jsonl`, also 44+14+13+15+16 in `d1_evidence.jsonl`; same rows, not 204). Run1 and run2 are identical in these counts. FXE `n/a` rows (25) and N-CLAIM `n/a` rows (17) are snapshots, not assertions. I did not diff values between runs.
+
+## 7. Option C: where exclusion is supported
+Reading: Option C excludes certain member-by-interface legs from the applicable workflow declaration (interface clarification only).
+
+| Path | Source | Normative text | Exclusion |
+|---|---|---|---|
+| pin-export x any member, profile-bearing families (class-age, class-unreadable, composed, revocation, irreversible, anchor) | Cannot be constructed with `policy_binding` (`registry_governed_policy.py:333-334`; family modules per dossier `:206-207, :263-264`); pin-export demands one (`:117-122`) | 12 item 4 (T1 controlling): Class C for members unreachable by pin-export | SUPPORTED (source and text), subject to the F4-reachable carve-out |
+| pin-export x HPD, live isolation, on the pin-capable (F4/observation) shape | Host = held = catalogue; change refused at `:144-147` or by base reasons; ECB never unique refuser | 12 item 4 keeps F4-reachable members in A; item 2 itself does not name pin-export; 03 L23 does | Source supports "not isolable"; text does NOT yet exclude. Would need Option C/B wording. Persisted-side leg stays reachable and in scope |
+| pin-export x EPD, same shape | Same; EPD is non-null here (`registry_governed_policy.py:482-483`) | As above | Same as HPD |
+| pin-export x AD | Reachable (F4 shape); live Y world guard-first (`:144-147`) or base `authority_domain_mismatch`; persisted graft reachable, never run (N-PIN-GRAFT) | 12 item 1 explicitly requires "run execute and pin-export" and has its own fallback; item 4 keeps it in A | NOT supported. Reachable and untested live. Correct status is item 1's fallback, not exclusion |
+| claim x AD | Reachable (journal branch executed jointly; non-journal branch unexercised) | No text excludes claim; item 7 (B) covers only the `provision_*` wrapper; 06 C defines behaviour | NOT supported |
+| claim x HPD | Reachable; FC-H1 executed | none | NOT supported (and not needed) |
+| claim x EPD | Joint/guard-first (approval mismatch first, `local_authority_effect.py:443-466`) | none | Not excluded; isolation is Option B territory |
+
+Net: Option C is sound only as a confirmation of item 4 for profile-bearing families. It cannot remove AD from pin-export or claim, and cannot remove F4-pin-shape HPD/EPD legs without separate Option B-type wording.
+
+## 8. Draft candidate wording (PROPOSAL only; nothing adopted)
+
+**PROPOSAL B: decomposed-qualification clarification (prospective, proved-impossible isolations only).**
+"Successor clarification to Registry record 12 item 2, effective only from the Architect's recorded adoption naming this revision; it does not re-score any earlier evidence. Where the frozen contract (record 02 s4) defines a bound member as equal to another compared member for every configuration the supported lifecycle can mint or load, and that impossibility of single-member live isolation is itself shown by an independent source derivation under stated assumptions, the 'independent isolation' evidence method for that member is satisfied by a decomposed qualification consisting of all of: (a) independent derivation check of the live value on each affected workflow type; (b) persisted-side perturbation refused on every in-scope interface; (c) one natural joint transition refused end to end, with attribution by complementary base/ECB diff showing the member among the changed leaves; (d) guard-order evidence; (e) the impossibility argument and its assumptions, reviewed by the designated independent owner. The member is reported as 'decomposed-qualified; isolation structurally unreachable', never as 'isolated'. Eligible members are named in this clause: effective_profile_digest only."
+What it would NOT change: any runtime requirement or refusal behaviour; the frozen oracle 03 or contract 02; the original F3-A FAIL; AD (item 1 fallback stands); HPD (isolation is reachable and remains required); the masked-host limit statement; the pin-export, claim and execute semantics of 06/11; independence and designation requirements; mutant requirements for the live derivation (it should still require or record the live-derivation mutant as an open item).
+
+**PROPOSAL C: interface clarification.**
+"For the purposes of record 12 items 1, 2 and 4, interface applicability of the binding-member legs is: (C1) Execute and claim issuance apply to every governed lifecycle. (C2) Pin-export (`assess_authorization_pin`) applies only to a workflow whose configured profile carries a selected `policy_binding` and that declares no profile-bearing family (in the 739efe7 implementation: F4 ages and observation slots); a pin-export leg for a workflow declaring a profile-bearing family is Class C because such a workflow cannot be constructed with a `policy_binding`. (C3) The F4-dedicated workflow is outside pin-export (it refuses any profile). (C4) Every member present in a pin-exportable workflow's binding keeps its pin-export leg in scope; 'unreachable by pin-export' in item 4 means constructible only under C2's exclusion, not 'not isolable'. (C5) Claim-leg expectations follow record 06/11 scope C."
+What it would NOT change: AD pin-export or claim legs (remain in scope; item 1 fallback applies); persisted-side pin-export legs for HPD/EPD; the original pin-export FAIL; the 06/11 pending adoption; any decision on whether live isolation of HPD/EPD on the pin shape is required (that stays with Proposal B or an Architect ruling); item 7 (Class B).
+
+## 9. Dissent and what could be wrong
+- My claim that 03 does not name claim issuance depends on reading L23 and expectation 6/8 only; 02 L52's "pin-export claim" could be intended to include claim issuance. This weakens the bounded package's "frozen-literal" annotation either way.
+- "Structurally unreachable" for AD and EPD rests on source reading, not execution. A seam-patch or graft isolates AD non-naturally (D-1 Q2-A3 executed on execute); whether graft counts as "independent isolation" is an Architect ruling (P-7). Treating that as unreachable could be too strong under a looser reading of "valid authority".
+- Pin-export-shape HPD/EPD co-movement is my reading of `registry_governed_policy.py:482-483` plus the absence of a composing family; I did not verify any pin-shape fixture where host != held (the dossier says none supported).
+- Record 12's Class A force is itself undetermined (13 decision 3); the Proposal wordings assume 12 stays controlling.
+- EPD-null case (F4-dedicated) and the F4-pin-shape non-null case differ; the 02 L48 definition ("else null") does not literally describe a non-profile-bearing workflow with a profile (non-null EPD).
+- Same lineage: lead, workers, reviewers share one model family; this review does not add independence.
+
+## 10. Confidence and limits
+Medium-high on interface applicability (source read directly); medium on the contract-ambiguity points. NOT verified: any run result (I did not execute), D-1/readjudication/original row numbers (only the bounded JSONL was parsed), the family-module line numbers cited from the dossier (`:206-207, :263-264, :117-122` of the F5 modules), I3 at `runtime_authority.py:236-242`, pin-export persisted-side rows (A19/G1) beyond the dossier's description, record 12 item 7 and Class B, and whether the Architect has acted on records 11/13 after the 2026-10-30 snapshots.
+
+Files: `/tmp/claude-0/work/adj/worker-D.md`; record copies `/tmp/claude-0/work/adj/D/{06,11,13,14}.md`.
