@@ -1,0 +1,5 @@
+19c19,20
+<     f = (tc.get("classname") or "").rsplit(".", 1)[0] if tc.get("classname") else "?"
+---
+>     cn = tc.get("classname") or ""
+>     f = ".".join(cn.split(".")[:2]) if cn else "(module-level:" + (tc.get("name") or "?") + ")"

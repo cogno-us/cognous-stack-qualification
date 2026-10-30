@@ -1,0 +1,4 @@
+# AMEND-D2-1 (2026-10-30T04:06:48Z) runner defect, logged per PROTOCOL-D2-v1 section 4
+Defect: run_d2.sh passed the frozen original harness under the file name test_f3a_independent.post-AMEND4.py; the dots in the stem make pytest try to import module test_f3a_independent, so collection failed (R03/R04 first attempts, retained at raw/R03-first-attempt-collection-error-311 and raw/R04-first-attempt-collection-error-312). No test executed; no candidate behaviour observed.
+Fix: the byte-identical file (sha256 a51474128d8094932c91b3dd95b95fd751920b12b61499ab06acfbdac8727b0b) is also placed at harness/test_f3a_independent.py (the name the original qualifier used) and the runner points to it. Pre-amendment runner: amendments/run_d2.pre-AMEND-D2-1.sh; diff: AMEND-D2-1.diff.
+Protocol, expectations, harness bytes and criteria unchanged.

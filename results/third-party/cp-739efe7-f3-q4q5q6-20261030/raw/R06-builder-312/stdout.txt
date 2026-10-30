@@ -1,0 +1,659 @@
+........................................................................ [ 14%]
+........................................................................ [ 28%]
+........................................................................ [ 42%]
+........................................................................ [ 56%]
+........................................................................ [ 70%]
+................................s..........................FFFFFF....... [ 84%]
+........................................................................ [ 98%]
+.........                                                                [100%]
+=================================== FAILURES ===================================
+________________ test_a01_registry_pin_and_inventory_are_exact _________________
+
+    def test_a01_registry_pin_and_inventory_are_exact():
+>       v, pin = vectors()
+                 ^^^^^^^^^
+
+tests/test_v02_claim_policy_binding.py:157: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def vectors():
+        pin = os.environ.get("OCS_REGISTRY_PIN_DIR")
+        if not pin or not (Path(pin) / VECTOR_REL).is_file():
+            pytest.skip("NOT RUN: OCS_REGISTRY_PIN_DIR is not set to a Registry checkout containing the binding vectors")
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=pin, capture_output=True, text=True, check=True).stdout.strip()
+>       assert head == PIN, f"Registry checkout is {head}, expected the pin {PIN}"
+E       AssertionError: Registry checkout is a40fe755e2384a99c37016fa9ad59396f1835900, expected the pin 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E       assert 'a40fe755e238...59396f1835900' == '943ab1831e39...322ccfa09bc6a'
+E         
+E         - 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E         + a40fe755e2384a99c37016fa9ad59396f1835900
+
+tests/test_v02_claim_policy_binding.py:63: AssertionError
+____ test_a02_valid_vectors_validate_and_are_byte_identical_to_the_registry ____
+
+    def test_a02_valid_vectors_validate_and_are_byte_identical_to_the_registry():
+>       v, _ = vectors()
+               ^^^^^^^^^
+
+tests/test_v02_claim_policy_binding.py:164: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def vectors():
+        pin = os.environ.get("OCS_REGISTRY_PIN_DIR")
+        if not pin or not (Path(pin) / VECTOR_REL).is_file():
+            pytest.skip("NOT RUN: OCS_REGISTRY_PIN_DIR is not set to a Registry checkout containing the binding vectors")
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=pin, capture_output=True, text=True, check=True).stdout.strip()
+>       assert head == PIN, f"Registry checkout is {head}, expected the pin {PIN}"
+E       AssertionError: Registry checkout is a40fe755e2384a99c37016fa9ad59396f1835900, expected the pin 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E       assert 'a40fe755e238...59396f1835900' == '943ab1831e39...322ccfa09bc6a'
+E         
+E         - 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E         + a40fe755e2384a99c37016fa9ad59396f1835900
+
+tests/test_v02_claim_policy_binding.py:63: AssertionError
+______________ test_a03_equivalence_and_difference_relations_hold ______________
+
+    def test_a03_equivalence_and_difference_relations_hold():
+>       v, _ = vectors()
+               ^^^^^^^^^
+
+tests/test_v02_claim_policy_binding.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def vectors():
+        pin = os.environ.get("OCS_REGISTRY_PIN_DIR")
+        if not pin or not (Path(pin) / VECTOR_REL).is_file():
+            pytest.skip("NOT RUN: OCS_REGISTRY_PIN_DIR is not set to a Registry checkout containing the binding vectors")
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=pin, capture_output=True, text=True, check=True).stdout.strip()
+>       assert head == PIN, f"Registry checkout is {head}, expected the pin {PIN}"
+E       AssertionError: Registry checkout is a40fe755e2384a99c37016fa9ad59396f1835900, expected the pin 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E       assert 'a40fe755e238...59396f1835900' == '943ab1831e39...322ccfa09bc6a'
+E         
+E         - 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E         + a40fe755e2384a99c37016fa9ad59396f1835900
+
+tests/test_v02_claim_policy_binding.py:63: AssertionError
+___________________ test_a04_every_invalid_vector_is_refused ___________________
+
+    def test_a04_every_invalid_vector_is_refused():
+>       v, _ = vectors()
+               ^^^^^^^^^
+
+tests/test_v02_claim_policy_binding.py:187: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def vectors():
+        pin = os.environ.get("OCS_REGISTRY_PIN_DIR")
+        if not pin or not (Path(pin) / VECTOR_REL).is_file():
+            pytest.skip("NOT RUN: OCS_REGISTRY_PIN_DIR is not set to a Registry checkout containing the binding vectors")
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=pin, capture_output=True, text=True, check=True).stdout.strip()
+>       assert head == PIN, f"Registry checkout is {head}, expected the pin {PIN}"
+E       AssertionError: Registry checkout is a40fe755e2384a99c37016fa9ad59396f1835900, expected the pin 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E       assert 'a40fe755e238...59396f1835900' == '943ab1831e39...322ccfa09bc6a'
+E         
+E         - 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E         + a40fe755e2384a99c37016fa9ad59396f1835900
+
+tests/test_v02_claim_policy_binding.py:63: AssertionError
+______________________ test_a05_integer_boundary_vectors _______________________
+
+    def test_a05_integer_boundary_vectors():
+>       v, _ = vectors()
+               ^^^^^^^^^
+
+tests/test_v02_claim_policy_binding.py:197: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def vectors():
+        pin = os.environ.get("OCS_REGISTRY_PIN_DIR")
+        if not pin or not (Path(pin) / VECTOR_REL).is_file():
+            pytest.skip("NOT RUN: OCS_REGISTRY_PIN_DIR is not set to a Registry checkout containing the binding vectors")
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=pin, capture_output=True, text=True, check=True).stdout.strip()
+>       assert head == PIN, f"Registry checkout is {head}, expected the pin {PIN}"
+E       AssertionError: Registry checkout is a40fe755e2384a99c37016fa9ad59396f1835900, expected the pin 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E       assert 'a40fe755e238...59396f1835900' == '943ab1831e39...322ccfa09bc6a'
+E         
+E         - 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E         + a40fe755e2384a99c37016fa9ad59396f1835900
+
+tests/test_v02_claim_policy_binding.py:63: AssertionError
+____ test_a06_identifier_matrix_every_bad_value_in_every_identifier_member _____
+
+    def test_a06_identifier_matrix_every_bad_value_in_every_identifier_member():
+>       v, _ = vectors()
+               ^^^^^^^^^
+
+tests/test_v02_claim_policy_binding.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def vectors():
+        pin = os.environ.get("OCS_REGISTRY_PIN_DIR")
+        if not pin or not (Path(pin) / VECTOR_REL).is_file():
+            pytest.skip("NOT RUN: OCS_REGISTRY_PIN_DIR is not set to a Registry checkout containing the binding vectors")
+        head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=pin, capture_output=True, text=True, check=True).stdout.strip()
+>       assert head == PIN, f"Registry checkout is {head}, expected the pin {PIN}"
+E       AssertionError: Registry checkout is a40fe755e2384a99c37016fa9ad59396f1835900, expected the pin 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E       assert 'a40fe755e238...59396f1835900' == '943ab1831e39...322ccfa09bc6a'
+E         
+E         - 943ab1831e39fadac1eb2a414ae322ccfa09bc6a
+E         + a40fe755e2384a99c37016fa9ad59396f1835900
+
+tests/test_v02_claim_policy_binding.py:63: AssertionError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/test_effective_configuration_binding.py::test_a01_every_authorized_decision_carries_the_member_and_nothing_else_changes
+PASSED tests/test_effective_configuration_binding.py::test_a02_the_members_are_the_live_configuration
+PASSED tests/test_effective_configuration_binding.py::test_a03_f4_declared_binds_the_registry_narrowed_scalars_and_the_f4_family
+PASSED tests/test_effective_configuration_binding.py::test_a04_the_member_is_minted_by_the_always_on_lifecycle_there_is_no_off_switch
+PASSED tests/test_effective_configuration_binding.py::test_a05_a_workflow_without_a_profile_still_binds_via_a_one_member_extension
+PASSED tests/test_effective_configuration_binding.py::test_a05b_a_workflow_without_a_profile_refuses_a_changed_configuration_on_execute
+PASSED tests/test_effective_configuration_binding.py::test_a05c_a_live_configuration_that_cannot_be_bound_refuses_and_never_falls_back_to_unbound
+PASSED tests/test_effective_configuration_binding.py::test_a06_a_hold_persists_no_binding_and_the_binding_cannot_turn_a_hold_into_an_authorization
+PASSED tests/test_effective_configuration_binding.py::test_a07_a_failed_append_leaves_no_decision_and_so_no_binding
+PASSED tests/test_effective_configuration_binding.py::test_b01_same_configuration_across_restart_is_accepted_and_reported_bound
+PASSED tests/test_effective_configuration_binding.py::test_b02_the_member_is_read_only_evidence_and_never_written_by_execute
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[approval]
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[constructor_tolerance]
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[identity]
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[mandate]
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[obs_absent]
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[obs_max_age]
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[obs_tolerance]
+PASSED tests/test_effective_configuration_binding.py::test_c01_a_changed_host_scalar_or_observation_policy_refuses_and_the_final_profile_is_identical[status]
+PASSED tests/test_effective_configuration_binding.py::test_c02_a_changed_f4_scalar_with_the_f4_family_declared_refuses
+PASSED tests/test_effective_configuration_binding.py::test_c03_the_documented_i04_scenario_now_refuses
+PASSED tests/test_effective_configuration_binding.py::test_c04_a_dropped_family_or_a_changed_effective_value_refuses_through_the_binding
+PASSED tests/test_effective_configuration_binding.py::test_c05_a_family_contract_version_or_schema_revision_change_refuses
+PASSED tests/test_effective_configuration_binding.py::test_c06_a_different_host_profile_with_the_same_final_profile_refuses
+PASSED tests/test_effective_configuration_binding.py::test_c07_a_different_final_profile_refuses_even_when_approvals_follow
+PASSED tests/test_effective_configuration_binding.py::test_c08_a_replayed_member_from_another_scope_or_decision_refuses
+PASSED tests/test_effective_configuration_binding.py::test_c09_every_member_leaf_perturbed_in_the_persisted_record_refuses_execute
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[bool_scalar]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[digest_not_the_recomputation]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[extra_key_in_record]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[extra_member]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[float_scalar]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[huge_scalar]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[members_edited_digest_kept]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[missing_member_key]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[missing_record_key]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[negative_scalar]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[not_a_dict]
+PASSED tests/test_effective_configuration_binding.py::test_d01_a_malformed_or_inconsistent_persisted_member_refuses[str_scalar]
+PASSED tests/test_effective_configuration_binding.py::test_d02_an_unknown_binding_version_refuses
+PASSED tests/test_effective_configuration_binding.py::test_d03_a_missing_member_refuses_under_the_required_semantics
+PASSED tests/test_effective_configuration_binding.py::test_d04_a_stripped_member_at_or_after_the_cutoff_refuses_but_below_it_is_indistinguishable_from_legacy
+PASSED tests/test_effective_configuration_binding.py::test_d05_the_legacy_comparison_never_ignores_any_other_key
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[True]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[False]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[-1]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[1.0]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[1]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[None]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[2147483648]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[1000000000000000000000000000000]
+PASSED tests/test_effective_configuration_binding.py::test_d06_an_invalid_cutoff_refuses_the_construction[cutoff8]
+PASSED tests/test_effective_configuration_binding.py::test_d07_a_cutoff_beyond_the_store_refuses_the_construction
+PASSED tests/test_effective_configuration_binding.py::test_d07b_the_reviewer_scenario_an_oversize_cutoff_cannot_come_back_to_life_when_the_store_grows
+PASSED tests/test_effective_configuration_binding.py::test_d08_a_governed_subclass_that_omits_the_hook_fails_closed
+PASSED tests/test_effective_configuration_binding.py::test_d09_status_of_a_malformed_LIVE_configuration_raises_instead_of_classifying
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[True-status_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[True-approval_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[True-clock_tolerance_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[True-identity_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[True-mandate_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60.0-status_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60.0-approval_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60.0-clock_tolerance_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60.0-identity_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60.0-mandate_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60-status_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60-approval_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60-clock_tolerance_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60-identity_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[60-mandate_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[-1-status_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[-1-approval_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[-1-clock_tolerance_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[-1-identity_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[-1-mandate_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[2147483648-status_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[2147483648-approval_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[2147483648-clock_tolerance_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[2147483648-identity_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[2147483648-mandate_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[None-status_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[None-approval_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[None-clock_tolerance_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[None-identity_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e01_a_scalar_that_cannot_be_bound_refuses_the_construction[None-mandate_max_age_seconds]
+PASSED tests/test_effective_configuration_binding.py::test_e02_an_observation_policy_outside_the_range_refuses_the_construction
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[approval_not_declared_f4]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[bool_in_place]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[constructor_tolerance]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[identity]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[mandate]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[observation_max_age_mutated]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[observation_removed]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[observation_replaced]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[observation_tolerance_mutated]
+PASSED tests/test_effective_configuration_binding.py::test_e03_a_post_construction_edit_of_a_scalar_or_the_observation_policy_is_refused_at_every_boundary[status_not_declared_f4]
+PASSED tests/test_effective_configuration_binding.py::test_e04_the_held_state_is_judged_at_the_commit_gate_too
+PASSED tests/test_effective_configuration_binding.py::test_f01_a_matching_binding_does_not_remove_a_base_refusal
+PASSED tests/test_effective_configuration_binding.py::test_f02_a_changed_configuration_plus_a_base_refusal_keeps_the_base_reasons
+PASSED tests/test_effective_configuration_binding.py::test_f03_an_attempt_already_failed_still_blocks_a_retry_and_the_binding_does_not_unblock_it
+PASSED tests/test_effective_configuration_binding.py::test_g01_the_pin_export_claim_path_accepts_the_same_configuration_after_restart
+PASSED tests/test_effective_configuration_binding.py::test_g02_the_pin_export_claim_path_does_not_report_active_under_a_drifted_configuration[drift0]
+PASSED tests/test_effective_configuration_binding.py::test_g02_the_pin_export_claim_path_does_not_report_active_under_a_drifted_configuration[drift1]
+PASSED tests/test_effective_configuration_binding.py::test_g02_the_pin_export_claim_path_does_not_report_active_under_a_drifted_configuration[drift2]
+PASSED tests/test_effective_configuration_binding.py::test_g02_the_pin_export_claim_path_does_not_report_active_under_a_drifted_configuration[drift3]
+PASSED tests/test_effective_configuration_binding.py::test_g02_the_pin_export_claim_path_does_not_report_active_under_a_drifted_configuration[drift4]
+PASSED tests/test_effective_configuration_binding.py::test_g03_a_stripped_or_corrupt_member_is_not_active_on_the_pin_export_path
+PASSED tests/test_effective_configuration_binding.py::test_h01_approval_commitment_and_catalogue_digest_are_byte_identical_to_the_prior_binary
+PASSED tests/test_effective_configuration_binding.py::test_h02_the_activation_ledger_configuration_digest_is_unchanged_by_the_shared_scope_helper
+PASSED tests/test_effective_configuration_binding.py::test_h02b_the_ledger_digest_with_the_irreversibility_family_is_unchanged_too
+PASSED tests/test_effective_configuration_binding.py::test_h03_the_digests_of_the_binding_and_of_the_ledger_are_distinct_values_of_distinct_material
+PASSED tests/test_effective_configuration_binding.py::test_h04_the_same_configuration_gives_the_same_binding_digest_across_constructions_and_clocks
+PASSED tests/test_effective_configuration_binding.py::test_h05_the_dedicated_single_family_workflows_do_not_bind_and_are_unchanged
+PASSED tests/test_effective_configuration_binding.py::test_h06_no_reason_code_is_introduced_and_the_member_never_enters_an_approval
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d01_every_authorized_decision_of_a_dedicated_workflow_carries_the_member[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d01_every_authorized_decision_of_a_dedicated_workflow_carries_the_member[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d01_every_authorized_decision_of_a_dedicated_workflow_carries_the_member[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d01_every_authorized_decision_of_a_dedicated_workflow_carries_the_member[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d02_the_same_configuration_accepts_and_executes[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d02_the_same_configuration_accepts_and_executes[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d02_the_same_configuration_accepts_and_executes[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d02_the_same_configuration_accepts_and_executes[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[identity_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[identity_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[identity_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[identity_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[mandate_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[mandate_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[mandate_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[mandate_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[clock_tolerance_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[clock_tolerance_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[clock_tolerance_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03_a_changed_scalar_refuses_with_the_registered_reason[clock_tolerance_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03b_a_changed_observation_policy_refuses[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03b_a_changed_observation_policy_refuses[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03b_a_changed_observation_policy_refuses[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03b_a_changed_observation_policy_refuses[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d03c_a_changed_f4_scalar_refuses_for_the_dedicated_f4_workflow
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d04_a_changed_family_value_refuses_even_when_approvals_follow[dedicated_f4-0]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d04_a_changed_family_value_refuses_even_when_approvals_follow[dedicated_age-0]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d04_a_changed_family_value_refuses_even_when_approvals_follow[dedicated_unr-0]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d04_a_changed_family_value_refuses_even_when_approvals_follow[dedicated_unr_age-0]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d04_a_changed_family_value_refuses_even_when_approvals_follow[dedicated_unr_age-1]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d05_a_different_host_profile_with_the_same_final_profile_refuses[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d05_a_different_host_profile_with_the_same_final_profile_refuses[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d05_a_different_host_profile_with_the_same_final_profile_refuses[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d06_a_missing_member_refuses_with_the_default_cutoff[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d06_a_missing_member_refuses_with_the_default_cutoff[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d06_a_missing_member_refuses_with_the_default_cutoff[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d06_a_missing_member_refuses_with_the_default_cutoff[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d07_a_tampered_member_refuses[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d07_a_tampered_member_refuses[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d07_a_tampered_member_refuses[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d07_a_tampered_member_refuses[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[True-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[True-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[True-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[True-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[-1-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[-1-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[-1-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[-1-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1.0-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1.0-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1.0-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1.0-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[1-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[2147483648-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[2147483648-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[2147483648-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d08_an_invalid_cutoff_refuses_the_construction[2147483648-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-clock_tolerance_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-clock_tolerance_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-clock_tolerance_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-clock_tolerance_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-identity_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-identity_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-identity_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-identity_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-mandate_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-mandate_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-mandate_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[True-mandate_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-clock_tolerance_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-clock_tolerance_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-clock_tolerance_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-clock_tolerance_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-identity_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-identity_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-identity_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-identity_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-mandate_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-mandate_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-mandate_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[-1-mandate_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-clock_tolerance_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-clock_tolerance_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-clock_tolerance_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-clock_tolerance_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-identity_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-identity_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-identity_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-identity_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-mandate_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-mandate_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-mandate_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[1.5-mandate_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-clock_tolerance_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-clock_tolerance_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-clock_tolerance_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-clock_tolerance_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-identity_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-identity_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-identity_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-identity_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-mandate_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-mandate_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-mandate_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[60-mandate_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-clock_tolerance_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-clock_tolerance_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-clock_tolerance_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-clock_tolerance_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-identity_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-identity_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-identity_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-identity_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-mandate_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-mandate_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-mandate_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[None-mandate_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-clock_tolerance_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-clock_tolerance_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-clock_tolerance_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-clock_tolerance_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-identity_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-identity_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-identity_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-identity_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-mandate_max_age_seconds-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-mandate_max_age_seconds-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-mandate_max_age_seconds-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d09_an_invalid_scalar_refuses_the_construction_even_when_f4_is_not_declared[2147483648-mandate_max_age_seconds-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs0-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs0-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs0-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs0-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs1-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs1-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs1-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d10_an_observation_policy_outside_the_range_refuses_the_construction[obs1-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d11_the_f4_scalars_keep_their_own_existing_refusals
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[bool_in_place-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[bool_in_place-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[bool_in_place-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[bool_in_place-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[constructor_tolerance-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[constructor_tolerance-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[constructor_tolerance-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[constructor_tolerance-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[identity-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[identity-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[identity-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[identity-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[mandate-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[mandate-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[mandate-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[mandate-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_mutated-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_mutated-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_mutated-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_mutated-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_removed-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_removed-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_removed-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_removed-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_replaced-dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_replaced-dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_replaced-dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d12_a_post_construction_edit_is_refused_before_any_selection_source_runs[observation_replaced-dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d13_the_fixtures_are_legacy_records_written_by_the_unchanged_binary
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d14_below_the_cutoff_the_legacy_decision_executes_and_is_reported_legacy[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d14_below_the_cutoff_the_legacy_decision_executes_and_is_reported_legacy[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d14_below_the_cutoff_the_legacy_decision_executes_and_is_reported_legacy[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d14_below_the_cutoff_the_legacy_decision_executes_and_is_reported_legacy[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d15_without_a_cutoff_the_same_legacy_record_refuses[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d15_without_a_cutoff_the_same_legacy_record_refuses[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d15_without_a_cutoff_the_same_legacy_record_refuses[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d15_without_a_cutoff_the_same_legacy_record_refuses[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d16_a_new_decision_keeps_the_approval_and_catalogue_bytes_of_the_legacy_one[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d16_a_new_decision_keeps_the_approval_and_catalogue_bytes_of_the_legacy_one[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d16_a_new_decision_keeps_the_approval_and_catalogue_bytes_of_the_legacy_one[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d16_a_new_decision_keeps_the_approval_and_catalogue_bytes_of_the_legacy_one[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17_a_cutoff_past_the_store_refuses_the_construction[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17_a_cutoff_past_the_store_refuses_the_construction[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17_a_cutoff_past_the_store_refuses_the_construction[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17_a_cutoff_past_the_store_refuses_the_construction[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17b_a_governed_f4_scalar_equal_but_malformed_in_the_persisted_member_refuses_execute[dedicated_f4]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17b_a_governed_f4_scalar_equal_but_malformed_in_the_persisted_member_refuses_execute[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17b_a_governed_f4_scalar_equal_but_malformed_in_the_persisted_member_refuses_execute[dedicated_unr]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d17b_a_governed_f4_scalar_equal_but_malformed_in_the_persisted_member_refuses_execute[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d18_the_dedicated_row_order_is_the_composed_row_order
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d19_a_different_host_age_with_the_same_final_ages_refuses[dedicated_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d19_a_different_host_age_with_the_same_final_ages_refuses[dedicated_unr_age]
+PASSED tests/test_effective_configuration_binding_dedicated.py::test_d20_an_unreadable_store_while_counting_the_decisions_refuses_a_positive_cutoff
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a01_the_fixture_is_a_legacy_record_without_the_member_and_with_the_prior_binary_keys
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a02_below_the_cutoff_the_legacy_decision_executes_under_the_previous_semantics_and_is_reported_legacy
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a03_the_legacy_approval_still_validates_and_a_new_decision_commits_to_the_byte_identical_approval
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a04_without_a_cutoff_the_same_legacy_record_refuses
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a05_the_same_record_at_or_after_the_cutoff_refuses
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a06_an_invalid_cutoff_refuses_the_construction_so_no_legacy_fallback_exists[True]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a06_an_invalid_cutoff_refuses_the_construction_so_no_legacy_fallback_exists[-1]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a06_an_invalid_cutoff_refuses_the_construction_so_no_legacy_fallback_exists[1.0]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a06_an_invalid_cutoff_refuses_the_construction_so_no_legacy_fallback_exists[1]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a06_an_invalid_cutoff_refuses_the_construction_so_no_legacy_fallback_exists[2147483648]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a07_a_cutoff_one_past_the_decisions_in_the_store_refuses_the_construction
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a08_a_changed_configuration_does_not_rescue_a_legacy_record_below_the_cutoff_but_is_not_checked_by_the_binding
+PASSED tests/test_effective_configuration_binding_legacy.py::test_a09_the_f4_only_no_profile_legacy_record_has_a_null_extension_and_follows_the_same_rule
+PASSED tests/test_effective_configuration_binding_legacy.py::test_b01_a_legacy_reader_fails_closed_on_a_new_record
+PASSED tests/test_effective_configuration_binding_legacy.py::test_b02_the_legacy_reader_accepts_a_legacy_record_so_the_failure_is_the_new_member_only
+PASSED tests/test_effective_configuration_binding_legacy.py::test_b03_a_legacy_reader_on_a_new_record_is_not_active_on_the_pin_export_path
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c01_recovery_in_a_separate_process_accepts_the_same_configuration
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c02_recovery_in_a_separate_process_refuses_a_changed_configuration[drift0]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c02_recovery_in_a_separate_process_refuses_a_changed_configuration[drift1]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c02_recovery_in_a_separate_process_refuses_a_changed_configuration[drift2]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c02_recovery_in_a_separate_process_refuses_a_changed_configuration[drift3]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c02_recovery_in_a_separate_process_refuses_a_changed_configuration[drift4]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c02_recovery_in_a_separate_process_refuses_a_changed_configuration[drift5]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c02_recovery_in_a_separate_process_refuses_a_changed_configuration[drift6]
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c03_a_legacy_store_in_a_separate_process_follows_the_cutoff
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c04_pin_export_replay_in_a_separate_process
+PASSED tests/test_effective_configuration_binding_legacy.py::test_c05_a_corrupted_member_is_refused_by_a_separate_process_too
+PASSED tests/test_effective_configuration_binding_unit.py::test_frozen_constants
+PASSED tests/test_effective_configuration_binding_unit.py::test_digest_is_the_existing_canonical_commitment_over_domain_version_and_members
+PASSED tests/test_effective_configuration_binding_unit.py::test_the_preimage_names_exactly_the_frozen_members
+PASSED tests/test_effective_configuration_binding_unit.py::test_member_key_order_does_not_change_the_digest_but_family_order_does
+PASSED tests/test_effective_configuration_binding_unit.py::test_every_leaf_perturbed_changes_the_digest_and_flips_the_verdict_to_mismatch
+PASSED tests/test_effective_configuration_binding_unit.py::test_present_versus_explicitly_absent_observation_policy_flips_the_verdict_both_ways
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_removed_added_duplicated_or_reordered_family_row_flips_the_verdict
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_wrong_typed_or_out_of_range_value_in_any_integer_leaf_is_invalid_even_with_a_consistent_digest[bool]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_wrong_typed_or_out_of_range_value_in_any_integer_leaf_is_invalid_even_with_a_consistent_digest[float]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_wrong_typed_or_out_of_range_value_in_any_integer_leaf_is_invalid_even_with_a_consistent_digest[huge]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_wrong_typed_or_out_of_range_value_in_any_integer_leaf_is_invalid_even_with_a_consistent_digest[negative]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_wrong_typed_or_out_of_range_value_in_any_integer_leaf_is_invalid_even_with_a_consistent_digest[none]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_wrong_typed_or_out_of_range_value_in_any_integer_leaf_is_invalid_even_with_a_consistent_digest[str]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_digest_that_is_not_the_recomputation_of_its_own_members_is_invalid
+PASSED tests/test_effective_configuration_binding_unit.py::test_digest_is_compared_in_addition_to_members_never_alone
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_unknown_version_is_unsupported_even_when_everything_else_is_consistent[effective-configuration-binding/0.2]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_unknown_version_is_unsupported_even_when_everything_else_is_consistent[effective-configuration-binding/0.0]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_unknown_version_is_unsupported_even_when_everything_else_is_consistent[]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_unknown_version_is_unsupported_even_when_everything_else_is_consistent[EFFECTIVE-CONFIGURATION-BINDING/0.1]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_unknown_version_is_unsupported_even_when_everything_else_is_consistent[effective-configuration-binding/0.1 ]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[None]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[rec1]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[x]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[1]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[True]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[rec5]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[rec6]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[rec7]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_malformed_member_is_invalid[rec8]
+PASSED tests/test_effective_configuration_binding_unit.py::test_extra_missing_or_renamed_record_and_member_keys_are_invalid
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_replayed_member_from_another_scope_is_a_mismatch
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_missing_member_is_legacy_only_below_an_explicit_valid_cutoff
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[True]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[False]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[-1]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[1.0]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[1]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[None]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[2147483648]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[1000000000000000000000000000000]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[inf]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[cutoff9]
+PASSED tests/test_effective_configuration_binding_unit.py::test_an_invalid_cutoff_never_makes_anything_legacy[1.5]
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_cutoff_larger_than_the_decisions_in_the_store_disables_the_legacy_rule
+PASSED tests/test_effective_configuration_binding_unit.py::test_the_cutoff_is_an_exact_finite_int_with_no_wildcard
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_present_member_is_never_treated_as_legacy_whatever_the_cutoff
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_non_dict_runtime_authority_is_unbound
+PASSED tests/test_effective_configuration_binding_unit.py::test_build_members_refuses_every_wrong_typed_value
+PASSED tests/test_effective_configuration_binding_unit.py::test_mint_returns_a_detached_copy
+PASSED tests/test_effective_configuration_binding_unit.py::test_scope_identity_has_the_five_shared_keys
+PASSED tests/test_effective_configuration_binding_unit.py::test_family_rows_come_from_the_table_and_the_bound_identity_in_composition_order
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_newly_added_family_appears_without_a_change_to_the_binding_code
+PASSED tests/test_effective_configuration_binding_unit.py::test_a_governed_slot_unknown_to_the_table_is_refused_never_silently_left_out
+PASSED tests/test_effective_configuration_binding_unit.py::test_the_module_is_pure_and_imports_only_the_existing_commitment
+PASSED tests/test_authorization_pin_export.py::test_honest_flow_is_active_with_exactly_the_17_members
+PASSED tests/test_authorization_pin_export.py::test_signature_has_no_claim_or_expected_parameter
+PASSED tests/test_authorization_pin_export.py::test_tampered_decision_object_is_refused
+PASSED tests/test_authorization_pin_export.py::test_non_authorized_persisted_decision_is_refused
+PASSED tests/test_authorization_pin_export.py::test_host_binding_body_with_different_digest_is_refused
+PASSED tests/test_authorization_pin_export.py::test_swapped_operation_or_consumer_in_host_body_is_refused
+PASSED tests/test_authorization_pin_export.py::test_wrong_selection_epoch_or_activation_ref_is_refused
+PASSED tests/test_authorization_pin_export.py::test_invalid_host_binding_is_refused
+PASSED tests/test_authorization_pin_export.py::test_profile_altered_after_the_decision_is_refused
+PASSED tests/test_authorization_pin_export.py::test_persisted_catalogue_digest_mismatch_is_refused
+PASSED tests/test_authorization_pin_export.py::test_approval_commitment_mismatch_is_refused
+PASSED tests/test_authorization_pin_export.py::test_recomputed_approval_commitment_mismatch_is_refused
+PASSED tests/test_authorization_pin_export.py::test_revoked_grant_is_terminal_revoked
+PASSED tests/test_authorization_pin_export.py::test_revoked_approval_is_terminal_revoked
+PASSED tests/test_authorization_pin_export.py::test_unknown_approval_status_is_not_guessed_terminal
+PASSED tests/test_authorization_pin_export.py::test_stale_grant_revision_is_terminal_superseded
+PASSED tests/test_authorization_pin_export.py::test_superseded_policy_is_terminal_superseded
+PASSED tests/test_authorization_pin_export.py::test_withdrawn_binding_disposition_is_terminal_withdrawn
+PASSED tests/test_authorization_pin_export.py::test_expiry_is_not_terminal
+PASSED tests/test_authorization_pin_export.py::test_unreadable_status_is_unknown_or_refused
+PASSED tests/test_authorization_pin_export.py::test_mixed_terminal_reasons_are_not_guessed
+PASSED tests/test_authorization_pin_export.py::test_classifier_never_maps_unlisted_reasons
+PASSED tests/test_authorization_pin_export.py::test_output_has_no_aliasing_with_inputs
+PASSED tests/test_authorization_pin_export.py::test_export_creates_no_claim_decision_or_policy_record
+PASSED tests/test_authorization_pin_export.py::test_persisted_state_not_caller_object_is_the_source
+PASSED tests/test_authorization_pin_export.py::test_claim_issuance_bytes_unchanged_by_the_module
+PASSED tests/test_v02_claim_policy_binding.py::test_a00_profile_constant_and_reference_digest_agree
+PASSED tests/test_v02_claim_policy_binding.py::test_a07_missing_extra_and_wrongly_typed_members
+PASSED tests/test_v02_claim_policy_binding.py::test_a08_strict_integers_digests_and_identifiers
+PASSED tests/test_v02_claim_policy_binding.py::test_a09_subclasses_and_non_dict_containers_are_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_a10_digest_refuses_a_defective_binding_and_does_not_mutate_input
+PASSED tests/test_v02_claim_policy_binding.py::test_b01_successor_claim_carries_the_binding_under_the_existing_commitment
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[binding_profile]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[record_id]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[record_version]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[record_digest]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[selection_id]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[selection_epoch]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[selection_digest]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[family]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[consumer_id]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[operation]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[effective_policy_digest]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[activation_ref]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[trust_snapshot_version]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[trust_snapshot_fingerprint]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[scope.tenant]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[scope.institution]
+PASSED tests/test_v02_claim_policy_binding.py::test_b02_any_altered_binding_member_invalidates_the_commitment[scope.authority_domain]
+PASSED tests/test_v02_claim_policy_binding.py::test_b03_a_recomputed_binding_digest_cannot_stand_in_for_the_claim_commitment
+PASSED tests/test_v02_claim_policy_binding.py::test_b03b_known_limit_a_fully_recomputed_claim_is_self_consistent_but_not_authority
+PASSED tests/test_v02_claim_policy_binding.py::test_b04_edited_stored_claim_json_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b05_claim_commitment_mismatch_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b06_a_binding_substituted_between_claims_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b07_legacy_profile_carrying_a_binding_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b08_successor_profile_missing_its_binding_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[none]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[list]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[string]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[int]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[empty]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[profile_only]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[extra]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[wrong_profile]
+PASSED tests/test_v02_claim_policy_binding.py::test_b09_malformed_binding_structure_is_refused[scope_string]
+PASSED tests/test_v02_claim_policy_binding.py::test_b10_binding_added_or_removed_after_commitment_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b11_model_reconstruction_does_not_drop_the_binding
+PASSED tests/test_v02_claim_policy_binding.py::test_b12_unknown_fields_are_refused_on_legacy_and_successor_dictionary_claims
+PASSED tests/test_v02_claim_policy_binding.py::test_b12b_explicit_null_binding_member_on_a_legacy_dictionary_claim_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b12c_validator_bypassed_instances_are_judged_by_verify_itself
+PASSED tests/test_v02_claim_policy_binding.py::test_b13_unrecognized_claim_profiles_are_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b14_non_tenant_claim_with_a_binding_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_b15_binding_scope_must_match_the_claims_own_scope[scope.tenant-tenant-beta]
+PASSED tests/test_v02_claim_policy_binding.py::test_b15_binding_scope_must_match_the_claims_own_scope[scope.institution-urn:cognous:institution:other]
+PASSED tests/test_v02_claim_policy_binding.py::test_b15_binding_scope_must_match_the_claims_own_scope[scope.authority_domain-other-domain]
+PASSED tests/test_v02_claim_policy_binding.py::test_b16_binding_is_invisible_to_policy_state_and_authority_state
+PASSED tests/test_v02_claim_policy_binding.py::test_b17_omitting_the_binding_keeps_the_legacy_profile_even_when_the_profile_has_one
+PASSED tests/test_v02_claim_policy_binding.py::test_c01_wrong_consumer_or_operation_is_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_c02_expected_consumer_and_operation_are_mandatory_host_inputs[kw0]
+PASSED tests/test_v02_claim_policy_binding.py::test_c02_expected_consumer_and_operation_are_mandatory_host_inputs[kw1]
+PASSED tests/test_v02_claim_policy_binding.py::test_c02_expected_consumer_and_operation_are_mandatory_host_inputs[kw2]
+PASSED tests/test_v02_claim_policy_binding.py::test_c02_expected_consumer_and_operation_are_mandatory_host_inputs[kw3]
+PASSED tests/test_v02_claim_policy_binding.py::test_c02_expected_consumer_and_operation_are_mandatory_host_inputs[kw4]
+PASSED tests/test_v02_claim_policy_binding.py::test_c03_expected_values_without_a_binding_are_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_c04_incorrect_tenant_institution_or_domain_is_refused[scope.tenant-tenant-beta]
+PASSED tests/test_v02_claim_policy_binding.py::test_c04_incorrect_tenant_institution_or_domain_is_refused[scope.institution-urn:cognous:institution:other]
+PASSED tests/test_v02_claim_policy_binding.py::test_c04_incorrect_tenant_institution_or_domain_is_refused[scope.authority_domain-other-domain]
+PASSED tests/test_v02_claim_policy_binding.py::test_c05_malformed_binding_is_refused_and_recorded_with_an_existing_reason_code
+PASSED tests/test_v02_claim_policy_binding.py::test_c06_refusal_never_provisions_and_success_provisions_exactly_once
+PASSED tests/test_v02_claim_policy_binding.py::test_c07_binding_object_is_copied_not_aliased
+PASSED tests/test_v02_claim_policy_binding.py::test_d01_grant_without_approval_issues_no_claim
+PASSED tests/test_v02_claim_policy_binding.py::test_d02_approval_without_grant_issues_no_claim
+PASSED tests/test_v02_claim_policy_binding.py::test_d03_a_binding_cannot_substitute_for_a_missing_grant_or_approval[approval]
+PASSED tests/test_v02_claim_policy_binding.py::test_d03_a_binding_cannot_substitute_for_a_missing_grant_or_approval[grant]
+PASSED tests/test_v02_claim_policy_binding.py::test_d04_inconsistent_approval_and_binding_identities_are_refused[profile_over0-approval_policy_activation_mismatch]
+PASSED tests/test_v02_claim_policy_binding.py::test_d04_inconsistent_approval_and_binding_identities_are_refused[profile_over1-policy_binding_invalid]
+PASSED tests/test_v02_claim_policy_binding.py::test_d04_inconsistent_approval_and_binding_identities_are_refused[profile_over2-policy_binding_invalid]
+PASSED tests/test_v02_claim_policy_binding.py::test_d04b_identity_mismatch_is_recorded_with_existing_reason_codes
+PASSED tests/test_v02_claim_policy_binding.py::test_d05_profile_without_an_approval_side_binding_refuses_a_claim_binding
+PASSED tests/test_v02_claim_policy_binding.py::test_d06_withdrawn_approval_side_disposition_cannot_carry_a_canonical_binding
+PASSED tests/test_v02_claim_policy_binding.py::test_d07_unsupported_approval_generation_issues_no_claim
+PASSED tests/test_v02_claim_policy_binding.py::test_d08_invalid_activation_identity_is_refused[None]
+PASSED tests/test_v02_claim_policy_binding.py::test_d08_invalid_activation_identity_is_refused[]
+PASSED tests/test_v02_claim_policy_binding.py::test_d08_invalid_activation_identity_is_refused[SHA256:CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC]
+PASSED tests/test_v02_claim_policy_binding.py::test_d08_invalid_activation_identity_is_refused[sha256:ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc]
+PASSED tests/test_v02_claim_policy_binding.py::test_d08_invalid_activation_identity_is_refused[7]
+PASSED tests/test_v02_claim_policy_binding.py::test_d09_a_valid_binding_creates_no_independent_authority
+PASSED tests/test_v02_claim_policy_binding.py::test_d10_policy_generation_and_selection_epoch_are_not_conflated
+PASSED tests/test_v02_claim_policy_binding.py::test_e01_binding_is_copied_before_any_host_code_runs
+PASSED tests/test_v02_claim_policy_binding.py::test_e02_subclass_instances_cannot_smuggle_undeclared_members
+PASSED tests/test_v02_claim_policy_binding.py::test_e03_str_and_int_subclass_members_on_bypassed_instances_are_refused
+PASSED tests/test_v02_claim_policy_binding.py::test_e04_host_expected_values_must_be_exact_strings
+PASSED tests/test_v02_claim_policy_binding.py::test_e05_decision_activation_must_agree_with_the_binding
+PASSED tests/test_v02_claim_policy_binding.py::test_e06_withdrawn_disposition_is_refused_with_the_existing_code
+PASSED tests/test_v02_claim_policy_binding.py::test_e07_known_limit_a_claim_may_still_be_issued_without_a_binding
+SKIPPED [1] tests/test_claim_journal_stage.py:19: could not import 'cognous_verify.engine': No module named 'cognous_verify'
+SKIPPED [1] tests/test_authorization_pin_export.py:70: Runtime format module not present in this environment (INCONCLUSIVE, not a pass)
+FAILED tests/test_v02_claim_policy_binding.py::test_a01_registry_pin_and_inventory_are_exact
+FAILED tests/test_v02_claim_policy_binding.py::test_a02_valid_vectors_validate_and_are_byte_identical_to_the_registry
+FAILED tests/test_v02_claim_policy_binding.py::test_a03_equivalence_and_difference_relations_hold
+FAILED tests/test_v02_claim_policy_binding.py::test_a04_every_invalid_vector_is_refused
+FAILED tests/test_v02_claim_policy_binding.py::test_a05_integer_boundary_vectors
+FAILED tests/test_v02_claim_policy_binding.py::test_a06_identifier_matrix_every_bad_value_in_every_identifier_member
+6 failed, 506 passed, 2 skipped in 51.36s
+exit=1
