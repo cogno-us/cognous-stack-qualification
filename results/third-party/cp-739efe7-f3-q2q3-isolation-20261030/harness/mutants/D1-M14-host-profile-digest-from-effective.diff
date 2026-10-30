@@ -1,0 +1,13 @@
+# PROPOSAL authored by D-1 worker before freeze (not applied to any checkout): host_profile_digest := effective (held) profile digest, F5 class-age workflow only
+# apply with: patch -p1 < D1-M14-host-profile-digest-from-effective.diff  inside a COPY of the checkout (never the pristine one)
+--- a/src/agent_control_plane/registry_f5_class_age_governance.py
++++ b/src/agent_control_plane/registry_f5_class_age_governance.py
+@@ -257,7 +257,7 @@
+         held = self.runtime_authority_profile
+         if type(held) is not RuntimeAuthorityProfile:
+             raise ecb.BindingInvalid("effective_profile")
+-        return self._gl_build_members(host_profile_digest=profile_digest(self._f5_host), effective_profile_digest=profile_digest(held), bound={"class_age": self._gl_bound})
++        return self._gl_build_members(host_profile_digest=profile_digest(held), effective_profile_digest=profile_digest(held), bound={"class_age": self._gl_bound})
+ 
+     def _gl_read_sources(self, boundary: str) -> Any:
+         return read_source(self._f5_source, _refuse, boundary)

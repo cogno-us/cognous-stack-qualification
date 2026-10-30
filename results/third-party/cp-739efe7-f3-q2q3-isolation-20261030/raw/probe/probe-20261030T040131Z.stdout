@@ -1,0 +1,13 @@
+PROBE dom.mint.d1 {"reasons": [], "result": "authorized"}
+PROBE dom.mint.d2 {"reasons": [], "result": "authorized"}
+PROBE dom.members {"d1": {"action_id": "urn:cognous:action:refund-issue-routine-v1", "authority_domain": "customer-refunds", "consumer_id": "consumer-test", "institution_id": "urn:cognous:institution:synthetic-customer-service", "tenant_id": "tenant-alpha"}, "d2": {"action_id": "urn:cognous:action:refund-issue-routine-v1", "authority_domain": "other-domain", "consumer_id": "consumer-test", "institution_id": "urn:cognous:institution:synthetic-customer-service", "tenant_id": "tenant-alpha"}, "member_diff": ["scope.authority_domain"]}
+PROBE dom.bindingdiff.d1_vs_d2 {"base": ["manifest_digest", "proposal_commitment"], "ecb": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.scope.authority_domain"]}
+PROBE dom.status {"d1_on_flow2": "mismatch", "d2_on_flow2": "bound"}
+PROBE dom.nat_i.P1_in_d2world {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["approval_operation_binding_mismatch", "manifest_digest_mismatch"]], "new_refusal_vocab": [null], "raised": "PermissionError"}
+PROBE dom.nat_ii.P2_vs_D1 {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authorization_binding_changed"]], "new_refusal_vocab": [null], "raised": "PermissionError"}
+PROBE dom.graft.status {"status": "mismatch"}
+PROBE dom.graft.exec {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authorization_binding_changed"]], "new_refusal_vocab": [null], "raised": "PermissionError"}
+PROBE dom.graft.bindingdiff_vs_live {"reasons": [], "result": "authorized", "split": [[], ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.scope.authority_domain"]]}
+PROBE dom.ctl.d2_exec {"attempt_status": "acknowledged", "binding_status": "bound", "dest_calls": 1, "dest_unchanged": false, "msg": null, "new_attempts": 2, "new_refusal_reasons": [], "new_refusal_vocab": [], "raised": null}
+PROBE done {"tmp": "/tmp/d1probe-8dppv87n"}
+exit=0

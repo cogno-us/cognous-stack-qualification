@@ -1,0 +1,110 @@
+{"acp": "/tmp/claude-0/work/src/cp-739efe7/src/agent_control_plane/__init__.py", "case": "PREFLIGHT", "cp_root": "/tmp/claude-0/work/src/cp-739efe7", "kind": "OBSERVATION", "label": "739efe7-run2", "pin": {"head": "a40fe755e2384a99c37016fa9ad59396f1835900", "pin_dir": "/tmp/claude-0/work/run/reg-v8", "require": "1"}, "pydantic": "2.14.2", "python": "3.11.18", "t": 1793333110.084}
+{"case": "Q3-H0", "check": "minted_authorized", "kind": "CHECK_PASS", "reasons": [], "t": 1793333110.136}
+{"case": "Q3-H0", "check": "live_world_mints_authorized", "kind": "CHECK_PASS", "reasons": [], "t": 1793333110.166}
+{"base": [], "case": "Q3-H0", "check": "binding_diff_empty", "ecb": [], "kind": "CHECK_PASS", "t": 1793333110.166}
+{"case": "Q3-H0", "check": "H0:acknowledged", "detail": {"attempt_status": "acknowledged", "binding_status": "bound", "dest_calls": 1, "dest_unchanged": false, "msg": null, "new_attempts": 2, "new_refusal_reasons": [], "new_refusal_vocab": [], "raised": null}, "kind": "CHECK_PASS", "t": 1793333110.252}
+{"case": "Q3-H0", "check": "H0:no_refusal_row", "kind": "CHECK_PASS", "t": 1793333110.252}
+{"case": "Q3-H0", "check": "H0:destination_called_exactly_once", "kind": "CHECK_PASS", "t": 1793333110.252}
+{"case": "Q3-H0", "check": "H0:binding_status_bound(evidence-only classifier)", "kind": "CHECK_PASS", "observed": "bound", "t": 1793333110.252}
+{"case": "Q3-H1", "check": "minted_authorized", "kind": "CHECK_PASS", "reasons": [], "t": 1793333110.287}
+{"case": "Q3-H1", "check": "host_profiles_differ_in_exactly_the_class_age", "diff": ["actions.urn:cognous:action:refund-issue-routine-v1.max_status_age_seconds"], "kind": "CHECK_PASS", "t": 1793333110.287}
+{"case": "Q3-H1", "check": "effective_profile_dumps_equal_masked", "kind": "CHECK_PASS", "t": 1793333110.289}
+{"case": "Q3-H1", "check": "effective_profile_independent_commitments_equal", "kind": "CHECK_PASS", "t": 1793333110.289}
+{"case": "Q3-H1", "check": "host_profile_independent_commitments_differ", "kind": "CHECK_PASS", "t": 1793333110.289}
+{"case": "Q3-H1", "check": "effective_class_age_is_registry_value", "kind": "CHECK_PASS", "t": 1793333110.289}
+{"case": "Q3-H1", "check": "live_world_mints_authorized", "kind": "CHECK_PASS", "reasons": [], "t": 1793333110.316}
+{"base_diff": [], "case": "Q3-H1", "claim": "isolated end-to-end", "ecb_diff": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.host_profile_digest"], "kind": "CLASSIFICATION", "t": 1793333110.316}
+{"base": [], "case": "Q3-H1", "check": "binding_diff_base_empty", "kind": "CHECK_PASS", "t": 1793333110.316}
+{"case": "Q3-H1", "check": "binding_diff_member_exactly_host_leaf_plus_digest", "ecb": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.host_profile_digest"], "kind": "CHECK_PASS", "t": 1793333110.316}
+{"case": "Q3-H1", "check": "H1:PermissionError", "detail": {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authorization_binding_changed"]], "new_refusal_vocab": ["runtime-authority-reasons/0.1"], "raised": "PermissionError"}, "kind": "CHECK_PASS", "t": 1793333110.375}
+{"case": "Q3-H1", "check": "H1:one_durable_refusal_exact_reasons", "expected": [["authorization_binding_changed"]], "kind": "CHECK_PASS", "observed": [["authorization_binding_changed"]], "t": 1793333110.375}
+{"case": "Q3-H1", "check": "H1:vocabulary", "kind": "CHECK_PASS", "observed": ["runtime-authority-reasons/0.1"], "t": 1793333110.375}
+{"case": "Q3-H1", "check": "H1:no_attempt", "kind": "CHECK_PASS", "t": 1793333110.375}
+{"case": "Q3-H1", "check": "H1:destination_never_called_unchanged", "kind": "CHECK_PASS", "t": 1793333110.375}
+{"case": "Q3-H1", "check": "binding_status_mismatch(evidence-only classifier)", "kind": "CHECK_PASS", "observed": "mismatch", "t": 1793333110.375}
+{"case": "Q3-H1", "check": "claim_is_isolated_end_to_end", "claim": "isolated end-to-end", "kind": "CHECK_PASS", "t": 1793333110.375}
+{"case": "Q3-H2", "check": "both_minted", "kind": "CHECK_PASS", "t": 1793333110.443}
+{"case": "Q3-H2", "check": "host_digest_A_equals_independent_commitment", "kind": "CHECK_PASS", "t": 1793333110.443}
+{"case": "Q3-H2", "check": "host_digest_B_equals_independent_commitment", "kind": "CHECK_PASS", "t": 1793333110.443}
+{"case": "Q3-H2", "check": "effective_digest_A_equals_independent_commitment", "kind": "CHECK_PASS", "t": 1793333110.443}
+{"case": "Q3-H2", "check": "effective_digest_B_equals_independent_commitment", "kind": "CHECK_PASS", "t": 1793333110.443}
+{"case": "Q3-H2", "catalogue": "sha256:d394f0057ecf9f8a5c68741d40b60f16a81256431ce080f4f0864562649c4b01", "check": "effective_digest_equals_persisted_catalogue_digest", "kind": "CHECK_PASS", "t": 1793333110.443}
+{"case": "Q3-H2", "check": "host_differs_from_effective", "kind": "CHECK_PASS", "t": 1793333110.444}
+{"case": "Q3-H2", "check": "member_diff_A_vs_B_exactly_host_leaf_and_digest", "diff": ["digest", "members.host_profile_digest"], "kind": "CHECK_PASS", "t": 1793333110.444}
+{"case": "Q3-H2", "check": "digest_A_recomputed_independently", "kind": "CHECK_PASS", "t": 1793333110.444}
+{"case": "Q3-H2", "check": "digest_B_recomputed_independently", "kind": "CHECK_PASS", "t": 1793333110.444}
+{"case": "Q3-H2", "check": "classifier_A_decision_under_host_B_is_mismatch(evidence-only)", "kind": "CHECK_PASS", "t": 1793333110.447}
+{"case": "Q3-H2", "check": "classifier_A_decision_under_host_A_is_bound(evidence-only)", "kind": "CHECK_PASS", "t": 1793333110.451}
+{"case": "Q3-E1", "check": "minted_authorized", "kind": "CHECK_PASS", "t": 1793333110.484}
+{"case": "Q3-E1", "check": "effective_profiles_differ", "kind": "CHECK_PASS", "t": 1793333110.486}
+{"case": "Q3-E1", "check": "E1:PermissionError", "detail": {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["runtime_authority_approval_mismatch"]], "new_refusal_vocab": ["runtime-authority-reasons/0.1"], "raised": "PermissionError"}, "kind": "CHECK_PASS", "t": 1793333110.542}
+{"case": "Q3-E1", "check": "E1:one_durable_refusal_exact_reasons", "expected": [["runtime_authority_approval_mismatch"]], "kind": "CHECK_PASS", "observed": [["runtime_authority_approval_mismatch"]], "t": 1793333110.542}
+{"case": "Q3-E1", "check": "E1:vocabulary", "kind": "CHECK_PASS", "observed": ["runtime-authority-reasons/0.1"], "t": 1793333110.542}
+{"case": "Q3-E1", "check": "E1:no_attempt", "kind": "CHECK_PASS", "t": 1793333110.542}
+{"case": "Q3-E1", "check": "E1:destination_never_called_unchanged", "kind": "CHECK_PASS", "t": 1793333110.542}
+{"case": "Q3-E1", "check": "binding_changed_code_not_emitted(ECB not consulted)", "kind": "CHECK_PASS", "t": 1793333110.542}
+{"case": "Q3-E1", "claim": "guard-first (approval); member not isolated", "kind": "CLASSIFICATION", "observed": [["runtime_authority_approval_mismatch"]], "t": 1793333110.542}
+{"case": "Q3-E2", "check": "minted_authorized", "kind": "CHECK_PASS", "t": 1793333110.575}
+{"case": "Q3-E2", "check": "live_world_mints_authorized", "kind": "CHECK_PASS", "reasons": [], "t": 1793333110.605}
+{"base_diff": ["runtime_authority.approval_commitment", "runtime_authority.catalogue_digest"], "case": "Q3-E2", "claim": "joint", "ecb_diff": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.effective_profile_digest", "runtime_authority.effective_configuration.members.families.0.effective_policy_digest"], "kind": "CLASSIFICATION", "t": 1793333110.605}
+{"base": ["runtime_authority.approval_commitment", "runtime_authority.catalogue_digest"], "case": "Q3-E2", "check": "base_diff_is_approval_commitment_and_catalogue_digest", "kind": "CHECK_PASS", "t": 1793333110.605}
+{"case": "Q3-E2", "check": "ecb_diff_is_digest_effective_member_and_family_digest", "ecb": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.effective_profile_digest", "runtime_authority.effective_configuration.members.families.0.effective_policy_digest"], "kind": "CHECK_PASS", "t": 1793333110.605}
+{"case": "Q3-E2", "check": "claim_is_joint_not_isolated", "claim": "joint", "kind": "CHECK_PASS", "t": 1793333110.605}
+{"case": "Q3-E2", "check": "E2:PermissionError", "detail": {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authorization_binding_changed"]], "new_refusal_vocab": ["runtime-authority-reasons/0.1"], "raised": "PermissionError"}, "kind": "CHECK_PASS", "t": 1793333110.662}
+{"case": "Q3-E2", "check": "E2:one_durable_refusal_exact_reasons", "expected": [["authorization_binding_changed"]], "kind": "CHECK_PASS", "observed": [["authorization_binding_changed"]], "t": 1793333110.662}
+{"case": "Q3-E2", "check": "E2:vocabulary", "kind": "CHECK_PASS", "observed": ["runtime-authority-reasons/0.1"], "t": 1793333110.662}
+{"case": "Q3-E2", "check": "E2:no_attempt", "kind": "CHECK_PASS", "t": 1793333110.662}
+{"case": "Q3-E2", "check": "E2:destination_never_called_unchanged", "kind": "CHECK_PASS", "t": 1793333110.662}
+{"case": "Q2-A1", "check": "both_worlds_mint_authorized", "kind": "CHECK_PASS", "r1": [], "r2": [], "t": 1793333110.678}
+{"case": "Q2-A1", "check": "worlds_have_distinct_manifest_domains", "kind": "CHECK_PASS", "t": 1793333110.679}
+{"case": "Q2-A1", "check": "member_d1_equals_manifest_domain", "kind": "CHECK_PASS", "observed": "customer-refunds", "t": 1793333110.679}
+{"case": "Q2-A1", "check": "member_d2_equals_manifest_domain", "kind": "CHECK_PASS", "observed": "other-domain", "t": 1793333110.679}
+{"case": "Q2-A1", "check": "member_diff_exactly_domain_leaf_and_digest", "diff": ["digest", "members.scope.authority_domain"], "kind": "CHECK_PASS", "t": 1793333110.679}
+{"case": "Q2-A1", "check": "digest_d1_recomputed_independently", "kind": "CHECK_PASS", "t": 1793333110.679}
+{"case": "Q2-A1", "check": "digest_d2_recomputed_independently", "kind": "CHECK_PASS", "t": 1793333110.679}
+{"base": ["manifest_digest", "proposal_commitment"], "case": "Q2-A1", "check": "worlds_base_binding_diff_is_manifest_digest_and_proposal_commitment(dependency shown)", "ecb": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.scope.authority_domain"], "kind": "CHECK_PASS", "t": 1793333110.679}
+{"case": "Q2-A1", "check": "classifier_D1_on_d2_workflow_is_mismatch(evidence-only)", "kind": "CHECK_PASS", "t": 1793333110.68}
+{"case": "Q2-A1", "check": "classifier_D2_on_d2_workflow_is_bound(evidence-only)", "kind": "CHECK_PASS", "t": 1793333110.681}
+{"case": "Q2-A2", "check": "A2i[P1 in d2 world]:PermissionError", "detail": {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["approval_operation_binding_mismatch", "manifest_digest_mismatch"]], "new_refusal_vocab": [null], "raised": "PermissionError"}, "kind": "CHECK_PASS", "t": 1793333110.708}
+{"case": "Q2-A2", "check": "A2i[P1 in d2 world]:one_durable_refusal_exact_reasons", "expected": [["approval_operation_binding_mismatch", "manifest_digest_mismatch"]], "kind": "CHECK_PASS", "observed": [["approval_operation_binding_mismatch", "manifest_digest_mismatch"]], "t": 1793333110.708}
+{"case": "Q2-A2", "check": "A2i[P1 in d2 world]:no_attempt", "kind": "CHECK_PASS", "t": 1793333110.708}
+{"case": "Q2-A2", "check": "A2i[P1 in d2 world]:destination_never_called_unchanged", "kind": "CHECK_PASS", "t": 1793333110.708}
+{"case": "Q2-A2", "check": "A2i:binding_changed_code_not_emitted(ECB not consulted)", "kind": "CHECK_PASS", "t": 1793333110.708}
+{"base_diff": ["manifest_digest", "proposal_commitment"], "case": "Q2-A2", "claim": "joint", "ecb_diff": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.scope.authority_domain"], "kind": "CLASSIFICATION", "route": "P2 vs D1 in consistent d2 world", "t": 1793333110.726}
+{"base": ["manifest_digest", "proposal_commitment"], "case": "Q2-A2", "check": "A2ii:base_diff_is_manifest_digest_and_proposal_commitment", "kind": "CHECK_PASS", "t": 1793333110.726}
+{"case": "Q2-A2", "check": "A2ii:ecb_diff_is_domain_leaf_and_digest", "ecb": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.scope.authority_domain"], "kind": "CHECK_PASS", "t": 1793333110.726}
+{"case": "Q2-A2", "check": "A2ii:claim_is_joint", "claim": "joint", "kind": "CHECK_PASS", "t": 1793333110.726}
+{"case": "Q2-A2", "check": "A2ii[P2 vs D1 in d2 world]:PermissionError", "detail": {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authorization_binding_changed"]], "new_refusal_vocab": [null], "raised": "PermissionError"}, "kind": "CHECK_PASS", "t": 1793333110.726}
+{"case": "Q2-A2", "check": "A2ii[P2 vs D1 in d2 world]:one_durable_refusal_exact_reasons", "expected": [["authorization_binding_changed"]], "kind": "CHECK_PASS", "observed": [["authorization_binding_changed"]], "t": 1793333110.726}
+{"case": "Q2-A2", "check": "A2ii[P2 vs D1 in d2 world]:no_attempt", "kind": "CHECK_PASS", "t": 1793333110.726}
+{"case": "Q2-A2", "check": "A2ii[P2 vs D1 in d2 world]:destination_never_called_unchanged", "kind": "CHECK_PASS", "t": 1793333110.726}
+{"case": "Q2-A2", "check": "A2iii[original A25(a) route]:PermissionError", "detail": {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authority_domain_mismatch", "manifest_digest_mismatch"]], "new_refusal_vocab": [null], "raised": "PermissionError"}, "kind": "CHECK_PASS", "t": 1793333110.745}
+{"case": "Q2-A2", "check": "A2iii[original A25(a) route]:one_durable_refusal_exact_reasons", "expected": [["authority_domain_mismatch", "manifest_digest_mismatch"]], "kind": "CHECK_PASS", "observed": [["authority_domain_mismatch", "manifest_digest_mismatch"]], "t": 1793333110.745}
+{"case": "Q2-A2", "check": "A2iii[original A25(a) route]:no_attempt", "kind": "CHECK_PASS", "t": 1793333110.745}
+{"case": "Q2-A2", "check": "A2iii[original A25(a) route]:destination_never_called_unchanged", "kind": "CHECK_PASS", "t": 1793333110.745}
+{"case": "Q2-A2", "check": "A2iii:binding_changed_code_not_emitted", "kind": "CHECK_PASS", "t": 1793333110.745}
+{"case": "Q2-A3", "check": "both_worlds_mint_authorized", "kind": "CHECK_PASS", "t": 1793333110.761}
+{"case": "Q2-A3", "check": "A3c-d2-control:acknowledged", "detail": {"attempt_status": "acknowledged", "binding_status": "bound", "dest_calls": 1, "dest_unchanged": false, "msg": null, "new_attempts": 2, "new_refusal_reasons": [], "new_refusal_vocab": [], "raised": null}, "kind": "CHECK_PASS", "t": 1793333110.788}
+{"case": "Q2-A3", "check": "A3c-d2-control:no_refusal_row", "kind": "CHECK_PASS", "t": 1793333110.788}
+{"case": "Q2-A3", "check": "A3c-d2-control:destination_called_exactly_once", "kind": "CHECK_PASS", "t": 1793333110.788}
+{"case": "Q2-A3", "check": "A3c-d2-control:binding_status_bound(evidence-only classifier)", "kind": "CHECK_PASS", "observed": "bound", "t": 1793333110.788}
+{"case": "Q2-A3", "check": "A3n-neutral-graft:acknowledged", "detail": {"attempt_status": "acknowledged", "binding_status": "bound", "dest_calls": 1, "dest_unchanged": false, "msg": null, "new_attempts": 2, "new_refusal_reasons": [], "new_refusal_vocab": [], "raised": null}, "kind": "CHECK_PASS", "t": 1793333110.823}
+{"case": "Q2-A3", "check": "A3n-neutral-graft:no_refusal_row", "kind": "CHECK_PASS", "t": 1793333110.823}
+{"case": "Q2-A3", "check": "A3n-neutral-graft:destination_called_exactly_once", "kind": "CHECK_PASS", "t": 1793333110.823}
+{"case": "Q2-A3", "check": "A3n-neutral-graft:binding_status_bound(evidence-only classifier)", "kind": "CHECK_PASS", "observed": "bound", "t": 1793333110.823}
+{"case": "Q2-A3", "check": "grafted_member_is_donor_verbatim", "kind": "CHECK_PASS", "t": 1793333110.824}
+{"case": "Q2-A3", "check": "grafted_member_digest_self_consistent", "kind": "CHECK_PASS", "t": 1793333110.824}
+{"case": "Q2-A3", "check": "grafted_member_domain_is_d1", "kind": "CHECK_PASS", "t": 1793333110.824}
+{"case": "Q2-A3", "check": "store_diff_vs_pristine_is_only_the_member", "diff": ["decisions.0.binding.runtime_authority.effective_configuration.digest", "decisions.0.binding.runtime_authority.effective_configuration.members.scope.authority_domain"], "kind": "CHECK_PASS", "t": 1793333110.825}
+{"case": "Q2-A3", "check": "grafted_decision_reloads_via_store_reader", "kind": "CHECK_PASS", "t": 1793333110.827}
+{"case": "Q2-A3", "check": "classifier_on_grafted_is_mismatch_not_invalid(evidence-only)", "kind": "CHECK_PASS", "t": 1793333110.828}
+{"case": "Q2-A3", "check": "live_world_mints_authorized", "kind": "CHECK_PASS", "reasons": [], "t": 1793333110.835}
+{"base_diff": [], "case": "Q2-A3", "claim": "isolated end-to-end", "ecb_diff": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.scope.authority_domain"], "kind": "CLASSIFICATION", "label": "GRAFT: isolated by store-level construction (unsigned store); not a natural-reachability claim", "t": 1793333110.835}
+{"base": [], "case": "Q2-A3", "check": "base_binding_diff_empty", "kind": "CHECK_PASS", "t": 1793333110.835}
+{"case": "Q2-A3", "check": "member_diff_exactly_domain_leaf_plus_digest", "ecb": ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.scope.authority_domain"], "kind": "CHECK_PASS", "t": 1793333110.835}
+{"case": "Q2-A3", "check": "A3-graft:PermissionError", "detail": {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authorization_binding_changed"]], "new_refusal_vocab": [null], "raised": "PermissionError"}, "kind": "CHECK_PASS", "t": 1793333110.844}
+{"case": "Q2-A3", "check": "A3-graft:one_durable_refusal_exact_reasons", "expected": [["authorization_binding_changed"]], "kind": "CHECK_PASS", "observed": [["authorization_binding_changed"]], "t": 1793333110.844}
+{"case": "Q2-A3", "check": "A3-graft:no_attempt", "kind": "CHECK_PASS", "t": 1793333110.844}
+{"case": "Q2-A3", "check": "A3-graft:destination_never_called_unchanged", "kind": "CHECK_PASS", "t": 1793333110.844}
+{"case": "Q2-A3", "check": "binding_status_mismatch(evidence-only)", "kind": "CHECK_PASS", "t": 1793333110.844}
+{"case": "Q2-A3", "check": "claim_is_isolated_end_to_end_by_graft", "claim": "isolated end-to-end", "kind": "CHECK_PASS", "t": 1793333110.844}

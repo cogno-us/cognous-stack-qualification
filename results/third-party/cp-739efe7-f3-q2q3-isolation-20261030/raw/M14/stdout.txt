@@ -1,0 +1,138 @@
+.FF.F...                                                                 [100%]
+=================================== FAILURES ===================================
+____________________ test_Q3_H1_masked_host_edit_end_to_end ____________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-9/test_Q3_H1_masked_host_edit_en0')
+
+    def test_Q3_H1_masked_host_edit_end_to_end(tmp_path):
+        E, chk = H.env(), Check("Q3-H1")
+        w = L.f5_world(E, tmp_path, "h1", t1=60, reg=10)
+        flow1, dec = L.f5_mint(E, w)
+        chk.ok("minted_authorized", dec.result == "authorized", reasons=list(dec.reasons))
+        host2 = L.host_profile(E, w.p, 61)
+        aid = w.p.action_id
+        hd1, hd2 = w.host.model_dump(mode="json"), host2.model_dump(mode="json")
+        chk.ok("host_profiles_differ_in_exactly_the_class_age", L.leaf_diff(hd1, hd2) == {f"actions.{aid}.max_status_age_seconds"}, diff=sorted(L.leaf_diff(hd1, hd2)))
+        flow2 = L.f5_flow(E, w, host=host2)  # restart, host edited 60->61, same Registry, same approval (NOT re-bound)
+        e1, e2 = flow1.runtime_authority_profile.model_dump(mode="json"), flow2.runtime_authority_profile.model_dump(mode="json")
+        chk.ok("effective_profile_dumps_equal_masked", e1 == e2)
+        chk.ok("effective_profile_independent_commitments_equal", own_commit(e1) == own_commit(e2))
+        chk.ok("host_profile_independent_commitments_differ", own_commit(hd1) != own_commit(hd2))
+        chk.ok("effective_class_age_is_registry_value", e1["actions"][aid]["max_status_age_seconds"] == 10 and e2["actions"][aid]["max_status_age_seconds"] == 10)
+        base, ecb, r_, rs = f5_live_diff(E, w, lambda sd: L.f5_flow(E, w, sd, host=host2), tmp_path, "h1live")
+        chk.ok("live_world_mints_authorized", r_ == "authorized", reasons=rs)
+        claim = claim_for(base, ecb, "host_profile_digest")
+        rec("Q3-H1", "CLASSIFICATION", claim=claim, base_diff=base, ecb_diff=ecb)
+        chk.ok("binding_diff_base_empty", base == [], base=base)
+        chk.ok("binding_diff_member_exactly_host_leaf_plus_digest", sorted(ecb or []) == sorted([f"{ECBP}.digest", f"{ECBP}.members.host_profile_digest"]), ecb=ecb)
+        out = run(flow2, w.p, w.did)
+        refused_with(chk, "H1", out, ["authorization_binding_changed"], "runtime-authority-reasons/0.1")
+        chk.ok("binding_status_mismatch(evidence-only classifier)", out.get("binding_status") == "mismatch", observed=out.get("binding_status"))
+        chk.ok("claim_is_isolated_end_to_end", claim == "isolated end-to-end", claim=claim)
+>       chk.done()
+
+../../harness/test_d1.py:121: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <d1_lib.Check object at 0x7f2189e10390>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+               ^^^^^^^^^^^^^^
+E       AssertionError: Q3-H1: failed ['binding_diff_member_exactly_host_leaf_plus_digest', 'H1:PermissionError', 'H1:one_durable_refusal_exact_reasons', 'H1:vocabulary', 'H1:no_attempt', 'H1:destination_never_called_unchanged', 'binding_status_mismatch(evidence-only classifier)', 'claim_is_isolated_end_to_end']
+
+../../harness/d1_lib.py:56: AssertionError
+_____________________________ test_Q3_H2_component _____________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-9/test_Q3_H2_component0')
+
+    def test_Q3_H2_component(tmp_path):
+        E, chk = H.env(), Check("Q3-H2")
+        wa = L.f5_world(E, tmp_path, "h2a", t1=60, reg=10)
+        fa, da = L.f5_mint(E, wa)
+        wb = L.f5_world(E, tmp_path, "h2b", t1=61, reg=10)
+        fb, db = L.f5_mint(E, wb)
+        chk.ok("both_minted", da.result == "authorized" and db.result == "authorized")
+        ma, mb = H.member_of(wa.dir, wa.did), H.member_of(wb.dir, wb.did)
+        ra = H.dec_item(H.load_doc(wa.dir), wa.did)["binding"]["runtime_authority"]
+        exp_host_a, exp_host_b = own_commit(wa.host.model_dump(mode="json")), own_commit(wb.host.model_dump(mode="json"))
+        exp_eff = own_commit(fa.runtime_authority_profile.model_dump(mode="json"))
+        chk.ok("host_digest_A_equals_independent_commitment", ma["members"]["host_profile_digest"] == exp_host_a)
+        chk.ok("host_digest_B_equals_independent_commitment", mb["members"]["host_profile_digest"] == exp_host_b)
+        chk.ok("effective_digest_A_equals_independent_commitment", ma["members"]["effective_profile_digest"] == exp_eff)
+        chk.ok("effective_digest_B_equals_independent_commitment", mb["members"]["effective_profile_digest"] == exp_eff)
+        chk.ok("effective_digest_equals_persisted_catalogue_digest", ma["members"]["effective_profile_digest"] == ra["catalogue_digest"], catalogue=ra["catalogue_digest"])
+        chk.ok("host_differs_from_effective", ma["members"]["host_profile_digest"] != ma["members"]["effective_profile_digest"])
+        chk.ok("member_diff_A_vs_B_exactly_host_leaf_and_digest", L.leaf_diff(ma, mb) == {"digest", "members.host_profile_digest"}, diff=sorted(L.leaf_diff(ma, mb)))
+        chk.ok("digest_A_recomputed_independently", H.my_digest(ma["members"], ma["version"]) == ma["digest"])
+        chk.ok("digest_B_recomputed_independently", H.my_digest(mb["members"], mb["version"]) == mb["digest"])
+        # candidate classifier on a world-B workflow over each store (evidence only, never the oracle)
+        fb_over_a = L.f5_flow(E, wa, host=wb.host)
+        chk.ok("classifier_A_decision_under_host_B_is_mismatch(evidence-only)", fb_over_a.configuration_binding_status(fb_over_a.records.decision(wa.did)) == "mismatch")
+        fa_over_a = L.f5_flow(E, wa)
+        chk.ok("classifier_A_decision_under_host_A_is_bound(evidence-only)", fa_over_a.configuration_binding_status(fa_over_a.records.decision(wa.did)) == "bound")
+>       chk.done()
+
+../../harness/test_d1.py:149: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <d1_lib.Check object at 0x7f2188db9c50>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+               ^^^^^^^^^^^^^^
+E       AssertionError: Q3-H2: failed ['host_digest_A_equals_independent_commitment', 'host_digest_B_equals_independent_commitment', 'host_differs_from_effective', 'member_diff_A_vs_B_exactly_host_leaf_and_digest', 'classifier_A_decision_under_host_B_is_mismatch(evidence-only)']
+
+../../harness/d1_lib.py:56: AssertionError
+_____________________ test_Q3_E2_effective_reissued_joint ______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-9/test_Q3_E2_effective_reissued_0')
+
+    def test_Q3_E2_effective_reissued_joint(tmp_path):
+        E, chk = H.env(), Check("Q3-E2")
+        w = L.f5_world(E, tmp_path, "e2", t1=60, reg=10)
+        flow1, dec = L.f5_mint(E, w)
+        chk.ok("minted_authorized", dec.result == "authorized")
+        src2 = H.Src(L.f5_material(E, {CT: 20}))
+        flow2 = L.f5_flow(E, w, src=src2, rebind=True)  # approval re-issued against the NEW effective profile
+        base, ecb, r_, rs = f5_live_diff(E, w, lambda sd: L.f5_flow(E, w, sd, src=src2), tmp_path, "e2live")
+        chk.ok("live_world_mints_authorized", r_ == "authorized", reasons=rs)
+        claim = claim_for(base, ecb, "effective_profile_digest")
+        rec("Q3-E2", "CLASSIFICATION", claim=claim, base_diff=base, ecb_diff=ecb)
+        chk.ok("base_diff_is_approval_commitment_and_catalogue_digest", sorted(base or []) == ["runtime_authority.approval_commitment", "runtime_authority.catalogue_digest"], base=base)
+        chk.ok("ecb_diff_is_digest_effective_member_and_family_digest",
+               sorted(ecb or []) == sorted([f"{ECBP}.digest", f"{ECBP}.members.effective_profile_digest", f"{ECBP}.members.families.0.effective_policy_digest"]), ecb=ecb)
+        chk.ok("claim_is_joint_not_isolated", claim == "joint", claim=claim)
+        out = run(flow2, w.p, w.did)
+        refused_with(chk, "E2", out, ["authorization_binding_changed"], "runtime-authority-reasons/0.1")
+>       chk.done()
+
+../../harness/test_d1.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <d1_lib.Check object at 0x7f2188db8210>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+               ^^^^^^^^^^^^^^
+E       AssertionError: Q3-E2: failed ['ecb_diff_is_digest_effective_member_and_family_digest']
+
+../../harness/d1_lib.py:56: AssertionError
+=============================== warnings summary ===============================
+harness/test_d1.py: 40 warnings
+  /tmp/claude-0/work/d1/evidence/harness/d1_lib.py:191: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+    elif hasattr(obj, "model_fields"):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED ../../harness/test_d1.py::test_Q3_H0_control
+PASSED ../../harness/test_d1.py::test_Q3_E1_effective_no_reissue
+PASSED ../../harness/test_d1.py::test_Q2_A1_component
+PASSED ../../harness/test_d1.py::test_Q2_A2_natural_joint
+PASSED ../../harness/test_d1.py::test_Q2_A3_graft
+FAILED ../../harness/test_d1.py::test_Q3_H1_masked_host_edit_end_to_end - Ass...
+FAILED ../../harness/test_d1.py::test_Q3_H2_component - AssertionError: Q3-H2...
+FAILED ../../harness/test_d1.py::test_Q3_E2_effective_reissued_joint - Assert...
+3 failed, 5 passed, 40 warnings in 1.30s
+exit=1
