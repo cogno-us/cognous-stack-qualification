@@ -1,3 +1,5 @@
+> **SUPERSEDED FOR OPERATIVE PURPOSES (OCS-F3-Q240-CONTRACT-RECONCILIATION):** its verdicts on the earlier draft are preserved; operative Q2/Q3 status is OPEN under Registry record 12 (Class A); see 07 section 0. Original text otherwise preserved.
+
 # Worker D adversarial contract review: OCS-F3-Q240-ARCHITECTURAL-DISPOSITION (draft 07)
 
 Reviewer: Worker D, a read-only subordinate of the same session lineage as the producer. **Not independent.** This review is developer-grade evidence and is not certification. Nothing was run except `sha256sum -c` on four hub packages and read-only parsing of raw JSONL. Nothing was modified. Date 2026-10-30.

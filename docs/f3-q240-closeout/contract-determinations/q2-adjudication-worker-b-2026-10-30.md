@@ -1,3 +1,5 @@
+> **SUPERSEDED FOR OPERATIVE PURPOSES (OCS-F3-Q240-CONTRACT-RECONCILIATION):** any "SATISFIED — SCOPED" label below is analytical only. Operative status of Q2 and Q3 is OPEN under Registry record 12 (Class A); see 07 section 0. Original text otherwise preserved.
+
 # Worker B - Q2 (scope.authority_domain, "A25(a)") architectural disposition
 
 READ-ONLY adjudication worker B, subordinate of the lead builder lineage (NOT independent). Nothing executed; raw files parsed only. Date 2026-10-30. Hub main 592d0584 (read-only clone); Registry origin/main 6b96a9a6 (records 02,03,06,11-14 read via git show); CP 739efe7 source via git show.

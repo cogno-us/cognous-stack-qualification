@@ -1,0 +1,182 @@
+{
+  "schemaVersion": "cognous-orchestrator-assignment-v1",
+  "identity": {
+    "workPackage": "OCS-F3-Q240-CONTRACT-RECONCILIATION",
+    "role": "lead_qualification_documentation_builder",
+    "primaryArchetype": "C",
+    "archetypeMeaning": "Bounded documentation remediation: correct a governing record to comply with the existing contract while preserving evidence and history.",
+    "repository": "cogno-us/cognous-stack-qualification",
+    "baseCommitSha": "592d0584b2f4683574d06a13081c038ad7c013f5",
+    "currentHeadSha": "2967d0bfab41aa38b0eae000e716c1bdeffcafdc"
+  },
+  "authority": {
+    "objective": "Correct PR #251 so its operative Q2 and Q3 dispositions are OPEN under Registry record 12 (Class A), preserving all mechanism evidence and historical results, then merge if clean and authorized and reconcile issue #240.",
+    "sourceDecision": "Architect directive F3-A Q2/Q3 CONTRACT RECONCILIATION, 2026-10-30, OCS-F3-Q240-CONTRACT-RECONCILIATION.",
+    "allowedActions": [
+      "Edit docs/f3-q240-closeout documentation on the PR #251 branch",
+      "Update PR #251 and issue #240",
+      "Merge PR #251 only if clean and authorized by repository controls"
+    ],
+    "prohibitedActions": [
+      "Change production implementation, protected evaluators, tests, frozen requirements or historical evidence",
+      "Reclassify historical failures",
+      "Run additional qualification, paid testing, final Tier 1",
+      "Claim formal certification or production authorization",
+      "Bypass or retry through another interface a denied merge"
+    ],
+    "paidExecution": {
+      "authorized": false,
+      "maximumUsd": 0
+    },
+    "mergeAuthorized": true,
+    "deploymentAuthorized": false
+  },
+  "ownership": {
+    "designatedWriter": "Lead qualification documentation builder (this session)",
+    "writablePaths": [
+      "docs/f3-q240-closeout/07-f3-architectural-technical-disposition-2026-10-30.md",
+      "docs/f3-q240-closeout/assignments/C-contract-reconciliation-OCS-F3-Q240-CONTRACT-RECONCILIATION.json"
+    ],
+    "protectedPaths": [
+      "results/third-party/**",
+      "all other repository paths",
+      "Control Plane and Registry sources"
+    ],
+    "parallelWorkers": [
+      {
+        "role": "Read-only adversarial consistency reviewer",
+        "writablePaths": [
+          "none in repository; scratch report outside any checkout"
+        ]
+      }
+    ]
+  },
+  "inputs": {
+    "projectPlan": "Issue #240 (Q1-Q8); Registry records 11, 12, 13, 14.",
+    "frozenSources": [
+      {
+        "location": "cogno-us/cognous-control-plane",
+        "identity": "739efe7d8f16a0cee1efc7dd3a978d5d4d85fe69 (frozen executable subject; src tree d248bde478ae3f2ce050db4637f0c1203066e906). Live main b19c47ddd020409d24e52e70b11359c46265edbb is a later head and is NOT the subject; 8616d5f64a901b8f858359809193961a1124b5f6 differs from 739efe7 only in a registry_governed_policy.py module docstring (re-derive tree ids and AST equality; do not trust).",
+        "purpose": "Frozen subject; bind exact head at dispatch"
+      },
+      {
+        "location": "cogno-us/cognous-ocs-registry",
+        "identity": "Registry r08-v8 pin a40fe755e2384a99c37016fa9ad59396f1835900 as a detached git checkout (preflight reads git rev-parse HEAD; OCS_REQUIRE_REGISTRY_PIN=1); Registry main 6b96a9a658923954433dc1a4c13626fa5145b9c7 carries docs 02,03,06,11-14 under docs/family-migration/final-three/.",
+        "purpose": "Contract, frozen oracle (doc 03), successor interpretation (doc 06, record 11)"
+      },
+      {
+        "location": "cogno-us/cognous-stack-qualification",
+        "identity": "main b7d813111128cb31518620688f6e89e41042dadd; original evidence results/third-party/cp-739efe7-f3-independent-20261029/ (protocol sha256 e799b1083743526648a0c1c23d2c1455c0533ac843d88f3fe977dfd6a3850135; archive sha256 1d07a70439625de3b3e85e0ea3c088a43f14bc237649487d22d85da51a174fc5). Successor readjudication evidence: PR #242 head 2246a61c18a2c491a1230c21912b1240c109e90a, results/third-party/cp-739efe7-f3a-readjudication-20261030/ (frozen protocol sha256 04f4f950f526d6e98f056f5635bb7a1acad1d3332f46c3ec1b0897150a169ad6) - NOT in merged custody until PR #242 merges and is checksum-verified from a fresh checkout. Read from merged main if available; otherwise from the PR head and say so.",
+        "purpose": "Predecessor evidence to inspect, not to reproduce"
+      },
+      {
+        "location": "cogno-us/cognous-engineering-constitution",
+        "identity": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c (ADOPTION.md, ORCHESTRATION.md, ENGINEERING_COMPLIANCE_ADDENDUM.md, TESTING_POLICY.md, schemas/orchestrator-assignment-v1.schema.json)",
+        "purpose": "Governing text; quote clauses verbatim"
+      }
+    ],
+    "interfacesAndDependencies": [
+      "GitHub REST API"
+    ],
+    "knownBaselineFailures": [
+      "Original F3-A FAIL (DEV-PE-1, 23 failed assertions) is permanent history."
+    ]
+  },
+  "acceptance": {
+    "riskTier": "T2",
+    "riskRationale": "Documentation correction of a governing qualification record; status accuracy is safety-relevant but no behavior changes.",
+    "successConditions": [
+      "Q2 and Q3 are OPEN in every authoritative status statement.",
+      "Record 12 is treated as controlling with a crosswalk.",
+      "Original FAIL preserved; no certification claimed; no non-documentation file changed.",
+      "Closing statement matches the Architect text exactly."
+    ],
+    "negativeControls": [
+      "Read-only reviewer checks the seven acceptance points.",
+      "PR file list verified documentation-only."
+    ],
+    "newEvidence": [],
+    "reusedEvidence": [
+      {
+        "source": {
+          "location": "cogno-us/cognous-stack-qualification",
+          "identity": "PR #251 branch and merged evidence at 592d0584b2f4683574d06a13081c038ad7c013f5",
+          "purpose": "Existing analysis and evidence"
+        },
+        "applicability": "Preserved; not re-run."
+      }
+    ],
+    "notRun": [
+      {
+        "test": "Any qualification test",
+        "reason": "Not authorized by this work package."
+      }
+    ],
+    "qualificationBoundary": "Documentation reconciliation only. Not independent acceptance, certification or production authorization."
+  },
+  "delivery": {
+    "artifacts": [
+      "docs/f3-q240-closeout/07-f3-architectural-technical-disposition-2026-10-30.md"
+    ],
+    "reportFields": [
+      "PR head and merge SHA",
+      "Record 12 crosswalk",
+      "Q2/Q3 dispositions",
+      "Review result",
+      "Issue #240 state",
+      "Qualification state",
+      "Certification gates",
+      "Blockers"
+    ]
+  },
+  "boundaries": {
+    "stopConditions": [
+      "A change to a non-documentation file would be needed",
+      "A historical verdict would have to change",
+      "The merge is denied by an authorization control"
+    ],
+    "escalationOwner": "Architect (operator)",
+    "outOfScope": [
+      "Production implementation, protected evaluators, the frozen F3 oracle, the successor interpretation, historical raw evidence: read-only.",
+      "Final independent Tier 1 campaign (DEFERRED, NOT WAIVED); broad regression; mutation campaign beyond the cases named here.",
+      "Registry #58/#59, Control Plane #87, constructor tolerance, Ed25519 #26/#34, V09, DEF-OBS-TOL-OVERFLOW-1, release/production, R1 refactoring: HELD or separate.",
+      "Formal F3-A acceptance, competent certification, constitutional adoption: reserved to the Architect/competent authority."
+    ]
+  },
+  "governance": {
+    "constitutionalRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "projectAdoption": {
+      "status": "UNVERIFIED",
+      "evidence": "Standing OCS technical baseline 1c2e920f4e58e07a52e8e2408a506cf7dbc1292b; dcdbe3b is a prospective orchestration convention only. No ADOPTION.md-form instrument exists for 1c2e920, 230c0af or dcdbe3b (Registry docs 09 and 12; independently re-found in this closeout, see 05-proposed-adoption-instrument.md). All 23 CA rows are byte-identical at the three revisions; the review-tier label inverts (Tier 1 critical at 1c2e920, Tier 3 critical at 230c0af/dcdbe3b), so state criticality as critical/routine or T0-T4, never bare 'Tier N'. This packet creates no adoption event."
+    },
+    "complianceAddendumRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "testingPolicyRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "archetypeSource": "ENGINEERING_COMPLIANCE_ADDENDUM.md '### Archetype C' table (verbatim cells) at cogno-us/cognous-engineering-constitution@dcdbe3b76843d672ca3cfb1f000124ecd78ed03c; default Archetype C articles per its section 2. Cells extracted mechanically by tools/render and compared with the source text in the PR (see README).",
+    "clauses": [
+      {
+        "article": "CA02",
+        "requiredBehavior": "Deliver the smallest complete authorized capability.",
+        "prohibitedShortcut": "Speculative architecture, infrastructure, dependencies or scope expansion.",
+        "binding": "Scope is the single PR #251 correction: sections of the 07 record and the Archetype C packet only. The change is the smallest that makes Q2/Q3 operative status OPEN under record 12; supporting worker analyses and the adversarial review are untouched; no source, test, schema, workflow or evidence file changes."
+      },
+      {
+        "article": "CA04",
+        "requiredBehavior": "Distinguish implementation inspection, independent qualification, competent certification and final integration; preserve independence wherever required.",
+        "prohibitedShortcut": "Fit an oracle to implementation or substitute developer tests.",
+        "binding": "Remediation and review are separated: the lead builder edits; a read-only reviewer (same session lineage, not independent) checks the seven acceptance points before publication. No additional qualification is run or planned."
+      },
+      {
+        "article": "CA06",
+        "requiredBehavior": "Retain consequential decision ancestry, rejected alternatives, objections, adverse findings and supersession where legitimately relevant, subject to privacy and retention limits.",
+        "prohibitedShortcut": "Delete, relabel, overwrite or silently rescore failures.",
+        "binding": "Requirement ancestry is retained: the original FAIL (23 assertions), record 12 Class A items 1-2, the earlier mechanism-sufficiency interpretation (marked analytical/superseded, not deleted), worker analyses and adverse review findings remain in the record."
+      },
+      {
+        "article": "CA07",
+        "requiredBehavior": "Bind claims to exact source, configuration, governing context and transition evidence; reconstruct authoritative pathways when deterministic execution replay is impossible.",
+        "prohibitedShortcut": "Transfer a pass across revisions.",
+        "binding": "Every status statement is bound to exact sources: PR head 2967d0bf base 592d0584, Registry record 12 section 1, record 11, frozen oracle doc 03, CP subject 739efe7, hub custody 592d0584. Evidence is cited by path and row, not re-run."
+      }
+    ]
+  }
+}

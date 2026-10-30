@@ -1,3 +1,5 @@
+> **SUPERSEDED FOR OPERATIVE PURPOSES (OCS-F3-Q240-CONTRACT-RECONCILIATION):** any "SATISFIED — SCOPED" label below is analytical only. Operative status of Q2 and Q3 is OPEN under Registry record 12 (Class A); see 07 section 0. Original text otherwise preserved.
+
 # Worker C - Q3 (A25(e)) adjudication: host_profile_digest and effective_profile_digest
 
 READ-ONLY adjudication worker C, subordinate of the lead builder lineage (the lineage that produced the evidence). NOT independent, NOT certification. No tests run; existing raw files parsed only. 2026-10-30.
