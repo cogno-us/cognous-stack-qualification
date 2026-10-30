@@ -1,0 +1,6 @@
+9,10c9,10
+< if [ -n "$SEL" ]; then K="-k $SEL"; else K=""; fi
+< $W/venv311/bin/python -m pytest -p no:cacheprovider -q $K $W/harness/test_readj_gaps.py > $OUT/stdout.txt 2> $OUT/stderr.txt
+---
+> ARGS=(); if [ -n "$SEL" ]; then ARGS=(-k "$SEL"); fi
+> $W/venv311/bin/python -m pytest -p no:cacheprovider -q "${ARGS[@]}" $W/harness/test_readj_gaps.py > $OUT/stdout.txt 2> $OUT/stderr.txt
