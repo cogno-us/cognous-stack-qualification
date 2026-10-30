@@ -1,0 +1,41 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______________________ test_G5a_persisted_member_content _______________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-3/test_G5a_persisted_member_cont0')
+
+    def test_G5a_persisted_member_content(tmp_path):
+        E = H.env()
+        chk = Check("G5a_persisted_member_content")
+        c = H.new_case(tmp_path, "pin")
+        m = H.member_of(c.dir, c.did)["members"]
+        ra = H.dec_item(doc(c.dir), c.did)["binding"]["runtime_authority"]
+        exp_scope = {"consumer_id": "consumer-test", "tenant_id": H.TENANT, "action_id": E.ACTION_ID, "institution_id": E.INSTITUTION, "authority_domain": E.AUTHORITY_DOMAIN}
+        chk.ok("scope_equals_independent_expectation", m["scope"] == exp_scope, persisted=m["scope"], expected=exp_scope)
+        chk.ok("scope_authority_domain_equals_manifest_domain", m["scope"]["authority_domain"] == E.AUTHORITY_DOMAIN, persisted=m["scope"]["authority_domain"])
+        cat = E.B.commitment(c.fx.cfg.model_dump(mode="json"))
+        chk.ok("catalogue_digest_recomputed", ra.get("catalogue_digest") == cat)
+        chk.ok("host_profile_digest_equals_catalogue_digest", m["host_profile_digest"] == cat, persisted=m["host_profile_digest"], expected=cat)
+        chk.ok("effective_profile_digest_equals_catalogue_digest", m["effective_profile_digest"] == cat, persisted=m["effective_profile_digest"], expected=cat)
+        f = H.new_case(tmp_path, "f4", name="f4case")
+        mf = H.member_of(f.dir, f.did)["members"]
+        chk.ok("f4_scope_authority_domain", mf["scope"]["authority_domain"] == E.AUTHORITY_DOMAIN)
+        chk.ok("f4_profile_digests_null", mf["host_profile_digest"] is None and mf["effective_profile_digest"] is None, host=mf["host_profile_digest"], eff=mf["effective_profile_digest"])
+>       chk.done()
+
+../../../../harness/test_readj_gaps.py:300: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_readj_gaps.Check object at 0x7f5a36689cd0>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: G5a_persisted_member_content: failed ['scope_equals_independent_expectation', 'scope_authority_domain_equals_manifest_domain', 'f4_scope_authority_domain']
+E       assert not ['scope_equals_independent_expectation', 'scope_authority_domain_equals_manifest_domain', 'f4_scope_authority_domain']
+E        +  where ['scope_equals_independent_expectation', 'scope_authority_domain_equals_manifest_domain', 'f4_scope_authority_domain'] = <test_readj_gaps.Check object at 0x7f5a36689cd0>.fails
+
+../../../../harness/test_readj_gaps.py:53: AssertionError
+=========================== short test summary info ============================
+FAILED ../../../../harness/test_readj_gaps.py::test_G5a_persisted_member_content
+1 failed, 47 deselected in 0.73s
+exit=1
