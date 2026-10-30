@@ -1,0 +1,10 @@
+# Review addendum (append-only; does not replace verdict.md)
+
+Added by the lead builder after a read-only review by a subordinate agent of the same session (`review/adversarial-review-Q6.md`; no blocking issues, two should-fix). verdict.md is unchanged; where they differ this wording governs. Not independent certification. Worker, reviewer and lead are one session lineage, which also produced the F3-A readjudication, D-1 and D-2.
+
+1. **Q6-A coverage gap is a detection limit, not only an omission.** `test_negative_incorrect_journal_linkage_is_detected[journal]` skips at test line 153 (`if not (identity or freshness)`) before any Verifier call; the plain-journal fixture never enables identity/freshness, so the skip fires by construction under every supported configuration and would also skip in CP CI. A reviewer probe (outside the package; not a run of this evidence) found that on the plain-journal route a zeroed `resolution_checks` check_id is not refuted by Verifier 39d46b4 (overall "abstain"), while a claim row lying about its stage is refuted (`journal_stage_binding`). No run in this package executes either half on the plain-journal route. Q6-A is PARTIAL: 13 of 14 executed on both interpreters.
+2. **The frozen Q6-A expectation ("14 pass, 0 skipped") contradicted the test source** visible at freeze (lines 153-154). It was drafted without reading them; recorded unrevised per CA04.
+3. **Timing:** first execution was Q6A-311 at 04:30:21Z (4 seconds after the 04:30:17Z freeze), not 04:30:25Z.
+4. **Verifier identity:** 39d46b4 is the Verifier repo's public HEAD on 2026-10-30; Control Plane pins no Verifier (importorskip, docstring, README link); CP CI does not install it. Results hold for that sha only.
+5. **Format-module copy:** the only added line is the FORMAT_PATH env read; other tests in the file are omitted; the retained function body is byte-identical. Modified successor case, not the original test. `tests/test_authorization_pin_format.py` exists on the same runtime heads and was not run. `OCS_REQUIRE_REGISTRY_PIN=1` was set for CI parity only.
+6. Independence limits of D-2 apply unchanged.
