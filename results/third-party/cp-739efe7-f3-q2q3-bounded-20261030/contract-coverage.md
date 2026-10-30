@@ -1,0 +1,10 @@
+# Q2/Q3 contract-coverage matrix (record 12 Class A; no requirement is closed by this package)
+| Member / requirement | Record 12 requirement | Demonstrated here | Remains open |
+|---|---|---|---|
+| host_profile_digest (Q3, item 2) | Two independent fixtures; state masked-host limit | FC-H1 (claim, masked-host F5 class-age) and FC-H2 (execute, second masked-host workflow): diff-isolated on masked-host pathways, n=1 each, same lineage. FC-H3a/b unmasked contrast controls (not isolating) | Whether FC-H1 + FC-H2 satisfy "two independent fixtures" (R1/R2 reading, Architect); independence of fixtures; pin-export route; masked-host limit stays stated |
+| effective_profile_digest (Q2) | Isolation, else not independently demonstrated | FXE-JOINT: joint transition (base diff catalogue_digest + approval_commitment; ECB diff digest + effective_profile_digest); C0-C3 controls | Strict isolation structurally unreachable by definition/construction (02 s4 l48; co-derived in `_resolve`); sufficiency of joint evidence is an Architect decision |
+| authority_domain (Q2, item 1) | One independent isolation (decision under X, live rebuilt under Y, all else equal; execute and pin-export) | N-CLAIM-JOINT: natural joint refusal (base diff manifest_digest + proposal_commitment; ECB diff digest + scope.authority_domain); claim leg PermissionError | Isolation not demonstrated: execute and claim JOINT-ONLY, pin-export GUARD-FIRST; status "not independently demonstrated for this member" unless Architect decides |
+| pin-export (item 4) | Supports F4 family declaration only | none | not run; out of scope |
+| provision route / Class B (item 7) | per record 12 | one synthetic F4 exercise only | not discharged |
+
+Scoring dimensions (per case; PASS for functional correctness in all six cases): member sensitivity: FC-H1/H2 isolated-by-diff on masked paths; FXE/N-CLAIM joint. Guard order: H3a guard-first; others past guards to ECB. End-to-end refusal: execute legs refuse durably; claim legs PermissionError (successor). Independent isolation: none beyond masked-host diffs. Contract coverage: partial, see table.

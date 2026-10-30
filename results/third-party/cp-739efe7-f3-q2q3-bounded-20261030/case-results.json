@@ -1,0 +1,166 @@
+{
+  "cases": {
+    "FC-H1": {
+      "assertion_rows_run1": {
+        "pass": 34
+      },
+      "assertion_rows_run2": {
+        "pass": 34
+      },
+      "result": "PASS",
+      "tests": {
+        "test_FC_H1": {
+          "run1": "PASS",
+          "run2": "PASS"
+        }
+      }
+    },
+    "FC-H2": {
+      "assertion_rows_run1": {
+        "pass": 27
+      },
+      "assertion_rows_run2": {
+        "pass": 27
+      },
+      "result": "PASS",
+      "tests": {
+        "test_FC_H2": {
+          "run1": "PASS",
+          "run2": "PASS"
+        }
+      }
+    },
+    "FC-H3a": {
+      "assertion_rows_run1": {
+        "pass": 14
+      },
+      "assertion_rows_run2": {
+        "pass": 14
+      },
+      "result": "PASS",
+      "tests": {
+        "test_FC_H3a": {
+          "run1": "PASS",
+          "run2": "PASS"
+        }
+      }
+    },
+    "FC-H3b": {
+      "assertion_rows_run1": {
+        "pass": 17
+      },
+      "assertion_rows_run2": {
+        "pass": 17
+      },
+      "result": "PASS",
+      "tests": {
+        "test_FC_H3b": {
+          "run1": "PASS",
+          "run2": "PASS"
+        }
+      }
+    },
+    "FXE-JOINT": {
+      "assertion_rows_run1": {
+        "fail_or_blocked": 0,
+        "pass": 102
+      },
+      "assertion_rows_run2": {
+        "fail_or_blocked": 0,
+        "pass": 102
+      },
+      "result": "PASS",
+      "tests": {
+        "test_FXE_JOINT_C0": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_FXE_JOINT_C1": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_FXE_JOINT_C2": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_FXE_JOINT_C3": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_FXE_JOINT_main": {
+          "run1": "PASS",
+          "run2": "PASS"
+        }
+      }
+    },
+    "N-CLAIM-JOINT": {
+      "assertion_rows_run1": {
+        "pass": 82
+      },
+      "assertion_rows_run2": {
+        "pass": 82
+      },
+      "result": "PASS",
+      "tests": {
+        "test_N_CLAIM_JOINT_C0": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_N_CLAIM_JOINT_C1": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_N_CLAIM_JOINT_C2": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_N_CLAIM_JOINT_CY": {
+          "run1": "PASS",
+          "run2": "PASS"
+        },
+        "test_N_CLAIM_JOINT_main": {
+          "run1": "PASS",
+          "run2": "PASS"
+        }
+      }
+    }
+  },
+  "disclosed_deviations": [
+    "Host cases FC-H1..FC-H3b write plain D-1 rows and lack protocol/run/case_id/t_start/t_end keys, EXCEPTION rows with tracebacks and before/after journal snapshots required by protocol section 16 (a)/(c)/(d). Not waived by v1 scoring; PASS rests on the frozen assertions. Disclosed, no successor minted.",
+    "Evidence-only probe N-CLAIM-JOINT-C1-O01 raised verbatim 'TypeError: d1_lib.rec() got multiple values for keyword argument 'result'' in run1 and run2. Gating C1 rows unaffected. The probe is not cited."
+  ],
+  "frozen_literal_annotation_non_scored": "Protocol 15.3: under the frozen-literal reading of 03 L23 (durable EffectTimeRefusal on claim), no durable refusal was observed for FC-H1 and N-CLAIM-JOINT claim legs. Not scored; the case results above are conditional on successor interpretation OCS-F3A-DEV-PE-1-INTERPRETATION/1.0 (human adoption pending).",
+  "notes": [
+    "Results are scoped technical results of non-independent same-lineage producers.",
+    "FXE-JOINT and N-CLAIM-JOINT are JOINT evidence and establish no independent isolation.",
+    "FC-H3 is a bounded contrast control and never isolating.",
+    "Claim-leg expectations follow the successor interpretation (Registry 06/11, human adoption pending); the frozen-literal oracle requires a durable refusal on claim and is not met by that semantics.",
+    "Q2 and Q3 remain OPEN under Registry record 12 (Class A)."
+  ],
+  "protocol": "OCS-F3-Q2Q3-BOUNDED-v1",
+  "protocol_sha256": "ff25219245f39b854dfc35fb74880e17366075362734bb91d2c3fe791a18b0d2",
+  "pytest": {
+    "run1": "14 passed",
+    "run2": "14 passed"
+  },
+  "repeatability": {
+    "run1_utc": [
+      "2026-10-30T17:51:20Z",
+      "2026-10-30T17:51:25Z"
+    ],
+    "run2_utc": [
+      "2026-10-30T17:51:31Z",
+      "2026-10-30T17:51:35Z"
+    ],
+    "statement": "run1 and run2 are two processes on the same host about 6 s apart: repeatability, not replication. The (case, check, kind) sequence and all PASS/FAIL results are identical. 13 evidence rows differ in value fields; all 13 differences are run-minted UUIDs (decision ids) and claim commitments that bind them; 5 of the 13 are gating CHECK_PASS rows whose 'expected' is a freshly minted decision UUID. Results are PASS in both runs."
+  },
+  "result_labels": {
+    "FC-H1": "PASS, successor-semantics-conditional (claim leg follows successor 06/11: PermissionError, no claim, no refusal write; frozen-literal 03 L23 durable-refusal reading NOT met: 0 refusals observed, FC-H1-A07)",
+    "FC-H2": "PASS (execute leg; durable refusal observed)",
+    "FC-H3a": "PASS (bounded unmasked-host contrast control; guard-first refusal; NOT isolating)",
+    "FC-H3b": "PASS (bounded unmasked-host contrast control; JOINT: ECB diff has 4 leaves; NOT isolating)",
+    "FXE-JOINT": "PASS (joint transition evidence only; no isolation of effective_profile_digest)",
+    "N-CLAIM-JOINT": "PASS, successor-semantics-conditional (claim leg: PermissionError, no claim, no refusal write; frozen-literal reading NOT met: 0 refusals observed, N-CLAIM-JOINT-A04; JOINT evidence only; no isolation of scope.authority_domain)"
+  },
+  "scoring": "PASS/FAIL/BLOCKED/NOT EXECUTED per protocol section 10; a case PASSes only if its tests and every frozen assertion passed in run1 and run2"
+}
