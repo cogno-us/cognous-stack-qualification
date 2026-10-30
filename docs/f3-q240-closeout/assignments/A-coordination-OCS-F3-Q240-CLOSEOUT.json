@@ -1,0 +1,193 @@
+{
+  "schemaVersion": "cognous-orchestrator-assignment-v1",
+  "identity": {
+    "workPackage": "OCS-F3-Q240-CLOSEOUT",
+    "role": "lead_qualification_coordinator",
+    "primaryArchetype": "A",
+    "archetypeMeaning": "Reconcile frozen subjects, contracts, evidence, independence requirements and acceptance obligations before dispatching bounded qualification work.",
+    "repository": "cogno-us/cognous-stack-qualification",
+    "baseCommitSha": "b7d813111128cb31518620688f6e89e41042dadd",
+    "currentHeadSha": "b7d813111128cb31518620688f6e89e41042dadd"
+  },
+  "authority": {
+    "objective": "Establish a verified disposition for each of Q1-Q8 of issue #240, prepare dispatch-ready independent execution assignments, and prepare the certification-readiness report, without manufacturing evidence or claiming acceptance.",
+    "sourceDecision": "Architect directive POST-F3 QUALIFICATION CLOSEOUT, 2026-10-30, work package OCS-F3-Q240-CLOSEOUT.",
+    "allowedActions": [
+      "Read-only source, contract and evidence analysis",
+      "Open documentation/evidence PRs with CI Scope Declarations",
+      "Update issue #240 with verified progress",
+      "Prepare proposed (unsigned) designation and adoption texts",
+      "Dispatch assignments only where the Architect/operator has designated and authorized an independent owner"
+    ],
+    "prohibitedActions": [
+      "Modify production implementation, protected evaluators, frozen oracle or tests",
+      "Execute independent qualification inside the coordinator role",
+      "Regenerate historical evidence or relabel it original",
+      "Invent or designate a human reviewer, owner or certifier",
+      "Merge PR #242 or any evidence PR without independent review and checksum verification",
+      "Claim F3-A formally accepted; begin R1; run paid, production or full Tier 1 execution"
+    ],
+    "paidExecution": {
+      "authorized": false,
+      "maximumUsd": 0
+    },
+    "mergeAuthorized": false,
+    "deploymentAuthorized": false
+  },
+  "ownership": {
+    "designatedWriter": "Lead Qualification Coordinator (this session)",
+    "writablePaths": [
+      "docs/f3-q240-closeout/**"
+    ],
+    "protectedPaths": [
+      "results/third-party/cp-739efe7-f3-independent-20261029/**",
+      "results/third-party/cp-739efe7-f3a-readjudication-20261030/**",
+      "Control Plane src/, tests/, schemas/",
+      "Registry docs 02, 03, 06, 11"
+    ]
+  },
+  "inputs": {
+    "projectPlan": "Issue #240 obligations Q1-Q8; Registry records 12 (coverage/adoption status), 13 (acceptance readiness), 14 (engineering closeout).",
+    "frozenSources": [
+      {
+        "location": "cogno-us/cognous-control-plane",
+        "identity": "739efe7d8f16a0cee1efc7dd3a978d5d4d85fe69 (frozen executable subject; src tree d248bde478ae3f2ce050db4637f0c1203066e906). Live main b19c47ddd020409d24e52e70b11359c46265edbb is a later head and is NOT the subject; 8616d5f64a901b8f858359809193961a1124b5f6 differs from 739efe7 only in a registry_governed_policy.py module docstring (re-derive tree ids and AST equality; do not trust).",
+        "purpose": "Frozen subject; bind exact head at dispatch"
+      },
+      {
+        "location": "cogno-us/cognous-ocs-registry",
+        "identity": "Registry r08-v8 pin a40fe755e2384a99c37016fa9ad59396f1835900 as a detached git checkout (preflight reads git rev-parse HEAD; OCS_REQUIRE_REGISTRY_PIN=1); Registry main 6b96a9a658923954433dc1a4c13626fa5145b9c7 carries docs 02,03,06,11-14 under docs/family-migration/final-three/.",
+        "purpose": "Contract, frozen oracle (doc 03), successor interpretation (doc 06, record 11)"
+      },
+      {
+        "location": "cogno-us/cognous-stack-qualification",
+        "identity": "main b7d813111128cb31518620688f6e89e41042dadd; original evidence results/third-party/cp-739efe7-f3-independent-20261029/ (protocol sha256 e799b1083743526648a0c1c23d2c1455c0533ac843d88f3fe977dfd6a3850135; archive sha256 1d07a70439625de3b3e85e0ea3c088a43f14bc237649487d22d85da51a174fc5). Successor readjudication evidence: PR #242 head 2246a61c18a2c491a1230c21912b1240c109e90a, results/third-party/cp-739efe7-f3a-readjudication-20261030/ (frozen protocol sha256 04f4f950f526d6e98f056f5635bb7a1acad1d3332f46c3ec1b0897150a169ad6) - NOT in merged custody until PR #242 merges and is checksum-verified from a fresh checkout. Read from merged main if available; otherwise from the PR head and say so.",
+        "purpose": "Predecessor evidence to inspect, not to reproduce"
+      },
+      {
+        "location": "cogno-us/cognous-engineering-constitution",
+        "identity": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c (ADOPTION.md, ORCHESTRATION.md, ENGINEERING_COMPLIANCE_ADDENDUM.md, TESTING_POLICY.md, schemas/orchestrator-assignment-v1.schema.json)",
+        "purpose": "Governing text; quote clauses verbatim"
+      }
+    ],
+    "interfacesAndDependencies": [
+      "GitHub REST API",
+      "Hub PR #242 (custody of successor evidence)"
+    ],
+    "knownBaselineFailures": [
+      "Original F3-A FAIL (DEV-PE-1, 23 failed assertions) is permanent history.",
+      "Readjudication run at 739efe7 is 1 failed / 47 passed: test_G4_documentation_limits_S_DOC (documentation inputs), unrelated to G5a."
+    ]
+  },
+  "acceptance": {
+    "riskTier": "T3",
+    "riskRationale": "Coordination of governance/safety-critical qualification obligations; documentation only; closure decisions are authority-bearing and are therefore not made by this document.",
+    "successConditions": [
+      "Each of Q1-Q8 has a disposition stated with its actual acceptance criterion and the evidence or named blocker.",
+      "No Q item is CLOSED on the strength of a document alone.",
+      "Every assignment validates against orchestrator-assignment-v1.schema.json and carries verbatim clause cells.",
+      "Independence limits of the coordinator are disclosed."
+    ],
+    "negativeControls": [
+      "Clause cells re-extracted and byte-compared against the addendum source at dcdbe3b.",
+      "Assignment JSON validated against the schema."
+    ],
+    "newEvidence": [
+      {
+        "test": "Schema validation of the three assignment packets",
+        "purpose": "Machine-check shape",
+        "result": "PLANNED"
+      },
+      {
+        "test": "Clause cell byte-comparison against source",
+        "purpose": "Verbatim injection check",
+        "result": "PLANNED"
+      }
+    ],
+    "reusedEvidence": [],
+    "notRun": [
+      {
+        "test": "Any F3 candidate execution",
+        "reason": "Reserved to independent Archetype D owners; coordinator may not execute independent qualification."
+      }
+    ],
+    "qualificationBoundary": "Coordination and planning only. Not independent qualification, not certification, not acceptance."
+  },
+  "delivery": {
+    "artifacts": [
+      "docs/f3-q240-closeout/01-qualification-inventory.md",
+      "02-evidence-applicability-crosswalk.md",
+      "03-certification-readiness-report.md",
+      "04-proposed-designation-record.md",
+      "05-proposed-adoption-instrument.md",
+      "assignments/*.json"
+    ],
+    "reportFields": [
+      "Verified heads",
+      "Q1-Q8 dispositions",
+      "Evidence availability",
+      "Coverage plan",
+      "Outstanding execution requirements",
+      "Independence/certification status",
+      "Adoption disposition",
+      "Architect decisions required"
+    ],
+    "pullRequest": "documentation PR on cogno-us/cognous-stack-qualification"
+  },
+  "boundaries": {
+    "stopConditions": [
+      "A closure would rest only on a document, builder statement or green CI.",
+      "A step would require changing implementation, oracle or an evaluator.",
+      "A designation would require naming a person who has not accepted the role."
+    ],
+    "escalationOwner": "Architect (operator)",
+    "outOfScope": [
+      "Production implementation, protected evaluators, the frozen F3 oracle, the successor interpretation, historical raw evidence: read-only.",
+      "Final independent Tier 1 campaign (DEFERRED, NOT WAIVED); broad regression; mutation campaign beyond the cases named here.",
+      "Registry #58/#59, Control Plane #87, constructor tolerance, Ed25519 #26/#34, V09, DEF-OBS-TOL-OVERFLOW-1, release/production, R1 refactoring: HELD or separate.",
+      "Formal F3-A acceptance, competent certification, constitutional adoption: reserved to the Architect/competent authority."
+    ]
+  },
+  "governance": {
+    "constitutionalRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "projectAdoption": {
+      "status": "UNVERIFIED",
+      "evidence": "Standing OCS technical baseline 1c2e920f4e58e07a52e8e2408a506cf7dbc1292b; dcdbe3b is a prospective orchestration convention only. No ADOPTION.md-form instrument exists for 1c2e920, 230c0af or dcdbe3b (Registry docs 09 and 12; independently re-found in this closeout, see 05-proposed-adoption-instrument.md). All 23 CA rows are byte-identical at the three revisions; the review-tier label inverts (Tier 1 critical at 1c2e920, Tier 3 critical at 230c0af/dcdbe3b), so state criticality as critical/routine or T0-T4, never bare 'Tier N'. This packet creates no adoption event."
+    },
+    "complianceAddendumRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "testingPolicyRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "archetypeSource": "ENGINEERING_COMPLIANCE_ADDENDUM.md '### Archetype A' table (verbatim cells) at cogno-us/cognous-engineering-constitution@dcdbe3b76843d672ca3cfb1f000124ecd78ed03c; default Archetype A articles per its section 2. Cells extracted mechanically by tools/render and compared with the source text in the PR (see README).",
+    "clauses": [
+      {
+        "article": "CA01",
+        "requiredBehavior": "Inspect and reuse qualified, versioned components.",
+        "prohibitedShortcut": "Duplicate an owned capability for convenience.",
+        "binding": "Reuse the qualified original harness library (test_f3a_independent.post-AMEND4.py), the readjudication gap harness (test_readj_gaps.py), the G5a persisted-content test, the D06-M06 mutant diff and the fixture builders; do not duplicate or rewrite them in assignments. New fixtures only for the F5 class-age masked-host case, as foundation pieces."
+      },
+      {
+        "article": "CA03",
+        "requiredBehavior": "Identify the controlling source, external reliance boundary, duties, expected acceptance and the authority by which a proposed change may acquire canonical standing.",
+        "prohibitedShortcut": "Start against an unnamed or mutable contract.",
+        "binding": "Controlling sources are exact-source bound: CP 739efe7, Registry r08-v8 pin a40fe755, doc 03 (frozen oracle), doc 06 and record 11 (successor interpretation; builder-prepared, unsigned, human adoption pending), PROTOCOL-F3-v1 sha e799b108 and PROTOCOL-F3A-READJ-v1 sha 04f4f950. No assignment tests to an invented oracle. Canonical standing of any closure rests on the Architect/competent authority, not on this document."
+      },
+      {
+        "article": "CA04",
+        "requiredBehavior": "Distinguish implementation inspection, independent qualification, competent certification and final integration; preserve independence wherever required.",
+        "prohibitedShortcut": "Fit an oracle to implementation or substitute developer tests.",
+        "binding": "Qualification is designed before acceptance and kept apart: this coordinator inspects and plans; fresh Archetype D owners execute and judge; the competent certifier decides; integration follows. The coordinator produced the F3-A readjudication evidence (PR #242) and therefore may not be the independent owner for any Q item that depends on it; this is disclosed in every artifact."
+      },
+      {
+        "article": "CA18",
+        "requiredBehavior": "Version, authenticate and review governance-critical policy and rule changes; protect established mandatory invariants against configuration override.",
+        "prohibitedShortcut": "Treat unreviewed settings or evaluator changes as governing authority, weaken mandatory checks or introduce an unaccountable decision path.",
+        "binding": "Protected invariants are not touched: no guard (authority_domain_mismatch, manifest_digest_mismatch, runtime_authority_approval_mismatch) is disabled to expose a binding check; no evaluator, oracle or test expectation is edited; no unreviewed setting is treated as governing. The proposed designation and adoption texts are PROPOSED, unsigned and activate nothing."
+      },
+      {
+        "article": "CA21",
+        "requiredBehavior": "Preserve relied-upon external semantics or obtain an explicit authorized compatibility transition.",
+        "prohibitedShortcut": "Introduce silent contract, rights, evidence or interface regressions through internal refactoring.",
+        "binding": "External interface commitments are preserved: no implementation or schema change; reason vocabulary, approval_commitment, catalogue_digest and published schemas are untouched; the standing holds (Registry #58/#59, CP #87, Ed25519 #26/#34, constructor tolerance, V09, release) remain as recorded."
+      }
+    ]
+  }
+}
