@@ -1,0 +1,13 @@
+# PROPOSAL (not applied): local claim issuance only (local_authority_effect._materialize_under_handoff): same stamping. EXPECTED to survive the builder suite (no builder test drives this path); the independent harness must kill it (case C10)
+# apply with: patch -p1 < D06-M04-local-claim-issuance-compare-deleted.diff  inside a COPY of the checkout (never the pristine one)
+--- a/src/agent_control_plane/local_authority_effect.py
++++ b/src/agent_control_plane/local_authority_effect.py
+@@ -452,6 +452,8 @@
+             resolver_reasons = set(reasons)
+             reasons = list(reasons) + binding_reasons
+         reasons = workflow._record_check(inputs, now, reasons, "claim", check_id=check_ref[0] if check_ref else None)
++        if current is not None and isinstance(getattr(current, "runtime_authority", None), dict) and isinstance(decision.binding.runtime_authority, dict) and "effective_configuration" in decision.binding.runtime_authority:  # MUTANT
++            current = current.model_copy(update={"runtime_authority": {**current.runtime_authority, "effective_configuration": decision.binding.runtime_authority["effective_configuration"]}})
+         if reasons or current is None or current != decision.binding:
+             if binding_reasons and not resolver_reasons and not (set(reasons) - set(binding_reasons)) and current is not None and current == decision.binding:
+                 raise PermissionError(f"policy binding refused at claim issuance: {binding_note}")

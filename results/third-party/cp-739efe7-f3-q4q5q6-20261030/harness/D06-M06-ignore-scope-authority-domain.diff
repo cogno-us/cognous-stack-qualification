@@ -1,0 +1,13 @@
+# PROPOSAL (not applied): scope.authority_domain is not bound (constant)
+# apply with: patch -p1 < D06-M06-ignore-scope-authority-domain.diff  inside a COPY of the checkout (never the pristine one)
+--- a/src/agent_control_plane/effective_configuration_binding.py
++++ b/src/agent_control_plane/effective_configuration_binding.py
+@@ -129,7 +129,7 @@
+ 
+ def scope_identity(consumer_id: str, tenant_id: str, action_id: str, institution_id: str, authority_domain: str) -> dict:
+     """The governed scope, in the one shape shared by this binding and by the activation ledger's configuration digest (same five keys, same names)."""
+-    return {"consumer_id": consumer_id, "tenant_id": tenant_id, "action_id": action_id, "institution_id": institution_id, "authority_domain": authority_domain}
++    return {"consumer_id": consumer_id, "tenant_id": tenant_id, "action_id": action_id, "institution_id": institution_id, "authority_domain": "constant-domain"}  # MUTANT
+ 
+ 
+ def family_rows(bound: Mapping[str, Any], order: tuple, family_table: Mapping[str, tuple], schema_revisions: Mapping[str, int]) -> list:
