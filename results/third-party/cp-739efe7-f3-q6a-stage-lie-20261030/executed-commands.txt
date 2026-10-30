@@ -1,0 +1,12 @@
+# Executed commands (chronological, all 2026-10-30)
+git -C /home/claude/cogno-us/cognous-control-plane archive 739efe7d8f16a0cee1efc7dd3a978d5d4d85fe69 | tar -x -C /tmp/claude-0/work/q6a/src/cp-739efe7
+python3 /tmp/claude-0/work/q6/src/treeid.py <cp>  (before: env/cp-tree-before.txt; after: raw/post-run-integrity.txt)
+git clone https://github.com/cogno-us/cognous-open-control-stack-verifier <q6a>/src/verifier && git checkout --detach 39d46b494558e271439966bec98b26dc4d040cc4   (only network use, pre-freeze)
+<venv>/bin/python -m pip freeze  (both interpreters; compared with Q6 freezes)
+pytest --collect-only -q harness/test_successor_q6a_stage_lie.py   (pre-freeze smoke, both interpreters; raw/prefreeze-collect-*.txt)
+sha256sum PROTOCOL-Q6A-S1-v1.md harness/* > FREEZE-HASHES.txt ; date -u > FREEZE-TIME.txt   (06:19:50Z)
+pre-run integrity check -> raw/pre-run-integrity.txt (06:19:54Z)
+harness/run_q6a_s1.sh 311 Q6AS1-311   =>  python3.11 -m pytest -p no:cacheprovider -q -rA --junitxml=raw/Q6AS1-311/junit.xml harness/test_successor_q6a_stage_lie.py   (cwd=CP copy, PYTHONPATH=<cp>/src:<verifier>/src, PYTHONDONTWRITEBYTECODE=1)
+harness/run_q6a_s1.sh 312 Q6AS1-312   =>  same with /tmp/claude-0/work/d2/venv312
+post-run integrity -> raw/post-run-integrity.txt
+Each run's exact invocation is in raw/<label>/invocation.txt. No reruns. No amendments (amendments/ empty).
