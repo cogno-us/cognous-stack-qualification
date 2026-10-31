@@ -9,6 +9,7 @@ name: MVP chain (proposed, SUPPLEMENTARY Python 3.12 compatibility run)
 # process/mvp-chain/expectations.proposed.v7.json (the builder's proposal, v6 plus NC7-01..03; MVP_EXPECTATIONS selects another file, for example v3), which Qualification owns. The component tuple has ONE source,
 # process/mvp-chain/tuple-pin.proposed.json; a revision input overrides one component for that run and is recorded in results.json.
 # A PENDING (null) pin must be named by its input. A mismatched or dirty checkout fails the job; nothing skips.
+# QGATE-05: runner pinned to ubuntu-24.04 (not ubuntu-latest). This workflow stays dispatch-only and is NOT triggered by the push to qgate-05/run-1; it is not part of the authorized run.
 'on':
   workflow_dispatch:
     inputs:
@@ -60,7 +61,7 @@ permissions:
   contents: read
 jobs:
   suite:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
