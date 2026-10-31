@@ -1,0 +1,177 @@
+# Security Wiki S3 - hosted run of the frozen 41-case battery against the generation-2 current-stack tuple.
+#
+# STATUS OF THIS WORKFLOW'S RESULT: a separate C3 observation (GitHub-hosted runner). It is NOT C1 (primary local run, 38 PASS / 0 FAIL /
+# 3 BLOCKED) and NOT C2 (supplementary infrastructure recovery, 41 PASS), and replaces neither. It is developer evidence, not independent
+# qualification, not Q7, not certification, and does not change any release or production hold.
+# Scope: runs the existing offline harness s3/run_wiki_s3.py UNCHANGED against the frozen profile/tuple
+# (process/security-runtime-current-stack-S3-20261031.json, process/v1-validation/current-stack-S3-20261031/). Expectations and tests are never
+# modified; a failing security case is reported and published, it does not fail the job. The job fails loudly only when the harness cannot
+# run to a complete record: guard refusal, dry-check refusal, runner failure, missing run record, collected/executed != 41, non-pristine checkout.
+# Not part of the MVP acceptance gate; it neither reads nor writes process/mvp-acceptance or results/mvp-acceptance.
+#
+# Tuple guard: the runner (s3/run_wiki_s3.py) calls s3/s3_tuple_guard.py first, as its own mandatory preflight, and refuses to start on any
+# guard refusal. The explicit guard call in the preflight step is a belt-and-braces workflow-level control; its result is retained as
+# hosted/guard-result-preflight.json and the runner's own guard result is retained unchanged under run/. Everything runs in place from s3/.
+#
+# Pin discipline: no secrets, no token beyond the read-only default; component repositories are public and fetched by exact 40-hex SHA
+# (git init + git fetch --depth 1 <https url> <sha>), then HEAD and tree are verified; no branch, tag or default-branch substitution.
+# Third-party actions are pinned by full commit SHA (tag -> sha verified with git ls-remote on 2026-10-31):
+#   actions/checkout       v4.2.2 -> 11bd71901bbe5b1630ceea73d27597364c9af683
+#   actions/setup-python   v5.6.0 -> a26af69be951a213d495a4c3e4e4022e16d87065
+#   actions/upload-artifact v4.6.2 -> ea165f8d65b6e75b540449e92b4886f43607fa02
+name: Security Wiki S3 current tuple (C3 hosted observation)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 's3/**'
+      - 'process/security-runtime-current-stack-S3*'
+      - '.github/workflows/security-wiki-s3-current-tuple.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-wiki-s3-current-tuple-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  GIT_TERMINAL_PROMPT: '0'
+
+jobs:
+  s3-current-tuple:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout the qualification repository at the exact event commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python (pinned minor)
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.13'
+
+      - name: Install hash-locked dependencies and prepare evidence directories
+        run: |
+          python -m pip install --require-hashes -r .github/locks/cryptography-pydantic-pytest-a9a750.txt
+          EV="$RUNNER_TEMP/s3-hosted"
+          mkdir -p "$EV/hosted"
+          {
+            echo "S3_EV=$EV"
+            echo "S3_HOSTED=$EV/hosted"
+            echo "S3_OUT=$EV/run"
+            echo "S3_COMP=$RUNNER_TEMP/components"
+            echo "S3_TUPLE=process/v1-validation/current-stack-S3-20261031/runner-tuple.json"
+          } >> "$GITHUB_ENV"
+          git status --porcelain --untracked-files=all
+
+      - name: Fetch the eight pinned components by exact SHA and verify HEAD and tree
+        run: |
+          set -euo pipefail
+          mkdir -p "$S3_COMP"
+          # name repo commit tree
+          while read -r name repo sha tree; do
+            d="$S3_COMP/$name"
+            mkdir -p "$d"
+            git -C "$d" init -q
+            git -C "$d" fetch -q --depth 1 "https://github.com/cogno-us/$repo" "$sha" </dev/null
+            git -C "$d" checkout -q --detach FETCH_HEAD
+            head=$(git -C "$d" rev-parse HEAD)
+            gtree=$(git -C "$d" rev-parse 'HEAD^{tree}')
+            if [ "$head" != "$sha" ] || [ "$gtree" != "$tree" ]; then
+              echo "::error::$name pin mismatch: HEAD $head (want $sha) tree $gtree (want $tree)"
+              exit 1
+            fi
+            if [ -n "$(git -C "$d" status --porcelain --untracked-files=all --ignored)" ]; then
+              echo "::error::$name checkout is not pristine"
+              exit 1
+            fi
+            printf '%s\t%s\t%s\t%s\n' "$name" "$repo" "$head" "$gtree" | tee -a "$S3_HOSTED/components-identity.tsv"
+          done <<'PINS'
+          control_plane cognous-control-plane b19c47ddd020409d24e52e70b11359c46265edbb 039219b5aba7a157fff79781c716067fad7ed985
+          runtime cognous-execution-runtime f7a55e2a8494801e49193f9f46935f0a971c248d 97da8323368bb5a573fd157b11a9c1dda1178a10
+          manifest cognous-action-manifest fa170815ef96a54c233d0dd9da821b60debabf8b 3b0e3772e944aa668c8f4b879588c7cc3e2c32be
+          replay cognous-replay-bundle d395e37c443fedf1bf6b9a4651338b7b7de4a553 0bdee3eacd650ecb0e99781635a972e68cbe2853
+          odes open-decision-evidence-standard 77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae d8b33261de975fc504ff8f0ac30a8f47e8ebd43f
+          evidence_pack cognous-governance-evidence-pack 96f5f2e126a9c27a75716658d4d2e85baf94b40b 2fc26d4c86e65b22bdffedf1090a15e7167440d3
+          exchange cognous-governed-exchange 746378d74bff59314bdcf8f0b50b19ab94679ba9 dcbe909f96d7c83e6281c5679283bd65cf19dbdb
+          registry cognous-ocs-registry 6b96a9a658923954433dc1a4c13626fa5145b9c7 38d50602ae725e208f010baba05bbf7b908e76ac
+          PINS
+          # Registry a40fe755 (builder for the separate probe only) is not fetched: the Wiki battery does not exercise the Registry.
+
+      - name: Preflight - mandatory tuple guard, then runner dry check
+        run: |
+          set +e
+          python s3/s3_tuple_guard.py --tuple "$S3_TUPLE" --components "$S3_COMP" > "$S3_HOSTED/guard.out" 2> "$S3_HOSTED/guard.err"
+          echo $? > "$S3_HOSTED/guard.rc"
+          cat "$S3_HOSTED/guard.out" "$S3_HOSTED/guard.err"
+          if [ "$(cat "$S3_HOSTED/guard.rc")" != "0" ]; then
+            echo "::error::tuple guard refused; the run is not started"
+            exit 1
+          fi
+          python s3/run_wiki_s3.py --tuple "$S3_TUPLE" --components "$S3_COMP" --out "$S3_OUT" --dry-check > "$S3_HOSTED/dry.out" 2> "$S3_HOSTED/dry.err"
+          echo $? > "$S3_HOSTED/dry.rc"
+          cat "$S3_HOSTED/dry.out" "$S3_HOSTED/dry.err"
+          if [ "$(cat "$S3_HOSTED/dry.rc")" != "0" ]; then
+            echo "::error::runner dry check refused; the run is not started"
+            exit 1
+          fi
+          test ! -e "$S3_OUT"
+
+      - name: Disk check
+        run: |
+          df -h | tee "$S3_HOSTED/disk-before.txt"
+          avail=$(df -m --output=avail "$RUNNER_TEMP" | tail -1 | tr -d ' ')
+          echo "available MB: $avail"
+          if [ "$avail" -lt 2000 ]; then
+            echo "::error::less than 2000 MB free; refusing to start (would risk ENOSPC BLOCKED cases as in C1)"
+            exit 1
+          fi
+
+      - name: Frozen run - 41 cases, one attempt, no retries, no -x
+        run: |
+          set +e
+          python s3/run_wiki_s3.py --tuple "$S3_TUPLE" --components "$S3_COMP" --out "$S3_OUT"
+          rc=$?
+          echo "$rc" > "$S3_HOSTED/runner.rc"
+          # The runner exits 0 whenever it produced a complete 41-case record, whatever the security verdicts are; nonzero = harness problem.
+          exit "$rc"
+
+      - name: Evidence, environment and job summary
+        if: always()
+        run: |
+          df -h > "$S3_HOSTED/disk-after.txt" 2>&1 || true
+          [ -f "$S3_HOSTED/guard.rc" ] || echo "" > "$S3_HOSTED/guard.rc"
+          python s3/ci/summarize_hosted_run.py --hosted "$S3_HOSTED" --out "$S3_OUT" --components "$S3_COMP" --step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifacts (junit, logs, observer output, run.json, per-test CSV, guard result, environment, SHA-256)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: security-wiki-s3-c3-hosted-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/s3-hosted
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Gate - fail loudly if the harness did not run to a complete 41-case record
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          p = os.path.join(os.environ['S3_HOSTED'], 'hosted-status.json')
+          try:
+              s = json.load(open(p))
+          except (OSError, ValueError) as e:
+              print('::error::hosted-status.json missing or unreadable: ' + repr(e)); sys.exit(1)
+          print(json.dumps(s, indent=1))
+          if not s.get('job_ok'):
+              print('::error::harness problem: ' + '; '.join(s.get('harness_problems', []))); sys.exit(1)
+          PY

@@ -1,0 +1,25 @@
+PASS J0 AFTER suites/+tools/ has exactly the tracked file set of BEFORE (no file added/removed) 876 vs 876
+files under suites/ and tools/ whose bytes differ BEFORE vs AFTER: ['suites/security-runtime/test_security_runtime_chain.py', 'tools/run_security_runtime.py']
+PASS J1/C2 only the 2 patch files differ under suites/ and tools/
+PASS J2 untracked/ignored extras none []
+files mentioning PASS/FAIL/BLOCKED/vacuous/verdict/classif (count): 241
+classification/verdict-like files by name: suites/cognous-governed-exchange/qualification/conftest.py, suites/cognous-open-control-stack/tests/test_release_gate.py, suites/cognous-open-control-stack/tools/release_gate.py, suites/e2e-governed-effect/conftest.py, suites/fix2-probes/conftest.py, suites/mvp-applicability/conftest.py, suites/mvp-chain/conftest.py, suites/mvp-chain/test_verdict_engine.py, suites/mvp-chain/verdict.py, suites/mvp-d2-route-b/conftest.py, suites/operation-identity/conftest.py, suites/outside-holder/conftest.py, suites/security-v07/conftest.py, suites/security-v07/gate.py, suites/tier1-v08-fa1/conftest.py, suites/tier1-v08-fa1/gate.py, suites/v1-probes/conftest.py, tests/test_e8_native_audit_gates_record.py, tests/test_gate_bindings.py, tests/test_job_skip_gate.py, tests/test_mvp_acceptance_gate.py, tests/test_release_gate_inventory.py, tests/test_release_gate_preregistration.py, tests/test_summary_job_counts.py, tools/mvp_acceptance_gate.py, tools/qgate05_custody_check.py, tools/qgate05_summarize.py, tools/qualification_results.py, tools/summarize_security_runtime.py
+PASS D/H none of the verdict/classification-like files is in the patch
+pre-existing token hits in patched files (BEFORE): {'suites/security-runtime/test_security_runtime_chain.py': 3, 'tools/run_security_runtime.py': 0}
+   suites/security-runtime/test_security_runtime_chain.py: assert _evaluate_replay_semantics(package)['status']=='pass'
+   suites/security-runtime/test_security_runtime_chain.py: assert recipient['recipient_reliance_decision']['status']=='fail'
+   suites/security-runtime/test_security_runtime_chain.py: assert _evaluate_replay_semantics(package)['status']=='fail'
+PASS D/H no PASS/FAIL/BLOCKED/vacuous/verdict/classif token in any line the patch adds or removes
+conftest/plugin/observer files checked (17): tools/wiki_exchange_observer.py, comparators/tests/conftest.py, comparators/runner/tests/conftest.py, process/adversarial/tests/conftest.py, suites/mvp-chain/conftest.py, suites/mvp-applicability/conftest.py, suites/v1-probes/conftest.py, suites/wiki-derived/conftest.py, suites/outside-holder/conftest.py, suites/tier1-v08-fa1/conftest.py, suites/operation-identity/conftest.py, suites/fix2-probes/conftest.py, suites/mvp-d2-route-b/conftest.py, suites/security-v07/conftest.py, suites/e2e-governed-effect/conftest.py, suites/cognous-governed-exchange/candidate_qualification/conftest.py, suites/cognous-governed-exchange/qualification/conftest.py
+PASS H conftest.py / pytest plugins / observer byte-identical (incl. no_network fixture)
+PASS H pytest.ini unchanged
+PASS H tools/run_wiki_s3.py (junit/observer/verdict-note handling) unchanged by patch
+G inventory over 17 .py files: fixtures=18 parametrize decorators=12 negative-reference identifiers=212
+PASS G fixture/parametrize/negative-ref inventory identical before/after for every file
+G files with different bytes: ['suites/security-runtime/test_security_runtime_chain.py']
+PASS G only the chain test file differs among suites/wiki-derived + suites/security-runtime .py
+PASS G non-.py data files in those suites identical
+  require_cur_patch on BEFORE (unpatched): REFUSED suite_generation 'cur' requires the approved patch /tmp/claude-0/sec/s3/cur-generation.pat 
+PASS C5 runner guard require_cur_patch refuses BEFORE (unpatched)
+  require_cur_patch on AFTER (patched): ACCEPTED 
+PASS C5 runner guard require_cur_patch accepts AFTER (patched)

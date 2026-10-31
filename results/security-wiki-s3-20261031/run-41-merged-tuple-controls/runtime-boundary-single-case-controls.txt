@@ -1,0 +1,11 @@
+Scratch negative controls (NOT evidence for the 41 verdicts; scratch copy of the repo at /home/claude/scratch-refuse/root, never the real worktree).
+Each ran ONE node id (the first of the 41: suites/wiki-derived/test_wiki_skeleton.py::test_wiki_smoke_route_c_exchange_destination_executes_once)
+via the runner's own child_env/pytest_cmd, to show where a wrong configuration that the runner's --dry-check accepts is actually refused.
+DISCLOSURE: the 'control-unmodified' line is a one-id rehearsal of that case in scratch before the real run; its PASSED result is not used as a verdict.
+
+## control-unmodified rc 0: PASSED (1 passed in 4.15s)
+## 3a-original-profile (Exchange profile security-runtime-current-20261031 consistently in tuple/profile/manifest) rc 1:
+   FAILED RuntimeError: candidate source identity mismatch: agent_replay_bundle.importers (gax_ref_runtime.py:385, Exchange strict source-identity check refuses Replay d395e37c under the original profile)
+## 4a-replay-P2 (Replay 40012b8c consistently in tuple/profile/manifest and checkout) rc 1:
+   ERROR at setup: ImportError: cannot import name 'CONTROL_PLANE_CUR_REVISION' from 'agent_replay_bundle.importers' (Replay 40012b8c has no CUR names; no p2 fallback)
+Conclusion: runner --dry-check accepts both 3a and 4a (it only checks internal consistency + collection); tools/s3_tuple_guard.py refuses both before any test runs.
