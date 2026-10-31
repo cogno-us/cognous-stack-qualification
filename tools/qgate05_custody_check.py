@@ -2,15 +2,15 @@
 """OCS-MVP-QGATE-05 / Worker C: independent commitment custody check for the single authorized mvp-acceptance run (PROPOSED, non-authorizing).
 
 The candidate commitment (G-12) must be anchored OUTSIDE the candidate checkout. The workflow checks out the hub repository
-(cogno-us/cognous-open-control-stack) at the DEDICATED custody branch `qgate-05/custody-1` (ref = that branch; NOT the hub default branch) into a separate directory and
+(cogno-us/cognous-open-control-stack) at the DEDICATED custody branch `nm138/custody-1` (ref = that branch; NOT the hub default branch) into a separate directory and
 reads ONE custody record (the record is pushed once to that branch and never force-pushed; the resolved head sha of the branch is recorded in the evidence):
 
-    docs/mvp-recovery/qgate-05/custody/freeze-commitment.json
+    docs/mvp-recovery/nm138/custody/freeze-commitment.json
 
     {
       "schema": "cognous.qgate05-freeze-commitment/1",
-      "qualification_revision": "<40-hex, the commit pushed to qgate-05/run-1>",
-      "candidate_commitment_file": "process/mvp-acceptance/candidate-commitment.proposed.v5.json",      (optional, must equal --commitment-rel when present; the hub template spells it commitment_file, also accepted)
+      "qualification_revision": "<40-hex, the commit pushed to nm138/run-1>",
+      "candidate_commitment_file": "process/mvp-acceptance/candidate-commitment.proposed.v6.json",      (optional, must equal --commitment-rel when present; the hub template spells it commitment_file, also accepted)
       "candidate_commitment_sha256": "<64-hex sha256 of that file>"
     }
 
@@ -35,7 +35,7 @@ from pathlib import Path
 SCHEMA = "cognous.qgate05-freeze-commitment/1"
 SCHEMAS = (SCHEMA, "cognous.ocs-mvp-qgate-05-freeze-commitment/1")  # the second is the string of the hub freeze package template (docs/mvp-recovery/qgate-05/freeze/freeze-commitment.template.json)
 FILE_KEYS = ("candidate_commitment_file", "commitment_file")  # same meaning; the hub template names it commitment_file
-CUSTODY_BRANCH = "qgate-05/custody-1"
+CUSTODY_BRANCH = "nm138/custody-1"
 HEX40 = re.compile(r"[0-9a-f]{40}")
 HEX64 = re.compile(r"[0-9a-f]{64}")
 

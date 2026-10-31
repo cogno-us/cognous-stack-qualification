@@ -5,7 +5,7 @@
 #   ARTIFACT_DIR  the downloaded run artifact (the whole results/mvp-acceptance tree, incl. its own SHA256SUMS)
 # Required environment: GITHUB_REPOSITORY, GITHUB_RUN_ID, GITHUB_RUN_ATTEMPT, GITHUB_SHA, GITHUB_SERVER_URL, and EITHER GH_TOKEN (push over https with the job token)
 #   OR QG5_REMOTE_URL (a git URL; used by the local dry run, e.g. file:///tmp/x.git).
-# Optional: QG5_BRANCH (default qgate-05/evidence-run-1; the workflow never sets it), QG5_MAX_FILE_BYTES (default 95000000: GitHub rejects files >100 MB),
+# Optional: QG5_BRANCH (default nm138/evidence-run-1; the workflow never sets it), QG5_MAX_FILE_BYTES (default 95000000: GitHub rejects files >100 MB),
 #           QG5_ACTOR_NAME / QG5_ACTOR_EMAIL, QG5_WORKFLOW_SHA, QG5_JOB_STATUS (the run job's result, recorded only).
 #
 # Rules (enforced here, visible to a reviewer):
@@ -17,9 +17,9 @@
 #   * a file larger than QG5_MAX_FILE_BYTES is NOT committed; it is listed (path, size, sha256) in OMITTED-LARGE-FILES.txt and stays in the Actions artifact.
 set -u
 ART=${1:?usage: $0 ARTIFACT_DIR}
-BRANCH=${QG5_BRANCH:-qgate-05/evidence-run-1}
+BRANCH=${QG5_BRANCH:-nm138/evidence-run-1}
 case "$BRANCH" in main|master|refs/*|"") echo "refusing branch '$BRANCH'" >&2; exit 2 ;; esac
-case "$BRANCH" in qgate-05/evidence-run-*) ;; *) echo "branch must match qgate-05/evidence-run-*" >&2; exit 2 ;; esac
+case "$BRANCH" in nm138/evidence-run-*) ;; *) echo "branch must match nm138/evidence-run-*" >&2; exit 2 ;; esac
 : "${GITHUB_RUN_ID:?}" "${GITHUB_RUN_ATTEMPT:?}" "${GITHUB_SHA:?}" "${GITHUB_REPOSITORY:?}"
 MAXB=${QG5_MAX_FILE_BYTES:-95000000}
 RUNDIR="runs/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"

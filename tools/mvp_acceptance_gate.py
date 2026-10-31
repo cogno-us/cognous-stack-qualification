@@ -589,7 +589,7 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
 
 # ------------------------------------------------------------------------------------------------ commitment and environment
 BATTERY_FILE = "process/mvp-acceptance/mandatory-battery.proposed.v2.json"  # QGATE-05: battery v2 (oracle v8); v1 stays byte-identical and unused by the gate
-COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v5.json"
+COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v6.json"  # NM-138 successor candidate (v5 stays byte-identical as the historical QGATE-05 candidate)
 COMMITMENT_VERSION = int(re.search(r"\.v(\d+)\.json$", COMMITMENT_FILE).group(1))  # the candidate version follows the file name
 ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v2.json"
 SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability", "suites/mvp-d2-route-b")

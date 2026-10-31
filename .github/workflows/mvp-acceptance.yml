@@ -2,22 +2,22 @@ name: MVP acceptance (QGATE-05 one-shot, proposed)
 # OCS-MVP-QGATE-05 / Worker C design. PROPOSED, non-authorizing: it selects nothing, authorizes nothing (release/production HOLD), changes no verdict and claims no
 # independence, certification, Q7 or Tier 1. Qualification owns the oracle and every verdict; this workflow only runs the frozen candidate and records.
 #
-# ONE authorized execution, triggered ONLY by a push to the dedicated branch qgate-05/run-1 (the Actions API / workflow_dispatch is not reachable from the
+# ONE authorized execution, triggered ONLY by a push to the dedicated branch nm138/run-1 (the Actions API / workflow_dispatch is not reachable from the
 # lead's environment; as QGATE-03). No pull_request, workflow_dispatch, schedule or tag trigger exists. Re-run attempts skip (run_attempt == 1 guard on both jobs), and
-# the run refuses to start if the evidence branch qgate-05/evidence-run-1 already exists (a second push is an unauthorized second run). qgate-05/run-1 must never be
+# the run refuses to start if the evidence branch nm138/evidence-run-1 already exists (a second push is an unauthorized second run). nm138/run-1 must never be
 # pushed again after the first push. There is no workflow input: the tuple comes from process/mvp-acceptance/candidate-identity.inputs.json (8 full 40-hex shas, nothing
 # floating, main never used for a pin) and is cross-checked against process/mvp-chain/tuple-pin.proposed.json.
 #
 # Commitment custody (G-12, no circularity): the workflow embeds NEITHER the commitment sha256 NOR the qualification revision. It checks out the hub repository
-# (cogno-us/cognous-open-control-stack) at the DEDICATED custody branch qgate-05/custody-1 (ref = that branch, NOT the hub default branch) into components/custody-hub,
-# records the resolved head sha of that branch, reads docs/mvp-recovery/qgate-05/custody/freeze-commitment.json (the workflow asserts the file path exists and the required
-# fields are present), asserts GITHUB_SHA == qualification_revision and sha256(process/mvp-acceptance/candidate-commitment.proposed.v5.json) == candidate_commitment_sha256, and
+# (cogno-us/cognous-open-control-stack) at the DEDICATED custody branch nm138/custody-1 (ref = that branch, NOT the hub default branch) into components/custody-hub,
+# records the resolved head sha of that branch, reads docs/mvp-recovery/nm138/custody/freeze-commitment.json (the workflow asserts the file path exists and the required
+# fields are present), asserts GITHUB_SHA == qualification_revision and sha256(process/mvp-acceptance/candidate-commitment.proposed.v6.json) == candidate_commitment_sha256, and
 # passes that value to the gate as the independent --expect-commitment-sha256. Any mismatch stops the run before a single test executes. The custody record is pushed ONCE to
-# qgate-05/custody-1 and never force-pushed or amended.
+# nm138/custody-1 and never force-pushed or amended.
 #
 # ORDER OF OPERATIONS (prerequisites, text only; nothing here can be checked by the workflow before it runs): (1) the custody record is pushed to the hub branch
-# qgate-05/custody-1 BEFORE (2) the Qualification freeze tree (the exact commit that will be pushed, incl. oracle v8 / battery v2) is on Qualification `main`, because the
-# anchor gate G-02c compares every frozen file with its blob on `main` and is INCOMPLETE for any file absent or different there; and only then (3) qgate-05/run-1 is pushed
+# nm138/custody-1 BEFORE (2) the Qualification freeze tree (the exact commit that will be pushed, incl. oracle v8 / battery v2) is on Qualification `main`, because the
+# anchor gate G-02c compares every frozen file with its blob on `main` and is INCOMPLETE for any file absent or different there; and only then (3) nm138/run-1 is pushed
 # (once, at that same commit). If (1) or (2) is missing the run is spent without a verdict.
 #
 # Vehicle (Architect ruling Q14): (A) the exact-pin in-process composed chain (Control Plane, route-B execution, Replay, Evidence Pack, Verifier) and (B) the separate
@@ -36,20 +36,20 @@ name: MVP acceptance (QGATE-05 one-shot, proposed)
 # used: tools/mvp_acceptance_gate.py binds every artifact to ONE run_id minted once by `resolve`, and the gate reads one run directory. No test is retried; the
 # exit status of each group is recorded and judged by the gate, never suppressed. Every test step uses `shell: bash {0}` (no errexit), so evidence is always produced.
 #
-# Evidence: (a) one GitHub artifact (qgate05-run1-evidence) and (b) the evidence job appends the same tree to the append-only branch qgate-05/evidence-run-1 of THIS
+# Evidence: (a) one GitHub artifact (qgate05-run1-evidence) and (b) the evidence job appends the same tree to the append-only branch nm138/evidence-run-1 of THIS
 # repository (contents: write in that job only; explicit refspec, never main, never force), with SHA256SUMS, so the lead can read it over git.
 'on':
   push:
     branches:
-      - qgate-05/run-1
+      - nm138/run-1
 permissions:
   contents: read
 concurrency:
-  group: qgate-05-run-1
+  group: nm138-run-1
   cancel-in-progress: false
 jobs:
   acceptance:
-    if: ${{ github.repository == 'cogno-us/cognous-stack-qualification' && github.event_name == 'push' && github.ref == 'refs/heads/qgate-05/run-1' && github.run_attempt == 1 }}
+    if: ${{ github.repository == 'cogno-us/cognous-stack-qualification' && github.event_name == 'push' && github.ref == 'refs/heads/nm138/run-1' && github.run_attempt == 1 }}
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     defaults:
@@ -77,40 +77,40 @@ jobs:
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
-      - name: One-shot guard (attempt 1, branch qgate-05/run-1, commit == GITHUB_SHA, evidence branch absent)
+      - name: One-shot guard (attempt 1, branch nm138/run-1, commit == GITHUB_SHA, evidence branch absent)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -u
           mkdir -p results/mvp-acceptance/host-evidence
           [ "$GITHUB_RUN_ATTEMPT" = "1" ] || { echo "re-run attempts are not authorized"; exit 1; }
-          [ "$GITHUB_REF" = "refs/heads/qgate-05/run-1" ] || { echo "wrong ref $GITHUB_REF"; exit 1; }
+          [ "$GITHUB_REF" = "refs/heads/nm138/run-1" ] || { echo "wrong ref $GITHUB_REF"; exit 1; }
           [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ] || { echo "checkout HEAD != GITHUB_SHA"; exit 1; }
           # the token is passed as an HTTP header (never in a URL), so neither stdout nor stderr can echo it; stderr is additionally redacted before it is written to an artifact file
-          git -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/qgate-05/evidence-run-1 \
+          git -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/nm138/evidence-run-1 \
             > results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.txt 2> results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.err
           rc=$?
           sed -i -e 's#x-access-token:[^@ ]*#x-access-token:***#g' -e 's#\(AUTHORIZATION: *basic\) *[A-Za-z0-9+/=]*#\1 ***#Ig' results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.err
           echo "$rc" > results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.rc
           [ "$rc" = 0 ] || { echo "ls-remote failed rc=$rc (cannot establish that the run is unspent)"; exit 1; }
           if [ -s results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.txt ]; then
-            echo "evidence branch qgate-05/evidence-run-1 already exists: the single authorized run is spent"; exit 1
+            echo "evidence branch nm138/evidence-run-1 already exists: the single authorized run is spent"; exit 1
           fi
           echo "guard PASS: attempt 1, ref $GITHUB_REF, sha $GITHUB_SHA, evidence branch absent"
-      - name: Checkout the commitment custody record (hub repository DEDICATED branch qgate-05/custody-1, outside the candidate; not the default branch)
+      - name: Checkout the commitment custody record (hub repository DEDICATED branch nm138/custody-1, outside the candidate; not the default branch)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: cogno-us/cognous-open-control-stack
-          ref: qgate-05/custody-1
+          ref: nm138/custody-1
           path: components/custody-hub
-          sparse-checkout: docs/mvp-recovery/qgate-05/custody
+          sparse-checkout: docs/mvp-recovery/nm138/custody
           persist-credentials: false
       - name: Custody check (record path and required fields present; GITHUB_SHA == qualification_revision; recomputed commitment sha256 == the custody record; hub branch head recorded) before anything runs
         id: custody
         run: |
           set -eo pipefail
-          rec=components/custody-hub/docs/mvp-recovery/qgate-05/custody/freeze-commitment.json
-          [ -f "$rec" ] || { echo "custody record $rec is absent on hub branch qgate-05/custody-1"; exit 1; }
+          rec=components/custody-hub/docs/mvp-recovery/nm138/custody/freeze-commitment.json
+          [ -f "$rec" ] || { echo "custody record $rec is absent on hub branch nm138/custody-1"; exit 1; }
           python3 - "$rec" <<'PY'
           import json, sys
           d = json.load(open(sys.argv[1]))
@@ -122,9 +122,9 @@ jobs:
           git -C components/custody-hub rev-parse HEAD | tee results/mvp-acceptance/host-evidence/custody-hub-branch-head.txt
           git -C components/custody-hub log -1 --format='%H %an %ad %s' | tee -a results/mvp-acceptance/host-evidence/custody-hub-branch-head.txt
           python3 tools/qgate05_custody_check.py \
-            --record components/custody-hub/docs/mvp-recovery/qgate-05/custody/freeze-commitment.json \
-            --commitment-file process/mvp-acceptance/candidate-commitment.proposed.v5.json \
-            --commitment-rel process/mvp-acceptance/candidate-commitment.proposed.v5.json \
+            --record components/custody-hub/docs/mvp-recovery/nm138/custody/freeze-commitment.json \
+            --commitment-file process/mvp-acceptance/candidate-commitment.proposed.v6.json \
+            --commitment-rel process/mvp-acceptance/candidate-commitment.proposed.v6.json \
             --github-sha "$GITHUB_SHA" --repo-root . --hub-dir components/custody-hub \
             --out results/mvp-acceptance/custody-evidence.json --github-output "$GITHUB_OUTPUT"
       - name: Resolve the tuple from the candidate identity inputs (40-hex only, no overrides) and cross-check the tuple pin file
@@ -241,7 +241,7 @@ jobs:
                      os_release=sh("grep -E '^(PRETTY_NAME|VERSION_ID)=' /etc/os-release"), python=sh("python -VV"),
                      capabilities_of_this_step=sh("grep -E '^Cap(Eff|Bnd):' /proc/self/status"), mvp_run_id=os.environ.get("MVP_RUN_ID"),
                      custody_commitment_sha256_passed_to_gate="${{ steps.custody.outputs.candidate_commitment_sha256 }}",
-                     workflow_trigger="push to qgate-05/run-1, run_attempt==1; no retry path",
+                     workflow_trigger="push to nm138/run-1, run_attempt==1; no retry path",
                      note="non-authorizing; QGATE-05; IPC dir 2751 is the bounded synthetic test configuration only (Architect D3), not production")
           os.makedirs("results/mvp-acceptance", exist_ok=True)
           open("results/mvp-acceptance/run-identity.json", "w").write(json.dumps(doc, indent=2, sort_keys=True) + "\n")
@@ -341,9 +341,9 @@ jobs:
           fi
   evidence:
     # Appends the complete raw evidence to the append-only evidence branch. contents: write is granted to THIS job only; the push uses an explicit refspec to
-    # refs/heads/qgate-05/evidence-run-1 (never main, never a tag, never --force). Runs even when the acceptance job failed.
+    # refs/heads/nm138/evidence-run-1 (never main, never a tag, never --force). Runs even when the acceptance job failed.
     needs: acceptance
-    if: ${{ always() && needs.acceptance.result != 'skipped' && github.event_name == 'push' && github.ref == 'refs/heads/qgate-05/run-1' && github.run_attempt == 1 }}
+    if: ${{ always() && needs.acceptance.result != 'skipped' && github.event_name == 'push' && github.ref == 'refs/heads/nm138/run-1' && github.run_attempt == 1 }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
@@ -360,7 +360,7 @@ jobs:
         with:
           name: qgate05-run1-evidence
           path: evidence-in
-      - name: Commit the evidence to qgate-05/evidence-run-1 (append-only; fast-forward only; no force)
+      - name: Commit the evidence to nm138/evidence-run-1 (append-only; fast-forward only; no force)
         env:
           GH_TOKEN: ${{ github.token }}
           QG5_WORKFLOW_SHA: ${{ github.workflow_sha }}
