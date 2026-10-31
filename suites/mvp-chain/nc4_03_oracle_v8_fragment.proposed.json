@@ -1,0 +1,222 @@
+{
+ "schema": "cognous.mvp-chain-expectations-fragment/1",
+ "status": "PROPOSED fragment for oracle v8 (Worker B2, OCS-MVP-QGATE-05). Not a complete oracle: apply on top of expectations.proposed.v7.json (byte-identical elsewhere; v7 is never edited). Qualification owns and freezes v8.",
+ "reasons": {
+  "NC4-03": "Architect A3/A4: the empty NC4-03 placeholder is eliminated. The row keeps every v7 predicate unchanged (only the observation prefix moves from nc_unmediated.source_level to nc4_03_det.source_level, so a blocked host scenario no longer blocks it, per A4) and ADDS the frozen mutation-set predicates. Nothing is weakened.",
+  "NC4-03a..d": "Architect A3/A4 + D3: host-dependent predicates become separately identified mandatory rows on a separate scenario, BLOCKED (never PASS/FAIL-converted) without the ratified profile."
+ },
+ "requires_harness": [
+  "scenario nc4_03_det: _nc4_03_mutations.scenario_observation(hub_dir, hub_head)",
+  "scenario nc4_03_host: _nc4_03_host.scenario_observation(hub_dir)"
+ ],
+ "counts": {
+  "v7_rows": 42,
+  "v7_mandatory": 41,
+  "rows_added": 4,
+  "rows_changed": 1,
+  "v8_rows_from_this_fragment_alone": 46,
+  "v8_mandatory_from_this_fragment_alone": 45
+ },
+ "rows": [
+  {
+   "id": "NC4-03",
+   "mandatory": true,
+   "title": "DETERMINISTIC SOURCE-LEVEL assertion (host-independent; not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except proven fixed forms and three exactly pinned, fully recorded reviewed sites; the six authority-bearing fields (claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id, requested_permissions) have a trusted origin at every protected call; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass; AND the frozen versioned mutation set nc4_03_mutation_set.v1 (57 mutations in 6 families, each with exact input, operation, expected rejection, environment, evidence source and predicate) is rejected as expected on a copy of the pinned hub source while its 11 negative controls (no-op and benign edits) are accepted and satisfy no rejection predicate. Host-dependent subcases are the separate rows NC4-03a..d and cannot alter this verdict",
+   "scenario": "nc4_03_det",
+   "all": [
+    {
+     "obs": "nc4_03_det.source_level.kwflow.files_scanned",
+     "op": "eq",
+     "value": [
+      "__init__.py",
+      "client.py",
+      "core.py",
+      "launch.py",
+      "proposal.py",
+      "server.py",
+      "synthetic_host.py"
+     ]
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.violations",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.client_fed_kwargs_to_protected",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.simulate_violations",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.required_sites_missing",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.real_protected_calls_count",
+     "op": "gte",
+     "value": 8
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.pins_unmatched",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.pin_records_incomplete",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.pinned_sites_used",
+     "op": "eq",
+     "value": [
+      "synthetic_host.py:SyntheticHost.__init__:model_copy#1",
+      "synthetic_host.py:SyntheticHost.__init__:original#1",
+      "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1"
+     ]
+    },
+    {
+     "obs": "nc4_03_det.source_level.kwflow.ingress_tree_sha256",
+     "op": "eq",
+     "value": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591"
+    },
+    {
+     "obs": "nc4_03_det.source_level.all_simulate_keywords_constant_none",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_det.source_level.d1_ast_test_exit_code",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.set_version",
+     "op": "eq",
+     "value": "v1"
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.set_file_sha256",
+     "op": "eq",
+     "value": "1da3c7c8fef98ccecce1b2f6dc3dc3c2f890a8b7eab8258c7b74fda8789a5bd8"
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.verdict",
+     "op": "eq",
+     "value": "PASS"
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.mutations_total",
+     "op": "eq",
+     "value": 57
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.mutations_rejected",
+     "op": "eq",
+     "value": 57
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.mutations_not_rejected",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.controls_total",
+     "op": "eq",
+     "value": 11
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.controls_accepted",
+     "op": "eq",
+     "value": 11
+    },
+    {
+     "obs": "nc4_03_det.mutation_set.controls_falsely_rejected",
+     "op": "empty"
+    },
+    {
+     "obs": "nc4_03_det.mutation_set_control_guard",
+     "op": "empty"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03a",
+   "mandatory": true,
+   "scenario": "nc4_03_host",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (Yama), executed on the ratified bounded 2751 test profile (D3; not production): kernel.yama.ptrace_scope >= 1 on the execution host (absent or 0: profile unsupported, BLOCKED). BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "blocked_if": [
+    {
+     "obs": "nc4_03_host.NC4-03a.status",
+     "op": "eq",
+     "value": "BLOCKED"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc4_03_host.NC4-03a.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03b",
+   "mandatory": true,
+   "scenario": "nc4_03_host",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (uid separation), executed on the ratified bounded 2751 test profile (D3; not production): dedicated non-root ingress uid, a distinct unprivileged client uid and outsider uid 65533, distinct primary groups, no capabilities. BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "blocked_if": [
+    {
+     "obs": "nc4_03_host.NC4-03b.status",
+     "op": "eq",
+     "value": "BLOCKED"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc4_03_host.NC4-03b.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03c",
+   "mandatory": true,
+   "scenario": "nc4_03_host",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (IPC 2751 socket profile), executed on the ratified bounded 2751 test profile (D3; not production): IPC directory 2751 / socket 0660 / dedicated group: the outsider can only stat the known socket name (accepted residual) and cannot list or connect; the group-member client connects. BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "blocked_if": [
+    {
+     "obs": "nc4_03_host.NC4-03c.status",
+     "op": "eq",
+     "value": "BLOCKED"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc4_03_host.NC4-03c.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03d",
+   "mandatory": true,
+   "scenario": "nc4_03_host",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (peer-UID allowlist), executed on the ratified bounded 2751 test profile (D3; not production): pinned server.serve against a stub core: the allowlisted client is served, a non-allowlisted socket-group member gets PEER_NOT_ALLOWED, an empty allowlist is refused. BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "blocked_if": [
+    {
+     "obs": "nc4_03_host.NC4-03d.status",
+     "op": "eq",
+     "value": "BLOCKED"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc4_03_host.NC4-03d.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  }
+ ]
+}
