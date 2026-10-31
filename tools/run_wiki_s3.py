@@ -163,7 +163,7 @@ def pytest_cmd(ids, extra):
 
 
 def collect_only(ids, env):
-    cmd = pytest_cmd(ids, ['--collect-only', '-q'])
+    cmd = pytest_cmd(ids, ['--collect-only'])
     r = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True, timeout=900)
     got = [l.strip() for l in r.stdout.splitlines() if '::' in l]
     if r.returncode != 0 or sorted(got) != sorted(ids):
@@ -209,7 +209,7 @@ def main(argv=None):
         prof_path, man_path = check_configs(t)
         if a.out.exists():
             raise Refuse('--out must be new (one-shot: evidence directories are never reused)')
-        if qual_status():
+        if qual_status() and not a.dry_check:  # a dry check only reports a dirty tree; a real run refuses
             raise Refuse('qualification worktree is not clean: ' + '; '.join(qual_status()[:5]))
         ids = read_nodeids(a.nodeids)
         checkouts = check_checkouts(a.components, t)
@@ -226,7 +226,8 @@ def main(argv=None):
         print(f'REFUSED: {type(e).__name__}: {e}', file=sys.stderr)
         return 2
     if a.dry_check:
-        print(json.dumps({'dry_check': 'OK', 'collected': len(ids), 'executed': 0, 'checkouts': {k: v['head'] for k, v in checkouts.items()}}, indent=1))
+        print(json.dumps({'dry_check': 'OK', 'collected': len(ids), 'executed': 0, 'checkouts': {k: v['head'] for k, v in checkouts.items()},
+                          'qualification_dirty_rows': len(qual_status())}, indent=1))
         return 0
 
     raw = a.out / 'raw'
