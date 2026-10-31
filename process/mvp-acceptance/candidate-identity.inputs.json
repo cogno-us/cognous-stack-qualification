@@ -3,7 +3,7 @@
   "status": "PROPOSED input of the mvp-acceptance workflow; not frozen, not selected, not an acceptance. Qualification owns the oracle and every verdict; this file only names the candidate tuple.",
   "candidate": "OCS MVP final candidate tuple (PROVISIONAL, UNQUALIFIED; post-F3 Runtime c5e97e87), mirrors process/mvp-chain/tuple-pin.proposed.json",
   "scenario": "matched $10 synthetic refund, Linux single-host, route B AtomicLocalControlPlaneExecutor with operation identity (journal mode), trusted-host ingress",
-  "how_to_change": "Replace one component's 40-hex sha here, or name it in the matching workflow_dispatch input for one run (the input overrides this file and is recorded in tuple-resolved.json). A branch, tag, short sha or blank-and-floating value is refused. The Runtime is already at the post-F3 sha c5e97e87 (pre-F3 was ec728da6); any later move is a change of that component value only, and a new candidate (the candidate commitment must then be recomputed).",
+  "how_to_change": "Replace one component's 40-hex sha here, or name it in the matching workflow_dispatch input for one run (the input overrides this file and is recorded in tuple-resolved.json). QGATE-05 note: the push-triggered acceptance workflow has no inputs and no overrides, so this file is its only source and must equal process/mvp-chain/tuple-pin.proposed.json for all 8 components (the workflow asserts it). A branch, tag, short sha or blank-and-floating value is refused. The Runtime is already at the post-F3 sha c5e97e87 (pre-F3 was ec728da6); any later move is a change of that component value only, and a new candidate (the candidate commitment must then be recomputed).",
   "components": {
     "control_plane": {"repository": "cogno-us/cognous-control-plane", "sha": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c", "env": "MVP_CP_DIR", "rev_env": "MVP_CP_REVISION"},
     "runtime": {"repository": "cogno-us/cognous-execution-runtime", "sha": "c5e97e87dd239c821b1b4a406a55dcd03c5bc61f", "env": "MVP_RUNTIME_DIR", "rev_env": "MVP_RUNTIME_REVISION"},
@@ -42,8 +42,8 @@
       }
     },
     "environment_profile": {
-      "path": "process/mvp-acceptance/environment-profile.proposed.v1.json",
-      "sha256": "78518a9fa49e372203bb902e5ff59ec9dd5296234930c68d2cc6b5a42f4f9207"
+      "path": "process/mvp-acceptance/environment-profile.proposed.v2.json",
+      "sha256": "a15320e8d154c7a15b6e8741ff48c4b8c1ec7a4a235788ba4483290131e587e2"
     },
     "not_bound": [
       "harness (Qualification) revision beyond the committed files (the commitment binds the files; the run records qualification_sha)",

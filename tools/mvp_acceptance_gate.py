@@ -506,7 +506,7 @@ def blob_id(path: Path) -> str:
 
 
 def frozen_files(repo_root: Path) -> list[str]:
-    battery = load(repo_root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json")
+    battery = load(repo_root / BATTERY_FILE)
     mapping = load(repo_root / "process/mvp-acceptance/mvp-applicability.proposed.v1.json")
     return sorted(set(battery["oracle"]["unchanged_files_sha256"]) | set(mapping["historical_files_unchanged"]["files"]))
 
@@ -588,9 +588,10 @@ def check_run_binding(gate: Gate, run_dir: Path, battery: dict, results: dict | 
 
 
 # ------------------------------------------------------------------------------------------------ commitment and environment
-COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v4.json"
+BATTERY_FILE = "process/mvp-acceptance/mandatory-battery.proposed.v2.json"  # QGATE-05: battery v2 (oracle v8); v1 stays byte-identical and unused by the gate
+COMMITMENT_FILE = "process/mvp-acceptance/candidate-commitment.proposed.v5.json"
 COMMITMENT_VERSION = int(re.search(r"\.v(\d+)\.json$", COMMITMENT_FILE).group(1))  # the candidate version follows the file name
-ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v1.json"
+ENV_PROFILE_FILE = "process/mvp-acceptance/environment-profile.proposed.v2.json"
 SUITE_DIRS = ("suites/mvp-chain", "suites/mvp-applicability", "suites/mvp-d2-route-b")
 ABSENT_CANDIDATES = ("conftest.py", "suites/conftest.py", "tox.ini", "setup.cfg", "pyproject.toml")
 CONFIG_FILES = ("pytest.ini",)
@@ -1125,7 +1126,7 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
              require_python: str | None = None, components_dir: Path | None = None) -> dict:
     run_dir, repo_root = Path(run_dir), Path(repo_root)
     gate = Gate()
-    battery = load(repo_root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json")
+    battery = load(repo_root / BATTERY_FILE)
     gate_exp = load(repo_root / "process/mvp-acceptance/gate-expectations.proposed.v1.json")
     mapping = load(repo_root / "process/mvp-acceptance/mvp-applicability.proposed.v1.json")
     results = _read_json(gate, "G-00", run_dir / "mvp-chain" / "results.json", "mvp-chain results.json")
@@ -1161,7 +1162,7 @@ def run_gate(run_dir: Path, repo_root: Path = ROOT, expect_qualification: str | 
     doc = {"schema": "cognous.mvp-acceptance-gate-verdict/1", "verdict": gate.verdict(), "authorizes": False, "release": "HOLD",
            "candidate_commitment_sha256": commitment_sha, "gate_python": sys.version.split()[0], "run_id": (resolved or {}).get("run_id"), "qualification_sha": (resolved or {}).get("qualification_sha"),
            "note": "Proposed gate over recorded artifacts. ACCEPT is a proposal for the owner, not an authorization, certification or release decision.",
-           "battery_sha256": sha256_file(repo_root / "process/mvp-acceptance/mandatory-battery.proposed.v1.json"),
+           "battery_sha256": sha256_file(repo_root / BATTERY_FILE),
            "gate_expectations_sha256": sha256_file(repo_root / "process/mvp-acceptance/gate-expectations.proposed.v1.json"),
            "applicability_sha256": sha256_file(repo_root / "process/mvp-acceptance/mvp-applicability.proposed.v1.json"),
            "checks": gate.checks, "accounting": accounting,
@@ -1185,12 +1186,15 @@ BASELINE_FILE = "process/governance/qualification-baseline.proposed.md"
 BASELINE_ITEMS = (
     ("expectations v3 (frozen)", "process/mvp-chain/expectations.proposed.v3.json"),
     ("expectations v6 (proposed baseline)", "process/mvp-chain/expectations.proposed.v6.json"),
-    ("expectations v7 (in force: v6 + NC7-01..03 + NC4-04)", "process/mvp-chain/expectations.proposed.v7.json"),
-    ("mandatory battery", "process/mvp-acceptance/mandatory-battery.proposed.v1.json"),
+    ("expectations v7 (historical, unchanged: 42 rows)", "process/mvp-chain/expectations.proposed.v7.json"),
+    ("expectations v8 (in force: v7 + NC2-07, NC3-04, NC4-03a..d; NC4-03 rescoped)", "process/mvp-chain/expectations.proposed.v8.json"),
+    ("mandatory battery v1 (historical, unchanged)", "process/mvp-acceptance/mandatory-battery.proposed.v1.json"),
+    ("mandatory battery v2 (in force)", "process/mvp-acceptance/mandatory-battery.proposed.v2.json"),
     ("candidate identity (tuple + composite)", "process/mvp-acceptance/candidate-identity.inputs.json"),
     ("gate", "tools/mvp_acceptance_gate.py"),
     ("acceptance workflow", ".github/workflows/mvp-acceptance.yml"),
     ("environment profile (original, unchanged)", "process/mvp-acceptance/environment-profile.proposed.v1.json"),
+    ("environment profile v2 (in force; QGATE-05 host annotations)", "process/mvp-acceptance/environment-profile.proposed.v2.json"),
     ("successor profile (proposal)", "process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json"),
     ("harness: _ingress.py", "suites/mvp-chain/_ingress.py"),
     ("harness: _chain.py", "suites/mvp-chain/_chain.py"),
