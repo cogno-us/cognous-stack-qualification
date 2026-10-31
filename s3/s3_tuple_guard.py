@@ -2,13 +2,13 @@
 """Pre-flight guard for the Security Wiki S3 run (OCS-254-S3). Non-authorizing; read-only; stdlib only.
 
 SPDX-License-Identifier: Apache-2.0
-Why it exists: tools/run_wiki_s3.py checks that tuple, profile file and freeze manifest AGREE WITH EACH OTHER and that every checkout
+Why it exists: s3/run_wiki_s3.py checks that tuple, profile file and freeze manifest AGREE WITH EACH OTHER and that every checkout
 equals the tuple, but it does not know WHICH tuple is the intended one. A consistently wrong Exchange profile name or a consistently
 mixed-generation set (e.g. Replay 40012b8c in all three files and in the checkout) passes `run_wiki_s3.py --dry-check`
 (recorded in results/security-wiki-s3-20261031/run-41-merged-tuple-controls/). This guard pins the intended final tuple and refuses
 any deviation. The runner itself is NOT modified (cur-patch verification A-J relies on that).
 
-    python3 tools/s3_tuple_guard.py --tuple process/v1-validation/current-stack-S3-20261031/runner-tuple.json --components DIR
+    python3 s3/s3_tuple_guard.py --tuple process/v1-validation/current-stack-S3-20261031/runner-tuple.json --components DIR
 
 Exit 0 only if everything equals EXPECTED; exit 2 with REFUSED on stderr otherwise. Writes nothing.
 """

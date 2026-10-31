@@ -4,7 +4,7 @@
 SPDX-License-Identifier: Apache-2.0
 PREPARED, NOT YET EXECUTED against the final tuple. Non-authorizing. Separate from, and NOT, Registry enforcement qualification. Makes no claims (claims_made = []).
 
-    python tools/registry_integration_probe.py --tuple TUPLE.json --components DIR --out NEWDIR \
+    python s3/registry_integration_probe.py --tuple TUPLE.json --components DIR --out NEWDIR \
         [--registry-builder-dir R_A40FE755] [--site DIR_WITH_PYNACL] [--with-pack-odes] [--dry-check]
 
 Chain probed (one synthetic scenario, one proposal, synthetic Ed25519 keys, patched fixed clock):

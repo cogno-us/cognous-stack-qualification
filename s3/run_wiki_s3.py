@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 PREPARED, NOT YET EXECUTED. Non-authorizing. Runs ONLY the node ids in the nodeids file, ONCE (no retries, no -x, one pytest process,
 no xdist), with junit XML, a log and the observer-only plugin, and records environment, tool versions and SHA-256 of every artifact.
 
-    python tools/run_wiki_s3.py --tuple TUPLE.json --components DIR --out NEWDIR [--hub DIR] [--dry-check]
+    python s3/run_wiki_s3.py --tuple TUPLE.json --components DIR --out NEWDIR [--hub DIR] [--dry-check]
 
 TUPLE.json (schema cognous.wiki-s3-tuple/1):
     {"schema": "cognous.wiki-s3-tuple/1", "validation_id": "...", "profile": "process/security-runtime-....json",
@@ -47,7 +47,7 @@ CFG_MAP = {'control_plane': ('control_plane', 'control_plane'), 'runtime': ('run
            'evidence_pack': ('evidence_pack', 'governance_evidence_pack'), 'odes': ('odes', 'odes'),
            'exchange': ('exchange', 'gax_imx_transport'), 'manifest': ('manifest', 'action_manifest')}
 DEFAULT_NODEIDS = 'process/v1-validation/current-stack-S3-20261031/wiki41-nodeids.txt'  # rename with the directory when filled
-OBSERVER = ROOT / 'tools' / 'wiki_exchange_observer.py'
+OBSERVER = ROOT / 's3' / 'wiki_exchange_observer.py'
 EXPECTED_NODEIDS = 41
 
 
@@ -125,19 +125,16 @@ def check_configs(t):
 
 
 def require_cur_patch():
-    """suite_generation 'cur' REQUIRES the approved patch /tmp/claude-0/sec/s3/cur-generation.patch (separate, unapplied by default).
-    Detected by symbol presence: 'cur' in SUITE_GENERATIONS (tools/run_security_runtime.py) and the CONTROL_PLANE_CUR_REVISION import
-    plus CUR_REVISIONS in the chain harness. Refuses otherwise (a p2 fallback would stamp false 7a4bcd40/c5e97e87 provenance)."""
-    import ast
-    ok_tool = False
-    tree = ast.parse((ROOT / 'tools' / 'run_security_runtime.py').read_text())
-    for n in ast.walk(tree):
-        if isinstance(n, ast.Assign) and any(getattr(t, 'id', None) == 'SUITE_GENERATIONS' for t in n.targets):
-            ok_tool = any(isinstance(c, ast.Constant) and c.value == 'cur' for c in ast.walk(n.value))
+    """suite_generation 'cur' REQUIRES the approved cur patch in the chain harness (suites/security-runtime/test_security_runtime_chain.py).
+    Detected by symbol presence: the CONTROL_PLANE_CUR_REVISION / MOLTBOT_CUR_REVISION imports and CUR_REVISIONS. Refuses otherwise (a p2
+    fallback would stamp false 7a4bcd40/c5e97e87 provenance).
+    The 'cur' member of SUITE_GENERATIONS in tools/run_security_runtime.py is deliberately NOT required (nor applied): that file is inside the
+    frozen MVP candidate byte inventory, and this S3 runner never invokes it (it runs pytest directly; the generation reaches the harness
+    through the profile's suite_generation read by the suite helpers). The 'cur' profile therefore stays refused by run_security_runtime.py."""
     chain = (ROOT / 'suites' / 'security-runtime' / 'test_security_runtime_chain.py').read_text()
-    if not (ok_tool and 'CONTROL_PLANE_CUR_REVISION' in chain and 'MOLTBOT_CUR_REVISION' in chain and 'CUR_REVISIONS' in chain):
-        raise Refuse("suite_generation 'cur' requires the approved patch /tmp/claude-0/sec/s3/cur-generation.patch "
-                     "(symbols 'cur' in SUITE_GENERATIONS, CONTROL_PLANE_CUR_REVISION, CUR_REVISIONS not found); not applied -> refusing")
+    if not ("GENERATION=='cur'" in chain and 'CONTROL_PLANE_CUR_REVISION' in chain and 'MOLTBOT_CUR_REVISION' in chain and 'CUR_REVISIONS' in chain):
+        raise Refuse("suite_generation 'cur' requires the approved cur patch in suites/security-runtime/test_security_runtime_chain.py "
+                     "(symbols GENERATION=='cur', CONTROL_PLANE_CUR_REVISION, MOLTBOT_CUR_REVISION, CUR_REVISIONS not found); not applied -> refusing")
 
 
 def check_checkouts(base, t):
@@ -169,7 +166,7 @@ def child_env(t, base, hub, obs_out):
         del env[k]
     env.update(PYTHONDONTWRITEBYTECODE='1', SCN_COMPONENTS_DIR=str(Path(base).resolve()), V1_VALIDATION_ID=t['validation_id'],
                V1_PROFILE=t['profile'], PYTEST_DISABLE_PLUGIN_AUTOLOAD='1', OBS_OUT=str(obs_out),
-               PYTHONPATH=str(ROOT / 'tools'))
+               PYTHONPATH=os.pathsep.join([str(ROOT / 'tools'), str(ROOT / 's3')]))  # tools (as in C1) + s3 (the relocated observer plugin)
     if hub:
         env['SCN_HUB_DIR'] = str(Path(hub).resolve())
     return env
