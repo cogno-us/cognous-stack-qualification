@@ -1,0 +1,34 @@
+{
+ "label": "CURRENT-STACK tuple, option B (compatible tuple of current default-branch heads); resolved 2026-10-31",
+ "option_A_status": "NOT AVAILABLE: hub component-lock.json (hub dd522c50) is stale (pins pre-MVP CP 0a41faa9; no ocs-registry entry); ergonomics requirements/stack.txt also pins CP 0a41faa9",
+ "components": {
+  "control_plane": ["cogno-us/cognous-control-plane", "b19c47ddd020409d24e52e70b11359c46265edbb"],
+  "runtime": ["cogno-us/cognous-execution-runtime", "f7a55e2a8494801e49193f9f46935f0a971c248d"],
+  "replay": ["cogno-us/cognous-replay-bundle", "40012b8c174c6f25685bd5d9bc93ff46cc9a5842"],
+  "evidence_pack": ["cogno-us/cognous-governance-evidence-pack", "7b9511f2c6d56d424f17b078826594abd29f6c96"],
+  "odes": ["cogno-us/open-decision-evidence-standard", "1a5e1d300250d832e611633f0bf8f762e398c0ec"],
+  "exchange": ["cogno-us/cognous-governed-exchange", "7f7569b02666b99669a9fca61117ca1f4bce5f0d"],
+  "manifest": ["cogno-us/cognous-action-manifest", "fa170815ef96a54c233d0dd9da821b60debabf8b"],
+  "registry_migrated": ["cogno-us/cognous-ocs-registry", "6b96a9a658923954433dc1a4c13626fa5145b9c7"],
+  "index": ["cogno-us/cognous-evidence-registry", "b2485998b88256c2b322493800d1fba076814cbd"],
+  "bitrep": ["cogno-us/cognous-evidence-attestation", "981036c315856c71207984797b0c4e48d3b3921d"],
+  "governance": ["cogno-us/cognous-institutional-governance", "03a90c14c4a178997df2b6e527f67452b9c6bb7a"],
+  "verifier": ["cogno-us/cognous-open-control-stack-verifier", "39d46b494558e271439966bec98b26dc4d040cc4"],
+  "ergonomics": ["cogno-us/cognous-open-control-stack-ergonomics", "bea582b378af1b0d6854ffe3a1de40df5ad7a0ab"],
+  "orchestrator": ["cogno-us/cognous-stack-orchestrator", "721f4406701d24171b72025a5b8a06687594928b"],
+  "hub": ["cogno-us/cognous-open-control-stack", "dd522c504d0cd2bdf463b791a729fe9029cca224"],
+  "qualification": ["cogno-us/cognous-stack-qualification", "86f78ea3d1bd9cf230813fa0941621e38e7605e4"]
+ },
+ "registry_facts": {
+  "code_equals": "a40fe755e2384a99c37016fa9ad59396f1835900 (r08-v8; CP tests PIN_V8). Non-docs diff a40fe755..6b96a9a6 = README.md only (verified by git diff --name-only)",
+  "ancestors_of_registry_main_verified": ["a40fe755e2384a99c37016fa9ad59396f1835900 (v8)", "b73c59e6769acd5af7263397e81dfc6fa4561f38 (v7)", "42a666328b974a7581013358bcf8bc7b9eac7761 (v6)"],
+  "cp_head_contains": "739efe7d (project-doc CP main) is an ancestor of b19c47dd; CP head accepts Registry pins v5..v8",
+  "runtime_tests_pin_older_registry": "Runtime tests assert older Registry pins (e.g. b7e6a173 r08-v4); per-test pins are NOT the current registry"
+ },
+ "known_consistency_risks": [
+  "Replay 40012b8c / Evidence Pack 7b9511f2 / ODES 1a5e1d30 were re-tied to Runtime c5e97e87 (MVP), but Runtime head is f7a55e2a (adds F-A1 authorization pin, additive). Not tested together by any prior record.",
+  "Exchange 7f7569b0 pins are pre-MVP per worker A (A-01).",
+  "No integration manifest records this tuple: it is an assembled option-B tuple, not an authoritative one."
+ ],
+ "worktrees": "/home/claude/cs-components/{control_plane,runtime,replay,evidence_pack,odes,exchange,manifest,registry,index,bitrep,governance} (detached, pristine)"
+}
