@@ -26,9 +26,6 @@ elif GENERATION=='p4':
     from agent_replay_bundle.importers import CONTROL_PLANE_P4_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_P4_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
 elif GENERATION=='p2':
     from agent_replay_bundle.importers import CONTROL_PLANE_P2_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_P2_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
-elif GENERATION=='cur':
-    # CUR generation (S1 Replay PR): names as proposed in the Replay S1 report - VERIFY against the MERGED Replay before the run.
-    from agent_replay_bundle.importers import CONTROL_PLANE_CUR_REVISION as CONTROL_PLANE_RUNTIME_AUTHORITY_REVISION,MOLTBOT_CUR_REVISION as MOLTBOT_RUNTIME_AUTHORITY_REVISION
 else:
     raise RuntimeError('unsupported security runtime generation')
 
@@ -44,7 +41,6 @@ def odes_generation():
     if GENERATION=='f5b':return common.F5B_REVISIONS,common.F5B_PROFILE_VERSION
     if GENERATION=='p4':return common.P4_REVISIONS,common.P4_PROFILE_VERSION
     if GENERATION=='p2':return common.P2_REVISIONS,common.P2_PROFILE_VERSION
-    if GENERATION=='cur':return common.CUR_REVISIONS,common.CUR_PROFILE_VERSION  # ODES S1 PR names; verify against the merged ODES
     return common.SECURITY_REVISIONS,common.SECURITY_PROFILE_VERSION
 
 
