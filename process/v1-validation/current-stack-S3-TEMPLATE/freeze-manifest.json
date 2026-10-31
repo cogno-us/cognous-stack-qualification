@@ -47,13 +47,13 @@
     },
     "governance_evidence_pack": {
       "repository": "cogno-us/cognous-governance-evidence-pack",
-      "sha": "PLACEHOLDER:PENDING evidence_pack merge SHA (Pack PR #65 not merged)",
+      "sha": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",
       "profile_key": "evidence_pack",
       "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
     },
     "odes": {
       "repository": "cogno-us/open-decision-evidence-standard",
-      "sha": "PLACEHOLDER:PENDING odes merge SHA (ODES PR #142 not merged)",
+      "sha": "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae",
       "profile_key": "odes",
       "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
     },
@@ -97,7 +97,7 @@
     },
     "ocs_registry": {
       "repository": "cogno-us/cognous-ocs-registry",
-      "sha": "PLACEHOLDER:registry SHA (6b96a9a6 in current-stack-20261031; confirm or change)",
+      "sha": "6b96a9a658923954433dc1a4c13626fa5145b9c7",
       "selected_by": "S3 tuple (unchanged from current-stack-20261031 unless the tuple says otherwise)",
       "interfaces": [
         "declarative governance registry",
@@ -172,5 +172,20 @@
   },
   "label": "CURRENT-STACK GENERATION 2 Security Wiki qualification configuration (TEMPLATE); current-stack-20261031 and v1-2026-10-16-a are retained unchanged as reference only",
   "note": "TEMPLATE derived from current-stack-20261031. control_plane (b19c47dd), runtime (f7a55e2a), manifest (fa170815), bitrep, index, authority are carried over unchanged and must be re-confirmed against the final tuple.",
-  "_template_status": "TEMPLATE - NOT A FREEZE. Every value beginning PLACEHOLDER: must be replaced from the final merged tuple; tools/run_wiki_s3.py refuses to run while any remains."
+  "_template_status": "TEMPLATE - NOT A FREEZE. Every value beginning PLACEHOLDER: must be replaced from the final merged tuple; tools/run_wiki_s3.py refuses to run while any remains.",
+  "verified_trees": {
+    "verified_utc": "2026-10-31",
+    "method": "git ls-remote origin refs/heads/main == SHA for every component; gh api commits/<sha> (replay, evidence_pack, odes); tree ids from git rev-parse <sha>^{tree}",
+    "trees": {
+      "control_plane": "039219b5aba7a157fff79781c716067fad7ed985",
+      "runtime": "97da8323368bb5a573fd157b11a9c1dda1178a10",
+      "replay": "0bdee3eacd650ecb0e99781635a972e68cbe2853",
+      "evidence_pack": "2fc26d4c86e65b22bdffedf1090a15e7167440d3",
+      "odes": "d8b33261de975fc504ff8f0ac30a8f47e8ebd43f",
+      "manifest": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
+      "registry": "38d50602ae725e208f010baba05bbf7b908e76ac",
+      "registry_code_equal_a40fe755": "eab8ebcc24243c1abc9b6db834b7ef498f1bcb91",
+      "exchange": "PLACEHOLDER:PENDING exchange tree (follows Exchange merge SHA)"
+    }
+  }
 }
