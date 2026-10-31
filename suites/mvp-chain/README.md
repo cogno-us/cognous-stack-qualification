@@ -45,7 +45,7 @@ first on `sys.path`, then records the revision the Evidence Pack resolves and re
 
 `_chain.py` only records raw observations (statuses, error types and codes, counts from an independent read-only SQLite connection,
 hashes, Verifier exit codes and findings). `verdict.py` computes `PASS` / `FAIL` / `BLOCKED` / `NOT RUN` / `NOT APPLICABLE` as a pure function
-of the observations and [`process/mvp-chain/expectations.proposed.v7.json`](../../process/mvp-chain/expectations.proposed.v7.json) (42 rows, 41 mandatory, including NC4-04 and NC7-01..03; the default of `conftest.py`; `MVP_EXPECTATIONS` selects another file such as v3 or v6). v7 is built on v6 (38 rows, 37 mandatory), which is the builder's composition of the v3 rows with the NC4-03 row of PR #222 and the NC2-06 row of PR #224 (kept here as composition provenance); v7 changes NC4-03 again and adds NC4-04 and NC7-01..03. All of these are proposals that Qualification owns and has not frozen.
+of the observations and [`process/mvp-chain/expectations.proposed.v7.json`](../../process/mvp-chain/expectations.proposed.v7.json) (v7 baseline: 42 rows, 41 mandatory, including NC4-04 and NC7-01..03 [historical baseline, not a target]; amended final oracle v8 ([`expectations.proposed.v8.json`](../../process/mvp-chain/expectations.proposed.v8.json), the default of `conftest.py`): 48 rows, 47 mandatory (KL-01 is the one non-mandatory row), 6 rows added and NC4-03 rescoped relative to v7; `MVP_EXPECTATIONS` selects another file such as v3 or v6). v7 is built on v6 (38 rows, 37 mandatory), which is the builder's composition of the v3 rows with the NC4-03 row of PR #222 and the NC2-06 row of PR #224 (kept here as composition provenance); v7 changes NC4-03 again and adds NC4-04 and NC7-01..03. All of these are proposals that Qualification owns and has not frozen.
 `v1` and `v2` are kept unchanged (as are v4 and v5, the two single-row proposals). v6 differs from v3 only in NC4-03 (changed) and NC2-06 (added). v2 differed from v1 in `VER-03`; v3 differs from v2 in NC4-01..03 (rewired to the real ingress), NC2-02 and NC5-04 (tightened), and adds NC1-04, NC1-05 (revocation terminality) and KL-01 (known limitation); reasons are recorded inside v3. Expectations are never edited after a
 result is seen; a change is a new file with a recorded reason. A row fails its pytest test unless `PASS` or `NOT APPLICABLE`: there is no
 xfail, skip or relabelling. Differential rows (tampering, custody) are `BLOCKED` when the untampered control is not accepted, because
@@ -55,21 +55,24 @@ Outputs (`MVP_RESULTS_DIR`, default a temp dir): `observations.json`, `results.j
 tuple heads, override, `acceptance_declared: false`) and `artifacts/` (CP run record, proposal, export, bundle, pack, destination copy, every
 Verifier report).
 
-## Six negative controls
+## Negative controls (seven groups, NC1-NC7)
+
+*Correction 2026-10-31 (QGATE-05, M3/M4): the earlier title "Six negative controls" was the builder's earlier grouping. The oracle has seven negative groups, NC1-NC7. Final mandatory-row and group counts of the amended oracle (v8): 47 mandatory rows, of which 36 are mandatory NC rows in 7 groups (NC1 5, NC2 7, NC3 4, NC4 8, NC5 5, NC6 4, NC7 3) (historical baseline v7: 30 mandatory NC rows in 7 groups). Source: `docs/mvp-recovery/qgate-04/negative-case-reconciliation.md` section 1.3.*
 
 | Control | Rows | Exercised by |
 |---|---|---|
 | revocation, incl. approval withdrawal before effect | NC1-01..05 | grant revoked / approval withdrawn in the destination after claim issuance; resolver revoked before claim |
 | ambiguous commit incl. lost acknowledgement | NC2-01..05 | `simulate='lost_ack'` (fault injection by this trusted harness, not the ingress), retry of the claim, `reconcile_claim`, reconcile route unavailable, export and Replay of the unknown outcome |
 | duplicate effect | NC3-01..03 | consumed claim replayed, second claim for one decision, cap-2 renewal with the same operation id |
-| unmediated path via the declared ingress | NC4-01..03, KL-01 | the real hub ingress (Unix socket), attacked as a dedicated client uid against a dedicated non-root ingress uid (developer opt-out: root ingress, uid 65534); see below |
+| unmediated path via the declared ingress | NC4-01..04, KL-01 (NC4-04: launch isolation of the real ingress, observed on the live process argv; amended NC4 rows in v8: 8 mandatory rows, NC4-01..04 plus the host subcases NC4-03a..d; NC4-03 itself is rescoped to the deterministic source-level verdict plus the frozen mutation set) | the real hub ingress (Unix socket), attacked as a dedicated client uid against a dedicated non-root ingress uid (developer opt-out: root ingress, uid 65534); see below |
 | evidence tampering | NC5-01..05 | substituted journal commitment, export naming another effect, Evidence Pack retained source, Verifier on an altered decision, destination row edited after the fact |
 | custody failure | NC6-01..04 | journal events omitted, store directory absent at effect time, authority store unreadable at claim, export withheld |
+| authority gates (required controls, ruling Q2) | NC7-01..03 (NC7 is unchanged in v8; the amended oracle adds 6 rows in other groups: NC2-07, NC3-04, NC4-03a..d) | forged claim id or non-authorized decision denied; stale or mismatched authority refused; missing, invalid-state or expired evidence does not permit execution; zero effects each (scenario `nc_authority_gates`, see the NC7 section below) |
 
 ### NC4: the real ingress (hub `tools/mvp_ingress`)
 
 The earlier in-process hook (`qualification_probe`) is removed: it matched neither the delivered ingress (a Unix-socket server) nor the required
-independence, and a self-reported probe could pass without any ingress. `_ingress.py` now starts `python -m tools.mvp_ingress.server` from the pinned hub
+independence, and a self-reported probe could pass without any ingress. `_ingress.py` now starts the real ingress through the isolated launcher `python -I -B ... tools/mvp_ingress/launch.py` (mandatory explicit `--allow-uid`; correction 2026-10-31, M3: the former `python -m tools.mvp_ingress.server` form is superseded and refused with exit 2, see `process/mvp-acceptance/README.md` "Launch isolation (NC4-04)") from the pinned hub
 checkout on a fresh state directory (parent-chain rules of `BOUNDARY.md`: root-owned, non-writable ancestors), then, **as uid 65534 with no groups**
 (root plus `setuid`, as D1's tests do), sends D1's adversarial inputs (reused as data, 232 bodies: simulate values, forbidden member names, hand-built claim,
 authority-writer and claim-method names, malformed/oversized/duplicate/non-object inputs) through the declared client, and attempts direct open, sqlite write,
@@ -91,7 +94,7 @@ Architect ruling Q2. Scenario `nc_authority_gates` (in `_chain.py`) drives the r
 * NC7-03: missing, invalid-state or expired evidence, and evidence missing at claim issuance, does not permit execution (zero effects).
 * Every row also requires the control case to execute exactly one effect, so a refusal cannot pass because nothing works at all.
 
-v7 is v6 plus these three rows (42 rows, 41 mandatory); v1-v3 and v6 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; true OS-level process-kill recovery is UNQUALIFIED (synthetic fault injection only). Test inventory (260 battery entries) is not the number of unique governance claims (41 mandatory rows).
+v7 is v6 plus these three rows (42 rows, 41 mandatory; the amended final oracle v8 has 48 rows, 47 mandatory); v1-v3, v6 and v7 are unchanged. Error strings are recorded but not pinned. Scope: the executor-level gates only; these rows use no process kill; process death (SIGKILL) at three seams is qualified by the separate mandatory row NC2-07 of v8, while power loss, OS crash and recovery of a lost acknowledgement stay UNQUALIFIED. Test inventory (260 battery entries in battery v1; final battery v2 entries: 414) is not the number of unique governance claims (41 mandatory rows in v7; final v8: 47).
 
 ## Run
 
@@ -133,7 +136,7 @@ Negative controls (tests, each must FAIL NC2-06): hook disabled (`ack.hook_fired
 - NC4 needs root (to start the ingress and the client as other uids; the acceptance workflow creates the dedicated users `mvp-ingress`, `mvp-client` and group `mvp-ipc`, named by `MVP_INGRESS_USER`, `MVP_CLIENT_USER`, `MVP_IPC_GROUP`) and `kernel.yama.ptrace_scope >= 1`; the unprivileged runner path is BLOCKED by design. `MVP_INGRESS_PROFILE=developer-optout` is the explicit local escape (root ingress, mode 666, uid 65534, no environment record) and makes the acceptance verdict INCOMPLETE. `yama.ptrace_scope` is absent on the observed kernel and recorded as unavailable.
 - Approval revocation terminality (NC1-04) was expected to FAIL at Runtime `ec728da6` (a revoked approval could be reactivated). It must not be softened. At Runtime `c5e97e87` (F3 PR #144) the expectation is unchanged; whether it passes is a Qualification result, not asserted here.
 - Verifier run B uses a ledger derived by this harness; it is not a component artifact. Run A is the gated run.
-- Single Linux host and a single process; no claim about concurrent writers, process kill or financial finality.
+- Single Linux host; no claim about concurrent writers or financial finality. Process kill is claimed only as in the row NC2-07 of oracle v8 (SIGKILL of the executor process at three seams); power loss and OS crash are not claimed.
 
 ## NC4-03 predicate v5 (independent Q1 review; PROPOSED, builder-prepared)
 
@@ -143,7 +146,7 @@ Narrowly scoped source-aware additions to `_kwflow.py` (no taint-analysis subsys
 2. rule `AUTHORITY_OBJECT_MUTATION`: attribute stores, `setattr`, `object.__setattr__` on non-self objects (including in helper functions); `DYNAMIC_PROPOSAL_CONSTRUCTION` (`model_validate`, `model_construct`, `vars`) and `DYNAMIC_ATTRIBUTE_ACCESS` (`__class__`, `__dict__`);
 3. rule `POSITIONAL_NON_LITERAL` for `ExecutionOperation`, `ExecutionEnvelope`, `execute`, `provision_claim`;
 4. rebinding by import-as, match capture, except-as and def/class of the tracked names;
-5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 8 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` that the pins bind is unchanged;
+5. separate recursive tree check (`INGRESS_TREE_FILE_LIST`: exactly 8 regular files incl. `BOUNDARY.md`, no directory, symlink or extension module; `INGRESS_TREE_DIGEST`); the `*.py` digest `ea37100d...` is the pre-launcher tree (correction 2026-10-31, M2: the v7 NC4-03 row pins `0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591`, which includes `launch.py`);
 6. `ast_digest` pins carry `ast_digest_python` and are honoured on CPython 3.13 only (fail closed elsewhere), the observation records the interpreter;
 7. pin prose: `request_id` flows via `correlation_id` into the proposal commitment and is not among the 14 names.
 

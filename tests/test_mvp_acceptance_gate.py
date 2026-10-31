@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import mvp_acceptance_gate as G  # noqa: E402
 
-BATTERY = json.loads((ROOT / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").read_text())
+BATTERY = json.loads((ROOT / "process/mvp-acceptance/mandatory-battery.proposed.v2.json").read_text())
 V4_NA = ["v4.ledger.acknowledged-attempts-have-rows", "v4.ledger.observations-agree"]
 A_CNC = ["v4.ledger.acknowledged-attempts-have-rows", "v4.ledger.counts", "v4.ledger.effects-have-authorized-decisions", "v4.ledger.keys",
          "v4.ledger.observations-agree", "v4.ledger.row-matches-binding", "v4.ledger.rows-agree-with-attempts"]
@@ -274,7 +274,7 @@ class GateTests(unittest.TestCase):
         self.assertEqual(self.verdict()[0], "INCOMPLETE")
         declared = copy.deepcopy(BATTERY)
         declared["declared_not_applicable"] = [{"id": "VER-03", "justification": "test"}]
-        root, commit = make_root(self.tmp / "rootx", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(declared)))
+        root, commit = make_root(self.tmp / "rootx", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v2.json").write_text(json.dumps(declared)))
         self.assertEqual(self.gate(root, commit)["verdict"], "ACCEPT")
 
     def test_verifier_exact_dispositions_are_asserted_not_assumed(self):
@@ -365,7 +365,7 @@ class ReviewFixTests(GateTests):
         declared = copy.deepcopy(BATTERY)
         declared["declared_not_applicable"] = entries
         shutil.rmtree(self.tmp / "rootd", ignore_errors=True)
-        return make_root(self.tmp / "rootd", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(declared)))
+        return make_root(self.tmp / "rootd", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v2.json").write_text(json.dumps(declared)))
 
     def test_declared_not_applicable_must_be_valid(self):
         self.build(row_status={"VER-03": "NOT APPLICABLE"})
@@ -514,7 +514,7 @@ class RulingsTwoTests(GateTests):
             self.assertEqual(G.sha256_file(ROOT / rel), digest, f"{rel} changed: regenerate the commitment as a NEW versioned candidate (python tools/mvp_acceptance_gate.py commit)")
         self.assertIn("PROPOSED", doc["status"])
         self.assertEqual(doc["candidate_version"], f"mvp-qualification-candidate-v{G.COMMITMENT_VERSION}")
-        self.assertEqual(G.COMMITMENT_VERSION, 4)
+        self.assertEqual(G.COMMITMENT_VERSION, 5)  # QGATE-05: the candidate is v5 (the constant follows the file name; v4 stays committed and untouched)
 
     def test_commitment_requires_an_independent_hash_and_detects_any_change(self):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="")["checks"]}["G-12"], "INCOMPLETE")
@@ -917,15 +917,17 @@ class RulingsTwoTests(GateTests):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(require_python="3.12" if PY != "3.12" else "3.13")["checks"]}["G-04b"], "INCOMPLETE")
         self.assertEqual({c["id"]: c["status"] for c in self.gate(require_python=None)["checks"]}["G-04b"], "INCOMPLETE")
 
-    def test_nc4_03_origin_rule_placeholder_holds_no_rows(self):
-        battery = json.loads((ROOT / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").read_text())
-        (placeholder,) = battery["pending_rows"]
-        self.assertEqual(placeholder["rows"], [])
-        self.assertIn("PLACEHOLDER", placeholder["status"])
+    def test_battery_v2_has_no_placeholder_and_the_gate_still_refuses_a_placeholder_that_holds_rows(self):
+        # QGATE-05 (architect A3/A4): the NC4-03 placeholder is removed; battery v2 carries NO pending row. The gate behaviour is unchanged: a pending entry that
+        # carries rows (or is not a placeholder) is still INCOMPLETE, so a placeholder cannot be reintroduced silently.
+        battery = json.loads((ROOT / "process/mvp-acceptance/mandatory-battery.proposed.v2.json").read_text())
+        self.assertEqual(battery["pending_rows"], [])
         bad = copy.deepcopy(battery)
-        bad["pending_rows"][0]["rows"] = [{"id": "NC4-03-ORIGIN-01"}]
-        root, commit = make_root(self.tmp / "rootp", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v1.json").write_text(json.dumps(bad)))
+        bad["pending_rows"] = [{"placeholder": "NC4-03-origin-rule-negative-mutations", "rows": [{"id": "NC4-03-ORIGIN-01"}], "status": "PLACEHOLDER"}]
+        root, commit = make_root(self.tmp / "rootp", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v2.json").write_text(json.dumps(bad)))
         self.assertEqual({c["id"]: c["status"] for c in self.gate(root, commit)["checks"]}["G-14"], "INCOMPLETE")
+        ok_root, ok_commit = make_root(self.tmp / "rootq", lambda r: (r / "process/mvp-acceptance/mandatory-battery.proposed.v2.json").write_text(json.dumps(battery)))
+        self.assertEqual({c["id"]: c["status"] for c in self.gate(ok_root, ok_commit)["checks"]}["G-14"], "PASS")
 
 
 class ResolveTests(unittest.TestCase):
@@ -1020,13 +1022,33 @@ class IngressProfileTests(unittest.TestCase):
             self.assertIn("non-root", str(cm.exception))
 
     def test_workflow_provisions_the_profile_and_no_longer_takes_a_precommitted_record(self):
+        # QGATE-05: provisioning moved from inline workflow steps into the committed helper tools/qgate05_host_setup.sh (inside the commitment). Every identity and
+        # profile selector the old test required is still required, now of the helper that the workflow invokes, INCLUDING `sudo sysctl -w kernel.yama.ptrace_scope=1`
+        # (restored after the Owner's freeze review D-1): the helper reads the as-found value, raises to 1 only when it is below 1 (never lowers), records both values.
         wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
-        for needed in ("sysctl -w kernel.yama.ptrace_scope=1", "MVP_INGRESS_PROFILE=approved", "MVP_INGRESS_USER=mvp-ingress", "MVP_CLIENT_USER=mvp-client",
-                       "MVP_IPC_GROUP=mvp-ipc", "MVP_QUALIFICATION_SHA=", "useradd", "groupadd --system mvp-ipc"):
-            self.assertIn(needed, wf)
+        helper = (ROOT / "tools/qgate05_host_setup.sh").read_text()
+        self.assertIn("bash tools/qgate05_host_setup.sh provision", wf)
+        for needed in ("sudo sysctl -w kernel.yama.ptrace_scope=1", "MVP_INGRESS_PROFILE=approved", "MVP_INGRESS_USER=mvp-ingress", "MVP_CLIENT_USER=mvp-client", "MVP_IPC_GROUP=mvp-ipc",
+                       "MVP_QUALIFICATION_SHA=", "useradd", "groupadd --system mvp-ipc"):
+            self.assertIn(needed, helper)
         for gone in ("environment_record_sha256", "inputs.environment_record", "expect-environment-record-sha256", "--socket-mode 666"):
             self.assertNotIn(gone, wf)
+            self.assertNotIn(gone, helper)
         self.assertNotIn("developer-optout", wf)
+        self.assertNotIn("developer-optout", helper)
+        # the Yama control is only ever RAISED: the sysctl sits behind an as-found `< 1` test, is never given a lower value, and the as-found and effective values are recorded
+        code = "\n".join(ln for ln in helper.splitlines() if not ln.lstrip().startswith("#"))  # executable lines only (the header comment describes the rule)
+        self.assertEqual(re.findall(r"sysctl -w (\S+)", code), ["kernel.yama.ptrace_scope=1"])
+        self.assertRegex(code, r'\[ "\$YAMA_FOUND" -lt 1 \]')
+        self.assertLess(code.index('YAMA_FOUND=absent'), code.index("sudo sysctl -w kernel.yama.ptrace_scope=1"))
+        self.assertLess(code.index("sudo sysctl -w kernel.yama.ptrace_scope=1"), code.index("YAMA_EFFECTIVE="))
+        self.assertIn("yama-record.json", helper)
+        self.assertIn("yama_ptrace_scope_as_found", helper)
+        self.assertIn("yama_ptrace_scope_effective", helper)
+        self.assertNotIn("sysctl", wf.split("steps:", 1)[1])  # the single sysctl lives in the helper; the workflow body only calls the helper
+        self.assertIn("/proc/sys/kernel/yama/ptrace_scope", wf)  # recorded in the workflow's provisioning step and in the run identity
+        self.assertIn("yama-record.json", wf)
+        self.assertNotIn("QG5_DURABLE_DIR", wf + helper)  # F-07: no such directory is read by any test
         src = (ROOT / "suites/mvp-chain/_ingress.py").read_text()
         self.assertIn('"666" if optout else "660"', src)
         self.assertNotIn("--socket-mode\", \"666\"]", src)
@@ -1148,26 +1170,67 @@ class HardeningTests(unittest.TestCase):
         self.assertLess(hub_co, pre)
         self.assertLess(pre, wf.index("actions/setup-python"))
         self.assertEqual(wf[hub_co:pre].count("- uses:"), 0)  # nothing else runs between the checkout and the preflight
-        self.assertGreaterEqual(wf.count(self.PIN), 2)  # the input description and the header
-        self.assertIn("MUST name a hub sha", wf)
-        self.assertIn("0e2b52a0", wf)
+        # QGATE-05: there is no hub_revision input any more (the push-triggered workflow has no inputs); the hub sha comes from the committed identity inputs, which
+        # are cross-checked against the tuple pin file, and the capture script sha256 that the preflight enforces is the one recorded in the identity inputs and the profile.
+        self.assertIn("ref: ${{ steps.tuple.outputs.hub }}", wf[hub_co - 200:hub_co])
+        self.assertNotIn("inputs.hub_revision", wf)
+        ident = json.loads((ROOT / "process/mvp-acceptance/candidate-identity.inputs.json").read_text())
+        self.assertEqual(ident["composite"]["hub"]["capture_script_sha256"], self.PIN)
+        self.assertEqual(ident["components"]["hub"]["sha"], json.loads((ROOT / "process/mvp-chain/tuple-pin.proposed.json").read_text())["components"]["hub"]["sha"])
 
-    def run_validate_step(self, qual_rev, github_sha):
-        import re
+    def run_custody(self, qual_rev, github_sha, head=None, commitment=b"c\n", record_sha=None, schema="cognous.qgate05-freeze-commitment/1", extra=None):
+        """Run tools/qgate05_custody_check.py on a scratch git checkout. QGATE-05: the old workflow_dispatch input `qualification_revision` (blank or the workflow
+        commit) is replaced by the custody record read from the dedicated hub branch qgate-05/custody-1; the check is STRICTER: a blank revision is no longer accepted."""
         import subprocess
-        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
-        step = wf[wf.index("- name: Validate qualification_revision"):]
-        body = step[step.index("run: |\n") + len("run: |\n"):step.index("      - uses:")]
-        script = "\n".join(line[10:] for line in body.splitlines())
-        return subprocess.run(["bash", "-c", script], env={"QUAL_REV": qual_rev, "GITHUB_SHA": github_sha, "PATH": "/usr/bin:/bin"}, capture_output=True, text=True).returncode
+        work = self.tmp / f"custody-{abs(hash((qual_rev, github_sha, head, commitment, record_sha, schema, str(extra))))}"
+        repo = work / "q"
+        (repo / "process/mvp-acceptance").mkdir(parents=True)
+        cf = repo / "process/mvp-acceptance/candidate-commitment.proposed.v5.json"
+        cf.write_bytes(commitment)
+        env = {"PATH": "/usr/bin:/bin", "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.test", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.test", "HOME": str(work)}
+        for cmd in (["git", "init", "-q"], ["git", "add", "-A"], ["git", "commit", "-q", "-m", "x"]):
+            subprocess.run(cmd, cwd=repo, env=env, check=True, capture_output=True)
+        real_head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, env=env, check=True, capture_output=True, text=True).stdout.strip()
+        mapping = {"HEAD": real_head, "GITHUB": real_head}
+        q = mapping.get(qual_rev, qual_rev)
+        gsha = mapping.get(github_sha, github_sha)
+        rec = work / "freeze-commitment.json"
+        rec.write_text(json.dumps({"schema": schema, "qualification_revision": q, "candidate_commitment_sha256": record_sha or hashlib.sha256(b"c\n").hexdigest(), **(extra or {})}))
+        proc = subprocess.run([sys.executable, "-B", str(ROOT / "tools/qgate05_custody_check.py"), "--record", str(rec), "--commitment-file", str(cf),
+                               "--commitment-rel", "process/mvp-acceptance/candidate-commitment.proposed.v5.json", "--github-sha", gsha, "--repo-root", str(repo),
+                               "--out", str(work / "out.json")], env=env, capture_output=True, text=True)
+        return proc.returncode
 
-    def test_qualification_revision_must_be_blank_or_the_workflow_commit(self):
-        sha, other = "a" * 40, "b" * 40
-        self.assertEqual(self.run_validate_step("", sha), 0)
-        self.assertEqual(self.run_validate_step(sha, sha), 0)
-        self.assertEqual(self.run_validate_step(other, sha), 1)
-        self.assertEqual(self.run_validate_step("main", sha), 1)
-        self.assertEqual(self.run_validate_step("abc123", sha), 1)
+    def test_qualification_revision_must_be_the_workflow_commit_and_the_commitment_must_match_the_custody_record(self):
+        self.assertEqual(self.run_custody("HEAD", "GITHUB"), 0)
+        self.assertEqual(self.run_custody("b" * 40, "GITHUB"), 1)  # another commit
+        self.assertEqual(self.run_custody("main", "GITHUB"), 1)  # a branch name
+        self.assertEqual(self.run_custody("abc123", "GITHUB"), 1)  # a short sha
+        self.assertEqual(self.run_custody("", "GITHUB"), 1)  # blank is NOT accepted any more (stricter than the old input)
+        self.assertEqual(self.run_custody("HEAD", "a" * 40), 1)  # GITHUB_SHA is not the checkout / the record
+        self.assertEqual(self.run_custody("HEAD", "GITHUB", record_sha="0" * 64), 1)  # the recomputed commitment sha256 differs from the custody record
+        self.assertEqual(self.run_custody("HEAD", "GITHUB", record_sha="abc"), 1)
+        # the hub freeze package template (Worker D) spells the schema and the file key differently; both are accepted, a wrong file name is not
+        self.assertEqual(self.run_custody("HEAD", "GITHUB", schema="cognous.ocs-mvp-qgate-05-freeze-commitment/1", extra={"commitment_file": "process/mvp-acceptance/candidate-commitment.proposed.v5.json"}), 0)
+        self.assertEqual(self.run_custody("HEAD", "GITHUB", extra={"commitment_file": "process/mvp-acceptance/candidate-commitment.proposed.v4.json"}), 1)
+        self.assertEqual(self.run_custody("HEAD", "GITHUB", schema="something-else/1"), 1)
+        wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
+        self.assertIn("tools/qgate05_custody_check.py", wf)
+        self.assertIn("--expect-commitment-sha256", wf)  # the independent value reaches the gate
+        self.assertLess(wf.index("tools/qgate05_custody_check.py"), wf.index("-m pytest"))  # before any test runs
+        # F-03: the custody record comes from the dedicated hub branch (checkout ref), not the hub default branch; the head is recorded and the record path/fields are asserted
+        co = wf.index("repository: cogno-us/cognous-open-control-stack\n          ref: qgate-05/custody-1\n          path: components/custody-hub")
+        self.assertLess(co, wf.index("tools/qgate05_custody_check.py"))
+        self.assertNotIn("DEFAULT branch)\n        uses", wf)
+        self.assertIn("custody-hub-branch-head.txt", wf)
+        self.assertIn("freeze-commitment.json", wf)
+        self.assertIn("lacks required fields", wf)
+        self.assertIn("persist-credentials: false", wf[co - 200:co + 400])
+        # F-08: no token in a URL anywhere in the workflow or the helpers
+        for name in (".github/workflows/mvp-acceptance.yml", "tools/qgate05_evidence_commit.sh", "tools/qgate05_host_setup.sh"):
+            text = (ROOT / name).read_text()
+            self.assertNotRegex(text, r"https://x-access-token:[^\s\"']*@", name)
+            self.assertNotIn("@github.com", text.replace("github-actions[bot]@users", ""), name)
 
     def test_readme_states_which_interpreters_the_match_checks_apply_to(self):
         text = (ROOT / "process/mvp-acceptance/README.md").read_text()
@@ -1219,17 +1282,21 @@ class ComposedV6BatteryTests(unittest.TestCase):
     def _entry(test_id):
         return next(t for t in BATTERY["tests"] if t["id"] == test_id)
 
-    def test_v7_is_in_force_with_its_own_hash_and_v1_to_v3_and_v6_stay_listed(self):
+    def test_v8_is_in_force_with_its_own_hash_and_v1_to_v3_v6_and_v7_stay_listed_byte_identical(self):
         oracle = BATTERY["oracle"]
-        self.assertEqual(oracle["expectations_in_force"], self.V7)
+        V8 = "process/mvp-chain/expectations.proposed.v8.json"
+        self.assertEqual(oracle["expectations_in_force"], V8)
+        self.assertEqual(oracle["unchanged_files_sha256"][V8], G.sha256_file(ROOT / V8))
+        self.assertEqual(oracle["expectations_in_force_sha256"], G.sha256_file(ROOT / V8))
         self.assertEqual(oracle["unchanged_files_sha256"][self.V7], G.sha256_file(ROOT / self.V7))
+        self.assertEqual(oracle["unchanged_files_sha256"][self.V7], "0dc17a1984e1c3c153f3cb6e3f7fdd4dad87cdc4414728a20df0f8174e402f6b")
         self.assertEqual(oracle["unchanged_files_sha256"][self.V6], G.sha256_file(ROOT / self.V6))
         self.assertEqual(oracle["unchanged_files_sha256"][self.V6], "fe6ecf871d38061c8767e32ae62440c132b357c9b53b10de7412ef145651da4a")
         for v in (1, 2, 3):
             rel = f"process/mvp-chain/expectations.proposed.v{v}.json"
             self.assertEqual(oracle["unchanged_files_sha256"][rel], G.sha256_file(ROOT / rel))
-        self.assertIn(self.V7, G.frozen_files(ROOT))
-        self.assertIn(self.V6, G.frozen_files(ROOT))
+        for rel in (V8, self.V7, self.V6):
+            self.assertIn(rel, G.frozen_files(ROOT))
 
     def test_nc2_06_is_the_oracle_row_entry_of_test_mvp_chain_not_of_the_ambiguity_file(self):
         entry = self._entry("NC2-06")
@@ -1252,23 +1319,29 @@ class ComposedV6BatteryTests(unittest.TestCase):
 
     def test_suite_default_expectations_is_the_oracle_in_force(self):
         text = (ROOT / "suites/mvp-chain/conftest.py").read_text()
-        self.assertIn('ROOT / "process" / "mvp-chain" / "expectations.proposed.v7.json"', text)
+        self.assertIn('ROOT / "process" / "mvp-chain" / "expectations.proposed.v8.json"', text)
         self.assertNotIn('expectations.proposed.v3.json")', text)
 
-    def test_supplementary_entries_cover_exactly_the_collected_tests_of_the_two_files(self):
+    def test_supplementary_entries_cover_exactly_the_collected_tests_of_the_supplementary_files(self):
         if importlib.util.find_spec("pytest") is None:  # the unittest-only CI jobs install no pytest; the pytest runs (and gate G-13 in a run) do check it
             self.skipTest("pytest is not installed in this environment: the collection cross-check needs it")
         env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
-        out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", "suites/mvp-chain/test_kwflow.py",
-                              "suites/mvp-chain/test_ingress_ambiguity.py"], cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
+        files = ["suites/mvp-chain/test_kwflow.py", "suites/mvp-chain/test_ingress_ambiguity.py", "suites/mvp-chain/test_process_kill_a1.py", "suites/mvp-chain/test_ledger_pruning_a2.py",
+                 "suites/mvp-chain/test_nc4_03_mutation_set.py", "suites/mvp-chain/test_nc4_03_host_subcases.py"]
+        out = subprocess.run([sys.executable, "-m", "pytest", "--collect-only", "-q", "-p", "no:cacheprovider", *files], cwd=ROOT, env=env, capture_output=True, text=True, timeout=300).stdout
         collected = {l.strip() for l in out.splitlines() if l.startswith("suites/mvp-chain/") and "::" in l}
         listed = {f"{t['file']}::{t['test']}" for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
         self.assertEqual(collected, listed)
         kinds = {t["file"]: t["kind"] for t in BATTERY["tests"] if t["kind"].startswith("supplementary_") and t["invocation"] == "mvp-chain"}
         self.assertEqual(kinds, {"suites/mvp-chain/test_kwflow.py": "supplementary_nc4_03_predicate",
-                                 "suites/mvp-chain/test_ingress_ambiguity.py": "supplementary_nc2_06_negative_control"})
-        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc4_03_predicate"]), 183)
-        self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == "supplementary_nc2_06_negative_control"]), 6)
+                                 "suites/mvp-chain/test_ingress_ambiguity.py": "supplementary_nc2_06_negative_control",
+                                 "suites/mvp-chain/test_process_kill_a1.py": "supplementary_nc2_07_process_kill",
+                                 "suites/mvp-chain/test_ledger_pruning_a2.py": "supplementary_nc3_04_ledger_pruning",
+                                 "suites/mvp-chain/test_nc4_03_mutation_set.py": "supplementary_nc4_03_mutation_set",
+                                 "suites/mvp-chain/test_nc4_03_host_subcases.py": "supplementary_nc4_03_host_subcases"})
+        for kind, n in (("supplementary_nc4_03_predicate", 183), ("supplementary_nc2_06_negative_control", 6), ("supplementary_nc2_07_process_kill", 18),
+                        ("supplementary_nc3_04_ledger_pruning", 8), ("supplementary_nc4_03_mutation_set", 135), ("supplementary_nc4_03_host_subcases", 8)):
+            self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == kind]), n, kind)
 
     def test_workflow_collect_and_run_lists_equal_the_battery_paths(self):
         wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
@@ -1550,7 +1623,7 @@ class CopilotReviewFixTests(GateTests):
 
     def test_workflow_sets_pythonpath_after_sudo_and_chain_workflow_selects_a_profile_explicitly(self):
         wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
-        self.assertIn('sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" python', wf)
+        self.assertIn('sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" "TMPDIR=$QG5_TMP" python', wf)  # QGATE-05: PYTHONPATH still follows sudo; TMPDIR follows it
         self.assertNotIn('MVP_EXCLUSION_TAG=mvp-chain PYTHONPATH=', wf)
         chain = (ROOT / ".github/workflows/mvp-chain.yml").read_text()
         self.assertIn("MVP_INGRESS_PROFILE: developer-optout", chain)
@@ -1652,6 +1725,8 @@ class CopilotReviewFix2Tests(GateTests):
             if "-m pytest" not in line and not any(f"mvp_acceptance_gate.py {c} " in line for c in ("anchor", "resolve", "preflight-hub", "verify-checkouts")):
                 continue
             line = line.replace("${{ steps.tuple.outputs.control_plane }}", "$CP").replace("$GITHUB_WORKSPACE", "$WS").replace("python3 tools", "python tools")
+            line = re.sub(r"^\(\s*", "", line)  # QGATE-05: the workflow runs the three groups as concurrent background subshells ...
+            line = re.sub(r"\s*> \"\$d/console-[a-z0-9-]+\.txt\" 2>&1$", "", line)  # ... with their console captured to a file
             out.append(re.sub(r"\s+", " ", line))
         return out
 
@@ -1680,11 +1755,11 @@ class CopilotReviewFix2Tests(GateTests):
     def test_runbook_lists_the_workflows_profile_provisioning_and_safe_directory_commands(self):
         wf_text = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
         runbook = (ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text()
-        block = wf_text.split("Provision the approved ingress profile", 1)[1].split("- name: Anchor", 1)[0]
-        lines = [l.strip().replace("$GITHUB_WORKSPACE", "$WS") for l in block.splitlines() if l.strip().startswith(("sudo ", "[[ -z", "d=", "cat /proc"))]
-        self.assertGreaterEqual(len(lines), 8)
+        block = wf_text.split("Provision the approved ingress profile", 1)[1].split("- name: Record the run identity", 1)[0]
+        lines = [l.strip().replace("$GITHUB_WORKSPACE", "$WS") for l in block.splitlines() if l.strip().startswith(("bash tools/qgate05_host_setup.sh", "cat /proc"))]
+        self.assertEqual(len(lines), 2)  # QGATE-05: the provisioning commands live in the committed helper, which the workflow and the runbook both invoke
         for line in lines:
-            self.assertIn(line.replace('::warning::', ''), runbook.replace("::warning::", ""), line)
+            self.assertIn(line, runbook, line)
         for line in ("git config --global --add safe.directory '*'", "sudo git config --global --add safe.directory '*'"):
             self.assertIn(line, runbook)
         self.assertIn("2 GB", runbook)
@@ -1696,7 +1771,11 @@ class CopilotReviewFix2Tests(GateTests):
         rb = [re.sub(r" \| tee .*$", "", c) for c in rb]
         wf = [re.sub(r" \| tee .*$", "", c) for c in wf]
         self.assertTrue(any("anchor" in c for c in wf))
-        self.assertEqual(wf, rb)  # same commands in the same order
+        # same commands: anchor and the three collections in the same order; the three concurrent run groups carry no order (compared as sets of identical lines)
+        run_mark = lambda c: "--collect-only" not in c and "-m pytest" in c
+        self.assertEqual([c for c in wf if not run_mark(c)], [c for c in rb if not run_mark(c)])
+        self.assertEqual(sorted(c for c in wf if run_mark(c)), sorted(c for c in rb if run_mark(c)))
+        self.assertEqual(len([c for c in wf if run_mark(c)]), 3)
         runbook = (ROOT / "process/mvp-acceptance/manual-execution-runbook.proposed.md").read_text()
         wf_text = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
         for exit_file in re.findall(r'pytest-exit-[a-z0-9-]+\.txt', wf_text):

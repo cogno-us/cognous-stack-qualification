@@ -326,7 +326,7 @@ def capture_environment_record(hub, ident, profile, *, state, sock, pid, dest, r
     return result
 
 
-_PROFILE_PATH = pathlib.Path(__file__).resolve().parents[2] / "process" / "mvp-acceptance" / "environment-profile.proposed.v1.json"
+_PROFILE_PATH = pathlib.Path(__file__).resolve().parents[2] / "process" / "mvp-acceptance" / "environment-profile.proposed.v2.json"
 
 
 def run(work):

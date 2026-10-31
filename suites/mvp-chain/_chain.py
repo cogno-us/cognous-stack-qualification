@@ -817,3 +817,22 @@ def nc_custody(work):
     finally:
         ctx.close()
     return obs
+
+
+# ---------------------------------------------------------------------------------------------------------------- QGATE-05 scenario registration
+# Minimal hooks (assembly of OCS-MVP-QGATE-05; no other logic in this file changed): the modules below register their scenarios on import with @scenario.
+import _killharness, _pruning  # noqa: E402,F401  registers nc_process_kill (NC2-07, A1) and nc_ledger_pruning (NC3-04, A2)
+
+
+@scenario("nc4_03_det")
+def nc4_03_det(work):
+    """NC4-03 deterministic source-level verdict plus the frozen mutation set (A3/A4); host-independent, never blocked by the host scenario."""
+    import _nc4_03_mutations as M
+    return M.scenario_observation(_state.ENV["dirs"].get("hub"), _state.ENV["heads"].get("hub"))
+
+
+@scenario("nc4_03_host")
+def nc4_03_host(work):
+    """NC4-03a..d host-dependent subcases on the ratified bounded 2751 profile (A3/A4, D3); a blocked subcase never changes NC4-03."""
+    import _nc4_03_host as H
+    return H.scenario_observation(_state.ENV["dirs"].get("hub"))
