@@ -174,9 +174,10 @@ Result: no material findings. Six LOW items, disclosed: (1) s3 helper tests run 
 
 ## 15. S4 ERRATUM (2026-10-31, appended; sections 1-14 above are kept as originally written)
 * Sections 1-13 are HISTORICAL WORKING TEXT, superseded by `S4-CLOSEOUT.md` (the one S4 report). In particular section 12 (CI failures at head ac3dfccf) is historical: at the verified head 2978679f all 12 check-runs were completed/success; see the PR for the final head.
-* Section 3 "27 marked none" control-proven count: the TC-L06-040 twelve-invalid row (row 28) is one of the 27 and is PASS-as-written, not control-proven (5 of 12 rejected); the count is 26 (S4-CLOSEOUT errata E1). The CSV is unchanged.
+* Section 3 "27 marked none" control-proven count: the TC-L06-040 twelve-invalid row (row 28) is one of the 27 and is PASS-as-written, not control-proven (5 of 12 rejected); the earlier S4 count of 26 wrongly included the 3 BLOCKED TC-L06-020 rows; PASS rows marked none are 24, and 23 excluding row 28, and BLOCKED rows are not control evidence (S4-CLOSEOUT errata E1, corrected). The CSV is unchanged.
 * Section 14 head references: the reviewed implementation head is 99fd257e; the verified head is 2978679f; the final head is the commit after it (see PR #260).
 * Section 14 trailing run 41233326892: verified metadata is head 99fd257e, created 2026-10-31T19:15:12Z, event pull_request, attempt 1, conclusion success, header 41/0/0, 41 of 41 ids visible (live check, not committed). It is no longer only "reported by coordinator". Run 41234082886 (head 2978679f, 19:24:37Z, success, 41/0/0, 41 visible) is also recorded in S4-CLOSEOUT section 1, with all six artifact digests.
 * C2 provenance limit restated: no run.json, command, tuple or pristine-after record and no disk reading; same tuple/environment is asserted, not evidenced; it does not replace C1.
 * C3 raw hosted per-case evidence was not independently reconstructed; annotations and artifact digests are not raw verification.
 
+* Correction (S4 review round 2): see S4-CLOSEOUT sections 5 (E1), 6 (criteria 4 and 6 downgraded to PARTIALLY SATISFIED) and 9 (current heads and runs, including trailing run 41237626038 on f280cd73, success). C1 is the primary figure, not an adoption authority.
