@@ -1,0 +1,93 @@
+## 0 control: unmodified scratch copy (must pass)
+rc=0
+{  "dry_check": "OK",  "collected": 41,  "executed": 0,  "checkouts": {   "control_plane": "b19c47ddd020409d24e52e70b11359c46265edbb",   "runtime": "f7a55e2a8494801e49193f9f46935f0a971c248d",   "replay": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",   "evidence_pack": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",   "odes": "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae",   "exchange": "746378d74bff59314bdcf8f0b50b19ab94679ba9",   "manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",   "registry": "6b96a9a658923954433dc1a4c13626fa5145b9c7"  },  "qualification_dirty_rows": 1419 }
+
+## 1a MISSING component revision: tuple lacks "odes"
+rc=2
+REFUSED: tuple.odes must be a 40-character lowercase hex SHA (no branch, tag, prefix or "latest")
+
+## 1b MISSING component revision: profile exchange.revision removed
+rc=2
+REFUSED: KeyError: 'revision'
+
+## 1c MISSING component revision: tuple.exchange empty string
+rc=2
+REFUSED: tuple.exchange must be a 40-character lowercase hex SHA (no branch, tag, prefix or "latest")
+
+## 1d component given by branch name not SHA: tuple.replay="main"
+rc=2
+REFUSED: tuple.replay must be a 40-character lowercase hex SHA (no branch, tag, prefix or "latest")
+
+## 1e component given by short prefix: tuple.odes="77fd7a1c"
+rc=2
+REFUSED: tuple.odes must be a 40-character lowercase hex SHA (no branch, tag, prefix or "latest")
+
+## 2a UNRESOLVED placeholder in tuple.exchange
+rc=2
+REFUSED: tuple still contains a placeholder/template marker: 'PLACEHOLDER:PENDING exchange merge SHA'
+
+## 2b UNRESOLVED placeholder in profile exchange_compatibility_profile
+rc=2
+REFUSED: configuration still contains a placeholder: 'PLACEHOLDER:name' (security-runtime-current-stack-S3-20261031.json / current-stack-S3-20261031)
+
+## 2c UNRESOLVED placeholder in freeze-manifest hub head
+rc=2
+REFUSED: configuration still contains a placeholder: 'PLACEHOLDER:hub head SHA at freeze' (security-runtime-current-stack-S3-20261031.json / current-stack-S3-20261031)
+
+## 2d TEMPLATE marker left in tuple validation_id
+rc=2
+REFUSED: tuple still contains a placeholder/template marker: 'current-stack-S3-TEMPLATE'
+
+## 3a WRONG Exchange profile: original security-runtime-current-20261031 (consistent in tuple/profile/manifest)
+rc=0
+{  "dry_check": "OK",  "collected": 41,  "executed": 0,  "checkouts": {   "control_plane": "b19c47ddd020409d24e52e70b11359c46265edbb",   "runtime": "f7a55e2a8494801e49193f9f46935f0a971c248d",   "replay": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",   "evidence_pack": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",   "odes": "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae",   "exchange": "746378d74bff59314bdcf8f0b50b19ab94679ba9",   "manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",   "registry": "6b96a9a658923954433dc1a4c13626fa5145b9c7"  },  "qualification_dirty_rows": 1419 }
+
+## 3b WRONG Exchange profile: typo security-runtime-current-20261031-r3 (consistent in all three)
+rc=0
+{  "dry_check": "OK",  "collected": 41,  "executed": 0,  "checkouts": {   "control_plane": "b19c47ddd020409d24e52e70b11359c46265edbb",   "runtime": "f7a55e2a8494801e49193f9f46935f0a971c248d",   "replay": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",   "evidence_pack": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",   "odes": "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae",   "exchange": "746378d74bff59314bdcf8f0b50b19ab94679ba9",   "manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",   "registry": "6b96a9a658923954433dc1a4c13626fa5145b9c7"  },  "qualification_dirty_rows": 1419 }
+
+## 3c WRONG Exchange profile: tuple says r2, profile file says original (inconsistent)
+rc=2
+REFUSED: exchange_compatibility_profile differs between tuple, profile and freeze-manifest
+
+## 3d WRONG Exchange profile: p2 profile security-runtime-p2-20261018 (consistent in all three)
+rc=0
+{  "dry_check": "OK",  "collected": 41,  "executed": 0,  "checkouts": {   "control_plane": "b19c47ddd020409d24e52e70b11359c46265edbb",   "runtime": "f7a55e2a8494801e49193f9f46935f0a971c248d",   "replay": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",   "evidence_pack": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",   "odes": "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae",   "exchange": "746378d74bff59314bdcf8f0b50b19ab94679ba9",   "manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",   "registry": "6b96a9a658923954433dc1a4c13626fa5145b9c7"  },  "qualification_dirty_rows": 1419 }
+
+## 4a MIXED generation: Replay = P2 40012b8c (tuple+profile+manifest consistent, checkout at 40012b8c)
+rc=0
+{  "dry_check": "OK",  "collected": 41,  "executed": 0,  "checkouts": {   "control_plane": "b19c47ddd020409d24e52e70b11359c46265edbb",   "runtime": "f7a55e2a8494801e49193f9f46935f0a971c248d",   "replay": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",   "evidence_pack": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",   "odes": "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae",   "exchange": "746378d74bff59314bdcf8f0b50b19ab94679ba9",   "manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",   "registry": "6b96a9a658923954433dc1a4c13626fa5145b9c7"  },  "qualification_dirty_rows": 1419 }
+
+## 4b MIXED generation: ODES = previous 1a5e1d30 (all consistent, checkout at 1a5e1d30)
+rc=0
+{  "dry_check": "OK",  "collected": 41,  "executed": 0,  "checkouts": {   "control_plane": "b19c47ddd020409d24e52e70b11359c46265edbb",   "runtime": "f7a55e2a8494801e49193f9f46935f0a971c248d",   "replay": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",   "evidence_pack": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",   "odes": "1a5e1d300250d832e611633f0bf8f762e398c0ec",   "exchange": "746378d74bff59314bdcf8f0b50b19ab94679ba9",   "manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",   "registry": "6b96a9a658923954433dc1a4c13626fa5145b9c7"  },  "qualification_dirty_rows": 1419 }
+
+## 4c MIXED generation: tuple Replay=P2 40012b8c but config files still d395e37c
+rc=2
+REFUSED: profile replay revision != tuple.replay
+
+## 4d MIXED generation: checkouts Replay at P2 40012b8c while tuple/config say d395e37c
+rc=2
+REFUSED: replay: source revision mismatch
+
+## 5a UNVERIFIED/DIRTY source: manifest checkout has a modified tracked file
+rc=2
+REFUSED: manifest: checkout is not pristine (modified, untracked or ignored files); use a fresh runner-owned clone
+
+## 5b UNVERIFIED source identity: ODES checkout HEAD (1a5e1d30) != tuple SHA 77fd7a1c
+rc=2
+REFUSED: odes: source revision mismatch
+
+## 5c UNVERIFIED source: component directory missing (registry)
+rc=2
+REFUSED: missing checkout /home/claude/scratch-refuse/comps_run/registry
+
+## 5d UNVERIFIED source: freeze-manifest exchange sha differs from tuple (config vs tuple)
+rc=2
+REFUSED: freeze-manifest gax_imx_transport sha != tuple.exchange
+
+## 6 cur patch absent: SUITE_GENERATIONS without cur
+rc=2
+REFUSED: suite_generation 'cur' requires the approved patch /tmp/claude-0/sec/s3/cur-generation.patch (symbols 'cur' in SUITE_GENERATIONS, CONTROL_PLANE_CUR_REVISION, CUR_REVISIONS not found); not applied -> refusing
+
+SUMMARY {"0 control: unmodified scratch copy": 0, "1a": 2, "1b": 2, "1c": 2, "1d": 2, "1e": 2, "2a": 2, "2b": 2, "2c": 2, "2d": 2, "3a": 0, "3b": 0, "3c": 2, "3d": 0, "4a": 0, "4b": 0, "4c": 2, "4d": 2, "5a": 2, "5b": 2, "5c": 2, "5d": 2, "6": 2}

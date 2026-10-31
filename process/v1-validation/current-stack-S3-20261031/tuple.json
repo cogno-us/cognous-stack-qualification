@@ -1,6 +1,6 @@
 {
- "label": "S3 TEMPLATE tuple (generation 2). Fill from the merged S1/S2 SHAs; replace every PLACEHOLDER.",
- "option_A_status": "PLACEHOLDER:integration manifest status (E3)",
+ "label": "S3 current-stack tuple (generation 2), frozen 2026-10-31 from the merged component heads",
+ "option_A_status": "NOT AVAILABLE: hub component-lock.json (hub dd522c50) is stale (pins pre-MVP CP 0a41faa9; no ocs-registry entry); no authoritative integration manifest records this tuple (a reviewable candidate is being prepared separately and is not adopted). This is an assembled tuple, not an authoritative one.",
  "components": {
   "control_plane": [
    "cogno-us/cognous-control-plane",
@@ -24,7 +24,7 @@
   ],
   "exchange": [
    "cogno-us/cognous-governed-exchange",
-   "PLACEHOLDER:PENDING exchange merge SHA (Exchange profile PR not merged)"
+   "746378d74bff59314bdcf8f0b50b19ab94679ba9"
   ],
   "manifest": [
    "cogno-us/cognous-action-manifest",
@@ -60,11 +60,11 @@
   ],
   "hub": [
    "cogno-us/cognous-open-control-stack",
-   "PLACEHOLDER:hub head"
+   "dd522c504d0cd2bdf463b791a729fe9029cca224"
   ],
   "qualification": [
    "cogno-us/cognous-stack-qualification",
-   "PLACEHOLDER:qualification base"
+   "5409d4776a9daff204fc97b71958b4dee12687b0"
   ]
  },
  "registry_facts": {
@@ -78,7 +78,11 @@
   "runtime_tests_pin_older_registry": "Runtime tests assert older Registry pins (e.g. b7e6a173 r08-v4); per-test pins are NOT the current registry"
  },
  "known_consistency_risks": [
-  "PLACEHOLDER:re-state after S1 merges; the Replay/ODES/Pack re-tie risk of current-stack-20261031 is expected to be resolved by CUR generations, to be OBSERVED not assumed"
+  "Replay/ODES/Pack re-tie to CP b19c47dd, Runtime f7a55e2a and Manifest fa170815: the CUR names (Replay CONTROL_PLANE_CUR_REVISION/MOLTBOT_CUR_REVISION, ODES CUR_REVISIONS) were verified equal by import/inspection of the merged heads and cur collects the same 326 ids as p2 (merged-components-verification); behavioural consistency is OBSERVED only by the 41-case run, not assumed.",
+  "Exchange 746378d7 (squash-merge of PR #63) defines profile security-runtime-current-20261031-r2 for exactly this tuple (verified in gax_ref_runtime.py of that commit). Known unhardened residual recorded in that source: git replace refs in a candidate checkout are not neutralised by the source-identity check.",
+  "The cur suite-generation labels are caller-asserted PROVISIONAL DEVELOPMENT PINS inherited from the P2-style generation scheme; they are not independently qualified provenance.",
+  "The migrated Registry 6b96a9a6 is recorded but not exercised by the Wiki harness; the separate probe exercises code-equal a40fe755 bytes (6b96a9a6 differs only under docs/ and README.md).",
+  "No integration manifest records this tuple: it is an assembled tuple, not an authoritative one."
  ],
  "worktrees": "/home/claude/cs-components/{control_plane,runtime,replay,evidence_pack,odes,exchange,manifest,registry,index,bitrep,governance} (detached, pristine)",
  "verified_trees": {
@@ -93,7 +97,7 @@
    "manifest": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
    "registry": "38d50602ae725e208f010baba05bbf7b908e76ac",
    "registry_code_equal_a40fe755": "eab8ebcc24243c1abc9b6db834b7ef498f1bcb91",
-   "exchange": "PLACEHOLDER:PENDING exchange tree (follows Exchange merge SHA)"
+   "exchange": "dcbe909f96d7c83e6281c5679283bd65cf19dbdb"
   }
  },
  "merged_names_verified": {

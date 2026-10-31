@@ -5,13 +5,13 @@
   "selected": false,
   "reference_release_authorized": false,
   "production_deployment_authorized": false,
-  "profile_id": "security-wiki-current-stack-S3-TEMPLATE",
+  "profile_id": "security-wiki-current-stack-S3-20261031",
   "supersedes_profile": null,
   "refreeze_ids": [],
-  "note": "Current-stack generation 2 tuple (see current-stack-S3-TEMPLATE/tuple.json). suite_generation \"cur\" (REQUIRES approved patch /tmp/claude-0/sec/s3/cur-generation.patch; the runner refuses without it) selects the CUR labels of Replay/ODES (harness: suites/security-runtime/test_security_runtime_chain.py). Wiki assertions are exercised UNCHANGED; any incompatibility is a recorded result, not an adaptation.",
+  "note": "Current-stack generation 2 tuple (see current-stack-S3-20261031/tuple.json). suite_generation \"cur\" (requires the cur suite-generation patch ea8bddcd, sha256 cb0fc4d2943db0bfc3055c0c25b573c8c84349828fe631beae2b2deb268e8d0d; the runner refuses without it) selects the CUR labels of Replay/ODES (harness: suites/security-runtime/test_security_runtime_chain.py). Wiki assertions are exercised UNCHANGED; any incompatibility is a recorded result, not an adaptation.",
   "predecessor_profile": "process/security-runtime-current-stack-20261031.json (HISTORICAL REFERENCE ONLY, unchanged)",
   "suite_generation": "cur",
-  "exchange_compatibility_profile": "PLACEHOLDER:Exchange compatibility profile name (same value as freeze-manifest profile.exchange_compatibility_profile)",
+  "exchange_compatibility_profile": "security-runtime-current-20261031-r2",
   "additional_source_hashes": [
     ".github/workflows/security-runtime-f5b-qualification.yml",
     "tools/summarize_security_runtime.py"
@@ -39,7 +39,7 @@
     },
     "exchange": {
       "repository": "cogno-us/cognous-governed-exchange",
-      "revision": "PLACEHOLDER:PENDING exchange merge SHA (Exchange profile PR not merged)"
+      "revision": "746378d74bff59314bdcf8f0b50b19ab94679ba9"
     },
     "manifest": {
       "repository": "cogno-us/cognous-action-manifest",
@@ -64,6 +64,5 @@
     "repository": "cogno-us/cognous-ocs-registry",
     "revision": "6b96a9a658923954433dc1a4c13626fa5145b9c7",
     "code_equals": "a40fe755e2384a99c37016fa9ad59396f1835900 (r08-v8)"
-  },
-  "_template_status": "TEMPLATE - NOT A PROFILE. Replace every PLACEHOLDER: value; rename file and profile_id to the dated form."
+  }
 }

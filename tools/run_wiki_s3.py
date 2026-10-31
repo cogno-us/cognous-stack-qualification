@@ -46,7 +46,7 @@ CHECKED = HARNESS + ('registry',)
 CFG_MAP = {'control_plane': ('control_plane', 'control_plane'), 'runtime': ('runtime', 'moltbot_safe'), 'replay': ('replay', 'replay_bundle'),
            'evidence_pack': ('evidence_pack', 'governance_evidence_pack'), 'odes': ('odes', 'odes'),
            'exchange': ('exchange', 'gax_imx_transport'), 'manifest': ('manifest', 'action_manifest')}
-DEFAULT_NODEIDS = 'process/v1-validation/current-stack-S3-TEMPLATE/wiki41-nodeids.txt'  # rename with the directory when filled
+DEFAULT_NODEIDS = 'process/v1-validation/current-stack-S3-20261031/wiki41-nodeids.txt'  # rename with the directory when filled
 OBSERVER = ROOT / 'tools' / 'wiki_exchange_observer.py'
 EXPECTED_NODEIDS = 41
 
