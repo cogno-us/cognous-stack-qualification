@@ -12,6 +12,8 @@ Scope: developer / local-offline results. This is NOT independent qualification,
 | B | Exchange-only diagnostic on the 41 (unmerged Exchange 05ba99ba, mixed Replay/ODES/Pack) | 0 valid | 0 valid | 41 | `results/security-wiki-exchange-compat-20261031/` (on main via #259) |
 | C1 | Merged tuple, strict single execution of the 41 (PRIMARY) | 38 | 0 | 3 | `run-41-merged-tuple/` |
 | C2 | C1 plus the labelled supplementary re-execution of exactly the 3 blocked ids | 41 | 0 | 0 | `run-41-merged-tuple-supplementary-enospc3/` |
+[S4 ERRATUM 2026-10-31, dated note added in place; original kept: C2 is NOT a 41-test execution. C2 = 3 PASS / 0 FAIL / 0 BLOCKED, a targeted recovery of exactly the three ENOSPC ids. C1 38 + C2 3 would cover 41 ids, which is not an observation. See S4-CLOSEOUT.md.]
+
 
 **Primary figure: C1, 38 PASS / 0 FAIL / 3 BLOCKED.** Reason: the sprint rule is a single execution with no retries; C1 is the only execution of the full 41 under the frozen invocation, and its 3 BLOCKED are TC-L06-020 x3 failing with `OSError: [Errno 28] No space left on device` (shared host disk full; junit failure and two setup errors "could not create numbered dir"). That is an infrastructure cause, not a component refusal and not evidence about the control. C2 is a second execution done after space was freed (no run.json, command, tuple, pristine-after or disk record exists for it, so same tuple/environment is asserted, not evidenced), of exactly those 3 ids, same tuple and environment, once, in a separate directory; all 3 PASS (observer calls 9/4/3, raised 0). C2 is reported because it is informative, but it is a re-run chosen after seeing the result, so it does not replace C1 unless the architect accepts it. Neither figure is extrapolated to the 244 cases not rerun, to the 5 failures or to the 4 unimplemented cases.
 
@@ -143,7 +145,7 @@ Smallest options (architect decision; NEITHER applied, the MVP gate was not touc
 `per-test-41.csv` (7 required fields plus extras); `run-41-merged-tuple/raw/{junit.xml,log.txt,obs.json,run.json,tuple.json,nodeids-41.txt,collect-only.txt,native.tar.gz}`; `run-41-merged-tuple-supplementary-enospc3/raw/`; `run-41-merged-tuple-controls/`; `diagnostics-vacuity/`; `registry-probe/`; `merged-components-verification/`; `cur-patch-verification/`; `REPORT.md`; `SHA256SUMS`. Historical (unchanged): `results/security-wiki-current-stack-20261031/`, `results/security-wiki-exchange-compat-20261031/`.
 
 ## 14. Update after final-head review (head 99fd257e65b11ffef6af99f1dabe78b1128defac): C3 hosted observation, layout, CI, residuals
-Headlines A, B, C1 (38 PASS / 0 FAIL / 3 BLOCKED, primary) and C2 (41/0/0, supplementary, under-evidenced, see REVIEW-CORRECTIONS.md M2) are UNCHANGED. Where this section differs from sections 5-13 (written earlier), this section governs for layout, CI and guard status.
+Headlines A, B, C1 (38 PASS / 0 FAIL / 3 BLOCKED, primary) and C2 (41/0/0, supplementary, under-evidenced, see REVIEW-CORRECTIONS.md M2) are UNCHANGED. [S4 ERRATUM 2026-10-31, dated note added in place; original kept: C2 is NOT a 41-test execution. C2 = 3 PASS / 0 FAIL / 0 BLOCKED, a targeted recovery of exactly the three ENOSPC ids. C1 38 + C2 3 would cover 41 ids, which is not an observation. See S4-CLOSEOUT.md.] Where this section differs from sections 5-13 (written earlier), this section governs for layout, CI and guard status.
 
 ### C3 - separate GitHub-hosted observation (never merged into C1 or C2 numbers)
 Developer evidence in `c3-hosted-run/`; NOT independent qualification, no Q7, no certification.
