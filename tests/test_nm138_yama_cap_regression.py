@@ -12,8 +12,7 @@ import os
 import pathlib
 import subprocess
 import sys
-
-import pytest
+import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CHAIN = ROOT / "suites" / "mvp-chain"
@@ -44,7 +43,8 @@ print(json.dumps({"direct": direct, "record": rec}, default=str))
 
 def run(mode, scope):
     out = subprocess.run([sys.executable, "-I", "-B", "-c", DRIVER, str(CHAIN), mode, scope], capture_output=True, text=True, timeout=120, cwd=str(ROOT))
-    assert out.returncode == 0, out.stderr[-1500:]
+    if out.returncode != 0:
+        raise AssertionError(out.stderr[-1500:])
     return json.loads(out.stdout.strip().splitlines()[-1])
 
 
@@ -52,52 +52,65 @@ def sub_a(rec):
     return next(s for s in rec["record"]["subcases"] if s["id"] == "NC4-03a")
 
 
-# 1-4: developer-optout never yields PASS from the Yama probe, whatever the Yama value; the observation is still recorded
-@pytest.mark.parametrize("scope", ["ABSENT", "0", "1", "2", "3"])
-def test_optout_yama_never_pass_via_run_host_subcases(scope):
-    rec = run("developer-optout", scope)
-    assert all(s["status"] != "PASS" for s in rec["record"]["subcases"]), rec  # the NM-138 predicate
-    a = sub_a(rec)
-    assert a["status"] == "BLOCKED"
-    if scope in ("1", "2", "3"):
-        assert "developer-optout" in a["reason"] and a["observed"] == {"ptrace_scope": scope}  # supported Yama: capped, fact still recorded
-    else:
-        assert "ptrace_scope" in a["reason"]  # absent or below threshold: the existing unsupported-Yama BLOCKED reason is unchanged
+def obs(scope):
+    return {"ptrace_scope": None if scope == "ABSENT" else scope}
 
 
-@pytest.mark.parametrize("scope", ["ABSENT", "0", "1", "2", "3"])
-def test_optout_direct_probe_is_blocked_for_every_yama_value(scope):
-    d = run("optout-ctx", scope)["direct"]
-    assert d["status"] == "BLOCKED" and d["observed"] == {"ptrace_scope": None if scope == "ABSENT" else scope}
+class Nm138YamaCap(unittest.TestCase):
+    # 1-4: developer-optout never yields PASS from the Yama probe, whatever the Yama value; the observation is still recorded
+    def test_optout_yama_never_pass_via_run_host_subcases(self):
+        for scope in ("ABSENT", "0", "1", "2", "3"):
+            with self.subTest(scope=scope):
+                rec = run("developer-optout", scope)
+                self.assertTrue(all(s["status"] != "PASS" for s in rec["record"]["subcases"]), rec)  # the NM-138 predicate
+                a = sub_a(rec)
+                self.assertEqual(a["status"], "BLOCKED")
+                if scope in ("1", "2", "3"):
+                    self.assertIn("developer-optout", a["reason"])  # supported Yama: capped, fact still recorded
+                    self.assertEqual(a["observed"], {"ptrace_scope": scope})
+                else:
+                    self.assertIn("ptrace_scope", a["reason"])  # absent or below threshold: the existing unsupported-Yama BLOCKED reason is unchanged
+
+    def test_optout_direct_probe_is_blocked_for_every_yama_value(self):
+        for scope in ("ABSENT", "0", "1", "2", "3"):
+            with self.subTest(scope=scope):
+                d = run("optout-ctx", scope)["direct"]
+                self.assertEqual(d["status"], "BLOCKED")
+                self.assertEqual(d["observed"], obs(scope))
+
+    # 5: approved profile with supported Yama still PASSes, exactly as before (status, reason text, observed keys)
+    def test_approved_supported_yama_still_passes_unchanged(self):
+        for scope in ("1", "2", "3"):
+            with self.subTest(scope=scope):
+                self.assertEqual(run("approved-ctx", scope)["direct"], {"status": "PASS", "reason": "kernel.yama.ptrace_scope >= 1", "observed": {"ptrace_scope": scope}})
+
+    # 6: approved profile with unsupported Yama stays BLOCKED with the unchanged reason
+    def test_approved_unsupported_yama_stays_blocked(self):
+        for scope in ("ABSENT", "0"):
+            with self.subTest(scope=scope):
+                d = run("approved-ctx", scope)["direct"]
+                self.assertEqual(d["status"], "BLOCKED")
+                self.assertIn("the exact profile is unsupported", d["reason"])
+                self.assertIn("no weaker environment is substituted", d["reason"])
+                self.assertEqual(d["observed"], obs(scope))
+
+    # 7: existing refusal semantics are preserved and an unresolved profile fails closed: identity subcases BLOCKED, the Yama fact still recorded, never PASS
+    def test_unknown_profile_fails_closed_and_keeps_refusal_semantics(self):
+        for scope in ("ABSENT", "0", "1", "3"):
+            with self.subTest(scope=scope):
+                rec = run("unknown", scope)["record"]
+                by = {s["id"]: s for s in rec["subcases"]}
+                self.assertTrue(all(by[i]["status"] == "BLOCKED" for i in ("NC4-03b", "NC4-03c", "NC4-03d")), by)
+                self.assertEqual(by["NC4-03a"]["status"], "BLOCKED")
+                self.assertEqual(by["NC4-03a"]["observed"], obs(scope))
+                self.assertTrue(all(s["status"] != "PASS" for s in rec["subcases"]))
+
+    def test_source_guard_no_uncapped_pass_in_sub_a(self):
+        src = (CHAIN / "_nc4_03_host.py").read_text()
+        body = src[src.index("def sub_a_yama"):src.index("def sub_b_uid_separation")]
+        self.assertNotIn("return PASS,", body)
+        self.assertIn('_cap(PASS, ctx.get("ratified", False), NOT_RATIFIED)', body)
 
 
-# 5: approved profile with supported Yama still PASSes, exactly as before (status, reason text, observed keys)
-@pytest.mark.parametrize("scope", ["1", "2", "3"])
-def test_approved_supported_yama_still_passes_unchanged(scope):
-    d = run("approved-ctx", scope)["direct"]
-    assert d == {"status": "PASS", "reason": "kernel.yama.ptrace_scope >= 1", "observed": {"ptrace_scope": scope}}
-
-
-# 6: approved profile with unsupported Yama stays BLOCKED with the unchanged reason
-@pytest.mark.parametrize("scope", ["ABSENT", "0"])
-def test_approved_unsupported_yama_stays_blocked(scope):
-    d = run("approved-ctx", scope)["direct"]
-    assert d["status"] == "BLOCKED" and "the exact profile is unsupported" in d["reason"] and "no weaker environment is substituted" in d["reason"]
-    assert d["observed"] == {"ptrace_scope": None if scope == "ABSENT" else scope}
-
-
-# 7: existing refusal semantics are preserved and an unresolved profile fails closed: identity subcases BLOCKED, the Yama fact still recorded, never PASS
-def test_unknown_profile_fails_closed_and_keeps_refusal_semantics():
-    for scope in ("ABSENT", "0", "1", "3"):
-        rec = run("unknown", scope)["record"]
-        by = {s["id"]: s for s in rec["subcases"]}
-        assert all(by[i]["status"] == "BLOCKED" for i in ("NC4-03b", "NC4-03c", "NC4-03d")), by
-        assert by["NC4-03a"]["status"] == "BLOCKED" and by["NC4-03a"]["observed"] == {"ptrace_scope": None if scope == "ABSENT" else scope}
-        assert all(s["status"] != "PASS" for s in rec["subcases"])
-
-
-def test_source_still_has_no_other_uncapped_pass_in_probes():
-    """Only NC4-03a returned PASS outside _cap before the fix; after it every PASS return in a probe passes through _cap or the explicit approved-only line."""
-    src = (CHAIN / "_nc4_03_host.py").read_text()
-    body = src[src.index("def sub_a_yama"):src.index("def sub_b_uid_separation")]
-    assert "return PASS," not in body and "_cap(PASS, ctx.get(\"ratified\", False), NOT_RATIFIED)" in body
+if __name__ == "__main__":
+    unittest.main()
