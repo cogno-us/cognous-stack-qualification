@@ -141,3 +141,33 @@ Smallest options (architect decision; NEITHER applied, the MVP gate was not touc
 
 ## 13. Evidence index (all under `results/security-wiki-s3-20261031/` unless noted)
 `per-test-41.csv` (7 required fields plus extras); `run-41-merged-tuple/raw/{junit.xml,log.txt,obs.json,run.json,tuple.json,nodeids-41.txt,collect-only.txt,native.tar.gz}`; `run-41-merged-tuple-supplementary-enospc3/raw/`; `run-41-merged-tuple-controls/`; `diagnostics-vacuity/`; `registry-probe/`; `merged-components-verification/`; `cur-patch-verification/`; `REPORT.md`; `SHA256SUMS`. Historical (unchanged): `results/security-wiki-current-stack-20261031/`, `results/security-wiki-exchange-compat-20261031/`.
+
+## 14. Update after final-head review (head 99fd257e65b11ffef6af99f1dabe78b1128defac): C3 hosted observation, layout, CI, residuals
+Headlines A, B, C1 (38 PASS / 0 FAIL / 3 BLOCKED, primary) and C2 (41/0/0, supplementary, under-evidenced, see REVIEW-CORRECTIONS.md M2) are UNCHANGED. Where this section differs from sections 5-13 (written earlier), this section governs for layout, CI and guard status.
+
+### C3 - separate GitHub-hosted observation (never merged into C1 or C2 numbers)
+Developer evidence in `c3-hosted-run/`; NOT independent qualification, no Q7, no certification.
+| Run | Id | Head | Status |
+|---|---|---|---|
+| #1 | 41229883384 | 93d5807e | SUPERSEDED harness defect: workflow lacked `jsonschema` (ODES imports it at module level); 39 "FAIL" were environment errors (ModuleNotFoundError), none reached a security assertion; says nothing about security behaviour; kept visible |
+| #2 | 41231370965 | ca541b9e | header 41 PASS / 0 FAIL / 0 BLOCKED, collected 41, executed 41; only ~28-29 of 41 ids visible (annotation truncated at 4096 chars) |
+| #3 | 41231979036 | 60cdb929 | same header 41/0/0; same truncation (~28-29 ids visible) |
+| #4 | 41232844591 | 6c5d89a4 | header 41/0/0; chunked annotations 1/2 and 2/2: all 41 ids visible, all PASS |
+| trailing | 41233326892 | 99fd257e | header 41/0/0; deliberately NOT captured (avoids an evidence/run loop) |
+Environment differs from C1: hosted python 3.13.17, pytest 8.3.5, jsonschema 4.26.0 (hash-locked installs) vs C1 python 3.13.18, pytest 9.1.1. Hosted artifacts exist on GitHub but could not be downloaded by the builder (egress to the blob host denied, job logs 403); C3 per-case verdicts rest on the annotations only, not on a checked junit. No visible id differs from C2. Preliminary classifier caveat (F-LOW-3): the helper substring-matches block markers, so an assertion FAIL whose text contains e.g. "No module named" would be shown BLOCKED (the job still fails on dependency strings).
+
+### Layout, guard and CI isolation
+* Runner and tooling now live in `s3/` (`s3/run_wiki_s3.py`, guard, observer, helper). C1 ran the pre-move layout (`tools/run_wiki_s3.py`, runner sha ff4ecc5e..., guard not integrated); see ISOLATION-NOTE.md and GUARD-NOTE.md. Older documents (REPORT.md, sections 2/11/12 above, FREEZE-STEPS, REVIEW-CORRECTIONS) still cite `tools/` paths and "guard not a gate": that is historical for C1.
+* The guard is MANDATORY in the s3 runner (first step after argument parsing, no skip flag) and for C3 and future S3 runs. It is NOT claimed for C1.
+* CI isolation: `tools/` and `process/mvp-acceptance` are byte-identical to main; candidate-commitment.proposed.v6.json sha256 42b482eec25b9d9c1455b5eefc63fb726d7a8041698831cc3c168ea5809a1846; no v7 candidate added. The only non-results change outside new files is the +4-line label-only `cur` branch in `suites/security-runtime/test_security_runtime_chain.py`. Section 12 (four failing checks) is therefore resolved by relocation, not by weakening any check; the check status of the head is reported in the PR.
+
+### Final-head AI-worker inspection (NOT Q7; no independence)
+Result: no material findings. Six LOW items, disclosed: (1) s3 helper tests run only via `unittest discover` and the real-checkout guard test is skipped in CI; (2) the guard's Exchange module-origin check is checkout HEAD/tree only (git `replace` refs not neutralised); (3) classifier substring caveat above; (4) stale comments in code (not edited); (5) `SHA256SUMS.crosswalk` is superseded: it fails for CROSSWALK-S4.md; use `SHA256SUMS.crosswalk-v3` (v2 is also superseded); `SHA256SUMS.runner-listing-incl-native` cannot verify because native files are tarred; (6) older docs cite `tools/` paths and "guard not a gate" (see ISOLATION-NOTE/GUARD-NOTE). The reviewer did not execute the unit tests.
+
+### Findings and residuals kept visible (all standing holds unchanged)
+* **Security finding: Replay accepts a resealed substituted configuration (NON_DETECTION_RECORDED).** Replay carries no Registry source revision, selection state or signature.
+* Five existing FAILs untouched (TC-L06-018, TC-L06-022, TC-L06-040, TC-L09-004, TC-L15-019); four unimplemented cases untouched (TC-D09-004, TC-D13-003, TC-L02-002, TC-L08-033).
+* Nine documented-limit rows are PASS-as-documented-limit, not control-proven; TC-L06-039 plain/urgent_administrator PASS with PARTIAL (tool_not_in_the_manifest exception-only); the TC-L06-040 twelve-invalid row is PASS-as-written (5 of 12 rejected, criterion unmet).
+* Provenance (`cur` labels) is caller-asserted; no Registry source trust (authenticity, signature, live selection not established); the probe exercised Registry a40fe755, code-equal outside docs/ and README.md to tuple 6b96a9a6.
+* Runtime governed export BLOCKED (no production interface; not repaired). Exchange `refs/replace` residual stands.
+* No release, production deployment, certification or hold removal is authorized or claimed; independent qualification NONE; claims_made = [].

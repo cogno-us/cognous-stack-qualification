@@ -20,7 +20,7 @@ neither C1 (38 PASS / 0 FAIL / 3 BLOCKED, primary) nor C2 (41 PASS / 0 FAIL / 0 
 - Which ids are visible: in runs #2 and #3 GitHub truncated the single notice at 4096 characters, so only the first ~28-29 of 41 per-test lines are visible (all PASS); the other 12-13 are covered only by the header counts (41/0/0).
   In run #4 the helper emitted two chunked notices (1/2, 2/2) and all 41 ids are visible, every one PASS (`run4-annotations.json`).
 - Compared with C2 (41 PASS) and C1 (38 PASS / 3 BLOCKED): no visible id differs from C2.
-- A further hosted run is triggered by the commit that adds this directory (same PR path-filter behaviour). It is a trailing observation; its annotations are deliberately NOT captured here to avoid an endless evidence/run loop. Its result is reported in the PR/coordinator report only.
+- A further hosted run is triggered by the commit that adds this directory (same PR path-filter behaviour). Trailing run 41233326892 (head 99fd257e65b11ffef6af99f1dabe78b1128defac), header 41/0/0 as reported by the coordinator; it is a trailing observation; its annotations are deliberately NOT captured here to avoid an endless evidence/run loop. Its result is reported in the PR/coordinator report only.
 
 ## Unverifiable here
 - Artifacts `security-wiki-s3-c3-hosted-<run>-1` for runs 2-4 (run 2 is 19.8 MB; also `...-41229883384-1`, 4.3 MB) exists on GitHub but could not be downloaded from this environment (egress to the blob host denied; job logs also 403).
