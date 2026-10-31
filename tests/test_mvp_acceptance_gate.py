@@ -514,7 +514,7 @@ class RulingsTwoTests(GateTests):
             self.assertEqual(G.sha256_file(ROOT / rel), digest, f"{rel} changed: regenerate the commitment as a NEW versioned candidate (python tools/mvp_acceptance_gate.py commit)")
         self.assertIn("PROPOSED", doc["status"])
         self.assertEqual(doc["candidate_version"], f"mvp-qualification-candidate-v{G.COMMITMENT_VERSION}")
-        self.assertEqual(G.COMMITMENT_VERSION, 5)  # QGATE-05: the candidate is v5 (the constant follows the file name; v4 stays committed and untouched)
+        self.assertEqual(G.COMMITMENT_VERSION, 6)  # NM-138 successor: the candidate is v6 (the constant follows the file name; v5, the QGATE-05 candidate, stays committed and untouched)
 
     def test_commitment_requires_an_independent_hash_and_detects_any_change(self):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="")["checks"]}["G-12"], "INCOMPLETE")
@@ -1180,12 +1180,12 @@ class HardeningTests(unittest.TestCase):
 
     def run_custody(self, qual_rev, github_sha, head=None, commitment=b"c\n", record_sha=None, schema="cognous.qgate05-freeze-commitment/1", extra=None):
         """Run tools/qgate05_custody_check.py on a scratch git checkout. QGATE-05: the old workflow_dispatch input `qualification_revision` (blank or the workflow
-        commit) is replaced by the custody record read from the dedicated hub branch qgate-05/custody-1; the check is STRICTER: a blank revision is no longer accepted."""
+        commit) is replaced by the custody record read from the dedicated hub branch nm138/custody-1; the check is STRICTER: a blank revision is no longer accepted."""
         import subprocess
         work = self.tmp / f"custody-{abs(hash((qual_rev, github_sha, head, commitment, record_sha, schema, str(extra))))}"
         repo = work / "q"
         (repo / "process/mvp-acceptance").mkdir(parents=True)
-        cf = repo / "process/mvp-acceptance/candidate-commitment.proposed.v5.json"
+        cf = repo / "process/mvp-acceptance/candidate-commitment.proposed.v6.json"
         cf.write_bytes(commitment)
         env = {"PATH": "/usr/bin:/bin", "GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.test", "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.test", "HOME": str(work)}
         for cmd in (["git", "init", "-q"], ["git", "add", "-A"], ["git", "commit", "-q", "-m", "x"]):
@@ -1197,7 +1197,7 @@ class HardeningTests(unittest.TestCase):
         rec = work / "freeze-commitment.json"
         rec.write_text(json.dumps({"schema": schema, "qualification_revision": q, "candidate_commitment_sha256": record_sha or hashlib.sha256(b"c\n").hexdigest(), **(extra or {})}))
         proc = subprocess.run([sys.executable, "-B", str(ROOT / "tools/qgate05_custody_check.py"), "--record", str(rec), "--commitment-file", str(cf),
-                               "--commitment-rel", "process/mvp-acceptance/candidate-commitment.proposed.v5.json", "--github-sha", gsha, "--repo-root", str(repo),
+                               "--commitment-rel", "process/mvp-acceptance/candidate-commitment.proposed.v6.json", "--github-sha", gsha, "--repo-root", str(repo),
                                "--out", str(work / "out.json")], env=env, capture_output=True, text=True)
         return proc.returncode
 
@@ -1211,7 +1211,7 @@ class HardeningTests(unittest.TestCase):
         self.assertEqual(self.run_custody("HEAD", "GITHUB", record_sha="0" * 64), 1)  # the recomputed commitment sha256 differs from the custody record
         self.assertEqual(self.run_custody("HEAD", "GITHUB", record_sha="abc"), 1)
         # the hub freeze package template (Worker D) spells the schema and the file key differently; both are accepted, a wrong file name is not
-        self.assertEqual(self.run_custody("HEAD", "GITHUB", schema="cognous.ocs-mvp-qgate-05-freeze-commitment/1", extra={"commitment_file": "process/mvp-acceptance/candidate-commitment.proposed.v5.json"}), 0)
+        self.assertEqual(self.run_custody("HEAD", "GITHUB", schema="cognous.ocs-mvp-qgate-05-freeze-commitment/1", extra={"commitment_file": "process/mvp-acceptance/candidate-commitment.proposed.v6.json"}), 0)
         self.assertEqual(self.run_custody("HEAD", "GITHUB", extra={"commitment_file": "process/mvp-acceptance/candidate-commitment.proposed.v4.json"}), 1)
         self.assertEqual(self.run_custody("HEAD", "GITHUB", schema="something-else/1"), 1)
         wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
@@ -1219,7 +1219,7 @@ class HardeningTests(unittest.TestCase):
         self.assertIn("--expect-commitment-sha256", wf)  # the independent value reaches the gate
         self.assertLess(wf.index("tools/qgate05_custody_check.py"), wf.index("-m pytest"))  # before any test runs
         # F-03: the custody record comes from the dedicated hub branch (checkout ref), not the hub default branch; the head is recorded and the record path/fields are asserted
-        co = wf.index("repository: cogno-us/cognous-open-control-stack\n          ref: qgate-05/custody-1\n          path: components/custody-hub")
+        co = wf.index("repository: cogno-us/cognous-open-control-stack\n          ref: nm138/custody-1\n          path: components/custody-hub")
         self.assertLess(co, wf.index("tools/qgate05_custody_check.py"))
         self.assertNotIn("DEFAULT branch)\n        uses", wf)
         self.assertIn("custody-hub-branch-head.txt", wf)

@@ -11,8 +11,8 @@ Status: prepared input for the one exact Qualification baseline (target 2026-10-
 | mandatory battery v1 (historical, unchanged) (`process/mvp-acceptance/mandatory-battery.proposed.v1.json`) | `a520e9e92534f196a48d4229d984231abbb71c23dfe63b573d919d2285bcdb16` |
 | mandatory battery v2 (in force) (`process/mvp-acceptance/mandatory-battery.proposed.v2.json`) | `61228fad3d28aa9188e528ec8dbea3952308bdc8ad750d7d1628755f46e4d262` |
 | candidate identity (tuple + composite) (`process/mvp-acceptance/candidate-identity.inputs.json`) | `f806d42ddd814df1c6efe7d2c9989a0c60dda82332e5ace5a67d9acb091ae897` |
-| gate (`tools/mvp_acceptance_gate.py`) | `b2b98be9ba5bcee19e0aa11362cbdef62a05a012ebc9691f0e17d52da8360b18` |
-| acceptance workflow (`.github/workflows/mvp-acceptance.yml`) | `115494d4989b5942c6d632fb60086ec29609773f73505b19b904ee693b127e82` |
+| gate (`tools/mvp_acceptance_gate.py`) | `9400eba1562d989764e09b962d5f9fce8dec13203c25984eb7d33723f778958f` |
+| acceptance workflow (`.github/workflows/mvp-acceptance.yml`) | `c5fdb04ce4a66e98c9cf6d7cf1b5f2e250b9740d5071ac050abce76012bc5e53` |
 | environment profile (original, unchanged) (`process/mvp-acceptance/environment-profile.proposed.v1.json`) | `78518a9fa49e372203bb902e5ff59ec9dd5296234930c68d2cc6b5a42f4f9207` |
 | environment profile v2 (in force; QGATE-05 host annotations) (`process/mvp-acceptance/environment-profile.proposed.v2.json`) | `4ca8f1756adc8135681114f8805b73a00f0081610a9b4c1d4e7b457f889f0d91` |
 | successor profile (proposal) (`process/mvp-acceptance/environment-profile.trusted-host-successor.proposed.v1.json`) | `a8d7e526dd3d8488a399434651439f2c87d8c627e7995c20a421291eab0f1ea5` |
