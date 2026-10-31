@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/tmp/claude-0/sec/s6/qual/tools/registry_integration_probe.py", line 582, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/tmp/claude-0/sec/s6/qual/tools/registry_integration_probe.py", line 171, in main
+    return child(json.loads(a.child.read_text()))
+                            ~~~~~~~~~~~~~~~~~^^
+  File "/usr/local/lib/python3.13/pathlib/_local.py", line 546, in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/pathlib/_abc.py", line 632, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.13/pathlib/_local.py", line 537, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'results/security-wiki-s3-20261031/registry-probe/raw/child-config.json'
