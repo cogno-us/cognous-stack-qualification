@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="6" time="2.358" timestamp="2026-10-31T09:17:42.738976+00:00" hostname="vm"><testcase classname="suites.wiki-derived.test_wp_g6_partly_covered_fragments" name="test_wiki_l06_003_a_sender_a_recipient_and_an_actor_that_are_not_declared_are_refused_with_no_effect" file="suites/wiki-derived/test_wp_g6_partly_covered_fragments.py" line="52" time="1.092"><properties><property name="wiki_case" value="TC-L06-003" /></properties><failure message="RuntimeError: candidate source identity mismatch: agent_control_plane.bounded">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-85/test_wiki_l06_003_a_sender_a_r0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdbc7cf0510&gt;
+
+    @wiki_case('TC-L06-003')
+    def test_wiki_l06_003_a_sender_a_recipient_and_an_actor_that_are_not_declared_are_refused_with_no_effect(tmp_path, monkeypatch):
+        """Fragment only: refusal of an undeclared party. Nothing is discovered."""
+        def flow(name):
+            path = tmp_path / name
+            path.mkdir()
+            return W.route_c(path, monkeypatch)
+    
+        f = flow('control')  # positive control: the declared sender, recipient and actor execute once
+&gt;       E.assert_executed_once(E.run_msg(f, E.make_msg(f, 'declared')))
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g6_partly_covered_fragments.py:62: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in &lt;lambda&gt;
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -&gt; None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+&gt;               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError</failure></testcase><testcase classname="suites.wiki-derived.test_wp_g6_partly_covered_fragments" name="test_wiki_l06_003_an_undeclared_action_is_refused_with_no_effect" file="suites/wiki-derived/test_wp_g6_partly_covered_fragments.py" line="86" time="0.448"><properties><property name="wiki_case" value="TC-L06-003" /></properties><failure message="AssertionError: assert 'declared Manifest action' in 'candidate source identity mismatch: agent_control_plane.bounded'&#10; +  where 'candidate source identity mismatch: agent_control_plane.bounded' = str(RuntimeError('candidate source identity mismatch: agent_control_plane.bounded'))&#10; +    where RuntimeError('candidate source identity mismatch: agent_control_plane.bounded') = &lt;ExceptionInfo RuntimeError('candidate source identity mismatch: agent_control_plane.bounded') tblen=8&gt;.value">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-85/test_wiki_l06_003_an_undeclare0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fdbc9e3e650&gt;
+
+    @wiki_case('TC-L06-003')
+    def test_wiki_l06_003_an_undeclared_action_is_refused_with_no_effect(tmp_path, monkeypatch):
+        """Fragment only: an action that no manifest declares cannot be proposed through the exchange."""
+        f = W.route_c(tmp_path, monkeypatch)
+        bundle = copy.deepcopy(f.bundle)
+        next(r for r in bundle['records'] if r['record_type'] == 'runtime_proposal')['data']['action_id'] = 'urn:cognous:action:shadow-agent-v1'
+        message = E.make_msg(f, 'shadow-action', bundle=bundle)
+        with pytest.raises(Exception) as exc:  # the exchange cannot export the retained bundle for an action the manifest does not declare
+            E.run_msg(f, message, bundle=bundle)
+&gt;       assert 'declared Manifest action' in str(exc.value)
+E       AssertionError: assert 'declared Manifest action' in 'candidate source identity mismatch: agent_control_plane.bounded'
+E        +  where 'candidate source identity mismatch: agent_control_plane.bounded' = str(RuntimeError('candidate source identity mismatch: agent_control_plane.bounded'))
+E        +    where RuntimeError('candidate source identity mismatch: agent_control_plane.bounded') = &lt;ExceptionInfo RuntimeError('candidate source identity mismatch: agent_control_plane.bounded') tblen=8&gt;.value
+
+suites/wiki-derived/test_wp_g6_partly_covered_fragments.py:96: AssertionError</failure></testcase><testcase classname="suites.wiki-derived.test_wp_g6_partly_covered_fragments" name="test_wiki_l06_003_the_registry_is_a_set_of_names_and_not_an_inventory_known_limit" file="suites/wiki-derived/test_wp_g6_partly_covered_fragments.py" line="99" time="0.366"><properties><property name="wiki_case" value="TC-L06-003" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g6_partly_covered_fragments" name="test_wiki_l06_026_traversal_in_the_database_name_is_refused_and_nothing_is_created_outside_the_root" file="suites/wiki-derived/test_wp_g6_partly_covered_fragments.py" line="133" time="0.019"><properties><property name="wiki_case" value="TC-L06-026" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g6_partly_covered_fragments" name="test_wiki_l06_026_a_link_that_leads_out_of_the_root_is_refused_and_the_target_is_untouched" file="suites/wiki-derived/test_wp_g6_partly_covered_fragments.py" line="152" time="0.005"><properties><property name="wiki_case" value="TC-L06-026" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g6_partly_covered_fragments" name="test_wiki_l06_026_the_confinement_covers_the_database_path_only_known_limit" file="suites/wiki-derived/test_wp_g6_partly_covered_fragments.py" line="182" time="0.095"><properties><property name="wiki_case" value="TC-L06-026" /></properties></testcase></testsuite></testsuites>

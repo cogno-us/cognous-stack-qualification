@@ -1,0 +1,187 @@
+{
+  "label": "CURRENT-STACK Security Wiki execution record (post-run verification, computed after run2)",
+  "validation_id": "current-stack-20261031",
+  "profile": "process/security-runtime-current-stack-20261031.json",
+  "harness_pin_view": {
+    "FROZEN_RUNTIME": "f7a55e2a8494801e49193f9f46935f0a971c248d",
+    "FROZEN_CONTROL_PLANE": "b19c47ddd020409d24e52e70b11359c46265edbb",
+    "FROZEN_REPLAY": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+    "FROZEN_EXCHANGE": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+    "FROZEN_HUB": "dd522c504d0cd2bdf463b791a729fe9029cca224"
+  },
+  "gate_records_real_require_pristine": {
+    "control_plane": {
+      "gate": "contract-matrix",
+      "revision": "b19c47ddd020409d24e52e70b11359c46265edbb",
+      "tested_revision": "b19c47ddd020409d24e52e70b11359c46265edbb",
+      "tested_revision_match": true
+    },
+    "runtime": {
+      "gate": "contract-matrix",
+      "revision": "f7a55e2a8494801e49193f9f46935f0a971c248d",
+      "tested_revision": "f7a55e2a8494801e49193f9f46935f0a971c248d",
+      "tested_revision_match": true
+    },
+    "replay": {
+      "gate": "contract-matrix",
+      "revision": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+      "tested_revision": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+      "tested_revision_match": true
+    },
+    "evidence_pack": {
+      "gate": "sha-pin",
+      "revision": "7b9511f2c6d56d424f17b078826594abd29f6c96",
+      "tested_revision": "7b9511f2c6d56d424f17b078826594abd29f6c96",
+      "tested_revision_match": true
+    },
+    "odes": {
+      "gate": "sha-pin",
+      "revision": "1a5e1d300250d832e611633f0bf8f762e398c0ec",
+      "tested_revision": "1a5e1d300250d832e611633f0bf8f762e398c0ec",
+      "tested_revision_match": true
+    },
+    "exchange": {
+      "gate": "sha-pin",
+      "revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+      "tested_revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+      "tested_revision_match": true
+    },
+    "manifest": {
+      "gate": "sha-pin",
+      "revision": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "tested_revision": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "tested_revision_match": true
+    }
+  },
+  "contract_matrix_rows": [
+    {
+      "boundary": "lifecycle-runtime-replay",
+      "contract": "execution-attempt-lifecycle",
+      "status": "conforms",
+      "reasons": [],
+      "producer": {
+        "component": "runtime",
+        "contract_version": "0.1.0-draft",
+        "conformance_level": "P",
+        "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+        "problems": []
+      },
+      "consumer": {
+        "component": "replay",
+        "contract_version": "0.1.0-draft",
+        "conformance_level": "L",
+        "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+        "problems": []
+      }
+    },
+    {
+      "boundary": "lifecycle-control-plane-replay",
+      "contract": "execution-attempt-lifecycle",
+      "status": "conforms",
+      "reasons": [],
+      "producer": {
+        "component": "control_plane",
+        "contract_version": "0.1.0-draft",
+        "conformance_level": "P",
+        "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+        "problems": []
+      },
+      "consumer": {
+        "component": "replay",
+        "contract_version": "0.1.0-draft",
+        "conformance_level": "L",
+        "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+        "problems": []
+      }
+    }
+  ],
+  "component_checkouts_after_run": {
+    "control_plane": {
+      "head": "b19c47ddd020409d24e52e70b11359c46265edbb",
+      "tree": "039219b5aba7a157fff79781c716067fad7ed985",
+      "dirty_entries": 0
+    },
+    "runtime": {
+      "head": "f7a55e2a8494801e49193f9f46935f0a971c248d",
+      "tree": "97da8323368bb5a573fd157b11a9c1dda1178a10",
+      "dirty_entries": 0
+    },
+    "replay": {
+      "head": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+      "tree": "b68151a2f957a468d398a4bcb4b3936217eb449d",
+      "dirty_entries": 0
+    },
+    "evidence_pack": {
+      "head": "7b9511f2c6d56d424f17b078826594abd29f6c96",
+      "tree": "b7ae2da5c6bc23498f49f38f00a7fc8a8c6bbb00",
+      "dirty_entries": 0
+    },
+    "odes": {
+      "head": "1a5e1d300250d832e611633f0bf8f762e398c0ec",
+      "tree": "a54cc5544ad881feb806ce1ffd2351790fba5cce",
+      "dirty_entries": 0
+    },
+    "exchange": {
+      "head": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+      "tree": "136f273e89bbab4ab4d26facb56318d8919d1eac",
+      "dirty_entries": 0
+    },
+    "manifest": {
+      "head": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
+      "dirty_entries": 0
+    },
+    "registry": {
+      "head": "6b96a9a658923954433dc1a4c13626fa5145b9c7",
+      "tree": "38d50602ae725e208f010baba05bbf7b908e76ac",
+      "dirty_entries": 0
+    },
+    "index": {
+      "head": "b2485998b88256c2b322493800d1fba076814cbd",
+      "tree": "770b4aa59acfd83d555f81b81524582f57d74afa",
+      "dirty_entries": 0
+    },
+    "bitrep": {
+      "head": "981036c315856c71207984797b0c4e48d3b3921d",
+      "tree": "96d9a687597c8a5e63c55a52c92fbfef35b791ba",
+      "dirty_entries": 0
+    },
+    "governance": {
+      "head": "03a90c14c4a178997df2b6e527f67452b9c6bb7a",
+      "tree": "ef81fe816a1fc5447ed7a6d8431362a1aac206bb",
+      "dirty_entries": 0
+    }
+  },
+  "registry": {
+    "revision": "6b96a9a658923954433dc1a4c13626fa5145b9c7",
+    "harness_verified": false,
+    "exercised_by_any_wiki_test": false,
+    "note": "recorded and checked out pristine out-of-band only"
+  },
+  "qualification_commit_with_config": "1f837dda5021bafc8f22af1e3f2cd81045713d22",
+  "config_sha256": {
+    "process/security-runtime-current-stack-20261031.json": "d43b09d4482924716d028fc7ea2e41a4d71e947d7a8bda47f7c7093451eb0608",
+    "process/v1-validation/current-stack-20261031/freeze-manifest.json": "069d0be6d28146b752ac35fad9bf4cbc7c88caaa297b88de25ab7dca3d1f1de9",
+    "process/v1-validation/current-stack-20261031/tuple.json": "7e9b5ba65cc8a79072a91e6832649396395fb47b73aa7760fb463c1c6ebbff90"
+  },
+  "suites_and_tools_unchanged_vs_86f78ea3": true,
+  "execution": {
+    "env": {
+      "SCN_COMPONENTS_DIR": "/home/claude/cs-components",
+      "V1_VALIDATION_ID": "current-stack-20261031",
+      "V1_PROFILE": "process/security-runtime-current-stack-20261031.json",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "command": "python3 -m pytest -q -p no:cacheprovider -p obs_plugin -o junit_family=xunit1 -rA <module> (one process per module, 2 in parallel; runner-run_mod2.sh)",
+    "python": "3.13.18",
+    "host_cpus": 2,
+    "where": "isolated Linux sandbox (Anthropic cloud container); NOT a GitHub-hosted workflow run",
+    "network": "refused by conftest no_network fixture"
+  },
+  "runs": {
+    "run1": "raw-first-run/ (no observer)",
+    "run2": "raw/ (observer-only plugin obs_plugin.py; official)",
+    "status_identical": true
+  }
+}

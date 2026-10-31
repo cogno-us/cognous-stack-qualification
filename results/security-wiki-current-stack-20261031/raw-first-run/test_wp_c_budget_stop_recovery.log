@@ -1,0 +1,163 @@
+..............F...F....................                                  [100%]
+=================================== FAILURES ===================================
+_____ test_wiki_l06_022_stop_journal_retains_requester_and_reason_in_order _____
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-62/test_wiki_l06_022_stop_journal0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f3ee7d01a90>
+
+    @wiki_case('TC-L06-022')
+    def test_wiki_l06_022_stop_journal_retains_requester_and_reason_in_order(tmp_path, monkeypatch):
+        """The local stop journal holds what the controlling process records at each step, ordered by sequence. The journal is a
+        record of observations: it does not check who the requester is, and it is not a mechanism that stops anything."""
+        from engine.c8_source_evidence import LocalStopJournal, STOP_KINDS
+        flow, holders, executor = three_holders(tmp_path, monkeypatch)
+        dest = flow.dest
+        stopped, other = holders['holder-1'], holders['holder-2']
+        assert W.execute_b(flow, stopped[0], executor=executor)[0].status == 'executed'
+        journal_path = tmp_path / 'stop-journal.sqlite'
+        j = LocalStopJournal(journal_path)
+        life, effect = 'stop-holder-1', stopped[1].env.effect_id
+        requester, reason = 'urn:cognous:principal:operations-lead', 'synthetic_incident_drill'
+    
+        j.record(event_id='e1', sequence=1, lifecycle_id=life, effect_id=effect, kind='stop_requested',
+                 observation={'requester': requester, 'reason': reason, 'grant_id': grant_of(stopped[0])})
+        dest.set_grant_status(grant_of(stopped[0]), status='suspended')
+        with sqlite3.connect(Path(dest.path)) as db:
+            status = db.execute('SELECT status FROM authority_grants_v1 WHERE grant_id=?', (grant_of(stopped[0]),)).fetchone()[0]
+        j.record(event_id='e2', sequence=2, lifecycle_id=life, effect_id=effect, kind='stop_acknowledged',
+                 observation={'grant_status': status})
+        refused = W.execute_b(flow, stopped[1], executor=executor)[0]
+        j.record(event_id='e3', sequence=3, lifecycle_id=life, effect_id=effect, kind='dispatch_closed',
+                 observation={'next_effect_status': refused.status, 'attempted': refused.attempted})
+        before = W.destination_effects(flow)
+        j.record(event_id='e4', sequence=4, lifecycle_id=life, effect_id=effect, kind='quiescence_observed',
+                 observation={'effect_rows_unchanged': W.destination_effects(flow) == before})
+        # a second, unrelated lifecycle interleaved in time does not mix into the first
+        j.record(event_id='x1', sequence=5, lifecycle_id='stop-other', effect_id=other[0].env.effect_id, kind='stop_requested',
+                 observation={'requester': 'urn:cognous:principal:someone-else', 'reason': 'other_reason'})
+        from engine.safe_executor import snapshot_envelope
+        recon = dest.reconcile_claim(stopped[0].claim.claim_id, snapshot_envelope(stopped[0].env))
+        j.record(event_id='e5', sequence=6, lifecycle_id=life, effect_id=effect, kind='destination_reconciled',
+                 observation={'status': recon['status'], 'retry_eligible': recon['retry_eligible']})
+    
+        exported = LocalStopJournal(journal_path).export(life)  # read back through a new handle on the file
+        events = exported['events']
+        assert [e['kind'] for e in events] == list(STOP_KINDS)
+        assert [e['sequence'] for e in events] == [1, 2, 3, 4, 6]
+        assert events[0]['observation'] == {'requester': requester, 'reason': reason, 'grant_id': grant_of(stopped[0])}
+        assert events[1]['observation'] == {'grant_status': 'suspended'}
+        assert events[2]['observation'] == {'next_effect_status': 'denied', 'attempted': False}
+        assert events[3]['observation'] == {'effect_rows_unchanged': True}
+        assert events[4]['observation'] == {'status': 'applied', 'retry_eligible': False}
+        assert exported['provenance'] == 'explicit_local_controller_observations_only'
+        assert LocalStopJournal(journal_path).export('stop-other')['events'][0]['observation']['reason'] == 'other_reason'
+        # the order is the sequence: a repeated sequence or event identifier is refused, an unknown kind is refused
+        with pytest.raises(sqlite3.IntegrityError):
+>           j.record(event_id='e6', sequence=3, lifecycle_id=life, effect_id=effect, kind='dispatch_closed', observation={})
+
+suites/wiki-derived/test_wp_c_budget_stop_recovery.py:741: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <engine.c8_source_evidence.LocalStopJournal object at 0x7f3ee7a9aba0>
+event_id = 'e6', sequence = 3, lifecycle_id = 'stop-holder-1'
+effect_id = 'effect-11', kind = 'dispatch_closed', observation = {}
+
+    def record(self, *, event_id: str, sequence: int, lifecycle_id: str,
+               effect_id: str, kind: str, observation: dict) -> None:
+        if kind not in STOP_KINDS or not isinstance(observation,dict):
+            raise ValueError("unsupported stop event")
+        if not all(isinstance(x,str) and x for x in (event_id,lifecycle_id,effect_id)):
+            raise ValueError("stop event identity required")
+        if type(sequence) is not int or sequence < 0:
+            raise ValueError("stop event sequence must be an int >= 0")
+        db = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            db.execute("BEGIN IMMEDIATE")
+            try:
+                last = db.execute("SELECT MAX(sequence) FROM c8_stop_events").fetchone()[0]
+                if last is not None and sequence <= last:
+>                   raise ValueError("stop event sequence must increase")
+E                   ValueError: stop event sequence must increase
+
+../cs-components/runtime/engine/c8_source_evidence.py:74: ValueError
+_ test_wiki_l15_019_destination_restored_without_authority_state_refuses_or_holds _
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-62/test_wiki_l15_019_destination_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f3ee773fcb0>
+
+    @wiki_case('TC-L15-019')
+    def test_wiki_l15_019_destination_restored_without_authority_state_refuses_or_holds(tmp_path, monkeypatch):
+        # route B: the effect tables go back to an older state while the authority tables (claim consumed) stay: fail closed
+        (tmp_path / 'b1').mkdir()
+        flow = W.route_b(tmp_path / 'b1', effect_nos=(1,), budget_max=1)
+        old = tmp_path / 'before-effect.sqlite'
+        sqlite_backup(flow.dest.path, old)
+        assert W.execute_b(flow, flow.parts[0])[0].status == 'executed'
+        restore_tables(old, flow.dest.path, EFFECT_TABLES)
+        executor = reopen_b(flow, max_effects=1)
+        assert W.destination_effects(flow) == [], 'the effect rows are gone with their tables'
+        res = W.execute_b(flow, flow.parts[0], executor=executor)[0]
+        assert res.status == 'denied' and not res.attempted and 'execution claim is not usable' in (res.error or '')
+        assert W.destination_effects(flow) == [], 'nothing is admitted from the half-restored state'
+        assert flow.dest.claim_state(flow.parts[0].claim.claim_id) == 'consumed'
+    
+        # route B: the authority tables go back to an older state while the effects stay: refused by effect uniqueness
+        (tmp_path / 'b2').mkdir()
+        flow2 = W.route_b(tmp_path / 'b2', effect_nos=(1,), budget_max=1)
+        old2 = tmp_path / 'before-effect-2.sqlite'
+        sqlite_backup(flow2.dest.path, old2)
+        assert W.execute_b(flow2, flow2.parts[0])[0].status == 'executed'
+        committed = W.destination_effects(flow2)
+        restore_tables(old2, flow2.dest.path, AUTHORITY_TABLES)
+        executor2 = reopen_b(flow2, max_effects=1)
+        assert flow2.dest.claim_state(flow2.parts[0].claim.claim_id) == 'issued'
+        res2 = W.execute_b(flow2, flow2.parts[0], executor=executor2)[0]
+>       assert res2.status == 'denied' and not res2.newly_executed
+E       AssertionError: assert ('unknown' == 'denied'
+E         
+E         - denied
+E         + unknown)
+
+suites/wiki-derived/test_wp_c_budget_stop_recovery.py:981: AssertionError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_d12_021_sixty_refused_requests_each_leave_a_durable_typed_refusal_record
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_d12_021_refusal_at_the_commit_boundary_after_an_authorizing_decision_is_retained_and_distinct
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_d12_021_refusals_survive_restart_and_appear_in_the_replay_reconstruction
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_d12_021_repeated_refusals_from_one_actor_are_each_retained
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_024_cap_of_twenty_is_exact_under_one_hundred_attempts_route_a
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_024_cap_of_twenty_is_exact_under_one_hundred_attempts_route_b
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_024_three_budgets_for_three_action_classes_are_independent
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_024_budget_state_reports_used_and_maximum_for_each_budget
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_016_fifty_approved_low_risk_operations_do_not_carry_to_one_high_risk_operation
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_016_ten_split_effects_stop_at_the_shared_effect_budget
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_016_repeated_identical_requests_yield_one_effect
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_016_missing_approval_holds_the_high_risk_operation_regardless_of_prior_approvals
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_022_suspended_grant_refuses_the_next_effect_of_one_holder_while_a_second_holder_executes
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_022_suspension_persists_across_restart
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_022_call_already_committed_is_reported_applied_and_not_rolled_back
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l15_019_restore_of_authority_and_destination_files_preserves_grants_budgets_claims_and_effects
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l15_019_consumed_claim_stays_consumed_and_the_retry_is_refused_after_restore
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l15_019_restore_of_an_older_backup_readmits_later_effects_known_limit
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_six_modelled_failures_each_refuse_or_hold_and_none_authorizes[resolver_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_six_modelled_failures_each_refuse_or_hold_and_none_authorizes[grant_row_missing]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_six_modelled_failures_each_refuse_or_hold_and_none_authorizes[permission_set_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_six_modelled_failures_each_refuse_or_hold_and_none_authorizes[budget_row_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_six_modelled_failures_each_refuse_or_hold_and_none_authorizes[evidence_status_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_six_modelled_failures_each_refuse_or_hold_and_none_authorizes[destination_unreadable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_after_the_input_returns_the_same_request_executes_once[resolver_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_after_the_input_returns_the_same_request_executes_once[grant_row_missing]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_after_the_input_returns_the_same_request_executes_once[permission_set_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_after_the_input_returns_the_same_request_executes_once[budget_row_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_after_the_input_returns_the_same_request_executes_once[evidence_status_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_after_the_input_returns_the_same_request_executes_once[destination_unreadable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_error_after_commit_is_reported_unknown_not_denied
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_failure_records_state_refuse_or_hold_as_the_resulting_protection[resolver_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_failure_records_state_refuse_or_hold_as_the_resulting_protection[grant_row_missing]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_failure_records_state_refuse_or_hold_as_the_resulting_protection[permission_set_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_failure_records_state_refuse_or_hold_as_the_resulting_protection[budget_row_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_failure_records_state_refuse_or_hold_as_the_resulting_protection[evidence_status_unavailable]
+PASSED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l17_028_failure_records_state_refuse_or_hold_as_the_resulting_protection[destination_unreadable]
+FAILED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l06_022_stop_journal_retains_requester_and_reason_in_order
+FAILED suites/wiki-derived/test_wp_c_budget_stop_recovery.py::test_wiki_l15_019_destination_restored_without_authority_state_refuses_or_holds
+2 failed, 37 passed in 91.81s (0:01:31)
