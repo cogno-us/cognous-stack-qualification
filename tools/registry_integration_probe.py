@@ -16,7 +16,7 @@ import through. Outcome per stage is PASS | FAIL | BLOCKED (exact reason) | NOT_
 stage is BLOCKED and nothing FAILed. The Replay stage is BLOCKED unless the installed Replay HEAD == the tuple Replay SHA and it exposes the E1 selector (below).
 
 Registry bytes under test: the CP test builders accept only exact Registry pins (ACCEPTED_PINS in the CP repo). If the tuple Registry
-is not one of them (6b96a9a6 is not; it is code-equal to a40fe755 except README), a second pristine checkout at an ACCEPTED pin must be
+is not one of them (6b96a9a6 is not; it is code-equal to a40fe755: the 62 differing paths are all under docs/ or README.md), a second pristine checkout at an ACCEPTED pin must be
 given as --registry-builder-dir; the probe then proves code-equality (git diff excluding docs/ and README.md) and RECORDS that the
 bytes exercised are the accepted pin's, not the tuple SHA's. Without it the probe is BLOCKED before running anything.
 """
