@@ -62,6 +62,10 @@ jobs:
       - name: Install hash-locked dependencies and prepare evidence directories
         run: |
           python -m pip install --require-hashes -r .github/locks/cryptography-pydantic-pytest-a9a750.txt
+          # jsonschema is imported lazily by the ODES component (odes/schema_validation.py) and is NOT in the lock above; the harness needs it
+          # (C1 ran with jsonschema 4.26.0). Second already-committed hash-locked set; no new lock, no unpinned install.
+          python -m pip install --require-hashes -r .github/locks/jsonschema-pyyaml-c943d3.txt
+          python -c "import jsonschema, cryptography, pydantic, pytest, yaml; print('harness imports OK', jsonschema.__version__)"
           EV="$RUNNER_TEMP/s3-hosted"
           mkdir -p "$EV/hosted"
           {

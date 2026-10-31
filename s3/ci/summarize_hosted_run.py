@@ -28,7 +28,11 @@ from pathlib import Path
 
 EXPECTED = 41
 NAMES = ('control_plane', 'runtime', 'replay', 'evidence_pack', 'odes', 'exchange', 'manifest', 'registry')
-BLOCK_MARKS = ('No space left on device', 'ENOSPC', 'errno 28', 'Errno 28', 'could not create numbered dir', 'failed on setup')
+BLOCK_MARKS = ('No space left on device', 'ENOSPC', 'errno 28', 'Errno 28', 'could not create numbered dir', 'failed on setup',
+               # harness/environment errors that occur before the intended assertion (missing dependency in the runner), never a security verdict
+               'ModuleNotFoundError', 'No module named', 'ImportError: cannot import name')
+# subset of BLOCK_MARKS meaning the runner lacked a dependency: that is a HARNESS DEFECT, so besides BLOCKED it also fails the job
+DEPENDENCY_MARKS = ('ModuleNotFoundError', 'No module named', 'ImportError: cannot import name')
 
 
 def read(p, default=''):
@@ -65,6 +69,32 @@ def classify(case):
         el = case.find('skipped')
         return 'BLOCKED', 'SKIPPED', (el.get('message') or '')[:300]
     return 'PASS', 'PASS', ''
+
+
+def dependency_error(case):
+    for tag in ('failure', 'error'):
+        el = case.find(tag)
+        if el is not None and any(m in f"{el.get('message') or ''}\n{el.text or ''}" for m in DEPENDENCY_MARKS):
+            return True
+    return False
+
+
+def gh_escape(s):
+    return s.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
+
+
+def build_annotation(rows, counts, collect_n, junit_n, versions, limit=60000):
+    """One GitHub ::notice line (escaped newlines) listing every test id, verdict and first-boundary text (<=160 chars) plus versions/counts."""
+    lines = [f"C3 hosted observation (preliminary, junit-derived): PASS {counts['PASS']} FAIL {counts['FAIL']} BLOCKED {counts['BLOCKED']}; "
+             f"collected {collect_n}, executed (junit testcases) {junit_n}",
+             'versions: ' + ', '.join(f'{k} {v}' for k, v in versions.items())]
+    for r in rows:
+        b = (r['first_failure_boundary'] or '').replace('\n', ' ')[:160]
+        lines.append(f"{r['test_id'].split('/')[-1]} | {r['verdict_prelim']}" + (f' | {b}' if b else ''))
+    body = gh_escape('\n'.join(lines))
+    if len(body) > limit:
+        body = body[:limit - 20] + '%0A[truncated]'
+    return '::notice title=S3 C3 per-test verdicts::' + body
 
 
 def node_id(case):
@@ -135,6 +165,8 @@ def main(argv=None):
         nid = node_id(c)
         verdict, jstat, boundary = classify(c)
         counts[verdict] += 1
+        if dependency_error(c):
+            problems.append(f'dependency missing in runner for {nid} (harness defect, not a security result)')
         o = obs.get(nid, {})
         rows.append({'test_id': nid, 'junit_status': jstat, 'verdict_prelim': verdict, 'time_s': c.get('time', ''),
                      'first_failure_boundary': boundary, 'exchange_identity_check_calls': o.get('calls', ''),
@@ -183,6 +215,13 @@ def main(argv=None):
     if a.step_summary:
         with a.step_summary.open('a') as f:
             f.write(text)
+    versions = {'python': platform.python_version()}
+    for mod in ('pytest', 'jsonschema'):
+        try:
+            versions[mod] = __import__(mod).__version__
+        except Exception as e:  # recorded, not hidden
+            versions[mod] = f'UNAVAILABLE: {type(e).__name__}'
+    print(build_annotation(rows, counts, collect_n, junit_n, versions))
     if counts['FAIL'] or counts['BLOCKED']:
         print(f'::warning::hosted S3 observation: {counts["FAIL"]} FAIL, {counts["BLOCKED"]} BLOCKED (reported, job not failed on this account)')
     if not ok:
