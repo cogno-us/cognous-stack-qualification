@@ -1,3 +1,5 @@
+> **S4 ERRATUM (2026-10-31, appended; original text below is kept unchanged).** Governing text is now `S4-CLOSEOUT.md` and `REVIEW-CORRECTIONS.md`. Corrections: (1) the Exchange identity check is evidenced in 39 of 41 C1 rows, not "every one of the 41" (two setup-error rows carry stale counters); (2) the C2 re-run's "same tuple, same environment" is asserted, not evidenced (no run.json, command, tuple or pristine-after record); (3) a pre-run guard "OK on the real config" is unverifiable from committed artifacts; the guard is not claimed for C1; (4) a separate hosted observation C3 exists (`c3-hosted-run/`, 41/0/0, annotations only, artifacts not independently reconstructed); (5) the TC-L06-040 twelve-invalid row is PASS-as-written, not control-proven. Headline unchanged: C1 38 PASS / 0 FAIL / 3 BLOCKED. Q7 NOT ESTABLISHED; no release or production claim.
+
 # Security Wiki S3: merged current-tuple 41-case results
 
 Governing: Engineering Constitution cogno-us/cognous-engineering-constitution@1c2e920f4e58e07a52e8e2408a506cf7dbc1292b; Issue #254 (cogno-us/cognous-open-control-stack).
