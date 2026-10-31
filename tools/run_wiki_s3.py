@@ -18,6 +18,7 @@ The registry checkout is verified and recorded, but the harness neither imports 
 Refusals (exit 2, nothing executed): any value containing PLACEHOLDER / not a 40-hex SHA; a tuple that disagrees with the profile file or the
 freeze manifest it names; a checkout whose HEAD != tuple SHA or that is not clean (tools/pristine_checkout.require_pristine); an existing
 --out; a nodeids file that is not exactly the committed 41 (count and sorted-unique); collect-only not yielding exactly those ids.
+REQUIRES approved patch /tmp/claude-0/sec/s3/cur-generation.patch (suite_generation 'cur'); refuses (symbol check) when it is not applied.
 --dry-check performs every check including pytest --collect-only, executes no test and writes nothing under --out.
 """
 from __future__ import annotations
@@ -117,9 +118,26 @@ def check_configs(t):
         raise Refuse('exchange_compatibility_profile differs between tuple, profile and freeze-manifest')
     if profile.get('suite_generation') != 'cur':
         raise Refuse('profile suite_generation must be "cur" (p2 would stamp the historical 7a4bcd40/c5e97e87 labels = false provenance)')
+    require_cur_patch()
     if any(profile.get(k) is not False for k in ('selected', 'reference_release_authorized', 'production_deployment_authorized')):
         raise Refuse('profile must stay nonselected and nonauthorizing')
     return prof_path, man_path
+
+
+def require_cur_patch():
+    """suite_generation 'cur' REQUIRES the approved patch /tmp/claude-0/sec/s3/cur-generation.patch (separate, unapplied by default).
+    Detected by symbol presence: 'cur' in SUITE_GENERATIONS (tools/run_security_runtime.py) and the CONTROL_PLANE_CUR_REVISION import
+    plus CUR_REVISIONS in the chain harness. Refuses otherwise (a p2 fallback would stamp false 7a4bcd40/c5e97e87 provenance)."""
+    import ast
+    ok_tool = False
+    tree = ast.parse((ROOT / 'tools' / 'run_security_runtime.py').read_text())
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Assign) and any(getattr(t, 'id', None) == 'SUITE_GENERATIONS' for t in n.targets):
+            ok_tool = any(isinstance(c, ast.Constant) and c.value == 'cur' for c in ast.walk(n.value))
+    chain = (ROOT / 'suites' / 'security-runtime' / 'test_security_runtime_chain.py').read_text()
+    if not (ok_tool and 'CONTROL_PLANE_CUR_REVISION' in chain and 'MOLTBOT_CUR_REVISION' in chain and 'CUR_REVISIONS' in chain):
+        raise Refuse("suite_generation 'cur' requires the approved patch /tmp/claude-0/sec/s3/cur-generation.patch "
+                     "(symbols 'cur' in SUITE_GENERATIONS, CONTROL_PLANE_CUR_REVISION, CUR_REVISIONS not found); not applied -> refusing")
 
 
 def check_checkouts(base, t):
