@@ -1,0 +1,10 @@
+## QGATE-05 run summary (read-only; not an acceptance, not a certification; release HOLD)
+- run: https://github.com/cogno-us/cognous-stack-qualification/actions/runs/41169692260 attempt None; workflow sha None; qualification sha None
+- runner: image ubuntu24/20261026.354.1, kernel 7.0.0-1017-azure, yama.ptrace_scope 1
+- oracle rows (48), each status counted separately: PASS=48
+- junit mvp-chain: tests=414 passed=414 failed=0 error=0 skipped=0; pytest exit 0
+- junit d2-route-b: tests=22 passed=22 failed=0 error=0 skipped=0; pytest exit 0
+- junit applicability: tests=6 passed=6 failed=0 error=0 skipped=0; pytest exit 0
+- gate verdict: ACCEPT (authorizes=False); check statuses: PASS=19
+- hub environment record: overall=PASS profile_supported=True; PASS=31
+- custody: PASS

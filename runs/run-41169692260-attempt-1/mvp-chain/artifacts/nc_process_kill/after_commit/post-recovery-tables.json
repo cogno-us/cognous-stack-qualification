@@ -1,0 +1,177 @@
+{
+ "attempt_events": [
+  {
+   "attempt_id": "c0b32256-49a4-44d3-b597-fb977ffa75f1",
+   "created_at": 1791226800.0,
+   "error": null,
+   "event_id": 1,
+   "status": "attempted"
+  },
+  {
+   "attempt_id": "c0b32256-49a4-44d3-b597-fb977ffa75f1",
+   "created_at": 1791226800.0,
+   "error": null,
+   "event_id": 2,
+   "status": "executed"
+  }
+ ],
+ "attempts": [
+  {
+   "attempt_id": "c0b32256-49a4-44d3-b597-fb977ffa75f1",
+   "created_at": 1791226800.0,
+   "decision_id": "50b108b2-2e1b-49a7-b929-916b26abbd0f",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549"
+  }
+ ],
+ "authority_approvals_v1": [
+  {
+   "approval_ref": "urn:cognous:approval:t1-1",
+   "approver": "urn:cognous:principal:reviewer-1",
+   "grant_id": "urn:cognous:grant:routine-1",
+   "grant_revision": "1",
+   "policy_versions_json": "[{\"ref\":\"urn:cognous:policy:refund-policy\",\"version\":\"1.0\"}]",
+   "proposal_commitment": "sha256:b40cfbbd72185a094bae37d919165b06e00d620377be8e8adeff9aaa56592694",
+   "role_id": "urn:cognous:role:customer-service-supervisor",
+   "status": "active",
+   "tenant_id": null
+  }
+ ],
+ "authority_effect_profile_v1": [
+  {
+   "activated_at": "2026-10-05T19:00:00+00:00",
+   "profile": "urn:cognous:profiles:local-authority-effect:0.1.0-proposed"
+  }
+ ],
+ "authority_effect_receipts_v1": [
+  {
+   "attempt_id": "c0b32256-49a4-44d3-b597-fb977ffa75f1",
+   "claim_id": "2379979a-4bcd-49f5-99f4-67b5fc572f91",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "receipt_json": "{\"attempt_id\":\"c0b32256-49a4-44d3-b597-fb977ffa75f1\",\"checked_at\":\"2026-10-05T19:00:00+00:00\",\"claim_id\":\"2379979a-4bcd-49f5-99f4-67b5fc572f91\",\"decision_id\":\"50b108b2-2e1b-49a7-b929-916b26abbd0f\",\"effect_id\":\"sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209\",\"grant_id\":\"urn:cognous:grant:routine-1\",\"grant_revision\":\"1\",\"grant_state_commitment\":\"sha256:63d2b0891c3aea29ab3a6041b97b4b909e56824d93b8fc164334bc6c6c45e34b\",\"grant_status\":\"active\",\"profile\":\"urn:cognous:profiles:local-authority-effect:0.1.0-proposed\",\"status_version_source\":\"local_authority_row_commitment\"}"
+  }
+ ],
+ "authority_evidence_v1": [
+  {
+   "kind": "authorization",
+   "max_age_seconds": 300,
+   "obligation_id": "urn:cognous:evidence:refund-entitlement",
+   "observed_at": "2026-10-05T19:00:00+00:00",
+   "required": 1,
+   "source_ref": "urn:cognous:source:entitlement",
+   "state": "current",
+   "unknown_behavior": "hold_effect"
+  },
+  {
+   "kind": "context",
+   "max_age_seconds": 300,
+   "obligation_id": "urn:cognous:evidence:optional-context",
+   "observed_at": "2026-10-05T19:00:00+00:00",
+   "required": 0,
+   "source_ref": "urn:cognous:source:optional",
+   "state": "unknown",
+   "unknown_behavior": "preserve_if_other_basis_suffices"
+  }
+ ],
+ "authority_grants_v1": [
+  {
+   "authority_domain": "customer-refunds",
+   "expires_at": "2026-10-05T20:00:00+00:00",
+   "grant_id": "urn:cognous:grant:routine-1",
+   "institution_id": "urn:cognous:institution:synthetic-customer-service",
+   "not_before": "2026-10-05T18:30:00+00:00",
+   "revision": "1",
+   "status": "active",
+   "tenant_id": null
+  }
+ ],
+ "authority_policies_v1": [
+  {
+   "ref": "urn:cognous:policy:refund-policy",
+   "status": "active",
+   "tenant_id": null,
+   "version": "1.0"
+  }
+ ],
+ "effect_budgets_v1": [
+  {
+   "budget_id": "grant:urn:cognous:grant:routine-1",
+   "max_effects": 1,
+   "used_effects": 1
+  }
+ ],
+ "effects": [
+  {
+   "amount": 10.0,
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "grant_id": "urn:cognous:grant:routine-1",
+   "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+   "payload_json": "{\"customer_id\":\"customer-001\",\"refund_reason\":\"duplicate\"}",
+   "state": "applied",
+   "target": "urn:cognous:synthetic-account:customer-001",
+   "unit": "USD"
+  }
+ ],
+ "execution_claims_v1": [
+  {
+   "budget_id": "grant:urn:cognous:grant:routine-1",
+   "claim_commitment": "sha256:bb2ad70e1f193f8e71fd71e249162177b1518002ee61859b53e61d9ab02373d3",
+   "claim_id": "2379979a-4bcd-49f5-99f4-67b5fc572f91",
+   "claim_json": "{\"action_id\":\"urn:cognous:action:refund-issue-routine-v1\",\"actor\":\"urn:cognous:identity:refund-agent-1\",\"adapter_id\":\"urn:cognous:adapter:synthetic-refund-v1\",\"amount\":10.0,\"approval_state\":[{\"approval_ref\":\"urn:cognous:approval:t1-1\",\"approver\":\"urn:cognous:principal:reviewer-1\",\"grant_id\":\"urn:cognous:grant:routine-1\",\"grant_revision\":\"1\",\"observed_at\":\"2026-10-05T19:00:00+00:00\",\"policy_versions\":[{\"ref\":\"urn:cognous:policy:refund-policy\",\"version\":\"1.0\"}],\"proposal_commitment\":\"sha256:b40cfbbd72185a094bae37d919165b06e00d620377be8e8adeff9aaa56592694\",\"role_id\":\"urn:cognous:role:customer-service-supervisor\",\"status\":\"active\"}],\"approval_state_commitment\":\"sha256:6dfaf6643e87bbeeb4d30a233e1af7acaeb5840bcfd4a0babf614999bc4a36ea\",\"authority_context_id\":\"urn:cognous:authority-context:pilot-1\",\"authority_domain\":\"customer-refunds\",\"authority_state_commitment\":\"sha256:bc481ab2f8e7425053a924919fe81363e00223599b6ee6713d7c4328dea0a58d\",\"authorizing_by_possession\":false,\"budget_id\":\"grant:urn:cognous:grant:routine-1\",\"claim_commitment\":\"sha256:bb2ad70e1f193f8e71fd71e249162177b1518002ee61859b53e61d9ab02373d3\",\"claim_id\":\"2379979a-4bcd-49f5-99f4-67b5fc572f91\",\"decision_id\":\"50b108b2-2e1b-49a7-b929-916b26abbd0f\",\"decision_input_commitment\":null,\"decision_input_profile_version\":null,\"effect_id\":\"sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209\",\"effects\":1,\"evidence_state\":[{\"kind\":\"authorization\",\"max_age_seconds\":300,\"obligation_id\":\"urn:cognous:evidence:refund-entitlement\",\"observed_at\":\"2026-10-05T19:00:00+00:00\",\"required\":true,\"source_ref\":\"urn:cognous:source:entitlement\",\"state\":\"current\",\"unknown_behavior\":\"hold_effect\"},{\"kind\":\"context\",\"max_age_seconds\":300,\"obligation_id\":\"urn:cognous:evidence:optional-context\",\"observed_at\":\"2026-10-05T19:00:00+00:00\",\"required\":false,\"source_ref\":\"urn:cognous:source:optional\",\"state\":\"unknown\",\"unknown_behavior\":\"preserve_if_other_basis_suffices\"}],\"evidence_state_commitment\":\"sha256:8b3bcecea8915ed29dfc40cb9e0459d683f6cc57befb21013f9d728ed86c86e7\",\"expires_at\":\"2026-10-05T20:00:00+00:00\",\"grant_id\":\"urn:cognous:grant:routine-1\",\"grant_revision\":\"1\",\"grant_status\":\"active\",\"institution_id\":\"urn:cognous:institution:synthetic-customer-service\",\"issued_at\":\"2026-10-05T19:00:00+00:00\",\"manifest_digest\":\"sha256:4d1ad6c96bc242c63998231b4df3ad7c86dc2e5e59cdae63afe7bff86e60f6ac\",\"manifest_id\":\"refund-integration-pilot-v1\",\"manifest_version\":\"1.1\",\"max_effects\":1,\"not_before\":\"2026-10-05T18:30:00+00:00\",\"operation_commitment\":\"sha256:af2cacacf43e8b707517597049e95efe43d1c808ffd38d6b08d2a61f91358ec5\",\"payload_commitment\":\"sha256:6b782ebbcc034edeca4069b31aa4d8cbc9d3eeaf3b2034ab989bb430de962c0e\",\"policy_state\":[{\"observed_at\":\"2026-10-05T19:00:00+00:00\",\"ref\":\"urn:cognous:policy:refund-policy\",\"status\":\"active\",\"version\":\"1.0\"}],\"policy_state_commitment\":\"sha256:ac316a87b95e11c060f846ee487b085963288ebe7aeccb5e32bdc2316e28933d\",\"principal\":\"urn:cognous:principal:refund-service\",\"profile\":\"urn:cognous:profiles:local-authority-effect:0.1.0-proposed\",\"requested_permissions\":[\"refund.issue.routine\"],\"requirement_commitment\":\"sha256:6590406e701b51e637c87953860d1ceb72d8da0af87311048f152e0ee2b8ccb6\",\"requirement_id\":\"urn:cognous:authority-requirement:refund-routine-v1\",\"source\":\"trusted_control_plane_workflow\",\"target\":\"urn:cognous:synthetic-account:customer-001\",\"unit\":\"USD\"}",
+   "decision_id": "50b108b2-2e1b-49a7-b929-916b26abbd0f",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "effect_operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+   "expires_at": "2026-10-05T20:00:00+00:00",
+   "grant_id": "urn:cognous:grant:routine-1",
+   "grant_revision": "1",
+   "max_effects": 1,
+   "not_before": "2026-10-05T18:30:00+00:00",
+   "operation_commitment": "sha256:af2cacacf43e8b707517597049e95efe43d1c808ffd38d6b08d2a61f91358ec5",
+   "state": "consumed",
+   "tenant_id": null
+  }
+ ],
+ "failure_records_v1": [
+  {
+   "attempt_id": null,
+   "created_at": 1793421828.8942666,
+   "decision_id": "50b108b2-2e1b-49a7-b929-916b26abbd0f",
+   "detail": "execution claim is not usable",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "failure_class": "authority_hold",
+   "failure_id": "4d6dd69b-506a-4a6b-a5e0-03ab50ce0e0a",
+   "grant_id": "urn:cognous:grant:routine-1",
+   "grant_revision": "1",
+   "manifest_digest": "sha256:4d1ad6c96bc242c63998231b4df3ad7c86dc2e5e59cdae63afe7bff86e60f6ac",
+   "manifest_version": "1.1",
+   "proposal_commitment": "sha256:b40cfbbd72185a094bae37d919165b06e00d620377be8e8adeff9aaa56592694",
+   "reason_code": "current_authority_rejected",
+   "stage": "pre_dispatch"
+  },
+  {
+   "attempt_id": null,
+   "created_at": 1793421828.8996553,
+   "decision_id": "50b108b2-2e1b-49a7-b929-916b26abbd0f",
+   "detail": "execution claim is not usable",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "failure_class": "authority_hold",
+   "failure_id": "6e4cbc87-787e-49b0-b738-bff28fb5412b",
+   "grant_id": "urn:cognous:grant:routine-1",
+   "grant_revision": "1",
+   "manifest_digest": "sha256:4d1ad6c96bc242c63998231b4df3ad7c86dc2e5e59cdae63afe7bff86e60f6ac",
+   "manifest_version": "1.1",
+   "proposal_commitment": "sha256:b40cfbbd72185a094bae37d919165b06e00d620377be8e8adeff9aaa56592694",
+   "reason_code": "current_authority_rejected",
+   "stage": "pre_dispatch"
+  }
+ ],
+ "operation_effects_v1": [
+  {
+   "authority_domain": "customer-refunds",
+   "committed_at": 1793421828.0934064,
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "operation_id": "op-order-100/refund-1",
+   "principal_id": "urn:cognous:principal:refund-service"
+  }
+ ]
+}
