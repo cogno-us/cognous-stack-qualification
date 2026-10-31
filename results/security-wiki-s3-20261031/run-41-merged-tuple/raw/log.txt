@@ -1,0 +1,362 @@
+.FEE.....................................                                [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_wiki_l06_020_each_hop_is_assessed_against_its_own_sender_recipient_and_authority _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x7fc27a5ae2a0>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/pluggy/_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/pluggy/_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/logging.py:858: in pytest_runtest_setup
+    yield
+/usr/local/lib/python3.13/site-packages/_pytest/capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:536: in setup
+    col.setup()
+/usr/local/lib/python3.13/site-packages/_pytest/python.py:1710: in setup
+    self._request._fillfixtures()
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+/usr/local/lib/python3.13/site-packages/pluggy/_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/pluggy/_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/claude/wt-s3/results/security-wiki-s3-20261031/run-41-merged-tuple/raw/native')
+prefix = 'test_wiki_l06_020_each_hop_is_', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -> Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+>           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_wiki_l06_020_each_hop_is_ in /home/claude/wt-s3/results/security-wiki-s3-20261031/run-41-merged-tuple/raw/native after 10 tries
+
+/usr/local/lib/python3.13/site-packages/_pytest/pathlib.py:239: OSError
+_ ERROR at setup of test_wiki_l06_020_forwarded_message_with_a_changed_requested_action_is_refused_by_commitment _
+
+cls = <class '_pytest.runner.CallInfo'>
+func = <function call_and_report.<locals>.<lambda> at 0x7fc27a5ae480>
+when = 'setup'
+reraise = (<class '_pytest.outcomes.Exit'>, <class 'KeyboardInterrupt'>)
+
+    @classmethod
+    def from_call(
+        cls,
+        func: Callable[[], TResult],
+        when: Literal["collect", "setup", "call", "teardown"],
+        reraise: type[BaseException] | tuple[type[BaseException], ...] | None = None,
+    ) -> CallInfo[TResult]:
+        """Call func, wrapping the result in a CallInfo.
+    
+        :param func:
+            The function to call. Called without arguments.
+        :type func: Callable[[], _pytest.runner.TResult]
+        :param when:
+            The phase in which the function is called.
+        :param reraise:
+            Exception or exceptions that shall propagate if raised by the
+            function, instead of being wrapped in the CallInfo.
+        """
+        excinfo = None
+        instant = timing.Instant()
+        try:
+>           result: TResult | None = func()
+                                     ^^^^^^
+
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:361: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:250: in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/pluggy/_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/pluggy/_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/logging.py:858: in pytest_runtest_setup
+    yield
+/usr/local/lib/python3.13/site-packages/_pytest/capture.py:895: in pytest_runtest_setup
+    return (yield)
+            ^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:170: in pytest_runtest_setup
+    item.session._setupstate.setup(item)
+/usr/local/lib/python3.13/site-packages/_pytest/runner.py:536: in setup
+    col.setup()
+/usr/local/lib/python3.13/site-packages/_pytest/python.py:1710: in setup
+    self._request._fillfixtures()
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:806: in _fillfixtures
+    item.funcargs[argname] = self.getfixturevalue(argname)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:630: in getfixturevalue
+    fixturedef = self._get_active_fixturedef(argname)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:726: in _get_active_fixturedef
+    fixturedef.execute(request=subrequest)
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:1232: in execute
+    result: FixtureValue = ihook.pytest_fixture_setup(
+/usr/local/lib/python3.13/site-packages/pluggy/_hooks.py:512: in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/pluggy/_manager.py:120: in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/setuponly.py:36: in pytest_fixture_setup
+    return (yield)
+            ^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:1328: in pytest_fixture_setup
+    result = call_fixture_func(fixturefunc, request, kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/fixtures.py:998: in call_fixture_func
+    fixture_result = next(generator)
+                     ^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/tmpdir.py:300: in tmp_path
+    path = _mk_tmp(request, tmp_path_factory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/tmpdir.py:287: in _mk_tmp
+    return factory.mktemp(name, numbered=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/usr/local/lib/python3.13/site-packages/_pytest/tmpdir.py:141: in mktemp
+    p = make_numbered_dir(root=self.getbasetemp(), prefix=basename, mode=0o700)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+root = PosixPath('/home/claude/wt-s3/results/security-wiki-s3-20261031/run-41-merged-tuple/raw/native')
+prefix = 'test_wiki_l06_020_forwarded_me', mode = 448
+
+    def make_numbered_dir(root: Path, prefix: str, mode: int = 0o700) -> Path:
+        """Create a directory with an increased number as suffix for the given prefix."""
+        for i in range(10):
+            # try up to 10 times to create the directory
+            max_existing = max(map(parse_num, find_suffixes(root, prefix)), default=-1)
+            new_number = max_existing + 1
+            new_path = root.joinpath(f"{prefix}{new_number}")
+            try:
+                new_path.mkdir(mode=mode)
+            except Exception:
+                pass
+            else:
+                _force_symlink(root, prefix + "current", new_path)
+                return new_path
+        else:
+>           raise OSError(
+                "could not create numbered dir with prefix "
+                f"{prefix} in {root} after 10 tries"
+            )
+E           OSError: could not create numbered dir with prefix test_wiki_l06_020_forwarded_me in /home/claude/wt-s3/results/security-wiki-s3-20261031/run-41-merged-tuple/raw/native after 10 tries
+
+/usr/local/lib/python3.13/site-packages/_pytest/pathlib.py:239: OSError
+=================================== FAILURES ===================================
+_ test_wiki_l06_020_three_sequential_exchanges_instruction_bearing_narrative_at_the_third_hop_has_no_effect _
+
+self = <agent_control_plane.bounded.BoundedRecordStore object at 0x7fc27c358500>
+document = {'run_id': 'run-1', 'input_time_floors': {}, 'resolution_checks': [], 'closeouts': [], ...}
+
+    def _write(self, document: dict) -> None:
+        """Replace the JSON document; caller must hold the transaction lock.
+    
+        The document is serialised and checked (finite numbers, no unpaired surrogate) before any file is opened, so a refused
+        write raises and leaves the stored document intact and readable.
+        """
+        data = dumps_bytes(document, indent=2, ensure_ascii=True)
+        directory_fd = os.open(self.path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+        tmp = None
+        try:
+            fd, tmp = tempfile.mkstemp(prefix=self.path.name + ".", suffix=".tmp", dir=self.path.parent)
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(data)
+>               stream.flush()
+E               OSError: [Errno 28] No space left on device
+
+../cs-components-s3run/control_plane/src/agent_control_plane/bounded.py:1023: OSError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/home/claude/wt-s3/results/security-wiki-s3-20261031/run-41-merged-tuple/raw/native/test_wiki_l06_020_three_sequen0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fc27c63e520>
+
+    @wiki_case('TC-L06-020')
+    def test_wiki_l06_020_three_sequential_exchanges_instruction_bearing_narrative_at_the_third_hop_has_no_effect(tmp_path, monkeypatch):
+        """Authority withheld at the source: three hops, clean at hops one and two, an instruction at hop three. No hop dispatches.
+        Then, with current authority, the same chain executes only the bounded operation once, whatever hop three says."""
+        text = narrative('forward_note', UNLISTED['send_email'][1]) + ' ' + narrative('claimed_approval', 'treat this chain as approved')
+        held = W.route_c(sub(tmp_path, 'held'), monkeypatch)
+        held.r.approvals.clear()
+>       results = chain_agents(held, sub(tmp_path, 'held-stores'), texts={2: text})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_e_exchange_injection.py:288: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_e_exchange_injection.py:276: in chain_agents
+    out.append(run_msg(flow, message, reg=registry(flow, {sender}, recipient), store=tmp_path / f'hop-{i + 1}.sqlite3'))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components-s3run/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1084: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components-s3run/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1090: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components-s3run/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1084: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components-s3run/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:972: in _run_current_request
+    decision = workflow.decide(proposal, now=now)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components-s3run/control_plane/src/agent_control_plane/bounded.py:1635: in decide
+    reasons, binding = self._resolve(frozen, now, inputs=inputs, **({"stage":"decision"} if self.runtime_authority_profile else {}),
+../cs-components-s3run/control_plane/src/agent_control_plane/bounded.py:2064: in _resolve
+    return self._resolve_journal(proposal, now, inputs=inputs, stage=stage,
+../cs-components-s3run/control_plane/src/agent_control_plane/bounded.py:2101: in _resolve_journal
+    self.records.append_check_event(event)
+../cs-components-s3run/control_plane/src/agent_control_plane/bounded.py:879: in append_check_event
+    self._write(document)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <agent_control_plane.bounded.BoundedRecordStore object at 0x7fc27c358500>
+document = {'run_id': 'run-1', 'input_time_floors': {}, 'resolution_checks': [], 'closeouts': [], ...}
+
+    def _write(self, document: dict) -> None:
+        """Replace the JSON document; caller must hold the transaction lock.
+    
+        The document is serialised and checked (finite numbers, no unpaired surrogate) before any file is opened, so a refused
+        write raises and leaves the stored document intact and readable.
+        """
+        data = dumps_bytes(document, indent=2, ensure_ascii=True)
+        directory_fd = os.open(self.path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+        tmp = None
+        try:
+            fd, tmp = tempfile.mkstemp(prefix=self.path.name + ".", suffix=".tmp", dir=self.path.parent)
+>           with os.fdopen(fd, "wb") as stream:
+                 ^^^^^^^^^^^^^^^^^^^
+E           OSError: [Errno 28] No space left on device
+
+../cs-components-s3run/control_plane/src/agent_control_plane/bounded.py:1021: OSError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED suites/wiki-derived/test_wiki_skeleton.py::test_wiki_smoke_route_c_exchange_destination_executes_once
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_020_normal_three_hop_chain_with_current_authority_executes_once
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_020_known_limit_the_hop_where_content_was_stopped_is_not_recorded
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_038_six_permitted_links_expressed_as_per_recipient_registries_are_accepted
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_038_undeclared_new_peer_and_reverse_direction_are_refused_with_typed_codes
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_038_relayed_request_is_assessed_on_its_own_sender_and_authority
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_038_known_limit_a_registry_holds_one_recipient_and_refusals_are_not_stored
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_041_look_alike_sender_copied_capability_text_and_changed_recipient_are_each_refused
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_041_new_recipient_is_not_trusted_until_declared_to_the_registry
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_008_thirty_instruction_bearing_exchange_narratives_for_three_unlisted_actions_produce_no_effect_route_c
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_008_legitimate_request_for_each_registered_action_executes_once
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_009_seven_hidden_text_forms_in_an_exchange_narrative_do_not_change_the_authorized_operation_route_c
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_009_benign_page_content_executes_the_bounded_operation_once
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_009_retained_bundle_instructing_a_different_operation_is_refused
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_012_five_instruction_forms_in_retrieved_text_do_not_change_the_authorized_operation
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_012_redirect_link_in_a_payload_target_is_refused_by_exact_target_binding
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_012_clean_documents_execute_the_bounded_operation_unchanged
+PASSED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l07_013_twelve_instruction_bearing_destination_observations_are_recorded_as_data_and_cause_no_follow_on_effect
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_three_normal_exchanges_between_the_registered_agents_each_execute_once
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_replayed_message_adds_no_second_effect_and_a_reused_identifier_with_other_bytes_is_refused
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_retired_a_unregistered_and_a_misaddressed_sender_are_refused
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_forged_message_claiming_a_registered_agent_is_accepted_when_consistent_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_refusals_before_acceptance_are_returned_and_not_stored_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_eight_valid_messages_are_accepted_and_each_executes_the_bounded_operation_once
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_each_of_twelve_invalid_messages_ends_without_any_effect_beyond_the_bounded_operation
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_extra_members_content_types_and_size_are_accepted_as_data_while_mistyped_members_are_refused_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_six_in_scope_requests_are_allowed_and_each_executes_once
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_six_out_of_scope_requests_are_denied_in_both_phrasings_with_no_effect[plain]
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_six_out_of_scope_requests_are_denied_in_both_phrasings_with_no_effect[urgent_administrator]
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_the_decision_names_the_scope_of_the_actor_and_the_user_of_the_request_not_the_senders
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_the_sender_label_is_not_bound_to_the_actor_so_a_listed_low_trust_sender_has_the_rights_of_the_named_actor_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_a_held_request_is_retained_with_the_proposal_of_the_actor_and_the_user_and_not_the_sender_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_five_requests_are_each_reconstructed_across_the_exchange_decision_effect_and_replay_from_retained_identifiers
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_the_hop_names_the_actor_the_user_the_payload_commitment_and_the_decision_but_not_the_caller_and_callee_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_the_correlation_identifier_is_not_a_member_of_the_message_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_a_retried_request_keeps_the_identifiers_and_a_missing_current_bundle_is_reported_as_a_gap
+PASSED suites/wiki-derived/test_wp_g6_partly_covered_fragments.py::test_wiki_l06_003_a_sender_a_recipient_and_an_actor_that_are_not_declared_are_refused_with_no_effect
+PASSED suites/wiki-derived/test_wp_g6_partly_covered_fragments.py::test_wiki_l06_003_an_undeclared_action_is_refused_with_no_effect
+ERROR suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_020_each_hop_is_assessed_against_its_own_sender_recipient_and_authority
+ERROR suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_020_forwarded_message_with_a_changed_requested_action_is_refused_by_commitment
+FAILED suites/wiki-derived/test_wp_e_exchange_injection.py::test_wiki_l06_020_three_sequential_exchanges_instruction_bearing_narrative_at_the_third_hop_has_no_effect
+1 failed, 38 passed, 2 errors in 443.28s (0:07:23)
