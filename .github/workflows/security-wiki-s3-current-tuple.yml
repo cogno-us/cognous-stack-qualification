@@ -9,9 +9,9 @@
 # run to a complete record: guard refusal, dry-check refusal, runner failure, missing run record, collected/executed != 41, non-pristine checkout.
 # Not part of the MVP acceptance gate; it neither reads nor writes process/mvp-acceptance or results/mvp-acceptance.
 #
-# Tuple guard: s3/s3_tuple_guard.py is called explicitly in the preflight step. The runner also runs the guard as its own mandatory
-# preflight once the guard-integration change is on the branch; the explicit call stays as a workflow-level control and its result is
-# retained as hosted/guard-result-preflight.json (the runner's own guard result, when present, is retained unchanged under run/).
+# Tuple guard: the runner (s3/run_wiki_s3.py) calls s3/s3_tuple_guard.py first, as its own mandatory preflight, and refuses to start on any
+# guard refusal. The explicit guard call in the preflight step is a belt-and-braces workflow-level control; its result is retained as
+# hosted/guard-result-preflight.json and the runner's own guard result is retained unchanged under run/. Everything runs in place from s3/.
 #
 # Pin discipline: no secrets, no token beyond the read-only default; component repositories are public and fetched by exact 40-hex SHA
 # (git init + git fetch --depth 1 <https url> <sha>), then HEAD and tree are verified; no branch, tag or default-branch substitution.
