@@ -83,18 +83,27 @@ def gh_escape(s):
     return s.replace('%', '%25').replace('\r', '%0D').replace('\n', '%0A')
 
 
-def build_annotation(rows, counts, collect_n, junit_n, versions, limit=60000):
-    """One GitHub ::notice line (escaped newlines) listing every test id, verdict and first-boundary text (<=160 chars) plus versions/counts."""
-    lines = [f"C3 hosted observation (preliminary, junit-derived): PASS {counts['PASS']} FAIL {counts['FAIL']} BLOCKED {counts['BLOCKED']}; "
-             f"collected {collect_n}, executed (junit testcases) {junit_n}",
-             'versions: ' + ', '.join(f'{k} {v}' for k, v in versions.items())]
+def build_annotations(rows, counts, collect_n, junit_n, versions, limit=3500):
+    """Several ::notice lines (GitHub truncates one annotation message at 4096 chars), each escaped message <= `limit` chars. Chunk 1 starts with
+    the counts and versions; every chunk is titled 'S3 C3 per-test verdicts (i/n)'. Every test id, verdict and first-boundary text (<=160 chars) appears."""
+    head = [f"C3 hosted observation (preliminary, junit-derived): PASS {counts['PASS']} FAIL {counts['FAIL']} BLOCKED {counts['BLOCKED']}; "
+            f"collected {collect_n}, executed (junit testcases) {junit_n}",
+            'versions: ' + ', '.join(f'{k} {v}' for k, v in versions.items())]
+    lines = []
     for r in rows:
         b = (r['first_failure_boundary'] or '').replace('\n', ' ')[:160]
         lines.append(f"{r['test_id'].split('/')[-1]} | {r['verdict_prelim']}" + (f' | {b}' if b else ''))
-    body = gh_escape('\n'.join(lines))
-    if len(body) > limit:
-        body = body[:limit - 20] + '%0A[truncated]'
-    return '::notice title=S3 C3 per-test verdicts::' + body
+    chunks, cur = [], list(head)
+    for l in lines:
+        l = l[:700]
+        if cur and len(gh_escape('\n'.join(cur + [l]))) > limit - 40:
+            chunks.append(cur)
+            cur = []
+        cur.append(l)
+    if cur:
+        chunks.append(cur)
+    n = len(chunks)
+    return [f'::notice title=S3 C3 per-test verdicts ({i}/{n})::' + gh_escape(f'chunk {i}/{n}\n' + '\n'.join(c)) for i, c in enumerate(chunks, 1)]
 
 
 def node_id(case):
@@ -221,7 +230,8 @@ def main(argv=None):
             versions[mod] = __import__(mod).__version__
         except Exception as e:  # recorded, not hidden
             versions[mod] = f'UNAVAILABLE: {type(e).__name__}'
-    print(build_annotation(rows, counts, collect_n, junit_n, versions))
+    for note in build_annotations(rows, counts, collect_n, junit_n, versions):
+        print(note)
     if counts['FAIL'] or counts['BLOCKED']:
         print(f'::warning::hosted S3 observation: {counts["FAIL"]} FAIL, {counts["BLOCKED"]} BLOCKED (reported, job not failed on this account)')
     if not ok:

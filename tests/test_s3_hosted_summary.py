@@ -49,16 +49,26 @@ class Classify(unittest.TestCase):
 
 
 class Annotation(unittest.TestCase):
-    def test_single_notice_escaped_and_bounded(self):
-        rows = [{'test_id': f'a/b.py::t{i}', 'verdict_prelim': 'FAIL', 'first_failure_boundary': 'x' * 400 + '\nmore'} for i in range(41)]
-        a = h.build_annotation(rows, {'PASS': 0, 'FAIL': 41, 'BLOCKED': 0}, 41, 41, {'python': '3.13', 'pytest': '9', 'jsonschema': '4'})
-        self.assertTrue(a.startswith('::notice '))
-        self.assertNotIn('\n', a)
-        self.assertEqual(a.count('%0A'), 2 + 41 - 1)
-        self.assertIn('collected 41', a)
-        self.assertLess(len(a), 60100)
+    def test_chunked_notices_cover_all_41_ids_and_stay_under_4096(self):
+        rows = [{'test_id': f'a/b.py::test_case_{i:02d}_' + 'n' * 80, 'verdict_prelim': 'FAIL' if i % 2 else 'PASS',
+                 'first_failure_boundary': 'x' * 400 + '\nmore'} for i in range(41)]
+        notes = h.build_annotations(rows, {'PASS': 21, 'FAIL': 20, 'BLOCKED': 0}, 41, 41, {'python': '3.13', 'pytest': '9', 'jsonschema': '4'})
+        self.assertGreater(len(notes), 1)
+        n = len(notes)
+        for k, a in enumerate(notes, 1):
+            self.assertTrue(a.startswith(f'::notice title=S3 C3 per-test verdicts ({k}/{n})::'))
+            self.assertNotIn('\n', a)
+            self.assertLess(len(a.split('::', 2)[2]), 4096)
+            self.assertIn(f'chunk {k}/{n}', a)
+        joined = '\n'.join(notes)
+        self.assertIn('collected 41', notes[0])
+        self.assertIn('jsonschema 4', notes[0])
         for i in range(41):
-            self.assertIn(f't{i} | FAIL', a)
+            self.assertIn(f'test_case_{i:02d}_', joined)
+            self.assertEqual(joined.count(f'test_case_{i:02d}_'), 1)
+
+    def test_escaping(self):
+        self.assertEqual(h.gh_escape('a%b\nc\r'), 'a%25b%0Ac%0D')
 
 
 if __name__ == '__main__':
