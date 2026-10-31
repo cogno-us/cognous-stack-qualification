@@ -1,0 +1,69 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "profile_id": "security-wiki-current-stack-S3-TEMPLATE",
+  "supersedes_profile": null,
+  "refreeze_ids": [],
+  "note": "Current-stack generation 2 tuple (see current-stack-S3-TEMPLATE/tuple.json). suite_generation \"cur\" selects the CUR labels of Replay/ODES (harness: suites/security-runtime/test_security_runtime_chain.py). Wiki assertions are exercised UNCHANGED; any incompatibility is a recorded result, not an adaptation.",
+  "predecessor_profile": "process/security-runtime-current-stack-20261031.json (HISTORICAL REFERENCE ONLY, unchanged)",
+  "suite_generation": "cur",
+  "exchange_compatibility_profile": "PLACEHOLDER:Exchange compatibility profile name (same value as freeze-manifest profile.exchange_compatibility_profile)",
+  "additional_source_hashes": [
+    ".github/workflows/security-runtime-f5b-qualification.yml",
+    "tools/summarize_security_runtime.py"
+  ],
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "b19c47ddd020409d24e52e70b11359c46265edbb"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "f7a55e2a8494801e49193f9f46935f0a971c248d"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "PLACEHOLDER:replay merge SHA"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "PLACEHOLDER:evidence_pack merge SHA"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "PLACEHOLDER:odes merge SHA"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "PLACEHOLDER:exchange merge SHA"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "fa170815ef96a54c233d0dd9da821b60debabf8b"
+    }
+  },
+  "constitutional_authority": {
+    "repository": "cogno-us/cognous-institutional-governance",
+    "revision": "03a90c14c4a178997df2b6e527f67452b9c6bb7a"
+  },
+  "scope": "Synthetic local SQLite; no live effects or paid model calls; current integrated OCS. The migrated Registry (cogno-us/cognous-ocs-registry 6b96a9a6) is RECORDED in this profile ('ocs_registry') but is NOT among the harness COMPONENT_NAMES: the harness neither verifies nor imports it, and no Wiki test exercises it. Its pristine state at the recorded revision is checked out-of-band and recorded in the run record.",
+  "limitations": [
+    "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+    "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+    "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement",
+    "Generation 2 (S3): evidence retained at current-stack-20261031 (p2 labels, Replay 40012b8c, Exchange 7f7569b0) is historical and is not transferred"
+  ],
+  "ocs_registry": {
+    "repository": "cogno-us/cognous-ocs-registry",
+    "revision": "PLACEHOLDER:registry SHA (confirm)",
+    "code_equals": "a40fe755e2384a99c37016fa9ad59396f1835900 (r08-v8)"
+  },
+  "_template_status": "TEMPLATE - NOT A PROFILE. Replace every PLACEHOLDER: value; rename file and profile_id to the dated form."
+}

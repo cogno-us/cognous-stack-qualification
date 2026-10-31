@@ -1,0 +1,176 @@
+{
+  "schema": "cognous.v1-validation-freeze/1",
+  "validation_id": "current-stack-S3-TEMPLATE",
+  "frozen_utc": "PLACEHOLDER:freeze date (YYYY-MM-DD) - rename directory and validation_id to current-stack-<date> on fill",
+  "subject": {
+    "name": "Current integrated OCS, GENERATION 2 tuple (CUR generation of Replay/ODES/Pack) incl. the migrated Registry",
+    "basis": "Assembled from current heads and source-verified consistency checks; NOT an authoritative integration manifest (hub component-lock.json is stale).",
+    "tuple_record": "process/v1-validation/current-stack-S3-TEMPLATE/tuple.json",
+    "historical": "current-stack-20261031 (first current-stack assessment: Replay 40012b8c/ODES 1a5e1d30/Pack 7b9511f2, p2 labels, BLOCKED 41) is HISTORICAL REFERENCE ONLY and is not modified; v1-2026-10-16-a likewise."
+  },
+  "identities": {
+    "hub": {
+      "repository": "cogno-us/cognous-open-control-stack",
+      "head": "PLACEHOLDER:hub head SHA at freeze"
+    },
+    "qualification": {
+      "repository": "cogno-us/cognous-stack-qualification",
+      "closeout": "PLACEHOLDER:qualification main SHA at configuration time",
+      "note": "qualification main at configuration time; the configuration itself is added by the PR that carries it"
+    }
+  },
+  "profile": {
+    "qualification_profile": "process/security-runtime-current-stack-S3-TEMPLATE.json",
+    "exchange_compatibility_profile": "PLACEHOLDER:Exchange compatibility profile name from the merged Exchange profile PR (cf. draft #62 security-runtime-current-20261031; E4 name decision pending)",
+    "note": "The Exchange profile named here must be defined (exact tuple incl. the S1 Replay/ODES/Pack merge SHAs) by the merged Exchange revision pinned below; the harness only passes the name through (GAX_RUNTIME_COMPATIBILITY_PROFILE)."
+  },
+  "hub_file_hashes": {},
+  "qualification_file_hashes": {},
+  "components_subject": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "sha": "b19c47ddd020409d24e52e70b11359c46265edbb",
+      "profile_key": "control_plane",
+      "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
+    },
+    "moltbot_safe": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "sha": "f7a55e2a8494801e49193f9f46935f0a971c248d",
+      "profile_key": "runtime",
+      "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
+    },
+    "replay_bundle": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "sha": "PLACEHOLDER:replay merge SHA",
+      "profile_key": "replay",
+      "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
+    },
+    "governance_evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "sha": "PLACEHOLDER:evidence_pack merge SHA",
+      "profile_key": "evidence_pack",
+      "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "sha": "PLACEHOLDER:odes merge SHA",
+      "profile_key": "odes",
+      "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
+    },
+    "gax_imx_transport": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "sha": "PLACEHOLDER:exchange merge SHA",
+      "profile_key": "exchange",
+      "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
+    },
+    "action_manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "sha": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "profile_key": "manifest",
+      "selected_by": "S3 tuple (process/v1-validation/current-stack-S3-TEMPLATE/tuple.json); not the historical F5b pin and not current-stack-20261031"
+    }
+  },
+  "components_lock_remainder": {
+    "bitrep": {
+      "repository": "cogno-us/cognous-evidence-attestation",
+      "sha": "981036c315856c71207984797b0c4e48d3b3921d",
+      "selected_by": "S3 tuple (unchanged from current-stack-20261031 unless the tuple says otherwise)",
+      "interfaces": [
+        "verification contract v1"
+      ]
+    },
+    "the_index": {
+      "repository": "cogno-us/cognous-evidence-registry",
+      "sha": "b2485998b88256c2b322493800d1fba076814cbd",
+      "selected_by": "S3 tuple (unchanged from current-stack-20261031 unless the tuple says otherwise)",
+      "interfaces": [
+        "local blockchain reference 0.1.0"
+      ]
+    },
+    "constitutional_authority": {
+      "repository": "cogno-us/cognous-institutional-governance",
+      "sha": "03a90c14c4a178997df2b6e527f67452b9c6bb7a",
+      "selected_by": "S3 tuple (unchanged from current-stack-20261031 unless the tuple says otherwise)",
+      "interfaces": [
+        "Authority Context 0.1.0"
+      ]
+    },
+    "ocs_registry": {
+      "repository": "cogno-us/cognous-ocs-registry",
+      "sha": "PLACEHOLDER:registry SHA (6b96a9a6 in current-stack-20261031; confirm or change)",
+      "selected_by": "S3 tuple (unchanged from current-stack-20261031 unless the tuple says otherwise)",
+      "interfaces": [
+        "declarative governance registry",
+        "effective-policy digests",
+        "r08-v8 engine"
+      ]
+    }
+  },
+  "components_optional": {
+    "prp": {
+      "repository": "cogno-us/portable-reasoning-protocol",
+      "sha": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "optional": true,
+      "selected_by": "hub component-lock.json"
+    },
+    "research_intelligence": {
+      "repository": "cogno-us/research-intelligence-protocol",
+      "sha": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "optional": true,
+      "selected_by": "hub component-lock.json"
+    },
+    "tfa": {
+      "repository": "cogno-us/truth-freedom-agency-protocol",
+      "sha": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "optional": true,
+      "selected_by": "hub component-lock.json"
+    }
+  },
+  "historical_selected_default": {
+    "note": "W7 merged-producers-v1 selected default; excluded from this campaign except as a separately labelled reference",
+    "lock_sha256": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+    "runtime_pin": "c3c3ee7188b9367cf70b08074b9c40a5c70c94ac"
+  },
+  "exclusions": [
+    "Governed Exchange PR #2 (deferred, excluded by hub lock)",
+    "Historical compatibility test dependencies and previous-selected test dependencies in the hub lock",
+    "Upstream Moltbot application tree (quarantined at upstream-moltbot-quarantine-20261016)",
+    "Private repositories (igpg-practice-system, architecture-of-mind, others); no private material is read or published",
+    "Live OpenShell production confinement, production identity, real settlement, remote C2/C3",
+    "Paid actual-agent campaigns unless a budget (limit USD 20) is separately spent and recorded",
+    "Human participation studies"
+  ],
+  "platforms": {
+    "os": [
+      "ubuntu-latest",
+      "windows-latest",
+      "macos-latest"
+    ],
+    "python": [
+      "3.11 (ubuntu)",
+      "3.12"
+    ],
+    "runner_provider": "GitHub-hosted",
+    "runtime_versions_recorded_in": "freeze-verification.json and per-job result.json"
+  },
+  "harness": {
+    "repository": "cogno-us/cognous-stack-qualification",
+    "revision": "bound at dispatch: recorded as workflow github.sha in freeze-verification.json",
+    "overlays": "none: no source-layout overlay is applied to component repos; qualification suites use tools/install_suite.py only where the retained suite requires it"
+  },
+  "dependency_identity": {
+    "hub_requirements_lock_sha256": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+    "qualification_ci_lock_sha256": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495",
+    "component_dependency_resolution": "Each component's own declared dependencies, resolved at job time; resolved pip freeze is retained per job. Unpinned resolution is recorded as a limitation, not hidden."
+  },
+  "rules": {
+    "no_pin_advance": true,
+    "no_candidate_enablement": true,
+    "no_default_change": true,
+    "product_code_unmodified": true,
+    "candidate_success_cannot_satisfy_selected_v1": "(historical rule text from v1-2026-10-16-a not carried over; see that directory)"
+  },
+  "label": "CURRENT-STACK GENERATION 2 Security Wiki qualification configuration (TEMPLATE); current-stack-20261031 and v1-2026-10-16-a are retained unchanged as reference only",
+  "note": "TEMPLATE derived from current-stack-20261031. control_plane (b19c47dd), runtime (f7a55e2a), manifest (fa170815), bitrep, index, authority are carried over unchanged and must be re-confirmed against the final tuple.",
+  "_template_status": "TEMPLATE - NOT A FREEZE. Every value beginning PLACEHOLDER: must be replaced from the final merged tuple; tools/run_wiki_s3.py refuses to run while any remains."
+}
