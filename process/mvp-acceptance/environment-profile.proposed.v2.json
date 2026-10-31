@@ -1,14 +1,14 @@
 {
   "schema": "cognous.mvp-environment-profile/1",
   "status": "PROPOSED supported-environment record v2 for OCS-MVP-QGATE-05 (the single authorized hosted run). Pending Qualification-owner acceptance and freeze as part of commitment v5. NOT production configuration. Non-authorizing; no independence, certification, Q7 or Tier 1 claim. environment-profile.proposed.v1.json stays byte-identical (it is what commitment v4 committed); this file is a NEW versioned file.",
-  "supersedes": "process/mvp-acceptance/environment-profile.proposed.v1.json (not edited). What changed from v1, and nothing else: (1) the IPC directory mode 2751 is annotated as the BOUNDED SYNTHETIC TEST profile ratified by Architect D3 (not production); (2) Yama is recorded as found and is no longer set by the workflow (no sysctl); (3) the host is pinned to ubuntu-24.04 and the NC4 state tree base path to /var/lib/qgate05-ocs/tmp (avoids the ACL FAIL under /opt); (4) the trigger, custody and evidence channel are described. Required check ids, capture-script pin, identities, 0660 socket and journal mode are unchanged from v1.",
+  "supersedes": "process/mvp-acceptance/environment-profile.proposed.v1.json (not edited). What changed from v1, and nothing else: (1) the IPC directory mode 2751 is annotated as the BOUNDED SYNTHETIC TEST profile ratified by Architect D3 (not production); (2) Yama establishment is UNCHANGED in effect from v1 (the workflow ensures ptrace_scope >= 1 with `sudo sysctl -w kernel.yama.ptrace_scope=1`); what is new is only that the provisioning helper records the as-found value first, raises to 1 only when it is below 1 and never lowers it, and records the effective value; (3) the host is pinned to ubuntu-24.04 and the NC4 state tree base path to /var/lib/qgate05-ocs/tmp (avoids the ACL FAIL under /opt); (4) the trigger, custody and evidence channel are described. Required check ids, capture-script pin, identities, 0660 socket and journal mode are unchanged from v1.",
   "profile": "restricted Linux, single host, CPython 3.13, pydantic >= 2.12",
   "host": {
     "runner": "GitHub-hosted ubuntu-24.04 (never ubuntu-latest); image identity (ImageOS, ImageVersion) and kernel are recorded in the run (run-identity.json, host-evidence/)",
-    "base_path": "/var/lib/qgate05-ocs (root:root 0755, must not pre-exist); the suite's TMPDIR is /var/lib/qgate05-ocs/tmp so tempfile.mkdtemp creates the NC4 state tree there. Never /tmp (sticky, other-writable) and never /opt (the ACL FAIL seen in QGATE-02/03). Durable writable store for the real-kill test: /var/lib/qgate05-ocs/durable (QG5_DURABLE_DIR).",
+    "base_path": "/var/lib/qgate05-ocs (root:root 0755, must not pre-exist); the suite's TMPDIR is /var/lib/qgate05-ocs/tmp so tempfile.mkdtemp creates the NC4 state tree there. Never /tmp (sticky, other-writable) and never /opt (the ACL FAIL seen in QGATE-02/03). The real-kill harness (A1) also builds its durable work dir with tempfile under that same TMPDIR; there is no separate durable directory and no QG5_DURABLE_DIR.",
     "sandbox": "none: plain VM, passwordless sudo, no container or seccomp profile on the test processes, so a test may SIGKILL its own child (Architect A1)",
-    "host_changes": "throwaway groups/users mvp-ingress, mvp-client, mvp-ipc; read access (go+rX,go-w) on the workspace and go+x on its ancestors so the ingress uid can read the pinned checkouts; NO sysctl, NO Yama change, NO ACL change",
-    "trigger": "push to branch qgate-05/run-1 only, run_attempt == 1, no re-run path; commitment sha256 and qualification revision come from the hub custody record docs/mvp-recovery/qgate-05/custody/freeze-commitment.json (default branch), never from the candidate checkout"
+    "host_changes": "throwaway groups/users mvp-ingress, mvp-client, mvp-ipc; read access (go+rX,go-w) on the workspace and go+x on its ancestors so the ingress uid can read the pinned checkouts; Yama: ptrace_scope is read as found and, only if it is below 1, raised to 1 with `sudo sysctl -w kernel.yama.ptrace_scope=1` (never lowered; both the as-found and the effective value are recorded in host-evidence/yama-record.json); NO ACL change",
+    "trigger": "push to branch qgate-05/run-1 only, run_attempt == 1, no re-run path; commitment sha256 and qualification revision come from the hub custody record docs/mvp-recovery/qgate-05/custody/freeze-commitment.json (hub branch qgate-05/custody-1, pushed once, never force-pushed; NOT the hub default branch), never from the candidate checkout"
   },
   "python": {
     "implementation": "CPython",
@@ -18,7 +18,8 @@
   "yama": {
     "ptrace_scope_min": 1,
     "absent": "Yama unavailable means the exact profile is unsupported: the boundary test is BLOCKED and the verdict is INCOMPLETE; no weaker environment is substituted.",
-    "as_found": "Recorded as found on the hosted runner (QGATE-03 run 41153041401 passed isolation.ptrace_scope on ubuntu-24.04); the workflow does NOT set it. A value below 1 leaves the boundary test BLOCKED and the verdict INCOMPLETE."
+    "as_found": "The as-found kernel.yama.ptrace_scope is recorded before any change (host-evidence/yama-record.json and the pre-provision snapshot). No claim is made about the runner default.",
+    "establishment": "If the as-found value is numerically below 1 the provisioning step raises it to 1 with `sudo sysctl -w kernel.yama.ptrace_scope=1` (as the original workflow did); a value of 1, 2 or 3 is never changed or lowered; the effective value is recorded beside the as-found value. If Yama is absent nothing is faked: it stays absent and the boundary rows are BLOCKED (verdict INCOMPLETE)."
   },
   "hub_record": {
     "schema": "mvp-ingress-env-record/1",
@@ -96,7 +97,7 @@
       "note": "dedicated users and group created by the workflow; names only, the uids and gids are resolved on the host and compared with the record. The ingress runs as mvp-ingress (non-root, own primary group), the client as mvp-client, the socket group mvp-ipc has exactly those two members."
     },
     "provisioning": {
-      "yama": "recorded as found (cat /proc/sys/kernel/yama/ptrace_scope); NOT set by the workflow. Absent or < 1 is BLOCKED and the verdict INCOMPLETE",
+      "yama": "as found recorded, then raised to 1 with sudo sysctl -w kernel.yama.ptrace_scope=1 only when below 1 (never lowered); effective value recorded. Absent or still < 1 is BLOCKED and the verdict INCOMPLETE",
       "ipc_directory": "a separate directory (setgid, group mvp-ipc, 2751: traverse-only for others; BOUNDED SYNTHETIC TEST profile, not production) the client and the outsider probe can traverse; the ingress-owned 0700 state directory is never the socket directory; both live under /var/lib/qgate05-ocs/tmp/mvp-nc4-*",
       "socket": "0660, owner the ingress uid, group mvp-ipc",
       "developer_optout": "MVP_INGRESS_PROFILE=developer-optout (local only: root ingress, mode 666, uid 65534, no record); the suite records profile=developer-optout and the gate verdict is INCOMPLETE. The workflow always sets MVP_INGRESS_PROFILE=approved.",

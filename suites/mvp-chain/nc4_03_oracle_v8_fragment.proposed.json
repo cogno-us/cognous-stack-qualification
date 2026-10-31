@@ -21,7 +21,7 @@
   {
    "id": "NC4-03",
    "mandatory": true,
-   "title": "DETERMINISTIC SOURCE-LEVEL assertion (host-independent; not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except proven fixed forms and three exactly pinned, fully recorded reviewed sites; the six authority-bearing fields (claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id, requested_permissions) have a trusted origin at every protected call; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass; AND the frozen versioned mutation set nc4_03_mutation_set.v1 (57 mutations in 6 families, each with exact input, operation, expected rejection, environment, evidence source and predicate) is rejected as expected on a copy of the pinned hub source while its 11 negative controls (no-op and benign edits) are accepted and satisfy no rejection predicate. Host-dependent subcases are the separate rows NC4-03a..d and cannot alter this verdict",
+   "title": "DETERMINISTIC SOURCE-LEVEL assertion (host-independent; not an execution observation): in the whole pinned hub tools/mvp_ingress source no non-literal ** forwarding exists except proven fixed forms and three exactly pinned, fully recorded reviewed sites; the six authority-bearing fields (claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id, requested_permissions) have a trusted origin at every protected call; no client-controlled simulate, authority-writer capability, operation-identity override or arbitrary keyword reaches a protected executor/claim API; the real protected call sites are all seen; every simulate keyword is the constant None; and D1's own simulate AST tests pass; AND the frozen versioned mutation set nc4_03_mutation_set.v1 (69 mutations in 7 families, each with exact input, operation, expected rejection, environment, evidence source and predicate) is rejected as expected on a copy of the pinned hub source while its 13 negative controls (no-op and benign edits) are accepted and satisfy no rejection predicate. Host-dependent subcases are the separate rows NC4-03a..d and cannot alter this verdict",
    "scenario": "nc4_03_det",
    "all": [
     {
@@ -97,7 +97,7 @@
     {
      "obs": "nc4_03_det.mutation_set.set_file_sha256",
      "op": "eq",
-     "value": "1da3c7c8fef98ccecce1b2f6dc3dc3c2f890a8b7eab8258c7b74fda8789a5bd8"
+     "value": "4c0438c582091b297186c7e6402f42ef9b52354cfb009124186d732ad87e0d63"
     },
     {
      "obs": "nc4_03_det.mutation_set.verdict",
@@ -107,12 +107,12 @@
     {
      "obs": "nc4_03_det.mutation_set.mutations_total",
      "op": "eq",
-     "value": 57
+     "value": 69
     },
     {
      "obs": "nc4_03_det.mutation_set.mutations_rejected",
      "op": "eq",
-     "value": 57
+     "value": 69
     },
     {
      "obs": "nc4_03_det.mutation_set.mutations_not_rejected",
@@ -121,12 +121,12 @@
     {
      "obs": "nc4_03_det.mutation_set.controls_total",
      "op": "eq",
-     "value": 11
+     "value": 13
     },
     {
      "obs": "nc4_03_det.mutation_set.controls_accepted",
      "op": "eq",
-     "value": 11
+     "value": 13
     },
     {
      "obs": "nc4_03_det.mutation_set.controls_falsely_rejected",
@@ -142,7 +142,7 @@
    "id": "NC4-03a",
    "mandatory": true,
    "scenario": "nc4_03_host",
-   "title": "HOST-DEPENDENT subcase of NC4-03 (Yama), executed on the ratified bounded 2751 test profile (D3; not production): kernel.yama.ptrace_scope >= 1 on the execution host (absent or 0: profile unsupported, BLOCKED). BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (Yama), executed on the ratified bounded 2751 test profile (D3; not production): kernel.yama.ptrace_scope >= 1 on the execution host (absent or 0: profile unsupported, BLOCKED). BLOCKED when the profile is unavailable; the row asserts the EXPECTED OBSERVED FACTS themselves (raw probe observations and per-fact booleans recorded under nc4_03_host.<id>.observed / .facts), not only the status string the harness writes; never changes, converts or obscures the deterministic NC4-03 verdict",
    "blocked_if": [
     {
      "obs": "nc4_03_host.NC4-03a.status",
@@ -155,6 +155,15 @@
      "obs": "nc4_03_host.NC4-03a.status",
      "op": "eq",
      "value": "PASS"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03a.observed.ptrace_scope",
+     "op": "in",
+     "value": [
+      "1",
+      "2",
+      "3"
+     ]
     }
    ]
   },
@@ -162,7 +171,7 @@
    "id": "NC4-03b",
    "mandatory": true,
    "scenario": "nc4_03_host",
-   "title": "HOST-DEPENDENT subcase of NC4-03 (uid separation), executed on the ratified bounded 2751 test profile (D3; not production): dedicated non-root ingress uid, a distinct unprivileged client uid and outsider uid 65533, distinct primary groups, no capabilities. BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (uid separation), executed on the ratified bounded 2751 test profile (D3; not production): dedicated non-root ingress uid, a distinct unprivileged client uid and outsider uid 65533, distinct primary groups, no capabilities. BLOCKED when the profile is unavailable; the row asserts the EXPECTED OBSERVED FACTS themselves (raw probe observations and per-fact booleans recorded under nc4_03_host.<id>.observed / .facts), not only the status string the harness writes; never changes, converts or obscures the deterministic NC4-03 verdict",
    "blocked_if": [
     {
      "obs": "nc4_03_host.NC4-03b.status",
@@ -175,6 +184,61 @@
      "obs": "nc4_03_host.NC4-03b.status",
      "op": "eq",
      "value": "PASS"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.observed.ratified_profile",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.observed.outsider_uid",
+     "op": "eq",
+     "value": 65533
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.observed.client_proc.cap_eff",
+     "op": "eq",
+     "value": [
+      "0000000000000000"
+     ]
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.observed.outsider_proc.cap_eff",
+     "op": "eq",
+     "value": [
+      "0000000000000000"
+     ]
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.ingress_not_root_or_optout",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.client_nonzero_and_distinct_from_ingress",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.client_and_ingress_distinct_primary_groups",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.outsider_distinct_from_ingress_and_client",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.client_dropped_capabilities",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.outsider_dropped_capabilities",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.client_effective_uid_is_declared",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03b.facts.outsider_effective_uid_is_declared",
+     "op": "true"
     }
    ]
   },
@@ -182,7 +246,7 @@
    "id": "NC4-03c",
    "mandatory": true,
    "scenario": "nc4_03_host",
-   "title": "HOST-DEPENDENT subcase of NC4-03 (IPC 2751 socket profile), executed on the ratified bounded 2751 test profile (D3; not production): IPC directory 2751 / socket 0660 / dedicated group: the outsider can only stat the known socket name (accepted residual) and cannot list or connect; the group-member client connects. BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (IPC 2751 socket profile), executed on the ratified bounded 2751 test profile (D3; not production): IPC directory 2751 / socket 0660 / dedicated group: the outsider can only stat the known socket name (accepted residual) and cannot list or connect; the group-member client connects. BLOCKED when the profile is unavailable; the row asserts the EXPECTED OBSERVED FACTS themselves (raw probe observations and per-fact booleans recorded under nc4_03_host.<id>.observed / .facts), not only the status string the harness writes; never changes, converts or obscures the deterministic NC4-03 verdict",
    "blocked_if": [
     {
      "obs": "nc4_03_host.NC4-03c.status",
@@ -195,6 +259,80 @@
      "obs": "nc4_03_host.NC4-03c.status",
      "op": "eq",
      "value": "PASS"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.ratified_profile",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.dir_mode",
+     "op": "eq",
+     "value": "0o2751"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.socket_mode",
+     "op": "eq",
+     "value": "0o660"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.socket_is_socket",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.outsider.stat_known_socket",
+     "op": "eq",
+     "value": "ok"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.outsider.listdir",
+     "op": "eq",
+     "value": "EACCES"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.outsider.connect",
+     "op": "eq",
+     "value": "EACCES"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.observed.group_member_client.connect",
+     "op": "eq",
+     "value": "ok"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.dir_mode_is_2751",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.dir_group_is_ipc_group",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.socket_is_a_socket",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.socket_mode_is_0660",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.socket_group_is_ipc_group_via_setgid",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.outsider_can_stat_known_name_residual",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.outsider_cannot_list_directory",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.outsider_cannot_connect",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03c.facts.ipc_group_member_can_connect",
+     "op": "true"
     }
    ]
   },
@@ -202,7 +340,7 @@
    "id": "NC4-03d",
    "mandatory": true,
    "scenario": "nc4_03_host",
-   "title": "HOST-DEPENDENT subcase of NC4-03 (peer-UID allowlist), executed on the ratified bounded 2751 test profile (D3; not production): pinned server.serve against a stub core: the allowlisted client is served, a non-allowlisted socket-group member gets PEER_NOT_ALLOWED, an empty allowlist is refused. BLOCKED when the profile is unavailable; never changes, converts or obscures the deterministic NC4-03 verdict",
+   "title": "HOST-DEPENDENT subcase of NC4-03 (peer-UID allowlist), executed on the ratified bounded 2751 test profile (D3; not production): pinned server.serve against a stub core: the allowlisted client is served, a non-allowlisted socket-group member gets PEER_NOT_ALLOWED, an empty allowlist is refused. BLOCKED when the profile is unavailable; the row asserts the EXPECTED OBSERVED FACTS themselves (raw probe observations and per-fact booleans recorded under nc4_03_host.<id>.observed / .facts), not only the status string the harness writes; never changes, converts or obscures the deterministic NC4-03 verdict",
    "blocked_if": [
     {
      "obs": "nc4_03_host.NC4-03d.status",
@@ -215,6 +353,42 @@
      "obs": "nc4_03_host.NC4-03d.status",
      "op": "eq",
      "value": "PASS"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.observed.ratified_profile",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.observed.empty_allowlist",
+     "op": "eq",
+     "value": "refused"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.observed.allowlisted_client_response",
+     "op": "contains",
+     "value": "stub-core-reached"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.observed.non_allowlisted_group_member_response",
+     "op": "contains",
+     "value": "PEER_NOT_ALLOWED"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.observed.non_allowlisted_group_member_response",
+     "op": "not_contains",
+     "value": "stub-core-reached"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.facts.empty_allowlist_refused",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.facts.allowlisted_client_reaches_core",
+     "op": "true"
+    },
+    {
+     "obs": "nc4_03_host.NC4-03d.facts.non_allowlisted_group_member_refused",
+     "op": "true"
     }
    ]
   }

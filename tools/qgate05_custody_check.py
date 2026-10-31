@@ -2,7 +2,8 @@
 """OCS-MVP-QGATE-05 / Worker C: independent commitment custody check for the single authorized mvp-acceptance run (PROPOSED, non-authorizing).
 
 The candidate commitment (G-12) must be anchored OUTSIDE the candidate checkout. The workflow checks out the hub repository
-(cogno-us/cognous-open-control-stack) at its default branch into a separate directory and reads ONE custody record:
+(cogno-us/cognous-open-control-stack) at the DEDICATED custody branch `qgate-05/custody-1` (ref = that branch; NOT the hub default branch) into a separate directory and
+reads ONE custody record (the record is pushed once to that branch and never force-pushed; the resolved head sha of the branch is recorded in the evidence):
 
     docs/mvp-recovery/qgate-05/custody/freeze-commitment.json
 
@@ -34,6 +35,7 @@ from pathlib import Path
 SCHEMA = "cognous.qgate05-freeze-commitment/1"
 SCHEMAS = (SCHEMA, "cognous.ocs-mvp-qgate-05-freeze-commitment/1")  # the second is the string of the hub freeze package template (docs/mvp-recovery/qgate-05/freeze/freeze-commitment.template.json)
 FILE_KEYS = ("candidate_commitment_file", "commitment_file")  # same meaning; the hub template names it commitment_file
+CUSTODY_BRANCH = "qgate-05/custody-1"
 HEX40 = re.compile(r"[0-9a-f]{40}")
 HEX64 = re.compile(r"[0-9a-f]{64}")
 
@@ -92,7 +94,8 @@ def check(record_path: Path, commitment_path: Path, commitment_rel: str, github_
     if hub_dir is not None:
         try:
             evidence["hub_custody_checkout_head"] = git(hub_dir, "rev-parse", "HEAD")
-            evidence["hub_custody_checkout_branch_note"] = "checked out at the hub repository default branch (no ref); this is the resolved commit"
+            evidence["hub_custody_branch"] = CUSTODY_BRANCH
+            evidence["hub_custody_checkout_branch_note"] = f"checked out at the dedicated hub custody branch {CUSTODY_BRANCH} (checkout ref); hub_custody_checkout_head is the resolved head sha of that branch"
         except (subprocess.SubprocessError, OSError) as exc:
             problems.append(f"cannot resolve the hub custody checkout commit: {type(exc).__name__}")
     evidence["problems"] = problems

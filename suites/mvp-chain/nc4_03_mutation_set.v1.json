@@ -27,7 +27,7 @@
   },
   "input_note": "Verdicts are a pure function of these bytes and the predicate in _kwflow.py: a different tree or interpreter is not this candidate (FAIL / BLOCKED), never PASS."
  },
- "relation_to_supplementary_entries": "The 183 `supplementary_nc4_03_predicate` battery entries (KW-001..KW-183 = every test of test_kwflow.py) remain, unchanged and still collected: they are the predicate's own self-tests (71 negative and 7 positive fixtures, baseline, pin records, 43 ingress mutants, 23 v5 evading mutants, tree and interpreter tests). This set does NOT re-implement or replace them. It selects, from the origin-rule mutants those tables already contain (provenance field on each mutation), a FROZEN mandatory subset expressed as data with the six required fields, runs it through its own runner on a copy of the pinned hub tree, and adds per-family negative controls that the supplementary tables lack. The 24 remaining MUTANTS (generic `**` forwarding, pinned-site un-pin, etc.) and the fixture-level negatives stay supplementary only.",
+ "relation_to_supplementary_entries": "The 183 `supplementary_nc4_03_predicate` battery entries (KW-001..KW-183 = every test of test_kwflow.py) remain, unchanged and still collected: they are the predicate's own self-tests (71 negative and 7 positive fixtures, baseline, pin records, 43 ingress mutants, 23 v5 evading mutants, tree and interpreter tests). This set does NOT re-implement or replace them. It selects, from the mutants those tables already contain (provenance field on each mutation), a FROZEN mandatory subset expressed as data with the six required fields, runs it through its own runner on a copy of the pinned hub tree, and adds per-family negative controls that the supplementary tables lack. The family GENERIC-FORWARD (added pre-freeze after the QGATE-05 pre-execution review, finding F-05) covers every rule of the predicate that the origin-rule families do not exercise (SIMULATE_NOT_CONSTANT_NONE, NONLITERAL_KWARGS, MODEL_COPY_KWARGS_FORBIDDEN, MODEL_COPY_UPDATE_NOT_FIXED, COMPREHENSION_NOT_FIXED, OPAQUE_POSITIONAL_UNPACK) plus three edits that reach the rules ORIGIN_VIOLATION and OPAQUE_POSITIONAL_UNPACK only through an UNRESOLVED callee (UNRESOLVED is the callee-resolution sentinel of _kwflow.names_of, not a rule id). The 14 MUTANTS not selected here (pinned-site un-pin variants, PROTECTED_CALLABLE_ESCAPES forms, etc.) and the fixture-level negatives stay supplementary only.",
  "verdict_rule": "PASS iff every mutation's predicate holds (REJECTED as expected), every control's predicate holds (ACCEPTED), no control satisfies its family's rejection predicate, and the pinned input digests match. Anything else is FAIL; a non-3.13 interpreter or missing hub checkout is BLOCKED (never PASS). No host observation is read.",
  "families": [
   {
@@ -128,9 +128,9 @@
    ]
   },
   {
-   "id": "PIN",
-   "title": "Tree and pin integrity (fail closed): any byte change in a scanned file, a changed pinned site, a vanished required site, or any extra / missing / replaced entry in the recursive tree is rejected",
-   "scan_mode": "pinned",
+   "id": "GENERIC-FORWARD",
+   "title": "v1 generic forwarding rules: a client-influenced simulate keyword, ** forwarding or dict update into a protected call, a ** into model_copy or a non-fixed update=, a dict comprehension, an opaque positional * unpack, and a callee that cannot be resolved statically (call result, dynamic getattr) receiving client data",
+   "scan_mode": "rebased",
    "mutations": [
     "M043",
     "M044",
@@ -143,10 +143,33 @@
     "M051",
     "M052",
     "M053",
-    "M054",
+    "M054"
+   ],
+   "controls": [
+    "C-GENERIC-FORWARD-NOOP",
+    "C-GENERIC-FORWARD-BENIGN"
+   ]
+  },
+  {
+   "id": "PIN",
+   "title": "Tree and pin integrity (fail closed): any byte change in a scanned file, a changed pinned site, a vanished required site, or any extra / missing / replaced entry in the recursive tree is rejected",
+   "scan_mode": "pinned",
+   "mutations": [
     "M055",
     "M056",
-    "M057"
+    "M057",
+    "M058",
+    "M059",
+    "M060",
+    "M061",
+    "M062",
+    "M063",
+    "M064",
+    "M065",
+    "M066",
+    "M067",
+    "M068",
+    "M069"
    ],
    "controls": [
     "C-PIN-NOOP"
@@ -3187,6 +3210,872 @@
   },
   {
    "id": "M043",
+   "family": "GENERIC-FORWARD",
+   "title": "core: client simulate",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "claim_id=claim.claim_id, simulate=None)",
+      "new": "claim_id=claim.claim_id, simulate=fields.get(\"simulate\"))",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "SIMULATE_NOT_CONSTANT_NONE"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "SIMULATE_NOT_CONSTANT_NONE"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['core: client simulate']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M044",
+   "family": "GENERIC-FORWARD",
+   "title": "core: **fields into execute",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "claim_id=claim.claim_id, simulate=None)",
+      "new": "claim_id=claim.claim_id, simulate=None, **fields)",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "NONLITERAL_KWARGS"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "NONLITERAL_KWARGS"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['core: **fields into execute']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M045",
+   "family": "GENERIC-FORWARD",
+   "title": "core: client kwargs into decide",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "host.workflow.decide(proposal, now=host.now)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "host.workflow.decide(proposal, now=host.now)",
+      "new": "host.workflow.decide(proposal, now=host.now, **fields)",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "NONLITERAL_KWARGS"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "NONLITERAL_KWARGS"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['core: client kwargs into decide']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M046",
+   "family": "GENERIC-FORWARD",
+   "title": "core: update() with client fields",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "new": "kw = {\"claim_id\": claim.claim_id}\n            kw.update(fields)\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), **kw)",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "NONLITERAL_KWARGS"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "NONLITERAL_KWARGS"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['core: update() with client fields']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M047",
+   "family": "GENERIC-FORWARD",
+   "title": "host: model_copy ** update from client",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "synthetic_host.py": "95c965fbc2eaeab70fd90ff9c544bd155295538b16f6d775a30917ee18352731"
+    },
+    "anchor": {
+     "file": "synthetic_host.py",
+     "text": "return self.p0.model_copy(update={",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "synthetic_host.py",
+      "old": "return self.p0.model_copy(update={",
+      "new": "return self.p0.model_copy(**{\"fields\": fields}, update={",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "MODEL_COPY_KWARGS_FORBIDDEN"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "MODEL_COPY_KWARGS_FORBIDDEN"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['host: model_copy ** update from client']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M048",
+   "family": "GENERIC-FORWARD",
+   "title": "host: model_copy update from client mapping",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "synthetic_host.py": "95c965fbc2eaeab70fd90ff9c544bd155295538b16f6d775a30917ee18352731"
+    },
+    "anchor": {
+     "file": "synthetic_host.py",
+     "text": "tra.proposal = lambda *a, **k: original(*a, **k).model_copy(update={\"amount\": APPROVED_AMOUNT})",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "synthetic_host.py",
+      "old": "tra.proposal = lambda *a, **k: original(*a, **k).model_copy(update={\"amount\": APPROVED_AMOUNT})",
+      "new": "tra.proposal = lambda *a, **k: original(*a, **k).model_copy(update=a[0])",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "MODEL_COPY_UPDATE_NOT_FIXED"
+    ],
+    "pins_stay_matched": false
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "MODEL_COPY_UPDATE_NOT_FIXED"
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['host: model_copy update from client mapping']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M049",
+   "family": "GENERIC-FORWARD",
+   "title": "core: comprehension over client fields into provision_claim",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "provision_claim(proposal=proposal, decision=decision, now=host.now)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "provision_claim(proposal=proposal, decision=decision, now=host.now)",
+      "new": "provision_claim(proposal=proposal, decision=decision, now=host.now, **{k: v for k, v in fields.items()})",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "COMPREHENSION_NOT_FIXED"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "COMPREHENSION_NOT_FIXED"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['core: comprehension over client fields into provision_claim']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M050",
+   "family": "GENERIC-FORWARD",
+   "title": "host: comprehension keys from non-literal iterable",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "synthetic_host.py": "95c965fbc2eaeab70fd90ff9c544bd155295538b16f6d775a30917ee18352731"
+    },
+    "anchor": {
+     "file": "synthetic_host.py",
+     "text": "for k in names}",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "synthetic_host.py",
+      "old": "for k in names}",
+      "new": "for k in p.model_dump()}",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "COMPREHENSION_NOT_FIXED"
+    ],
+    "pins_stay_matched": false
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "COMPREHENSION_NOT_FIXED"
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['host: comprehension keys from non-literal iterable']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M051",
+   "family": "GENERIC-FORWARD",
+   "title": "core: import alias then client star-args",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "new": "from engine.x import execute as go\n            res = go(*fields[\"a\"])",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "OPAQUE_POSITIONAL_UNPACK"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "OPAQUE_POSITIONAL_UNPACK"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "test_kwflow.MUTANTS['core: import alias then client star-args']",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M052",
+   "family": "GENERIC-FORWARD",
+   "title": "U1 unresolved callee (call result) invoked with client star-args",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "new": "make_runner(host)(*fields[\"a\"])\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "OPAQUE_POSITIONAL_UNPACK"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "OPAQUE_POSITIONAL_UNPACK"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "new in this set (not in a test_kwflow table); drives the UNRESOLVED-callee path",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M053",
+   "family": "GENERIC-FORWARD",
+   "title": "U2 unresolved callee (call result) with a client value for a six-field keyword",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "new": "make_runner(host)(claim_id=fields[\"claim_id\"])\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "ORIGIN_VIOLATION"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "ORIGIN_VIOLATION"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "new in this set (not in a test_kwflow table); drives the UNRESOLVED-callee path",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M054",
+   "family": "GENERIC-FORWARD",
+   "title": "U3 unresolved callee (dynamic getattr) with a client value for a six-field keyword",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "new": "getattr(host.executor, fields[\"n\"])(claim_id=fields[\"claim_id\"])\n            res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "REJECTED",
+    "rules_all_of": [
+     "ORIGIN_VIOLATION"
+    ],
+    "pins_stay_matched": true
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_rules",
+     "op": "contains",
+     "value": "ORIGIN_VIOLATION"
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    }
+   ],
+   "provenance": {
+    "supplementary_source": "new in this set (not in a test_kwflow table); drives the UNRESOLVED-callee path",
+    "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"
+   }
+  },
+  {
+   "id": "M055",
    "family": "PIN",
    "title": "comment-only append to __init__.py un-pins and fails closed",
    "input": {
@@ -3256,7 +4145,7 @@
    }
   },
   {
-   "id": "M044",
+   "id": "M056",
    "family": "PIN",
    "title": "comment-only append to client.py un-pins and fails closed",
    "input": {
@@ -3326,7 +4215,7 @@
    }
   },
   {
-   "id": "M045",
+   "id": "M057",
    "family": "PIN",
    "title": "comment-only append to core.py un-pins and fails closed",
    "input": {
@@ -3396,7 +4285,7 @@
    }
   },
   {
-   "id": "M046",
+   "id": "M058",
    "family": "PIN",
    "title": "comment-only append to launch.py un-pins and fails closed",
    "input": {
@@ -3466,7 +4355,7 @@
    }
   },
   {
-   "id": "M047",
+   "id": "M059",
    "family": "PIN",
    "title": "comment-only append to proposal.py un-pins and fails closed",
    "input": {
@@ -3536,7 +4425,7 @@
    }
   },
   {
-   "id": "M048",
+   "id": "M060",
    "family": "PIN",
    "title": "comment-only append to server.py un-pins and fails closed",
    "input": {
@@ -3606,7 +4495,7 @@
    }
   },
   {
-   "id": "M049",
+   "id": "M061",
    "family": "PIN",
    "title": "comment-only append to synthetic_host.py un-pins and fails closed",
    "input": {
@@ -3676,7 +4565,7 @@
    }
   },
   {
-   "id": "M050",
+   "id": "M062",
    "family": "PIN",
    "title": "semantic AST change inside a pinned site (14-name tuple reordered)",
    "input": {
@@ -3746,7 +4635,7 @@
    }
   },
   {
-   "id": "M051",
+   "id": "M063",
    "family": "PIN",
    "title": "pinned ExecutionOperation site changed (** names added)",
    "input": {
@@ -3816,7 +4705,7 @@
    }
   },
   {
-   "id": "M052",
+   "id": "M064",
    "family": "PIN",
    "title": "required protected call site vanishes (provision_claim renamed)",
    "input": {
@@ -3886,7 +4775,7 @@
    }
   },
   {
-   "id": "M053",
+   "id": "M065",
    "family": "PIN",
    "title": "recursive tree check: package shadowing proposal.py",
    "input": {
@@ -3961,7 +4850,7 @@
    }
   },
   {
-   "id": "M054",
+   "id": "M066",
    "family": "PIN",
    "title": "recursive tree check: extension module planted",
    "input": {
@@ -4032,7 +4921,7 @@
    }
   },
   {
-   "id": "M055",
+   "id": "M067",
    "family": "PIN",
    "title": "recursive tree check: sitecustomize.py planted",
    "input": {
@@ -4103,7 +4992,7 @@
    }
   },
   {
-   "id": "M056",
+   "id": "M068",
    "family": "PIN",
    "title": "recursive tree check: symlink planted",
    "input": {
@@ -4174,7 +5063,7 @@
    }
   },
   {
-   "id": "M057",
+   "id": "M069",
    "family": "PIN",
    "title": "recursive tree check: BOUNDARY.md removed",
    "input": {
@@ -4933,6 +5822,154 @@
      {
       "op": "append",
       "file": "synthetic_host.py",
+      "text": "\n# nc4-03 mutation-set control: comment only\n"
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "ACCEPTED",
+    "rules_all_of": []
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "required_sites_missing",
+     "op": "empty"
+    },
+    {
+     "obs": "pinned_sites_used_count",
+     "op": "eq",
+     "value": 3
+    }
+   ]
+  },
+  {
+   "id": "C-GENERIC-FORWARD-NOOP",
+   "family": "GENERIC-FORWARD",
+   "title": "no-op mutation (replace the family's first anchor by itself): the predicate must NOT reject",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": "claim_id=claim.claim_id, simulate=None)",
+     "occurrences": 1
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "replace",
+      "file": "core.py",
+      "old": "claim_id=claim.claim_id, simulate=None)",
+      "new": "claim_id=claim.claim_id, simulate=None)",
+      "count": 1
+     }
+    ]
+   },
+   "expected": {
+    "outcome": "ACCEPTED",
+    "rules_all_of": []
+   },
+   "environment": {
+    "interpreter": "CPython 3.13 (ast_digest pins are honoured on 3.13 only)",
+    "host_dependent": false,
+    "privileges": "none (no root, no uid change, no socket, no network, no /proc)",
+    "scan_mode": "rebased",
+    "scan_mode_meaning": "pins and recursive digest re-based onto the mutated copy so ONLY the source-aware rule decides (a plain edit would otherwise be rejected merely by un-pinning)",
+    "input_copy": "temporary copy of MVP_HUB_DIR/tools/mvp_ingress; the pinned checkout is never written"
+   },
+   "evidence_source": {
+    "function": "suites/mvp-chain/_kwflow.py:scan_dir (predicate nc4-03.v5.strict-refinement-dataflow)",
+    "derivation": "_nc4_03_mutations.observe_tree",
+    "observations_used": [
+     "violations[].rule",
+     "pins_unmatched",
+     "required_sites_missing",
+     "pinned_sites_used"
+    ]
+   },
+   "predicate": [
+    {
+     "obs": "mutation_applied",
+     "op": "true"
+    },
+    {
+     "obs": "violation_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "pins_unmatched_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "required_sites_missing",
+     "op": "empty"
+    },
+    {
+     "obs": "pinned_sites_used_count",
+     "op": "eq",
+     "value": 3
+    }
+   ]
+  },
+  {
+   "id": "C-GENERIC-FORWARD-BENIGN",
+   "family": "GENERIC-FORWARD",
+   "title": "bytes-changing but AST-neutral edit (trailing comment on the family's target file): the predicate must NOT reject",
+   "input": {
+    "tree": "tools/mvp_ingress",
+    "files": {
+     "core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+    },
+    "anchor": {
+     "file": "core.py",
+     "text": null,
+     "occurrences": null
+    }
+   },
+   "operation": {
+    "kind": "source_edit",
+    "steps": [
+     {
+      "op": "append",
+      "file": "core.py",
       "text": "\n# nc4-03 mutation-set control: comment only\n"
      }
     ]

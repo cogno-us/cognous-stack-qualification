@@ -1023,22 +1023,32 @@ class IngressProfileTests(unittest.TestCase):
 
     def test_workflow_provisions_the_profile_and_no_longer_takes_a_precommitted_record(self):
         # QGATE-05: provisioning moved from inline workflow steps into the committed helper tools/qgate05_host_setup.sh (inside the commitment). Every identity and
-        # profile selector the old test required is still required, now of the helper that the workflow invokes. DELIBERATE DIFFERENCE: the helper does NOT run
-        # `sysctl -w kernel.yama.ptrace_scope=1`; Yama is recorded as found and the environment record (G-11, ptrace_scope >= 1) still decides, BLOCKED/FAIL otherwise.
+        # profile selector the old test required is still required, now of the helper that the workflow invokes, INCLUDING `sudo sysctl -w kernel.yama.ptrace_scope=1`
+        # (restored after the Owner's freeze review D-1): the helper reads the as-found value, raises to 1 only when it is below 1 (never lowers), records both values.
         wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
         helper = (ROOT / "tools/qgate05_host_setup.sh").read_text()
         self.assertIn("bash tools/qgate05_host_setup.sh provision", wf)
-        for needed in ("MVP_INGRESS_PROFILE=approved", "MVP_INGRESS_USER=mvp-ingress", "MVP_CLIENT_USER=mvp-client", "MVP_IPC_GROUP=mvp-ipc", "MVP_QUALIFICATION_SHA=", "useradd",
-                       "groupadd --system mvp-ipc"):
+        for needed in ("sudo sysctl -w kernel.yama.ptrace_scope=1", "MVP_INGRESS_PROFILE=approved", "MVP_INGRESS_USER=mvp-ingress", "MVP_CLIENT_USER=mvp-client", "MVP_IPC_GROUP=mvp-ipc",
+                       "MVP_QUALIFICATION_SHA=", "useradd", "groupadd --system mvp-ipc"):
             self.assertIn(needed, helper)
         for gone in ("environment_record_sha256", "inputs.environment_record", "expect-environment-record-sha256", "--socket-mode 666"):
             self.assertNotIn(gone, wf)
             self.assertNotIn(gone, helper)
         self.assertNotIn("developer-optout", wf)
         self.assertNotIn("developer-optout", helper)
-        self.assertNotIn("sysctl -w", wf)
-        self.assertNotIn("sysctl -w", helper)
+        # the Yama control is only ever RAISED: the sysctl sits behind an as-found `< 1` test, is never given a lower value, and the as-found and effective values are recorded
+        code = "\n".join(ln for ln in helper.splitlines() if not ln.lstrip().startswith("#"))  # executable lines only (the header comment describes the rule)
+        self.assertEqual(re.findall(r"sysctl -w (\S+)", code), ["kernel.yama.ptrace_scope=1"])
+        self.assertRegex(code, r'\[ "\$YAMA_FOUND" -lt 1 \]')
+        self.assertLess(code.index('YAMA_FOUND=absent'), code.index("sudo sysctl -w kernel.yama.ptrace_scope=1"))
+        self.assertLess(code.index("sudo sysctl -w kernel.yama.ptrace_scope=1"), code.index("YAMA_EFFECTIVE="))
+        self.assertIn("yama-record.json", helper)
+        self.assertIn("yama_ptrace_scope_as_found", helper)
+        self.assertIn("yama_ptrace_scope_effective", helper)
+        self.assertNotIn("sysctl", wf.split("steps:", 1)[1])  # the single sysctl lives in the helper; the workflow body only calls the helper
         self.assertIn("/proc/sys/kernel/yama/ptrace_scope", wf)  # recorded in the workflow's provisioning step and in the run identity
+        self.assertIn("yama-record.json", wf)
+        self.assertNotIn("QG5_DURABLE_DIR", wf + helper)  # F-07: no such directory is read by any test
         src = (ROOT / "suites/mvp-chain/_ingress.py").read_text()
         self.assertIn('"666" if optout else "660"', src)
         self.assertNotIn("--socket-mode\", \"666\"]", src)
@@ -1170,7 +1180,7 @@ class HardeningTests(unittest.TestCase):
 
     def run_custody(self, qual_rev, github_sha, head=None, commitment=b"c\n", record_sha=None, schema="cognous.qgate05-freeze-commitment/1", extra=None):
         """Run tools/qgate05_custody_check.py on a scratch git checkout. QGATE-05: the old workflow_dispatch input `qualification_revision` (blank or the workflow
-        commit) is replaced by the custody record read from the hub default branch; the check is STRICTER: a blank revision is no longer accepted."""
+        commit) is replaced by the custody record read from the dedicated hub branch qgate-05/custody-1; the check is STRICTER: a blank revision is no longer accepted."""
         import subprocess
         work = self.tmp / f"custody-{abs(hash((qual_rev, github_sha, head, commitment, record_sha, schema, str(extra))))}"
         repo = work / "q"
@@ -1208,6 +1218,19 @@ class HardeningTests(unittest.TestCase):
         self.assertIn("tools/qgate05_custody_check.py", wf)
         self.assertIn("--expect-commitment-sha256", wf)  # the independent value reaches the gate
         self.assertLess(wf.index("tools/qgate05_custody_check.py"), wf.index("-m pytest"))  # before any test runs
+        # F-03: the custody record comes from the dedicated hub branch (checkout ref), not the hub default branch; the head is recorded and the record path/fields are asserted
+        co = wf.index("repository: cogno-us/cognous-open-control-stack\n          ref: qgate-05/custody-1\n          path: components/custody-hub")
+        self.assertLess(co, wf.index("tools/qgate05_custody_check.py"))
+        self.assertNotIn("DEFAULT branch)\n        uses", wf)
+        self.assertIn("custody-hub-branch-head.txt", wf)
+        self.assertIn("freeze-commitment.json", wf)
+        self.assertIn("lacks required fields", wf)
+        self.assertIn("persist-credentials: false", wf[co - 200:co + 400])
+        # F-08: no token in a URL anywhere in the workflow or the helpers
+        for name in (".github/workflows/mvp-acceptance.yml", "tools/qgate05_evidence_commit.sh", "tools/qgate05_host_setup.sh"):
+            text = (ROOT / name).read_text()
+            self.assertNotRegex(text, r"https://x-access-token:[^\s\"']*@", name)
+            self.assertNotIn("@github.com", text.replace("github-actions[bot]@users", ""), name)
 
     def test_readme_states_which_interpreters_the_match_checks_apply_to(self):
         text = (ROOT / "process/mvp-acceptance/README.md").read_text()
@@ -1317,7 +1340,7 @@ class ComposedV6BatteryTests(unittest.TestCase):
                                  "suites/mvp-chain/test_nc4_03_mutation_set.py": "supplementary_nc4_03_mutation_set",
                                  "suites/mvp-chain/test_nc4_03_host_subcases.py": "supplementary_nc4_03_host_subcases"})
         for kind, n in (("supplementary_nc4_03_predicate", 183), ("supplementary_nc2_06_negative_control", 6), ("supplementary_nc2_07_process_kill", 18),
-                        ("supplementary_nc3_04_ledger_pruning", 8), ("supplementary_nc4_03_mutation_set", 114), ("supplementary_nc4_03_host_subcases", 8)):
+                        ("supplementary_nc3_04_ledger_pruning", 8), ("supplementary_nc4_03_mutation_set", 135), ("supplementary_nc4_03_host_subcases", 8)):
             self.assertEqual(len([t for t in BATTERY["tests"] if t["kind"] == kind]), n, kind)
 
     def test_workflow_collect_and_run_lists_equal_the_battery_paths(self):
@@ -1600,7 +1623,7 @@ class CopilotReviewFixTests(GateTests):
 
     def test_workflow_sets_pythonpath_after_sudo_and_chain_workflow_selects_a_profile_explicitly(self):
         wf = (ROOT / ".github/workflows/mvp-acceptance.yml").read_text()
-        self.assertIn('sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" "TMPDIR=$QG5_TMP" "QG5_DURABLE_DIR=$QG5_DURABLE_DIR" python', wf)  # QGATE-05: PYTHONPATH still follows sudo; TMPDIR and the durable dir follow it
+        self.assertIn('sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" "TMPDIR=$QG5_TMP" python', wf)  # QGATE-05: PYTHONPATH still follows sudo; TMPDIR follows it
         self.assertNotIn('MVP_EXCLUSION_TAG=mvp-chain PYTHONPATH=', wf)
         chain = (ROOT / ".github/workflows/mvp-chain.yml").read_text()
         self.assertIn("MVP_INGRESS_PROFILE: developer-optout", chain)

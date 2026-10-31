@@ -20,14 +20,45 @@ HOSTS = {"NC4-03a": ("Yama", "kernel.yama.ptrace_scope >= 1 on the execution hos
          "NC4-03d": ("peer-UID allowlist", "pinned server.serve against a stub core: the allowlisted client is served, a non-allowlisted socket-group member gets PEER_NOT_ALLOWED, an empty allowlist is refused")}
 
 
+def _p(sid, path, op, value=None):
+    d = {"obs": f"nc4_03_host.{sid}.{path}", "op": op}
+    if op not in ("true", "false", "empty", "nonempty", "is_null"):
+        d["value"] = value
+    return d
+
+
+# Expected observed facts per subcase, written as LITERALS (never copied from an observation). They restate what _nc4_03_host.py records under ``observed`` / ``facts`` for the ratified
+# bounded 2751 profile (Architect D3): dir 2751, socket 0660, outsider stat-only residual, no listing / connect for the outsider, group member connects, peer-UID allowlist.
+HOST_FACT_PREDICATES = {
+    "NC4-03a": [_p("NC4-03a", "observed.ptrace_scope", "in", ["1", "2", "3"])],
+    "NC4-03b": ([_p("NC4-03b", "observed.ratified_profile", "true"), _p("NC4-03b", "observed.outsider_uid", "eq", 65533),
+                 _p("NC4-03b", "observed.client_proc.cap_eff", "eq", ["0000000000000000"]), _p("NC4-03b", "observed.outsider_proc.cap_eff", "eq", ["0000000000000000"])] +
+                [_p("NC4-03b", f"facts.{k}", "true") for k in (
+                    "ingress_not_root_or_optout", "client_nonzero_and_distinct_from_ingress", "client_and_ingress_distinct_primary_groups", "outsider_distinct_from_ingress_and_client",
+                    "client_dropped_capabilities", "outsider_dropped_capabilities", "client_effective_uid_is_declared", "outsider_effective_uid_is_declared")]),
+    "NC4-03c": ([_p("NC4-03c", "observed.ratified_profile", "true"), _p("NC4-03c", "observed.dir_mode", "eq", "0o2751"), _p("NC4-03c", "observed.socket_mode", "eq", "0o660"),
+                 _p("NC4-03c", "observed.socket_is_socket", "true"), _p("NC4-03c", "observed.outsider.stat_known_socket", "eq", "ok"),
+                 _p("NC4-03c", "observed.outsider.listdir", "eq", "EACCES"), _p("NC4-03c", "observed.outsider.connect", "eq", "EACCES"),
+                 _p("NC4-03c", "observed.group_member_client.connect", "eq", "ok")] +
+                [_p("NC4-03c", f"facts.{k}", "true") for k in (
+                    "dir_mode_is_2751", "dir_group_is_ipc_group", "socket_is_a_socket", "socket_mode_is_0660", "socket_group_is_ipc_group_via_setgid",
+                    "outsider_can_stat_known_name_residual", "outsider_cannot_list_directory", "outsider_cannot_connect", "ipc_group_member_can_connect")]),
+    "NC4-03d": ([_p("NC4-03d", "observed.ratified_profile", "true"), _p("NC4-03d", "observed.empty_allowlist", "eq", "refused"),
+                 _p("NC4-03d", "observed.allowlisted_client_response", "contains", "stub-core-reached"),
+                 _p("NC4-03d", "observed.non_allowlisted_group_member_response", "contains", "PEER_NOT_ALLOWED"),
+                 _p("NC4-03d", "observed.non_allowlisted_group_member_response", "not_contains", "stub-core-reached")] +
+                [_p("NC4-03d", f"facts.{k}", "true") for k in ("empty_allowlist_refused", "allowlisted_client_reaches_core", "non_allowlisted_group_member_refused")]),
+}
+
+
 def oracle_fragment():
     doc = M.load_set()
     v7 = next(r for r in V7["rows"] if r["id"] == "NC4-03")
     row = copy.deepcopy(v7)
     row["scenario"] = "nc4_03_det"
     row["title"] = ("DETERMINISTIC SOURCE-LEVEL assertion (host-independent; not an execution observation): " + v7["title"].split("SOURCE-LEVEL assertion only (not an execution observation): ", 1)[1]
-                    + "; AND the frozen versioned mutation set nc4_03_mutation_set.v1 (57 mutations in 6 families, each with exact input, operation, expected rejection, environment, evidence source and predicate) "
-                      "is rejected as expected on a copy of the pinned hub source while its 11 negative controls (no-op and benign edits) are accepted and satisfy no rejection predicate. "
+                    + f"; AND the frozen versioned mutation set nc4_03_mutation_set.v1 ({len(doc['mutations'])} mutations in {len(doc['families'])} families, each with exact input, operation, expected rejection, environment, evidence source and predicate) "
+                      f"is rejected as expected on a copy of the pinned hub source while its {len(doc['controls'])} negative controls (no-op and benign edits) are accepted and satisfy no rejection predicate. "
                       "Host-dependent subcases are the separate rows NC4-03a..d and cannot alter this verdict")
     row["all"] = [dict(p, obs=p["obs"].replace(OLD, NEW, 1)) for p in v7["all"]]
     ms = "nc4_03_det.mutation_set."
@@ -47,9 +78,10 @@ def oracle_fragment():
     for sid, (name, what) in HOSTS.items():
         rows.append({"id": sid, "mandatory": True, "scenario": "nc4_03_host",
                      "title": f"HOST-DEPENDENT subcase of NC4-03 ({name}), executed on the ratified bounded 2751 test profile (D3; not production): {what}. BLOCKED when the profile is unavailable; "
-                              "never changes, converts or obscures the deterministic NC4-03 verdict",
+                              "the row asserts the EXPECTED OBSERVED FACTS themselves (raw probe observations and per-fact booleans recorded under nc4_03_host.<id>.observed / .facts), not only the "
+                              "status string the harness writes; never changes, converts or obscures the deterministic NC4-03 verdict",
                      "blocked_if": [{"obs": f"nc4_03_host.{sid}.status", "op": "eq", "value": "BLOCKED"}],
-                     "all": [{"obs": f"nc4_03_host.{sid}.status", "op": "eq", "value": "PASS"}]})
+                     "all": [{"obs": f"nc4_03_host.{sid}.status", "op": "eq", "value": "PASS"}] + [dict(p) for p in HOST_FACT_PREDICATES[sid]]})
     return {
         "schema": "cognous.mvp-chain-expectations-fragment/1",
         "status": "PROPOSED fragment for oracle v8 (Worker B2, OCS-MVP-QGATE-05). Not a complete oracle: apply on top of expectations.proposed.v7.json (byte-identical elsewhere; v7 is never edited). Qualification owns and freezes v8.",

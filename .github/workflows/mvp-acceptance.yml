@@ -9,17 +9,25 @@ name: MVP acceptance (QGATE-05 one-shot, proposed)
 # floating, main never used for a pin) and is cross-checked against process/mvp-chain/tuple-pin.proposed.json.
 #
 # Commitment custody (G-12, no circularity): the workflow embeds NEITHER the commitment sha256 NOR the qualification revision. It checks out the hub repository
-# (cogno-us/cognous-open-control-stack) at its default branch into components/custody-hub, reads docs/mvp-recovery/qgate-05/custody/freeze-commitment.json, asserts
-# GITHUB_SHA == qualification_revision and sha256(process/mvp-acceptance/candidate-commitment.proposed.v5.json) == candidate_commitment_sha256, records the resolved hub
-# commit, and passes that value to the gate as the independent --expect-commitment-sha256. Any mismatch stops the run before a single test executes.
+# (cogno-us/cognous-open-control-stack) at the DEDICATED custody branch qgate-05/custody-1 (ref = that branch, NOT the hub default branch) into components/custody-hub,
+# records the resolved head sha of that branch, reads docs/mvp-recovery/qgate-05/custody/freeze-commitment.json (the workflow asserts the file path exists and the required
+# fields are present), asserts GITHUB_SHA == qualification_revision and sha256(process/mvp-acceptance/candidate-commitment.proposed.v5.json) == candidate_commitment_sha256, and
+# passes that value to the gate as the independent --expect-commitment-sha256. Any mismatch stops the run before a single test executes. The custody record is pushed ONCE to
+# qgate-05/custody-1 and never force-pushed or amended.
+#
+# ORDER OF OPERATIONS (prerequisites, text only; nothing here can be checked by the workflow before it runs): (1) the custody record is pushed to the hub branch
+# qgate-05/custody-1 BEFORE (2) the Qualification freeze tree (the exact commit that will be pushed, incl. oracle v8 / battery v2) is on Qualification `main`, because the
+# anchor gate G-02c compares every frozen file with its blob on `main` and is INCOMPLETE for any file absent or different there; and only then (3) qgate-05/run-1 is pushed
+# (once, at that same commit). If (1) or (2) is missing the run is spent without a verdict.
 #
 # Vehicle (Architect ruling Q14): (A) the exact-pin in-process composed chain (Control Plane, route-B execution, Replay, Evidence Pack, Verifier) and (B) the separate
 # real-socket ingress and peer-boundary negative controls, both bound to the same frozen tuple and commitment. Permitted claim: "The frozen pinned classes compose
 # end-to-end in the qualification harness, while the trusted ingress boundary is separately exercised on the real socket under the same frozen candidate." A live
 # socket request does NOT produce the reconstructed Replay, Evidence Pack and Verifier evidence.
 #
-# Host: GitHub-hosted ubuntu-24.04 (never ubuntu-latest), CPython 3.13, hash-locked dependencies. Original profile controls are kept as found: Yama
-# ptrace_scope >= 1 (recorded, NOT changed: no sysctl), ingress as a dedicated non-root uid with an empty capability set (launcher + environment record), socket 0660,
+# Host: GitHub-hosted ubuntu-24.04 (never ubuntu-latest), CPython 3.13, hash-locked dependencies. Original profile controls are kept: Yama
+# ptrace_scope >= 1 (as-found value recorded; if it is below 1 the provisioning step raises it to 1 with `sudo sysctl -w kernel.yama.ptrace_scope=1`, never lowers it, and
+# an absent Yama is left absent so the boundary rows BLOCK), ingress as a dedicated non-root uid with an empty capability set (launcher + environment record), socket 0660,
 # 0700 state tree, no ACLs, throwaway identities mvp-ingress / mvp-client / mvp-ipc. The IPC directory mode 2751 (setgid, group mvp-ipc) is the BOUNDED SYNTHETIC TEST
 # configuration ratified for this qualification only (Architect D3): NOT a production setting; accepted residual = an outsider can stat a known socket name.
 # The state tree is created under /var/lib/qgate05-ocs/tmp (TMPDIR of the chain group), never under /tmp or /opt (the ACL FAIL seen under /opt in QGATE-02/03).
@@ -78,24 +86,41 @@ jobs:
           [ "$GITHUB_RUN_ATTEMPT" = "1" ] || { echo "re-run attempts are not authorized"; exit 1; }
           [ "$GITHUB_REF" = "refs/heads/qgate-05/run-1" ] || { echo "wrong ref $GITHUB_REF"; exit 1; }
           [ "$(git rev-parse HEAD)" = "$GITHUB_SHA" ] || { echo "checkout HEAD != GITHUB_SHA"; exit 1; }
-          git ls-remote "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" refs/heads/qgate-05/evidence-run-1 > results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.txt 2>&1
+          # the token is passed as an HTTP header (never in a URL), so neither stdout nor stderr can echo it; stderr is additionally redacted before it is written to an artifact file
+          git -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)" ls-remote "https://github.com/${GITHUB_REPOSITORY}.git" refs/heads/qgate-05/evidence-run-1 \
+            > results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.txt 2> results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.err
           rc=$?
+          sed -i -e 's#x-access-token:[^@ ]*#x-access-token:***#g' -e 's#\(AUTHORIZATION: *basic\) *[A-Za-z0-9+/=]*#\1 ***#Ig' results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.err
+          echo "$rc" > results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.rc
           [ "$rc" = 0 ] || { echo "ls-remote failed rc=$rc (cannot establish that the run is unspent)"; exit 1; }
           if [ -s results/mvp-acceptance/host-evidence/evidence-branch-lsremote-before.txt ]; then
             echo "evidence branch qgate-05/evidence-run-1 already exists: the single authorized run is spent"; exit 1
           fi
           echo "guard PASS: attempt 1, ref $GITHUB_REF, sha $GITHUB_SHA, evidence branch absent"
-      - name: Checkout the commitment custody record (hub repository DEFAULT branch, outside the candidate)
+      - name: Checkout the commitment custody record (hub repository DEDICATED branch qgate-05/custody-1, outside the candidate; not the default branch)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: cogno-us/cognous-open-control-stack
+          ref: qgate-05/custody-1
           path: components/custody-hub
           sparse-checkout: docs/mvp-recovery/qgate-05/custody
           persist-credentials: false
-      - name: Custody check (GITHUB_SHA == qualification_revision; recomputed commitment sha256 == the custody record) before anything runs
+      - name: Custody check (record path and required fields present; GITHUB_SHA == qualification_revision; recomputed commitment sha256 == the custody record; hub branch head recorded) before anything runs
         id: custody
         run: |
           set -eo pipefail
+          rec=components/custody-hub/docs/mvp-recovery/qgate-05/custody/freeze-commitment.json
+          [ -f "$rec" ] || { echo "custody record $rec is absent on hub branch qgate-05/custody-1"; exit 1; }
+          python3 - "$rec" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1]))
+          need = ("schema", "qualification_revision", "candidate_commitment_sha256")
+          missing = [k for k in need if not d.get(k)]
+          assert not missing, f"custody record lacks required fields {missing}"
+          print("custody record present with required fields:", ", ".join(need))
+          PY
+          git -C components/custody-hub rev-parse HEAD | tee results/mvp-acceptance/host-evidence/custody-hub-branch-head.txt
+          git -C components/custody-hub log -1 --format='%H %an %ad %s' | tee -a results/mvp-acceptance/host-evidence/custody-hub-branch-head.txt
           python3 tools/qgate05_custody_check.py \
             --record components/custody-hub/docs/mvp-recovery/qgate-05/custody/freeze-commitment.json \
             --commitment-file process/mvp-acceptance/candidate-commitment.proposed.v5.json \
@@ -196,9 +221,10 @@ jobs:
           git config --global --add safe.directory '*'
           sudo git config --global --add safe.directory '*'
           python tools/mvp_acceptance_gate.py verify-checkouts --resolved results/mvp-acceptance/tuple-resolved.json --base "$GITHUB_WORKSPACE"
-      - name: Provision the approved ingress profile (throwaway identities, /var/lib base path, read access); Yama is recorded as found, never changed
+      - name: Provision the approved ingress profile (throwaway identities, /var/lib base path, read access); Yama as-found recorded and raised to 1 only if below 1 (never lowered)
         run: |
           bash tools/qgate05_host_setup.sh provision "$GITHUB_WORKSPACE" "$GITHUB_WORKSPACE/results/mvp-acceptance/host-evidence"
+          cat "$GITHUB_WORKSPACE/results/mvp-acceptance/host-evidence/yama-record.json" || true
           cat /proc/sys/kernel/yama/ptrace_scope || true
       - name: Record the run identity
         run: |
@@ -211,6 +237,7 @@ jobs:
           doc = {k: os.environ.get(k) for k in keys}
           doc.update(run_url="%s/%s/actions/runs/%s" % (os.environ["GITHUB_SERVER_URL"], os.environ["GITHUB_REPOSITORY"], os.environ["GITHUB_RUN_ID"]),
                      kernel=platform.release(), uname=sh("uname -a"), yama_ptrace_scope=sh("cat /proc/sys/kernel/yama/ptrace_scope 2>&1"),
+                     yama_record=sh("cat results/mvp-acceptance/host-evidence/yama-record.json 2>&1"),
                      os_release=sh("grep -E '^(PRETTY_NAME|VERSION_ID)=' /etc/os-release"), python=sh("python -VV"),
                      capabilities_of_this_step=sh("grep -E '^Cap(Eff|Bnd):' /proc/self/status"), mvp_run_id=os.environ.get("MVP_RUN_ID"),
                      custody_commitment_sha256_passed_to_gate="${{ steps.custody.outputs.candidate_commitment_sha256 }}",
@@ -253,10 +280,10 @@ jobs:
             echo $? > "$d/pytest-exit-applicability.txt" ) &
           pid_app=$!
           # group 1: the chain battery as root (NC4 starts the ingress as the dedicated non-root uid and the client as another; the hub environment record is captured in-run
-          # against that process). TMPDIR makes tempfile.mkdtemp create the NC4 state tree under /var/lib/qgate05-ocs/tmp. QG5_DURABLE_DIR is the durable writable store for the
-          # real-kill test. Plain sudo: no container, seccomp or sandbox, so a test may SIGKILL its own child.
+          # against that process). TMPDIR makes tempfile.mkdtemp create the NC4 state tree (and the real-kill harness work dir, also tempfile-based) under /var/lib/qgate05-ocs/tmp.
+          # Plain sudo: no container, seccomp or sandbox, so a test may SIGKILL its own child.
           MVP_EXCLUSION_TAG=mvp-chain \
-            sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" "TMPDIR=$QG5_TMP" "QG5_DURABLE_DIR=$QG5_DURABLE_DIR" python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin \
+            sudo -E env "PATH=$PATH" "PYTHONPATH=$GITHUB_WORKSPACE/suites/mvp-applicability/plugin" "TMPDIR=$QG5_TMP" python -m pytest -q -p no:cacheprovider -p exchange_exclusion_plugin \
             suites/mvp-chain/test_mvp_chain.py suites/mvp-chain/test_verdict_engine.py suites/mvp-chain/test_ruling4_lost_ack.py \
             suites/mvp-chain/test_kwflow.py suites/mvp-chain/test_ingress_ambiguity.py suites/mvp-chain/test_process_kill_a1.py suites/mvp-chain/test_ledger_pruning_a2.py suites/mvp-chain/test_nc4_03_mutation_set.py suites/mvp-chain/test_nc4_03_host_subcases.py \
             -o junit_suite_name="mvp-acceptance-$MVP_RUN_ID-mvp-chain" --junitxml="$d/junit-mvp-chain.xml" > "$d/console-mvp-chain.txt" 2>&1

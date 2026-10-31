@@ -23,8 +23,12 @@ case "$BRANCH" in qgate-05/evidence-run-*) ;; *) echo "branch must match qgate-0
 : "${GITHUB_RUN_ID:?}" "${GITHUB_RUN_ATTEMPT:?}" "${GITHUB_SHA:?}" "${GITHUB_REPOSITORY:?}"
 MAXB=${QG5_MAX_FILE_BYTES:-95000000}
 RUNDIR="runs/run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
+# The token is NEVER placed in a URL (a URL is echoed by git on errors and stored in .git/config): network commands carry it as an http.extraheader on the command line only.
+GITN=(git)
 if [ -n "${QG5_REMOTE_URL:-}" ]; then REMOTE=$QG5_REMOTE_URL
-else : "${GH_TOKEN:?GH_TOKEN or QG5_REMOTE_URL}"; REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"; fi
+else : "${GH_TOKEN:?GH_TOKEN or QG5_REMOTE_URL}"; REMOTE="https://github.com/${GITHUB_REPOSITORY}.git"
+  GITN=(git -c "http.extraheader=AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"); fi
+redact() { sed -e 's#x-access-token:[^@ ]*#x-access-token:***#g' -e 's#\(AUTHORIZATION: *basic\) *[A-Za-z0-9+/=]*#\1 ***#Ig'; }
 [ -d "$ART" ] || { echo "artifact dir $ART missing" >&2; exit 1; }
 ART=$(cd "$ART" && pwd -P)
 
@@ -36,13 +40,13 @@ git config user.name  "${QG5_ACTOR_NAME:-github-actions[bot]}"
 git config user.email "${QG5_ACTOR_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}"
 git config advice.detachedHead false
 git remote add origin "$REMOTE"
-if git ls-remote --exit-code --heads origin "refs/heads/$BRANCH" >"$W/lsremote.txt" 2>"$W/lsremote.err"; then
-  git fetch -q --depth 1 origin "refs/heads/$BRANCH" || { echo "fetch of existing $BRANCH failed" >&2; exit 1; }
+if "${GITN[@]}" ls-remote --exit-code --heads origin "refs/heads/$BRANCH" >"$W/lsremote.txt" 2>"$W/lsremote.err"; then
+  "${GITN[@]}" fetch -q --depth 1 origin "refs/heads/$BRANCH" || { echo "fetch of existing $BRANCH failed" >&2; exit 1; }
   git checkout -q -b evidence FETCH_HEAD || exit 1
   MODE=append
 else
   rc=$?
-  [ "$rc" = 2 ] || { echo "ls-remote failed (rc=$rc): $(sed 's#x-access-token:[^@]*@#x-access-token:***@#' "$W/lsremote.err")" >&2; exit 1; }
+  [ "$rc" = 2 ] || { echo "ls-remote failed (rc=$rc): $(redact <"$W/lsremote.err")" >&2; exit 1; }
   git checkout -q --orphan evidence || exit 1
   MODE=create
 fi
@@ -97,9 +101,9 @@ Appended by the evidence job; raw evidence only; no verdict is edited, no file i
 COMMIT=$(git rev-parse HEAD)
 
 # 5. push: explicit refspec to the evidence branch only, no force. A rejection is a failure.
-git push origin "HEAD:refs/heads/$BRANCH" 2>"$W/push.err"
+"${GITN[@]}" push origin "HEAD:refs/heads/$BRANCH" 2>"$W/push.err"
 prc=$?
-sed 's#x-access-token:[^@]*@#x-access-token:***@#' "$W/push.err" >&2
+redact <"$W/push.err" >&2
 if [ "$prc" != 0 ]; then echo "push to $BRANCH rejected or failed (rc=$prc); not retried" >&2; exit 1; fi
 echo "evidence committed: mode=$MODE branch=$BRANCH commit=$COMMIT dir=$RUNDIR files=$NFILES"
 echo "SHA256SUMS sha256: $(sha256sum "$RUNDIR/SHA256SUMS" | cut -d' ' -f1)"

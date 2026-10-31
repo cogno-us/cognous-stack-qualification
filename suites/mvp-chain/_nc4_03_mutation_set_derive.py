@@ -23,6 +23,30 @@ SET_VERSION = "v1"
 INGRESS = "tools/mvp_ingress"
 STAMP = "benign-control"
 
+# family GENERIC-FORWARD (added pre-freeze, QGATE-05 Reviewer finding F-05): the generic ** / keyword / positional-unpack rules of the predicate that the origin-rule families above do not
+# exercise. Each label is a test_kwflow.MUTANTS entry that carries no explicit rule there (the rule is set here from the scan, rebased) or one of the EXTRA edits below.
+# "UNRESOLVED" is not a rule id of _kwflow: it is the sentinel that names_of() returns for a callee that cannot be resolved statically (a call result, a dynamic getattr). The EXTRA
+# edits drive the rules that fire ONLY through that sentinel (OPAQUE_POSITIONAL_UNPACK and ORIGIN_VIOLATION on an unresolved callee).
+GENERIC_FAMILY = "GENERIC-FORWARD"
+GENERIC_RULES = {
+    "core: client simulate": "SIMULATE_NOT_CONSTANT_NONE",
+    "core: **fields into execute": "NONLITERAL_KWARGS",
+    "core: client kwargs into decide": "NONLITERAL_KWARGS",
+    "core: update() with client fields": "NONLITERAL_KWARGS",
+    "host: model_copy ** update from client": "MODEL_COPY_KWARGS_FORBIDDEN",
+    "host: model_copy update from client mapping": "MODEL_COPY_UPDATE_NOT_FIXED",
+    "core: comprehension over client fields into provision_claim": "COMPREHENSION_NOT_FIXED",
+    "host: comprehension keys from non-literal iterable": "COMPREHENSION_NOT_FIXED",
+    "core: import alias then client star-args": "OPAQUE_POSITIONAL_UNPACK",
+}
+_EXEC = "res = host.executor.execute(envelope=host.envelope(decision, proposal), claim_id=claim.claim_id, simulate=None)"
+GENERIC_EXTRA = {  # label -> (file, old, new, rule)
+    "U1 unresolved callee (call result) invoked with client star-args": ("core.py", _EXEC, 'make_runner(host)(*fields["a"])\n            ' + _EXEC, "OPAQUE_POSITIONAL_UNPACK"),
+    "U2 unresolved callee (call result) with a client value for a six-field keyword": ("core.py", _EXEC, 'make_runner(host)(claim_id=fields["claim_id"])\n            ' + _EXEC, "ORIGIN_VIOLATION"),
+    "U3 unresolved callee (dynamic getattr) with a client value for a six-field keyword": ("core.py", _EXEC, 'getattr(host.executor, fields["n"])(claim_id=fields["claim_id"])\n            ' + _EXEC, "ORIGIN_VIOLATION"),
+}
+# these edit INSIDE a pinned function, so the pinned AST digest legitimately no longer matches; only the source-aware rule must decide
+GENERIC_DROP_PINS = {"host: model_copy update from client mapping", "host: comprehension keys from non-literal iterable"}
 # family id -> (title, scan mode, [labels of test_kwflow.MUTANTS], [labels of test_kwflow.V5_MUTANTS])
 FAMILIES = {
     "OR-FIELD": ("R1 origin rule: each of the six authority fields (claim_id, grant_id, grant_revision, effective_max_effects, authority_context_id, requested_permissions) "
@@ -49,13 +73,16 @@ FAMILIES = {
                      "or trusted expressions only", "rebased",
                      [], ["E12 build_proposal update gains RuntimeProposal fields", "E12b build_proposal update gains tenant_id",
                           "E15 positional client value into ExecutionOperation in a new method", "E15b positional client value into ExecutionEnvelope"]),
+    "GENERIC-FORWARD": ("v1 generic forwarding rules: a client-influenced simulate keyword, ** forwarding or dict update into a protected call, a ** into model_copy or a non-fixed update=, a dict "
+                        "comprehension, an opaque positional * unpack, and a callee that cannot be resolved statically (call result, dynamic getattr) receiving client data", "rebased",
+                        list(GENERIC_RULES) + list(GENERIC_EXTRA), []),
 }
 # family PIN: tree / pin integrity, evaluated WITHOUT rebasing (the fail-closed property is the thing under test)
 PIN_FILES = ["__init__.py", "client.py", "core.py", "launch.py", "proposal.py", "server.py", "synthetic_host.py"]
 
 
 # these edit INSIDE a pinned function (ExecutionOperation site in SyntheticHost.envelope), so the pinned AST digest legitimately no longer matches; the origin rule must still reject
-DROP_PINS = lambda lab: lab.startswith("E15") or lab.startswith("host: client")  # noqa: E731
+DROP_PINS = lambda lab: lab.startswith("E15") or lab.startswith("host: client") or lab in GENERIC_DROP_PINS  # noqa: E731
 
 
 def sha(b: bytes) -> str:
@@ -84,8 +111,14 @@ def build(hub: pathlib.Path) -> dict:
         ids = []
         first_anchor = None
         for lab in kw_labels + v5_labels:
-            src = T.MUTANTS if lab in T.MUTANTS else T.V5_MUTANTS
-            fname, old, new, *rule = src[lab]
+            if lab in GENERIC_EXTRA:
+                src, (fname, old, new, *rule) = None, GENERIC_EXTRA[lab]
+            else:
+                src = T.MUTANTS if lab in T.MUTANTS else T.V5_MUTANTS
+                fname, old, new, *rule = src[lab]
+                if fam == GENERIC_FAMILY:
+                    assert not rule, f"{lab}: carries its own rule in test_kwflow"
+                    rule = [GENERIC_RULES[lab]]
             assert rule, f"{lab}: the frozen set needs an explicit rule"
             n = len(muts) + 1
             mid = f"M{n:03d}"
@@ -98,7 +131,8 @@ def build(hub: pathlib.Path) -> dict:
                 "expected": {"outcome": "REJECTED", "rules_all_of": [rule[0]], "pins_stay_matched": not DROP_PINS(lab)},
                 "environment": dict(env_rebased), "evidence_source": dict(evidence),
                 "predicate": rebased_predicate(rule[0], drop_pins=DROP_PINS(lab)),
-                "provenance": {"supplementary_source": ("test_kwflow.MUTANTS" if src is T.MUTANTS else "test_kwflow.V5_MUTANTS") + f"[{lab!r}]",
+                "provenance": {"supplementary_source": ("new in this set (not in a test_kwflow table); drives the UNRESOLVED-callee path" if src is None else
+                                                        ("test_kwflow.MUTANTS" if src is T.MUTANTS else "test_kwflow.V5_MUTANTS") + f"[{lab!r}]"),
                                "supplementary_battery_entries": "KW-* (kind supplementary_nc4_03_predicate), unchanged and still collected"}})
         fname, old = first_anchor
         fams.append({"id": fam, "title": title, "scan_mode": mode, "mutations": ids, "controls": [f"C-{fam}-NOOP", f"C-{fam}-BENIGN"]})
@@ -183,9 +217,12 @@ def build(hub: pathlib.Path) -> dict:
         "relation_to_supplementary_entries": (
             "The 183 `supplementary_nc4_03_predicate` battery entries (KW-001..KW-183 = every test of test_kwflow.py) remain, unchanged and still collected: they are the predicate's own self-tests "
             "(71 negative and 7 positive fixtures, baseline, pin records, 43 ingress mutants, 23 v5 evading mutants, tree and interpreter tests). This set does NOT re-implement or replace them. "
-            "It selects, from the origin-rule mutants those tables already contain (provenance field on each mutation), a FROZEN mandatory subset expressed as data with the six required fields, "
+            "It selects, from the mutants those tables already contain (provenance field on each mutation), a FROZEN mandatory subset expressed as data with the six required fields, "
             "runs it through its own runner on a copy of the pinned hub tree, and adds per-family negative controls that the supplementary tables lack. "
-            "The 24 remaining MUTANTS (generic `**` forwarding, pinned-site un-pin, etc.) and the fixture-level negatives stay supplementary only."),
+            "The family GENERIC-FORWARD (added pre-freeze after the QGATE-05 pre-execution review, finding F-05) covers every rule of the predicate that the origin-rule families do not exercise "
+            "(SIMULATE_NOT_CONSTANT_NONE, NONLITERAL_KWARGS, MODEL_COPY_KWARGS_FORBIDDEN, MODEL_COPY_UPDATE_NOT_FIXED, COMPREHENSION_NOT_FIXED, OPAQUE_POSITIONAL_UNPACK) plus three edits that reach the "
+            "rules ORIGIN_VIOLATION and OPAQUE_POSITIONAL_UNPACK only through an UNRESOLVED callee (UNRESOLVED is the callee-resolution sentinel of _kwflow.names_of, not a rule id). "
+            f"The {sum(1 for lab in T.MUTANTS if not any(f"MUTANTS[{lab!r}]" in m['provenance']['supplementary_source'] for m in muts))} MUTANTS not selected here (pinned-site un-pin variants, PROTECTED_CALLABLE_ESCAPES forms, etc.) and the fixture-level negatives stay supplementary only."),
         "verdict_rule": "PASS iff every mutation's predicate holds (REJECTED as expected), every control's predicate holds (ACCEPTED), no control satisfies its family's rejection predicate, and the pinned input digests match. "
                         "Anything else is FAIL; a non-3.13 interpreter or missing hub checkout is BLOCKED (never PASS). No host observation is read.",
         "families": fams,

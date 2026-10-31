@@ -60,7 +60,7 @@ def test_every_mutation_and_control_is_fully_specified_with_the_six_fields():
     for it in DOC["mutations"] + DOC["controls"]:
         for f in M.ITEM_FIELDS:
             assert it[f], (it["id"], f)
-    assert len(DOC["mutations"]) == 57 and len(DOC["controls"]) == 11 and len(DOC["families"]) == 6
+    assert len(DOC["mutations"]) == 69 and len(DOC["controls"]) == 13 and len(DOC["families"]) == 7
 
 
 def test_every_family_has_a_negative_control_pair_or_a_noop():
@@ -68,6 +68,24 @@ def test_every_family_has_a_negative_control_pair_or_a_noop():
         kinds = {c["title"].split(" ")[0] for c in DOC["controls"] if c["family"] == fam["id"]}
         assert any(c["id"].endswith("NOOP") for c in DOC["controls"] if c["family"] == fam["id"]), fam["id"]
         assert kinds, fam["id"]
+
+
+def test_every_rule_the_predicate_can_emit_is_the_expected_rejection_of_at_least_one_mutation():
+    """F-05: the frozen set must cover every rule id of _kwflow (UNRESOLVED is the callee-resolution sentinel of names_of, not a rule id: its code paths are driven by the GENERIC-FORWARD
+    mutations that expect OPAQUE_POSITIONAL_UNPACK / ORIGIN_VIOLATION on an unresolved callee)."""
+    import ast
+    import re
+    tree = ast.parse((HERE / "_kwflow.py").read_text())
+    emitted = {n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, str) and re.fullmatch(r"[A-Z]+(_[A-Z]+)+", n.value)}
+    emitted.discard("UNRESOLVED")
+    assert {"SIMULATE_NOT_CONSTANT_NONE", "NONLITERAL_KWARGS", "MODEL_COPY_KWARGS_FORBIDDEN", "MODEL_COPY_UPDATE_NOT_FIXED", "COMPREHENSION_NOT_FIXED", "OPAQUE_POSITIONAL_UNPACK"} <= emitted
+    covered = {r for m in DOC["mutations"] for r in m["expected"]["rules_all_of"]}
+    assert emitted - covered == set(), f"rule ids with no frozen mutation: {sorted(emitted - covered)}"
+    gen = [m for m in DOC["mutations"] if m["family"] == "GENERIC-FORWARD"]
+    assert len(gen) == 12 and {"SIMULATE_NOT_CONSTANT_NONE", "NONLITERAL_KWARGS", "MODEL_COPY_KWARGS_FORBIDDEN", "MODEL_COPY_UPDATE_NOT_FIXED", "COMPREHENSION_NOT_FIXED",
+                                "OPAQUE_POSITIONAL_UNPACK"} <= {r for m in gen for r in m["expected"]["rules_all_of"]}
+    assert sum("UNRESOLVED-callee path" in m["provenance"]["supplementary_source"] for m in gen) == 3
+    assert [c["id"] for c in DOC["controls"] if c["family"] == "GENERIC-FORWARD"] == ["C-GENERIC-FORWARD-NOOP", "C-GENERIC-FORWARD-BENIGN"]
 
 
 def test_set_is_declared_deterministic_and_host_independent_and_is_not_the_host_file():
@@ -134,7 +152,7 @@ def test_control_does_not_satisfy_any_rejection_predicate_of_its_family(fam, hub
 @requires_313
 def test_deterministic_record_passes_and_is_stable_across_runs(hub, det_record):
     assert det_record["verdict"] == verdict.PASS, det_record["reasons"]
-    assert (det_record["mutations_total"], det_record["mutations_rejected"], det_record["controls_total"], det_record["controls_accepted"]) == (57, 57, 11, 11)
+    assert (det_record["mutations_total"], det_record["mutations_rejected"], det_record["controls_total"], det_record["controls_accepted"]) == (69, 69, 13, 13)
     assert det_record["mutations_not_rejected"] == [] and det_record["controls_falsely_rejected"] == [] and det_record["control_satisfies_rejection_predicate"] == []
     assert det_record["pinned_input"]["matches_set_target"] is True and det_record["host_dependent"] is False
     again = M.run_deterministic(hub)
@@ -246,7 +264,7 @@ HOST_VARIANTS = {
 @pytest.mark.parametrize("det_verdict", [verdict.PASS, verdict.FAIL])
 @pytest.mark.parametrize("variant", sorted(HOST_VARIANTS))
 def test_host_results_never_alter_or_obscure_the_deterministic_verdict(variant, det_verdict):
-    det = {"verdict": det_verdict, "reasons": ["x"], "record_sha256": "0" * 64, "mutations_total": 57}
+    det = {"verdict": det_verdict, "reasons": ["x"], "record_sha256": "0" * 64, "mutations_total": 69}
     host = {"subcases": [{"id": i, "status": s, "reason": "r", "observed": {}} for i, s in zip(("NC4-03a", "NC4-03b", "NC4-03c", "NC4-03d"), HOST_VARIANTS[variant])]}
     before = json.dumps(det, sort_keys=True)
     out = M.compose(det, host)
@@ -317,12 +335,67 @@ def test_v8_nc4_03_row_is_fail_when_the_deterministic_mutation_set_fails(hub):
     assert res["status"] == verdict.FAIL
 
 
+# a complete PASSING host observation for each subcase, written independently of the harness (the shape _nc4_03_host.scenario_observation records)
+PASSING = {
+    "NC4-03a": {"observed": {"ptrace_scope": "1"}, "facts": {}},
+    "NC4-03b": {"observed": {"ratified_profile": True, "ingress_uid": 990, "client_uid": 991, "outsider_uid": 65533,
+                             "client_proc": {"uid": ["991"] * 4, "gid": ["991"] * 4, "groups": [], "cap_eff": ["0000000000000000"]},
+                             "outsider_proc": {"uid": ["65533"] * 4, "gid": ["65533"] * 4, "groups": [], "cap_eff": ["0000000000000000"]}},
+                "facts": {k: True for k in ("ingress_not_root_or_optout", "client_nonzero_and_distinct_from_ingress", "client_and_ingress_distinct_primary_groups",
+                                            "outsider_distinct_from_ingress_and_client", "client_dropped_capabilities", "outsider_dropped_capabilities",
+                                            "client_effective_uid_is_declared", "outsider_effective_uid_is_declared")}},
+    "NC4-03c": {"observed": {"ratified_profile": True, "dir_mode": "0o2751", "socket_mode": "0o660", "socket_is_socket": True,
+                             "outsider": {"stat_known_socket": "ok", "listdir": "EACCES", "connect": "EACCES"}, "group_member_client": {"connect": "ok"}},
+                "facts": {k: True for k in ("dir_mode_is_2751", "dir_group_is_ipc_group", "socket_is_a_socket", "socket_mode_is_0660", "socket_group_is_ipc_group_via_setgid",
+                                            "outsider_can_stat_known_name_residual", "outsider_cannot_list_directory", "outsider_cannot_connect", "ipc_group_member_can_connect")}},
+    "NC4-03d": {"observed": {"ratified_profile": True, "empty_allowlist": "refused", "allowlisted_client_response": '{"status": "stub-core-reached"}',
+                             "non_allowlisted_group_member_response": '{"error": "PEER_NOT_ALLOWED"}'},
+                "facts": {k: True for k in ("empty_allowlist_refused", "allowlisted_client_reaches_core", "non_allowlisted_group_member_refused")}},
+}
+
+
+def _host_obs(sid, status="PASS", mutate=None):
+    rec = copy.deepcopy(PASSING[sid])
+    if mutate:
+        mutate(rec)
+    return {"nc4_03_host": {"status": "ran", sid: {"status": status, "reason": "x", **rec}}}
+
+
 @pytest.mark.parametrize("sid", ["NC4-03a", "NC4-03b", "NC4-03c", "NC4-03d"])
 @pytest.mark.parametrize("state,expected", [("PASS", verdict.PASS), ("BLOCKED", verdict.BLOCKED), ("FAIL", verdict.FAIL)])
 def test_v8_host_rows_map_each_host_status_to_the_same_oracle_status(sid, state, expected):
     row = next(r for r in FRAG["rows"] if r["id"] == sid)
-    assert verdict.evaluate_row(row, {"nc4_03_host": {"status": "ran", sid: {"status": state, "reason": "x"}}})["status"] == expected
+    assert verdict.evaluate_row(row, _host_obs(sid, state))["status"] == expected
     assert verdict.evaluate_row(row, {})["status"] == verdict.NOT_RUN
+
+
+@pytest.mark.parametrize("sid", ["NC4-03a", "NC4-03b", "NC4-03c", "NC4-03d"])
+def test_v8_host_rows_do_not_pass_on_a_harness_written_status_string_alone(sid):
+    """F-04: a record whose status says PASS but that carries no / contradicting observed facts is FAIL; every asserted observation is individually load-bearing."""
+    row = next(r for r in FRAG["rows"] if r["id"] == sid)
+    assert verdict.evaluate_row(row, {"nc4_03_host": {"status": "ran", sid: {"status": "PASS", "reason": "x"}}})["status"] == verdict.FAIL  # status string only
+    assert verdict.evaluate_row(row, _host_obs(sid))["status"] == verdict.PASS
+    facts = [p for p in row["all"][1:]]
+    assert len(facts) >= 1
+    for p in facts:
+        path = p["obs"].split(f"nc4_03_host.{sid}.", 1)[1].split(".")
+
+        def mutate(rec, path=path, p=p):
+            node = rec
+            for part in path[:-1]:
+                node = node[part]
+            node[path[-1]] = {"true": False, "eq": "<contradiction>", "in": "<contradiction>", "contains": "<contradiction>", "not_contains": "stub-core-reached"}[p["op"]]
+        res = verdict.evaluate_row(row, _host_obs(sid, mutate=mutate))
+        assert res["status"] == verdict.FAIL and any(f["obs"] == p["obs"] for f in res["failed"]), (p, res)
+
+
+def test_the_host_scenario_records_the_observed_facts_the_rows_assert():
+    """The harness side: the scenario observation exposes ``observed`` and ``facts`` per subcase (what the rows read)."""
+    import _nc4_03_host as H
+    obs = H.scenario_observation(None)
+    for sid in H.SUBCASE_IDS:
+        assert set(obs[sid]) >= {"status", "reason", "observed", "facts"} and isinstance(obs[sid]["observed"], dict) and isinstance(obs[sid]["facts"], dict)
+    assert obs["NC4-03a"]["observed"].get("ptrace_scope") is not None
 
 
 @requires_313

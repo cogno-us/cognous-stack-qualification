@@ -364,5 +364,7 @@ def scenario_observation(hub_dir=None) -> dict:
     rec = run_host_subcases(hub_dir)
     obs = {"status": "ran", "record": rec}
     for sc in rec["subcases"]:
-        obs[sc["id"]] = {"status": sc["status"], "reason": sc["reason"]}
+        # the oracle rows NC4-03a..d assert the OBSERVED facts themselves (``observed`` = the raw probe observations, ``facts`` = the probe's per-fact booleans), not only the
+        # status string: a harness that merely wrote status PASS cannot satisfy a row
+        obs[sc["id"]] = {"status": sc["status"], "reason": sc["reason"], "observed": sc["observed"], "facts": sc["observed"].get("facts", {})}
     return obs
