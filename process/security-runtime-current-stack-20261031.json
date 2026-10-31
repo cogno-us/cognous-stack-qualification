@@ -8,7 +8,7 @@
   "profile_id": "security-wiki-current-stack-20261031",
   "supersedes_profile": null,
   "refreeze_ids": [],
-  "note": "Current-stack option-B tuple (see current-stack-20261031/TUPLE.md). Same suite_generation and exchange profile as the historical r13 so that the existing assertions are exercised UNCHANGED; any incompatibility is a recorded result, not an adaptation.",
+  "note": "Current-stack option-B tuple (see current-stack-20261031/tuple.json). Same suite_generation and exchange profile as the historical r13 so that the existing assertions are exercised UNCHANGED; any incompatibility is a recorded result, not an adaptation.",
   "predecessor_profile": "process/security-runtime-f5b-20261016-r13.json (HISTORICAL REFERENCE ONLY, unchanged)",
   "suite_generation": "p2",
   "exchange_compatibility_profile": "security-runtime-p2-20261018",
@@ -50,7 +50,7 @@
     "repository": "cogno-us/cognous-institutional-governance",
     "revision": "03a90c14c4a178997df2b6e527f67452b9c6bb7a"
   },
-  "scope": "Synthetic local SQLite; no live effects or paid model calls; current integrated OCS incl. migrated Registry (Registry is a pinned, verified component; the Wiki battery exercises it only where a case does)",
+  "scope": "Synthetic local SQLite; no live effects or paid model calls; current integrated OCS. The migrated Registry (cogno-us/cognous-ocs-registry 6b96a9a6) is RECORDED in this profile ('ocs_registry') but is NOT among the harness COMPONENT_NAMES: the harness neither verifies nor imports it, and no Wiki test exercises it. Its pristine state at the recorded revision is checked out-of-band and recorded in the run record.",
   "limitations": [
     "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
     "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
