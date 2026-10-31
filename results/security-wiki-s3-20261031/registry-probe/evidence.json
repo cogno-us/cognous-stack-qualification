@@ -1,0 +1,306 @@
+{
+  "cannot_claim": [
+    "Registry enforcement qualification",
+    "Registry source authenticity",
+    "signature/trust verification",
+    "live configuration selection / configuration in force",
+    "Registry revision provenance",
+    "runtime enforcement",
+    "decision/execution consistency",
+    "independent verifier acceptance",
+    "continuous ingress-to-Verifier chain",
+    "that Replay authenticates the Registry source (it retains but does not verify effective_configuration)",
+    "production readiness",
+    "any statement beyond one scenario and one proposal (synthetic keys, patched clock, host-supplied selection material)"
+  ],
+  "checks": {
+    "N_effective_configuration_under_plain_profile": {
+      "expected": "refused (plain CUR profile admits no effective_configuration)",
+      "gate": "Replay import_bounded_workflow / refusal_evidence closed runtime_authority member set (plain CUR profile admits no effective_configuration)",
+      "observed": "ImportContractError[undeclared_member]: typed refusal profile: runtime authority fields unsupported",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_forged_signature": {
+      "expected": "signature_invalid",
+      "gate": "Registry verification in registry_successor via CP derive_policy (registry_governed_policy); construction refuses before any state write",
+      "observed": "RegistryGovernedPolicyRefused: registry_governed_policy_refused:construction:observation_max_age:registry_not_applied:signature_invalid",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_missing_effective_configuration_under_registry_profile": {
+      "expected": "refused",
+      "gate": "Replay effective_configuration check: member required on every authorized decision (E1 profile)",
+      "observed": "ImportContractError[schema_violation]: typed refusal profile: effective_configuration is missing on an authorized decision (Registry-governed profile)",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_replay_catalogue_tie_broken": {
+      "expected": "refused (effective_profile_digest != catalogue_digest)",
+      "observed": "ImportContractError[schema_violation]: typed refusal profile: effective_configuration.effective_profile_digest differs from catalogue_digest",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_revoked_selection": {
+      "expected": "selection_revoked",
+      "gate": "Registry selection check via CP derive_policy (construction)",
+      "observed": "RegistryGovernedPolicyRefused: registry_governed_policy_refused:construction:observation_max_age:registry_not_applied:selection_revoked",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_stale_expired_selection": {
+      "expected": "selection_expired",
+      "gate": "Registry validity window check via CP derive_policy (construction)",
+      "observed": "RegistryGovernedPolicyRefused: registry_governed_policy_refused:construction:observation_max_age:registry_not_applied:selection_expired",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_substituted_configuration_age61": {
+      "expected": "mismatch / refused / authorization_binding_changed / no effect",
+      "gate": "CP effective_configuration_binding.classify via GovernedLifecycle._resolve at execute (EffectTimeRefusal authorization_binding_changed)",
+      "observed": {
+        "effects": {},
+        "execute": "PermissionError: authorization-critical inputs changed before effect",
+        "reasons": [
+          [
+            "authorization_binding_changed"
+          ]
+        ],
+        "status": "mismatch"
+      },
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_substituted_configuration_family_dropped": {
+      "expected": "mismatch / refused / authorization_binding_changed / no effect",
+      "gate": "CP effective_configuration_binding.classify via GovernedLifecycle._resolve at execute (EffectTimeRefusal authorization_binding_changed)",
+      "observed": {
+        "effects": {},
+        "execute": "PermissionError: authorization-critical inputs changed before effect",
+        "reasons": [
+          [
+            "authorization_binding_changed"
+          ]
+        ],
+        "status": "mismatch"
+      },
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_tampered_effective_configuration_under_registry_profile": {
+      "expected": "refused (digest/shape)",
+      "gate": "Replay effective_configuration check: digest recomputation / exact shape (E1 profile)",
+      "observed": "ImportContractError[schema_violation]: typed refusal profile: effective_configuration invalid: invalid:digest_mismatch",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_tampered_member_vs_record_digest": {
+      "gate": "CP effective_configuration_binding.record_defect (digest recomputation)",
+      "observed": "invalid:digest_mismatch",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "N_withdrawn_selection": {
+      "expected": "selection_withdrawn",
+      "gate": "Registry selection check via CP derive_policy (construction)",
+      "observed": "RegistryGovernedPolicyRefused: registry_governed_policy_refused:construction:observation_max_age:registry_not_applied:selection_withdrawn",
+      "outcome": "REFUSED_AS_EXPECTED",
+      "status": "PASS"
+    },
+    "cp_provenance_recomputed": {
+      "observed": {
+        "families": {
+          "anchor_deadline": "sha256:86bc19b385edf555",
+          "observation_clock_tolerance": "sha256:37ad177b66d43577",
+          "observation_max_age": "sha256:5c4f58a3713719a5"
+        },
+        "record_digest": "sha256:74e7cda797597925"
+      },
+      "reason": null,
+      "status": "PASS"
+    },
+    "lineage_decision_retained": {
+      "note": "decision/proposal identity and the CP configuration binding survive import; says nothing about who produced them",
+      "observed": {
+        "action_id": "urn:cognous:action:refund-issue-routine-v1",
+        "decision_ids": [
+          "f3a62395-54ca-491f-ab25-bf95b68fce91"
+        ],
+        "tenant_id": "tenant-alpha"
+      },
+      "status": "PASS"
+    },
+    "lineage_source_registry": {
+      "optional": true,
+      "reason": "the CP record carries no Registry revision, selection id, signature or trust snapshot, so source lineage cannot be preserved or verified by Replay; this is UNAVAILABLE, not a pass",
+      "status": "NOT_APPLICABLE"
+    },
+    "replay_forged_signature": {
+      "optional": true,
+      "reason": "the imported record contains no signature to verify; N_forged_signature is a CP/Registry-builder construction refusal on synthetic keys, not a Replay result",
+      "status": "NOT_APPLICABLE"
+    },
+    "replay_resealed_substitution": {
+      "observed": "ACCEPTED",
+      "optional": true,
+      "statement": "Replay accepts a configuration whose members were edited and whose digest was recomputed (family digests are not checkable from the record). Expected; therefore import success must never be read as authenticity, trust or live-configuration evidence.",
+      "status": "NON_DETECTION_RECORDED"
+    },
+    "replay_retains_binding_changed_refusal": {
+      "observed": {
+        "import": "ACCEPTED",
+        "refusal_reason_retained": true
+      },
+      "optional": true,
+      "statement": "shows the refusal and the decision-time member are retained; Replay does not compare the executed configuration with the decision, so no decision/execution consistency claim",
+      "status": "RETENTION_ONLY"
+    },
+    "replay_stale_revoked_selection": {
+      "optional": true,
+      "reason": "Replay has no Registry selection state, validity window or revocation list; stale/revoked selection is exercised ONLY CP-side (N_revoked_selection, N_withdrawn_selection, N_stale_expired_selection)",
+      "status": "NOT_APPLICABLE"
+    }
+  },
+  "claims_made": [],
+  "label": "REGISTRY-PROBE-S3 (bounded; NOT a Wiki case; non-authorizing; single scenario; synthetic keys; patched clock)",
+  "not_claimed": [
+    "Registry enforcement qualification",
+    "Registry source authenticity",
+    "signature/trust verification",
+    "live configuration selection / configuration in force",
+    "Registry revision provenance",
+    "runtime enforcement",
+    "decision/execution consistency",
+    "independent verifier acceptance",
+    "continuous ingress-to-Verifier chain"
+  ],
+  "outcome": "PASS_IMPORT",
+  "overall": "PASS",
+  "overall_meaning": "overall PASS only means every REQUIRED probe item behaved as recorded for ONE synthetic scenario; it is not a qualification and it does not promote any import success to a claim in not_claimed. Runtime export is BLOCKED (optional) and the Replay stage imports the CP-only record.",
+  "probe_scope": "Registry-governed CP decision -> Replay import (E1 profile) ONLY",
+  "registry_bytes_exercised": {
+    "checkout_sha_actually_imported": "a40fe755e2384a99c37016fa9ad59396f1835900",
+    "code_identity": {
+      "changed_file_count": 62,
+      "changed_py_under_docs": [
+        "docs/post-migration/annex/scripts/astcmp.py",
+        "docs/post-migration/annex/scripts/count_commitments.py",
+        "docs/post-migration/annex/scripts/deadnames.py",
+        "docs/post-migration/annex/scripts/diff_parsers.py",
+        "docs/post-migration/annex/scripts/line_sim.py",
+        "docs/post-migration/annex/scripts/loc.py",
+        "docs/post-migration/annex/scripts/normdiff.py",
+        "docs/post-migration/annex/scripts/profile_governed.py",
+        "docs/post-migration/annex/scripts/test_dups.py",
+        "docs/post-migration/annex/scripts2/cp1.py",
+        "docs/post-migration/annex/scripts2/cp1_diff.py",
+        "docs/post-migration/annex/scripts2/cp1_net.py",
+        "docs/post-migration/annex/scripts2/cp2_net.py",
+        "docs/post-migration/annex/scripts2/cp3_diff.py",
+        "docs/post-migration/annex/scripts2/cp3_net.py",
+        "docs/post-migration/annex/scripts2/cp4_diff.py",
+        "docs/post-migration/annex/scripts2/cp4_net.py",
+        "docs/post-migration/annex/scripts2/cp9.py",
+        "docs/post-migration/assignments/build_assignments.py"
+      ],
+      "diff_stat_tail": [
+        " 62 files changed, 5130 insertions(+)"
+      ],
+      "exercised": "a40fe755e2384a99c37016fa9ad59396f1835900",
+      "files_outside_docs_and_README": [],
+      "statement": "code-identical apart from README/docs (git diff --name-only outside docs/ and README.md is empty)",
+      "status": "VERIFIED",
+      "tuple": "6b96a9a658923954433dc1a4c13626fa5145b9c7"
+    },
+    "code_identity_epistemic_status": "VERIFIED",
+    "statement": "bytes exercised are the CP-builder pin a40fe755e2384a99c37016fa9ad59396f1835900, not the tuple Registry 6b96a9a658923954433dc1a4c13626fa5145b9c7; code-identical apart from README/docs (git diff --name-only outside docs/ and README.md is empty)",
+    "tuple_registry_sha": "6b96a9a658923954433dc1a4c13626fa5145b9c7"
+  },
+  "source_identity": {
+    "authenticated_source_label_supplied_by_probe": false,
+    "cp_sha": "b19c47ddd020409d24e52e70b11359c46265edbb",
+    "registry_bytes_exercised": "CP-accepted pin a40fe755e2384a99c37016fa9ad59396f1835900 (code-equal to tuple Registry 6b96a9a658923954433dc1a4c13626fa5145b9c7 outside docs/ and README.md: True); NOT the tuple SHA bytes",
+    "registry_tuple_sha": "6b96a9a658923954433dc1a4c13626fa5145b9c7",
+    "signing_key_sha256": "56475aa75463474c0285df5dbf2bcab73da651358839e9b77481b2eab107708c"
+  },
+  "source_trust": "UNAVAILABLE: Replay retains but does not verify the Registry source; no signature, trust snapshot or Registry revision is carried in the imported record",
+  "stages": {
+    "cp_builders_import": {
+      "status": "PASS"
+    },
+    "cp_execute": {
+      "observed": [
+        "acknowledged",
+        "applied"
+      ],
+      "status": "PASS"
+    },
+    "cp_registry_governed_decision": {
+      "observed": {
+        "binding_status": "bound",
+        "has_effective_configuration": true,
+        "result": "authorized"
+      },
+      "status": "PASS"
+    },
+    "e1_selector": {
+      "observed": {
+        "profile_id": "control-plane-current-stack-registry-governed-effective-configuration-0.1@b19c47dd",
+        "replay_head": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",
+        "selector": {
+          "control_plane_profile": "registry-governed-effective-configuration/0.1"
+        }
+      },
+      "status": "PASS"
+    },
+    "module_origins": {
+      "observed": {
+        "agent_control_plane": "/tmp/claude-0/sec/s6/W/control_plane/src/agent_control_plane/__init__.py",
+        "agent_replay_bundle": "/tmp/claude-0/sec/s6/W/replay/src/agent_replay_bundle/__init__.py",
+        "engine": "/tmp/claude-0/sec/s6/W/runtime/engine/__init__.py",
+        "nacl": {
+          "file": "/tmp/claude-0/sec/s6/W/site/nacl/__init__.py",
+          "version": "1.6.2"
+        },
+        "registry_adapters": "/tmp/claude-0/sec/s6/W/registry_a40/registry_adapters/__init__.py",
+        "registry_successor": "/tmp/claude-0/sec/s6/W/registry_a40/registry_successor/__init__.py",
+        "tests": "/tmp/claude-0/sec/s6/W/control_plane/tests/__init__.py"
+      },
+      "reason": null,
+      "status": "PASS"
+    },
+    "pack_odes": {
+      "optional": true,
+      "reason": "optional; enable with --with-pack-odes only after the Replay E1 stage is PASS; call signatures to be filled from the merged S1 Pack/ODES PRs (ODES export_cognous_stack_package / Pack importer) - not guessed here",
+      "status": "NOT_RUN"
+    },
+    "registry_builder_pin": {
+      "observed": "CP-accepted pin a40fe755e2384a99c37016fa9ad59396f1835900 (code-equal to tuple Registry 6b96a9a658923954433dc1a4c13626fa5145b9c7 outside docs/ and README.md: True); NOT the tuple SHA bytes",
+      "status": "PASS"
+    },
+    "replay_cur_generation": {
+      "observed": "b19c47ddd020409d24e52e70b11359c46265edbb",
+      "status": "PASS"
+    },
+    "replay_e1_import_governed_record": {
+      "observed": {
+        "import": "ACCEPTED",
+        "import_report_complete": false,
+        "import_report_findings": [
+          "B004"
+        ],
+        "note": "import_report_complete is False for a CP-only record (no executor evidence); acceptance is NOT completeness and NOT source verification",
+        "replay_verification_marker_retained": true,
+        "retains_digest_and_family_rows_and_cur_label_no_historical_label": true
+      },
+      "outcome": "PASS_IMPORT",
+      "status": "PASS"
+    },
+    "runtime_export": {
+      "optional": true,
+      "reason": "Runtime export of a governed decision needs a new production interface: PinnedControlPlaneExecutor.execute rebuilds the workflow via self.workflow.__class__(...) which cannot construct GovernedPolicyWorkflow (required keyword-only ['families', 'verifier']); (the earlier tenant_id proposal mismatch is resolved by ExecutionOperation(tenant_id=proposal.tenant_id) but is not the remaining blocker). The Replay stage imports the CP-only governed record, the supported shape of E1 fixtures (no Runtime export captured there either).",
+      "status": "BLOCKED"
+    }
+  },
+  "verifier_run": false
+}
