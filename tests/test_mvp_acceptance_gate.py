@@ -514,7 +514,7 @@ class RulingsTwoTests(GateTests):
             self.assertEqual(G.sha256_file(ROOT / rel), digest, f"{rel} changed: regenerate the commitment as a NEW versioned candidate (python tools/mvp_acceptance_gate.py commit)")
         self.assertIn("PROPOSED", doc["status"])
         self.assertEqual(doc["candidate_version"], f"mvp-qualification-candidate-v{G.COMMITMENT_VERSION}")
-        self.assertEqual(G.COMMITMENT_VERSION, 4)
+        self.assertEqual(G.COMMITMENT_VERSION, 5)  # QGATE-05: the candidate is v5 (the constant follows the file name; v4 stays committed and untouched)
 
     def test_commitment_requires_an_independent_hash_and_detects_any_change(self):
         self.assertEqual({c["id"]: c["status"] for c in self.gate(commit="")["checks"]}["G-12"], "INCOMPLETE")
