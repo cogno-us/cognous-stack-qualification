@@ -236,7 +236,8 @@ def main(argv=None):
             require_pristine(a.hub, hub_head, 'hub')
         obs = (a.out / 'raw' / 'obs.json') if not a.dry_check else Path(os.devnull)
         env = child_env(t, a.components, a.hub, obs)
-        listing, _ = collect_only(ids, env)
+        # S3 fix: the observer writes OBS_OUT at pytest sessionfinish, also for --collect-only; the real out/raw dir does not exist yet, so collect with a null sink (as --dry-check always did)
+        listing, _ = collect_only(ids, child_env(t, a.components, a.hub, Path(os.devnull)))
     except Refuse as e:
         print('REFUSED:', e, file=sys.stderr)
         return 2
