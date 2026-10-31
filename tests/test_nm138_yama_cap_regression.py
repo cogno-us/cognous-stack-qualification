@@ -86,17 +86,18 @@ def test_approved_unsupported_yama_stays_blocked(scope):
     assert d["observed"] == {"ptrace_scope": None if scope == "ABSENT" else scope}
 
 
-# 7: existing refusal semantics are preserved: an unresolved profile blocks the identity subcases only and judges Yama on its own host fact
-def test_unknown_profile_semantics_preserved():
-    rec = run("unknown", "1")["record"]
-    by = {s["id"]: s for s in rec["subcases"]}
-    assert all(by[i]["status"] == "BLOCKED" for i in ("NC4-03b", "NC4-03c", "NC4-03d"))
-    assert by["NC4-03a"]["status"] == "PASS" and by["NC4-03a"]["observed"] == {"ptrace_scope": "1"}
-    assert run("unknown", "0")["record"]["subcases"][0]["status"] == "BLOCKED"
+# 7: existing refusal semantics are preserved and an unresolved profile fails closed: identity subcases BLOCKED, the Yama fact still recorded, never PASS
+def test_unknown_profile_fails_closed_and_keeps_refusal_semantics():
+    for scope in ("ABSENT", "0", "1", "3"):
+        rec = run("unknown", scope)["record"]
+        by = {s["id"]: s for s in rec["subcases"]}
+        assert all(by[i]["status"] == "BLOCKED" for i in ("NC4-03b", "NC4-03c", "NC4-03d")), by
+        assert by["NC4-03a"]["status"] == "BLOCKED" and by["NC4-03a"]["observed"] == {"ptrace_scope": None if scope == "ABSENT" else scope}
+        assert all(s["status"] != "PASS" for s in rec["subcases"])
 
 
 def test_source_still_has_no_other_uncapped_pass_in_probes():
     """Only NC4-03a returned PASS outside _cap before the fix; after it every PASS return in a probe passes through _cap or the explicit approved-only line."""
     src = (CHAIN / "_nc4_03_host.py").read_text()
     body = src[src.index("def sub_a_yama"):src.index("def sub_b_uid_separation")]
-    assert "return PASS," not in body and "_cap(PASS, ctx.get(\"ratified\", True), NOT_RATIFIED)" in body
+    assert "return PASS," not in body and "_cap(PASS, ctx.get(\"ratified\", False), NOT_RATIFIED)" in body

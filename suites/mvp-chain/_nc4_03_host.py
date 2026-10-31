@@ -100,9 +100,9 @@ def sub_a_yama(ctx):
     obs = {"ptrace_scope": scope}
     if why:
         return BLOCKED, why, obs
-    # NM-138: the developer-optout ceiling applies to Yama as to the other subcases (module docstring: status capped at BLOCKED, never PASS). A profile that could not be
-    # resolved (no ctx["ratified"]; unknown MVP_INGRESS_PROFILE) keeps the earlier host-fact-only judgement: Yama does not depend on the identities.
-    s, why_cap = _cap(PASS, ctx.get("ratified", True), NOT_RATIFIED)
+    # NM-138: the developer-optout ceiling applies to Yama as to the other subcases (module docstring: status capped at BLOCKED, never PASS). Fail closed: PASS only when
+    # the ratified approved profile was resolved (ctx["ratified"] is True); an unresolved profile (unknown MVP_INGRESS_PROFILE, missing identities) is never ratified.
+    s, why_cap = _cap(PASS, ctx.get("ratified", False), NOT_RATIFIED)
     return s, why_cap or "kernel.yama.ptrace_scope >= 1", obs
 
 
