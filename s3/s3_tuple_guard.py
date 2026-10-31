@@ -10,14 +10,22 @@ any deviation. The runner itself is NOT modified (cur-patch verification A-J rel
 
     python3 s3/s3_tuple_guard.py --tuple process/v1-validation/current-stack-S3-20261031/runner-tuple.json --components DIR
 
-Exit 0 only if everything equals EXPECTED; exit 2 with REFUSED on stderr otherwise. Writes nothing.
+Exit 0 only if everything equals EXPECTED; exit 2 with REFUSED on stderr otherwise. The CLI writes nothing.
+
+MANDATORY PREFLIGHT (OCS-254-S3 closeout, D5): s3/run_wiki_s3.py calls run_guard() as its FIRST step for every execution, --dry-check included,
+and there is no flag, environment variable or option that skips it. run_guard() returns a guard-result record (schema
+cognous.wiki-s3-guard-result/1) with `preflight_guard: passed|refused`, the guard file sha256, the tuple sha256, inputs, a per-check result
+list and the UTC time; the runner retains it (raw/guard-result.json for a real run, <out>-REFUSED/guard-result.json for a refused real run).
+The C1 run (freeze b48675b7) pre-dates this integration; see results/security-wiki-s3-20261031/GUARD-NOTE.md.
 """
 from __future__ import annotations
 import argparse
+import hashlib
 import json
 import re
 import subprocess
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,6 +51,10 @@ EXCHANGE_CONSTANTS = {'CP_REVISION': 'control_plane', 'MOLTBOT_REVISION': 'runti
                       'REPLAY_REVISION': 'replay', 'ODES_REVISION': 'odes', 'EVIDENCE_PACK_REVISION': 'evidence_pack'}
 
 
+RESULT_SCHEMA = 'cognous.wiki-s3-guard-result/1'
+SHA_RE = re.compile(r'[0-9a-f]{40}')
+
+
 class Refuse(Exception):
     pass
 
@@ -51,16 +63,94 @@ def git(path, *args):
     return subprocess.check_output(['git', '-C', str(path), *args], text=True, timeout=120).strip()
 
 
-def need(cond, msg):
-    if not cond:
-        raise Refuse(msg)
+def sha256_file(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def walk_strings(obj):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            yield from walk_strings(k)
+            yield from walk_strings(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from walk_strings(v)
+    elif isinstance(obj, str):
+        yield obj
 
 
 def exchange_block(src, profile):
     m = re.search(r'RUNTIME_COMPATIBILITY_PROFILE\s*==\s*"%s":(.*?)(?=\nelif |\nelse:|\nif )' % re.escape(profile), src, re.S)
-    need(m, f'Exchange source does not define profile {profile!r}')
+    if not m:
+        raise Refuse(f'Exchange source does not define profile {profile!r}')
     consts = dict(re.findall(r'^\s+([A-Z_]+_REVISION)\s*=\s*"([0-9a-f]{40})"', m.group(1), re.M))
     return consts
+
+
+def run_guard(tuple_path, components, root=ROOT):
+    """Run every check; stop at the first failure. Returns the guard-result record (never raises for a refusal). Read-only."""
+    tuple_path, components, root = Path(tuple_path), Path(components), Path(root)
+    checks = []
+    inputs = {'tuple_path': str(tuple_path), 'components_dir': str(components), 'root': str(root)}
+    result = {'schema': RESULT_SCHEMA, 'label': 'S3 mandatory preflight tuple guard result; non-authorizing',
+              'preflight_guard': 'refused', 'refusal_reason': None, 'validation_id': VALIDATION_ID, 'exchange_profile_required': EXCHANGE_PROFILE,
+              'guard_file': {'path': 's3/s3_tuple_guard.py', 'sha256': sha256_file(__file__)},
+              'tuple_sha256': None, 'inputs': inputs, 'checks': checks,
+              'expected': {k: {'commit': v[0], 'tree': v[1]} for k, v in EXPECTED.items()}, 'utc_time': None}
+
+    def need(cid, cond, msg):
+        checks.append({'check': cid, 'result': 'pass' if cond else 'fail', **({} if cond else {'reason': msg})})
+        if not cond:
+            raise Refuse(msg)
+
+    try:
+        raw = tuple_path.read_bytes()
+        result['tuple_sha256'] = hashlib.sha256(raw).hexdigest()
+        t = json.loads(raw.decode('utf-8'))
+        need('tuple_is_object', isinstance(t, dict), 'tuple is not a JSON object')
+        bad = [s for s in walk_strings(t) if 'PLACEHOLDER' in s or 'TEMPLATE' in s]
+        need('tuple_no_placeholder', not bad, f'unresolved placeholder/template marker in tuple: {bad[:1]!r}')
+        need('tuple_validation_id', t.get('validation_id') == VALIDATION_ID, f'validation_id != {VALIDATION_ID}')
+        need('tuple_exchange_profile', t.get('exchange_compatibility_profile') == EXCHANGE_PROFILE,
+             f'wrong Exchange profile in tuple: {t.get("exchange_compatibility_profile")!r} (required {EXCHANGE_PROFILE!r})')
+        for k in EXPECTED:
+            v = t.get(k)
+            need(f'tuple_sha_format.{k}', isinstance(v, str) and bool(SHA_RE.fullmatch(v)), f'tuple.{k} is not a 40-hex SHA: {v!r}')
+        for k, (sha, _) in EXPECTED.items():
+            need(f'tuple_pin.{k}', t.get(k) == sha, f'tuple.{k} {t.get(k)!r} != intended {sha} (mixed-generation or substituted component)')
+        profile_path, man_path = root / t['profile'], root / 'process' / 'v1-validation' / VALIDATION_ID / 'freeze-manifest.json'
+        profile_raw, man_raw = profile_path.read_bytes(), man_path.read_bytes()
+        inputs.update(profile_path=str(profile_path), profile_sha256=hashlib.sha256(profile_raw).hexdigest(),
+                      freeze_manifest_path=str(man_path), freeze_manifest_sha256=hashlib.sha256(man_raw).hexdigest())
+        profile, man = json.loads(profile_raw), json.loads(man_raw)
+        bad = [s for s in list(walk_strings(profile)) + list(walk_strings(man)) if 'PLACEHOLDER' in s or 'TEMPLATE' in s]
+        need('config_no_placeholder', not bad, f'unresolved placeholder/template marker in profile/freeze-manifest: {bad[:1]!r}')
+        need('profile_exchange_profile', profile.get('exchange_compatibility_profile') == EXCHANGE_PROFILE, 'profile file: wrong Exchange profile')
+        need('manifest_exchange_profile', man['profile']['exchange_compatibility_profile'] == EXCHANGE_PROFILE, 'freeze-manifest: wrong Exchange profile')
+        need('profile_suite_generation', profile.get('suite_generation') == 'cur', 'profile suite_generation != cur')
+        for k, (pk, mk) in CFG.items():
+            need(f'profile_pin.{k}', profile['components'][pk]['revision'] == EXPECTED[k][0], f'profile.{pk} revision != intended')
+            need(f'manifest_pin.{k}', man['components_subject'][mk]['sha'] == EXPECTED[k][0], f'freeze-manifest.{mk} sha != intended')
+        need('config_pin.registry', profile['ocs_registry']['revision'] == EXPECTED['registry'][0], 'profile registry != intended')
+        need('manifest_tree.exchange', man['verified_trees']['trees'].get('exchange') == EXPECTED['exchange'][1], 'freeze-manifest exchange tree != intended')
+        for k, (sha, tree) in EXPECTED.items():
+            p = components / k
+            need(f'checkout_present.{k}', p.is_dir(), f'missing checkout {p}')
+            need(f'checkout_head.{k}', git(p, 'rev-parse', 'HEAD') == sha, f'{k}: checkout HEAD != intended {sha}')
+            need(f'checkout_tree.{k}', git(p, 'rev-parse', 'HEAD^{tree}') == tree, f'{k}: checkout tree != intended {tree}')
+            need(f'checkout_pristine.{k}', not git(p, 'status', '--porcelain', '--untracked-files=all', '--ignored'), f'{k}: checkout is not pristine')
+        src = (components / 'exchange' / 'experiments' / 'odex_gax_imx_reference' / 'gax_ref_runtime.py').read_text()
+        consts = exchange_block(src, EXCHANGE_PROFILE)
+        for c, k in EXCHANGE_CONSTANTS.items():
+            need(f'exchange_constant.{c}', consts.get(c) == EXPECTED[k][0], f'Exchange profile {EXCHANGE_PROFILE} constant {c}={consts.get(c)!r} != tuple {k} {EXPECTED[k][0]}')
+        result['preflight_guard'] = 'passed'
+    except Refuse as e:
+        result['refusal_reason'] = str(e)
+    except (KeyError, OSError, ValueError, TypeError, AttributeError, subprocess.SubprocessError) as e:
+        result['refusal_reason'] = f'{type(e).__name__}: {e}'
+        checks.append({'check': 'guard_input_error', 'result': 'fail', 'reason': result['refusal_reason']})
+    result['utc_time'] = datetime.now(timezone.utc).isoformat()
+    return result
 
 
 def main(argv=None):
@@ -68,37 +158,9 @@ def main(argv=None):
     ap.add_argument('--tuple', type=Path, required=True)
     ap.add_argument('--components', type=Path, required=True)
     a = ap.parse_args(argv)
-    try:
-        t = json.loads(a.tuple.read_text())
-        need(t.get('validation_id') == VALIDATION_ID, f'validation_id != {VALIDATION_ID}')
-        need(t.get('exchange_compatibility_profile') == EXCHANGE_PROFILE, f'wrong Exchange profile in tuple: {t.get("exchange_compatibility_profile")!r} (required {EXCHANGE_PROFILE!r})')
-        for k, (sha, _) in EXPECTED.items():
-            need(t.get(k) == sha, f'tuple.{k} {t.get(k)!r} != intended {sha} (mixed-generation or substituted component)')
-        profile = json.loads((ROOT / t['profile']).read_text())
-        man = json.loads((ROOT / 'process' / 'v1-validation' / VALIDATION_ID / 'freeze-manifest.json').read_text())
-        need(profile.get('exchange_compatibility_profile') == EXCHANGE_PROFILE, 'profile file: wrong Exchange profile')
-        need(man['profile']['exchange_compatibility_profile'] == EXCHANGE_PROFILE, 'freeze-manifest: wrong Exchange profile')
-        need(profile.get('suite_generation') == 'cur', 'profile suite_generation != cur')
-        for k, (pk, mk) in CFG.items():
-            need(profile['components'][pk]['revision'] == EXPECTED[k][0], f'profile.{pk} revision != intended')
-            need(man['components_subject'][mk]['sha'] == EXPECTED[k][0], f'freeze-manifest.{mk} sha != intended')
-        need(profile['ocs_registry']['revision'] == EXPECTED['registry'][0], 'profile registry != intended')
-        need(man['verified_trees']['trees'].get('exchange') == EXPECTED['exchange'][1], 'freeze-manifest exchange tree != intended')
-        for k, (sha, tree) in EXPECTED.items():
-            p = a.components / k
-            need(p.is_dir(), f'missing checkout {p}')
-            need(git(p, 'rev-parse', 'HEAD') == sha, f'{k}: checkout HEAD != intended {sha}')
-            need(git(p, 'rev-parse', 'HEAD^{tree}') == tree, f'{k}: checkout tree != intended {tree}')
-            need(not git(p, 'status', '--porcelain', '--untracked-files=all', '--ignored'), f'{k}: checkout is not pristine')
-        src = (a.components / 'exchange' / 'experiments' / 'odex_gax_imx_reference' / 'gax_ref_runtime.py').read_text()
-        consts = exchange_block(src, EXCHANGE_PROFILE)
-        for c, k in EXCHANGE_CONSTANTS.items():
-            need(consts.get(c) == EXPECTED[k][0], f'Exchange profile {EXCHANGE_PROFILE} constant {c}={consts.get(c)!r} != tuple {k} {EXPECTED[k][0]}')
-    except Refuse as e:
-        print('REFUSED:', e, file=sys.stderr)
-        return 2
-    except (KeyError, OSError, ValueError, subprocess.SubprocessError) as e:
-        print(f'REFUSED: {type(e).__name__}: {e}', file=sys.stderr)
+    r = run_guard(a.tuple, a.components)
+    if r['preflight_guard'] != 'passed':
+        print('REFUSED:', r['refusal_reason'], file=sys.stderr)
         return 2
     print(json.dumps({'tuple_guard': 'OK', 'validation_id': VALIDATION_ID, 'exchange_profile': EXCHANGE_PROFILE,
                       'checked': {k: {'commit': v[0], 'tree': v[1]} for k, v in EXPECTED.items()}}, indent=1))

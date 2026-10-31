@@ -15,6 +15,10 @@ TUPLE.json (schema cognous.wiki-s3-tuple/1):
 DIR holds one pristine checkout per name (control_plane, runtime, replay, evidence_pack, odes, exchange, manifest, registry).
 The registry checkout is verified and recorded, but the harness neither imports nor exercises it (it is not in COMPONENT_NAMES).
 
+MANDATORY PREFLIGHT: s3/s3_tuple_guard.py (pinned intended tuple, Exchange profile, checkout HEAD/tree identity) runs FIRST for every execution,
+--dry-check included; there is no option to skip it. Its result is retained as raw/guard-result.json (preflight_guard: passed) or, when it
+refuses a real run, as <out>-REFUSED/guard-result.json (preflight_guard: refused); --dry-check refusals print the record and write nothing.
+
 Refusals (exit 2, nothing executed): any value containing PLACEHOLDER / not a 40-hex SHA; a tuple that disagrees with the profile file or the
 freeze manifest it names; a checkout whose HEAD != tuple SHA or that is not clean (tools/pristine_checkout.require_pristine); an existing
 --out; a nodeids file that is not exactly the committed 41 (count and sorted-unique); collect-only not yielding exactly those ids.
@@ -37,6 +41,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from pristine_checkout import require_pristine  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import s3_tuple_guard as guard  # noqa: E402  (mandatory preflight; no bypass option exists)
 
 SCHEMA = 'cognous.wiki-s3-tuple/1'
 SHA_RE = re.compile(r'[0-9a-f]{40}')
@@ -210,6 +216,18 @@ def qual_status(exclude=None):
     return rows
 
 
+def write_refusal_record(gres, out):
+    """A refused real run leaves guard-result.json next to (never inside) the one-shot --out, which stays unused."""
+    d = Path(str(out) + '-REFUSED')
+    n = 0
+    while d.exists():
+        n += 1
+        d = Path(f'{out}-REFUSED-{n}')
+    d.mkdir(parents=True)
+    (d / 'guard-result.json').write_text(json.dumps(gres, indent=2, sort_keys=True) + '\n')
+    return d
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--tuple', type=Path, required=True)
@@ -219,6 +237,14 @@ def main(argv=None):
     ap.add_argument('--nodeids', type=Path, default=ROOT / DEFAULT_NODEIDS)
     ap.add_argument('--dry-check', action='store_true', help='every check incl. pytest --collect-only; no test runs; writes nothing')
     a = ap.parse_args(argv)
+    gres = guard.run_guard(a.tuple, a.components, root=ROOT)  # MANDATORY, first, unconditional
+    if gres['preflight_guard'] != 'passed':
+        if not a.dry_check:
+            write_refusal_record(gres, a.out)
+        else:
+            print(json.dumps(gres, indent=1))
+        print('REFUSED: preflight guard:', gres['refusal_reason'], file=sys.stderr)
+        return 2
     try:
         t = load_tuple(a.tuple)
         prof_path, man_path = check_configs(t)
@@ -242,12 +268,13 @@ def main(argv=None):
         print(f'REFUSED: {type(e).__name__}: {e}', file=sys.stderr)
         return 2
     if a.dry_check:
-        print(json.dumps({'dry_check': 'OK', 'collected': len(ids), 'executed': 0, 'checkouts': {k: v['head'] for k, v in checkouts.items()},
+        print(json.dumps({'dry_check': 'OK', 'preflight_guard': gres['preflight_guard'], 'collected': len(ids), 'executed': 0, 'checkouts': {k: v['head'] for k, v in checkouts.items()},
                           'qualification_dirty_rows': len(qual_status())}, indent=1))
         return 0
 
     raw = a.out / 'raw'
     raw.mkdir(parents=True)
+    (raw / 'guard-result.json').write_text(json.dumps(gres, indent=2, sort_keys=True) + '\n')
     (raw / 'collect-only.txt').write_text(listing)
     (raw / 'nodeids-41.txt').write_text('\n'.join(ids) + '\n')
     (raw / 'tuple.json').write_text(Path(a.tuple).read_text())
@@ -267,12 +294,13 @@ def main(argv=None):
     counts = {'testcase_elements': len(cases), **{k: sum(c.find(k) is not None for c in cases) for k in ('failure', 'error', 'skipped')}}
     record = {
         'label': 'Security Wiki S3 run record (generation-2 current-stack tuple); non-authorizing; verdicts are assigned by the analysis, not by pytest exit code',
+        'preflight_guard': gres['preflight_guard'], 'guard_result_sha256': sha256(raw / 'guard-result.json'),
         'tuple': t, 'pytest_command': cmd, 'pytest_returncode': rc, 'attempts': 1, 'retries': 0, 'workers': 1,
         'started_utc': start, 'finished_utc': end, 'junit_counts': counts, 'testcase_elements_expected': EXPECTED_NODEIDS,
         'checkouts_after_run_pristine': not problems, 'checkout_problems': problems, 'checkouts': checkouts,
         'qualification_head': git(ROOT, 'rev-parse', 'HEAD'), 'qualification_tree': git(ROOT, 'rev-parse', 'HEAD^{tree}'),
         'qualification_worktree_dirty_after': qual_status(exclude=a.out),
-        'config_hashes': {str(p.relative_to(ROOT)): sha256(p) for p in (prof_path, man_path, man_path.parent / 'tuple.json', a.nodeids.resolve(), OBSERVER, Path(__file__).resolve())
+        'config_hashes': {str(p.relative_to(ROOT)): sha256(p) for p in (prof_path, man_path, man_path.parent / 'tuple.json', a.nodeids.resolve(), OBSERVER, Path(guard.__file__), Path(__file__).resolve())
                           if p.exists()},
         'harness_source_hashes': {str(p.relative_to(ROOT)): sha256(p) for p in sorted((ROOT / 'suites' / 'wiki-derived').glob('*.py')) + sorted((ROOT / 'suites' / 'v1-scenarios').glob('*.py')) + sorted((ROOT / 'suites' / 'security-runtime').glob('*.py')) + [ROOT / 'suites' / '_pins.py', ROOT / 'suites' / '_contract_matrix.py']},
         'environment': tool_versions(),
