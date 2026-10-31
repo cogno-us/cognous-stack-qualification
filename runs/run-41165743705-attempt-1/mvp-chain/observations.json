@@ -1,0 +1,4995 @@
+{
+  "chain": {
+    "claim": {
+      "claim_id": "8b00b95e-aba9-4b3a-aee5-418346b4c359",
+      "error": null,
+      "ok": true,
+      "state_after_provision": "issued"
+    },
+    "decision": {
+      "decision_id": "dcd9b644-5384-4ffc-89c5-ccc69c9dd863",
+      "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "reasons": [],
+      "result": "authorized"
+    },
+    "destination": {
+      "claim_state_after": "consumed",
+      "effect_count": 1,
+      "effect_ids": [
+        "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+      ],
+      "expected_effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "operation_identity_destination": true
+    },
+    "execute": {
+      "acknowledged": true,
+      "attempted": true,
+      "error": null,
+      "has_observation": true,
+      "newly_executed": true,
+      "observed_state": "applied",
+      "ok": true,
+      "status": "executed"
+    },
+    "export": {
+      "error": null,
+      "ok": true,
+      "sha256": "ce1e9ae9da29461fa6fdb60af346d3818e454dc995408c0015aa73326b17ff88"
+    },
+    "journal": {
+      "completed_check_ids": [
+        "885d94c9-4927-45a4-89ef-d55c186eaa28",
+        "08848aba-5f8d-4579-9147-4e15f08b76e3"
+      ],
+      "completed_events_labelled_decision": 1,
+      "completed_stages": [
+        "decision",
+        "claim"
+      ],
+      "distinct_completed_check_ids": 2,
+      "events": [
+        {
+          "check_id": "885d94c9-4927-45a4-89ef-d55c186eaa28",
+          "has_decision_id": false,
+          "phase": "opened",
+          "stage": "decision"
+        },
+        {
+          "check_id": "885d94c9-4927-45a4-89ef-d55c186eaa28",
+          "has_decision_id": false,
+          "phase": "completed",
+          "stage": "decision"
+        },
+        {
+          "check_id": "08848aba-5f8d-4579-9147-4e15f08b76e3",
+          "has_decision_id": true,
+          "phase": "opened",
+          "stage": "claim"
+        },
+        {
+          "check_id": "08848aba-5f8d-4579-9147-4e15f08b76e3",
+          "has_decision_id": true,
+          "phase": "completed",
+          "stage": "claim"
+        }
+      ],
+      "n_events": 26,
+      "resolution_check_stages": [
+        "decision",
+        "claim"
+      ]
+    },
+    "operation": {
+      "identity_profile_on": true,
+      "operation_id": "op-order-100/refund-1",
+      "status": "ok"
+    },
+    "pack": {
+      "error": null,
+      "ok": true,
+      "sha256": "84aa8849486482367d1c77b6d6feacfcbd00488ab14066b38967c5f15c2b7e7f",
+      "valid": true
+    },
+    "proposal": {
+      "action_id": "urn:cognous:action:refund-issue-routine-v1",
+      "amount": 10.0,
+      "target": "urn:cognous:synthetic-account:customer-001",
+      "unit": "USD"
+    },
+    "replay": {
+      "all_reports_complete": true,
+      "bundle_sha256": "07add2328581a87de31120344646622ebfa8d9c6591a6a01ceb0fc15992269b9",
+      "error": null,
+      "n_records": 40,
+      "n_reports": 1,
+      "ok": true
+    },
+    "status": "ran",
+    "verifier": {
+      "A": {
+        "could_not_check_check_ids": [
+          "v4.ledger.keys",
+          "v4.ledger.effects-have-authorized-decisions",
+          "v4.ledger.row-matches-binding",
+          "v4.ledger.counts",
+          "v4.ledger.rows-agree-with-attempts",
+          "v4.ledger.acknowledged-attempts-have-rows",
+          "v4.ledger.observations-agree"
+        ],
+        "could_not_check_reasons": {
+          "v4.ledger.acknowledged-attempts-have-rows": "input_absent",
+          "v4.ledger.counts": "input_absent",
+          "v4.ledger.effects-have-authorized-decisions": "input_absent",
+          "v4.ledger.keys": "input_absent",
+          "v4.ledger.observations-agree": "input_absent",
+          "v4.ledger.row-matches-binding": "input_absent",
+          "v4.ledger.rows-agree-with-attempts": "input_absent"
+        },
+        "crashed": false,
+        "exit_code": 3,
+        "finding_codes": [],
+        "findings_by_check": {},
+        "inputs": {
+          "manifest": "2de33f6fd0936ec56013a5eddb99c8c4a2943ab463f8ee9c3898780a8da20e58",
+          "proposal": "d255532bf763dff1fc2f71887f95ee76009db83f84881daafcc8013ea8cf4894",
+          "record": "5fd3d8300c67bec4082acd8e31c3954fd4ffebd4c9b7085fc918c9c9fb831a84"
+        },
+        "module_path": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/verifier/src/cognous_verify/__init__.py",
+        "module_path_under_pin": true,
+        "n_checks": 29,
+        "overall": "abstain",
+        "refuted_check_ids": [],
+        "report_sha256": "195224398e3cef7fe8af7308f77a27d57f2f687963b9ce9e475f69c8b4819d39",
+        "stderr_tail": [],
+        "stdout_tail": "overall: abstain (derived from the checks that ran; not a score, not an attestation)\nchecks: 29; confirmed 22, could not check 7, refuted 0\n  COULD_NOT_CHECK v4.ledger.keys  refuted 0/1, could not check 1/1\n  COULD_NOT_CHECK v4.ledger.effects-have-authorized-decisions  refuted 0/1, could not check 1/1\n  COULD_NOT_CHECK v4.ledger.row-matches-binding  refuted 0/1, could not check 1/1\n  COULD_NOT_CHECK v4.ledger.counts  refuted 0/1, could not check 1/1\n  COULD_NOT_CHECK v4.ledger.rows-agree-with-attempts  refuted 0/1, could not check 1/1\n  COULD_NOT_CHECK v4.ledger.acknowledged-attempts-have-rows  refuted 0/1, could not check 1/1\n  COULD_NOT_CHECK v4.ledger.observations-agree  refuted 0/1, could not check 1/1\ntier V3 (witness re-derivation) not run: no witness or holder inventory supplied\nnot applicable to this record: 6 checks\ndoes not prove: see does_not_prove in the report\n",
+        "summary": {
+          "checks": 29,
+          "confirmed": 22,
+          "could_not_check": 7,
+          "refuted": 0
+        }
+      },
+      "B": {
+        "could_not_check_check_ids": [
+          "v4.ledger.rows-agree-with-attempts"
+        ],
+        "could_not_check_reasons": {
+          "v4.ledger.rows-agree-with-attempts": "tier_unavailable"
+        },
+        "crashed": false,
+        "exit_code": 3,
+        "finding_codes": [],
+        "findings_by_check": {},
+        "inputs": {
+          "ledger": "3a6adb48fafca6b8b3bbe8f18e42ba04695b1a6ffe5620f847c4114d92ad8d0f",
+          "manifest": "2de33f6fd0936ec56013a5eddb99c8c4a2943ab463f8ee9c3898780a8da20e58",
+          "proposal": "d255532bf763dff1fc2f71887f95ee76009db83f84881daafcc8013ea8cf4894",
+          "record": "5fd3d8300c67bec4082acd8e31c3954fd4ffebd4c9b7085fc918c9c9fb831a84"
+        },
+        "module_path": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/verifier/src/cognous_verify/__init__.py",
+        "module_path_under_pin": true,
+        "n_checks": 28,
+        "overall": "abstain",
+        "refuted_check_ids": [],
+        "report_sha256": "7f14aa007955136f24841a4a22f95cc2fcfc32a94582ffa3df11aef011a6bd67",
+        "stderr_tail": [],
+        "stdout_tail": "overall: abstain (derived from the checks that ran; not a score, not an attestation)\nchecks: 28; confirmed 27, could not check 1, refuted 0\n  COULD_NOT_CHECK v4.ledger.rows-agree-with-attempts  refuted 0/1, could not check 1/1\ntier V3 (witness re-derivation) not run: no witness or holder inventory supplied\nnot applicable to this record: 8 checks\nnote: ledger completeness is not established: the ledger has no sequence number, chain or signature, so a dropped tail, a consistent rewrite, or a decision that never reached the ledger cannot be seen\ndoes not prove: see does_not_prove in the report\n",
+        "summary": {
+          "checks": 28,
+          "confirmed": 27,
+          "could_not_check": 1,
+          "refuted": 0
+        }
+      },
+      "note": "A = record + proposal + manifest (the gated run). B = A plus a harness-derived ledger from the SQLite effects table (informational)."
+    },
+    "work_dir_removed": true
+  },
+  "env": {
+    "cp_revision_override": null,
+    "dirs": {
+      "action_manifest": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/manifest",
+      "control_plane": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/control_plane",
+      "evidence_pack": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/evidence_pack",
+      "hub": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/hub",
+      "odes": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/odes",
+      "replay": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/replay",
+      "runtime": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/runtime",
+      "verifier": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/verifier"
+    },
+    "heads": {
+      "action_manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "control_plane": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+      "evidence_pack": "7b9511f2c6d56d424f17b078826594abd29f6c96",
+      "hub": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "odes": "1a5e1d300250d832e611633f0bf8f762e398c0ec",
+      "replay": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+      "runtime": "c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+      "verifier": "c0b8ba1f55b75db787a320f3de0f79342c6f6826"
+    },
+    "module_files": {
+      "agent_control_plane": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/control_plane/src/agent_control_plane/__init__.py",
+      "agent_governance_evidence_pack": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/evidence_pack/src/agent_governance_evidence_pack/__init__.py",
+      "agent_replay_bundle": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/replay/src/agent_replay_bundle/__init__.py",
+      "engine": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/runtime/engine/__init__.py",
+      "tests": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/control_plane/tests/test_runtime_authority.py"
+    },
+    "modules_from_pinned_trees": true,
+    "overrides": {},
+    "pending": [],
+    "pin_file": "/home/runner/work/cognous-stack-qualification/cognous-stack-qualification/results/mvp-acceptance/tuple-pin.resolved.json",
+    "pin_file_sha256": "ce676e7765159dbc84dbd1c422ef0264745b3088275c4420f93a0da73851fa4d",
+    "pins": {
+      "action_manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "control_plane": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+      "evidence_pack": "7b9511f2c6d56d424f17b078826594abd29f6c96",
+      "hub": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "odes": "1a5e1d300250d832e611633f0bf8f762e398c0ec",
+      "replay": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+      "runtime": "c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+      "verifier": "c0b8ba1f55b75db787a320f3de0f79342c6f6826"
+    },
+    "pins_match": true,
+    "platform": "linux",
+    "pristine": true,
+    "problems": [],
+    "pydantic_file": "/opt/hostedtoolcache/Python/3.13.17/x64/lib/python3.13/site-packages/pydantic/__init__.py",
+    "pydantic_ok": true,
+    "pydantic_version": "2.13.5",
+    "python": "3.13.17 (main, Oct 22 2026, 02:40:32) [GCC 13.3.0]",
+    "replay_code_problem": null,
+    "replay_distribution_error": null,
+    "replay_distribution_ok": true,
+    "replay_distribution_path": "/var/lib/qgate05-ocs/tmp/mvp-replay-dist-o4zseu8j/agent_replay_bundle-0.0.0+mvpchain.dist-info",
+    "replay_revision_seen_by_evidence_pack": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+    "status": "ran",
+    "uid": 0
+  },
+  "nc4_03_det": {
+    "deterministic_record": {
+      "control_results": [
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "C-OR-FIELD-NOOP",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": true,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "C-OR-FIELD-BENIGN",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "C-OR-BINDING-NOOP",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": true,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "C-OR-BINDING-BENIGN",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "C-OR-LITERAL-NOOP",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": true,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "C-OR-LITERAL-BENIGN",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "C-OR-OBJECT-NOOP",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": true,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "C-OR-OBJECT-BENIGN",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-FIXEDFORM",
+          "id": "C-OR-FIXEDFORM-NOOP",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": true,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "OR-FIXEDFORM",
+          "id": "C-OR-FIXEDFORM-BENIGN",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "C-GENERIC-FORWARD-NOOP",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": true,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "C-GENERIC-FORWARD-BENIGN",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "ACCEPTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "C-PIN-NOOP",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": true,
+            "violation_count": 0,
+            "violation_rules": []
+          },
+          "predicate_holds": true
+        }
+      ],
+      "control_satisfies_rejection_predicate": [],
+      "controls_accepted": 13,
+      "controls_falsely_rejected": [],
+      "controls_total": 13,
+      "families": [
+        "GENERIC-FORWARD",
+        "OR-BINDING",
+        "OR-FIELD",
+        "OR-FIXEDFORM",
+        "OR-LITERAL",
+        "OR-OBJECT",
+        "PIN"
+      ],
+      "host_dependent": false,
+      "interpreter_required": "CPython 3.13",
+      "mutation_results": [
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M001",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M002",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M003",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M004",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 2,
+            "pins_unmatched_count": 1,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M005",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 2,
+            "pins_unmatched_count": 1,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M006",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 2,
+            "pins_unmatched_count": 1,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M007",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 2,
+            "pins_unmatched_count": 1,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M008",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 2,
+            "pins_unmatched_count": 1,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIELD",
+          "id": "M009",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_CALLER_UNTRUSTED"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M010",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M011",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M012",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PRODUCER_SHADOWED"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M013",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M014",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M015",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PRODUCER_SHADOWED"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M016",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROTECTED_CALLABLE_ESCAPES"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M017",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROTECTED_CALLABLE_ESCAPES"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M018",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "ORIGIN_CALLER_UNTRUSTED",
+              "ORIGIN_VIOLATION",
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M019",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "ORIGIN_CALLER_UNTRUSTED",
+              "ORIGIN_VIOLATION",
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M020",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M021",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-BINDING",
+          "id": "M022",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M023",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M024",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M025",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M026",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M027",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M028",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M029",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [
+              [
+                "core.py",
+                "IngressCore._run",
+                "execute",
+                1
+              ]
+            ],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-LITERAL",
+          "id": "M030",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "ORIGIN_VIOLATION",
+              "PROHIBITED_KEYWORD_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M031",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "AUTHORITY_OBJECT_MUTATION",
+              "DYNAMIC_ATTRIBUTE_ACCESS"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M032",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "AUTHORITY_OBJECT_MUTATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M033",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "AUTHORITY_OBJECT_MUTATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M034",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "AUTHORITY_OBJECT_MUTATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M035",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "AUTHORITY_OBJECT_MUTATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M036",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "DYNAMIC_PROPOSAL_CONSTRUCTION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M037",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "DYNAMIC_ATTRIBUTE_ACCESS",
+              "NONLITERAL_KWARGS",
+              "POSITIONAL_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-OBJECT",
+          "id": "M038",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "AUTHORITY_OBJECT_MUTATION",
+              "DYNAMIC_ATTRIBUTE_ACCESS"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIXEDFORM",
+          "id": "M039",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 6,
+            "violation_rules": [
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIXEDFORM",
+          "id": "M040",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIXEDFORM",
+          "id": "M041",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "POSITIONAL_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "OR-FIXEDFORM",
+          "id": "M042",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 2,
+            "pins_unmatched_count": 1,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "POSITIONAL_NON_LITERAL"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M043",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "SIMULATE_NOT_CONSTANT_NONE"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M044",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "NONLITERAL_KWARGS"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M045",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "NONLITERAL_KWARGS"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M046",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "NONLITERAL_KWARGS"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M047",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "MODEL_COPY_KWARGS_FORBIDDEN"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M048",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 1,
+            "pins_unmatched_count": 2,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 3,
+            "violation_rules": [
+              "MODEL_COPY_UPDATE_NOT_FIXED",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M049",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M050",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 2,
+            "pins_unmatched_count": 1,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M051",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "OPAQUE_POSITIONAL_UNPACK"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M052",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "OPAQUE_POSITIONAL_UNPACK"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M053",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "GENERIC-FORWARD",
+          "id": "M054",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 1,
+            "violation_rules": [
+              "ORIGIN_VIOLATION"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M055",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M056",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M057",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M058",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M059",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M060",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M061",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M062",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 4,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M063",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 5,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M064",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [
+              [
+                "core.py",
+                "IngressCore._run",
+                "provision_claim",
+                1
+              ]
+            ],
+            "tree_unchanged": false,
+            "violation_count": 5,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "NONLITERAL_KWARGS",
+              "ORIGIN_VIOLATION",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M065",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "INGRESS_TREE_DIGEST",
+              "INGRESS_TREE_FILE_LIST"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M066",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "INGRESS_TREE_DIGEST",
+              "INGRESS_TREE_FILE_LIST"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M067",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 5,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "INGRESS_TREE_FILE_LIST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M068",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 0,
+            "pins_unmatched_count": 3,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 5,
+            "violation_rules": [
+              "COMPREHENSION_NOT_FIXED",
+              "INGRESS_TREE_DIGEST",
+              "INGRESS_TREE_FILE_LIST",
+              "NONLITERAL_KWARGS",
+              "PROHIBITED_KEY_IN_FIXED_FORM"
+            ]
+          },
+          "predicate_holds": true
+        },
+        {
+          "expected_outcome": "REJECTED",
+          "failed_predicates": [],
+          "family": "PIN",
+          "id": "M069",
+          "observed": {
+            "apply_error": "",
+            "mutation_applied": true,
+            "pinned_sites_used_count": 3,
+            "pins_unmatched_count": 0,
+            "required_sites_missing": [],
+            "tree_unchanged": false,
+            "violation_count": 2,
+            "violation_rules": [
+              "INGRESS_TREE_DIGEST",
+              "INGRESS_TREE_FILE_LIST"
+            ]
+          },
+          "predicate_holds": true
+        }
+      ],
+      "mutations_not_rejected": [],
+      "mutations_rejected": 69,
+      "mutations_total": 69,
+      "pinned_input": {
+        "ingress_tree_sha256": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591",
+        "matches_set_target": true,
+        "recursive_tree_sha256": "2e26cc205fc7aca5f15ea27dc7ea8dfd82bb874961f2757db17c88f3c73d72b5"
+      },
+      "reasons": [
+        "every mutation rejected as expected, every control accepted, no control satisfies a rejection predicate"
+      ],
+      "record_sha256": "84cb23489e0af41452a1a3a3d8f0418c5c1248dd0aff6da438c848d1da0a1ce6",
+      "schema": "cognous.nc4-03-deterministic-record/1",
+      "set_file_sha256": "4c0438c582091b297186c7e6402f42ef9b52354cfb009124186d732ad87e0d63",
+      "set_version": "v1",
+      "verdict": "PASS"
+    },
+    "mutation_set": {
+      "controls_accepted": 13,
+      "controls_falsely_rejected": [],
+      "controls_total": 13,
+      "mutations_not_rejected": [],
+      "mutations_rejected": 69,
+      "mutations_total": 69,
+      "record_sha256": "84cb23489e0af41452a1a3a3d8f0418c5c1248dd0aff6da438c848d1da0a1ce6",
+      "set_file_sha256": "4c0438c582091b297186c7e6402f42ef9b52354cfb009124186d732ad87e0d63",
+      "set_version": "v1",
+      "verdict": "PASS"
+    },
+    "mutation_set_control_guard": [],
+    "scope": "SOURCE-LEVEL deterministic assertions over the pinned hub source (AST predicate, frozen mutation set, D1 AST tests); NOT execution observations and NOT host evidence",
+    "source_level": {
+      "all_simulate_keywords_constant_none": true,
+      "d1_ast_test_exit_code": 0,
+      "d1_ast_test_tail": ".......                                                                  [100%]\n7 passed, 198 deselected in 0.13s\n",
+      "files_scanned": [
+        "__init__.py",
+        "client.py",
+        "core.py",
+        "launch.py",
+        "proposal.py",
+        "server.py",
+        "synthetic_host.py"
+      ],
+      "kwflow": {
+        "ast_digest_python_match": true,
+        "ast_digest_python_required": "3.13",
+        "calls_examined": [
+          {
+            "callee": "decide",
+            "file": "core.py",
+            "forwards": [],
+            "line": 97,
+            "protected": true
+          },
+          {
+            "callee": "provision_claim",
+            "file": "core.py",
+            "forwards": [],
+            "line": 106,
+            "protected": true
+          },
+          {
+            "callee": "execute",
+            "file": "core.py",
+            "forwards": [],
+            "line": 111,
+            "protected": true
+          },
+          {
+            "callee": "bind_approval",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 123,
+            "protected": true
+          },
+          {
+            "callee": "OperationIdentityAtomicAuthorityEffectDestination",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 125,
+            "protected": true
+          },
+          {
+            "callee": "LocalExecutionPolicy",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 126,
+            "protected": true
+          },
+          {
+            "callee": "AtomicLocalControlPlaneExecutor",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 131,
+            "protected": true
+          },
+          {
+            "callee": "ExecutionOperation",
+            "file": "synthetic_host.py",
+            "forwards": [
+              {
+                "fixed_form": false,
+                "mapping": "{k: getattr(p, k) for k in names}"
+              }
+            ],
+            "line": 148,
+            "protected": true
+          },
+          {
+            "callee": "ExecutionEnvelope",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 153,
+            "protected": true
+          },
+          {
+            "callee": "original",
+            "file": "synthetic_host.py",
+            "forwards": [
+              {
+                "fixed_form": false,
+                "mapping": "k"
+              }
+            ],
+            "line": 115,
+            "protected": false
+          },
+          {
+            "callee": "OperationIdentityProfile",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 120,
+            "protected": true
+          }
+        ],
+        "client_fed_kwargs_to_protected": [],
+        "files_scanned": [
+          "__init__.py",
+          "client.py",
+          "core.py",
+          "launch.py",
+          "proposal.py",
+          "server.py",
+          "synthetic_host.py"
+        ],
+        "hub_revision_verified": true,
+        "ingress_tree_manifest": [
+          [
+            "__init__.py",
+            "a276ffbfe0f63fc9ef4f1c6b8a90ffe9c14badabaf54149ccad5c08cc193e638"
+          ],
+          [
+            "client.py",
+            "2693a4221d89fe5cf19c100c1a6334f7fcf37ff78daa6f31ea10de319466843a"
+          ],
+          [
+            "core.py",
+            "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+          ],
+          [
+            "launch.py",
+            "4f463f924b66e495888fbd94d4fd5c75db49b68f791b2cb76f37400f5c3bcb56"
+          ],
+          [
+            "proposal.py",
+            "2182acf7c38a5976ef4ade4457a290eb9020cba21f2d4cc8b6b0446de1a9484c"
+          ],
+          [
+            "server.py",
+            "0179c8ed6a4071916f7453a642ed2317cf17f8f709f151d2dd080f11c8d10494"
+          ],
+          [
+            "synthetic_host.py",
+            "95c965fbc2eaeab70fd90ff9c544bd155295538b16f6d775a30917ee18352731"
+          ]
+        ],
+        "ingress_tree_sha256": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591",
+        "pin_records": {
+          "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
+            "ast_digest": "c8eddfd868f8cdb1c007a62e5fafe1d85208c4eae6a08d21feedb1547ca6cd07",
+            "ast_digest_python": "3.13",
+            "originating_hub_commit": "c897266b7ce4b921889519087fa8b1863b4302e3",
+            "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)",
+            "reviewed_ingress_tree_sha256": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591",
+            "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host"
+          },
+          "synthetic_host.py:SyntheticHost.__init__:original#1": {
+            "ast_digest": "e08eafdddaa93bc754dbeb7c8e1179067b1de3ba987eddadb74e430a4358800b",
+            "ast_digest_python": "3.13",
+            "originating_hub_commit": "c897266b7ce4b921889519087fa8b1863b4302e3",
+            "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API",
+            "reviewed_ingress_tree_sha256": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591",
+            "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it"
+          },
+          "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
+            "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
+            "ast_digest_python": "3.13",
+            "originating_hub_commit": "c897266b7ce4b921889519087fa8b1863b4302e3",
+            "protected_destination": "ExecutionOperation(...) constructor feeding ExecutionEnvelope for AtomicLocalControlPlaneExecutor.execute",
+            "reviewed_ingress_tree_sha256": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591",
+            "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount and unit come from the client under non-prohibited keys; request_id flows via correlation_id into the proposal commitment and is NOT among the 14 names), fixed 14 field names"
+          }
+        },
+        "pin_records_incomplete": [],
+        "pin_source_revision_mismatch": [],
+        "pinned_sites_used": [
+          "synthetic_host.py:SyntheticHost.__init__:model_copy#1",
+          "synthetic_host.py:SyntheticHost.__init__:original#1",
+          "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1"
+        ],
+        "pins_unmatched": [],
+        "predicate": "nc4-03.v5.strict-refinement-dataflow",
+        "python_version": "3.13.17",
+        "real_protected_calls": [
+          {
+            "callee": "decide",
+            "file": "core.py",
+            "line": 97,
+            "ordinal": 1,
+            "qualname": "IngressCore._run"
+          },
+          {
+            "callee": "provision_claim",
+            "file": "core.py",
+            "line": 106,
+            "ordinal": 1,
+            "qualname": "IngressCore._run"
+          },
+          {
+            "callee": "execute",
+            "file": "core.py",
+            "line": 111,
+            "ordinal": 1,
+            "qualname": "IngressCore._run"
+          },
+          {
+            "callee": "bind_approval",
+            "file": "synthetic_host.py",
+            "line": 123,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "OperationIdentityAtomicAuthorityEffectDestination",
+            "file": "synthetic_host.py",
+            "line": 125,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "LocalExecutionPolicy",
+            "file": "synthetic_host.py",
+            "line": 126,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "AtomicLocalControlPlaneExecutor",
+            "file": "synthetic_host.py",
+            "line": 131,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "ExecutionOperation",
+            "file": "synthetic_host.py",
+            "line": 148,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.envelope"
+          },
+          {
+            "callee": "ExecutionEnvelope",
+            "file": "synthetic_host.py",
+            "line": 153,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.envelope"
+          },
+          {
+            "callee": "OperationIdentityProfile",
+            "file": "synthetic_host.py",
+            "line": 120,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          }
+        ],
+        "real_protected_calls_count": 10,
+        "recursive_tree_files": [
+          [
+            "BOUNDARY.md",
+            "file"
+          ],
+          [
+            "__init__.py",
+            "file"
+          ],
+          [
+            "client.py",
+            "file"
+          ],
+          [
+            "core.py",
+            "file"
+          ],
+          [
+            "launch.py",
+            "file"
+          ],
+          [
+            "proposal.py",
+            "file"
+          ],
+          [
+            "server.py",
+            "file"
+          ],
+          [
+            "synthetic_host.py",
+            "file"
+          ]
+        ],
+        "recursive_tree_sha256": "2e26cc205fc7aca5f15ea27dc7ea8dfd82bb874961f2757db17c88f3c73d72b5",
+        "required_sites_missing": [],
+        "reviewed_ingress_tree_sha256": [
+          "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591"
+        ],
+        "scanned_hub_revision": "c897266b7ce4b921889519087fa8b1863b4302e3",
+        "scope": "source-level static analysis; see _kwflow.py module docstring for limits",
+        "simulate_violations": [],
+        "violations": []
+      },
+      "non_literal_kwargs_forwarding": [
+        {
+          "callee": "ExecutionOperation",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 148,
+          "source": "{k: getattr(p, k) for k in names}"
+        },
+        {
+          "callee": "original",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 115,
+          "source": "k"
+        }
+      ],
+      "simulate_keywords": [
+        {
+          "file": "core.py",
+          "is_constant_none": true,
+          "line": 111
+        },
+        {
+          "callee": "ExecutionOperation",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 148,
+          "source": "{k: getattr(p, k) for k in names}"
+        },
+        {
+          "callee": "original",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 115,
+          "source": "k"
+        }
+      ]
+    },
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "nc4_03_host": {
+    "NC4-03a": {
+      "facts": {},
+      "observed": {
+        "ptrace_scope": "1"
+      },
+      "reason": "kernel.yama.ptrace_scope >= 1",
+      "status": "PASS"
+    },
+    "NC4-03b": {
+      "facts": {
+        "client_and_ingress_distinct_primary_groups": true,
+        "client_dropped_capabilities": true,
+        "client_effective_uid_is_declared": true,
+        "client_nonzero_and_distinct_from_ingress": true,
+        "ingress_not_root_or_optout": true,
+        "outsider_distinct_from_ingress_and_client": true,
+        "outsider_dropped_capabilities": true,
+        "outsider_effective_uid_is_declared": true
+      },
+      "observed": {
+        "client_proc": {
+          "cap_eff": [
+            "0000000000000000"
+          ],
+          "gid": [
+            "986",
+            "986",
+            "986",
+            "986"
+          ],
+          "groups": [],
+          "uid": [
+            "997",
+            "997",
+            "997",
+            "997"
+          ]
+        },
+        "client_uid": 997,
+        "facts": {
+          "client_and_ingress_distinct_primary_groups": true,
+          "client_dropped_capabilities": true,
+          "client_effective_uid_is_declared": true,
+          "client_nonzero_and_distinct_from_ingress": true,
+          "ingress_not_root_or_optout": true,
+          "outsider_distinct_from_ingress_and_client": true,
+          "outsider_dropped_capabilities": true,
+          "outsider_effective_uid_is_declared": true
+        },
+        "ingress_uid": 999,
+        "outsider_proc": {
+          "cap_eff": [
+            "0000000000000000"
+          ],
+          "gid": [
+            "65533",
+            "65533",
+            "65533",
+            "65533"
+          ],
+          "groups": [],
+          "uid": [
+            "65533",
+            "65533",
+            "65533",
+            "65533"
+          ]
+        },
+        "outsider_uid": 65533,
+        "ratified_profile": true
+      },
+      "reason": "dedicated ingress, client and outsider identities are distinct, unprivileged and without capabilities",
+      "status": "PASS"
+    },
+    "NC4-03c": {
+      "facts": {
+        "dir_group_is_ipc_group": true,
+        "dir_mode_is_2751": true,
+        "ipc_group_member_can_connect": true,
+        "outsider_can_stat_known_name_residual": true,
+        "outsider_cannot_connect": true,
+        "outsider_cannot_list_directory": true,
+        "socket_group_is_ipc_group_via_setgid": true,
+        "socket_is_a_socket": true,
+        "socket_mode_is_0660": true
+      },
+      "observed": {
+        "dir_gid": 985,
+        "dir_mode": "0o2751",
+        "dir_uid": 999,
+        "facts": {
+          "dir_group_is_ipc_group": true,
+          "dir_mode_is_2751": true,
+          "ipc_group_member_can_connect": true,
+          "outsider_can_stat_known_name_residual": true,
+          "outsider_cannot_connect": true,
+          "outsider_cannot_list_directory": true,
+          "socket_group_is_ipc_group_via_setgid": true,
+          "socket_is_a_socket": true,
+          "socket_mode_is_0660": true
+        },
+        "group_member_client": {
+          "connect": "ok"
+        },
+        "ipc_gid": 985,
+        "outsider": {
+          "connect": "EACCES",
+          "listdir": "EACCES",
+          "stat_known_socket": "ok",
+          "stat_mode": "0o660"
+        },
+        "ratified_profile": true,
+        "socket_gid": 985,
+        "socket_is_socket": true,
+        "socket_mode": "0o660",
+        "socket_uid": 999
+      },
+      "reason": "ratified 2751/0660 profile holds: outsider stats the known name only (accepted residual), cannot list or connect; the group member connects",
+      "status": "PASS"
+    },
+    "NC4-03d": {
+      "facts": {
+        "allowlisted_client_reaches_core": true,
+        "empty_allowlist_refused": true,
+        "non_allowlisted_group_member_refused": true
+      },
+      "observed": {
+        "allowlisted_client_response": "{\"status\": \"stub-core-reached\"}",
+        "empty_allowlist": "refused",
+        "facts": {
+          "allowlisted_client_reaches_core": true,
+          "empty_allowlist_refused": true,
+          "non_allowlisted_group_member_refused": true
+        },
+        "non_allowlisted_group_member_response": "{\"code\": \"PEER_NOT_ALLOWED\", \"outcome\": \"refused\", \"reasons\": [], \"request_id\": null, \"schema\": \"mvp-ingress-result/1\"}",
+        "ratified_profile": true
+      },
+      "reason": "peer-UID allowlist enforced by the pinned server.serve: allowlisted uid served, non-allowlisted group member PEER_NOT_ALLOWED",
+      "status": "PASS"
+    },
+    "record": {
+      "affects_deterministic_verdict": false,
+      "host_dependent": true,
+      "kernel": "7.0.0-1017-azure",
+      "profile": "approved",
+      "schema": "cognous.nc4-03-host-record/1",
+      "subcases": [
+        {
+          "id": "NC4-03a",
+          "name": "yama_ptrace_scope",
+          "observed": {
+            "ptrace_scope": "1"
+          },
+          "reason": "kernel.yama.ptrace_scope >= 1",
+          "status": "PASS"
+        },
+        {
+          "id": "NC4-03b",
+          "name": "uid_separation",
+          "observed": {
+            "client_proc": {
+              "cap_eff": [
+                "0000000000000000"
+              ],
+              "gid": [
+                "986",
+                "986",
+                "986",
+                "986"
+              ],
+              "groups": [],
+              "uid": [
+                "997",
+                "997",
+                "997",
+                "997"
+              ]
+            },
+            "client_uid": 997,
+            "facts": {
+              "client_and_ingress_distinct_primary_groups": true,
+              "client_dropped_capabilities": true,
+              "client_effective_uid_is_declared": true,
+              "client_nonzero_and_distinct_from_ingress": true,
+              "ingress_not_root_or_optout": true,
+              "outsider_distinct_from_ingress_and_client": true,
+              "outsider_dropped_capabilities": true,
+              "outsider_effective_uid_is_declared": true
+            },
+            "ingress_uid": 999,
+            "outsider_proc": {
+              "cap_eff": [
+                "0000000000000000"
+              ],
+              "gid": [
+                "65533",
+                "65533",
+                "65533",
+                "65533"
+              ],
+              "groups": [],
+              "uid": [
+                "65533",
+                "65533",
+                "65533",
+                "65533"
+              ]
+            },
+            "outsider_uid": 65533,
+            "ratified_profile": true
+          },
+          "reason": "dedicated ingress, client and outsider identities are distinct, unprivileged and without capabilities",
+          "status": "PASS"
+        },
+        {
+          "id": "NC4-03c",
+          "name": "ipc_2751_socket_profile",
+          "observed": {
+            "dir_gid": 985,
+            "dir_mode": "0o2751",
+            "dir_uid": 999,
+            "facts": {
+              "dir_group_is_ipc_group": true,
+              "dir_mode_is_2751": true,
+              "ipc_group_member_can_connect": true,
+              "outsider_can_stat_known_name_residual": true,
+              "outsider_cannot_connect": true,
+              "outsider_cannot_list_directory": true,
+              "socket_group_is_ipc_group_via_setgid": true,
+              "socket_is_a_socket": true,
+              "socket_mode_is_0660": true
+            },
+            "group_member_client": {
+              "connect": "ok"
+            },
+            "ipc_gid": 985,
+            "outsider": {
+              "connect": "EACCES",
+              "listdir": "EACCES",
+              "stat_known_socket": "ok",
+              "stat_mode": "0o660"
+            },
+            "ratified_profile": true,
+            "socket_gid": 985,
+            "socket_is_socket": true,
+            "socket_mode": "0o660",
+            "socket_uid": 999
+          },
+          "reason": "ratified 2751/0660 profile holds: outsider stats the known name only (accepted residual), cannot list or connect; the group member connects",
+          "status": "PASS"
+        },
+        {
+          "id": "NC4-03d",
+          "name": "peer_uid_allowlist",
+          "observed": {
+            "allowlisted_client_response": "{\"status\": \"stub-core-reached\"}",
+            "empty_allowlist": "refused",
+            "facts": {
+              "allowlisted_client_reaches_core": true,
+              "empty_allowlist_refused": true,
+              "non_allowlisted_group_member_refused": true
+            },
+            "non_allowlisted_group_member_response": "{\"code\": \"PEER_NOT_ALLOWED\", \"outcome\": \"refused\", \"reasons\": [], \"request_id\": null, \"schema\": \"mvp-ingress-result/1\"}",
+            "ratified_profile": true
+          },
+          "reason": "peer-UID allowlist enforced by the pinned server.serve: allowlisted uid served, non-allowlisted group member PEER_NOT_ALLOWED",
+          "status": "PASS"
+        }
+      ]
+    },
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "nc_ambiguous": {
+    "destination": {
+      "claim_state_after_first": "consumed",
+      "effect_count": 1,
+      "effect_count_after_reconcile": 1
+    },
+    "export": {
+      "error": null,
+      "ok": true
+    },
+    "first": {
+      "acknowledged": false,
+      "attempted": true,
+      "error": "synthetic acknowledgement unavailable after atomic commit",
+      "has_observation": true,
+      "newly_executed": false,
+      "observation": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      },
+      "observed_state": "applied",
+      "status": "unknown"
+    },
+    "reconcile": {
+      "error": null,
+      "ok": true,
+      "value": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      }
+    },
+    "reconcile_unavailable": {
+      "acknowledged": false,
+      "attempted": true,
+      "effect_count": 1,
+      "error": "synthetic acknowledgement unavailable after atomic commit",
+      "has_observation": true,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "reason": "reconciliation_unavailable",
+      "retry_eligible": false,
+      "status": "unknown"
+    },
+    "recovery": {
+      "reason": null,
+      "reconcile_retry_eligible": false,
+      "retry_eligible": false,
+      "state": null,
+      "status": "applied",
+      "status_or_state": "applied"
+    },
+    "replay": {
+      "all_reports_complete": true,
+      "bundle_sha256": "90ede3707a6229d0d02dc66129b7f36e76f58b9d9f0d338d94afbfc817a1c532",
+      "error": null,
+      "n_records": 40,
+      "n_reports": 1,
+      "ok": true
+    },
+    "retry": {
+      "acknowledged": false,
+      "attempted": false,
+      "error": "execution claim is not usable",
+      "has_observation": false,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "raised": false,
+      "status": "denied"
+    },
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "nc_authority_gates": {
+    "control": {
+      "acknowledged": true,
+      "attempted": true,
+      "effect_count": 1,
+      "error": null,
+      "has_observation": true,
+      "newly_executed": true,
+      "observed_state": "applied",
+      "status": "executed"
+    },
+    "evidence": {
+      "expired": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": "issued",
+        "effect_count": 0,
+        "error": "authoritative evidence expired",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "invalid_state": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": "issued",
+        "effect_count": 0,
+        "error": "authoritative evidence state invalid",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "missing": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": "issued",
+        "effect_count": 0,
+        "error": "authoritative evidence state unavailable",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "missing_at_claim_issuance": {
+        "claim_ok": false,
+        "effect_count": 0,
+        "error": {
+          "code": null,
+          "message": "authorization-critical inputs changed before claim issuance",
+          "type": "PermissionError"
+        }
+      }
+    },
+    "stale_or_mismatched": {
+      "authority_advanced_after_claim": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": "issued",
+        "effect_count": 0,
+        "error": "authoritative grant state invalid",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "claim_expired": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": "issued",
+        "effect_count": 0,
+        "error": "execution claim outside validity interval",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "envelope_amount_mismatch": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": "issued",
+        "effect_count": 0,
+        "error": "execution claim operation mismatch: amount,operation_commitment,proposal_commitment",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "envelope_grant_revision_mismatch": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": "issued",
+        "effect_count": 0,
+        "error": "operation_identity_binding_mismatch",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "resolver_revision_changed_before_claim": {
+        "claim_ok": false,
+        "effect_count": 0,
+        "error": {
+          "code": null,
+          "message": "authorization-critical inputs changed before claim issuance",
+          "type": "PermissionError"
+        }
+      }
+    },
+    "status": "ran",
+    "unauthorized": {
+      "forged_claim_id": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_state_after": null,
+        "effect_count": 0,
+        "error": "execution claim unavailable",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "not_authorized_decision": {
+        "claim_ok": false,
+        "decision_result": "hold",
+        "effect_count": 0,
+        "error": {
+          "code": null,
+          "message": "decision is not authorized",
+          "type": "PermissionError"
+        }
+      }
+    },
+    "work_dir_removed": true
+  },
+  "nc_custody": {
+    "authority_unreadable": {
+      "claim_ok": false,
+      "effect_count": 0,
+      "error": {
+        "code": null,
+        "message": "authorization-critical inputs changed before claim issuance",
+        "type": "PermissionError"
+      }
+    },
+    "destination_unavailable": {
+      "acknowledged": false,
+      "attempted": true,
+      "effect_count": 0,
+      "error": "OperationalError",
+      "has_observation": true,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "raised": false,
+      "retry_eligible": false,
+      "status": "unknown",
+      "store_absent_during_outage": true
+    },
+    "export_withheld": {
+      "control_accepted": true,
+      "control_error": null,
+      "import_error": null,
+      "import_ok": true,
+      "reported_complete": false
+    },
+    "journal_omitted": {
+      "control_accepted": true,
+      "control_error": null,
+      "tampered_accepted": false,
+      "tampered_error": {
+        "code": "journal_unbound_completion",
+        "message": "typed refusal profile: completed journal differs from actual resolution check",
+        "type": "ImportContractError"
+      }
+    },
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "nc_duplicate": {
+    "first": {
+      "acknowledged": true,
+      "attempted": true,
+      "error": null,
+      "has_observation": true,
+      "newly_executed": true,
+      "observed_state": "applied",
+      "status": "executed"
+    },
+    "renewal_cap2": {
+      "effect_count": 1,
+      "error": "operation_already_committed",
+      "r1": {
+        "acknowledged": true,
+        "attempted": true,
+        "error": null,
+        "has_observation": true,
+        "newly_executed": true,
+        "observed_state": "applied",
+        "status": "executed"
+      },
+      "r2": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "operation_already_committed",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "renewed_decision": "authorized"
+    },
+    "same_claim": {
+      "acknowledged": false,
+      "attempted": false,
+      "effect_count": 1,
+      "error": "execution claim is not usable",
+      "has_observation": false,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "status": "denied"
+    },
+    "second_claim": {
+      "acknowledged": false,
+      "attempted": false,
+      "effect_count": 1,
+      "error": "authoritative effect budget exhausted",
+      "executed": false,
+      "has_observation": false,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "provisioned": true,
+      "status": "denied"
+    },
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "nc_ingress_ambiguity": {
+    "ack": {
+      "client_response": {
+        "code": "OUTCOME_UNKNOWN",
+        "outcome": "unknown"
+      },
+      "executor_acknowledged": false,
+      "executor_attempted": true,
+      "executor_error": "post-commit stage failed after atomic commit: RuntimeError",
+      "executor_status": "unknown",
+      "hook_fired": true
+    },
+    "boundary": {
+      "effect_count_after_first": 1,
+      "effects_after_first": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_before": [],
+      "execute_claim_atomic_called": true,
+      "simulate_received_by_destination": null,
+      "simulate_received_by_executor": null
+    },
+    "evidence_level": "supported-ingress",
+    "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
+    "fault_injection": {
+      "client_chooses_simulate": false,
+      "fault_mode": [
+        "after_commit",
+        "bind_fresh"
+      ],
+      "request_schema_changed": false,
+      "where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",
+      "wrapper": "suites/mvp-chain/_ingress_fault_wrapper.py",
+      "wrapper_sha256": "3489a376ce2a096eb18d81ed72fc362107bd01a4032a770655b9a8af4a0402ca"
+    },
+    "ingress": {
+      "client_euid": 65534,
+      "client_groups": [],
+      "client_is_distinct_unprivileged": true,
+      "client_uid": 65534,
+      "hub_head": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "ingress_uid": 0,
+      "probe_ran": true,
+      "server_alive_after_fault": true
+    },
+    "reconcile": {
+      "claims_after_reconcile": {
+        "45acc288-23b5-4c82-9566-a35d33ac50c5": "issued",
+        "ccea0477-042f-429a-8606-197eab6b121e": "consumed"
+      },
+      "effect_count_after_reconcile": 1,
+      "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "effect_id_matches_owner_readback": true,
+      "effects_after_reconcile": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "error": null,
+      "ok": true,
+      "ran": true,
+      "retry_eligible": false,
+      "state_or_status": "applied",
+      "value": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      }
+    },
+    "reuse": {
+      "claim_states_after_reuse": {
+        "45acc288-23b5-4c82-9566-a35d33ac50c5": "issued",
+        "ccea0477-042f-429a-8606-197eab6b121e": "consumed"
+      },
+      "consumed_claims_unchanged_ids": true,
+      "destination_atomic_calls_after_fresh": 2,
+      "destination_effect_tables_unchanged": true,
+      "effect_count_after_reuse": 1,
+      "effects_after_replay_unchanged": true,
+      "effects_after_reuse": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_unchanged": true,
+      "executor_calls_after_first": 1,
+      "executor_calls_after_fresh": 2,
+      "executor_calls_after_replay": 1,
+      "fresh_request_id_response": {
+        "code": "EXECUTION_DENIED",
+        "outcome": "refused"
+      },
+      "ledger_fresh_state": "settled",
+      "new_consumed_claims_after_reuse": [],
+      "replay_ingress_level_only": true,
+      "replay_response": {
+        "code": "REPLAY",
+        "outcome": "refused"
+      },
+      "second_acknowledged": false,
+      "second_attempted": false,
+      "second_claim_id_differs_from_first": true,
+      "second_error": "authoritative effect budget exhausted",
+      "second_executor_result": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_id": "45acc288-23b5-4c82-9566-a35d33ac50c5",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "error": "authoritative effect budget exhausted",
+        "newly_executed": false,
+        "observation": {},
+        "observed_state": "unknown",
+        "simulate_received": null,
+        "status": "denied"
+      },
+      "second_simulate_received": null,
+      "second_status": "denied"
+    },
+    "status": "ran",
+    "unknown": {
+      "claim_consumed_after_first": true,
+      "claim_states_after_first": {
+        "ccea0477-042f-429a-8606-197eab6b121e": "consumed"
+      },
+      "executor_observation": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      },
+      "executor_retry_eligible": false,
+      "ledger_outcome": "unknown",
+      "ledger_rows": [
+        [
+          "case-1",
+          "c1b4eb9bc9cfdbbe443acc233868f0728270390cd7099254f4d7fd3058e9db5d",
+          "settled",
+          "unknown",
+          "OUTCOME_UNKNOWN",
+          1793418371.8643122
+        ]
+      ],
+      "ledger_state": "settled"
+    },
+    "work_dir_removed": true
+  },
+  "nc_ingress_ambiguity_allow_second_commit": {
+    "ack": {
+      "client_response": {
+        "code": "OUTCOME_UNKNOWN",
+        "outcome": "unknown"
+      },
+      "executor_acknowledged": false,
+      "executor_attempted": true,
+      "executor_error": "post-commit stage failed after atomic commit: RuntimeError",
+      "executor_status": "unknown",
+      "hook_fired": true
+    },
+    "boundary": {
+      "effect_count_after_first": 1,
+      "effects_after_first": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_before": [],
+      "execute_claim_atomic_called": true,
+      "simulate_received_by_destination": null,
+      "simulate_received_by_executor": null
+    },
+    "evidence_level": "supported-ingress",
+    "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
+    "fault_injection": {
+      "client_chooses_simulate": false,
+      "fault_mode": [
+        "after_commit",
+        "allow_second_commit",
+        "bind_fresh"
+      ],
+      "request_schema_changed": false,
+      "where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",
+      "wrapper": "suites/mvp-chain/_ingress_fault_wrapper.py",
+      "wrapper_sha256": "3489a376ce2a096eb18d81ed72fc362107bd01a4032a770655b9a8af4a0402ca"
+    },
+    "ingress": {
+      "client_euid": 65534,
+      "client_groups": [],
+      "client_is_distinct_unprivileged": true,
+      "client_uid": 65534,
+      "hub_head": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "ingress_uid": 0,
+      "probe_ran": true,
+      "server_alive_after_fault": true
+    },
+    "reconcile": {
+      "claims_after_reconcile": {
+        "88769a53-e1b7-45e4-a93d-2212398b419c": "issued",
+        "b7ade771-67a3-4d37-8466-4cd998651abf": "consumed"
+      },
+      "effect_count_after_reconcile": 1,
+      "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "effect_id_matches_owner_readback": true,
+      "effects_after_reconcile": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "error": null,
+      "ok": true,
+      "ran": true,
+      "retry_eligible": false,
+      "state_or_status": "applied",
+      "value": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      }
+    },
+    "reuse": {
+      "claim_states_after_reuse": {
+        "88769a53-e1b7-45e4-a93d-2212398b419c": "issued",
+        "b7ade771-67a3-4d37-8466-4cd998651abf": "consumed"
+      },
+      "consumed_claims_unchanged_ids": true,
+      "destination_atomic_calls_after_fresh": 2,
+      "destination_effect_tables_unchanged": true,
+      "effect_count_after_reuse": 1,
+      "effects_after_replay_unchanged": true,
+      "effects_after_reuse": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_unchanged": true,
+      "executor_calls_after_first": 1,
+      "executor_calls_after_fresh": 2,
+      "executor_calls_after_replay": 1,
+      "fresh_request_id_response": {
+        "code": "OUTCOME_UNKNOWN",
+        "outcome": "unknown"
+      },
+      "ledger_fresh_state": "settled",
+      "new_consumed_claims_after_reuse": [],
+      "replay_ingress_level_only": true,
+      "replay_response": {
+        "code": "REPLAY",
+        "outcome": "refused"
+      },
+      "second_acknowledged": false,
+      "second_attempted": true,
+      "second_claim_id_differs_from_first": true,
+      "second_error": "IntegrityError",
+      "second_executor_result": {
+        "acknowledged": false,
+        "attempted": true,
+        "claim_id": "88769a53-e1b7-45e4-a93d-2212398b419c",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "error": "IntegrityError",
+        "newly_executed": false,
+        "observation": {
+          "claim_state": "issued",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "reason": "retained_effect_operation_binding_mismatch",
+          "retry_eligible": false,
+          "status": "hold"
+        },
+        "observed_state": "unknown",
+        "simulate_received": null,
+        "status": "unknown"
+      },
+      "second_simulate_received": null,
+      "second_status": "unknown"
+    },
+    "status": "ran",
+    "unknown": {
+      "claim_consumed_after_first": true,
+      "claim_states_after_first": {
+        "b7ade771-67a3-4d37-8466-4cd998651abf": "consumed"
+      },
+      "executor_observation": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      },
+      "executor_retry_eligible": false,
+      "ledger_outcome": "unknown",
+      "ledger_rows": [
+        [
+          "case-1",
+          "c1b4eb9bc9cfdbbe443acc233868f0728270390cd7099254f4d7fd3058e9db5d",
+          "settled",
+          "unknown",
+          "OUTCOME_UNKNOWN",
+          1793418391.5502381
+        ]
+      ],
+      "ledger_state": "settled"
+    },
+    "work_dir_removed": true
+  },
+  "nc_ingress_ambiguity_before_commit": {
+    "ack": {
+      "client_response": {
+        "code": "EXECUTION_DENIED",
+        "outcome": "refused"
+      },
+      "executor_acknowledged": false,
+      "executor_attempted": false,
+      "executor_error": "RuntimeError",
+      "executor_status": "denied",
+      "hook_fired": true
+    },
+    "boundary": {
+      "effect_count_after_first": 0,
+      "effects_after_first": [],
+      "effects_before": [],
+      "execute_claim_atomic_called": true,
+      "simulate_received_by_destination": null,
+      "simulate_received_by_executor": null
+    },
+    "evidence_level": "supported-ingress",
+    "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
+    "fault_injection": {
+      "client_chooses_simulate": false,
+      "fault_mode": [
+        "before_commit",
+        "bind_fresh"
+      ],
+      "request_schema_changed": false,
+      "where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",
+      "wrapper": "suites/mvp-chain/_ingress_fault_wrapper.py",
+      "wrapper_sha256": "3489a376ce2a096eb18d81ed72fc362107bd01a4032a770655b9a8af4a0402ca"
+    },
+    "ingress": {
+      "client_euid": 65534,
+      "client_groups": [],
+      "client_is_distinct_unprivileged": true,
+      "client_uid": 65534,
+      "hub_head": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "ingress_uid": 0,
+      "probe_ran": true,
+      "server_alive_after_fault": true
+    },
+    "reconcile": {
+      "claims_after_reconcile": {
+        "66fef835-5320-4c32-ac81-4df57dc3e34d": "issued",
+        "c1172875-35a8-4830-a3aa-6e07c0d3641c": "consumed"
+      },
+      "effect_count_after_reconcile": 1,
+      "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "effect_id_matches_owner_readback": false,
+      "effects_after_reconcile": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "error": null,
+      "ok": true,
+      "ran": true,
+      "retry_eligible": false,
+      "state_or_status": "hold",
+      "value": {
+        "claim_state": "issued",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "reason": "retained_effect_operation_binding_mismatch",
+        "retry_eligible": false,
+        "status": "hold"
+      }
+    },
+    "reuse": {
+      "claim_states_after_reuse": {
+        "66fef835-5320-4c32-ac81-4df57dc3e34d": "issued",
+        "c1172875-35a8-4830-a3aa-6e07c0d3641c": "consumed"
+      },
+      "consumed_claims_unchanged_ids": true,
+      "destination_atomic_calls_after_fresh": 2,
+      "destination_effect_tables_unchanged": false,
+      "effect_count_after_reuse": 1,
+      "effects_after_replay_unchanged": true,
+      "effects_after_reuse": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_unchanged": false,
+      "executor_calls_after_first": 1,
+      "executor_calls_after_fresh": 2,
+      "executor_calls_after_replay": 1,
+      "fresh_request_id_response": {
+        "code": "EXECUTED",
+        "outcome": "executed"
+      },
+      "ledger_fresh_state": "settled",
+      "new_consumed_claims_after_reuse": [
+        "c1172875-35a8-4830-a3aa-6e07c0d3641c"
+      ],
+      "replay_ingress_level_only": true,
+      "replay_response": {
+        "code": "REPLAY",
+        "outcome": "refused"
+      },
+      "second_acknowledged": true,
+      "second_attempted": true,
+      "second_claim_id_differs_from_first": true,
+      "second_error": null,
+      "second_executor_result": {
+        "acknowledged": true,
+        "attempted": true,
+        "claim_id": "c1172875-35a8-4830-a3aa-6e07c0d3641c",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "error": null,
+        "newly_executed": true,
+        "observation": {
+          "destination_state": {
+            "amount": 10.0,
+            "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+            "grant_id": "urn:cognous:grant:routine-1",
+            "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+            "payload": {
+              "customer_id": "customer-001",
+              "refund_reason": "duplicate"
+            },
+            "state": "applied",
+            "target": "urn:cognous:synthetic-account:customer-001",
+            "unit": "USD"
+          },
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "state": "applied"
+        },
+        "observed_state": "applied",
+        "simulate_received": null,
+        "status": "executed"
+      },
+      "second_simulate_received": null,
+      "second_status": "executed"
+    },
+    "status": "ran",
+    "unknown": {
+      "claim_consumed_after_first": false,
+      "claim_states_after_first": {
+        "66fef835-5320-4c32-ac81-4df57dc3e34d": "issued"
+      },
+      "executor_observation": {},
+      "executor_retry_eligible": null,
+      "ledger_outcome": "refused",
+      "ledger_rows": [
+        [
+          "case-1",
+          "c1b4eb9bc9cfdbbe443acc233868f0728270390cd7099254f4d7fd3058e9db5d",
+          "settled",
+          "refused",
+          "EXECUTION_DENIED",
+          1793418390.263503
+        ]
+      ],
+      "ledger_state": "settled"
+    },
+    "work_dir_removed": true
+  },
+  "nc_ingress_ambiguity_forced_simulate": {
+    "ack": {
+      "client_response": {
+        "code": "OUTCOME_UNKNOWN",
+        "outcome": "unknown"
+      },
+      "executor_acknowledged": false,
+      "executor_attempted": true,
+      "executor_error": "post-commit stage failed after atomic commit: RuntimeError",
+      "executor_status": "unknown",
+      "hook_fired": true
+    },
+    "boundary": {
+      "effect_count_after_first": 1,
+      "effects_after_first": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_before": [],
+      "execute_claim_atomic_called": true,
+      "simulate_received_by_destination": "lost_ack",
+      "simulate_received_by_executor": "lost_ack"
+    },
+    "evidence_level": "supported-ingress",
+    "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
+    "fault_injection": {
+      "client_chooses_simulate": false,
+      "fault_mode": [
+        "after_commit",
+        "bind_fresh",
+        "forced_simulate"
+      ],
+      "request_schema_changed": false,
+      "where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",
+      "wrapper": "suites/mvp-chain/_ingress_fault_wrapper.py",
+      "wrapper_sha256": "3489a376ce2a096eb18d81ed72fc362107bd01a4032a770655b9a8af4a0402ca"
+    },
+    "ingress": {
+      "client_euid": 65534,
+      "client_groups": [],
+      "client_is_distinct_unprivileged": true,
+      "client_uid": 65534,
+      "hub_head": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "ingress_uid": 0,
+      "probe_ran": true,
+      "server_alive_after_fault": true
+    },
+    "reconcile": {
+      "claims_after_reconcile": {
+        "3fe713cf-1ab1-4019-b26e-cd5e65f1c0c3": "consumed",
+        "573724e4-bd18-459b-b83c-11e8a2abe384": "issued"
+      },
+      "effect_count_after_reconcile": 1,
+      "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "effect_id_matches_owner_readback": true,
+      "effects_after_reconcile": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "error": null,
+      "ok": true,
+      "ran": true,
+      "retry_eligible": false,
+      "state_or_status": "applied",
+      "value": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      }
+    },
+    "reuse": {
+      "claim_states_after_reuse": {
+        "3fe713cf-1ab1-4019-b26e-cd5e65f1c0c3": "consumed",
+        "573724e4-bd18-459b-b83c-11e8a2abe384": "issued"
+      },
+      "consumed_claims_unchanged_ids": true,
+      "destination_atomic_calls_after_fresh": 2,
+      "destination_effect_tables_unchanged": true,
+      "effect_count_after_reuse": 1,
+      "effects_after_replay_unchanged": true,
+      "effects_after_reuse": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_unchanged": true,
+      "executor_calls_after_first": 1,
+      "executor_calls_after_fresh": 2,
+      "executor_calls_after_replay": 1,
+      "fresh_request_id_response": {
+        "code": "EXECUTION_DENIED",
+        "outcome": "refused"
+      },
+      "ledger_fresh_state": "settled",
+      "new_consumed_claims_after_reuse": [],
+      "replay_ingress_level_only": true,
+      "replay_response": {
+        "code": "REPLAY",
+        "outcome": "refused"
+      },
+      "second_acknowledged": false,
+      "second_attempted": false,
+      "second_claim_id_differs_from_first": true,
+      "second_error": "authoritative effect budget exhausted",
+      "second_executor_result": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_id": "573724e4-bd18-459b-b83c-11e8a2abe384",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "error": "authoritative effect budget exhausted",
+        "newly_executed": false,
+        "observation": {},
+        "observed_state": "unknown",
+        "simulate_received": "lost_ack",
+        "status": "denied"
+      },
+      "second_simulate_received": "lost_ack",
+      "second_status": "denied"
+    },
+    "status": "ran",
+    "unknown": {
+      "claim_consumed_after_first": true,
+      "claim_states_after_first": {
+        "3fe713cf-1ab1-4019-b26e-cd5e65f1c0c3": "consumed"
+      },
+      "executor_observation": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      },
+      "executor_retry_eligible": false,
+      "ledger_outcome": "unknown",
+      "ledger_rows": [
+        [
+          "case-1",
+          "c1b4eb9bc9cfdbbe443acc233868f0728270390cd7099254f4d7fd3058e9db5d",
+          "settled",
+          "unknown",
+          "OUTCOME_UNKNOWN",
+          1793418388.868432
+        ]
+      ],
+      "ledger_state": "settled"
+    },
+    "work_dir_removed": true
+  },
+  "nc_ingress_ambiguity_nohook": {
+    "ack": {
+      "client_response": {
+        "code": "EXECUTED",
+        "outcome": "executed"
+      },
+      "executor_acknowledged": true,
+      "executor_attempted": true,
+      "executor_error": null,
+      "executor_status": "executed",
+      "hook_fired": false
+    },
+    "boundary": {
+      "effect_count_after_first": 1,
+      "effects_after_first": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_before": [],
+      "execute_claim_atomic_called": true,
+      "simulate_received_by_destination": null,
+      "simulate_received_by_executor": null
+    },
+    "evidence_level": "supported-ingress",
+    "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
+    "fault_injection": {
+      "client_chooses_simulate": false,
+      "fault_mode": [
+        "bind_fresh",
+        "none"
+      ],
+      "request_schema_changed": false,
+      "where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",
+      "wrapper": "suites/mvp-chain/_ingress_fault_wrapper.py",
+      "wrapper_sha256": "3489a376ce2a096eb18d81ed72fc362107bd01a4032a770655b9a8af4a0402ca"
+    },
+    "ingress": {
+      "client_euid": 65534,
+      "client_groups": [],
+      "client_is_distinct_unprivileged": true,
+      "client_uid": 65534,
+      "hub_head": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "ingress_uid": 0,
+      "probe_ran": true,
+      "server_alive_after_fault": true
+    },
+    "reconcile": {
+      "claims_after_reconcile": {
+        "01afb193-e6f9-41e3-bf0a-0c40bb100445": "consumed",
+        "6d8da553-260f-48fa-a24b-a0a43ae920b2": "issued"
+      },
+      "effect_count_after_reconcile": 1,
+      "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "effect_id_matches_owner_readback": true,
+      "effects_after_reconcile": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "error": null,
+      "ok": true,
+      "ran": true,
+      "retry_eligible": false,
+      "state_or_status": "applied",
+      "value": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      }
+    },
+    "reuse": {
+      "claim_states_after_reuse": {
+        "01afb193-e6f9-41e3-bf0a-0c40bb100445": "consumed",
+        "6d8da553-260f-48fa-a24b-a0a43ae920b2": "issued"
+      },
+      "consumed_claims_unchanged_ids": true,
+      "destination_atomic_calls_after_fresh": 2,
+      "destination_effect_tables_unchanged": true,
+      "effect_count_after_reuse": 1,
+      "effects_after_replay_unchanged": true,
+      "effects_after_reuse": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_unchanged": true,
+      "executor_calls_after_first": 1,
+      "executor_calls_after_fresh": 2,
+      "executor_calls_after_replay": 1,
+      "fresh_request_id_response": {
+        "code": "EXECUTION_DENIED",
+        "outcome": "refused"
+      },
+      "ledger_fresh_state": "settled",
+      "new_consumed_claims_after_reuse": [],
+      "replay_ingress_level_only": true,
+      "replay_response": {
+        "code": "REPLAY",
+        "outcome": "refused"
+      },
+      "second_acknowledged": false,
+      "second_attempted": false,
+      "second_claim_id_differs_from_first": true,
+      "second_error": "authoritative effect budget exhausted",
+      "second_executor_result": {
+        "acknowledged": false,
+        "attempted": false,
+        "claim_id": "6d8da553-260f-48fa-a24b-a0a43ae920b2",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "error": "authoritative effect budget exhausted",
+        "newly_executed": false,
+        "observation": {},
+        "observed_state": "unknown",
+        "simulate_received": null,
+        "status": "denied"
+      },
+      "second_simulate_received": null,
+      "second_status": "denied"
+    },
+    "status": "ran",
+    "unknown": {
+      "claim_consumed_after_first": true,
+      "claim_states_after_first": {
+        "01afb193-e6f9-41e3-bf0a-0c40bb100445": "consumed"
+      },
+      "executor_observation": {
+        "destination_state": {
+          "amount": 10.0,
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "grant_id": "urn:cognous:grant:routine-1",
+          "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+          "payload": {
+            "customer_id": "customer-001",
+            "refund_reason": "duplicate"
+          },
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:customer-001",
+          "unit": "USD"
+        },
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "state": "applied"
+      },
+      "executor_retry_eligible": null,
+      "ledger_outcome": "executed",
+      "ledger_rows": [
+        [
+          "case-1",
+          "c1b4eb9bc9cfdbbe443acc233868f0728270390cd7099254f4d7fd3058e9db5d",
+          "settled",
+          "executed",
+          "EXECUTED",
+          1793418387.304151
+        ]
+      ],
+      "ledger_state": "settled"
+    },
+    "work_dir_removed": true
+  },
+  "nc_ingress_ambiguity_unbound_fresh": {
+    "ack": {
+      "client_response": {
+        "code": "OUTCOME_UNKNOWN",
+        "outcome": "unknown"
+      },
+      "executor_acknowledged": false,
+      "executor_attempted": true,
+      "executor_error": "post-commit stage failed after atomic commit: RuntimeError",
+      "executor_status": "unknown",
+      "hook_fired": true
+    },
+    "boundary": {
+      "effect_count_after_first": 1,
+      "effects_after_first": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_before": [],
+      "execute_claim_atomic_called": true,
+      "simulate_received_by_destination": null,
+      "simulate_received_by_executor": null
+    },
+    "evidence_level": "supported-ingress",
+    "executor_level_evidence": "NC2-01..05 and test_ruling4_lost_ack.py (simulate='lost_ack', direct executor, NOT this row)",
+    "fault_injection": {
+      "client_chooses_simulate": false,
+      "fault_mode": [
+        "after_commit"
+      ],
+      "request_schema_changed": false,
+      "where": "trusted qualification harness only: owner-started wrapper of the pinned hub server; Runtime seam _transaction_stage('after_commit') raises once",
+      "wrapper": "suites/mvp-chain/_ingress_fault_wrapper.py",
+      "wrapper_sha256": "3489a376ce2a096eb18d81ed72fc362107bd01a4032a770655b9a8af4a0402ca"
+    },
+    "ingress": {
+      "client_euid": 65534,
+      "client_groups": [],
+      "client_is_distinct_unprivileged": true,
+      "client_uid": 65534,
+      "hub_head": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "ingress_uid": 0,
+      "probe_ran": true,
+      "server_alive_after_fault": true
+    },
+    "reconcile": {
+      "claims_after_reconcile": {
+        "0e1e496c-0384-41d0-8cf2-9a84735d9c8b": "consumed"
+      },
+      "effect_count_after_reconcile": 1,
+      "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+      "effect_id_matches_owner_readback": true,
+      "effects_after_reconcile": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "error": null,
+      "ok": true,
+      "ran": true,
+      "retry_eligible": false,
+      "state_or_status": "applied",
+      "value": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      }
+    },
+    "reuse": {
+      "claim_states_after_reuse": {
+        "0e1e496c-0384-41d0-8cf2-9a84735d9c8b": "consumed"
+      },
+      "consumed_claims_unchanged_ids": true,
+      "destination_atomic_calls_after_fresh": 1,
+      "destination_effect_tables_unchanged": true,
+      "effect_count_after_reuse": 1,
+      "effects_after_replay_unchanged": true,
+      "effects_after_reuse": [
+        [
+          "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "applied",
+          10.0
+        ]
+      ],
+      "effects_unchanged": true,
+      "executor_calls_after_first": 1,
+      "executor_calls_after_fresh": 1,
+      "executor_calls_after_replay": 1,
+      "fresh_request_id_response": {
+        "code": "DECISION_HELD",
+        "outcome": "held"
+      },
+      "ledger_fresh_state": null,
+      "new_consumed_claims_after_reuse": [],
+      "replay_ingress_level_only": true,
+      "replay_response": {
+        "code": "REPLAY",
+        "outcome": "refused"
+      },
+      "second_acknowledged": null,
+      "second_attempted": null,
+      "second_claim_id_differs_from_first": false,
+      "second_error": null,
+      "second_executor_result": null,
+      "second_simulate_received": null,
+      "second_status": null
+    },
+    "status": "ran",
+    "unknown": {
+      "claim_consumed_after_first": true,
+      "claim_states_after_first": {
+        "0e1e496c-0384-41d0-8cf2-9a84735d9c8b": "consumed"
+      },
+      "executor_observation": {
+        "claim_state": "consumed",
+        "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "operation_digest": "sha256:d31cd1938ac81e3278f9f1e777f2f790a6a13268f5f4ba3cf8abe719379e4549",
+        "retry_eligible": false,
+        "status": "applied"
+      },
+      "executor_retry_eligible": false,
+      "ledger_outcome": "unknown",
+      "ledger_rows": [
+        [
+          "case-1",
+          "c1b4eb9bc9cfdbbe443acc233868f0728270390cd7099254f4d7fd3058e9db5d",
+          "settled",
+          "unknown",
+          "OUTCOME_UNKNOWN",
+          1793418392.8922195
+        ]
+      ],
+      "ledger_state": "settled"
+    },
+    "work_dir_removed": true
+  },
+  "nc_ledger_pruning": {
+    "control": {
+      "decision_reasons": [
+        "operation_renewal_unrecorded"
+      ],
+      "decision_result": "hold",
+      "ledger_rows": 1,
+      "run_json_sha256": "22312771702b2b895e76fbebc211a3bd8e6f6a733f1bae916f620cfb6a99edf9"
+    },
+    "first": {
+      "acknowledged": true,
+      "attempted": true,
+      "destination_operation_rows": 1,
+      "effect_count": 1,
+      "effect_ids": [
+        "sha256:1fb3eee0b1e324d720262efdc9c08eb5533a9446619e74c4a61458c642eee079"
+      ],
+      "error": null,
+      "expected_effect_id": "sha256:1fb3eee0b1e324d720262efdc9c08eb5533a9446619e74c4a61458c642eee079",
+      "has_observation": true,
+      "newly_executed": true,
+      "observed_state": "applied",
+      "operation_id": "op-order-100/refund-1",
+      "status": "executed"
+    },
+    "pruned": {
+      "claim_issued": true,
+      "claim_state_after_second": "issued",
+      "cp_decision_authorized_on_pruned_record": true,
+      "cp_decision_reasons": [],
+      "cp_decision_result": "authorized",
+      "destination_operation_rows_after": 1,
+      "destination_operation_rows_before_second": 1,
+      "effect_count": 1,
+      "effect_ids_after": [
+        "sha256:1fb3eee0b1e324d720262efdc9c08eb5533a9446619e74c4a61458c642eee079"
+      ],
+      "only_original_effect": true,
+      "prune_cp": true,
+      "rows_after": 0,
+      "rows_before": 1,
+      "rows_removed": 1,
+      "run_json_sha256_pruned": "13c77cbd7f09ae8446cddf6b4daa45b718f8492c90f64d1dbba4041d50e7400b",
+      "second_effect_id_differs_from_first": true,
+      "second_execute": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "operation_already_committed",
+        "has_observation": false,
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "raised": false,
+        "status": "denied"
+      }
+    },
+    "status": "ran",
+    "variant": {
+      "prune_cp": true,
+      "prune_destination": false
+    },
+    "verifier_informational": {
+      "could_not_check_check_ids": [
+        "v4.ledger.keys",
+        "v4.ledger.effects-have-authorized-decisions",
+        "v4.ledger.row-matches-binding",
+        "v4.ledger.counts",
+        "v4.ledger.rows-agree-with-attempts",
+        "v4.ledger.acknowledged-attempts-have-rows",
+        "v4.ledger.observations-agree"
+      ],
+      "exit_code": 1,
+      "finding_codes": [
+        "decision_revision_unlicensed",
+        "first_revision_mismatch",
+        "invalid_effect_identity"
+      ],
+      "module_path_under_pin": true,
+      "overall": "reject",
+      "refuted_check_ids": [
+        "v2.profile.operation-identity",
+        "v2.identity.effect-id"
+      ],
+      "report_sha256": "4bc88e3f76d308b20c99ea27fb79764e58f8aeeb3639536a930ffddc8ca9264a"
+    },
+    "work_dir_removed": true
+  },
+  "nc_process_kill": {
+    "after_begin": {
+      "observer_process": {
+        "returncode": 0,
+        "stderr_tail": ""
+      },
+      "pre_recovery": {
+        "files": {
+          "refunds.sqlite3": {
+            "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+            "size": 12288
+          },
+          "refunds.sqlite3-shm": {
+            "sha256": "cdb394e9ea697a2d285056685fec7badd6d70182a525fa9f9e75b8816c2890ce",
+            "size": 32768
+          },
+          "refunds.sqlite3-wal": {
+            "sha256": "bd3ff5f575731c442be8404632fb2186f275294f7ea619b3c8410d067e879a88",
+            "size": 181312
+          }
+        },
+        "run_json_sha256_after_kill": "d84a0ba42c8e9be50df3c46f014e2a1bf00cc18b986bfd1d321845ae9db9d1f6",
+        "run_json_unchanged_by_kill": true,
+        "wal_or_journal_file_present": true
+      },
+      "recovered": {
+        "after_execute_again": {
+          "attempt_event_rows": 2,
+          "attempt_rows": 1,
+          "budget_used": [
+            1
+          ],
+          "claim_state": "consumed",
+          "effect_count": 1,
+          "effect_ids": [
+            "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+          ],
+          "operation_rows": 1,
+          "receipt_rows": 1
+        },
+        "decision_found_in_persisted_record": true,
+        "effect_ids_final_match_expected": true,
+        "effect_ids_match_expected_on_reopen": true,
+        "execute_again": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "has_observation": true,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "raised": null,
+          "status": "executed"
+        },
+        "execute_third": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "execution claim is not usable",
+          "has_observation": false,
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "raised": null,
+          "status": "denied"
+        },
+        "expected_effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "final": {
+          "attempt_event_rows": 2,
+          "attempt_rows": 1,
+          "budget_used": [
+            1
+          ],
+          "claim_state": "consumed",
+          "effect_count": 1,
+          "effect_ids": [
+            "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+          ],
+          "operation_rows": 1,
+          "receipt_rows": 1
+        },
+        "max_effect_count": 1,
+        "observer_is_fresh_process": true,
+        "observer_pid": 4454,
+        "observer_ppid": 4356,
+        "on_reopen": {
+          "attempt_event_rows": 0,
+          "attempt_rows": 0,
+          "budget_used": [
+            0
+          ],
+          "claim_state": "issued",
+          "effect_count": 0,
+          "effect_ids": [],
+          "operation_rows": 0,
+          "receipt_rows": 0
+        },
+        "reconcile_first": {
+          "claim_state": "issued",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_id_matches_expected": true,
+          "raised": null,
+          "reason": "no_durable_effect_for_claim",
+          "retry_eligible": false,
+          "status": "hold"
+        },
+        "reconcile_second": {
+          "claim_state": "consumed",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_id_matches_expected": true,
+          "raised": null,
+          "reason": null,
+          "retry_eligible": false,
+          "status": "applied"
+        },
+        "run_json_sha256_observer_start": "d84a0ba42c8e9be50df3c46f014e2a1bf00cc18b986bfd1d321845ae9db9d1f6",
+        "victim_pid": 4413
+      },
+      "seam": "after_begin",
+      "victim": {
+        "alive_before_kill": true,
+        "completed_without_kill": false,
+        "exit_code": null,
+        "files_before_kill": {
+          "refunds.sqlite3": {
+            "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+            "size": 12288
+          },
+          "refunds.sqlite3-shm": {
+            "sha256": "cdb394e9ea697a2d285056685fec7badd6d70182a525fa9f9e75b8816c2890ce",
+            "size": 32768
+          },
+          "refunds.sqlite3-wal": {
+            "sha256": "bd3ff5f575731c442be8404632fb2186f275294f7ea619b3c8410d067e879a88",
+            "size": 181312
+          }
+        },
+        "kill_signal_sent": 9,
+        "killed_by_sigkill": true,
+        "pid": 4413,
+        "proc_gone_after": true,
+        "proc_state_before_kill": "S",
+        "ready_line": "READY after_begin 4413",
+        "ready_wait_outcome": "ready",
+        "returncode": -9,
+        "run_json_sha256_before_kill": "d84a0ba42c8e9be50df3c46f014e2a1bf00cc18b986bfd1d321845ae9db9d1f6",
+        "seam": "after_begin",
+        "seam_reached": true,
+        "setup": {
+          "claim_id": "81e61e5f-718b-468e-816f-73414cec7d3a",
+          "claim_state_after_provision": "issued",
+          "decision_id": "c2ae5b2a-9ec9-4a5b-821c-1856856a3b82",
+          "destination_class": "SeamDestination",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_ids_before_execute": [],
+          "mode": "block",
+          "pid": 4413,
+          "ppid": 4356,
+          "run_json": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_begin/victim/cp/run.json",
+          "run_json_sha256": "d84a0ba42c8e9be50df3c46f014e2a1bf00cc18b986bfd1d321845ae9db9d1f6",
+          "seam": "after_begin",
+          "sqlite_path": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_begin/victim/sqlite/refunds.sqlite3"
+        },
+        "stderr_tail": "",
+        "stdout": "READY after_begin 4413\n",
+        "term_signal": 9
+      }
+    },
+    "after_commit": {
+      "observer_process": {
+        "returncode": 0,
+        "stderr_tail": ""
+      },
+      "pre_recovery": {
+        "files": {
+          "refunds.sqlite3": {
+            "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+            "size": 12288
+          },
+          "refunds.sqlite3-shm": {
+            "sha256": "be3f88f93fbec49b208374568f5ff3b7721b23ab63ac9ee10368e023f6d89feb",
+            "size": 32768
+          },
+          "refunds.sqlite3-wal": {
+            "sha256": "f68266fddac053fdb785acfbe4ef5a68d5d29207d2ad3863885d25accf6d6afc",
+            "size": 230752
+          }
+        },
+        "run_json_sha256_after_kill": "d95f17edd41061bb80553b0dcfdefb4bac9ff981528f78e26752770bfb2b1f47",
+        "run_json_unchanged_by_kill": true,
+        "wal_or_journal_file_present": true
+      },
+      "recovered": {
+        "after_execute_again": {
+          "attempt_event_rows": 2,
+          "attempt_rows": 1,
+          "budget_used": [
+            1
+          ],
+          "claim_state": "consumed",
+          "effect_count": 1,
+          "effect_ids": [
+            "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+          ],
+          "operation_rows": 1,
+          "receipt_rows": 1
+        },
+        "decision_found_in_persisted_record": true,
+        "effect_ids_final_match_expected": true,
+        "effect_ids_match_expected_on_reopen": true,
+        "execute_again": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "execution claim is not usable",
+          "has_observation": false,
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "raised": null,
+          "status": "denied"
+        },
+        "execute_third": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "execution claim is not usable",
+          "has_observation": false,
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "raised": null,
+          "status": "denied"
+        },
+        "expected_effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "final": {
+          "attempt_event_rows": 2,
+          "attempt_rows": 1,
+          "budget_used": [
+            1
+          ],
+          "claim_state": "consumed",
+          "effect_count": 1,
+          "effect_ids": [
+            "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+          ],
+          "operation_rows": 1,
+          "receipt_rows": 1
+        },
+        "max_effect_count": 1,
+        "observer_is_fresh_process": true,
+        "observer_pid": 4618,
+        "observer_ppid": 4356,
+        "on_reopen": {
+          "attempt_event_rows": 2,
+          "attempt_rows": 1,
+          "budget_used": [
+            1
+          ],
+          "claim_state": "consumed",
+          "effect_count": 1,
+          "effect_ids": [
+            "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+          ],
+          "operation_rows": 1,
+          "receipt_rows": 1
+        },
+        "reconcile_first": {
+          "claim_state": "consumed",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_id_matches_expected": true,
+          "raised": null,
+          "reason": null,
+          "retry_eligible": false,
+          "status": "applied"
+        },
+        "reconcile_second": {
+          "claim_state": "consumed",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_id_matches_expected": true,
+          "raised": null,
+          "reason": null,
+          "retry_eligible": false,
+          "status": "applied"
+        },
+        "run_json_sha256_observer_start": "d95f17edd41061bb80553b0dcfdefb4bac9ff981528f78e26752770bfb2b1f47",
+        "victim_pid": 4577
+      },
+      "seam": "after_commit",
+      "victim": {
+        "alive_before_kill": true,
+        "completed_without_kill": false,
+        "exit_code": null,
+        "files_before_kill": {
+          "refunds.sqlite3": {
+            "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+            "size": 12288
+          },
+          "refunds.sqlite3-shm": {
+            "sha256": "be3f88f93fbec49b208374568f5ff3b7721b23ab63ac9ee10368e023f6d89feb",
+            "size": 32768
+          },
+          "refunds.sqlite3-wal": {
+            "sha256": "f68266fddac053fdb785acfbe4ef5a68d5d29207d2ad3863885d25accf6d6afc",
+            "size": 230752
+          }
+        },
+        "kill_signal_sent": 9,
+        "killed_by_sigkill": true,
+        "pid": 4577,
+        "proc_gone_after": true,
+        "proc_state_before_kill": "S",
+        "ready_line": "READY after_commit 4577",
+        "ready_wait_outcome": "ready",
+        "returncode": -9,
+        "run_json_sha256_before_kill": "d95f17edd41061bb80553b0dcfdefb4bac9ff981528f78e26752770bfb2b1f47",
+        "seam": "after_commit",
+        "seam_reached": true,
+        "setup": {
+          "claim_id": "b13338a6-bc75-4f7d-b459-7dffafe27158",
+          "claim_state_after_provision": "issued",
+          "decision_id": "b8ba0aaa-6c60-4266-a93d-174cb4fb9281",
+          "destination_class": "SeamDestination",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_ids_before_execute": [],
+          "mode": "block",
+          "pid": 4577,
+          "ppid": 4356,
+          "run_json": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_commit/victim/cp/run.json",
+          "run_json_sha256": "d95f17edd41061bb80553b0dcfdefb4bac9ff981528f78e26752770bfb2b1f47",
+          "seam": "after_commit",
+          "sqlite_path": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_commit/victim/sqlite/refunds.sqlite3"
+        },
+        "stderr_tail": "",
+        "stdout": "READY after_commit 4577\n",
+        "term_signal": 9
+      }
+    },
+    "after_effect_insert_before_commit": {
+      "observer_process": {
+        "returncode": 0,
+        "stderr_tail": ""
+      },
+      "pre_recovery": {
+        "files": {
+          "refunds.sqlite3": {
+            "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+            "size": 12288
+          },
+          "refunds.sqlite3-shm": {
+            "sha256": "ad5d92269fc6c8b09670795cc06b9b0e422901084eafa9475a8413722fbc0ad4",
+            "size": 32768
+          },
+          "refunds.sqlite3-wal": {
+            "sha256": "8eebe8af89eed8785248a0a637d388628f2be316411d9e288bcd18a65d056bc9",
+            "size": 181312
+          }
+        },
+        "run_json_sha256_after_kill": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+        "run_json_unchanged_by_kill": true,
+        "wal_or_journal_file_present": true
+      },
+      "recovered": {
+        "after_execute_again": {
+          "attempt_event_rows": 2,
+          "attempt_rows": 1,
+          "budget_used": [
+            1
+          ],
+          "claim_state": "consumed",
+          "effect_count": 1,
+          "effect_ids": [
+            "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+          ],
+          "operation_rows": 1,
+          "receipt_rows": 1
+        },
+        "decision_found_in_persisted_record": true,
+        "effect_ids_final_match_expected": true,
+        "effect_ids_match_expected_on_reopen": true,
+        "execute_again": {
+          "acknowledged": true,
+          "attempted": true,
+          "error": null,
+          "has_observation": true,
+          "newly_executed": true,
+          "observed_state": "applied",
+          "raised": null,
+          "status": "executed"
+        },
+        "execute_third": {
+          "acknowledged": false,
+          "attempted": false,
+          "error": "execution claim is not usable",
+          "has_observation": false,
+          "newly_executed": false,
+          "observed_state": "unknown",
+          "raised": null,
+          "status": "denied"
+        },
+        "expected_effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+        "final": {
+          "attempt_event_rows": 2,
+          "attempt_rows": 1,
+          "budget_used": [
+            1
+          ],
+          "claim_state": "consumed",
+          "effect_count": 1,
+          "effect_ids": [
+            "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+          ],
+          "operation_rows": 1,
+          "receipt_rows": 1
+        },
+        "max_effect_count": 1,
+        "observer_is_fresh_process": true,
+        "observer_pid": 4536,
+        "observer_ppid": 4356,
+        "on_reopen": {
+          "attempt_event_rows": 0,
+          "attempt_rows": 0,
+          "budget_used": [
+            0
+          ],
+          "claim_state": "issued",
+          "effect_count": 0,
+          "effect_ids": [],
+          "operation_rows": 0,
+          "receipt_rows": 0
+        },
+        "reconcile_first": {
+          "claim_state": "issued",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_id_matches_expected": true,
+          "raised": null,
+          "reason": "no_durable_effect_for_claim",
+          "retry_eligible": false,
+          "status": "hold"
+        },
+        "reconcile_second": {
+          "claim_state": "consumed",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_id_matches_expected": true,
+          "raised": null,
+          "reason": null,
+          "retry_eligible": false,
+          "status": "applied"
+        },
+        "run_json_sha256_observer_start": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+        "victim_pid": 4495
+      },
+      "seam": "after_effect_insert_before_commit",
+      "victim": {
+        "alive_before_kill": true,
+        "completed_without_kill": false,
+        "exit_code": null,
+        "files_before_kill": {
+          "refunds.sqlite3": {
+            "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+            "size": 12288
+          },
+          "refunds.sqlite3-shm": {
+            "sha256": "ad5d92269fc6c8b09670795cc06b9b0e422901084eafa9475a8413722fbc0ad4",
+            "size": 32768
+          },
+          "refunds.sqlite3-wal": {
+            "sha256": "8eebe8af89eed8785248a0a637d388628f2be316411d9e288bcd18a65d056bc9",
+            "size": 181312
+          }
+        },
+        "kill_signal_sent": 9,
+        "killed_by_sigkill": true,
+        "pid": 4495,
+        "proc_gone_after": true,
+        "proc_state_before_kill": "S",
+        "ready_line": "READY after_effect_insert_before_commit 4495",
+        "ready_wait_outcome": "ready",
+        "returncode": -9,
+        "run_json_sha256_before_kill": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+        "seam": "after_effect_insert_before_commit",
+        "seam_reached": true,
+        "setup": {
+          "claim_id": "3822efc2-c87a-469b-b4bb-35f796ec268a",
+          "claim_state_after_provision": "issued",
+          "decision_id": "9e27f5e6-9a36-4883-8249-f2445c494dc0",
+          "destination_class": "SeamDestination",
+          "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+          "effect_ids_before_execute": [],
+          "mode": "block",
+          "pid": 4495,
+          "ppid": 4356,
+          "run_json": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_effect_insert_before_commit/victim/cp/run.json",
+          "run_json_sha256": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+          "seam": "after_effect_insert_before_commit",
+          "sqlite_path": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_effect_insert_before_commit/victim/sqlite/refunds.sqlite3"
+        },
+        "stderr_tail": "",
+        "stdout": "READY after_effect_insert_before_commit 4495\n",
+        "term_signal": 9
+      }
+    },
+    "seams": [
+      "after_begin",
+      "after_effect_insert_before_commit",
+      "after_commit"
+    ],
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "nc_revocation": {
+    "approval_terminality": {
+      "acknowledged": false,
+      "attempted": false,
+      "effect_count": 0,
+      "error": "authoritative approval state invalid",
+      "has_observation": false,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "reactivation_accepted": false,
+      "reactivation_error": {
+        "code": null,
+        "message": "approval is revoked; a new approval is required",
+        "type": "PermissionError"
+      },
+      "status": "denied"
+    },
+    "approval_withdrawn": {
+      "acknowledged": false,
+      "approval_ref": "urn:cognous:approval:t1-1",
+      "attempted": false,
+      "claim_state_after": "issued",
+      "effect_count": 0,
+      "error": "authoritative approval state invalid",
+      "has_observation": false,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "status": "denied"
+    },
+    "grant_revoked": {
+      "acknowledged": false,
+      "attempted": false,
+      "claim_state_after": "issued",
+      "effect_count": 0,
+      "error": "authoritative grant state invalid",
+      "has_observation": false,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "status": "denied"
+    },
+    "grant_terminality": {
+      "acknowledged": false,
+      "attempted": false,
+      "effect_count": 0,
+      "error": "authoritative grant state invalid",
+      "has_observation": false,
+      "newly_executed": false,
+      "observed_state": "unknown",
+      "reactivation_accepted": false,
+      "reactivation_error": {
+        "code": null,
+        "message": "grant revision is revoked; a successor revision is required",
+        "type": "PermissionError"
+      },
+      "status": "denied"
+    },
+    "resolver_revoked": {
+      "claim_ok": false,
+      "effect_count": 0,
+      "error": {
+        "code": null,
+        "message": "authorization-critical inputs changed before claim issuance",
+        "type": "PermissionError"
+      }
+    },
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "nc_tamper": {
+    "destination_row": {
+      "control_accepted": true,
+      "control_error": null,
+      "export_error": {
+        "code": null,
+        "message": "destination effect amount contradicts supplied envelope",
+        "type": "ValueError"
+      },
+      "export_raised": true,
+      "tampered_accepted": false,
+      "tampered_error": {
+        "code": null,
+        "message": "destination effect amount contradicts supplied envelope",
+        "type": "ValueError"
+      }
+    },
+    "pack": {
+      "control_error": null,
+      "control_valid": true,
+      "tamper": "dropped the last retained reconstruction record from the pack's retained source",
+      "tampered_valid": false
+    },
+    "replay_export": {
+      "control_accepted": true,
+      "control_error": null,
+      "tampered_accepted": false,
+      "tampered_error": {
+        "code": null,
+        "message": "Moltbot effect_id does not match execution envelope",
+        "type": "ImportContractError"
+      }
+    },
+    "replay_record": {
+      "control_accepted": true,
+      "control_error": null,
+      "tampered_accepted": false,
+      "tampered_error": {
+        "code": "journal_protocol",
+        "message": "typed refusal profile: journal binding changed",
+        "type": "ImportContractError"
+      }
+    },
+    "status": "ran",
+    "verifier_record": {
+      "baseline_exit_code": 3,
+      "baseline_finding_codes": [],
+      "baseline_refuted": [],
+      "crashed": false,
+      "new_finding_codes": [
+        "decision_result_inconsistent"
+      ],
+      "tampered_exit_code": 1,
+      "tampered_finding_codes": [
+        "decision_result_inconsistent"
+      ],
+      "tampered_refuted": [
+        "v2.journal.decisions"
+      ],
+      "tampered_report_sha256": "703bc611c39c9f8261e4d722dd2a92e76efb35a0ffa69ec959cc3f58399bba5c"
+    },
+    "work_dir_removed": true
+  },
+  "nc_unmediated": {
+    "baseline_direct_surfaces": {
+      "authority_writer_set_grant_status": true,
+      "raw_sql_insert_into_effects": {
+        "accepted": true,
+        "claim_issued_for_it": false,
+        "effect_count": 1,
+        "error": null
+      },
+      "simulate_accepted_by_execute": {
+        "effect_count": 1,
+        "status": "unknown"
+      }
+    },
+    "environment": {
+      "cap_eff": "000001ffffffffff",
+      "euid": 0,
+      "kernel": "7.0.0-1017-azure",
+      "ptrace_scope": "1"
+    },
+    "ingress": {
+      "attack_outcomes": {
+        "refused": 232
+      },
+      "attack_tables_changed": [],
+      "attacker_could_not_stop_ingress": true,
+      "attempted_surfaces": [
+        "execute_claim_atomic",
+        "ingress_ledger_write",
+        "provision_claim",
+        "raw_sql_destination_write",
+        "set_approval_status",
+        "set_evidence_state",
+        "set_grant_status",
+        "set_policy_state",
+        "simulate",
+        "state_tree_modified"
+      ],
+      "client_euid": 997,
+      "client_gid": 986,
+      "client_groups": [
+        985,
+        986
+      ],
+      "client_is_distinct_unprivileged": true,
+      "client_uid": 997,
+      "client_user": "mvp-client",
+      "direct_access_all_denied": true,
+      "direct_access_results": {
+        "chmod_state": "PermissionError",
+        "create_in_state": "PermissionError",
+        "kill_ingress": "PermissionError",
+        "listdir_state": "PermissionError",
+        "open_destination": "PermissionError",
+        "open_run_record": "PermissionError",
+        "proc_mem": "PermissionError",
+        "rename_state": "PermissionError",
+        "sqlite_authority_rw_grant": "OperationalError",
+        "sqlite_destination_ro": "OperationalError",
+        "sqlite_destination_rw_delete": "OperationalError",
+        "sqlite_destination_rw_insert": "OperationalError",
+        "sqlite_ledger": "OperationalError",
+        "stat_destination": "PermissionError"
+      },
+      "environment_record": {
+        "captured": true,
+        "exit_code": 0,
+        "overall": "PASS",
+        "record_sha256": "01ce6b48c6d6ad64d1b0ca6c831bcf4a3ba5a8f44acc629ba1b467842690ae0b",
+        "script": "tools/mvp_env_record/capture_env_record.py",
+        "stderr_tail": ""
+      },
+      "evidence_basis": "owner-side table content hashes before/after the attack phase (read as the ingress uid), ledger rows, stat of the state tree, client uid/groups; not ingress self-report",
+      "hub_head": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "ingress_gid": 987,
+      "ingress_is_root": false,
+      "ingress_uid": 999,
+      "ingress_user": "mvp-ingress",
+      "ipc_gid": 985,
+      "ipc_group": "mvp-ipc",
+      "kernel_hardening": {
+        "cap_eff": "000001ffffffffff",
+        "euid": 0,
+        "kernel": "7.0.0-1017-azure",
+        "ptrace_scope": "1"
+      },
+      "legit_after": {
+        "claim_states": {
+          "consumed": 1
+        },
+        "claims_rows": 1,
+        "effects": 1,
+        "exactly_one_effect_one_consumed_claim": true,
+        "responses": [
+          {
+            "code": "EXECUTED",
+            "outcome": "executed"
+          },
+          {
+            "code": "REPLAY",
+            "outcome": "refused"
+          }
+        ]
+      },
+      "n_attack_bodies": 232,
+      "probe_ran": true,
+      "profile": "approved",
+      "reached_surfaces": [],
+      "server_pid_alive_after": true,
+      "socket_directory": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc",
+      "socket_gid": 985,
+      "socket_mode": "0o660",
+      "socket_uid": 999,
+      "state_directory": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state",
+      "state_tree_n_entries": 18,
+      "state_tree_owner_only_after": true,
+      "state_tree_owner_only_before": true,
+      "state_tree_top": [
+        "0o700",
+        999
+      ]
+    },
+    "launch": {
+      "allow_uid_equals_client": true,
+      "allow_uid_present": true,
+      "allow_uid_values": [
+        "997"
+      ],
+      "argv_flags": [
+        "-I",
+        "-B"
+      ],
+      "entry_point": "tools/mvp_ingress/launch.py",
+      "entry_point_is_launch_py": true,
+      "legacy_module_form_exit_code": 2,
+      "legacy_module_form_refused": true,
+      "scope": "code-level launch isolation of the ingress process only; host isolation (dedicated uids, Yama ptrace_scope) is a separate claim recorded in the environment record and stays INCOMPLETE without a qualifying host"
+    },
+    "limitations": {
+      "ingress_imports_cp_test_fixtures": true,
+      "note": "trusted ingress process loads the Control Plane component's tests package (synthetic resolver fixture) in-process; not client reachable; no production authority"
+    },
+    "profile": "approved",
+    "source_level": {
+      "all_simulate_keywords_constant_none": true,
+      "d1_ast_test_exit_code": 0,
+      "d1_ast_test_tail": ".......                                                                  [100%]\n7 passed, 198 deselected in 0.16s\n",
+      "files_scanned": [
+        "__init__.py",
+        "client.py",
+        "core.py",
+        "launch.py",
+        "proposal.py",
+        "server.py",
+        "synthetic_host.py"
+      ],
+      "kwflow": {
+        "ast_digest_python_match": true,
+        "ast_digest_python_required": "3.13",
+        "calls_examined": [
+          {
+            "callee": "decide",
+            "file": "core.py",
+            "forwards": [],
+            "line": 97,
+            "protected": true
+          },
+          {
+            "callee": "provision_claim",
+            "file": "core.py",
+            "forwards": [],
+            "line": 106,
+            "protected": true
+          },
+          {
+            "callee": "execute",
+            "file": "core.py",
+            "forwards": [],
+            "line": 111,
+            "protected": true
+          },
+          {
+            "callee": "bind_approval",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 123,
+            "protected": true
+          },
+          {
+            "callee": "OperationIdentityAtomicAuthorityEffectDestination",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 125,
+            "protected": true
+          },
+          {
+            "callee": "LocalExecutionPolicy",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 126,
+            "protected": true
+          },
+          {
+            "callee": "AtomicLocalControlPlaneExecutor",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 131,
+            "protected": true
+          },
+          {
+            "callee": "ExecutionOperation",
+            "file": "synthetic_host.py",
+            "forwards": [
+              {
+                "fixed_form": false,
+                "mapping": "{k: getattr(p, k) for k in names}"
+              }
+            ],
+            "line": 148,
+            "protected": true
+          },
+          {
+            "callee": "ExecutionEnvelope",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 153,
+            "protected": true
+          },
+          {
+            "callee": "original",
+            "file": "synthetic_host.py",
+            "forwards": [
+              {
+                "fixed_form": false,
+                "mapping": "k"
+              }
+            ],
+            "line": 115,
+            "protected": false
+          },
+          {
+            "callee": "OperationIdentityProfile",
+            "file": "synthetic_host.py",
+            "forwards": [],
+            "line": 120,
+            "protected": true
+          }
+        ],
+        "client_fed_kwargs_to_protected": [],
+        "files_scanned": [
+          "__init__.py",
+          "client.py",
+          "core.py",
+          "launch.py",
+          "proposal.py",
+          "server.py",
+          "synthetic_host.py"
+        ],
+        "hub_revision_verified": true,
+        "ingress_tree_manifest": [
+          [
+            "__init__.py",
+            "a276ffbfe0f63fc9ef4f1c6b8a90ffe9c14badabaf54149ccad5c08cc193e638"
+          ],
+          [
+            "client.py",
+            "2693a4221d89fe5cf19c100c1a6334f7fcf37ff78daa6f31ea10de319466843a"
+          ],
+          [
+            "core.py",
+            "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f"
+          ],
+          [
+            "launch.py",
+            "4f463f924b66e495888fbd94d4fd5c75db49b68f791b2cb76f37400f5c3bcb56"
+          ],
+          [
+            "proposal.py",
+            "2182acf7c38a5976ef4ade4457a290eb9020cba21f2d4cc8b6b0446de1a9484c"
+          ],
+          [
+            "server.py",
+            "0179c8ed6a4071916f7453a642ed2317cf17f8f709f151d2dd080f11c8d10494"
+          ],
+          [
+            "synthetic_host.py",
+            "95c965fbc2eaeab70fd90ff9c544bd155295538b16f6d775a30917ee18352731"
+          ]
+        ],
+        "ingress_tree_sha256": "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591",
+        "pin_records": {
+          "synthetic_host.py:SyntheticHost.__init__:model_copy#1": {
+            "ast_digest": "c8eddfd868f8cdb1c007a62e5fafe1d85208c4eae6a08d21feedb1547ca6cd07",
+            "ast_digest_python": "3.13",
+            "originating_hub_commit": "c897266b7ce4b921889519087fa8b1863b4302e3",
+            "protected_destination": "cfg.model_copy(update=...) -> runtime-authority profile consumed by the workflow and AtomicLocalControlPlaneExecutor (operation_identity)",
+            "reviewed_ingress_tree_sha256": "6e891f9acb38126d18fc9be28cc54eebc8500ec4b8714eb1e8ac4ad74678b03c",
+            "trusted_input_origin": "OperationIdentityProfile(resolver_id=RESOLVER_ID, resolver_version=RESOLVER_VERSION): module constants of the trusted host"
+          },
+          "synthetic_host.py:SyntheticHost.__init__:original#1": {
+            "ast_digest": "e08eafdddaa93bc754dbeb7c8e1179067b1de3ba987eddadb74e430a4358800b",
+            "ast_digest_python": "3.13",
+            "originating_hub_commit": "c897266b7ce4b921889519087fa8b1863b4302e3",
+            "protected_destination": "original = tra.proposal (Control Plane fixture proposal template); not an executor/claim API",
+            "reviewed_ingress_tree_sha256": "6e891f9acb38126d18fc9be28cc54eebc8500ec4b8714eb1e8ac4ad74678b03c",
+            "trusted_input_origin": "lambda *a, **k proxy installed on the Control Plane test fixture tra.proposal during trusted-host setup (setup_flow, fixed synthetic authority); no ingress request value is a parameter of it"
+          },
+          "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1": {
+            "ast_digest": "c2774557d47fc58ad136542c5bfbeeb0c7311c4bdfc0e119d83effd11c3093ca",
+            "ast_digest_python": "3.13",
+            "originating_hub_commit": "c897266b7ce4b921889519087fa8b1863b4302e3",
+            "protected_destination": "ExecutionOperation(...) constructor feeding ExecutionEnvelope for AtomicLocalControlPlaneExecutor.execute",
+            "reviewed_ingress_tree_sha256": "6e891f9acb38126d18fc9be28cc54eebc8500ec4b8714eb1e8ac4ad74678b03c",
+            "trusted_input_origin": "attributes of the template proposal p0 (via build_proposal: only customer_id, refund_reason, amount and unit come from the client under non-prohibited keys; request_id flows via correlation_id into the proposal commitment and is NOT among the 14 names), fixed 14 field names"
+          }
+        },
+        "pin_records_incomplete": [],
+        "pin_source_revision_mismatch": [],
+        "pinned_sites_used": [
+          "synthetic_host.py:SyntheticHost.__init__:model_copy#1",
+          "synthetic_host.py:SyntheticHost.__init__:original#1",
+          "synthetic_host.py:SyntheticHost.envelope:ExecutionOperation#1"
+        ],
+        "pins_unmatched": [],
+        "predicate": "nc4-03.v5.strict-refinement-dataflow",
+        "python_version": "3.13.17",
+        "real_protected_calls": [
+          {
+            "callee": "decide",
+            "file": "core.py",
+            "line": 97,
+            "ordinal": 1,
+            "qualname": "IngressCore._run"
+          },
+          {
+            "callee": "provision_claim",
+            "file": "core.py",
+            "line": 106,
+            "ordinal": 1,
+            "qualname": "IngressCore._run"
+          },
+          {
+            "callee": "execute",
+            "file": "core.py",
+            "line": 111,
+            "ordinal": 1,
+            "qualname": "IngressCore._run"
+          },
+          {
+            "callee": "bind_approval",
+            "file": "synthetic_host.py",
+            "line": 123,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "OperationIdentityAtomicAuthorityEffectDestination",
+            "file": "synthetic_host.py",
+            "line": 125,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "LocalExecutionPolicy",
+            "file": "synthetic_host.py",
+            "line": 126,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "AtomicLocalControlPlaneExecutor",
+            "file": "synthetic_host.py",
+            "line": 131,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          },
+          {
+            "callee": "ExecutionOperation",
+            "file": "synthetic_host.py",
+            "line": 148,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.envelope"
+          },
+          {
+            "callee": "ExecutionEnvelope",
+            "file": "synthetic_host.py",
+            "line": 153,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.envelope"
+          },
+          {
+            "callee": "OperationIdentityProfile",
+            "file": "synthetic_host.py",
+            "line": 120,
+            "ordinal": 1,
+            "qualname": "SyntheticHost.__init__"
+          }
+        ],
+        "real_protected_calls_count": 10,
+        "recursive_tree_files": [
+          [
+            "BOUNDARY.md",
+            "file"
+          ],
+          [
+            "__init__.py",
+            "file"
+          ],
+          [
+            "client.py",
+            "file"
+          ],
+          [
+            "core.py",
+            "file"
+          ],
+          [
+            "launch.py",
+            "file"
+          ],
+          [
+            "proposal.py",
+            "file"
+          ],
+          [
+            "server.py",
+            "file"
+          ],
+          [
+            "synthetic_host.py",
+            "file"
+          ]
+        ],
+        "recursive_tree_sha256": "2e26cc205fc7aca5f15ea27dc7ea8dfd82bb874961f2757db17c88f3c73d72b5",
+        "required_sites_missing": [],
+        "reviewed_ingress_tree_sha256": [
+          "0c0e2cf6a69f4ce69d4ca39ac7a443890a05b50ba420902e2d346912d369f591"
+        ],
+        "scanned_hub_revision": "c897266b7ce4b921889519087fa8b1863b4302e3",
+        "scope": "source-level static analysis; see _kwflow.py module docstring for limits",
+        "simulate_violations": [],
+        "violations": []
+      },
+      "non_literal_kwargs_forwarding": [
+        {
+          "callee": "ExecutionOperation",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 148,
+          "source": "{k: getattr(p, k) for k in names}"
+        },
+        {
+          "callee": "original",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 115,
+          "source": "k"
+        }
+      ],
+      "scope": "SOURCE-LEVEL assertions (AST over the pinned hub source and D1's own AST tests), not execution observations",
+      "simulate_keywords": [
+        {
+          "file": "core.py",
+          "is_constant_none": true,
+          "line": 111
+        },
+        {
+          "callee": "ExecutionOperation",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 148,
+          "source": "{k: getattr(p, k) for k in names}"
+        },
+        {
+          "callee": "original",
+          "file": "synthetic_host.py",
+          "kwargs_forwarding_non_literal": true,
+          "line": 115,
+          "source": "k"
+        }
+      ]
+    },
+    "status": "ran",
+    "work_dir_removed": true
+  },
+  "run": {
+    "run_id": "a9fd2e7fff0eb9ea78aefea3db7c1473"
+  }
+}

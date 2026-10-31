@@ -1,0 +1,20 @@
+PASS       G-01   exact candidate tuple: every component at its pinned 40-hex sha, pristine, and the suite saw the same heads
+PASS       G-02   the frozen expectation files (v1, v2, v3, v6, v7, v8) are byte-identical to their recorded hashes
+PASS       G-02b  the suite judged against the expectations in force (v8)
+PASS       G-02c  frozen files match the main-branch blobs on main
+PASS       G-03   the battery lists exactly the mandatory rows of the oracle in force
+PASS       G-03b  every declared NOT APPLICABLE names a battery row and has a non-empty justification
+PASS       G-04   Python 3.13 and pydantic >= 2.12 as observed by the suite
+PASS       G-04b  the gate runs on CPython 3.13
+PASS       G-11   hub environment record captured in this run against the attacked ingress is PASS on the selected profile (CPython 3.13, Yama ptrace_scope >= 1, dedicated non-root ingress uid and group, 0660 socket in a separate IPC directory, actual identities, tuple pins, pinned capture script, run envelope)
+PASS       G-15   composite identity matches the checkouts and committed files
+PASS       G-12   mvp-qualification-candidate-v5: 216 files (suite sources, imported modules, inputs, lock files, pytest.ini, gate, workflow) match the commitment, whose sha256 equals the independently supplied value; no symlinks
+PASS       G-13   every collected test is a committed mandatory test or a committed non-mandatory test
+PASS       G-14   pending row placeholders hold no rows (none invented before Qualification freezes the predicate)
+PASS       G-05   all 435 mandatory battery tests were discovered, executed and not skipped; no undeclared NOT APPLICABLE
+FAIL       G-06   mandatory assertions failed {"failed": ["NM-138"]}
+PASS       G-07   Verifier dispositions exactly as expected: exit 3 ABSTAIN; run B 27/28 confirmed, 1 abstained; V4 4 confirmed, 1 abstained (v4.ledger.rows-agree-with-attempts), 2 not applicable; no refutation
+PASS       G-09   each battery pytest invocation ran to completion (exit 0 or 1)
+PASS       G-08   no Exchange module loaded or Exchange path on sys.path in any battery pytest process or in the ingress server process, and no Exchange test collected (AP-06)
+PASS       G-10   artifacts, junit reports and the recorded Qualification commit belong to this run
+gate verdict: REJECT (authorizes: false; release: HOLD)

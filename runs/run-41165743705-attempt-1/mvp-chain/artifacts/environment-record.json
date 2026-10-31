@@ -1,0 +1,735 @@
+{
+  "checks": [
+    {
+      "data": {},
+      "detail": "evidence label recorded: hosted-runner acceptance run a9fd2e7fff0eb9ea78aefea3db7c1473, profile=approved",
+      "id": "capture.evidence_label",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "declared wal; observed {'authority_store': 'wal', 'destination_db': 'wal', 'ledger': 'rollback_family'}",
+      "id": "configuration.journal_mode",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "pins ['action_manifest', 'control_plane', 'evidence_pack', 'hub', 'manifest_sha256.refund_integration_v1_1.manifest.json', 'odes', 'replay', 'runtime', 'source_sha256.tools/mvp_ingress/__init__.py', 'source_sha256.tools/mvp_ingress/client.py', 'source_sha256.tools/mvp_ingress/core.py', 'source_sha256.tools/mvp_ingress/launch.py', 'source_sha256.tools/mvp_ingress/proposal.py', 'source_sha256.tools/mvp_ingress/server.py', 'source_sha256.tools/mvp_ingress/synthetic_host.py', 'verifier']; manifests ['refund_integration_v1_1.manifest.json']; unverified (declared only): ['action_manifest', 'control_plane', 'evidence_pack', 'hub', 'odes', 'replay', 'runtime', 'verifier']",
+      "id": "configuration.pins_and_manifests",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "every ancestor of socket and state dir is root/ingress-owned and not go+w (sticky only excuses a root-owned, non-direct-parent ancestor)",
+      "id": "filesystem.ancestors_not_writable_by_others",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "paths": 25
+      },
+      "detail": "no POSIX ACL xattr on 25 paths (socket, state tree, ancestors)",
+      "id": "filesystem.no_acl_entries",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "client_groups": [
+          985,
+          986
+        ]
+      },
+      "detail": "client groups [985, 986] grant nothing on the state tree",
+      "id": "filesystem.no_extra_group_access",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "entries": 17
+      },
+      "detail": "17 entries: dirs 0700, files 0600, one owner, no group/other bits, no symlinks",
+      "id": "filesystem.state_tree_owner_only",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "client uid/gid differ from ingress and uid is not 0",
+      "id": "identity.client_distinct_unprivileged",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "ingress 999:987 client 997:986",
+      "id": "identity.declared",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "ingress runs the isolated launcher of this repo root with --allow-uid [997]",
+      "id": "identity.ingress_command",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "ingress uid 999",
+      "id": "identity.ingress_not_root",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "real/effective/saved uid [999, 999, 999, 999], expected 999",
+      "id": "identity.ingress_process",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "submit defined=True, non-stdlib imports=[]",
+      "id": "invocation.client_entry_point",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "best-effort static scan: operation_identity= keywords in synthetic_host.py: 1, all constant True: True",
+      "id": "invocation.operation_identity_fixed_true",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "best-effort static scan: simulate= keywords in core.py: 1, all constant None: True (does not see getattr, ** forwarding or dynamic calls)",
+      "id": "invocation.simulate_fixed_none",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "IPC directory /var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc is outside the state tree, owner 999, not group/other writable",
+      "id": "ipc.directory_separate_and_protected",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "peercred": [
+          4662,
+          999,
+          987
+        ]
+      },
+      "detail": "SO_PEERCRED from a real connection (pid, uid, gid)=[4662, 999, 987]; ingress pid/uid/gid=4662/999/987; mismatch: none",
+      "id": "ipc.peer_credentials",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "socket 0660 owner uid 999 dedicated group 985 with exactly the ingress and client users",
+      "id": "ipc.socket_mode_owner_group",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "ingress CapEff=0000000000000000 CapPrm=0000000000000000 (must both be 0); privileged effective=none permitted=none",
+      "id": "isolation.ingress_capabilities",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "dumpable": true
+      },
+      "detail": "dump-owner consistent: /proc entry owned by the ingress uid (dumpable). Not proof of isolation; the stronger evidence is the denied /proc/<pid>/mem and environ opens in qualification.client_denied_ingress_process",
+      "id": "isolation.ingress_dumpability",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "value": "1"
+      },
+      "detail": "kernel.yama.ptrace_scope=1",
+      "id": "isolation.ptrace_scope",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "fstype": "ext4"
+      },
+      "detail": "fstype ext4",
+      "id": "platform.fs_enforces_unix_perms.socket_dir",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "fstype": "ext4"
+      },
+      "detail": "fstype ext4",
+      "id": "platform.fs_enforces_unix_perms.state_dir",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "Linux 7.0.0-1017-azure x86_64",
+      "id": "platform.linux",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "ingress exe equals capture interpreter /opt/hostedtoolcache/Python/3.13.17/x64/bin/python3.13",
+      "id": "python.interpreter_matches_ingress",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "CPython 3.13.17",
+      "id": "python.profile",
+      "status": "PASS"
+    },
+    {
+      "data": {},
+      "detail": "client CapEff=0000000000000000",
+      "id": "qualification.client_capabilities_empty",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "results": {
+          "kill0_ingress": "denied",
+          "open_proc_environ": "denied",
+          "open_proc_mem": "denied"
+        }
+      },
+      "detail": "{'kill0_ingress': 'denied', 'open_proc_environ': 'denied', 'open_proc_mem': 'denied'}",
+      "id": "qualification.client_denied_ingress_process",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "results": {
+          "listdir_state_dir": "denied",
+          "open_file_0": "denied",
+          "open_file_1": "denied",
+          "open_file_2": "denied",
+          "stat_file_0": "denied",
+          "stat_file_1": "denied",
+          "stat_file_2": "denied",
+          "unlink_in_state_dir": "denied"
+        }
+      },
+      "detail": "all 8 state-access probes denied (EACCES/EPERM)",
+      "id": "qualification.client_denied_state_access",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "connect": "connected"
+      },
+      "detail": "client uid 997 connect to the socket: connected",
+      "id": "qualification.client_socket_reachable",
+      "status": "PASS"
+    },
+    {
+      "data": {
+        "connect": "denied",
+        "traversal_blocked_above_socket": []
+      },
+      "detail": "outsider uid 65533 connect: denied (outsider can traverse every ancestor, so the socket's own mode/group decided)",
+      "id": "qualification.outsider_denied_socket",
+      "status": "PASS"
+    }
+  ],
+  "claims": {
+    "non_authorizing": true,
+    "not_claimed": [
+      "resistance to root",
+      "resistance to the ingress uid",
+      "resistance to same-privilege code",
+      "resistance to direct database modification by an authorized file holder",
+      "security clearance, certification or production readiness"
+    ],
+    "release": "HOLD"
+  },
+  "configuration": {
+    "ingress_source_sha256": {
+      "tools/mvp_ingress/__init__.py": "a276ffbfe0f63fc9ef4f1c6b8a90ffe9c14badabaf54149ccad5c08cc193e638",
+      "tools/mvp_ingress/client.py": "2693a4221d89fe5cf19c100c1a6334f7fcf37ff78daa6f31ea10de319466843a",
+      "tools/mvp_ingress/core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f",
+      "tools/mvp_ingress/launch.py": "4f463f924b66e495888fbd94d4fd5c75db49b68f791b2cb76f37400f5c3bcb56",
+      "tools/mvp_ingress/proposal.py": "2182acf7c38a5976ef4ade4457a290eb9020cba21f2d4cc8b6b0446de1a9484c",
+      "tools/mvp_ingress/server.py": "0179c8ed6a4071916f7453a642ed2317cf17f8f709f151d2dd080f11c8d10494",
+      "tools/mvp_ingress/synthetic_host.py": "95c965fbc2eaeab70fd90ff9c544bd155295538b16f6d775a30917ee18352731"
+    },
+    "journal_mode_declared": "wal",
+    "journal_mode_observed_from_file_header": {
+      "authority_store": "wal",
+      "destination_db": "wal",
+      "ledger": "rollback_family"
+    },
+    "manifest_sha256": {
+      "refund_integration_v1_1.manifest.json": "789ad39596b9e1ef84a726a671883e1cb6b83343da3a31db0a1120906d68c074"
+    },
+    "operation_identity": "fixed_true_by_static_scan",
+    "pins_unverified": [
+      "action_manifest",
+      "control_plane",
+      "evidence_pack",
+      "hub",
+      "odes",
+      "replay",
+      "runtime",
+      "verifier"
+    ],
+    "simulate": "fixed_none_by_static_scan",
+    "source_pins": {
+      "action_manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "control_plane": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+      "evidence_pack": "7b9511f2c6d56d424f17b078826594abd29f6c96",
+      "hub": "c897266b7ce4b921889519087fa8b1863b4302e3",
+      "manifest_sha256.refund_integration_v1_1.manifest.json": "789ad39596b9e1ef84a726a671883e1cb6b83343da3a31db0a1120906d68c074",
+      "odes": "1a5e1d300250d832e611633f0bf8f762e398c0ec",
+      "replay": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+      "runtime": "c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+      "source_sha256.tools/mvp_ingress/__init__.py": "a276ffbfe0f63fc9ef4f1c6b8a90ffe9c14badabaf54149ccad5c08cc193e638",
+      "source_sha256.tools/mvp_ingress/client.py": "2693a4221d89fe5cf19c100c1a6334f7fcf37ff78daa6f31ea10de319466843a",
+      "source_sha256.tools/mvp_ingress/core.py": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f",
+      "source_sha256.tools/mvp_ingress/launch.py": "4f463f924b66e495888fbd94d4fd5c75db49b68f791b2cb76f37400f5c3bcb56",
+      "source_sha256.tools/mvp_ingress/proposal.py": "2182acf7c38a5976ef4ade4457a290eb9020cba21f2d4cc8b6b0446de1a9484c",
+      "source_sha256.tools/mvp_ingress/server.py": "0179c8ed6a4071916f7453a642ed2317cf17f8f709f151d2dd080f11c8d10494",
+      "source_sha256.tools/mvp_ingress/synthetic_host.py": "95c965fbc2eaeab70fd90ff9c544bd155295538b16f6d775a30917ee18352731",
+      "verifier": "c0b8ba1f55b75db787a320f3de0f79342c6f6826"
+    }
+  },
+  "evidence_label": "hosted-runner acceptance run a9fd2e7fff0eb9ea78aefea3db7c1473, profile=approved",
+  "filesystem": {
+    "ancestors": [
+      {
+        "gid": 0,
+        "mode": "0755",
+        "path": "/",
+        "type": "dir",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "mode": "0755",
+        "path": "/var",
+        "type": "dir",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "mode": "0755",
+        "path": "/var/lib",
+        "type": "dir",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "mode": "0755",
+        "path": "/var/lib/qgate05-ocs",
+        "type": "dir",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "mode": "0755",
+        "path": "/var/lib/qgate05-ocs/tmp",
+        "type": "dir",
+        "uid": 0
+      },
+      {
+        "gid": 0,
+        "mode": "0755",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4",
+        "type": "dir",
+        "uid": 0
+      },
+      {
+        "gid": 985,
+        "mode": "2751",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc",
+        "type": "dir",
+        "uid": 999
+      }
+    ],
+    "paths": {
+      "authority_store": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3",
+      "destination_db": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3",
+      "ledger": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/ingress.db"
+    },
+    "state_dir": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state",
+    "tree": [
+      {
+        "gid": 987,
+        "mode": "0700",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state",
+        "type": "dir",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0700",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic",
+        "type": "dir",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3-shm",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3-wal",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0700",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp",
+        "type": "dir",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0700",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline",
+        "type": "dir",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/destination.json",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/destination.json.lock",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/run.json",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/run.json.lock",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/destination.json",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/destination.json.lock",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/run.json",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/run.json.lock",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/ingress.db",
+        "type": "file",
+        "uid": 999
+      },
+      {
+        "gid": 987,
+        "mode": "0600",
+        "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/socket.lock",
+        "type": "file",
+        "uid": 999
+      }
+    ]
+  },
+  "invocation": {
+    "client_entry_point": "tools.mvp_ingress.client:submit",
+    "client_imports": [
+      "__future__",
+      "json",
+      "socket"
+    ],
+    "client_sha256": "2693a4221d89fe5cf19c100c1a6334f7fcf37ff78daa6f31ea10de319466843a",
+    "core_sha256": "eff99983153df4d7895c9b2327a29fd0b193239e00b5cae5626012c4c6c7be3f",
+    "server_entry_point": "python -I tools/mvp_ingress/launch.py",
+    "static_scan_note": "best-effort AST scan of the checked-out sources; it is not proof about the running ingress"
+  },
+  "ipc": {
+    "connection_policy": {
+      "peer_uid_allow_list": [
+        997
+      ],
+      "socket_policy": "mode 0660, owner ingress uid, dedicated group of exactly the ingress and client identities, socket in a separate IPC directory"
+    },
+    "socket_path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc/ingress.sock",
+    "stat": {
+      "gid": 985,
+      "mode": "0660",
+      "path": "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc/ingress.sock",
+      "type": "socket",
+      "uid": 999
+    }
+  },
+  "isolation_acl": {
+    "getfacl_available": true,
+    "method": "os.listxattr(follow_symlinks=False) for system.posix_acl_access and system.posix_acl_default",
+    "paths": {
+      "/": "none",
+      "/var": "none",
+      "/var/lib": "none",
+      "/var/lib/qgate05-ocs": "none",
+      "/var/lib/qgate05-ocs/tmp": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc/ingress.sock": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3-shm": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/atomic/refunds.sqlite3-wal": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/destination.json": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/destination.json.lock": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/run.json": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/baseline/run.json.lock": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/destination.json": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/destination.json.lock": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/run.json": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/cp/run.json.lock": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/ingress.db": "none",
+      "/var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state/socket.lock": "none"
+    }
+  },
+  "isolation_limits": {
+    "capture_process": {
+      "CapBnd": "000001ffffffffff",
+      "CapEff": "000001ffffffffff",
+      "CapPrm": "000001ffffffffff",
+      "NoNewPrivs": "0",
+      "Seccomp": "0"
+    },
+    "capture_uid_map": [
+      "0",
+      "0",
+      "4294967295"
+    ],
+    "container_markers": [],
+    "fs_suid_dumpable": "2",
+    "ingress_capabilities": {
+      "CapBnd": "000001ffffffffff",
+      "CapEff": "0000000000000000",
+      "CapPrm": "0000000000000000",
+      "privileged_in_effective": [],
+      "privileged_in_permitted": []
+    },
+    "ingress_proc_dir_owner_uid": 999,
+    "lsm": "lockdown,capability,landlock,yama,apparmor,ima,evm",
+    "max_user_namespaces": "58121",
+    "proc_mount_options": [
+      "rw,nosuid,nodev,noexec,relatime",
+      "rw"
+    ],
+    "selinux_enforce": null,
+    "unprivileged_userns_clone": "1",
+    "yama_ptrace_scope": "1"
+  },
+  "overall": "PASS",
+  "platform": {
+    "arch": "x86_64",
+    "distro": {
+      "id": "ubuntu",
+      "pretty_name": "Ubuntu 24.04.5 LTS",
+      "version_id": "24.04"
+    },
+    "filesystems": {
+      "socket_dir": {
+        "fstype": "ext4",
+        "mount_options": "rw,relatime",
+        "mount_point": "/",
+        "super_options": "rw,discard,journal_async_commit,nobarrier,errors=remount-ro,commit=30,data=writeback"
+      },
+      "state_dir": {
+        "fstype": "ext4",
+        "mount_options": "rw,relatime",
+        "mount_point": "/",
+        "super_options": "rw,discard,journal_async_commit,nobarrier,errors=remount-ro,commit=30,data=writeback"
+      }
+    },
+    "kernel_release": "7.0.0-1017-azure",
+    "kernel_version": "#17~24.04.1-Ubuntu SMP PREEMPT Thu Sep 24 18:46:57 UTC 2026"
+  },
+  "process_identity": {
+    "capture_process": {
+      "egid": 0,
+      "euid": 0
+    },
+    "client_gid": 986,
+    "client_uid": 997,
+    "client_user": "mvp-client",
+    "ingress_gid": 987,
+    "ingress_process": {
+      "capbnd": "000001ffffffffff",
+      "capeff": "0000000000000000",
+      "capprm": "0000000000000000",
+      "cmdline": "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python -I -B -c import sys, runpy, types, os, pathlib\nkind, path, lp = sys.argv[1:4]\nsys.argv = [lp] + sys.argv[4:]\nm = types.ModuleType(\"_mvp_pre\")\nm.__file__ = path\nexec(compile(pathlib.Path(path).read_bytes(), path, \"exec\"), m.__dict__)\nextra = os.environ.get(\"MVP_PRE_PROBE\")  # a second observation-only module (AP-06 dump) for a wrapper-launched ingress; also compiled from source bytes\nif extra:\n    exec(compile(pathlib.Path(extra).read_bytes(), extra, \"exec\"), types.ModuleType(\"_mvp_probe\").__dict__)\nif kind == \"wrapper\":\n    m.install(pathlib.Path(os.environ[\"MVP_FAULT_CAPTURE_DIR\"]), m.parse_modes(os.environ.get(\"MVP_FAULT_MODE\")))\nrunpy.run_path(lp, run_name=\"__main__\")\n probe /home/runner/work/cognous-stack-qualification/cognous-stack-qualification/suites/mvp-applicability/plugin/ingress_probe/sitecustomize.py /home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/hub/tools/mvp_ingress/launch.py --state-dir /var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/state --socket /var/lib/qgate05-ocs/tmp/mvp-nc4-uv8s3sw4/ipc/ingress.sock --control-plane /home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/control_plane --runtime /home/runner/work/cognous-stack-qualification/cognous-stack-qualification/components/runtime --socket-mode 660 --allow-uid 997",
+      "exe": "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python3.13",
+      "gid": [
+        987,
+        987,
+        987,
+        987
+      ],
+      "groups": [],
+      "no_new_privs": "0",
+      "seccomp": "0",
+      "uid": [
+        999,
+        999,
+        999,
+        999
+      ]
+    },
+    "ingress_uid": 999,
+    "ingress_user": "mvp-ingress"
+  },
+  "profile_supported": true,
+  "python": {
+    "describes": "the capture process interpreter (sys.executable); it counts for the ingress only if python.interpreter_matches_ingress is PASS",
+    "distributions": [
+      [
+        "annotated-types",
+        "0.8.0"
+      ],
+      [
+        "cffi",
+        "2.1.1"
+      ],
+      [
+        "cryptography",
+        "50.0.0"
+      ],
+      [
+        "iniconfig",
+        "2.3.1"
+      ],
+      [
+        "packaging",
+        "26.3"
+      ],
+      [
+        "pip",
+        "26.2.2"
+      ],
+      [
+        "pluggy",
+        "1.7.0"
+      ],
+      [
+        "pycparser",
+        "3.11"
+      ],
+      [
+        "pydantic",
+        "2.13.5"
+      ],
+      [
+        "pydantic_core",
+        "2.46.5"
+      ],
+      [
+        "pytest",
+        "8.3.5"
+      ],
+      [
+        "typing-inspection",
+        "0.4.4"
+      ],
+      [
+        "typing_extensions",
+        "4.16.0"
+      ]
+    ],
+    "executable": "/opt/hostedtoolcache/Python/3.13.17/x64/bin/python3.13",
+    "executable_sha256": "104655eaac3e30166d621d3a4437a7cdee5e2250874ae680322f13a42360be12",
+    "implementation": "CPython",
+    "pydantic_installed": "2.13.5",
+    "qualified_profile": "3.13",
+    "sqlite_library_version": "3.45.1",
+    "unqualified": [
+      "3.11"
+    ],
+    "version": "3.13.17",
+    "version_string": "3.13.17 (main, Oct 22 2026, 02:40:32) [GCC 13.3.0]"
+  },
+  "qualification": {
+    "client_probe": {
+      "capeff": "0000000000000000",
+      "groups": [
+        985,
+        986
+      ],
+      "kill0_ingress": "denied",
+      "listdir_state_dir": "denied",
+      "open_file_0": "denied",
+      "open_file_1": "denied",
+      "open_file_2": "denied",
+      "open_proc_environ": "denied",
+      "open_proc_mem": "denied",
+      "peercred": [
+        4662,
+        999,
+        987
+      ],
+      "socket_connect": "connected",
+      "stat_file_0": "denied",
+      "stat_file_1": "denied",
+      "stat_file_2": "denied",
+      "traversal_blocked_above_state_dir": [],
+      "unlink_in_state_dir": "denied"
+    },
+    "not_run_by_this_script": [
+      "live propose round trip through client.submit (positive execution result)",
+      "adversarial proposals against the running ingress",
+      "Python 3.11 (unqualified)"
+    ]
+  },
+  "qualification_outsider_probe": {
+    "connect": "denied",
+    "traversal_blocked_above_socket": []
+  },
+  "record_sha256": "01ce6b48c6d6ad64d1b0ca6c831bcf4a3ba5a8f44acc629ba1b467842690ae0b",
+  "schema": "mvp-ingress-env-record/1"
+}

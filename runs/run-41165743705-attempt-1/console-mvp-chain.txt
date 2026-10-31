@@ -1,0 +1,28 @@
+........................................................................ [ 17%]
+........................................................................ [ 34%]
+........................................................................ [ 52%]
+........................................................................ [ 69%]
+........................................................................ [ 86%]
+................................................F.....                   [100%]
+mvp-chain results: /home/runner/work/cognous-stack-qualification/cognous-stack-qualification/results/mvp-acceptance/mvp-chain/results.json  counts={'PASS': 48, 'FAIL': 0, 'BLOCKED': 0, 'NOT RUN': 0, 'NOT APPLICABLE': 0}
+
+=================================== FAILURES ===================================
+___________________ test_developer_optout_can_never_be_pass ____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f16d08bd5c0>
+
+    def test_developer_optout_can_never_be_pass(monkeypatch):
+        monkeypatch.setenv("MVP_INGRESS_PROFILE", "developer-optout")
+        rec = H.run_host_subcases(os.environ.get("MVP_HUB_DIR"))
+>       assert all(s["status"] != verdict.PASS for s in rec["subcases"]), rec
+E       AssertionError: {'affects_deterministic_verdict': False, 'host_dependent': True, 'kernel': '7.0.0-1017-azure', 'profile': 'developer-optout', ...}
+E       assert False
+E        +  where False = all(<generator object test_developer_optout_can_never_be_pass.<locals>.<genexpr> at 0x7f16d0d17ed0>)
+
+suites/mvp-chain/test_nc4_03_host_subcases.py:50: AssertionError
+- generated xml file: /home/runner/work/cognous-stack-qualification/cognous-stack-qualification/results/mvp-acceptance/junit-mvp-chain.xml -
+=========================== short test summary info ============================
+FAILED suites/mvp-chain/test_nc4_03_host_subcases.py::test_developer_optout_can_never_be_pass - AssertionError: {'affects_deterministic_verdict': False, 'host_dependent': True, 'kernel': '7.0.0-1017-azure', 'profile': 'developer-optout', ...}
+assert False
+ +  where False = all(<generator object test_developer_optout_can_never_be_pass.<locals>.<genexpr> at 0x7f16d0d17ed0>)
+1 failed, 413 passed in 53.10s

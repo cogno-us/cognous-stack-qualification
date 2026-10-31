@@ -1,0 +1,164 @@
+{
+ "observer_process": {
+  "returncode": 0,
+  "stderr_tail": ""
+ },
+ "pre_recovery": {
+  "files": {
+   "refunds.sqlite3": {
+    "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+    "size": 12288
+   },
+   "refunds.sqlite3-shm": {
+    "sha256": "ad5d92269fc6c8b09670795cc06b9b0e422901084eafa9475a8413722fbc0ad4",
+    "size": 32768
+   },
+   "refunds.sqlite3-wal": {
+    "sha256": "8eebe8af89eed8785248a0a637d388628f2be316411d9e288bcd18a65d056bc9",
+    "size": 181312
+   }
+  },
+  "run_json_sha256_after_kill": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+  "run_json_unchanged_by_kill": true,
+  "wal_or_journal_file_present": true
+ },
+ "recovered": {
+  "after_execute_again": {
+   "attempt_event_rows": 2,
+   "attempt_rows": 1,
+   "budget_used": [
+    1
+   ],
+   "claim_state": "consumed",
+   "effect_count": 1,
+   "effect_ids": [
+    "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+   ],
+   "operation_rows": 1,
+   "receipt_rows": 1
+  },
+  "decision_found_in_persisted_record": true,
+  "effect_ids_final_match_expected": true,
+  "effect_ids_match_expected_on_reopen": true,
+  "execute_again": {
+   "acknowledged": true,
+   "attempted": true,
+   "error": null,
+   "has_observation": true,
+   "newly_executed": true,
+   "observed_state": "applied",
+   "raised": null,
+   "status": "executed"
+  },
+  "execute_third": {
+   "acknowledged": false,
+   "attempted": false,
+   "error": "execution claim is not usable",
+   "has_observation": false,
+   "newly_executed": false,
+   "observed_state": "unknown",
+   "raised": null,
+   "status": "denied"
+  },
+  "expected_effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+  "final": {
+   "attempt_event_rows": 2,
+   "attempt_rows": 1,
+   "budget_used": [
+    1
+   ],
+   "claim_state": "consumed",
+   "effect_count": 1,
+   "effect_ids": [
+    "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209"
+   ],
+   "operation_rows": 1,
+   "receipt_rows": 1
+  },
+  "max_effect_count": 1,
+  "observer_is_fresh_process": true,
+  "observer_pid": 4536,
+  "observer_ppid": 4356,
+  "on_reopen": {
+   "attempt_event_rows": 0,
+   "attempt_rows": 0,
+   "budget_used": [
+    0
+   ],
+   "claim_state": "issued",
+   "effect_count": 0,
+   "effect_ids": [],
+   "operation_rows": 0,
+   "receipt_rows": 0
+  },
+  "reconcile_first": {
+   "claim_state": "issued",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "effect_id_matches_expected": true,
+   "raised": null,
+   "reason": "no_durable_effect_for_claim",
+   "retry_eligible": false,
+   "status": "hold"
+  },
+  "reconcile_second": {
+   "claim_state": "consumed",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "effect_id_matches_expected": true,
+   "raised": null,
+   "reason": null,
+   "retry_eligible": false,
+   "status": "applied"
+  },
+  "run_json_sha256_observer_start": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+  "victim_pid": 4495
+ },
+ "seam": "after_effect_insert_before_commit",
+ "victim": {
+  "alive_before_kill": true,
+  "completed_without_kill": false,
+  "exit_code": null,
+  "files_before_kill": {
+   "refunds.sqlite3": {
+    "sha256": "16e7d55af1297006ca0a6a2174f8a1b6bf0f90ea74387600f4b7b9ae56b29f69",
+    "size": 12288
+   },
+   "refunds.sqlite3-shm": {
+    "sha256": "ad5d92269fc6c8b09670795cc06b9b0e422901084eafa9475a8413722fbc0ad4",
+    "size": 32768
+   },
+   "refunds.sqlite3-wal": {
+    "sha256": "8eebe8af89eed8785248a0a637d388628f2be316411d9e288bcd18a65d056bc9",
+    "size": 181312
+   }
+  },
+  "kill_signal_sent": 9,
+  "killed_by_sigkill": true,
+  "pid": 4495,
+  "proc_gone_after": true,
+  "proc_state_before_kill": "S",
+  "ready_line": "READY after_effect_insert_before_commit 4495",
+  "ready_wait_outcome": "ready",
+  "returncode": -9,
+  "run_json_sha256_before_kill": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+  "seam": "after_effect_insert_before_commit",
+  "seam_reached": true,
+  "setup": {
+   "claim_id": "3822efc2-c87a-469b-b4bb-35f796ec268a",
+   "claim_state_after_provision": "issued",
+   "decision_id": "9e27f5e6-9a36-4883-8249-f2445c494dc0",
+   "destination_class": "SeamDestination",
+   "effect_id": "sha256:79930e99498e59c63b616d35c09cf136547f349ade2db61bfe78d93d257be209",
+   "effect_ids_before_execute": [],
+   "mode": "block",
+   "pid": 4495,
+   "ppid": 4356,
+   "run_json": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_effect_insert_before_commit/victim/cp/run.json",
+   "run_json_sha256": "e5c4b0950db74e1db6a4174a8d38eee5197f6fa874285f93ffbf71591f670d93",
+   "seam": "after_effect_insert_before_commit",
+   "sqlite_path": "/var/lib/qgate05-ocs/tmp/mvp-nc_process_kill-g95_3fyy/after_effect_insert_before_commit/victim/sqlite/refunds.sqlite3"
+  },
+  "stderr_tail": "",
+  "stdout": "READY after_effect_insert_before_commit 4495\n",
+  "term_signal": 9
+ }
+}
