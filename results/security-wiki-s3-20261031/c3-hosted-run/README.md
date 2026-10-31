@@ -10,16 +10,20 @@ neither C1 (38 PASS / 0 FAIL / 3 BLOCKED, primary) nor C2 (41 PASS / 0 FAIL / 0 
   security assertion, so run #1 says nothing about security behaviour. The helper also labelled such errors FAIL instead of BLOCKED, and the job did not fail.
 - Not hidden, not deleted. Its artifact `security-wiki-s3-c3-hosted-41229883384-1` exists on GitHub.
 
-## Run #2 - the fixed workflow
+## Runs #2, #3, #4 - the fixed workflow
 - Run 41231370965, head ca541b9e0dcaabc092aaf6a3102af6812b94b014, job 124626105489, 2026-10-31 18:50:45Z-18:57:38Z, conclusion success. Metadata: `run2-metadata.json`, `run2-jobs.json`; annotations: `run2-annotations.json`.
 - Fix: also installs the already-committed hash lock `.github/locks/jsonschema-pyyaml-c943d3.txt` (`--require-hashes`); imports jsonschema/cryptography/pydantic/pytest/yaml before the frozen run;
   the helper classifies ModuleNotFoundError / No module named / ImportError: cannot import name as BLOCKED AND as a harness problem that fails the job; emits a per-test `::notice`. Test: `tests/test_s3_hosted_summary.py`.
 - Result (from the annotation, junit-derived, preliminary): PASS 41, FAIL 0, BLOCKED 0; collected 41, executed 41; python 3.13.17, pytest 8.3.5, jsonschema 4.26.0. Same as C2; no id differs from C2/C1 where visible.
-- Limit of the annotation: GitHub truncates a notice message at 4096 characters, so `run2-annotations.json` lists the per-test lines for only the first 28 of 41 ids (the header counts cover all 41). The remaining
-  per-id verdicts are therefore not individually visible here; fix for future runs = emit chunked notices (not applied: it would trigger a third hosted run).
+- Run #3: 41231979036, head 60cdb9296aa6f04f8b177875797e749e5dd63985 (triggered by the evidence commit, because the PR path filter re-evaluates the whole PR diff), success; header PASS 41 / FAIL 0 / BLOCKED 0, collected 41, executed 41. Files `run3-*.json`.
+- Run #4: 41232844591, head 6c5d89a49c3de29ac78cd01e6e1587010e2b0a3a (chunked-annotation helper), job 124630435286, success; header PASS 41 / FAIL 0 / BLOCKED 0, collected 41, executed 41. Files `run4-*.json`.
+- Which ids are visible: in runs #2 and #3 GitHub truncated the single notice at 4096 characters, so only the first ~28-29 of 41 per-test lines are visible (all PASS); the other 12-13 are covered only by the header counts (41/0/0).
+  In run #4 the helper emitted two chunked notices (1/2, 2/2) and all 41 ids are visible, every one PASS (`run4-annotations.json`).
+- Compared with C2 (41 PASS) and C1 (38 PASS / 3 BLOCKED): no visible id differs from C2.
+- A further hosted run is triggered by the commit that adds this directory (same PR path-filter behaviour). It is a trailing observation; its annotations are deliberately NOT captured here to avoid an endless evidence/run loop. Its result is reported in the PR/coordinator report only.
 
 ## Unverifiable here
-- Artifact `security-wiki-s3-c3-hosted-41231370965-1` (19.8 MB; also `...-41229883384-1`, 4.3 MB) exists on GitHub but could not be downloaded from this environment (egress to the blob host denied; job logs also 403).
+- Artifacts `security-wiki-s3-c3-hosted-<run>-1` for runs 2-4 (run 2 is 19.8 MB; also `...-41229883384-1`, 4.3 MB) exists on GitHub but could not be downloaded from this environment (egress to the blob host denied; job logs also 403).
   Per-case hosted verdicts come from the annotation only until someone downloads and checks the artifact (junit.xml, per-test CSV, SHA256SUMS-all).
 
 ## Other
