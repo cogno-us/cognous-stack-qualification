@@ -20,7 +20,7 @@ PROFILE = ROOT/'process/security-runtime-candidate-20261016.json'
 # Defaults reproduce the historical F3 run when a profile omits these fields.
 DEFAULT_EXCHANGE_PROFILE = 'security-runtime-candidate-20261016'
 DEFAULT_SUITE_GENERATION = 'security'
-SUITE_GENERATIONS = frozenset({'security', 'f5b', 'p4', 'p2'})
+SUITE_GENERATIONS = frozenset({'security', 'f5b', 'p4', 'p2', 'cur'})
 
 
 def git(path, *args):
