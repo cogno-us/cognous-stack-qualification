@@ -12,19 +12,19 @@
   ],
   "replay": [
    "cogno-us/cognous-replay-bundle",
-   "PLACEHOLDER:replay merge SHA"
+   "d395e37c443fedf1bf6b9a4651338b7b7de4a553"
   ],
   "evidence_pack": [
    "cogno-us/cognous-governance-evidence-pack",
-   "PLACEHOLDER:evidence_pack merge SHA"
+   "96f5f2e126a9c27a75716658d4d2e85baf94b40b"
   ],
   "odes": [
    "cogno-us/open-decision-evidence-standard",
-   "PLACEHOLDER:odes merge SHA"
+   "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae"
   ],
   "exchange": [
    "cogno-us/cognous-governed-exchange",
-   "PLACEHOLDER:exchange merge SHA"
+   "PLACEHOLDER:PENDING exchange merge SHA (Exchange profile PR not merged)"
   ],
   "manifest": [
    "cogno-us/cognous-action-manifest",
@@ -32,7 +32,7 @@
   ],
   "registry_migrated": [
    "cogno-us/cognous-ocs-registry",
-   "PLACEHOLDER:registry SHA (confirm)"
+   "6b96a9a658923954433dc1a4c13626fa5145b9c7"
   ],
   "index": [
    "cogno-us/cognous-evidence-registry",
@@ -68,7 +68,7 @@
   ]
  },
  "registry_facts": {
-  "code_equals": "a40fe755e2384a99c37016fa9ad59396f1835900 (r08-v8; CP tests PIN_V8). Non-docs diff a40fe755..6b96a9a6 = README.md only (verified by git diff --name-only)",
+  "code_equals": "a40fe755e2384a99c37016fa9ad59396f1835900 (r08-v8; CP tests PIN_V8). Re-verified 2026-10-31 (git diff a40fe755..6b96a9a6, 28 commits): 62 paths differ (59 added, 3 modified), ALL under docs/ or README.md; subtree ids of registry_adapters, registry_conformance, registry_consumer, registry_contract, registry_records, registry_successor, tests, tools, baseline and root requirements/pytest.ini are identical; 12 .py files under docs/ are analysis scripts not imported by any package/test/CP builder. The probe exercises a40fe755 bytes (CP builders gate on git rev-parse HEAD), never 6b96a9a6 bytes.",
   "ancestors_of_registry_main_verified": [
    "a40fe755e2384a99c37016fa9ad59396f1835900 (v8)",
    "b73c59e6769acd5af7263397e81dfc6fa4561f38 (v7)",
@@ -80,5 +80,24 @@
  "known_consistency_risks": [
   "PLACEHOLDER:re-state after S1 merges; the Replay/ODES/Pack re-tie risk of current-stack-20261031 is expected to be resolved by CUR generations, to be OBSERVED not assumed"
  ],
- "worktrees": "/home/claude/cs-components/{control_plane,runtime,replay,evidence_pack,odes,exchange,manifest,registry,index,bitrep,governance} (detached, pristine)"
+ "worktrees": "/home/claude/cs-components/{control_plane,runtime,replay,evidence_pack,odes,exchange,manifest,registry,index,bitrep,governance} (detached, pristine)",
+ "verified_trees": {
+  "verified_utc": "2026-10-31",
+  "method": "git ls-remote origin refs/heads/main == SHA for every component; gh api commits/<sha> (replay, evidence_pack, odes); tree ids from git rev-parse <sha>^{tree}",
+  "trees": {
+   "control_plane": "039219b5aba7a157fff79781c716067fad7ed985",
+   "runtime": "97da8323368bb5a573fd157b11a9c1dda1178a10",
+   "replay": "0bdee3eacd650ecb0e99781635a972e68cbe2853",
+   "evidence_pack": "2fc26d4c86e65b22bdffedf1090a15e7167440d3",
+   "odes": "d8b33261de975fc504ff8f0ac30a8f47e8ebd43f",
+   "manifest": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
+   "registry": "38d50602ae725e208f010baba05bbf7b908e76ac",
+   "registry_code_equal_a40fe755": "eab8ebcc24243c1abc9b6db834b7ef498f1bcb91",
+   "exchange": "PLACEHOLDER:PENDING exchange tree (follows Exchange merge SHA)"
+  }
+ },
+ "merged_names_verified": {
+  "replay": "agent_replay_bundle.importers.CONTROL_PLANE_CUR_REVISION == b19c47dd..., MOLTBOT_CUR_REVISION == f7a55e2a... (verified by import from git archive of d395e37c)",
+  "odes": "odes.common.CUR_REVISIONS == {manifest fa170815, replay d395e37c, control_plane b19c47dd, moltbot_safe f7a55e2a}; CUR_PROFILE_VERSION == odes-cognous-stack-export-0.2.7-security-runtime-cur-candidate (git archive of 77fd7a1c)"
+ }
 }

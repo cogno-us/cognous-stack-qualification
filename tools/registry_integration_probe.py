@@ -38,7 +38,7 @@ NEEDED = ('control_plane', 'runtime', 'replay', 'registry')
 OPTIONAL_TUPLE = ('evidence_pack', 'odes')
 
 # ----------------------------------------------------------------------------------------------------------------------------------
-# E1 selector, copied ONCE from Replay E1 PR #81 (head a88a383ee3288b2776d50f4f9ea1dc92ec791df3, UNMERGED when this was written):
+# E1 selector, copied ONCE from Replay E1 PR #81 (head a88a383e...; MERGED into Replay main d395e37c443fedf1bf6b9a4651338b7b7de4a553, re-read 2026-10-31):
 #   import_bounded_workflow(..., control_plane_revision=<CP b19c47dd>, control_plane_profile="registry-governed-effective-configuration/0.1")
 #   resulting import-report profile id: control-plane-current-stack-registry-governed-effective-configuration-0.1@b19c47dd
 # The Replay stage runs ONLY if the installed Replay checkout's HEAD == the tuple's Replay SHA AND its modules expose exactly this selector
@@ -46,7 +46,8 @@ OPTIONAL_TUPLE = ('evidence_pack', 'odes')
 # On any Replay without E1 the stage is BLOCKED (never relabelled, never stripped). The SHA of the E1 PR head is NOT a gate (the tuple carries the merged SHA).
 E1_SELECTOR = {"kwarg": "control_plane_profile", "value": "registry-governed-effective-configuration/0.1",
                "profile_id": "control-plane-current-stack-registry-governed-effective-configuration-0.1@b19c47dd",
-               "source": "cogno-us/cognous-replay-bundle PR #81 head a88a383ee3288b2776d50f4f9ea1dc92ec791df3 (unmerged at authoring)"}
+               "source": "cogno-us/cognous-replay-bundle PR #81, merged in main d395e37c443fedf1bf6b9a4651338b7b7de4a553 (src/agent_replay_bundle/effective_configuration.py, importers.py)"}
+VERIFICATION_MARKER = 'internal_consistency_only_registry_source_revision_unverified'  # Replay's own bundle marker: the importer itself says the Registry source is unverified
 PROBE_SCOPE = 'Registry-governed CP decision -> Replay import (E1 profile) ONLY'
 GATES = {  # where each negative is refused (static attribution from S0/E1 reports; the exact refusal text is recorded in each check's `observed`)
     'N_forged_signature': 'Registry verification in registry_successor via CP derive_policy (registry_governed_policy); construction refuses before any state write',
@@ -60,8 +61,10 @@ GATES = {  # where each negative is refused (static attribution from S0/E1 repor
     'N_missing_effective_configuration_under_registry_profile': 'Replay effective_configuration check: member required on every authorized decision (E1 profile)',
     'N_tampered_effective_configuration_under_registry_profile': 'Replay effective_configuration check: digest recomputation / exact shape (E1 profile)',
 }
-NOT_CLAIMED = ['Registry enforcement qualification', 'signature/trust verification', 'live configuration in force', 'Registry revision provenance',
-               'continuous ingress-to-Verifier chain']
+NOT_CLAIMED = ['Registry enforcement qualification', 'Registry source authenticity', 'signature/trust verification', 'live configuration selection / configuration in force',
+               'Registry revision provenance', 'runtime enforcement', 'decision/execution consistency', 'independent verifier acceptance', 'continuous ingress-to-Verifier chain']
+#: statuses that never count as a pass and never block: informational / not meaningful.
+INFO_STATUSES = ('NOT_APPLICABLE', 'NON_DETECTION_RECORDED', 'RETENTION_ONLY')
 #: outcome vocabulary (never "qualified"): PASS_IMPORT = the E1-profile Replay import of the CP-only governed record was accepted AND every other required
 #: check held; REFUSED_AS_EXPECTED = a negative was refused with the recorded text at the recorded gate; BLOCKED(reason) = a stage could not run honestly.
 # ----------------------------------------------------------------------------------------------------------------------------------
@@ -138,7 +141,8 @@ def code_identity(regdir, builder_head, tuple_reg):
     names, _ = git(regdir, 'diff', '--name-only', builder_head, tuple_reg)
     other = [n for n in names.splitlines() if not (n.startswith('docs/') or n == 'README.md')]
     return {'status': 'VERIFIED' if not other else 'DIFFERS', 'exercised': builder_head, 'tuple': tuple_reg, 'diff_stat_tail': stat.splitlines()[-1:] ,
-            'files_outside_docs_and_README': other,
+            'files_outside_docs_and_README': other, 'changed_file_count': len(names.splitlines()),
+            'changed_py_under_docs': sorted(n for n in names.splitlines() if n.endswith('.py') and n.startswith('docs/')),
             'statement': ('code-identical apart from README/docs (git diff --name-only outside docs/ and README.md is empty)' if not other
                           else f'NOT code-identical: {other[:10]}')}
 
@@ -212,7 +216,7 @@ def main(argv=None):
     sums = '\n'.join(f'{sha256(p)}  ./{p.relative_to(a.out).as_posix()}' for p in sorted(a.out.rglob('*')) if p.is_file() and p.name != 'SHA256SUMS')
     (a.out / 'SHA256SUMS').write_text(sums + '\n')
     ev = json.loads((a.out / 'evidence.json').read_text()) if (a.out / 'evidence.json').exists() else {'overall': 'FAIL', 'reason': 'child wrote no evidence.json'}
-    print(json.dumps({'overall': ev.get('overall'), 'out': str(a.out)}))
+    print(json.dumps({'outcome': ev.get('outcome'), 'overall': ev.get('overall'), 'qualification': 'NONE (non-authorizing probe; see evidence.json not_claimed)', 'out': str(a.out)}))
     return {'PASS': 0, 'BLOCKED': 3}.get(ev.get('overall'), 1)
 
 
@@ -228,7 +232,7 @@ def child(cfg):
         print(f'[{status}] {group}.{key} {kw.get("reason") or kw.get("observed") or ""}', flush=True)
 
     def finish():
-        req = [v['status'] for v in list(out['stages'].values()) + list(out['checks'].values()) if not v.get('optional')]
+        req = [v['status'] for v in list(out['stages'].values()) + list(out['checks'].values()) if not v.get('optional') and v['status'] not in INFO_STATUSES]
         out['overall'] = 'FAIL' if 'FAIL' in req else 'BLOCKED' if ('BLOCKED' in req or 'NOT_RUN' in req) else 'PASS'
         blocked = sorted(k for k, v in list(out['stages'].items()) + list(out['checks'].items()) if v['status'] == 'BLOCKED' and not v.get('optional'))
         out['outcome'] = {'PASS': 'PASS_IMPORT', 'FAIL': 'FAIL'}.get(out['overall']) or 'BLOCKED(' + ','.join(blocked or ['not_run']) + ')'
@@ -252,6 +256,9 @@ def child(cfg):
             'code_identity': ci, 'code_identity_epistemic_status': ci.get('status', 'INFERRED')}
         if dry:
             out['outcome'] = 'DRY_CHECK_OK (nothing executed; NOT an import result)' if out['overall'] == 'PASS' else out['outcome']
+        out['source_trust'] = 'UNAVAILABLE: Replay retains but does not verify the Registry source; no signature, trust snapshot or Registry revision is carried in the imported record'
+        out['overall_meaning'] = ('overall PASS only means every REQUIRED probe item behaved as recorded for ONE synthetic scenario; it is not a qualification and it does not promote any '
+                                  'import success to a claim in not_claimed. Runtime export is BLOCKED (optional) and the Replay stage imports the CP-only record.')
         out['claims_made'] = []
         out['not_claimed'] = list(NOT_CLAIMED)
         out['verifier_run'] = False
@@ -286,6 +293,31 @@ def child(cfg):
 
     # ---- Replay import surface (static facts; no scenario)
     from agent_replay_bundle import importers as I
+
+    def _under(mod, root):
+        try:
+            return Path(mod.__file__).resolve().is_relative_to(Path(root).resolve())
+        except Exception:
+            return False
+    import importlib
+    comp_ = Path(cfg['components'])
+    origin_expect = {'agent_replay_bundle': comp_ / 'replay' / 'src', 'agent_control_plane': comp_ / 'control_plane' / 'src', 'engine': comp_ / 'runtime',
+                     'tests': comp_ / 'control_plane' / 'tests', 'registry_successor': info['builder_dir'], 'registry_adapters': info['builder_dir']}
+    origin_obs, origin_bad = {}, []
+    for name, root in origin_expect.items():
+        try:
+            m_ = importlib.import_module(name)
+            origin_obs[name] = str(Path(m_.__file__).resolve()) if getattr(m_, '__file__', None) else str(list(m_.__path__))
+            if not _under(m_, root) and not (getattr(m_, '__path__', None) and any(Path(x).resolve().is_relative_to(Path(root).resolve()) for x in m_.__path__)):
+                origin_bad.append(f'{name} loaded from {origin_obs[name]}, expected under {root}')
+        except Exception as e:
+            origin_bad.append(f'{name}: {type(e).__name__}: {str(e)[:100]}')
+    try:
+        import nacl as _nacl
+        origin_obs['nacl'] = {'file': str(Path(_nacl.__file__).resolve()), 'version': getattr(_nacl, '__version__', None)}
+    except Exception as e:
+        origin_bad.append(f'nacl: {type(e).__name__}: {str(e)[:100]}')
+    put('stages', 'module_origins', 'FAIL' if origin_bad else 'PASS', observed=origin_obs, reason='; '.join(origin_bad) or None)
     cur = getattr(I, 'CONTROL_PLANE_CUR_REVISION', None)
     t = cfg['tuple']
     if cur is None:
@@ -308,7 +340,7 @@ def child(cfg):
     why = []
     if head != t['replay']:
         why.append(f"Replay installed HEAD {head or '?'} != tuple Replay SHA {t['replay']}")
-    if not str(Path(I.__file__).resolve()).startswith(str(replay_dir.resolve())):
+    if not _under(I, replay_dir):
         why.append(f'agent_replay_bundle imported from {I.__file__}, not from the tuple Replay checkout')
     if e1['kwarg'] not in inspect.signature(I.import_bounded_workflow).parameters:
         why.append(f"import_bounded_workflow has no kwarg {e1['kwarg']!r}")
@@ -329,6 +361,7 @@ def child(cfg):
     mp = pytest.MonkeyPatch()
     D.patch_clock(mp)  # the CP builders' fixed synthetic clock (recorded caveat)
     BASE = {'anc': 'anchor', 'age': 60, 'tol': 2}
+    rec_sub = None
 
     def newdir(n):
         d = work / n
@@ -421,6 +454,8 @@ def child(cfg):
             reasons = [r.reasons for r in wf.records.load().refusals][-1:] or None
             eff = wf.destination.snapshot()['effects']
             good = st == 'mismatch' and ex != 'EXECUTED' and not eff and reasons and 'authorization_binding_changed' in json.dumps(reasons)
+            if label == 'substituted_configuration_age61':
+                rec_sub = json.loads((store2 / 'run.json').read_text())
             put('checks', 'N_' + label, 'PASS' if good else 'FAIL', expected='mismatch / refused / authorization_binding_changed / no effect',
                 observed={'status': st, 'execute': ex[:160], 'reasons': reasons, 'effects': eff})
         except Exception as e:
@@ -480,8 +515,52 @@ def child(cfg):
         blob = json.dumps(bundle.model_dump(mode='json'), sort_keys=True, default=str) if bundle is not None else ''
         prov_ok = bundle is not None and bundle.import_reports[0].adapter_profile == e1_profile_id and ec['digest'] in blob and all(r['effective_policy_digest'] in blob for r in rows.values()) \
             and cur in blob and '7a4bcd40' not in blob and 'c5e97e87' not in blob
-        put('stages', 'replay_e1_import_governed_record', 'PASS' if (r_pos == 'ACCEPTED' and prov_ok) else 'FAIL',
-            observed={'import': r_pos, 'retains_digest_and_family_rows_and_cur_label_no_historical_label': bool(prov_ok), 'complete': getattr(bundle, 'complete', None)})
+        rep0 = bundle.import_reports[0].model_dump(mode='json') if bundle is not None else {}
+        marker_ok = bundle is not None and VERIFICATION_MARKER in blob
+        put('stages', 'replay_e1_import_governed_record', 'PASS' if (r_pos == 'ACCEPTED' and prov_ok and marker_ok) else 'FAIL',
+            observed={'import': r_pos, 'retains_digest_and_family_rows_and_cur_label_no_historical_label': bool(prov_ok), 'replay_verification_marker_retained': bool(marker_ok),
+                      'import_report_complete': rep0.get('complete'), 'import_report_findings': [f.get('code') for f in rep0.get('findings', [])],
+                      'note': 'import_report_complete is False for a CP-only record (no executor evidence); acceptance is NOT completeness and NOT source verification'})
+        # lineage: DECISION lineage that the record actually carries is retained; SOURCE lineage is not in the record at all.
+        ids = [dd.get('decision_id') for dd in record['decisions']]
+        lin_ok = bundle is not None and all(i and i in blob for i in ids) and prop.get('action_id') in blob and prop.get('tenant_id') in blob and ec['members']['scope']['tenant_id'] in blob
+        put('checks', 'lineage_decision_retained', 'PASS' if lin_ok else 'FAIL', observed={'decision_ids': ids, 'action_id': prop.get('action_id'), 'tenant_id': prop.get('tenant_id')},
+            note='decision/proposal identity and the CP configuration binding survive import; says nothing about who produced them')
+        src_terms = [x for x in (t['registry'], info.get('builder_head'), 'selection_', 'signature') if x and x in json.dumps(record)]
+        put('checks', 'lineage_source_registry', 'NOT_APPLICABLE' if not src_terms else 'FAIL', optional=not src_terms,
+            reason=('the CP record carries no Registry revision, selection id, signature or trust snapshot, so source lineage cannot be preserved or verified by Replay; '
+                    'this is UNAVAILABLE, not a pass' if not src_terms else f'unexpected source-lineage terms in the record, review before any claim: {src_terms}'))
+        # Replay-side stale/revoked: no time or revision binding in the record; only the effective_profile_digest == catalogue_digest tie exists.
+        put('checks', 'replay_stale_revoked_selection', 'NOT_APPLICABLE', optional=True,
+            reason='Replay has no Registry selection state, validity window or revocation list; stale/revoked selection is exercised ONLY CP-side (N_revoked_selection, N_withdrawn_selection, N_stale_expired_selection)')
+        put('checks', 'replay_forged_signature', 'NOT_APPLICABLE', optional=True,
+            reason='the imported record contains no signature to verify; N_forged_signature is a CP/Registry-builder construction refusal on synthetic keys, not a Replay result')
+        eff_ = ec['members']['effective_profile_digest']
+        if eff_ is None:
+            put('checks', 'N_replay_catalogue_tie_broken', 'BLOCKED', reason='effective_profile_digest is null in this record, the catalogue tie does not exist')
+        else:
+            tie = json.loads(json.dumps(record))
+            for dd in tie['decisions']:
+                dd['binding']['runtime_authority']['catalogue_digest'] = 'sha256:' + '4' * 64
+            r_tie, _ = replay(tie, **e1_kw)
+            put('checks', 'N_replay_catalogue_tie_broken', 'PASS' if r_tie != 'ACCEPTED' else 'FAIL', expected='refused (effective_profile_digest != catalogue_digest)', observed=r_tie)
+        # Known Replay non-detection: a self-consistent (resealed) substitution is accepted. Recorded as a limit, never as a pass or fail.
+        res_ = json.loads(json.dumps(record))
+        for dd in res_['decisions']:
+            e_ = dd['binding']['runtime_authority']['effective_configuration']
+            e_['members']['families'][0]['effective_policy_digest'] = 'sha256:' + '3' * 64
+            e_['digest'] = _EC.digest_of(e_['version'], e_['members'])
+        r_res, _ = replay(res_, **e1_kw)
+        put('checks', 'replay_resealed_substitution', 'NON_DETECTION_RECORDED', optional=True, observed=r_res,
+            statement=('Replay accepts a configuration whose members were edited and whose digest was recomputed (family digests are not checkable from the record). '
+                       'Expected; therefore import success must never be read as authenticity, trust or live-configuration evidence.' if r_res == 'ACCEPTED'
+                       else 'Replay refused the resealed record: the documented non-detection no longer holds, re-read Replay before relying on this probe'))
+        # Replay import of the CP substituted-configuration refusal record (retention only; NOT a consistency claim)
+        if rec_sub is not None:
+            r_sub, b_sub = replay(rec_sub, **e1_kw)
+            sub_blob = json.dumps(b_sub.model_dump(mode='json'), sort_keys=True, default=str) if b_sub is not None else ''
+            put('checks', 'replay_retains_binding_changed_refusal', 'RETENTION_ONLY', optional=True, observed={'import': r_sub, 'refusal_reason_retained': 'authorization_binding_changed' in sub_blob},
+                statement='shows the refusal and the decision-time member are retained; Replay does not compare the executed configuration with the decision, so no decision/execution consistency claim')
         miss = json.loads(json.dumps(record))
         for dd in miss['decisions']:
             dd['binding']['runtime_authority'].pop('effective_configuration', None)
