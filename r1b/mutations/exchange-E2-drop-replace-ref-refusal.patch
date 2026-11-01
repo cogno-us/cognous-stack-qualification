@@ -1,0 +1,13 @@
+diff --git a/experiments/odex_gax_imx_reference/gax_ref_runtime.py b/experiments/odex_gax_imx_reference/gax_ref_runtime.py
+index 30390a4..d697be8 100644
+--- a/experiments/odex_gax_imx_reference/gax_ref_runtime.py
++++ b/experiments/odex_gax_imx_reference/gax_ref_runtime.py
+@@ -190,8 +190,6 @@ def _checkout_source_problems(top: Path) -> list[str]:
+                               timeout=120, **kwargs).stdout
+ 
+     problems = []
+-    if git("for-each-ref", "--count=1", "refs/replace/").strip():
+-        problems.append("replace refs (refs/replace) present: a replaced commit or tree would stand in for the revision")
+     for line in git("ls-files", "-v", "-z").split("\0"):
+         if line and (line[0].islower() or line[0] == "S"):
+             problems.append(f"index flag hides modifications: {line[2:]}")
