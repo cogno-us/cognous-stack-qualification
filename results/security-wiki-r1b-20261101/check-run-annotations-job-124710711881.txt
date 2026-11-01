@@ -1,0 +1,118 @@
+warning	
+Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683, actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+notice	R1B mutation verdicts 1/1 (4 lines
+MUTATION_DETECTED replay-M1 restored=PASS | expected-digest comparison bypassed (resealed substitution accepted under trusted match) | patch 94d513d5fb71 | other failing=4
+MUTATION_DETECTED replay-M2 restored=PASS | explicit missing (None) expected digest no longer refused (downgrade to structural-only) | patch 87ffd0642e37 | other failing=0
+MUTATION_DETECTED exchange-E1 restored=PASS | --no-replace-objects prefix removed from every source-reading git call | patch 4b42f81a7b22 | other failing=1
+MUTATION_DETECTED exchange-E2 restored=PASS | refs/replace refusal removed from the checkout source check | patch 3940857ba498 | other failing=0
+notice	R1B exchange verdicts 2/2 (35 lines
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[typed-refusal-candidate-20261015-commit] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[typed-refusal-candidate-20261015-tree] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[typed-refusal-candidate-20261015-alt-base] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_refs_are_not_interpreted_by_the_identity_and_blob[commit] | declared in test: see test source
+PASS test_replace_refs_are_not_interpreted_by_the_identity_and_blob[tree] | declared in test: see test source
+PASS test_replace_refs_are_not_interpreted_by_the_identity_and_blob[alt-base] | declared in test: see test source
+PASS test_checkout_with_a_replace_ref_is_reported | declared in test: refs/replace
+PASS test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_r[security-runtime-candidate-20261016] | declared in test: see test source
+PASS test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_r[security-runtime-current-20261031] | declared in test: see test source
+PASS test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_r[security-runtime-current-20261031-r2] | declared in test: see test source
+PASS test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_r[security-runtime-f5b-20261016] | declared in test: see test source
+PASS test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_r[security-runtime-p2-20261018] | declared in test: see test source
+PASS test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_r[security-runtime-p4-20261017] | declared in test: see test source
+PASS test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_r[typed-refusal-candidate-20261015] | declared in test: see test source
+PASS test_replace_ref_substitution_in_the_manifest_checkout_is_refu[commit] | declared in test: candidate source identity mismatch: manifest
+PASS test_replace_ref_substitution_in_the_manifest_checkout_is_refu[tree] | declared in test: candidate source identity mismatch: manifest
+PASS test_replace_ref_substitution_in_the_manifest_checkout_is_refu[alt-base] | declared in test: candidate source identity mismatch: manifest
+notice	R1B exchange verdicts 1/2 (35 lines
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-candidate-20261016-commit] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-candidate-20261016-tree] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-candidate-20261016-alt-base] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-current-20261031-commit] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-current-20261031-tree] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-current-20261031-alt-base] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-current-20261031-r2-commit] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-current-20261031-r2-tree] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-current-20261031-r2-alt-base] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-f5b-20261016-commit] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-f5b-20261016-tree] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-f5b-20261016-alt-base] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-p2-20261018-commit] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-p2-20261018-tree] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-p2-20261018-alt-base] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-p4-20261017-commit] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-p4-20261017-tree] | declared in test: candidate source identity mismatch: agent_replay_bun
+PASS test_replace_ref_substitution_is_refused_before_the_substitute[security-runtime-p4-20261017-alt-base] | declared in test: candidate source identity mismatch: agent_replay_bun
+notice	R1B replay verdicts 3/3 (71 lines
+PASS R1-N08[283500652d47a692fb0b99a1172a6d5faffbd9a7-None] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_unsupported_profile
+PASS R1-N08b[registry-governed-effective-configuration/0.1-7 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[registry-governed-effective-configuration/0.1-2 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[registry-governed-effective-configuration/0.1-a | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[registry-governed-effective-configuration/0.1-9 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[registry-governed-effective-configuration/0.1-2 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[registry-governed-effective-configuration/0.2-b | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[latest-b19c47ddd020409d24e52e70b11359c46265edbb | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[-b19c47ddd020409d24e52e70b11359c46265edbb] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[registry-governed-effective-configuration/0.1 - | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08b[control-plane-current-stack-registry-governed-e | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08c | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_unsupported_profile
+PASS R1-N08d | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-N08e | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_record_missing
+PASS R1-N09 | prov=N/A | declared in test: effective_configuration_expected_missing
+PASS R1-N09b | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-AUX | prov=N/A | declared in test: see test source
+PASS R1-AUX | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+notice	R1B replay verdicts 2/3 (71 lines
+PASS R1-N06[sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[sha512:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[sha256:0000000000000000000000000000000000000000 | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[ ] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[sha256:74e7cda7975979258803766c340a55d5fbdb1ea8 | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[ sha256:74e7cda7975979258803766c340a55d5fbdb1ea | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[sha256:74e7cda7975979258803766c340a55d5fbdb1ea8 | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\u0661\u | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[0] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[1] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[True] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[False] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[bad5] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[bad6] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[3.5] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06b[bad8] | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06c | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06d | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N07 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N08[b19c47ddd020409d24e52e70b11359c46265edbb-None] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_unsupported_profile
+PASS R1-N08[7a4bcd40b3b49e61ff3c294dcca53b52f460b22c-None] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_unsupported_profile
+PASS R1-N08[26a7e6594eb535827ccc248cbca36a7d119d613b-None] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_unsupported_profile
+PASS R1-N08[a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5-None] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_unsupported_profile
+PASS R1-N08[996baeb476c8745b1a58ddc968b9eecc6a39b76b-None] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_unsupported_profile
+notice	R1B replay verdicts 1/3 (71 lines
+PASS R1-P01 | prov=INDEPENDENT-HARDCODED-VECTOR | accepted as caller_trusted_configuration_match (registry_authenticated
+PASS R1-P01b[governed_executed] | prov=INDEPENDENT-HARDCODED-VECTOR | accepted as caller_trusted_configuration_match (registry_authenticated
+PASS R1-P01b[governed_binding_changed] | prov=INDEPENDENT-HARDCODED-VECTOR | accepted as caller_trusted_configuration_match (registry_authenticated
+PASS R1-P01b[governed_decided_only] | prov=INDEPENDENT-HARDCODED-VECTOR | accepted as caller_trusted_configuration_match (registry_authenticated
+PASS R1-P01c | prov=INDEPENDENT-HARDCODED-VECTOR | accepted as caller_trusted_configuration_match (registry_authenticated
+PASS R1-P02 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: see test source
+PASS R1-P03 | prov=INDEPENDENT-HARDCODED-VECTOR | accepted as caller_trusted_configuration_match (registry_authenticated
+PASS R1-N01 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: schema_violation
+PASS R1-N02 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02b[scalar] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02b[observation_policy] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02b[host_digest] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02b[institution] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02b[authority_domain] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02b[consumer] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02b[family_dropped] | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N02c | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N03 | prov=NON-INDEPENDENT-COPIED-FROM-RECORD | accepted as caller_trusted_configuration_match (registry_authenticated
+PASS R1-N04 | prov=INDEPENDENT-HARDCODED-VECTOR | declared in test: effective_configuration_expected_mismatch
+PASS R1-N05 | prov=N/A | declared in test: effective_configuration_expected_missing
+PASS R1-N06[sha256:gggggggggggggggggggggggggggggggggggggggg | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[SHA256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[Sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[sha256:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[SHA256:74E7CDA7975979258803766C340A55D5FBDB1EA8 | prov=N/A | declared in test: effective_configuration_expected_malformed
+PASS R1-N06[sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | prov=N/A | declared in test: effective_configuration_expected_malformed
