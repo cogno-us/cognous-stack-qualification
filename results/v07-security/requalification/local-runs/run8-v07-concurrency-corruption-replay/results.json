@@ -1,0 +1,207 @@
+{
+ "cases": [
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c01_os_process_withdrawal_racing_a_stream_of_executions",
+   "expected": null,
+   "note": "monotone=True guard_heads_below_withdraw=True",
+   "observed": {
+    "denied": 109,
+    "executed": 51,
+    "first_denied_index": 51,
+    "max_guard_head_of_effects": 3,
+    "probe_stderr": "",
+    "withdraw_sequence": 4
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c02_two_processes_execute_the_same_claim",
+   "expected": null,
+   "note": "effects=1",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "results": [
+     {
+      "mode": "exec_one",
+      "pid": 1324,
+      "status": "denied",
+      "typed": null
+     },
+     {
+      "mode": "exec_one",
+      "pid": 1325,
+      "status": "executed",
+      "typed": null
+     }
+    ],
+    "subprocess_raw": [
+     {
+      "exit_code": 0,
+      "stderr_tail": "",
+      "stdout_tail": "V07PROBE {\"mode\": \"exec_one\", \"pid\": 1324, \"status\": \"denied\", \"typed\": null}\n"
+     },
+     {
+      "exit_code": 0,
+      "stderr_tail": "",
+      "stdout_tail": "V07PROBE {\"mode\": \"exec_one\", \"pid\": 1325, \"status\": \"executed\", \"typed\": null}\n"
+     }
+    ]
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c05_process_killed_between_effect_insert_and_commit",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "claim_state": "issued",
+    "counts": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "counts_after_retry": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "exit_code": 9,
+    "retry_status": "executed"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c06_process_killed_immediately_after_commit",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "effects_after_crash": 1,
+    "exit_code": 9,
+    "replay_status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c07_long_lived_destination_does_not_cache_authority",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": null,
+     "code": "selection_withdrawn",
+     "refusal_class": "REFUSE"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_d02_anchor_ahead_of_the_store",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "attempted": false,
+    "counts_effects_attempts_receipts_budget": [
+     0,
+     0,
+     0,
+     0
+    ],
+    "selection_refusal": {
+     "cause": "anchor_ahead",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_t03_resubmitted_epoch_1_activation_after_epoch_2",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "accepted": false,
+    "epoch_now": 2,
+    "refusal": "SelectionRefusal: selection_epoch_stale"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_i04_control_plane_refuses_a_binding_the_approval_did_not_commit_to",
+   "expected": null,
+   "note": "",
+   "observed": {
+    "honest": "issued",
+    "mode": "cp_issue",
+    "pid": 1328,
+    "returncode": 0,
+    "stderr": "",
+    "tampered": "refused: PermissionError policy binding refused at claim issuance: policy binding is inconsistent with the approval-side policy binding"
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Bounded synthetic adversarial assessment by the builder identity; not an independent-party review, not a production security qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 8,
+  "SKIP": 0,
+  "executed": 8
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "3d71e7ee24375abc5cff3f28e7073318e902b586",
+ "qualification_v06_pin": "ae12221831bc39beea6dbf0ae7fda726baeecf1f",
+ "requalification": {
+  "historical_assessment_head": "878002c62a0e8c6987af69d29667b64822108b59",
+  "historical_pins": {
+   "registry": "943ab1831e39fadac1eb2a414ae322ccfa09bc6a",
+   "runtime": "4199a6c793cd9ec37a5fd451f7d99265dcf634fd"
+  },
+  "note": "pins above are the patched requalification pins; the original A08 BREACH was recorded at the historical pins"
+ },
+ "schema": "v07-security-results/1",
+ "verdicts": {
+  "HELD": 8
+ }
+}

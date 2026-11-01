@@ -1,0 +1,420 @@
+{
+  "schema": "cognous.v1-validation-freeze-verification/1",
+  "validation_id": "v1-2026-10-16-a",
+  "harness_revision": "c5f35fa151addca25f46c2402eb6c1dad243384a",
+  "workflow_run": "38961813148",
+  "run_attempt": "1",
+  "python": "3.12.15 (main, Oct  1 2026, 02:35:59) [GCC 13.3.0]",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f",
+      "group": "components_subject"
+    },
+    "moltbot_safe": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226",
+      "group": "components_subject"
+    },
+    "replay_bundle": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "tree": "ddeb089c79f4511f8423047c4691dad553ece263",
+      "group": "components_subject"
+    },
+    "governance_evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "tree": "41c496293ab68ba242cf92870309e7ee21333bea",
+      "group": "components_subject"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441",
+      "group": "components_subject"
+    },
+    "gax_imx_transport": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4",
+      "group": "components_subject"
+    },
+    "action_manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17",
+      "group": "components_subject"
+    },
+    "bitrep": {
+      "repository": "cogno-us/cognous-evidence-attestation",
+      "commit": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "tree": "b110fa154f5c3cecb680ea858bd8c0cf6b8beca5",
+      "group": "components_lock_remainder"
+    },
+    "the_index": {
+      "repository": "cogno-us/cognous-evidence-registry",
+      "commit": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "tree": "5ba4c5d07d8a71870ae866cb3a5d878002589b4d",
+      "group": "components_lock_remainder"
+    },
+    "constitutional_authority": {
+      "repository": "cogno-us/cognous-institutional-governance",
+      "commit": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "tree": "54b88e91aaf7c8000e7ffcdab1cd2b5b983438ff",
+      "group": "components_lock_remainder"
+    },
+    "prp": {
+      "repository": "cogno-us/portable-reasoning-protocol",
+      "commit": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "tree": "35712bb89f6d09754b8591ec6a381e1b53c957bd",
+      "group": "components_optional"
+    },
+    "research_intelligence": {
+      "repository": "cogno-us/research-intelligence-protocol",
+      "commit": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "tree": "393addcbe44212d674a2c7be552b5066f41de622",
+      "group": "components_optional"
+    },
+    "tfa": {
+      "repository": "cogno-us/truth-freedom-agency-protocol",
+      "commit": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "tree": "36dc7a0ce5c98353685a1339e25d0f53537df58c",
+      "group": "components_optional"
+    }
+  },
+  "checks": [
+    {
+      "check": "hub head equals frozen hub head",
+      "status": "PASS",
+      "expected": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "actual": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "detail": null
+    },
+    {
+      "check": "hub public-reference tag peels to recorded commit",
+      "status": "PASS",
+      "expected": "a2d3a509856e1621105664c5f11195f6f6b100ce",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "hub tag commit is an ancestor of hub head",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "hub head differs from tag only by the recorded tag-recording files",
+      "status": "PASS",
+      "expected": [
+        "collateral/evidence-snapshot.json",
+        "docs/release-status.md"
+      ],
+      "actual": [
+        "collateral/evidence-snapshot.json",
+        "docs/release-status.md"
+      ],
+      "detail": null
+    },
+    {
+      "check": "hub file hash component-lock.json",
+      "status": "PASS",
+      "expected": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+      "actual": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+      "detail": null
+    },
+    {
+      "check": "hub file hash tools/requirements-release.lock",
+      "status": "PASS",
+      "expected": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+      "actual": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+      "detail": null
+    },
+    {
+      "check": "hub file hash profiles/security-runtime-f5b-candidate-20261016.json",
+      "status": "PASS",
+      "expected": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274",
+      "actual": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274",
+      "detail": null
+    },
+    {
+      "check": "qualification file hash process/security-runtime-f5b-20261016.json",
+      "status": "PASS",
+      "expected": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+      "actual": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+      "detail": null
+    },
+    {
+      "check": "qualification file hash tools/requirements-ci.lock",
+      "status": "PASS",
+      "expected": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495",
+      "actual": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495",
+      "detail": null
+    },
+    {
+      "check": "qualification closeout is an ancestor of the harness checkout",
+      "status": "PASS",
+      "expected": "af9f5843b9188ee5c6dc0648206d1e92e41a73ef",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "qualification public-reference tag peels to closeout",
+      "status": "PASS",
+      "expected": "af9f5843b9188ee5c6dc0648206d1e92e41a73ef",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "runtime public-reference tag peels to recorded sha",
+      "status": "PASS",
+      "expected": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "runtime quarantine tag exists",
+      "status": "PASS",
+      "expected": null,
+      "actual": null,
+      "detail": null
+    },
+    {
+      "check": "hub profile pin control_plane equals manifest",
+      "status": "PASS",
+      "expected": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "actual": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin runtime equals manifest",
+      "status": "PASS",
+      "expected": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "actual": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin replay equals manifest",
+      "status": "PASS",
+      "expected": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "actual": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin evidence_pack equals manifest",
+      "status": "PASS",
+      "expected": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "actual": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin odes equals manifest",
+      "status": "PASS",
+      "expected": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "actual": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin exchange equals manifest",
+      "status": "PASS",
+      "expected": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "actual": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "detail": null
+    },
+    {
+      "check": "hub profile pin manifest equals manifest",
+      "status": "PASS",
+      "expected": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "actual": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin control_plane equals manifest",
+      "status": "PASS",
+      "expected": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "actual": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin runtime equals manifest",
+      "status": "PASS",
+      "expected": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "actual": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin replay equals manifest",
+      "status": "PASS",
+      "expected": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "actual": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin evidence_pack equals manifest",
+      "status": "PASS",
+      "expected": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "actual": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin odes equals manifest",
+      "status": "PASS",
+      "expected": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "actual": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin exchange equals manifest",
+      "status": "PASS",
+      "expected": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "actual": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "detail": null
+    },
+    {
+      "check": "qualification profile pin manifest equals manifest",
+      "status": "PASS",
+      "expected": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "actual": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin bitrep equals manifest",
+      "status": "PASS",
+      "expected": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "actual": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin the_index equals manifest",
+      "status": "PASS",
+      "expected": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "actual": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin constitutional_authority equals manifest",
+      "status": "PASS",
+      "expected": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "actual": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin prp equals manifest",
+      "status": "PASS",
+      "expected": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "actual": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin research_intelligence equals manifest",
+      "status": "PASS",
+      "expected": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "actual": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "detail": null
+    },
+    {
+      "check": "hub lock pin tfa equals manifest",
+      "status": "PASS",
+      "expected": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "actual": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "detail": null
+    },
+    {
+      "check": "component control_plane resolves to pinned commit",
+      "status": "PASS",
+      "expected": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "actual": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "detail": null
+    },
+    {
+      "check": "component moltbot_safe resolves to pinned commit",
+      "status": "PASS",
+      "expected": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "actual": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "detail": null
+    },
+    {
+      "check": "component replay_bundle resolves to pinned commit",
+      "status": "PASS",
+      "expected": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "actual": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "detail": null
+    },
+    {
+      "check": "component governance_evidence_pack resolves to pinned commit",
+      "status": "PASS",
+      "expected": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "actual": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "detail": null
+    },
+    {
+      "check": "component odes resolves to pinned commit",
+      "status": "PASS",
+      "expected": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "actual": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "detail": null
+    },
+    {
+      "check": "component gax_imx_transport resolves to pinned commit",
+      "status": "PASS",
+      "expected": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "actual": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "detail": null
+    },
+    {
+      "check": "component action_manifest resolves to pinned commit",
+      "status": "PASS",
+      "expected": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "actual": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "detail": null
+    },
+    {
+      "check": "component bitrep resolves to pinned commit",
+      "status": "PASS",
+      "expected": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "actual": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "detail": null
+    },
+    {
+      "check": "component the_index resolves to pinned commit",
+      "status": "PASS",
+      "expected": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "actual": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "detail": null
+    },
+    {
+      "check": "component constitutional_authority resolves to pinned commit",
+      "status": "PASS",
+      "expected": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "actual": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "detail": null
+    },
+    {
+      "check": "component prp resolves to pinned commit",
+      "status": "PASS",
+      "expected": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "actual": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "detail": null
+    },
+    {
+      "check": "component research_intelligence resolves to pinned commit",
+      "status": "PASS",
+      "expected": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "actual": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "detail": null
+    },
+    {
+      "check": "component tfa resolves to pinned commit",
+      "status": "PASS",
+      "expected": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "actual": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "detail": null
+    }
+  ],
+  "status": "PASS"
+}

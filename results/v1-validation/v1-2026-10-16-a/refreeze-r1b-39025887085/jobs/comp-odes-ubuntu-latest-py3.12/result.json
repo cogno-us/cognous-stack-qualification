@@ -1,0 +1,69 @@
+{
+  "schema": "cognous.v1-validation-job/1",
+  "component": "odes",
+  "repository": "cogno-us/open-decision-evidence-standard",
+  "pinned_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+  "actual_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+  "os": "ubuntu-latest",
+  "python": "3.12.15",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "workflow_run": "39025887085",
+  "run_attempt": "1",
+  "job": "components",
+  "attempts": [
+    {
+      "attempt": 1,
+      "installs": [
+        {
+          "target": ".[dev,test]",
+          "rc": 0
+        }
+      ],
+      "returncode": 0,
+      "execution_seconds": 0.33,
+      "timed_out": false,
+      "counts": {
+        "testcases": 91,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "setup_ok": true,
+      "outcome": "PASS"
+    }
+  ],
+  "timeout_seconds": 300,
+  "inventory": {
+    "ci_runs_on": {
+      "tests.yml": [
+        "ubuntu-latest"
+      ]
+    },
+    "test_dirs": [
+      "tests",
+      "conformance/test-vectors"
+    ],
+    "test_files": [
+      "tests/test_bundle_version.py",
+      "tests/test_replay_semantic_comparison.py",
+      "tests/test_security_cloud_regressions.py",
+      "tests/test_shared_journal_export.py"
+    ],
+    "test_file_count": 4,
+    "ci_workflows": [
+      "merged-producers.yml",
+      "tests.yml",
+      "typed-refusal.yml"
+    ],
+    "has_pyproject": true,
+    "has_requirements": []
+  },
+  "status": "PASS",
+  "reason": null,
+  "log": {
+    "sha256_uncompressed": "061d70db533f1572774fa263cedb7d70359739dcdf53d3fb9490a1c2145a6478",
+    "bytes_uncompressed": 1103,
+    "retained": true,
+    "file": "job.log.gz"
+  }
+}

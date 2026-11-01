@@ -1,0 +1,113 @@
+{
+  "case": "A16_last_unit_taken_between_check_and_write",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "505a3590114705b7ebf736b92dd189f338134635",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "afedbd6da3572f53b526c797bbe41cb26dc00cb9"
+      },
+      "exchange": {
+        "commit": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "f7ba44749c5aa0abf1b67bdb5605267802093474"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "71d1b377d1a77a9de6af618a3d625060ba543e2c"
+      },
+      "replay": {
+        "commit": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "0caea786da735b4878682642a7cb1a30da48ecde"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r2.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "latency_ms_run1_and_run2": [
+    {
+      "conventional.submit": {
+        "max_ms": 1.681,
+        "median_ms": 1.222,
+        "n": 2
+      },
+      "v1.submit": {
+        "max_ms": 2.305,
+        "median_ms": 1.798,
+        "n": 2
+      }
+    },
+    {
+      "conventional.submit": {
+        "max_ms": 1.591,
+        "median_ms": 1.158,
+        "n": 2
+      },
+      "v1.submit": {
+        "max_ms": 2.341,
+        "median_ms": 1.837,
+        "n": 2
+      }
+    }
+  ],
+  "latency_note": "wall time per submit on one host; not compared between runs, not a ranking, includes no human time",
+  "per_arm": {
+    "conventional": {
+      "approvals_required": 2,
+      "claims_issued": 0,
+      "correct": false,
+      "denied_or_unknown_responses": 0,
+      "effects": 2,
+      "excess_duplicate_effects": 0,
+      "false_blocks": 0,
+      "unauthorized_effects": 1
+    },
+    "v1": {
+      "approvals_required": 2,
+      "claims_issued": 2,
+      "correct": true,
+      "denied_or_unknown_responses": 1,
+      "effects": 1,
+      "excess_duplicate_effects": 0,
+      "false_blocks": 0,
+      "unauthorized_effects": 0
+    }
+  },
+  "report_only": true,
+  "scenario": "C22",
+  "test": "test_scn_c22_equal_conditions_case[A16_last_unit_taken_between_check_and_write]",
+  "thresholds_applied": null
+}

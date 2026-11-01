@@ -1,0 +1,36 @@
+{
+  "profile": "runtime-authority/0.1",
+  "status": "CANDIDATE PRS OPEN",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "components": {
+    "control_plane": {"repository": "cogno-us/cognous-control-plane", "revision": "2a17b2ba147462a592d9b1882aad09d8a3eb7904", "pr": 33},
+    "runtime": {"repository": "cogno-us/cognous-execution-runtime", "revision": "a9a4f75a9a880ba0ae2c3b5a01fcee0ae904e127", "pr": 89},
+    "replay": {"repository": "cogno-us/cognous-replay-bundle", "revision": "05345feeff343cc6195bc8f7f37a3eed25278969", "pr": 27},
+    "evidence_pack": {"repository": "cogno-us/cognous-governance-evidence-pack", "revision": "4ebb6caab6b92fb6c42066ac7f25e6f27ae80656", "pr": 27}
+  },
+  "independent_evaluation": {"repository": "cogno-us/portable-reasoning-protocol", "revision": "b21af119c769fcb34e89cf39dccea41e33cdd261", "pr": 9, "behavioral_runs": "UNEXECUTED"},
+  "source_provenance": {
+    "review": "Cognous_Engineering_Addendum_Moltbook_101526_A.md",
+    "date": "2026-10-15",
+    "review_sha256": "44d5a3f09cf1022f4cd37a296f1d5fa8e771780776e808d2801bc99ed826a59c",
+    "basis": "Supplied source review K1-K6; original synthetic code and fixtures, no third-party code copied",
+    "license": "Apache-2.0"
+  },
+  "remaining_sequence": [
+    "Complete exact-head hosted checks and review component PRs",
+    "Integrate approved changes in dependency order control_plane then runtime then replay then evidence_pack then qualification",
+    "Requalify actual merged revisions and repair exact-source mappings as required; do not relabel candidate evidence as merged evidence",
+    "Perform deferred fresh security and safety/IP release review against final hub revision, lock digest, component revisions and exact proposed release bytes",
+    "Disposition remaining open issues using actual final evidence",
+    "Complete final publication acceptance before any publication"
+  ],
+  "limitations": [
+    "Same-database cooperating-authority synthetic enforcement; remote authority and purpose changes retain races",
+    "No production identity, credential custody, environment assurance, real settlement or human-oversight evaluation",
+    "New candidate ODES/GAX mappings are outside this bounded profile; no conformance or interoperability claim",
+    "Runtime Node lint bootstrap blocked by installed pnpm policy rejecting upstream libsignal exotic subdependency",
+    "No release, deployment, selection, fresh final security review or scheduled automation performed"
+  ]
+}

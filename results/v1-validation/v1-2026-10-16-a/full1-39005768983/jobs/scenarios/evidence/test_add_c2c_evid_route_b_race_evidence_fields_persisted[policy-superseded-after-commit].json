@@ -1,0 +1,181 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:3cf2038d688f4a643abe0b0fa027e721baf48d73e25022f3a57abe50ec2f6ff7",
+    "run2_digest": "sha256:3cf2038d688f4a643abe0b0fa027e721baf48d73e25022f3a57abe50ec2f6ff7",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+      },
+      "exchange": {
+        "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+      },
+      "replay": {
+        "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+      },
+      "runtime": {
+        "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "change": "policy-superseded",
+      "excess_duplicate_effects": 0,
+      "point": "after-commit",
+      "race_evidence": {
+        "direct_destination_inspection": {
+          "dispatched": true,
+          "grant_state_commitment_persisted": true,
+          "independent_read_only": {
+            "effect_row_count": 1,
+            "effect_rows": [
+              {
+                "effect_id": "effect-1",
+                "operation_digest": "sha256:dd89fd15588f0c022c897f1884d08566765dc8051fea6e1a5c17f44ffaec69ff",
+                "state": "applied"
+              }
+            ],
+            "queued_writer_saw_effect_rows_when_landed": null,
+            "source": "separate read-only SQLite connection (mode=ro) taken after the race"
+          },
+          "receipt_attempt_matches_destination": true
+        },
+        "ordering_source": {
+          "barrier_actual_order": [
+            "change_landed_after_COMMIT",
+            "stage:before_begin",
+            "stage:after_begin",
+            "stage:after_effect_insert_before_commit",
+            "stage:after_commit"
+          ],
+          "destination_event_status_order": [
+            "attempted",
+            "executed"
+          ],
+          "status_version_source": "local_authority_row_commitment"
+        },
+        "product_layer_not_persisted": [],
+        "required_field_presence": {
+          "direct_destination_inspection": true,
+          "ordering_source": true,
+          "revalidation_time": true
+        },
+        "revalidation_time": {
+          "source": "authority_effect_receipts_v1.receipt_json.checked_at",
+          "values": [
+            "2026-10-07T16:00:00+00:00"
+          ]
+        },
+        "route": "B"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "change": "policy-superseded",
+      "excess_duplicate_effects": 0,
+      "point": "after-commit",
+      "race_evidence": {
+        "direct_destination_inspection": {
+          "dispatched": true,
+          "grant_state_commitment_persisted": true,
+          "independent_read_only": {
+            "effect_row_count": 1,
+            "effect_rows": [
+              {
+                "effect_id": "effect-1",
+                "operation_digest": "sha256:dd89fd15588f0c022c897f1884d08566765dc8051fea6e1a5c17f44ffaec69ff",
+                "state": "applied"
+              }
+            ],
+            "queued_writer_saw_effect_rows_when_landed": null,
+            "source": "separate read-only SQLite connection (mode=ro) taken after the race"
+          },
+          "receipt_attempt_matches_destination": true
+        },
+        "ordering_source": {
+          "barrier_actual_order": [
+            "change_landed_after_COMMIT",
+            "stage:before_begin",
+            "stage:after_begin",
+            "stage:after_effect_insert_before_commit",
+            "stage:after_commit"
+          ],
+          "destination_event_status_order": [
+            "attempted",
+            "executed"
+          ],
+          "status_version_source": "local_authority_row_commitment"
+        },
+        "product_layer_not_persisted": [],
+        "required_field_presence": {
+          "direct_destination_inspection": true,
+          "ordering_source": true,
+          "revalidation_time": true
+        },
+        "revalidation_time": {
+          "source": "authority_effect_receipts_v1.receipt_json.checked_at",
+          "values": [
+            "2026-10-07T16:00:00+00:00"
+          ]
+        },
+        "route": "B"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "ADD-C2C-EVID",
+  "test": "test_add_c2c_evid_route_b_race_evidence_fields_persisted[policy-superseded-after-commit]",
+  "verdict": "PASS"
+}

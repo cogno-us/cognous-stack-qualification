@@ -1,0 +1,7 @@
+# Q6-A-S1-stage-lie-plain-journal (OCS-F3-Q240-FINAL-CLOSURE)
+NOT INDEPENDENT: subordinate worker of the lead builder session (also author of F3-A readjudication, D-1, D-2, Q6 evidence). CA23.
+Purpose: execute the never-run stage-lie half of `tests/test_claim_journal_stage.py::test_negative_incorrect_journal_linkage_is_detected[journal]` on the plain-journal route, as a separately named successor case, with a negative control and an operation-identity control. No linkage assertion.
+Result: 4 passed / 0 skipped / 0 failed on Python 3.11.18 and 3.12.3 (expectation met). See `verdict.md`.
+Layout: `PROTOCOL-Q6A-S1-v1.md` (+`.sha256`, `FREEZE-HASHES.txt`, `FREEZE-TIME.txt`) frozen before execution; `harness/` (`test_successor_q6a_stage_lie.py` imports the ORIGINAL `flow`, `_claim`, `_verify`, `_refutations` from `tests/test_claim_journal_stage.py` in the pristine CP copy; no copy of helpers, so no diff to record; runner; D-2 gate); `env/` (CP tree ids, Verifier file hashes, freezes); `raw/` (per-run invocation, stdout, stderr, junit, gate; pre/post integrity; prefreeze collection); `executed-commands.txt`; `amendments/` (empty); `manifest.json`; `SHA256SUMS` (written last).
+Subject: CP 739efe7d... (tree 1e7a7555...), Verifier 39d46b49... (engine.py sha256 633defff...), venvs /tmp/claude-0/work/venv311 and /tmp/claude-0/work/d2/venv312. Scratch (not part of evidence): `/tmp/claude-0/work/q6a/src/{cp-739efe7,verifier}`.
+Verify: `sha256sum -c SHA256SUMS`.

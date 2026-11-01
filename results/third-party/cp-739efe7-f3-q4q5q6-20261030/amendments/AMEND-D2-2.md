@@ -1,0 +1,3 @@
+# AMEND-D2-2 (2026-10-30T04:09:51Z) junit gate grouping defect (post-processing instrument only)
+Defect: assert_noskip.py grouped testcases by classname minus its last segment, which collapsed every module to "tests" and hid module-level skips as "?". The verdict logic (skipped>0 => NOT_RUN, failures => NO_SKIP_FAIL) was correct and unchanged; only the per-module table was wrong. First output observed on R05 (builder-311) before the fix is retained in raw/R05-builder-311/gate-first-output.txt.
+Fix: group by the first two dotted segments of classname (tests.test_x); empty classname => "(module-level:<name>)". Pre-amendment copy amendments/assert_noskip.pre-AMEND-D2-2.py; diff AMEND-D2-2.diff. No candidate execution involved; expectations unchanged.

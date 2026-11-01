@@ -1,0 +1,32 @@
+{
+  "record": "reasons-successor-pin/1",
+  "status": "PROPOSED. Builder-authored, not independently reviewed or qualified. Not a Qualification verdict. RELEASE / PUBLICATION / PRODUCTION: HOLD. TIER 1: NOT STARTED.",
+  "note": "Pins the Control Plane revision that carries immutable reasons 0.3 and holds the historical 164-code assertion and the 172-code successor assertion apart. Historical qualification evidence (the v1-probes 164-code assertion at Control Plane 0a41faa9, the frozen v1-validation records) is NOT edited or re-pinned by this record.",
+  "control_plane": {
+    "repository": "cogno-us/cognous-control-plane",
+    "sha": "fff27ebf356007e1eb3bb24198efc7e3e3f0c5eb",
+    "merge_of": "Control Plane PR #84 (head 0d658d36111bc00b48860e8543a3c0d302669e51)",
+    "first_parent": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "historical_pins_not_replaced": ["0a41faa972699f7ec3063967a14cd9bdd3e67d27", "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c"]
+  },
+  "registries": {
+    "runtime-authority-reasons/0.1": {"file": "schemas/runtime_authority_reasons_0_1.json", "codes": 121, "git_blob": "a21aa9b350c75b3d2f7cd325a8f7b43656e73b26", "sha256": "fbc4df2e02457e294ca1f819d0e507c4452e46691e4f139a66be48967c2096c0"},
+    "runtime-authority-reasons/0.2": {"file": "schemas/runtime_authority_reasons_0_2.json", "codes": 164, "typed_only": 163, "recomputable": 1, "git_blob": "a46ef35e7ece5c3a16e50d174000c49e3632eb12", "sha256": "c7678fa766f4d67d71ad9533672afdc87b3765ac1d336acae26504fc74ce3be6", "frozen": true},
+    "runtime-authority-reasons/0.3": {"file": "schemas/runtime_authority_reasons_0_3.json", "codes": 172, "typed_only": 171, "recomputable": 1, "git_blob": "b3b822874b7288fdaa015c9cdac960f39d6594bc", "sha256": "58b29ef74b9bd49d3eae7278d8cce73c7cbc6a1095a07f7b9fa44f48a7b8c07f", "immutable_successor_of": "runtime-authority-reasons/0.2"}
+  },
+  "added_in_0_3": [
+    "approval_commitment_version_unsupported",
+    "approval_policy_generation_missing",
+    "approval_policy_generation_invalid",
+    "approval_policy_generation_mismatch",
+    "approval_policy_activation_mismatch",
+    "freshness_ceiling_exceeded",
+    "freshness_ceiling_unanchored",
+    "policy_binding_invalid"
+  ],
+  "limits": [
+    "The eight code names are PROPOSED and NOT RATIFIED by the Control Plane component owner.",
+    "A label-to-digest match is an integrity check against this pin, not an authenticated production evidence chain.",
+    "Registry identity says nothing about runtime behaviour; durable anti-rollback enforcement is not established by the Control Plane (EXT-S4)."
+  ]
+}

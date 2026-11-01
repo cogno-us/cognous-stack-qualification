@@ -1,0 +1,94 @@
+{
+ "cases": [
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_a08_claim_effective_policy_digest_replaced_by_a_wider_policys_digest",
+   "expected": null,
+   "note": "effect committed: {'provision': True, 'counts_effects_attempts_receipts_budget': (1, 1, 1, 1), 'status': 'executed', 'attempted': True, 'selection_refusal': None, 'registry_payload_actions': ['act-list']}",
+   "observed": {
+    "attempted": true,
+    "counts_effects_attempts_receipts_budget": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "provision": true,
+    "registry_payload_actions": [
+     "act-list"
+    ],
+    "selection_refusal": null,
+    "status": "executed"
+   },
+   "outcome": "PASSED",
+   "verdict": "BREACH"
+  },
+  {
+   "case": "suites/security-v07/test_adversarial.py::test_c02_two_processes_execute_the_same_claim",
+   "expected": null,
+   "note": "effects=1",
+   "observed": {
+    "counts": [
+     1,
+     1,
+     1,
+     1
+    ],
+    "results": [
+     {
+      "mode": "exec_one",
+      "pid": 274,
+      "status": "executed",
+      "typed": null
+     },
+     {
+      "mode": "exec_one",
+      "pid": 275,
+      "status": "denied",
+      "typed": null
+     }
+    ],
+    "subprocess_raw": [
+     {
+      "exit_code": 0,
+      "stderr_tail": "",
+      "stdout_tail": "V07PROBE {\"mode\": \"exec_one\", \"pid\": 274, \"status\": \"executed\", \"typed\": null}\n"
+     },
+     {
+      "exit_code": 0,
+      "stderr_tail": "",
+      "stdout_tail": "V07PROBE {\"mode\": \"exec_one\", \"pid\": 275, \"status\": \"denied\", \"typed\": null}\n"
+     }
+    ]
+   },
+   "outcome": "PASSED",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Bounded synthetic adversarial assessment by the builder identity; not an independent-party review, not a production security qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 2,
+  "SKIP": 0,
+  "executed": 2
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "943ab1831e39fadac1eb2a414ae322ccfa09bc6a",
+  "runtime": "4199a6c793cd9ec37a5fd451f7d99265dcf634fd"
+ },
+ "harness_commit": "x",
+ "qualification_v06_pin": "ae12221831bc39beea6dbf0ae7fda726baeecf1f",
+ "schema": "v07-security-results/1",
+ "verdicts": {
+  "BREACH": 1,
+  "HELD": 1
+ }
+}

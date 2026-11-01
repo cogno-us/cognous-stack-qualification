@@ -1,0 +1,86 @@
+name: Outside holder profile (N5, M3 witness digest and L5 holder probe)
+# Opt-in witness-digest/0.1 and holder-inventory/0.1 scenarios across the control plane and the execution runtime.
+# Dispatch or workflow_call only: it never runs on push, selects nothing and changes no verdict. Component CI calls it with the
+# exact component revisions under test. A missing or mismatched checkout fails the job; nothing here skips.
+'on':
+  workflow_dispatch:
+    inputs:
+      control_plane_revision:
+        description: cogno-us/cognous-control-plane commit under test
+        required: true
+        type: string
+      runtime_revision:
+        description: cogno-us/cognous-execution-runtime commit under test
+        required: true
+        type: string
+      qualification_revision:
+        description: Suite commit (blank uses the workflow event commit)
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      control_plane_revision:
+        required: true
+        type: string
+      runtime_revision:
+        required: true
+        type: string
+      qualification_revision:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - name: Validate revision inputs (40-hex commit SHAs only)
+        env:
+          CP_REV: ${{ inputs.control_plane_revision }}
+          RT_REV: ${{ inputs.runtime_revision }}
+          QUAL_REV: ${{ inputs.qualification_revision }}
+        run: |
+          for v in "$CP_REV" "$RT_REV"; do [[ "$v" =~ ^[0-9a-f]{40}$ ]] || { echo "revision input is not a 40-hex commit SHA"; exit 1; }; done
+          [[ -z "$QUAL_REV" || "$QUAL_REV" =~ ^[0-9a-f]{40}$ ]] || { echo "qualification_revision is not a 40-hex commit SHA"; exit 1; }
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ inputs.qualification_revision || github.sha }}
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: ${{ inputs.control_plane_revision }}
+          path: components/control_plane
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-execution-runtime
+          ref: ${{ inputs.runtime_revision }}
+          path: components/runtime
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --require-hashes -r .github/locks/cryptography-pydantic-pytest-a9a750.txt
+      - name: Verify the checked-out revisions
+        env:
+          CP_REV: ${{ inputs.control_plane_revision }}
+          RT_REV: ${{ inputs.runtime_revision }}
+        run: |
+          test "$(git -C components/control_plane rev-parse HEAD)" = "$CP_REV"
+          test "$(git -C components/runtime rev-parse HEAD)" = "$RT_REV"
+      - name: Run the outside-holder suite
+        env:
+          OH_CONTROL_PLANE_DIR: ${{ github.workspace }}/components/control_plane
+          OH_RUNTIME_DIR: ${{ github.workspace }}/components/runtime
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python -m pytest -q -p no:cacheprovider suites/outside-holder --junitxml=results/outside-holder/junit.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: outside-holder-${{ matrix.python }}-${{ github.sha }}
+          path: results/outside-holder

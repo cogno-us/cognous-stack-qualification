@@ -1,0 +1,160 @@
+.....FFF                                                                 [100%]
+=================================== FAILURES ===================================
+_____________________________ test_Q2_A1_component _____________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-8/test_Q2_A1_component0')
+
+    def test_Q2_A1_component(tmp_path):
+        E, chk = H.env(), Check("Q2-A1")
+        w1, f1, dec1, w2, f2, dec2 = _two_worlds(E, tmp_path)
+        chk.ok("both_worlds_mint_authorized", dec1.result == "authorized" and dec2.result == "authorized", r1=list(dec1.reasons), r2=list(dec2.reasons))
+        m1, m2 = H.member_of(w1.dir, w1.did), H.member_of(w2.dir, w2.did)
+        exp1 = w1.manifest["actions"][0]["authority_context"]["authority_domain"]
+        exp2 = w2.manifest["actions"][0]["authority_context"]["authority_domain"]
+        chk.ok("worlds_have_distinct_manifest_domains", exp1 == "customer-refunds" and exp2 == "other-domain" and exp1 != exp2)
+        chk.ok("member_d1_equals_manifest_domain", m1["members"]["scope"]["authority_domain"] == exp1, observed=m1["members"]["scope"]["authority_domain"])
+        chk.ok("member_d2_equals_manifest_domain", m2["members"]["scope"]["authority_domain"] == exp2, observed=m2["members"]["scope"]["authority_domain"])
+        chk.ok("member_diff_exactly_domain_leaf_and_digest", L.leaf_diff(m1, m2) == {"digest", "members.scope.authority_domain"}, diff=sorted(L.leaf_diff(m1, m2)))
+        chk.ok("digest_d1_recomputed_independently", H.my_digest(m1["members"], m1["version"]) == m1["digest"])
+        chk.ok("digest_d2_recomputed_independently", H.my_digest(m2["members"], m2["version"]) == m2["digest"])
+        b1, b2 = L.binding_of(w1.dir, w1.did), L.binding_of(w2.dir, w2.did)
+        base, ecb = L.split_diff(b1, b2)
+        chk.ok("worlds_base_binding_diff_is_manifest_digest_and_proposal_commitment(dependency shown)", base == ["manifest_digest", "proposal_commitment"], base=base, ecb=ecb)
+        chk.ok("classifier_D1_on_d2_workflow_is_mismatch(evidence-only)", f2.configuration_binding_status(f1.records.decision(w1.did)) == "mismatch")
+        chk.ok("classifier_D2_on_d2_workflow_is_bound(evidence-only)", f2.configuration_binding_status(f2.records.decision(w2.did)) == "bound")
+>       chk.done()
+
+../../harness/test_d1.py:215: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <d1_lib.Check object at 0x7fee4ffcd010>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+               ^^^^^^^^^^^^^^
+E       AssertionError: Q2-A1: failed ['member_d1_equals_manifest_domain', 'member_d2_equals_manifest_domain', 'member_diff_exactly_domain_leaf_and_digest', 'classifier_D1_on_d2_workflow_is_mismatch(evidence-only)']
+
+../../harness/d1_lib.py:56: AssertionError
+___________________________ test_Q2_A2_natural_joint ___________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-8/test_Q2_A2_natural_joint0')
+
+    def test_Q2_A2_natural_joint(tmp_path):
+        E, chk = H.env(), Check("Q2-A2")
+        w1, f1, dec1, w2, f2, dec2 = _two_worlds(E, tmp_path)
+        # (i) un-rebuilt proposal P1 in a consistent d2 world, over a copy of the d1 store
+        si = tmp_path / "nat_i"
+        shutil.copytree(w1.dir, si)
+        out_i = run(L.construct_domain(E, w2, si), w1.p, w1.did)
+        refused_with(chk, "A2i[P1 in d2 world]", out_i, ["approval_operation_binding_mismatch", "manifest_digest_mismatch"])
+        chk.ok("A2i:binding_changed_code_not_emitted(ECB not consulted)", ["authorization_binding_changed"] not in out_i["new_refusal_reasons"])
+        # (ii) rebuilt consistent proposal P2 against D1 in the d2 world
+        sii = tmp_path / "nat_ii"
+        shutil.copytree(w1.dir, sii)
+        out_ii = run(L.construct_domain(E, w2, sii), w2.p, w1.did)
+        live, r_, rs = L.live_binding(E, lambda sd: L.construct_domain(E, w2, sd), w2.p, tmp_path / "nat_ii_live")
+        base, ecb = L.split_diff(L.binding_of(w1.dir, w1.did), live)
+        claim = claim_for(base, ecb, "scope.authority_domain")
+        rec("Q2-A2", "CLASSIFICATION", claim=claim, route="P2 vs D1 in consistent d2 world", base_diff=base, ecb_diff=ecb)
+        chk.ok("A2ii:base_diff_is_manifest_digest_and_proposal_commitment", base == ["manifest_digest", "proposal_commitment"], base=base)
+        chk.ok("A2ii:ecb_diff_is_domain_leaf_and_digest", sorted(ecb) == sorted([f"{ECBP}.digest", f"{ECBP}.members.scope.authority_domain"]), ecb=ecb)
+        chk.ok("A2ii:claim_is_joint", claim == "joint", claim=claim)
+        refused_with(chk, "A2ii[P2 vs D1 in d2 world]", out_ii, ["authorization_binding_changed"])
+        # (iii) the original A25(a) route (manifest domain edited + Registry re-signed, original resolver and proposal), reproduced with the original fixtures
+        ctl = H.new_case(tmp_path, "f4", name="orig_route")
+        try:
+            flow = H.restart(ctl, {"domain": "other-domain"})
+            out_iii = run(flow, ctl.fx.p, ctl.did)
+            refused_with(chk, "A2iii[original A25(a) route]", out_iii, ["authority_domain_mismatch", "manifest_digest_mismatch"])
+            chk.ok("A2iii:binding_changed_code_not_emitted", ["authorization_binding_changed"] not in out_iii["new_refusal_reasons"])
+        except Exception as exc:
+            chk.ok("A2iii:constructed", False, error=f"{type(exc).__name__}: {exc}"[:300])
+>       chk.done()
+
+../../harness/test_d1.py:248: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <d1_lib.Check object at 0x7fee50434510>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+               ^^^^^^^^^^^^^^
+E       AssertionError: Q2-A2: failed ['A2ii:ecb_diff_is_domain_leaf_and_digest']
+
+../../harness/d1_lib.py:56: AssertionError
+_______________________________ test_Q2_A3_graft _______________________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-8/test_Q2_A3_graft0')
+
+    def test_Q2_A3_graft(tmp_path):
+        E, chk = H.env(), Check("Q2-A3")
+        w1, f1, dec1, w2, f2, dec2 = _two_worlds(E, tmp_path)
+        chk.ok("both_worlds_mint_authorized", dec1.result == "authorized" and dec2.result == "authorized")
+        pristine = tmp_path / "d2_pristine_copy"
+        shutil.copytree(w2.dir, pristine)
+        # control: the untouched d2 decision executes (same world, store layout, proposal and destination)
+        ctl = tmp_path / "d2_control"
+        shutil.copytree(w2.dir, ctl)
+        accepted(chk, "A3c-d2-control", run(L.construct_domain(E, w2, ctl), w2.p, w2.did))
+        # write-path neutrality control: graft the member of an independent, identical-domain d2 world (no semantic change)
+        w2b = L.domain_world(E, tmp_path, "d2b", "other-domain")
+        L.domain_mint(E, w2b)
+        neu = tmp_path / "d2_neutral_graft"
+        shutil.copytree(w2.dir, neu)
+        L.graft(w2b.dir, w2b.did, neu, w2.did)
+        accepted(chk, "A3n-neutral-graft", run(L.construct_domain(E, w2, neu), w2.p, w2.did))
+        # GRAFT: donor member from d1 into the d2 decision
+        g = tmp_path / "d2_graft"
+        shutil.copytree(w2.dir, g)
+        donor = L.graft(w1.dir, w1.did, g, w2.did)
+        gm = H.member_of(g, w2.did)
+        chk.ok("grafted_member_is_donor_verbatim", gm == donor == H.member_of(w1.dir, w1.did))
+        chk.ok("grafted_member_digest_self_consistent", H.my_digest(gm["members"], gm["version"]) == gm["digest"])
+        chk.ok("grafted_member_domain_is_d1", gm["members"]["scope"]["authority_domain"] == "customer-refunds")
+        chk.ok("store_diff_vs_pristine_is_only_the_member", all(x.startswith("decisions.") and f"binding.runtime_authority.{KEY}" in x for x in L.leaf_diff(H.load_doc(pristine), H.load_doc(g))),
+               diff=sorted(L.leaf_diff(H.load_doc(pristine), H.load_doc(g))))
+        fg = L.construct_domain(E, w2, g)  # restart world d2 over the grafted store (admission via the production constructor and store reader)
+        chk.ok("grafted_decision_reloads_via_store_reader", fg.records.decision(w2.did) is not None)
+        chk.ok("classifier_on_grafted_is_mismatch_not_invalid(evidence-only)", fg.configuration_binding_status(fg.records.decision(w2.did)) == "mismatch")
+        live, r_, rs = L.live_binding(E, lambda sd: L.construct_domain(E, w2, sd), w2.p, tmp_path / "graft_live")
+        chk.ok("live_world_mints_authorized", r_ == "authorized", reasons=rs)
+        base, ecb = L.split_diff(L.binding_of(g, w2.did), live)
+        claim = claim_for(base, ecb, "scope.authority_domain")
+        rec("Q2-A3", "CLASSIFICATION", claim=claim, label="GRAFT: isolated by store-level construction (unsigned store); not a natural-reachability claim", base_diff=base, ecb_diff=ecb)
+        chk.ok("base_binding_diff_empty", base == [], base=base)
+        chk.ok("member_diff_exactly_domain_leaf_plus_digest", sorted(ecb) == sorted([f"{ECBP}.digest", f"{ECBP}.members.scope.authority_domain"]), ecb=ecb)
+        out = run(fg, w2.p, w2.did)
+        refused_with(chk, "A3-graft", out, ["authorization_binding_changed"])
+        chk.ok("binding_status_mismatch(evidence-only)", out.get("binding_status") == "mismatch")
+        chk.ok("claim_is_isolated_end_to_end_by_graft", claim == "isolated end-to-end", claim=claim)
+>       chk.done()
+
+../../harness/test_d1.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <d1_lib.Check object at 0x7fee504461d0>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+               ^^^^^^^^^^^^^^
+E       AssertionError: Q2-A3: failed ['grafted_member_domain_is_d1', 'classifier_on_grafted_is_mismatch_not_invalid(evidence-only)', 'member_diff_exactly_domain_leaf_plus_digest', 'A3-graft:PermissionError', 'A3-graft:one_durable_refusal_exact_reasons', 'A3-graft:no_attempt', 'A3-graft:destination_never_called_unchanged', 'binding_status_mismatch(evidence-only)', 'claim_is_isolated_end_to_end_by_graft']
+
+../../harness/d1_lib.py:56: AssertionError
+=============================== warnings summary ===============================
+harness/test_d1.py: 40 warnings
+  /tmp/claude-0/work/d1/evidence/harness/d1_lib.py:191: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+    elif hasattr(obj, "model_fields"):
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED ../../harness/test_d1.py::test_Q3_H0_control
+PASSED ../../harness/test_d1.py::test_Q3_H1_masked_host_edit_end_to_end
+PASSED ../../harness/test_d1.py::test_Q3_H2_component
+PASSED ../../harness/test_d1.py::test_Q3_E1_effective_no_reissue
+PASSED ../../harness/test_d1.py::test_Q3_E2_effective_reissued_joint
+FAILED ../../harness/test_d1.py::test_Q2_A1_component - AssertionError: Q2-A1...
+FAILED ../../harness/test_d1.py::test_Q2_A2_natural_joint - AssertionError: Q...
+FAILED ../../harness/test_d1.py::test_Q2_A3_graft - AssertionError: Q2-A3: fa...
+3 failed, 5 passed, 40 warnings in 1.28s
+exit=1

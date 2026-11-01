@@ -1,0 +1,32 @@
+{
+  "scan_id": "8a85574c-2aa7-46f0-b4b7-fada217d573a",
+  "hub_source": "c3b919d1053442e992d499b1766ee0bf8acc768b",
+  "qualification_source": "78b3f42c93fa3aef64e2fd2216bbdf545db5b0af",
+  "hub_base": "80046e78e9b83e1ea06cbdfb8cda78acd2339e4e",
+  "suite_base": "bcbbd5ae85e49cf9adc8c379ba7a2664eef04c9e",
+  "hub_tests": 627,
+  "hub_subtests": 122,
+  "suite_unit_tests": 44,
+  "qualification_gate_tests": 92,
+  "gate_tests_source_note": "92 gates ran on identical executable code before published-identity rerun; assembly identities for final optional/merged runs recorded separately",
+  "coverage": "partial",
+  "follow_up_issues": [
+    138,
+    139,
+    140
+  ],
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "operational_trust": "HOLD / NOT ESTABLISHED",
+  "commands": [
+    "python -m pytest -q --junitxml=hub-tests.xml",
+    "python -m unittest discover -s tests -v",
+    "python tools/validate_migrations.py",
+    "python tools/integrated_assurance_qualification.py --results-dir OUT",
+    "python tools/resolver_assurance_qualification.py",
+    "python tools/optional_execution_profile.py --profile atomic-authority-effect --work-dir WORK --results-dir OUT",
+    "python tools/optional_execution_profile.py --profile refund-intent --work-dir WORK --results-dir OUT",
+    "python tools/merged_chain_qualification.py --batch recovery --work WORK --out OUT",
+    "python tools/merged_chain_qualification.py --batch transport --work WORK --out OUT"
+  ]
+}

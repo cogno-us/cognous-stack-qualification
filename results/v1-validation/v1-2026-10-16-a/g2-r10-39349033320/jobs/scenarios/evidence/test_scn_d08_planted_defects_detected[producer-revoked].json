@@ -1,0 +1,1520 @@
+{
+  "by_class": {
+    "corrupt": {
+      "detected": 8,
+      "missed": [],
+      "planted": 8
+    },
+    "drop": {
+      "detected": 17,
+      "missed": [],
+      "planted": 17
+    },
+    "duplicate": {
+      "detected": 8,
+      "missed": [],
+      "planted": 8
+    },
+    "remove_observation": {
+      "detected": 0,
+      "missed": [],
+      "planted": 0
+    },
+    "reorder": {
+      "detected": 4,
+      "missed": [],
+      "planted": 4
+    }
+  },
+  "case": "revoked",
+  "detected": 37,
+  "detection_means": "any consumer stage rejecting (typed refusal/exception) or flagging (incomplete/invalid/new failing dimension)",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "tested_revision_match": true,
+        "tree": "c4146c16e416d4e8f3619a7b553d1691d389817c"
+      },
+      "evidence_pack": {
+        "commit": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "tested_revision_match": true,
+        "tree": "67c703b3182221e233220b607c4428a17baadd50"
+      },
+      "exchange": {
+        "commit": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "tested_revision_match": true,
+        "tree": "bdc7a5c6be6fd035b9e17c5867d25030c853e689"
+      },
+      "manifest": {
+        "commit": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "tested_revision_match": true,
+        "tree": "3bda14d9974b0645f14cd2a1ca9924951ac87be6"
+      },
+      "odes": {
+        "commit": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "tested_revision_match": true,
+        "tree": "6d011177f7ae9c1f082eb0727cc0254392ed5713"
+      },
+      "replay": {
+        "commit": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "tested_revision_match": true,
+        "tree": "b2df198599e7faf27966e5428b27ef0f4f36de19"
+      },
+      "runtime": {
+        "commit": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "tested_revision_match": true,
+        "tree": "31af6d1f253796b1abf09aa7152804871094f49b"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "6b16962db140590b808f02b5c2cb11a217aec46f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "family": "producer",
+  "missed": 0,
+  "not_applicable_nothing_to_plant": [
+    "export.attempt_events.corrupt_status",
+    "export.attempt_events.drop_all",
+    "export.attempt_events.drop_first",
+    "export.attempt_events.drop_last",
+    "export.attempt_events.drop_middle",
+    "export.attempt_events.duplicate_first",
+    "export.attempt_events.duplicate_last_appended",
+    "export.attempt_events.reorder_reverse",
+    "export.attempt_events.reorder_swap_first_two",
+    "export.attempts.drop_all",
+    "export.attempts.drop_first",
+    "export.attempts.drop_last",
+    "export.attempts.drop_middle",
+    "export.attempts.duplicate_first",
+    "export.attempts.duplicate_last_appended",
+    "export.attempts.reorder_reverse",
+    "export.attempts.reorder_swap_first_two",
+    "export.control_plane_attempts.drop_all",
+    "export.control_plane_attempts.drop_first",
+    "export.control_plane_attempts.drop_last",
+    "export.control_plane_attempts.drop_middle",
+    "export.control_plane_attempts.duplicate_first",
+    "export.control_plane_attempts.duplicate_last_appended",
+    "export.control_plane_attempts.reorder_reverse",
+    "export.control_plane_attempts.reorder_swap_first_two",
+    "export.effects.corrupt_amount",
+    "export.effects.corrupt_state",
+    "export.effects.drop_all",
+    "export.effects.drop_first",
+    "export.effects.drop_last",
+    "export.effects.drop_middle",
+    "export.effects.duplicate_first",
+    "export.effects.duplicate_last_appended",
+    "export.effects.reorder_reverse",
+    "export.effects.reorder_swap_first_two",
+    "export.observations.drop_all",
+    "export.observations.drop_first",
+    "export.observations.drop_last",
+    "export.observations.drop_middle",
+    "export.observations.duplicate_first",
+    "export.observations.duplicate_last_appended",
+    "export.observations.reorder_reverse",
+    "export.observations.reorder_swap_first_two",
+    "export.result.remove_observation",
+    "journal.attempts.corrupt_status",
+    "journal.attempts.drop_all",
+    "journal.attempts.drop_first",
+    "journal.attempts.drop_last",
+    "journal.attempts.drop_middle",
+    "journal.attempts.duplicate_first",
+    "journal.attempts.duplicate_last_appended",
+    "journal.attempts.reorder_reverse",
+    "journal.attempts.reorder_swap_first_two",
+    "journal.closeouts.corrupt",
+    "journal.closeouts.drop_all",
+    "journal.closeouts.drop_first",
+    "journal.closeouts.drop_last",
+    "journal.closeouts.drop_middle",
+    "journal.closeouts.duplicate_first",
+    "journal.closeouts.duplicate_last_appended",
+    "journal.closeouts.reorder_reverse",
+    "journal.closeouts.reorder_swap_first_two",
+    "journal.decisions.reorder_reverse",
+    "journal.decisions.reorder_swap_first_two",
+    "journal.observations.corrupt_state",
+    "journal.observations.drop_all",
+    "journal.observations.drop_first",
+    "journal.observations.drop_last",
+    "journal.observations.drop_middle",
+    "journal.observations.duplicate_first",
+    "journal.observations.duplicate_last_appended",
+    "journal.observations.reorder_reverse",
+    "journal.observations.reorder_swap_first_two",
+    "journal.reconciliations.corrupt_observed_state",
+    "journal.reconciliations.drop_all",
+    "journal.reconciliations.drop_first",
+    "journal.reconciliations.drop_last",
+    "journal.reconciliations.drop_middle",
+    "journal.reconciliations.duplicate_first",
+    "journal.reconciliations.duplicate_last_appended",
+    "journal.reconciliations.reorder_reverse",
+    "journal.reconciliations.reorder_swap_first_two",
+    "journal.refusals.reorder_reverse",
+    "journal.refusals.reorder_swap_first_two"
+  ],
+  "planted": 37,
+  "run1": {
+    "table": {
+      "export.attempt_events.corrupt_status": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "export.attempt_events.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempt_events.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempt_events.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.attempt_events.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.attempts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.attempts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.control_plane_attempts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.control_plane_attempts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.control_plane_attempts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.control_plane_attempts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.control_plane_evidence.remove": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: result Control Plane evidence differs from export"
+      },
+      "export.effects.corrupt_amount": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "export.effects.corrupt_state": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "export.effects.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.effects.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.effects.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.effects.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.observations.drop_all": {
+        "applicable": false,
+        "class": "remove_observation"
+      },
+      "export.observations.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.observations.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.observations.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.observations.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.observations.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.observations.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.observations.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.result.corrupt_acknowledged": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: the producer status matrix contradicts the execution result: an acknowledgement requires an attempted execution; a denied or failed result carries no acknowledgement, no fresh execution and observed_s"
+      },
+      "export.result.corrupt_newly_executed": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: the producer status matrix contradicts the execution result: a fresh execution is acknowledged and has status executed, partial or unknown; a denied or failed result carries no acknowledgement, no fre"
+      },
+      "export.result.corrupt_observed_state": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: null observation cannot establish observed state"
+      },
+      "export.result.corrupt_status": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: an executed result must carry the observation that established it"
+      },
+      "export.result.remove_observation": {
+        "applicable": false,
+        "class": "remove_observation"
+      },
+      "journal.attempts.corrupt_status": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.attempts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.attempts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.attempts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.attempts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.check_events.corrupt_commitment": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal binding changed"
+      },
+      "journal.check_events.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: resolution journal missing"
+      },
+      "journal.check_events.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "replay_import",
+        "why": "import_incomplete,status=reconstruction_partial"
+      },
+      "journal.check_events.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate journal opening"
+      },
+      "journal.check_events.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.closeouts.corrupt": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.closeouts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.closeouts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.closeouts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.closeouts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.decisions.corrupt_effect_id": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.corrupt_result": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: refusal requires original authorized decision"
+      },
+      "journal.decisions.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: single-proposal importer does not support multiple authorization bindings"
+      },
+      "journal.decisions.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: single-proposal importer does not support multiple authorization bindings"
+      },
+      "journal.decisions.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.decisions.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.observations.corrupt_state": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.observations.drop_all": {
+        "applicable": false,
+        "class": "remove_observation"
+      },
+      "journal.observations.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.observations.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.observations.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.observations.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.observations.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.observations.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.observations.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.reconciliations.corrupt_observed_state": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.reconciliations.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.reconciliations.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.reconciliations.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.reconciliations.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.refusals.corrupt_reason": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty refusal id"
+      },
+      "journal.refusals.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty refusal id"
+      },
+      "journal.refusals.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.refusals.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.resolution_checks.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty resolution check id"
+      },
+      "journal.resolution_checks.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty resolution check id"
+      },
+      "journal.resolution_checks.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: resolution checks are out of journal order"
+      },
+      "journal.resolution_checks.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: resolution checks are out of journal order"
+      }
+    }
+  },
+  "run2": {
+    "table": {
+      "export.attempt_events.corrupt_status": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "export.attempt_events.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempt_events.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempt_events.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempt_events.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.attempt_events.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.attempts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.attempts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.attempts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.attempts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.control_plane_attempts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.control_plane_attempts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.control_plane_attempts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.control_plane_attempts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.control_plane_attempts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.control_plane_evidence.remove": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: result Control Plane evidence differs from export"
+      },
+      "export.effects.corrupt_amount": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "export.effects.corrupt_state": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "export.effects.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.effects.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.effects.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.effects.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.effects.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.observations.drop_all": {
+        "applicable": false,
+        "class": "remove_observation"
+      },
+      "export.observations.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.observations.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.observations.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "export.observations.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.observations.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "export.observations.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.observations.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "export.result.corrupt_acknowledged": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: the producer status matrix contradicts the execution result: an acknowledgement requires an attempted execution; a denied or failed result carries no acknowledgement, no fresh execution and observed_s"
+      },
+      "export.result.corrupt_newly_executed": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: the producer status matrix contradicts the execution result: a fresh execution is acknowledged and has status executed, partial or unknown; a denied or failed result carries no acknowledgement, no fre"
+      },
+      "export.result.corrupt_observed_state": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: null observation cannot establish observed state"
+      },
+      "export.result.corrupt_status": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: an executed result must carry the observation that established it"
+      },
+      "export.result.remove_observation": {
+        "applicable": false,
+        "class": "remove_observation"
+      },
+      "journal.attempts.corrupt_status": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.attempts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.attempts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.attempts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.attempts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.attempts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.check_events.corrupt_commitment": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal binding changed"
+      },
+      "journal.check_events.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: resolution journal missing"
+      },
+      "journal.check_events.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "replay_import",
+        "why": "import_incomplete,status=reconstruction_partial"
+      },
+      "journal.check_events.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate journal opening"
+      },
+      "journal.check_events.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.check_events.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: journal missing opening or already closed"
+      },
+      "journal.closeouts.corrupt": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.closeouts.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.closeouts.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.closeouts.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.closeouts.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.closeouts.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.decisions.corrupt_effect_id": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.corrupt_result": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: refusal requires original authorized decision"
+      },
+      "journal.decisions.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "journal.decisions.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: single-proposal importer does not support multiple authorization bindings"
+      },
+      "journal.decisions.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: single-proposal importer does not support multiple authorization bindings"
+      },
+      "journal.decisions.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.decisions.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.observations.corrupt_state": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.observations.drop_all": {
+        "applicable": false,
+        "class": "remove_observation"
+      },
+      "journal.observations.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.observations.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.observations.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.observations.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.observations.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.observations.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.observations.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.reconciliations.corrupt_observed_state": {
+        "applicable": false,
+        "class": "corrupt"
+      },
+      "journal.reconciliations.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.drop_first": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.drop_last": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.drop_middle": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "journal.reconciliations.duplicate_first": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.reconciliations.duplicate_last_appended": {
+        "applicable": false,
+        "class": "duplicate"
+      },
+      "journal.reconciliations.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.reconciliations.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.refusals.corrupt_reason": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: executor refusal lacks matching denied durable lineage"
+      },
+      "journal.refusals.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty refusal id"
+      },
+      "journal.refusals.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty refusal id"
+      },
+      "journal.refusals.reorder_reverse": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.refusals.reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "journal.resolution_checks.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.drop_last": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.drop_middle": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "journal.resolution_checks.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty resolution check id"
+      },
+      "journal.resolution_checks.duplicate_last_appended": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: duplicate/empty resolution check id"
+      },
+      "journal.resolution_checks.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: resolution checks are out of journal order"
+      },
+      "journal.resolution_checks.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "replay_import",
+        "why": "ImportContractError: typed refusal profile: resolution checks are out of journal order"
+      }
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:bac9e334f6bb8183008d7f74e8197b8b22be62c5be3194084df3577acfc3a5f5",
+    "run2_outcome_digest": "sha256:bac9e334f6bb8183008d7f74e8197b8b22be62c5be3194084df3577acfc3a5f5",
+    "verdict": "MATCH"
+  },
+  "scenario": "D08",
+  "test": "test_scn_d08_planted_defects_detected[producer-revoked]"
+}

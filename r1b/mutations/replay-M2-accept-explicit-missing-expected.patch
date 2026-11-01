@@ -1,0 +1,13 @@
+diff --git a/src/agent_replay_bundle/effective_configuration.py b/src/agent_replay_bundle/effective_configuration.py
+index 2f2ae1e..473aee6 100644
+--- a/src/agent_replay_bundle/effective_configuration.py
++++ b/src/agent_replay_bundle/effective_configuration.py
+@@ -143,7 +143,7 @@ def record_defect(record: Any) -> str | None:
+ def expected_defect(expected: Any) -> str | None:
+     """None when a caller-supplied expected digest is well formed (same predicate as the Control Plane: exact ``sha256:`` + 64 lowercase hex, not all zero), else the typed reason."""
+     if expected is None:
+-        return "effective_configuration_expected_missing"
++        return None
+     return None if _digest(expected) else "effective_configuration_expected_malformed"
+ 
+ 

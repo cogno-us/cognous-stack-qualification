@@ -1,0 +1,67 @@
+# Adversarial review of D-2 evidence (Q4 / Q4b / Q5 / Q6), CP 739efe7
+Reviewer: read-only subordinate of the lead builder session; NOT independent certification. No opinion on F3-A formal acceptance. No evidence modified. One reproducibility re-run (Q5 module on 3.12, new scratch dir) done.
+
+## Verified (no finding)
+- `sha256sum -c SHA256SUMS` clean. FREEZE-HASHES lists protocol and the three new instruments; mtimes: protocol 04:05:58, freeze files 04:06:02.8, first candidate execution R07 04:06:08.9 (junit timestamp). No candidate execution before freeze is visible; no pre-freeze run artefacts in /tmp/claude-0/work/d2.
+- pip freezes `env/freeze-py311.txt` and `freeze-py312.txt` are byte-identical (diff clean, 20 lines). Only manifest header lines differ (interpreter/path).
+- 3.11 vs 3.12 comparison is genuinely by test id: I parsed the junit.xml pairs R01/R02 (48 ids), R03/R04 (97), R05/R06 (514), R10/R11 (18), S1 (95); per-id outcome maps are equal in every pair. Builder result 506 pass / 6 fail / 2 skip is reported as such, and the verdict labels the two skips NOT RUN and the 6 failures as the file's own pin assertion (stdout: "Registry checkout is a40fe755..., expected the pin 943ab18..."). Not presented as pass.
+- Hash bridge: pre-AMEND-R3 f5201084 = MANIFEST-freeze entry; c682dd3a is a later entry; `diff` of pre vs final test_readj_gaps.py touches only the `store_effects` return dict (4 lines). G5a code is unchanged.
+- Q4: R07/R09 show exactly three CHECK_FAIL (scope_equals_independent_expectation, scope_authority_domain_equals_manifest_domain, f4_scope_authority_domain), four digest checks pass, persisted domain `constant-domain`; R08 all 7 pass with `customer-refunds`; preflight shows acp imported from the M06 tree. Matches the frozen expectation.
+- Q5 reproduction: I re-ran `test_d2_q4q5.py -k Q5` (selects all 18 by module name) on Python 3.12.3 into a fresh scratch dir with the R11 environment: 18 passed; 215 CHECK_PASS / 26 OBSERVATION / 13 RAW rows; the 13 RAW rows equal R11's after dropping the timestamp `t`. Reproducible.
+- Q5 spy is real (class `Spy`, records each claim; A2 asserts `calls[0] is res`; R3 asserts 0 calls on refusal). Read-only status call `configuration_binding_status` before each row is observation only. The omitted non-journal branch, raising-provision case, and lock-held behaviour are disclosed in verdict "NOT established" and in the frozen protocol.
+- Source (local_authority_effect.py L404-567 `_materialize_under_handoff`, L601 `provision_local_execution_claim`): the only provision-specific code is `if not callable(provision): raise TypeError` before the shared body, and `provision(claim)` at the end of the shared body. All six classifications of `ecb.classify` (bound, mismatch, invalid, version-unsupported, legacy, unbound-after-cutoff) are exercised by P0-P9/L1/L2.
+
+## Findings
+
+### F1 (should-fix) "equals the materialize row" (R8/A8) is near-tautological and cannot detect the defect it is meant to
+Evidence: `materialize_local_execution_claim` calls `_materialize_under_handoff(..., provision=None)`, the same body as provision. For refusals, R8 compares two executions of the identical code path. The M04 run proves it: under M04 the materialize reference rows fail the absolute checks too while R8 would still hold. Detection power sits in R1/R2/R3 (absolute criteria), not R8.
+Suggested wording (verdict Q5): "Each refusal row is checked against absolute criteria (R1-R7) and, as a wrapper-parity check only, against the materialize row; the two share one body (`_materialize_under_handoff`), so parity is expected by construction and is not independent evidence of D-06 enforcement."
+
+### F2 (should-fix) Q4b "ESTABLISHED" is stronger than B1/B2/B3 support
+Evidence: `ecb.classify` returns `BOUND if record == live else MISMATCH` (L209), so B2 (edit one leaf, expect mismatch) is generic dict inequality and says nothing specific to authority_domain; B1 edits the persisted side only (a store tamper, which other guards also catch). B3 on M06 calls `scope_identity` directly and asserts it returns a constant, which restates the mutant diff. None of B1-B3 tests that `_gl_common_members` (registry_governed_lifecycle.py L202) actually passes the live `authority[1]` to `scope_identity` (a swapped or constant argument there would pass B1-B3 unchanged). The lead's earlier finding is respected in the text ("scope_identity feeds both the minted and the live side"), and the "NOT established" paragraph is good; but the summary row and the sentence "the comparison itself ... is sensitive to `scope.authority_domain` as a value" can be read as more than a trivial equality fact.
+Suggested wording: "Q4b: at classifier level, `classify` is a plain equality over the member and therefore distinguishes any differing leaf, including `scope.authority_domain` (B1/B2). B3 shows `scope_identity` is where M06 removes the domain. Under M06 the same derivation feeds the minted and the live member, so no end-to-end comparison can differ on domain; this probe does not test the wiring from the held authority tuple into `scope_identity`. Rename the summary row from ESTABLISHED to 'classifier-level observation (equality over members; not a separate sensitivity result)'."
+Also: "a live-world domain change is invisible to the comparison under M06" should add "(binding-member comparison only; `_gl_reverify` `manifest_authority_changed` and `authority_domain_mismatch` guards are unaffected by M06 and were not run against it)".
+
+### F3 (should-fix) 73 vs 74 explanation is speculative and probably wrong
+Evidence: verdict Adverse 3 says the baseline "73" "appears to be an arithmetic slip (96 vs 97 collected tests)". The recorded predecessor runs show the real cause: /tmp/claude-0/ev/runs/A-main3 = 23 failed, 73 passed (96 tests, before AMEND-3/4); A-main4 = 23 failed, 74 passed (97 tests). A-amendments.md AMEND-3 adds case A25 and AMEND-4 adds the A16 d0 sub-case. (A separate unrelated "73 passed" also exists: the builder F4 CI gate, docs/evidence/d06/ci-gate-f4-*.txt.) So 73 is the pre-AMEND-3/4 count, and the frozen file is post-AMEND4 (hash a5147412).
+Suggested wording: "Assignment baseline 73 passed corresponds to the pre-AMEND-3/4 harness (A-main3: 96 tests, 23 failed / 73 passed); the post-AMEND4 harness has 97 tests and passes 74. Failing set unchanged (23). Not an interpreter difference." The protocol (frozen) already knew of the 74 run; that is fine, but remove "arithmetic slip".
+
+### F4 (should-fix) Q6(c): protocol expectation "all pass, 0 skipped" was NOT MET; the verdict does not say so in its own text
+Evidence: AMEND-D2-3 says "recorded as NOT MET for R05/R06 as run"; verdict Q6(c) only says "first-attempt failure rows remain the record". The S1 supplement (reg-943ab18, clean, HEAD verified; 95/95, 0 skip, both interpreters) is legitimately separate: new labels, new runner (`run_supp_v02.sh`), R05/R06 retained, same pristine CP. But it was chosen after seeing the failures (post-hoc), and the cloned 943ab18 Registry is a different environment from the frozen pin; its pass does not transfer to the a40fe755 run.
+Suggested wording: "Protocol expectation for (c) was NOT MET as run (2 skips, 6 failures); the S1 supplement is post-hoc, at a different Registry pin chosen after the failure was seen, and supports only the statement that those six failures are the pin assertion."
+
+### F5 (note) Q5 refusal rows are persisted-store edits only; R2 tolerates a different refusal message
+Evidence: all P1-P9 edit the persisted member in the store text; no row perturbs the live side at claim issuance (D-1 territory). `judge_refusal` R2 accepts either CLAIM_MSG or the "policy binding refused at claim issuance" prefix, so a refusal by the binding-issuance path would also pass. Observed: all rows used CLAIM_MSG (raw R11), so no actual dilution, but the criterion is looser than the observation. The reasons other refusal exits of `_materialize_under_handoff` (snapshot unavailable, `_validate_issuance_snapshot`, scope mismatch, validity interval) were not driven; they are not D-06 member paths, but "no D-06 refusal path skipped" should be limited to "the six classifier outcomes through `_resolve(stage='claim')`".
+Suggested wording: add "Rows perturb the persisted member only; live-side drift at claim issuance and the non-member refusal exits of `_materialize_under_handoff` were not driven."
+
+### F6 (note) Protocol Q4 requirement not met in the record: module hash in preflight
+Evidence: PROTOCOL section 3 Q4 says the preflight "must show ... `effective_configuration_binding.py` sha256 differing from the pristine one". The readj harness preflight row (R07) records acp path, pin, python, pydantic, no source sha (`source_sha256` exists only in the d2 harness preflight). The verdict claims only "acp imported from the M06 copy". The difference is shown instead by step1-M06-vs-pristine.diff and tree ids, which is adequate, but the protocol requirement is unmet and unmentioned.
+Suggested wording: add to verdict Q4 "the preflight does not record the module sha256 as the protocol asked; the M06 identity rests on acp path plus the tree id c071b730 and step1 diff".
+
+### F7 (note) Q4 oracle independence and "f4_scope_authority_domain" inference
+Evidence: verdict already discloses that G5a was written after M06 survival was known and that `f4_scope_authority_domain` logs no persisted value (R07 row has empty detail). Also the Q4 protocol said each of three failed checks has persisted `constant-domain`; only two rows show it. Fine as disclosed; keep. Under M06 the persisted value is a mint-time output, not a tamper, so Q4 and B1 test different things; the verdict separates them correctly.
+
+### F8 (note) Freeze timing is self-attested and AMEND-R3 history
+Evidence: FREEZE-TIME.txt is a text file written by the same worker; mtimes are consistent but are not an external timestamp. The 442-line harness (mtime 04:04:22) predates the protocol (04:05:58), so expectations were written after the harness code existed; no run evidence of a dry run is present, but absence cannot be shown. AMEND-R3 (predecessor) was itself an outcome-directed instrument change (relaxed `unexpected` to four lists after a first run failed every P6 row on `check_events`); it is disclosed, kept with the strict variant as `strict_unexpected_keys`, and D-2 inherits it. D-2's Q5 `unexpected` therefore does not flag check_events or other keys (e.g. `input_time_floors`); the 13 `check_events` rows per call are recorded as observation only. Custody of the freeze begins only when merged.
+Suggested wording: "Freeze time is the worker's own record; it was not externally timestamped. Q5 'no state write' is judged under the AMEND-R3 definition (decisions/attempts/observations/reconciliations only)."
+
+### F9 (note) M04 prediction miss and amendments: legitimate
+Evidence: the protocol predicted P7-P9 would pass under M04; they fail, because the mutant copies the persisted member (valid or not) into `current`, so the equality passes for invalid/unknown-version members too. The miss is recorded, expectation not revised, kill rule (control passes and R1/R3 fail) is met (R12: 8 failed / 10 passed; failures P1-P5, P7-P9). AMEND-D2-1 (file name with dots), -2 (junit grouping, post-processing only), -3 (supplement) each keep first attempts (R03/R04 first-attempt dirs, R05 gate-first-output) and none touched candidate behaviour or expectations. The `-k Q5` overreach (selected all 18 incl. Q4b) is disclosed and harmless. No outcome-directed edits found in the D-2 instruments.
+
+### F10 (note) Harness weaknesses
+- Hard-coded paths: `run_d2.sh` (W=/tmp/claude-0/work, venv paths, pin dir, cp-b7eb11a), frozen `test_readj_gaps.py` imports orig_harness from /tmp/claude-0/work/orig (disclosed). README has no step-by-step re-run recipe (layout only); I used `run_d2.sh` env variables by hand. Re-execution on another machine needs these paths recreated.
+- `echo exit=$?` records the pytest exit only because it follows the `case`; fragile.
+- B1 `[f4]` and `[pin]` rely on `H.perturb_member`/`H.reseal` from the original harness (shared tooling, disclosed).
+- R12 under M04 runs Q4b with the pristine B3 expectation; passes because M04 does not touch scope_identity; fine.
+- False-positive risk: low for Q5 (absolute criteria plus control P0 with spy once); moderate for Q4b (see F2).
+
+### F11 (note) Closure/acceptance language
+No claim of F3-A acceptance, Tier 1, or release found; holds are listed unchanged. The only overstatement candidates are F2 ("ESTABLISHED"), F3 ("arithmetic slip"), and the unqualified "no implementation defect was observed in Q4, Q4b, Q5" (true for the cases run; add "in the cases run").
+
+## Not examined
+- Q6 CI-gated Registry suites and builder CI logs; Python versions other than 3.11.18/3.12.3; 8616d5f and main.
+- Full contents of manifest.json and SHA256SUMS beyond `sha256sum -c`; README claims on custody.
+- R10 vs R11 RAW-row byte equality (I compared my own 3.12 re-run to R11 only; per-test outcomes R10 = R11 verified).
+- Independent re-execution of Q4 (G5a with M06), M04, Q6 (a)-(c); only the Q5 module on 3.12 was re-run.
+- Source of orig_harness.py fixtures (`new_case`, `perturb_member`, `reseal`, `strip_member`) beyond how they are called; whether `_gl_reverify` guards fire under M06.
+- Memory/prior session records beyond the recorded A-main3/A-main4 run summaries.

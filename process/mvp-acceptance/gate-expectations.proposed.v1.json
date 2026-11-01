@@ -1,0 +1,39 @@
+{
+  "schema": "cognous.mvp-acceptance-gate-expectations/1",
+  "status": "PROPOSED for Qualification freeze (Architect ruling 7); never edited after a result is seen: a change is a new file with a recorded reason. Not a verdict, not an acceptance; release HOLD.",
+  "verifier": {
+    "note": "Exact dispositions of the pinned Verifier on the route B chain at the candidate tuple. Asserted as counts and check ids, never as 'all other checks pass'. The report file is re-read and its sha256 must equal the hash the run recorded. Run B (record + proposal + manifest + a ledger derived by the harness from the SQLite effects table) is the run that carries these numbers; run A (no ledger) is captured exactly too.",
+    "run_B": {
+      "exit_code": 3,
+      "overall": "abstain",
+      "crashed": false,
+      "summary": {"checks": 28, "confirmed": 27, "could_not_check": 1, "refuted": 0},
+      "tiers": {
+        "V4": {
+          "confirmed": 4,
+          "could_not_check": 1,
+          "refuted": 0,
+          "could_not_check_ids": ["v4.ledger.rows-agree-with-attempts"],
+          "not_applicable": 2,
+          "not_applicable_ids": ["v4.ledger.acknowledged-attempts-have-rows", "v4.ledger.observations-agree"]
+        }
+      },
+      "refuted_check_ids": [],
+      "could_not_check_ids": ["v4.ledger.rows-agree-with-attempts"]
+    },
+    "run_A": {
+      "exit_code": 3,
+      "overall": "abstain",
+      "crashed": false,
+      "summary": {"checks": 29, "confirmed": 22, "could_not_check": 7, "refuted": 0},
+      "refuted_check_ids": [],
+      "could_not_check_ids": [
+        "v4.ledger.acknowledged-attempts-have-rows", "v4.ledger.counts", "v4.ledger.effects-have-authorized-decisions", "v4.ledger.keys",
+        "v4.ledger.observations-agree", "v4.ledger.row-matches-binding", "v4.ledger.rows-agree-with-attempts"
+      ],
+      "could_not_check_reason_all": "input_absent"
+    },
+    "module_path_under_pin": true
+  },
+  "environment": {"python_prefix": "3.13", "pydantic_min": [2, 12]}
+}

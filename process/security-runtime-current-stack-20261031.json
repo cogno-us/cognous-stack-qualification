@@ -1,0 +1,79 @@
+{
+  "schema": "cognous.security-runtime-candidate/1",
+  "phase": "full",
+  "qualification_input_status": "merged_only",
+  "selected": false,
+  "reference_release_authorized": false,
+  "production_deployment_authorized": false,
+  "profile_id": "security-wiki-current-stack-20261031",
+  "supersedes_profile": null,
+  "refreeze_ids": [],
+  "note": "Current-stack option-B tuple (see current-stack-20261031/tuple.json). Same suite_generation and exchange profile as the historical r13 so that the existing assertions are exercised UNCHANGED; any incompatibility is a recorded result, not an adaptation.",
+  "predecessor_profile": "process/security-runtime-f5b-20261016-r13.json (HISTORICAL REFERENCE ONLY, unchanged)",
+  "suite_generation": "p2",
+  "exchange_compatibility_profile": "security-runtime-p2-20261018",
+  "additional_source_hashes": [
+    ".github/workflows/security-runtime-f5b-qualification.yml",
+    "tools/summarize_security_runtime.py"
+  ],
+  "components": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "revision": "b19c47ddd020409d24e52e70b11359c46265edbb"
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "revision": "f7a55e2a8494801e49193f9f46935f0a971c248d"
+    },
+    "replay": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "revision": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842"
+    },
+    "evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "revision": "7b9511f2c6d56d424f17b078826594abd29f6c96"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "revision": "1a5e1d300250d832e611633f0bf8f762e398c0ec"
+    },
+    "exchange": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d"
+    },
+    "manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "revision": "fa170815ef96a54c233d0dd9da821b60debabf8b"
+    }
+  },
+  "constitutional_authority": {
+    "repository": "cogno-us/cognous-institutional-governance",
+    "revision": "03a90c14c4a178997df2b6e527f67452b9c6bb7a"
+  },
+  "scope": "Synthetic local SQLite; no live effects or paid model calls; current integrated OCS. The migrated Registry (cogno-us/cognous-ocs-registry 6b96a9a6) is RECORDED in this profile ('ocs_registry') but is NOT among the harness COMPONENT_NAMES: the harness neither verifies nor imports it, and no Wiki test exercises it. Its pristine state at the recorded revision is checked out-of-band and recorded in the run record.",
+  "limitations": [
+    "F3R requalifies the F5b-repaired merged generation only; the historical 996baeb4 candidate profile and its retained evidence are unchanged and not transferred",
+    "Exact merged-source bounded cases do not transfer full-reference qualification to other profiles",
+    "Refreeze, re-review, final package, independent security/IP and operational/deployment acceptance remain pending",
+    "Exchange transport adapters do not pass runtime_authority_profile and are unusable under the security profiles; only the reference run_exchange path is exercised",
+    "Failure-record references remain source-asserted; synthetic destination observation is not independently operated external verification",
+    "C0 remains unsafe; optional same-host cooperative controls do not establish C2/C3 or real settlement",
+    "r2 re-freezes four further component pins (replay, odes, evidence_pack, exchange) relative to r1; evidence retained at the original F5b pins or at the r1 pins is historical and is not transferred to r2",
+    "r3 moves six component pins to the P4 generation relative to r2; evidence retained at the original F5b pins, the r1 pins or the r2 pins is historical and is not transferred to r3",
+    "r4 moves only the constitutional authority pin (fb3d9793 to cbc39e79) relative to r3; evidence retained at the r3 or earlier pins is historical and is not transferred to r4, and the authority probe revisions of 2026-10-17 apply only from r4",
+    "r5 moves five component pins to the Programme 2 generation relative to r4; evidence retained at earlier pins is historical and is not transferred to r5",
+    "r6 moves two component pins (ODES, exchange) relative to r5 to add the Programme 2 compatibility tuple and profile; evidence retained at earlier pins is historical and is not transferred to r6",
+    "r7 moves two component pins (ODES, exchange) relative to r6 to document the P4 and P2 profile versions and to align the exchange compatibility profile's ODES pin; evidence retained at earlier pins is historical and is not transferred to r7",
+    "r8 moves two component pins (ODES, exchange) relative to r7 for an ODES documentation cleanup and to align the exchange compatibility profile's ODES pin; evidence retained at earlier pins is historical and is not transferred to r8",
+    "r9 moves eight component pins (control plane, runtime, Replay, evidence pack, ODES, exchange, action manifest, constitutional authority) relative to r8 to the current mains; evidence retained at earlier pins is historical and is not transferred to r9",
+    "r10 moves five component pins (runtime, Replay, evidence pack, ODES, exchange) relative to r9 to the Programme 2 runtime-fix tuple; evidence retained at earlier pins is historical and is not transferred to r10",
+    "r11 moves only the constitutional authority pin (0124adcd to d4462697) relative to r10; evidence retained at the r10 or earlier pins is historical and is not transferred to r11",
+    "r12 moves all seven component pins and the constitutional authority pin (control plane, runtime, Replay, evidence pack, ODES, exchange, action manifest, authority) relative to r11 to the current mains; evidence retained at the r11 or earlier pins is historical and is not transferred to r12",
+    "r13 moves six component pins (control plane, runtime, Replay, evidence pack, ODES, exchange) relative to r12 to the current mains; the action manifest and the constitutional authority stay at the r12 pins; evidence retained at the r12 or earlier pins is historical and is not transferred to r13"
+  ],
+  "ocs_registry": {
+    "repository": "cogno-us/cognous-ocs-registry",
+    "revision": "6b96a9a658923954433dc1a4c13626fa5145b9c7",
+    "code_equals": "a40fe755e2384a99c37016fa9ad59396f1835900 (r08-v8)"
+  }
+}

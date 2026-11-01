@@ -1,0 +1,137 @@
+{
+  "schema": "cognous.mvp-applicability-mapping/1",
+  "status": "PROPOSED for Qualification freeze (Architect ruling 5); not frozen, not selected, not an acceptance, no verdict. Release HOLD unchanged.",
+  "owner": "Qualification owns this mapping and every verdict derived from it; the builder only proposes it.",
+  "supersedes": null,
+  "new_file_reason": "A separately frozen MVP applicability mapping. The historical V1 SCN-D09 expectations (suites/v1-scenarios/test_scn_d09.py) and the MVP expectations v1-v3 are NOT edited; their bytes are recorded below and checked.",
+  "scope": "OCS MVP candidate manifest: matched $10 synthetic refund, Linux single host, route B (AtomicLocalControlPlaneExecutor, operation identity, journal mode) reached through the hub trusted-host ingress",
+  "routes": {
+    "route_b": {
+      "name": "Control Plane decision -> real claim provisioning -> route B atomic executor -> synthetic SQLite destination",
+      "mvp_status": "IN SCOPE and INVOKED",
+      "evidence": "process/mvp-acceptance/mandatory-battery.proposed.v1.json"
+    },
+    "route_c": {
+      "name": "Exchange (cogno-us/cognous-governed-exchange; ODEX-GAX/IMX governed exchange reference)",
+      "mvp_status": "EXCLUDED and NOT INVOKED",
+      "meaning": "The MVP candidate manifest names no Exchange component; the ingress offers no route C entry point; no Exchange module is imported or executed by the mandatory MVP battery. This is a scope declaration verified by the checks below. It is not a claim that Exchange is correct, and it does not resolve, hide or reclassify any Exchange finding.",
+      "applicability": "Out of scope by declared exclusion: no mandatory MVP row applies to route C. This is a scope declaration, not a skipped test (a skipped mandatory test is an incomplete verdict) and not a PASS.",
+      "defect_register_note": "The Route C 5/32 failures and the roughly 1-in-5 determinism flake stay in the defect register as unchanged raw history. This mapping neither edits nor cites them as resolved; the Exchange investigation is a separate, still-running piece of work that this file does not duplicate. Excluding route C from the MVP scope does not close those defects.",
+      "verified_by": [
+        {
+          "id": "AP-01",
+          "check": "the candidate identity inputs name no Exchange component and list it only under excluded_components"
+        },
+        {
+          "id": "AP-02",
+          "check": "the resolved tuple pin file (the single tuple source of the run) has no Exchange component or repository"
+        },
+        {
+          "id": "AP-03",
+          "check": "AST scan of every Python file of the pinned hub ingress (tools/mvp_ingress): no import, dynamic import, eval/exec or string constant names Exchange, GAX/IMX or route C"
+        },
+        {
+          "id": "AP-04",
+          "check": "the pinned ingress proposal parser is closed: its member vocabulary has no route, destination or exchange selector, and the real parser refuses every probe body that tries to select route C"
+        },
+        {
+          "id": "AP-05",
+          "check": "mapping hygiene: this file states route C EXCLUDED and NOT INVOKED, and the historical files named below are byte-identical to their recorded hashes"
+        },
+        {
+          "id": "AP-06",
+          "check": "no Exchange module is loaded and no Exchange path is on sys.path in (a) each pytest process that runs the mandatory battery (recorded at session end by exchange_exclusion_plugin.py as exchange-exclusion-<tag>.json) and (b) the pinned ingress server process (its sys.modules is written at exit by plugin/ingress_probe/sitecustomize.py as artifacts/ingress-modules.json); the gate re-reads both. Other processes the battery spawns (for example the Verifier CLI) are not covered."
+        }
+      ]
+    }
+  },
+  "banned_exchange_module_roots": [
+    "experiments",
+    "odex_gax_imx_reference",
+    "governed_message_transport"
+  ],
+  "banned_exchange_name_pattern": "(?i)(gax|imx|governed[-_ ]?exchange|odex|route[-_ ]?c\\b)",
+  "route_c_probe_bodies": [
+    {
+      "schema": "mvp-refund-proposal/1",
+      "request_id": "ap-probe-1",
+      "customer_id": "c1",
+      "amount": 10,
+      "unit": "USD",
+      "refund_reason": "damaged",
+      "route": "C"
+    },
+    {
+      "schema": "mvp-refund-proposal/1",
+      "request_id": "ap-probe-2",
+      "customer_id": "c1",
+      "amount": 10,
+      "unit": "USD",
+      "refund_reason": "damaged",
+      "route": "exchange"
+    },
+    {
+      "schema": "mvp-refund-proposal/1",
+      "request_id": "ap-probe-3",
+      "customer_id": "c1",
+      "amount": 10,
+      "unit": "USD",
+      "refund_reason": "damaged",
+      "destination": "gax"
+    },
+    {
+      "schema": "mvp-refund-proposal/1",
+      "request_id": "ap-probe-4",
+      "customer_id": "c1",
+      "amount": 10,
+      "unit": "USD",
+      "refund_reason": "damaged",
+      "exchange": {
+        "imx": true
+      }
+    },
+    {
+      "schema": "mvp-refund-proposal/1",
+      "request_id": "ap-probe-5",
+      "customer_id": "c1",
+      "amount": 10,
+      "unit": "USD",
+      "refund_reason": "damaged",
+      "route_c": true
+    },
+    {
+      "schema": "mvp-refund-proposal/1",
+      "request_id": "ap-probe-6",
+      "customer_id": "c1",
+      "amount": 10,
+      "unit": "USD",
+      "refund_reason": "damaged",
+      "adapter_id": "exchange"
+    }
+  ],
+  "expected_ingress_member_vocabulary": [
+    "schema",
+    "request_id",
+    "customer_id",
+    "amount",
+    "unit",
+    "refund_reason"
+  ],
+  "historical_files_unchanged": {
+    "note": "sha256 of the file bytes at the commit this mapping was proposed against. A difference fails AP-05; a deliberate change is a new file with a recorded reason, never an edit.",
+    "files": {
+      "suites/v1-scenarios/test_scn_d09.py": "7af42b2ce4edfc3bbd86998daca5fda8bba875137dc409d90a3ab410e0b8760d",
+      "process/mvp-chain/expectations.proposed.v1.json": "828df48ddedfbe66977d64f095556cf31e64015bb57107b4b5d02d95867abf7d",
+      "process/mvp-chain/expectations.proposed.v2.json": "3a67d0a867447131bde11629fab9a84024d64d73f5d3fc9480cee996eb662245",
+      "process/mvp-chain/expectations.proposed.v3.json": "e84caab5f3628e8861094072c339b17fdb2ebe1805008f6083f2900c9be226a4"
+    }
+  },
+  "does_not_prove": [
+    "that Exchange is safe, correct or deterministic",
+    "that no other route exists in a component outside the pinned tuple",
+    "anything about code running as the ingress uid or root",
+    "production readiness: release remains HOLD",
+    "anything about processes other than the battery pytest processes and the ingress server process"
+  ],
+  "banned_exchange_path_pattern": "(?i)(cognous-governed-exchange|governed[-_]exchange|odex_gax_imx|[/\\\\]components[/\\\\]exchange|[/\\\\]exchange[/\\\\])"
+}

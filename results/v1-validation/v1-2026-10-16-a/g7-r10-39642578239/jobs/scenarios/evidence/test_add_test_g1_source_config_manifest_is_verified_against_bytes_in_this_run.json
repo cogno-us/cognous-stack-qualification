@@ -1,0 +1,910 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:04b1f3fafd27b394cb05917be86b3a2b5388285fe4428746aa843083392fba41",
+    "run2_digest": "sha256:04b1f3fafd27b394cb05917be86b3a2b5388285fe4428746aa843083392fba41",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "e77fe0ee8714617899592528e660a80fbb2e864a",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "e77fe0ee8714617899592528e660a80fbb2e864a",
+        "tested_revision_match": true,
+        "tree": "ecec5377165f842c36c2c3a50848d82c5e5cad2e"
+      },
+      "evidence_pack": {
+        "commit": "99ba3211450b25a18007b4b62907b072fe05c964",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "99ba3211450b25a18007b4b62907b072fe05c964",
+        "tested_revision_match": true,
+        "tree": "189b45690200c1431f065a8b799094b1c3272bcd"
+      },
+      "exchange": {
+        "commit": "81b0877e1a9a82c2a61b1bafe631a4691556355f",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "81b0877e1a9a82c2a61b1bafe631a4691556355f",
+        "tested_revision_match": true,
+        "tree": "ebca7b0cbc05b0e091390b1474a8d8cb85472135"
+      },
+      "manifest": {
+        "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "tested_revision_match": true,
+        "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be"
+      },
+      "odes": {
+        "commit": "dc5cf19d405ce885b287cde2f78519d3109b9ae6",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "dc5cf19d405ce885b287cde2f78519d3109b9ae6",
+        "tested_revision_match": true,
+        "tree": "e95f0d14130d5686e72ea976b6906eadb1816e8c"
+      },
+      "replay": {
+        "commit": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6",
+        "tested_revision_match": true,
+        "tree": "9dee440a60e094cd4b267bb6bd56cad426a6574d"
+      },
+      "runtime": {
+        "commit": "cab4d9abc651c7efbafb429798d2c908f048bf5c",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "cab4d9abc651c7efbafb429798d2c908f048bf5c",
+        "tested_revision_match": true,
+        "tree": "2d311543afe9ae880addca47f9825e88bb34c141"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "frozen_pins_asserted": {
+      "control_plane": "e77fe0ee8714617899592528e660a80fbb2e864a",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "cab4d9abc651c7efbafb429798d2c908f048bf5c"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r12.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "excess_duplicate_effects": 0,
+      "source_config_manifest": {
+        "ci_job": {
+          "actions_pinned": 7,
+          "checkouts_without_credentials": 4,
+          "hub_ref": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+          "permissions": {
+            "contents": "read"
+          }
+        },
+        "components": {
+          "control_plane": {
+            "commit": "e77fe0ee8714617899592528e660a80fbb2e864a",
+            "repository": "cogno-us/cognous-control-plane",
+            "tree": "ecec5377165f842c36c2c3a50848d82c5e5cad2e"
+          },
+          "evidence_pack": {
+            "commit": "99ba3211450b25a18007b4b62907b072fe05c964",
+            "repository": "cogno-us/cognous-governance-evidence-pack",
+            "tree": "189b45690200c1431f065a8b799094b1c3272bcd"
+          },
+          "exchange": {
+            "commit": "81b0877e1a9a82c2a61b1bafe631a4691556355f",
+            "repository": "cogno-us/cognous-governed-exchange",
+            "tree": "ebca7b0cbc05b0e091390b1474a8d8cb85472135"
+          },
+          "manifest": {
+            "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+            "repository": "cogno-us/cognous-action-manifest",
+            "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be"
+          },
+          "odes": {
+            "commit": "dc5cf19d405ce885b287cde2f78519d3109b9ae6",
+            "repository": "cogno-us/open-decision-evidence-standard",
+            "tree": "e95f0d14130d5686e72ea976b6906eadb1816e8c"
+          },
+          "replay": {
+            "commit": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6",
+            "repository": "cogno-us/cognous-replay-bundle",
+            "tree": "9dee440a60e094cd4b267bb6bd56cad426a6574d"
+          },
+          "runtime": {
+            "commit": "cab4d9abc651c7efbafb429798d2c908f048bf5c",
+            "repository": "cogno-us/cognous-execution-runtime",
+            "tree": "2d311543afe9ae880addca47f9825e88bb34c141"
+          }
+        },
+        "files": {
+          "hub:component-lock.json": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+          "hub:profiles/security-runtime-f5b-candidate-20261016.json": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274",
+          "hub:tools/requirements-release.lock": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+          "qualification:process/security-runtime-f5b-20261016.json": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+          "qualification:tools/requirements-ci.lock": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495"
+        },
+        "refreeze_applied": [
+          {
+            "component": "the_index",
+            "from_sha": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+            "id": "RF-1",
+            "to_sha": "d17b8ac2b8445d385fbf51185a35914b2d8b835c"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+            "id": "RF-2",
+            "to_sha": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+            "id": "RF-3",
+            "to_sha": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657"
+          },
+          {
+            "component": "odes",
+            "from_sha": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+            "id": "RF-4",
+            "to_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+            "id": "RF-5",
+            "to_sha": "683246e05d291308211778ec48045df65466461f"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+            "id": "RF-6",
+            "to_sha": "da95378228b8f3205af49a86e68ba722961f6af0"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+            "id": "RF-7",
+            "to_sha": "def0ee0f3af713283ea3cd13f0caf79e1607b651"
+          },
+          {
+            "component": "odes",
+            "from_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+            "id": "RF-8",
+            "to_sha": "5675f1b96d95ba69510656bf73b1006110ef5b57"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "683246e05d291308211778ec48045df65466461f",
+            "id": "RF-9",
+            "to_sha": "505a3590114705b7ebf736b92dd189f338134635"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "da95378228b8f3205af49a86e68ba722961f6af0",
+            "id": "RF-10",
+            "to_sha": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+            "id": "RF-11",
+            "to_sha": "26a7e6594eb535827ccc248cbca36a7d119d613b"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+            "id": "RF-12",
+            "to_sha": "3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+            "id": "RF-13",
+            "to_sha": "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "505a3590114705b7ebf736b92dd189f338134635",
+            "id": "RF-14",
+            "to_sha": "54df6984dd418e2e0a09f89e54f281493475831c"
+          },
+          {
+            "component": "odes",
+            "from_sha": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+            "id": "RF-15",
+            "to_sha": "c5f4e2d0015ccdc94127a4025a6b605fc7fbdcbd"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+            "id": "RF-16",
+            "to_sha": "914db78dc3a4dbcc4abc79159f0ac0b7c1edc144"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+            "id": "RF-17",
+            "to_sha": "cbc39e79a1328a74b6cb1aba0cd1e5149164865d"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "26a7e6594eb535827ccc248cbca36a7d119d613b",
+            "id": "RF-18",
+            "to_sha": "3cd17ead6b24301290ad1e50ae4b22bbd93c12fb"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9",
+            "id": "RF-19",
+            "to_sha": "11de097c450d3ad4d89f9add41b00e38e7cc2c7c"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a",
+            "id": "RF-20",
+            "to_sha": "46e8bd7c263f5075cac3a7a9defcb265384f40e9"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "54df6984dd418e2e0a09f89e54f281493475831c",
+            "id": "RF-21",
+            "to_sha": "4fbbd34418f8dce7a536879d7bd0378737179f47"
+          },
+          {
+            "component": "odes",
+            "from_sha": "c5f4e2d0015ccdc94127a4025a6b605fc7fbdcbd",
+            "id": "RF-22",
+            "to_sha": "0663d5a24a2d94b83f51f611f30b3b3f144d6c5d"
+          },
+          {
+            "component": "odes",
+            "from_sha": "0663d5a24a2d94b83f51f611f30b3b3f144d6c5d",
+            "id": "RF-23",
+            "to_sha": "81979784117588d199da6fdceb05264f8c5903a6"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "914db78dc3a4dbcc4abc79159f0ac0b7c1edc144",
+            "id": "RF-24",
+            "to_sha": "ba9fa16052a3d99b08d1d31b4f5dca2bdef0c608"
+          },
+          {
+            "component": "odes",
+            "from_sha": "81979784117588d199da6fdceb05264f8c5903a6",
+            "id": "RF-25",
+            "to_sha": "e2cbc0dcee795d1ba100e028107fdfe6d0bc9e21"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "ba9fa16052a3d99b08d1d31b4f5dca2bdef0c608",
+            "id": "RF-26",
+            "to_sha": "06f58c329fe5221a0bfed47e9af9dc02405a93c3"
+          },
+          {
+            "component": "odes",
+            "from_sha": "e2cbc0dcee795d1ba100e028107fdfe6d0bc9e21",
+            "id": "RF-27",
+            "to_sha": "cdf704c88bb6542e3f1121a5ceb6cb03fc7d6a52"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "06f58c329fe5221a0bfed47e9af9dc02405a93c3",
+            "id": "RF-28",
+            "to_sha": "8721e8d358baaec3663b9183e09a14ae4e464e7c"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "3cd17ead6b24301290ad1e50ae4b22bbd93c12fb",
+            "id": "RF-29",
+            "to_sha": "2bac7875391cad0a431fa0d75208b7ade39743e3"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "11de097c450d3ad4d89f9add41b00e38e7cc2c7c",
+            "id": "RF-30",
+            "to_sha": "c4a05883266b815f39d97cbf2240406647985147"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "46e8bd7c263f5075cac3a7a9defcb265384f40e9",
+            "id": "RF-31",
+            "to_sha": "2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "4fbbd34418f8dce7a536879d7bd0378737179f47",
+            "id": "RF-32",
+            "to_sha": "80e24650bb089d3a0cb9c0063c5b4bcc4a436123"
+          },
+          {
+            "component": "odes",
+            "from_sha": "cdf704c88bb6542e3f1121a5ceb6cb03fc7d6a52",
+            "id": "RF-33",
+            "to_sha": "4bf1212860f4d7c5d4f26758485f91402ffed426"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "8721e8d358baaec3663b9183e09a14ae4e464e7c",
+            "id": "RF-34",
+            "to_sha": "bf314f3884e60629c844b1d6cb248f4d76b31c1a"
+          },
+          {
+            "component": "action_manifest",
+            "from_sha": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+            "id": "RF-35",
+            "to_sha": "ff5490828b2bf7f6a976da209f3f533701855687"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "cbc39e79a1328a74b6cb1aba0cd1e5149164865d",
+            "id": "RF-36",
+            "to_sha": "0124adcdceb8cee973f0631adb2639f14472df63"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "c4a05883266b815f39d97cbf2240406647985147",
+            "id": "RF-37",
+            "to_sha": "6b16962db140590b808f02b5c2cb11a217aec46f"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00",
+            "id": "RF-38",
+            "to_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "80e24650bb089d3a0cb9c0063c5b4bcc4a436123",
+            "id": "RF-39",
+            "to_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e"
+          },
+          {
+            "component": "odes",
+            "from_sha": "4bf1212860f4d7c5d4f26758485f91402ffed426",
+            "id": "RF-40",
+            "to_sha": "2893d935f1cb60d1854a3802cc32d739ddfd4efb"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "bf314f3884e60629c844b1d6cb248f4d76b31c1a",
+            "id": "RF-41",
+            "to_sha": "fdc2a410383396553254a39ae641c88b78ee13f1"
+          },
+          {
+            "component": "the_index",
+            "from_sha": "d17b8ac2b8445d385fbf51185a35914b2d8b835c",
+            "id": "RF-42",
+            "to_sha": "704f55ea08a2e97a36166f387895e8f5678bdad4"
+          },
+          {
+            "component": "bitrep",
+            "from_sha": "5b5077dafde232a7801cb425c4efddcffb468723",
+            "id": "RF-43",
+            "to_sha": "981036c315856c71207984797b0c4e48d3b3921d"
+          },
+          {
+            "component": "the_index",
+            "from_sha": "704f55ea08a2e97a36166f387895e8f5678bdad4",
+            "id": "RF-44",
+            "to_sha": "d25afe601454d60c561a4726e31c31d1ec40d99b"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "0124adcdceb8cee973f0631adb2639f14472df63",
+            "id": "RF-45",
+            "to_sha": "d4462697197d6eb4e76bbfc3d712c8c1dab27884"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "d4462697197d6eb4e76bbfc3d712c8c1dab27884",
+            "id": "RF-46",
+            "to_sha": "9b5ab721ae0684150e466c01e9d0d59ec61c3e00"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+            "id": "RF-47",
+            "to_sha": "e77fe0ee8714617899592528e660a80fbb2e864a"
+          },
+          {
+            "component": "action_manifest",
+            "from_sha": "ff5490828b2bf7f6a976da209f3f533701855687",
+            "id": "RF-48",
+            "to_sha": "fa170815ef96a54c233d0dd9da821b60debabf8b"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "6b16962db140590b808f02b5c2cb11a217aec46f",
+            "id": "RF-49",
+            "to_sha": "cab4d9abc651c7efbafb429798d2c908f048bf5c"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "fdc2a410383396553254a39ae641c88b78ee13f1",
+            "id": "RF-50",
+            "to_sha": "81b0877e1a9a82c2a61b1bafe631a4691556355f"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+            "id": "RF-51",
+            "to_sha": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+            "id": "RF-52",
+            "to_sha": "99ba3211450b25a18007b4b62907b072fe05c964"
+          },
+          {
+            "component": "odes",
+            "from_sha": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+            "id": "RF-53",
+            "to_sha": "dc5cf19d405ce885b287cde2f78519d3109b9ae6"
+          },
+          {
+            "component": "the_index",
+            "from_sha": "d25afe601454d60c561a4726e31c31d1ec40d99b",
+            "id": "RF-54",
+            "to_sha": "8e10387f8b7808e5dd1965fea38b74141761d7a6"
+          }
+        ],
+        "validation_id": "v1-2026-10-16-a"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "excess_duplicate_effects": 0,
+      "source_config_manifest": {
+        "ci_job": {
+          "actions_pinned": 7,
+          "checkouts_without_credentials": 4,
+          "hub_ref": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+          "permissions": {
+            "contents": "read"
+          }
+        },
+        "components": {
+          "control_plane": {
+            "commit": "e77fe0ee8714617899592528e660a80fbb2e864a",
+            "repository": "cogno-us/cognous-control-plane",
+            "tree": "ecec5377165f842c36c2c3a50848d82c5e5cad2e"
+          },
+          "evidence_pack": {
+            "commit": "99ba3211450b25a18007b4b62907b072fe05c964",
+            "repository": "cogno-us/cognous-governance-evidence-pack",
+            "tree": "189b45690200c1431f065a8b799094b1c3272bcd"
+          },
+          "exchange": {
+            "commit": "81b0877e1a9a82c2a61b1bafe631a4691556355f",
+            "repository": "cogno-us/cognous-governed-exchange",
+            "tree": "ebca7b0cbc05b0e091390b1474a8d8cb85472135"
+          },
+          "manifest": {
+            "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+            "repository": "cogno-us/cognous-action-manifest",
+            "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be"
+          },
+          "odes": {
+            "commit": "dc5cf19d405ce885b287cde2f78519d3109b9ae6",
+            "repository": "cogno-us/open-decision-evidence-standard",
+            "tree": "e95f0d14130d5686e72ea976b6906eadb1816e8c"
+          },
+          "replay": {
+            "commit": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6",
+            "repository": "cogno-us/cognous-replay-bundle",
+            "tree": "9dee440a60e094cd4b267bb6bd56cad426a6574d"
+          },
+          "runtime": {
+            "commit": "cab4d9abc651c7efbafb429798d2c908f048bf5c",
+            "repository": "cogno-us/cognous-execution-runtime",
+            "tree": "2d311543afe9ae880addca47f9825e88bb34c141"
+          }
+        },
+        "files": {
+          "hub:component-lock.json": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+          "hub:profiles/security-runtime-f5b-candidate-20261016.json": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274",
+          "hub:tools/requirements-release.lock": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+          "qualification:process/security-runtime-f5b-20261016.json": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+          "qualification:tools/requirements-ci.lock": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495"
+        },
+        "refreeze_applied": [
+          {
+            "component": "the_index",
+            "from_sha": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+            "id": "RF-1",
+            "to_sha": "d17b8ac2b8445d385fbf51185a35914b2d8b835c"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+            "id": "RF-2",
+            "to_sha": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+            "id": "RF-3",
+            "to_sha": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657"
+          },
+          {
+            "component": "odes",
+            "from_sha": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+            "id": "RF-4",
+            "to_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+            "id": "RF-5",
+            "to_sha": "683246e05d291308211778ec48045df65466461f"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+            "id": "RF-6",
+            "to_sha": "da95378228b8f3205af49a86e68ba722961f6af0"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+            "id": "RF-7",
+            "to_sha": "def0ee0f3af713283ea3cd13f0caf79e1607b651"
+          },
+          {
+            "component": "odes",
+            "from_sha": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+            "id": "RF-8",
+            "to_sha": "5675f1b96d95ba69510656bf73b1006110ef5b57"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "683246e05d291308211778ec48045df65466461f",
+            "id": "RF-9",
+            "to_sha": "505a3590114705b7ebf736b92dd189f338134635"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "da95378228b8f3205af49a86e68ba722961f6af0",
+            "id": "RF-10",
+            "to_sha": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+            "id": "RF-11",
+            "to_sha": "26a7e6594eb535827ccc248cbca36a7d119d613b"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+            "id": "RF-12",
+            "to_sha": "3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+            "id": "RF-13",
+            "to_sha": "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "505a3590114705b7ebf736b92dd189f338134635",
+            "id": "RF-14",
+            "to_sha": "54df6984dd418e2e0a09f89e54f281493475831c"
+          },
+          {
+            "component": "odes",
+            "from_sha": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+            "id": "RF-15",
+            "to_sha": "c5f4e2d0015ccdc94127a4025a6b605fc7fbdcbd"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+            "id": "RF-16",
+            "to_sha": "914db78dc3a4dbcc4abc79159f0ac0b7c1edc144"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+            "id": "RF-17",
+            "to_sha": "cbc39e79a1328a74b6cb1aba0cd1e5149164865d"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "26a7e6594eb535827ccc248cbca36a7d119d613b",
+            "id": "RF-18",
+            "to_sha": "3cd17ead6b24301290ad1e50ae4b22bbd93c12fb"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "3024ef6e6ecf7da22e5f4fdf90d873f93b2a55c9",
+            "id": "RF-19",
+            "to_sha": "11de097c450d3ad4d89f9add41b00e38e7cc2c7c"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "9aab3f6c34d2721ef1be3f6468b71dc3bad99a2a",
+            "id": "RF-20",
+            "to_sha": "46e8bd7c263f5075cac3a7a9defcb265384f40e9"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "54df6984dd418e2e0a09f89e54f281493475831c",
+            "id": "RF-21",
+            "to_sha": "4fbbd34418f8dce7a536879d7bd0378737179f47"
+          },
+          {
+            "component": "odes",
+            "from_sha": "c5f4e2d0015ccdc94127a4025a6b605fc7fbdcbd",
+            "id": "RF-22",
+            "to_sha": "0663d5a24a2d94b83f51f611f30b3b3f144d6c5d"
+          },
+          {
+            "component": "odes",
+            "from_sha": "0663d5a24a2d94b83f51f611f30b3b3f144d6c5d",
+            "id": "RF-23",
+            "to_sha": "81979784117588d199da6fdceb05264f8c5903a6"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "914db78dc3a4dbcc4abc79159f0ac0b7c1edc144",
+            "id": "RF-24",
+            "to_sha": "ba9fa16052a3d99b08d1d31b4f5dca2bdef0c608"
+          },
+          {
+            "component": "odes",
+            "from_sha": "81979784117588d199da6fdceb05264f8c5903a6",
+            "id": "RF-25",
+            "to_sha": "e2cbc0dcee795d1ba100e028107fdfe6d0bc9e21"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "ba9fa16052a3d99b08d1d31b4f5dca2bdef0c608",
+            "id": "RF-26",
+            "to_sha": "06f58c329fe5221a0bfed47e9af9dc02405a93c3"
+          },
+          {
+            "component": "odes",
+            "from_sha": "e2cbc0dcee795d1ba100e028107fdfe6d0bc9e21",
+            "id": "RF-27",
+            "to_sha": "cdf704c88bb6542e3f1121a5ceb6cb03fc7d6a52"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "06f58c329fe5221a0bfed47e9af9dc02405a93c3",
+            "id": "RF-28",
+            "to_sha": "8721e8d358baaec3663b9183e09a14ae4e464e7c"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "3cd17ead6b24301290ad1e50ae4b22bbd93c12fb",
+            "id": "RF-29",
+            "to_sha": "2bac7875391cad0a431fa0d75208b7ade39743e3"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "11de097c450d3ad4d89f9add41b00e38e7cc2c7c",
+            "id": "RF-30",
+            "to_sha": "c4a05883266b815f39d97cbf2240406647985147"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "46e8bd7c263f5075cac3a7a9defcb265384f40e9",
+            "id": "RF-31",
+            "to_sha": "2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "4fbbd34418f8dce7a536879d7bd0378737179f47",
+            "id": "RF-32",
+            "to_sha": "80e24650bb089d3a0cb9c0063c5b4bcc4a436123"
+          },
+          {
+            "component": "odes",
+            "from_sha": "cdf704c88bb6542e3f1121a5ceb6cb03fc7d6a52",
+            "id": "RF-33",
+            "to_sha": "4bf1212860f4d7c5d4f26758485f91402ffed426"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "8721e8d358baaec3663b9183e09a14ae4e464e7c",
+            "id": "RF-34",
+            "to_sha": "bf314f3884e60629c844b1d6cb248f4d76b31c1a"
+          },
+          {
+            "component": "action_manifest",
+            "from_sha": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+            "id": "RF-35",
+            "to_sha": "ff5490828b2bf7f6a976da209f3f533701855687"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "cbc39e79a1328a74b6cb1aba0cd1e5149164865d",
+            "id": "RF-36",
+            "to_sha": "0124adcdceb8cee973f0631adb2639f14472df63"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "c4a05883266b815f39d97cbf2240406647985147",
+            "id": "RF-37",
+            "to_sha": "6b16962db140590b808f02b5c2cb11a217aec46f"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "2a7963b18d96eb2e9e4fdb1a09c7588cf5c0ef00",
+            "id": "RF-38",
+            "to_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "80e24650bb089d3a0cb9c0063c5b4bcc4a436123",
+            "id": "RF-39",
+            "to_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e"
+          },
+          {
+            "component": "odes",
+            "from_sha": "4bf1212860f4d7c5d4f26758485f91402ffed426",
+            "id": "RF-40",
+            "to_sha": "2893d935f1cb60d1854a3802cc32d739ddfd4efb"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "bf314f3884e60629c844b1d6cb248f4d76b31c1a",
+            "id": "RF-41",
+            "to_sha": "fdc2a410383396553254a39ae641c88b78ee13f1"
+          },
+          {
+            "component": "the_index",
+            "from_sha": "d17b8ac2b8445d385fbf51185a35914b2d8b835c",
+            "id": "RF-42",
+            "to_sha": "704f55ea08a2e97a36166f387895e8f5678bdad4"
+          },
+          {
+            "component": "bitrep",
+            "from_sha": "5b5077dafde232a7801cb425c4efddcffb468723",
+            "id": "RF-43",
+            "to_sha": "981036c315856c71207984797b0c4e48d3b3921d"
+          },
+          {
+            "component": "the_index",
+            "from_sha": "704f55ea08a2e97a36166f387895e8f5678bdad4",
+            "id": "RF-44",
+            "to_sha": "d25afe601454d60c561a4726e31c31d1ec40d99b"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "0124adcdceb8cee973f0631adb2639f14472df63",
+            "id": "RF-45",
+            "to_sha": "d4462697197d6eb4e76bbfc3d712c8c1dab27884"
+          },
+          {
+            "component": "constitutional_authority",
+            "from_sha": "d4462697197d6eb4e76bbfc3d712c8c1dab27884",
+            "id": "RF-46",
+            "to_sha": "9b5ab721ae0684150e466c01e9d0d59ec61c3e00"
+          },
+          {
+            "component": "control_plane",
+            "from_sha": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+            "id": "RF-47",
+            "to_sha": "e77fe0ee8714617899592528e660a80fbb2e864a"
+          },
+          {
+            "component": "action_manifest",
+            "from_sha": "ff5490828b2bf7f6a976da209f3f533701855687",
+            "id": "RF-48",
+            "to_sha": "fa170815ef96a54c233d0dd9da821b60debabf8b"
+          },
+          {
+            "component": "moltbot_safe",
+            "from_sha": "6b16962db140590b808f02b5c2cb11a217aec46f",
+            "id": "RF-49",
+            "to_sha": "cab4d9abc651c7efbafb429798d2c908f048bf5c"
+          },
+          {
+            "component": "gax_imx_transport",
+            "from_sha": "fdc2a410383396553254a39ae641c88b78ee13f1",
+            "id": "RF-50",
+            "to_sha": "81b0877e1a9a82c2a61b1bafe631a4691556355f"
+          },
+          {
+            "component": "replay_bundle",
+            "from_sha": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+            "id": "RF-51",
+            "to_sha": "53c0cd60d565ea1797ed0be87a2310c5b68b24f6"
+          },
+          {
+            "component": "governance_evidence_pack",
+            "from_sha": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+            "id": "RF-52",
+            "to_sha": "99ba3211450b25a18007b4b62907b072fe05c964"
+          },
+          {
+            "component": "odes",
+            "from_sha": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+            "id": "RF-53",
+            "to_sha": "dc5cf19d405ce885b287cde2f78519d3109b9ae6"
+          },
+          {
+            "component": "the_index",
+            "from_sha": "d25afe601454d60c561a4726e31c31d1ec40d99b",
+            "id": "RF-54",
+            "to_sha": "8e10387f8b7808e5dd1965fea38b74141761d7a6"
+          }
+        ],
+        "validation_id": "v1-2026-10-16-a"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "ADD-TEST-G1",
+  "test": "test_add_test_g1_source_config_manifest_is_verified_against_bytes_in_this_run",
+  "verdict": "PASS"
+}

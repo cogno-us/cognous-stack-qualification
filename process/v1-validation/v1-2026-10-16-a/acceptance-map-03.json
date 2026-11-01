@@ -1,0 +1,1018 @@
+{
+ "schema": "acceptance-map-03/1",
+ "generated_for": "v1-2026-10-16-a",
+ "pins": {
+  "constitutional_authority": "cogno-us/cognous-institutional-governance@fb3d97938969a89e149e8ff8db2756091d1233fc",
+  "control_plane": "cogno-us/cognous-control-plane@a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5"
+ },
+ "sources": {
+  "ER-03-1": "docx section 03 (Alvorada constitutional governance), local copy",
+  "ADD-AUTH-RA": "Runtime Authority addendum K1-K6 (SharePoint, read only)"
+ },
+ "native_runs": {
+  "institutional_governance_pin": "446 passed, 0 skipped",
+  "control_plane_test_runtime_authority": "36 passed"
+ },
+ "ER-03-1": {
+  "lines": [
+   {
+    "id": "S03-R1a",
+    "locator": "03 / Recommended changes 1",
+    "kind": "recommendation",
+    "text": "Add a cross-project implementation profile linking adopted provisions to concrete controls, procedures, evidence and accountable owners.",
+    "pinned_tests": "UNCOVERED",
+    "fixtures": [],
+    "remainder": "documentation structure only (MAPPING.md); no pinned test reads it",
+    "probes": [
+     "test_probe_er031_mapping_links_provisions_to_controls_procedures_evidence_and_accountable_owners"
+    ],
+    "probe_names": [
+     "test_probe_er031_mapping_links_provisions_to_controls_procedures_evidence_and_accountable_owners"
+    ],
+    "probe_result": "pass",
+    "status": "UNCOVERED_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe"
+   },
+   {
+    "id": "S03-R1b",
+    "locator": "03 / Recommended changes 1",
+    "kind": "recommendation",
+    "text": "Mark every mapping as enforced, procedural, unsupported or untested.",
+    "pinned_tests": "UNCOVERED",
+    "fixtures": [],
+    "remainder": "status vocabulary in MAPPING.md is N/P/R/T/E (normative, procedure, reference check, executed fixture, enforcement) with limits in prose; 'unsupported'/'untested' are stated in each row's text, not as tokens",
+    "probes": [
+     "test_probe_er031_every_mapping_row_declares_its_implementation_status_and_claims_no_enforcement"
+    ],
+    "probe_names": [
+     "test_probe_er031_every_mapping_row_declares_its_implementation_status_and_claims_no_enforcement"
+    ],
+    "probe_result": "pass",
+    "status": "UNCOVERED_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe"
+   },
+   {
+    "id": "S03-R2a",
+    "locator": "03 / Recommended changes 2",
+    "kind": "recommendation",
+    "text": "Connect consequence tiers to evidence obligations, permissible class grants, review intensity, delay limits and continuity routes.",
+    "pinned_tests": [
+     "tests.test_authority_context.AuthorityContextTests::test_schema_and_semantic_fixture_oracles",
+     "testing.harness.test_authorization_effect.AuthorizationEffectTests::test_unknown_is_obligation_specific"
+    ],
+    "fixtures": [
+     "constitutional-tier-is-not-routine-grant",
+     "missing-human-approval",
+     "exceeded-class-cap",
+     "required-unknown-cannot-continue",
+     "unknown-required-evidence",
+     "dropped-approval-obligation"
+    ],
+    "remainder": "tier table content (review intensity, class grants, continuity) and the delay-limit link are documentation; no pinned test reads them",
+    "probes": [
+     "test_probe_er031_every_tier_t0_to_t4_names_its_evidence_and_review_burden",
+     "test_probe_er031_standing_class_grants_are_limited_to_routine_tiers_and_reserved_tiers_need_case_approval",
+     "test_probe_er031_continuity_route_is_mandatory_for_every_context_regardless_of_tier",
+     "test_probe_er031_tier_declares_a_delay_limit"
+    ],
+    "probe_names": [
+     "test_probe_er031_every_tier_t0_to_t4_names_its_evidence_and_review_burden",
+     "test_probe_er031_standing_class_grants_are_limited_to_routine_tiers_and_reserved_tiers_need_case_approval",
+     "test_probe_er031_continuity_route_is_mandatory_for_every_context_regardless_of_tier",
+     "test_probe_er031_tier_declares_a_delay_limit"
+    ],
+    "probe_result": "fail",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "OPEN: probe fails (see findings)"
+   },
+   {
+    "id": "S03-R2b",
+    "locator": "03 / Recommended changes 2",
+    "kind": "recommendation",
+    "text": "Document the human approval path for changing governance from observed outcomes; no automatic constitutional amendment.",
+    "pinned_tests": [
+     "tests.test_authority_context.AuthorityContextTests::test_schema_and_semantic_fixture_oracles"
+    ],
+    "fixtures": [
+     "feedback-as-amendment",
+     "feedback-as-proposal",
+     "constitutional-tier-is-not-routine-grant"
+    ],
+    "remainder": "the documented path (AUTHORITY_CONTEXT.md lifecycle row, MAPPING.md, VIRTUOUS_RECURSION.md) is read by no pinned test; the fixtures cover the executable no-automatic-adoption half",
+    "probes": [
+     "test_probe_er031_outcome_feedback_cannot_adopt_change_and_adoption_needs_a_recorded_human_act",
+     "test_probe_er031_human_approval_path_for_outcome_driven_governance_change_is_documented"
+    ],
+    "probe_names": [
+     "test_probe_er031_outcome_feedback_cannot_adopt_change_and_adoption_needs_a_recorded_human_act",
+     "test_probe_er031_human_approval_path_for_outcome_driven_governance_change_is_documented"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-A1",
+    "locator": "03 / Acceptance",
+    "kind": "acceptance",
+    "text": "A customer-service worked example traces authority through effect and remedy.",
+    "pinned_tests": [
+     "tests.test_authority_context.AuthorityContextTests::test_schema_and_semantic_fixture_oracles",
+     "testing.harness.test_authorization_effect.AuthorizationEffectTests::test_delivery_records_actual_changed_target",
+     "testing.harness.test_authorization_effect.AuthorizationEffectTests::test_partial_retry_has_stable_effect_and_distinct_attempts",
+     "testing.harness.test_authorization_effect.AuthorizationEffectTests::test_unknown_post_effect_cannot_trigger_blind_retry"
+    ],
+    "fixtures": [
+     "scoped-class-grant",
+     "explicit-human-approval"
+    ],
+    "remainder": "the shipped example files are not read by any pinned test (the fixtures execute equal copies in bases.json); the AE effect tests use a different synthetic scenario; remedy/appeal steps are narrative and the pin discloses they are proposed and not executed",
+    "probes": [
+     "test_probe_er031_shipped_worked_example_files_are_the_executed_fixture_bases",
+     "test_probe_er031_worked_example_traces_authority_through_effect_and_remedy"
+    ],
+    "probe_names": [
+     "test_probe_er031_shipped_worked_example_files_are_the_executed_fixture_bases",
+     "test_probe_er031_worked_example_traces_authority_through_effect_and_remedy"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-A2",
+    "locator": "03 / Acceptance",
+    "kind": "acceptance",
+    "text": "Routine and severe cases use visibly different process burdens.",
+    "pinned_tests": [
+     "tests.test_authority_context.AuthorityContextTests::test_schema_and_semantic_fixture_oracles"
+    ],
+    "fixtures": [
+     "missing-human-approval",
+     "self-approval",
+     "expired-human-approval",
+     "forged-approval-role",
+     "exceeded-class-cap",
+     "constitutional-tier-is-not-routine-grant"
+    ],
+    "remainder": "'visibly different' (documented side by side in WORKED_CASES.md and the example files) is not read by any pinned test",
+    "probes": [
+     "test_probe_er031_routine_and_severe_cases_carry_visibly_different_process_burdens"
+    ],
+    "probe_names": [
+     "test_probe_er031_routine_and_severe_cases_carry_visibly_different_process_burdens"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-A3",
+    "locator": "03 / Acceptance",
+    "kind": "acceptance",
+    "text": "Capability, authentication, evidence acceptance and lawful permission remain distinct.",
+    "pinned_tests": [
+     "tests.test_authority_context.AuthorityContextTests::test_schema_and_semantic_fixture_oracles",
+     "testing.harness.test_authorization_effect.AuthorizationEffectTests::test_observer_has_no_execution_operation",
+     "testing.harness.test_authorization_effect.AuthorizationEffectTests::test_expected_results_do_not_control_engine",
+     "testing.harness.test_authorization_effect.AuthorizationEffectTests::test_unavailable_verifier_is_not_verified"
+    ],
+    "fixtures": [
+     "signature-as-permission",
+     "blockchain-as-permission",
+     "schema-extra-runtime-decision",
+     "requirement-without-issued-grant",
+     "untrusted-issuer",
+     "missing-authority-basis",
+     "unknown-required-evidence",
+     "forged-approval-role"
+    ],
+    "remainder": "none identified; probes add one-defect-at-a-time independence and result-vocabulary checks",
+    "probes": [
+     "test_probe_er031_reference_results_never_say_allow_or_executed_and_the_schema_refuses_decision_fields",
+     "test_probe_er031_capability_authentication_evidence_and_permission_fail_independently"
+    ],
+    "probe_names": [
+     "test_probe_er031_reference_results_never_say_allow_or_executed_and_the_schema_refuses_decision_fields",
+     "test_probe_er031_capability_authentication_evidence_and_permission_fail_independently"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-A4",
+    "locator": "03 / Acceptance",
+    "kind": "acceptance",
+    "text": "Existing tests and archived results retain their scope.",
+    "pinned_tests": [
+     "tests.test_reviewed_artifact_digest.ReviewedArtifactDigestTests::test_lf_and_crlf_match_historical_crlf_digest",
+     "tests.test_reviewed_artifact_digest.ReviewedArtifactDigestTests::test_substantive_mutation_still_changes_digest",
+     "tests.test_reviewed_artifact_digest.ReviewedArtifactDigestTests::test_whitespace_and_final_newline_remain_significant"
+    ],
+    "fixtures": [],
+    "remainder": "the digest tests cover only the reviewed-artifact digest helper; the three archive verifiers (verify_snapshot.py, verify_film_review.py, verify_authorization_effect.py) are scripts that no pytest/unittest test collects, so archived hashes, replay and scope statements are unchecked by the pinned suite",
+    "probes": [
+     "test_probe_er031_archived_results_still_verify_by_hash_and_deterministic_replay",
+     "test_probe_er031_new_authority_checks_do_not_alter_the_archived_results",
+     "test_probe_er031_archived_results_retain_their_synthetic_and_unreviewed_scope",
+     "test_probe_er031_profile_commits_only_add_to_the_baseline_and_never_rewrite_existing_content",
+     "test_probe_er031_constitutional_text_archives_and_pre_existing_checks_are_untouched_since_the_baseline"
+    ],
+    "probe_names": [
+     "test_probe_er031_archived_results_still_verify_by_hash_and_deterministic_replay[verify_snapshot.py]",
+     "test_probe_er031_archived_results_still_verify_by_hash_and_deterministic_replay[verify_film_review.py]",
+     "test_probe_er031_archived_results_still_verify_by_hash_and_deterministic_replay[verify_authorization_effect.py]",
+     "test_probe_er031_new_authority_checks_do_not_alter_the_archived_results",
+     "test_probe_er031_archived_results_retain_their_synthetic_and_unreviewed_scope",
+     "test_probe_er031_profile_commits_only_add_to_the_baseline_and_never_rewrite_existing_content",
+     "test_probe_er031_constitutional_text_archives_and_pre_existing_checks_are_untouched_since_the_baseline"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-D1",
+    "locator": "03 / Dependencies",
+    "kind": "dependency",
+    "text": "Provides requirements to manifests and control-plane profiles.",
+    "pinned_tests": "UNCOVERED",
+    "fixtures": [],
+    "remainder": "README consumer table only; the schema's refusal of decision fields is covered by fixture schema-extra-runtime-decision",
+    "probes": [
+     "test_probe_er031_profile_provides_requirements_to_manifest_and_control_plane_without_issuing_grants"
+    ],
+    "probe_names": [
+     "test_probe_er031_profile_provides_requirements_to_manifest_and_control_plane_without_issuing_grants"
+    ],
+    "probe_result": "pass",
+    "status": "UNCOVERED_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe"
+   },
+   {
+    "id": "S03-D2",
+    "locator": "03 / Dependencies",
+    "kind": "dependency",
+    "text": "Do not import proprietary ISS mechanisms or mistake the old coordination experiment for this constitutional project.",
+    "pinned_tests": "UNCOVERED",
+    "fixtures": [],
+    "remainder": "negative documentary constraint; the probe is a marker scan of the profile, fixtures and harness, which is weak evidence by nature",
+    "probes": [
+     "test_probe_er031_profile_imports_no_private_mechanisms_or_coordination_experiment_artifacts"
+    ],
+    "probe_names": [
+     "test_probe_er031_profile_imports_no_private_mechanisms_or_coordination_experiment_artifacts"
+    ],
+    "probe_result": "pass",
+    "status": "UNCOVERED_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe"
+   },
+   {
+    "id": "S03-P1",
+    "locator": "03 / Prompt for the project thread",
+    "kind": "prompt-constraint",
+    "text": "Preserve the current constitutional source hierarchy and application organization.",
+    "pinned_tests": [
+     "tests.test_bootstrap.ConstitutionalResearchBaselineTests::test_valid_bootstrap_passes"
+    ],
+    "fixtures": [],
+    "remainder": "the bootstrap validator checks the research baseline and constitutional drafts, not the application organisation; the history probes show the pin did not modify constitution/, constitutional-design/ or applications/",
+    "probes": [
+     "test_probe_er031_constitutional_text_archives_and_pre_existing_checks_are_untouched_since_the_baseline"
+    ],
+    "probe_names": [
+     "test_probe_er031_constitutional_text_archives_and_pre_existing_checks_are_untouched_since_the_baseline"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-P2a",
+    "locator": "03 / Prompt for the project thread",
+    "kind": "prompt-constraint",
+    "text": "Do not rewrite the immutable constitutional text",
+    "pinned_tests": [
+     "tests.test_reviewed_artifact_digest.ReviewedArtifactDigestTests::test_substantive_mutation_still_changes_digest",
+     "tests.test_bootstrap.ConstitutionalResearchBaselineTests::test_ratification_packet_requires_artifact_digest",
+     "tests.test_bootstrap.ConstitutionalResearchBaselineTests::test_valid_bootstrap_passes"
+    ],
+    "fixtures": [],
+    "remainder": "digest checks bind the ratification-review artifact only; byte-identity of the constitution draft against the profile baseline is checked by the history probe",
+    "probes": [
+     "test_probe_er031_constitutional_text_archives_and_pre_existing_checks_are_untouched_since_the_baseline",
+     "test_probe_er031_profile_commits_only_add_to_the_baseline_and_never_rewrite_existing_content"
+    ],
+    "probe_names": [
+     "test_probe_er031_constitutional_text_archives_and_pre_existing_checks_are_untouched_since_the_baseline",
+     "test_probe_er031_profile_commits_only_add_to_the_baseline_and_never_rewrite_existing_content"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-P2b",
+    "locator": "03 / Prompt for the project thread",
+    "kind": "prompt-constraint",
+    "text": "Do not ... claim ratification",
+    "pinned_tests": [
+     "tests.test_bootstrap.ConstitutionalResearchBaselineTests::test_constitution_must_remain_not_adopted",
+     "tests.test_bootstrap.ConstitutionalResearchBaselineTests::test_final_adoption_status_is_forbidden",
+     "tests.test_bootstrap.ConstitutionalResearchBaselineTests::test_affirmative_adoption_claim_in_prose_is_forbidden",
+     "tests.test_bootstrap.ConstitutionalResearchBaselineTests::test_ratification_packet_cannot_claim_adoption"
+    ],
+    "fixtures": [],
+    "remainder": "these validator tests guard the constitutional research baseline documents; the new profile documents are covered only by the probe",
+    "probes": [
+     "test_probe_er031_profile_is_labelled_proposed_and_not_adopted_and_makes_no_ratification_claim"
+    ],
+    "probe_names": [
+     "test_probe_er031_profile_is_labelled_proposed_and_not_adopted_and_makes_no_ratification_claim"
+    ],
+    "probe_result": "pass",
+    "status": "PARTIAL_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe + pinned tests"
+   },
+   {
+    "id": "S03-P2d",
+    "locator": "03 / Prompt for the project thread",
+    "kind": "prompt-constraint",
+    "text": "Do not ... present local synthetic success as field efficacy.",
+    "pinned_tests": "UNCOVERED",
+    "fixtures": [],
+    "remainder": "result-status fields are asserted by no pinned test",
+    "probes": [
+     "test_probe_er031_reference_results_never_say_allow_or_executed_and_the_schema_refuses_decision_fields",
+     "test_probe_er031_archived_results_retain_their_synthetic_and_unreviewed_scope",
+     "test_probe_er031_every_mapping_row_declares_its_implementation_status_and_claims_no_enforcement"
+    ],
+    "probe_names": [
+     "test_probe_er031_reference_results_never_say_allow_or_executed_and_the_schema_refuses_decision_fields",
+     "test_probe_er031_archived_results_retain_their_synthetic_and_unreviewed_scope",
+     "test_probe_er031_every_mapping_row_declares_its_implementation_status_and_claims_no_enforcement"
+    ],
+    "probe_result": "pass",
+    "status": "UNCOVERED_BY_PINNED_TESTS",
+    "closure": "CLOSED by probe"
+   }
+  ],
+  "summary": {
+   "lines": 14,
+   "pinned_mapped": 9,
+   "pinned_uncovered": 5,
+   "probe_pass": 13,
+   "probe_fail": 1
+  }
+ },
+ "ADD-AUTH-RA": {
+  "lines": [
+   {
+    "id": "RA-K1-opened_event_is_durable_before_the_first",
+    "kgroup": "K1",
+    "behaviour": "opened event is durable before the first resolver read",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "opened_event_is_durable_before_the_first_resolver_read"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_opened_event_is_durable_before_the_first_resolver_read"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-opened_event_binds_check_stage_proposal_",
+    "kgroup": "K1",
+    "behaviour": "opened event binds check stage proposal class and service time",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "opened_event_binds_check_stage_proposal_class_and_service_time"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_opened_event_binds_check_stage_proposal_class_and_service_time"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-effect_stage_opened_event_binds_the_stab",
+    "kgroup": "K1",
+    "behaviour": "effect stage opened event binds the stable effect id",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "effect_stage_opened_event_binds_the_stable_effect_id"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_effect_stage_opened_event_binds_the_stable_effect_id"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-opened_event_binds_the_component_version",
+    "kgroup": "K1",
+    "behaviour": "Addendum K1: CheckOpened binds 'component version'. Strict reading: the opening record names the control-plane component",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "opened_event_binds_the_component_version"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_opened_event_binds_the_component_version"
+    ],
+    "probe_result": "fail"
+   },
+   {
+    "id": "RA-K1-resolution_result_records_observation_ti",
+    "kgroup": "K1",
+    "behaviour": "Addendum K1: each completed read records 'observation time and age'. Strict reading: an explicit age value is stored.",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "resolution_result_records_observation_time_and_age"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_resolution_result_records_observation_time_and_age"
+    ],
+    "probe_result": "fail"
+   },
+   {
+    "id": "RA-K1-closure_is_append_only_and_never_rewrite",
+    "kgroup": "K1",
+    "behaviour": "closure is append only and never rewrites the opening record",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "closure_is_append_only_and_never_rewrites_the_opening_record"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_closure_is_append_only_and_never_rewrites_the_opening_record"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-resolver_failures_are_typed_and_never_be",
+    "kgroup": "K1",
+    "behaviour": "resolver failures are typed and never become a verified revocation",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_resolver_returns_none_distinct_code",
+     "tests.test_runtime_authority::test_resolver_raises_refusal_recorded"
+    ],
+    "probes": [
+     "resolver_failures_are_typed_and_never_become_a_verified_revocation"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_resolver_failures_are_typed_and_never_become_a_verified_revocation[suspended-grant_suspended-grant_revoked]",
+     "test_probe_addauthra_resolver_failures_are_typed_and_never_become_a_verified_revocation[unknown-grant_unknown-grant_revoked]",
+     "test_probe_addauthra_resolver_failures_are_typed_and_never_become_a_verified_revocation[stale-grant_status_stale_or_future-grant_revoked]",
+     "test_probe_addauthra_resolver_failures_are_typed_and_never_become_a_verified_revocation[exception-status_unreadable-grant_revoked]"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-expired_grant_is_a_distinct_typed_reason",
+    "kgroup": "K1",
+    "behaviour": "expired grant is a distinct typed reason",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "expired_grant_is_a_distinct_typed_reason"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_expired_grant_is_a_distinct_typed_reason"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-refusal_persistence_failure_blocks_dispa",
+    "kgroup": "K1",
+    "behaviour": "refusal persistence failure blocks dispatch and claims no durable refusal",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_journal_write_failure_never_dispatches"
+    ],
+    "probes": [
+     "refusal_persistence_failure_blocks_dispatch_and_claims_no_durable_refusal"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_refusal_persistence_failure_blocks_dispatch_and_claims_no_durable_refusal"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-concurrent_refused_executions_each_block",
+    "kgroup": "K1",
+    "behaviour": "concurrent refused executions each block and none dispatches",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "concurrent_refused_executions_each_block_and_none_dispatches"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_concurrent_refused_executions_each_block_and_none_dispatches"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-concurrent_decisions_keep_independent_jo",
+    "kgroup": "K1",
+    "behaviour": "concurrent decisions keep independent journals",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "concurrent_decisions_keep_independent_journals"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_concurrent_decisions_keep_independent_journals"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-competing_recovery_workers_close_each_ab",
+    "kgroup": "K1",
+    "behaviour": "competing recovery workers close each abandoned check exactly once",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_process_dies_mid_resolve_reads_interrupted",
+     "tests.test_runtime_authority::test_live_owner_cannot_be_recovered"
+    ],
+    "probes": [
+     "competing_recovery_workers_close_each_abandoned_check_exactly_once"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_competing_recovery_workers_close_each_abandoned_check_exactly_once"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-reversible_tolerance_needs_unexpired_gra",
+    "kgroup": "K1",
+    "behaviour": "reversible tolerance needs unexpired grant and matching revision and scope",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_irreversible_class_refuses_on_unreadable_reversible_tolerates_bounded_age"
+    ],
+    "probes": [
+     "reversible_tolerance_needs_unexpired_grant_and_matching_revision_and_scope"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_reversible_tolerance_needs_unexpired_grant_and_matching_revision_and_scope"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-a_satisfied_reopen_condition_cannot_disp",
+    "kgroup": "K1",
+    "behaviour": "a satisfied reopen condition cannot dispatch the prior decision",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_reopened_case_does_not_revive_grant"
+    ],
+    "probes": [
+     "a_satisfied_reopen_condition_cannot_dispatch_the_prior_decision"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_a_satisfied_reopen_condition_cannot_dispatch_the_prior_decision"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K1-concurrent_duplicate_dispatch_commits_on",
+    "kgroup": "K1",
+    "behaviour": "concurrent duplicate dispatch commits one effect and lost acknowledgement is not retried blind",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "concurrent_duplicate_dispatch_commits_one_effect_and_lost_acknowledgement_is_not_retried_blind"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_concurrent_duplicate_dispatch_commits_one_effect_and_lost_acknowledgement_is_not_retried_blind"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K2-planner_cannot_nominate_its_own_key_as_t",
+    "kgroup": "K2",
+    "behaviour": "planner cannot nominate its own key as the validator",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_agent_rewritten_validator_record_holds"
+    ],
+    "probes": [
+     "planner_cannot_nominate_its_own_key_as_the_validator"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_planner_cannot_nominate_its_own_key_as_the_validator"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K2-evidence_is_authenticated_before_its_cri",
+    "kgroup": "K2",
+    "behaviour": "Admission, signature and subject binding are verified first: a record that also fails the criterion reports only the earlier,",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_evidence_negative_contracts"
+    ],
+    "probes": [
+     "evidence_is_authenticated_before_its_criterion_is_evaluated"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_evidence_is_authenticated_before_its_criterion_is_evaluated"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K2-substituted_manifest_and_malformed_produ",
+    "kgroup": "K2",
+    "behaviour": "substituted manifest and malformed producer values hold",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_evidence_set_outside_approved_manifest_holds"
+    ],
+    "probes": [
+     "substituted_manifest_and_malformed_producer_values_hold"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_substituted_manifest_and_malformed_producer_values_hold"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K2-expired_or_not_current_evidence_holds_ev",
+    "kgroup": "K2",
+    "behaviour": "expired or not current evidence holds even when signed and complete",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_evidence_count_below_criterion_holds"
+    ],
+    "probes": [
+     "expired_or_not_current_evidence_holds_even_when_signed_and_complete"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_expired_or_not_current_evidence_holds_even_when_signed_and_complete"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K2-criterion_change_after_approval_cannot_b",
+    "kgroup": "K2",
+    "behaviour": "criterion change after approval cannot broaden the approved gate",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_evidence_count_below_criterion_holds"
+    ],
+    "probes": [
+     "criterion_change_after_approval_cannot_broaden_the_approved_gate"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_criterion_change_after_approval_cannot_broaden_the_approved_gate"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K2-evidence_refusal_records_the_criterion_r",
+    "kgroup": "K2",
+    "behaviour": "Addendum K2 refusal and reporting: 'Record the reason vocabulary version and criterion reference.' Strict reading: the hold",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "evidence_refusal_records_the_criterion_reference"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_evidence_refusal_records_the_criterion_reference"
+    ],
+    "probe_result": "fail"
+   },
+   {
+    "id": "RA-K3-planner_supplied_input_set_digest_cannot",
+    "kgroup": "K3",
+    "behaviour": "planner supplied input set digest cannot establish completeness",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_input_dropped_from_list_holds",
+     "tests.test_runtime_authority::test_planner_cannot_change_approved_input_set"
+    ],
+    "probes": [
+     "planner_supplied_input_set_digest_cannot_establish_completeness"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_planner_supplied_input_set_digest_cannot_establish_completeness"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K4-planner_cannot_replace_or_cross_tenant_t",
+    "kgroup": "K4",
+    "behaviour": "planner cannot replace or cross tenant the purpose binding",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_grant_bound_to_closed_case_holds"
+    ],
+    "probes": [
+     "planner_cannot_replace_or_cross_tenant_the_purpose_binding"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_planner_cannot_replace_or_cross_tenant_the_purpose_binding"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K4-purpose_snapshot_and_epoch_are_preserved",
+    "kgroup": "K4",
+    "behaviour": "purpose snapshot and epoch are preserved in the record",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_status_only_purpose_cannot_claim_epoch_protection"
+    ],
+    "probes": [
+     "purpose_snapshot_and_epoch_are_preserved_in_the_record"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_purpose_snapshot_and_epoch_are_preserved_in_the_record"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K4-reversible_class_tolerance_cannot_overri",
+    "kgroup": "K4",
+    "behaviour": "reversible class tolerance cannot override a known purpose closure or outage",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_grant_bound_to_closed_case_holds",
+     "tests.test_runtime_authority::test_known_denial_overrides_cache"
+    ],
+    "probes": [
+     "reversible_class_tolerance_cannot_override_a_known_purpose_closure_or_outage"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_reversible_class_tolerance_cannot_override_a_known_purpose_closure_or_outage"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K4-legacy_grant_without_purpose_or_expiry_i",
+    "kgroup": "K4",
+    "behaviour": "legacy grant without purpose or expiry is held not defaulted",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_expiryless_legacy_grant_fails_closed"
+    ],
+    "probes": [
+     "legacy_grant_without_purpose_or_expiry_is_held_not_defaulted"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_legacy_grant_without_purpose_or_expiry_is_held_not_defaulted"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-hold_and_refusal_rows_carry_the_vocabula",
+    "kgroup": "K5",
+    "behaviour": "hold and refusal rows carry the vocabulary version and legacy rows stay unknown",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_refusal_row_carries_vocabulary_version"
+    ],
+    "probes": [
+     "hold_and_refusal_rows_carry_the_vocabulary_version_and_legacy_rows_stay_unknown"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_hold_and_refusal_rows_carry_the_vocabulary_version_and_legacy_rows_stay_unknown"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-registry_declares_operands_for_every_rec",
+    "kgroup": "K5",
+    "behaviour": "registry declares operands for every recomputable code and none for typed only",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "registry_declares_operands_for_every_recomputable_code_and_none_for_typed_only"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_registry_declares_operands_for_every_recomputable_code_and_none_for_typed_only"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-unauthenticated_resolver_cannot_authoriz",
+    "kgroup": "K5",
+    "behaviour": "unauthenticated resolver cannot authorize or derive a revocation",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "unauthenticated_resolver_cannot_authorize_or_derive_a_revocation"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_unauthenticated_resolver_cannot_authorize_or_derive_a_revocation"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-catalogue_digest_is_bound_to_each_decisi",
+    "kgroup": "K5",
+    "behaviour": "catalogue digest is bound to each decision and changes with the catalogue",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "catalogue_digest_is_bound_to_each_decision_and_changes_with_the_catalogue"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_catalogue_digest_is_bound_to_each_decision_and_changes_with_the_catalogue"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-key_rotation_or_change_of_the_admitted_k",
+    "kgroup": "K5",
+    "behaviour": "key rotation or change of the admitted key set requires approval renewal",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "key_rotation_or_change_of_the_admitted_key_set_requires_approval_renewal"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_key_rotation_or_change_of_the_admitted_key_set_requires_approval_renewal"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-criterion_language_is_closed_no_expressi",
+    "kgroup": "K5",
+    "behaviour": "criterion language is closed no expressions no unknown kinds or versions",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "criterion_language_is_closed_no_expressions_no_unknown_kinds_or_versions"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_criterion_language_is_closed_no_expressions_no_unknown_kinds_or_versions[mutation0]",
+     "test_probe_addauthra_criterion_language_is_closed_no_expressions_no_unknown_kinds_or_versions[mutation1]",
+     "test_probe_addauthra_criterion_language_is_closed_no_expressions_no_unknown_kinds_or_versions[mutation2]",
+     "test_probe_addauthra_criterion_language_is_closed_no_expressions_no_unknown_kinds_or_versions[mutation3]"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-a_profile_requiring_atomic_enforcement_r",
+    "kgroup": "K5",
+    "behaviour": "a profile requiring atomic enforcement rejects an adapter without it",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_required_profile_cannot_be_downgraded_at_execute"
+    ],
+    "probes": [
+     "a_profile_requiring_atomic_enforcement_rejects_an_adapter_without_it"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_a_profile_requiring_atomic_enforcement_rejects_an_adapter_without_it"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-purpose_closure_between_decision_and_eff",
+    "kgroup": "K5",
+    "behaviour": "purpose closure between decision and effect refuses at the effect boundary",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "purpose_closure_between_decision_and_effect_refuses_at_the_effect_boundary"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_purpose_closure_between_decision_and_effect_refuses_at_the_effect_boundary"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-purpose_bound_positive_control_changes_t",
+    "kgroup": "K5",
+    "behaviour": "purpose bound positive control changes the destination and is verified independently",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "purpose_bound_positive_control_changes_the_destination_and_is_verified_independently"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_purpose_bound_positive_control_changes_the_destination_and_is_verified_independently"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-every_vocabulary_change_kind_is_recorded",
+    "kgroup": "K5",
+    "behaviour": "every vocabulary change kind is recorded append only and invalid transitions are refused",
+    "pinned_tests": [
+     "tests.test_runtime_authority::test_code_split_produces_vocabulary_change_row",
+     "tests.test_runtime_authority::test_reason_disappearance_requires_exposure_and_keeps_unknown_versions"
+    ],
+    "probes": [
+     "every_vocabulary_change_kind_is_recorded_append_only_and_invalid_transitions_are_refused"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_every_vocabulary_change_kind_is_recorded_append_only_and_invalid_transitions_are_refused"
+    ],
+    "probe_result": "pass"
+   },
+   {
+    "id": "RA-K5-registry_declares_applicable_reopen_pred",
+    "kgroup": "K5",
+    "behaviour": "Addendum K5: 'The governed registry defines each code, meaning, reason_kind, operand schema and applicable reopen predicates.'",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "registry_declares_applicable_reopen_predicates"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_registry_declares_applicable_reopen_predicates"
+    ],
+    "probe_result": "fail"
+   },
+   {
+    "id": "RA-K5-refusal_trend_report_names_unmapped_code",
+    "kgroup": "K5",
+    "behaviour": "Addendum K5: the window report covers 'each code's count over total refusals, record completeness and unmapped codes'.",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "refusal_trend_report_names_unmapped_codes"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_refusal_trend_report_names_unmapped_codes"
+    ],
+    "probe_result": "fail"
+   },
+   {
+    "id": "RA-K5-freshness_is_verified_before_the_criteri",
+    "kgroup": "K5",
+    "behaviour": "Addendum K2: 'Verify producer admission, signature, scope, subject binding and freshness before evaluating the criterion.'",
+    "pinned_tests": "UNCOVERED",
+    "probes": [
+     "freshness_is_verified_before_the_criterion_is_evaluated"
+    ],
+    "probe_names": [
+     "test_probe_addauthra_freshness_is_verified_before_the_criterion_is_evaluated"
+    ],
+    "probe_result": "fail"
+   }
+  ],
+  "k6": "out of scope (PRP paired evaluation, separate track)",
+  "summary": {
+   "lines": 39,
+   "pinned_mapped": 18,
+   "pinned_uncovered": 21,
+   "probe_pass": 33,
+   "probe_fail": 6
+  },
+  "note": "Lines are one per behaviour probed; K-group inferred from probe section. Pinned-test mapping is best effort by behaviour; UNCOVERED means no pinned test asserts it."
+ },
+ "findings": [
+  {
+   "probe": "test_probe_er031_tier_declares_a_delay_limit",
+   "severity": "spec gap",
+   "detail": "docx R2 asks tiers to connect to delay limits; MAPPING.md tier table has no delay-limit column"
+  },
+  {
+   "probe": "test_probe_addauthra_opened_event_binds_the_component_version",
+   "severity": "spec gap",
+   "detail": "CheckOpened does not name control-plane component version"
+  },
+  {
+   "probe": "test_probe_addauthra_resolution_result_records_observation_time_and_age",
+   "severity": "spec gap",
+   "detail": "no explicit age value stored"
+  },
+  {
+   "probe": "test_probe_addauthra_evidence_refusal_records_the_criterion_reference",
+   "severity": "spec gap",
+   "detail": "evidence refusal row lacks criterion reference"
+  },
+  {
+   "probe": "test_probe_addauthra_registry_declares_applicable_reopen_predicates",
+   "severity": "spec gap",
+   "detail": "registry has no applicable reopen predicates per code"
+  },
+  {
+   "probe": "test_probe_addauthra_refusal_trend_report_names_unmapped_codes",
+   "severity": "spec gap",
+   "detail": "trend report does not name unmapped codes"
+  },
+  {
+   "probe": "test_probe_addauthra_freshness_is_verified_before_the_criterion_is_evaluated",
+   "severity": "spec gap",
+   "detail": "strict ordering of freshness check before criterion not observed"
+  }
+ ],
+ "recommendations": {
+  "workflow_matrix_rows": [
+   {
+    "name": "probes-authority",
+    "repo": "cogno-us/cognous-institutional-governance",
+    "sha": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+    "env": "PROBE_AUTHORITY_DIR",
+    "extra": "--full-history --harness-requirements"
+   },
+   {
+    "name": "probes-control-plane",
+    "note": "existing row; add extra '--extras runtime-authority' (cryptography); module test_authority_ra_probes.py uses PROBE_CONTROL_PLANE_DIR"
+   }
+  ],
+  "ER-03-1": {
+   "selectors": [
+    {
+     "component": "probes-authority",
+     "re": "probe_er031_",
+     "min": 23
+    },
+    {
+     "component": "authority",
+     "re": "test_schema_and_semantic_fixture_oracles",
+     "min": 1
+    }
+   ],
+   "adequacy": "keep partial until the delay-limit finding is dispositioned; then adequate"
+  },
+  "ADD-AUTH-RA": {
+   "selectors": [
+    {
+     "component": "control_plane",
+     "re": "test_runtime_authority",
+     "min": 20
+    },
+    {
+     "component": "probes-control-plane",
+     "re": "probe_addauthra_",
+     "min": 45
+    }
+   ],
+   "adequacy": "keep partial until the 6 failing probes are dispositioned (strict-reading spec gaps, no safety defect found)"
+  }
+ }
+}

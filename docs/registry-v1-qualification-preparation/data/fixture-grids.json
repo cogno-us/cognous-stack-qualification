@@ -1,0 +1,1588 @@
+{
+ "status": "PREPARATION: inputs and contract-derived expectations only; no implementation output; no result",
+ "basis": "effective allow-list = caller INTERSECT registry (P1 plan doc 04, ADR-REG-TR01); ages = validated per-scalar min on strict integer seconds, floor >= 1, invalid refused (P1 docs 03, 10); freshness rule characterized at Control Plane 7a4bcd40 bounded.py:2017-2024; interval [valid_from, valid_until); strict-greater epoch",
+ "fields_for_set_grid": [
+  "allowed_actions",
+  "allowed_adapters",
+  "allowed_units",
+  "allowed_institutions",
+  "allowed_authority_domains"
+ ],
+ "universe": [
+  "a",
+  "b",
+  "c"
+ ],
+ "sets_grid": [
+  {
+   "caller": [],
+   "registry": [],
+   "relation": "equal",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [],
+   "registry": [
+    "a"
+   ],
+   "relation": "caller_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [],
+   "registry": [
+    "b"
+   ],
+   "relation": "caller_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [],
+   "registry": [
+    "c"
+   ],
+   "relation": "caller_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "caller_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "caller_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "caller_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "caller_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [],
+   "relation": "registry_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [
+    "a"
+   ],
+   "relation": "equal",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [
+    "b"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [
+    "c"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a"
+   ],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [],
+   "relation": "registry_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [
+    "a"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [
+    "b"
+   ],
+   "relation": "equal",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [
+    "c"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b"
+   ],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [],
+   "relation": "registry_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [
+    "a"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [
+    "b"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [
+    "c"
+   ],
+   "relation": "equal",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [],
+   "relation": "registry_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [
+    "a"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [
+    "b"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [
+    "c"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "equal",
+   "expected_effective": [
+    "a",
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "overlap",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "overlap",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b"
+   ],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "a",
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [],
+   "relation": "registry_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [
+    "a"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [
+    "b"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [
+    "c"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "overlap",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "equal",
+   "expected_effective": [
+    "a",
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "overlap",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "a",
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [],
+   "relation": "registry_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a"
+   ],
+   "relation": "disjoint",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [
+    "b"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [
+    "c"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "overlap",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "overlap",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "equal",
+   "expected_effective": [
+    "b",
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_superset",
+   "expected_effective": [
+    "b",
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [],
+   "relation": "registry_empty",
+   "expected_effective": [],
+   "registry_outcome": "DENY_ALL_PRECONSTRUCTION",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "a"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [
+    "b"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [
+    "c"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "a",
+    "b"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "c"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "a",
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [
+    "b",
+    "c"
+   ],
+   "relation": "registry_strict_subset",
+   "expected_effective": [
+    "b",
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  },
+  {
+   "caller": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry": [
+    "a",
+    "b",
+    "c"
+   ],
+   "relation": "equal",
+   "expected_effective": [
+    "a",
+    "b",
+    "c"
+   ],
+   "registry_outcome": "NARROWED_EFFECTIVE_SET",
+   "never_wider_than_caller": true
+  }
+ ],
+ "near_miss_members": [
+  {
+   "caller": [
+    "refund"
+   ],
+   "registry": [
+    "Refund"
+   ],
+   "expected_effective": [],
+   "why": "case differs"
+  },
+  {
+   "caller": [
+    "refund"
+   ],
+   "registry": [
+    "refund "
+   ],
+   "expected_effective": [],
+   "why": "trailing space"
+  },
+  {
+   "caller": [
+    "refund"
+   ],
+   "registry": [
+    "refun"
+   ],
+   "expected_effective": [],
+   "why": "prefix"
+  },
+  {
+   "caller": [
+    "refund"
+   ],
+   "registry": [
+    "refund*"
+   ],
+   "expected_effective": [],
+   "why": "wildcard is not special"
+  },
+  {
+   "caller": [
+    "refund"
+   ],
+   "registry": [
+    "rеfund"
+   ],
+   "expected_effective": [],
+   "why": "cyrillic e"
+  }
+ ],
+ "ages_valid_pairs": [
+  {
+   "caller": 1,
+   "registry": 1,
+   "relation": "equal",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 1,
+   "registry": 2,
+   "relation": "registry_gt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 1,
+   "registry": 59,
+   "relation": "registry_gt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 1,
+   "registry": 60,
+   "relation": "registry_gt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 1,
+   "registry": 61,
+   "relation": "registry_gt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 1,
+   "registry": 300,
+   "relation": "registry_gt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 2,
+   "registry": 1,
+   "relation": "registry_lt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 2,
+   "registry": 2,
+   "relation": "equal",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 2,
+   "registry": 59,
+   "relation": "registry_gt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 2,
+   "registry": 60,
+   "relation": "registry_gt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 2,
+   "registry": 61,
+   "relation": "registry_gt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 2,
+   "registry": 300,
+   "relation": "registry_gt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 59,
+   "registry": 1,
+   "relation": "registry_lt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 59,
+   "registry": 2,
+   "relation": "registry_lt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 59,
+   "registry": 59,
+   "relation": "equal",
+   "expected_effective": 59,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 59,
+   "registry": 60,
+   "relation": "registry_gt_caller",
+   "expected_effective": 59,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 59,
+   "registry": 61,
+   "relation": "registry_gt_caller",
+   "expected_effective": 59,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 59,
+   "registry": 300,
+   "relation": "registry_gt_caller",
+   "expected_effective": 59,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 60,
+   "registry": 1,
+   "relation": "registry_lt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 60,
+   "registry": 2,
+   "relation": "registry_lt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 60,
+   "registry": 59,
+   "relation": "registry_lt_caller",
+   "expected_effective": 59,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 60,
+   "registry": 60,
+   "relation": "equal",
+   "expected_effective": 60,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 60,
+   "registry": 61,
+   "relation": "registry_gt_caller",
+   "expected_effective": 60,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 60,
+   "registry": 300,
+   "relation": "registry_gt_caller",
+   "expected_effective": 60,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 61,
+   "registry": 1,
+   "relation": "registry_lt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 61,
+   "registry": 2,
+   "relation": "registry_lt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 61,
+   "registry": 59,
+   "relation": "registry_lt_caller",
+   "expected_effective": 59,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 61,
+   "registry": 60,
+   "relation": "registry_lt_caller",
+   "expected_effective": 60,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 61,
+   "registry": 61,
+   "relation": "equal",
+   "expected_effective": 61,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 61,
+   "registry": 300,
+   "relation": "registry_gt_caller",
+   "expected_effective": 61,
+   "registry_value_recorded_non_narrowing": true
+  },
+  {
+   "caller": 300,
+   "registry": 1,
+   "relation": "registry_lt_caller",
+   "expected_effective": 1,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 300,
+   "registry": 2,
+   "relation": "registry_lt_caller",
+   "expected_effective": 2,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 300,
+   "registry": 59,
+   "relation": "registry_lt_caller",
+   "expected_effective": 59,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 300,
+   "registry": 60,
+   "relation": "registry_lt_caller",
+   "expected_effective": 60,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 300,
+   "registry": 61,
+   "relation": "registry_lt_caller",
+   "expected_effective": 61,
+   "registry_value_recorded_non_narrowing": false
+  },
+  {
+   "caller": 300,
+   "registry": 300,
+   "relation": "equal",
+   "expected_effective": 300,
+   "registry_value_recorded_non_narrowing": false
+  }
+ ],
+ "ages_invalid_inputs": [
+  {
+   "which": "caller",
+   "value": "None",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "'60'",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "60.0",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "True",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "False",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "0",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "-1",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "nan",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "inf",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "caller",
+   "value": "1000000000000000000000000000000",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "None",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "'60'",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "60.0",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "True",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "False",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "0",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "-1",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "nan",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "inf",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  },
+  {
+   "which": "registry",
+   "value": "1000000000000000000000000000000",
+   "expected": "REFUSED_NEVER_CLAMPED"
+  }
+ ],
+ "age_boundary_grid": [
+  {
+   "bound": 1,
+   "tolerance": 0,
+   "age_seconds": -1,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 1,
+   "tolerance": 0,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 0,
+   "age_seconds": -1,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 1,
+   "tolerance": 0,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 0,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 0,
+   "age_seconds": 1,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 0,
+   "age_seconds": 2,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 1,
+   "tolerance": 5,
+   "age_seconds": -6,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 1,
+   "tolerance": 5,
+   "age_seconds": -5,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 5,
+   "age_seconds": -1,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 5,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 5,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 5,
+   "age_seconds": 1,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 1,
+   "tolerance": 5,
+   "age_seconds": 2,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 60,
+   "tolerance": 0,
+   "age_seconds": -1,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 60,
+   "tolerance": 0,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 0,
+   "age_seconds": -1,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 60,
+   "tolerance": 0,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 0,
+   "age_seconds": 59,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 0,
+   "age_seconds": 60,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 0,
+   "age_seconds": 61,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 60,
+   "tolerance": 5,
+   "age_seconds": -6,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  },
+  {
+   "bound": 60,
+   "tolerance": 5,
+   "age_seconds": -5,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 5,
+   "age_seconds": -1,
+   "future": true,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 5,
+   "age_seconds": 0,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 5,
+   "age_seconds": 59,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 5,
+   "age_seconds": 60,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": true
+  },
+  {
+   "bound": 60,
+   "tolerance": 5,
+   "age_seconds": 61,
+   "future": false,
+   "expected_fresh_under_frozen_evaluator_rule": false
+  }
+ ],
+ "validity_interval_grid": [
+  {
+   "t_minus_valid_from": -1,
+   "t_minus_valid_until": -2,
+   "expected_in_interval": false
+  },
+  {
+   "t_minus_valid_from": 0,
+   "t_minus_valid_until": -1,
+   "expected_in_interval": true
+  },
+  {
+   "t_minus_valid_from": 5,
+   "t_minus_valid_until": -1,
+   "expected_in_interval": true
+  },
+  {
+   "t_minus_valid_from": 5,
+   "t_minus_valid_until": 0,
+   "expected_in_interval": false
+  },
+  {
+   "t_minus_valid_from": 5,
+   "t_minus_valid_until": 1,
+   "expected_in_interval": false
+  }
+ ],
+ "epoch_grid": [
+  {
+   "high_water": 0,
+   "incoming": 1,
+   "expected": "ACTIVATE"
+  },
+  {
+   "high_water": 1,
+   "incoming": 1,
+   "expected": "REFUSE_STALE_OR_EQUAL_EPOCH"
+  },
+  {
+   "high_water": 2,
+   "incoming": 1,
+   "expected": "REFUSE_STALE_OR_EQUAL_EPOCH"
+  },
+  {
+   "high_water": 5,
+   "incoming": 6,
+   "expected": "ACTIVATE"
+  },
+  {
+   "high_water": 5,
+   "incoming": 5,
+   "expected": "REFUSE_STALE_OR_EQUAL_EPOCH"
+  },
+  {
+   "high_water": 5,
+   "incoming": 4,
+   "expected": "REFUSE_STALE_OR_EQUAL_EPOCH"
+  }
+ ],
+ "open_items": [
+  "AGE_MAX (O-4) not assumed",
+  "exact refusal code names are NEW_CODE_PROPOSED until the ADR records them"
+ ]
+}

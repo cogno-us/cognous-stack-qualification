@@ -1,0 +1,229 @@
+{
+  "schemaVersion": "cognous-orchestrator-assignment-v1",
+  "identity": {
+    "workPackage": "OCS-F3-Q240-FINAL-ADJUDICATION",
+    "role": "lead_architectural_adjudication_builder",
+    "primaryArchetype": "A",
+    "archetypeMeaning": "Architectural adjudication: reconcile frozen subjects, contracts, evidence, independence requirements and acceptance obligations and prepare a decision proposal for the Architect.",
+    "repository": "cogno-us/cognous-stack-qualification",
+    "baseCommitSha": "01c1da1caee0e8dac45e82cde7721ea7d1fbf70d",
+    "currentHeadSha": "01c1da1caee0e8dac45e82cde7721ea7d1fbf70d"
+  },
+  "authority": {
+    "objective": "Adjudicate the remaining A25(a)/A25(e) Class A questions against the merged bounded evidence, distinguish contract correctness, structural isolation feasibility, evidence-method sufficiency and formal certification, and publish an Architect decision proposal without amending the contract.",
+    "sourceDecision": "Architect directive COGNOUS OCS F3-A FINAL CLASS A ADJUDICATION, 2026-10-30, OCS-F3-Q240-FINAL-ADJUDICATION.",
+    "allowedActions": [
+      "Read-only examination of merged evidence, source and contracts",
+      "Evidence sufficiency and structural reachability analysis",
+      "Documentation-only PR with the adjudication report and this packet",
+      "Update issue #240",
+      "Merge only if clean and authorized by repository controls"
+    ],
+    "prohibitedActions": [
+      "Production-code changes",
+      "Additional qualification execution or new tests",
+      "Modify protected evaluators or the frozen oracle",
+      "Rewrite historical results or grant a retrospective Class A waiver",
+      "Production effects or paid calls",
+      "Claim formal independent certification, Tier 1 acceptance, release or deployment",
+      "Bypass or retry a denied merge"
+    ],
+    "paidExecution": {
+      "authorized": false,
+      "maximumUsd": 0
+    },
+    "mergeAuthorized": true,
+    "deploymentAuthorized": false
+  },
+  "ownership": {
+    "designatedWriter": "Lead architectural adjudication builder (this session)",
+    "writablePaths": [
+      "docs/f3-q240-closeout/09-f3-class-a-final-adjudication-2026-10-30.md",
+      "docs/f3-q240-closeout/assignments/A-final-adjudication-OCS-F3-Q240-FINAL-ADJUDICATION.json",
+      "docs/f3-q240-closeout/contract-determinations/adj-worker-*.md"
+    ],
+    "protectedPaths": [
+      "results/third-party/**",
+      "all other repository paths",
+      "Control Plane and Registry sources"
+    ],
+    "parallelWorkers": [
+      {
+        "role": "Worker A authority_domain",
+        "writablePaths": [
+          "none in repository; scratch report outside any checkout"
+        ]
+      },
+      {
+        "role": "Worker B host profile",
+        "writablePaths": [
+          "none in repository; scratch report outside any checkout"
+        ]
+      },
+      {
+        "role": "Worker C effective profile",
+        "writablePaths": [
+          "none in repository; scratch report outside any checkout"
+        ]
+      },
+      {
+        "role": "Worker D contract and interface applicability",
+        "writablePaths": [
+          "none in repository; scratch report outside any checkout"
+        ]
+      },
+      {
+        "role": "Worker E adversarial review (same-lineage)",
+        "writablePaths": [
+          "none in repository; scratch report outside any checkout"
+        ]
+      }
+    ]
+  },
+  "inputs": {
+    "projectPlan": "Issue #240 (Q1-Q8); #252 design; dossier 08; PR #254 bounded evidence; Registry records 02, 03, 06, 11, 12, 13, 14.",
+    "frozenSources": [
+      {
+        "location": "cogno-us/cognous-control-plane",
+        "identity": "739efe7d8f16a0cee1efc7dd3a978d5d4d85fe69 (frozen executable subject; src tree d248bde478ae3f2ce050db4637f0c1203066e906). Live main b19c47ddd020409d24e52e70b11359c46265edbb is a later head and is NOT the subject; 8616d5f64a901b8f858359809193961a1124b5f6 differs from 739efe7 only in a registry_governed_policy.py module docstring (re-derive tree ids and AST equality; do not trust).",
+        "purpose": "Frozen subject; bind exact head at dispatch"
+      },
+      {
+        "location": "cogno-us/cognous-ocs-registry",
+        "identity": "Registry r08-v8 pin a40fe755e2384a99c37016fa9ad59396f1835900 as a detached git checkout (preflight reads git rev-parse HEAD; OCS_REQUIRE_REGISTRY_PIN=1); Registry main 6b96a9a658923954433dc1a4c13626fa5145b9c7 carries docs 02,03,06,11-14 under docs/family-migration/final-three/.",
+        "purpose": "Contract, frozen oracle (doc 03), successor interpretation (doc 06, record 11)"
+      },
+      {
+        "location": "cogno-us/cognous-stack-qualification",
+        "identity": "main b7d813111128cb31518620688f6e89e41042dadd; original evidence results/third-party/cp-739efe7-f3-independent-20261029/ (protocol sha256 e799b1083743526648a0c1c23d2c1455c0533ac843d88f3fe977dfd6a3850135; archive sha256 1d07a70439625de3b3e85e0ea3c088a43f14bc237649487d22d85da51a174fc5). Successor readjudication evidence: PR #242 head 2246a61c18a2c491a1230c21912b1240c109e90a, results/third-party/cp-739efe7-f3a-readjudication-20261030/ (frozen protocol sha256 04f4f950f526d6e98f056f5635bb7a1acad1d3332f46c3ec1b0897150a169ad6) - NOT in merged custody until PR #242 merges and is checksum-verified from a fresh checkout. Read from merged main if available; otherwise from the PR head and say so.",
+        "purpose": "Predecessor evidence to inspect, not to reproduce"
+      },
+      {
+        "location": "cogno-us/cognous-engineering-constitution",
+        "identity": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c (ADOPTION.md, ORCHESTRATION.md, ENGINEERING_COMPLIANCE_ADDENDUM.md, TESTING_POLICY.md, schemas/orchestrator-assignment-v1.schema.json)",
+        "purpose": "Governing text; quote clauses verbatim"
+      },
+      {
+        "location": "cogno-us/cognous-stack-qualification",
+        "identity": "main 01c1da1caee0e8dac45e82cde7721ea7d1fbf70d (PR #254 merge; head cf23e9e2830c03fb5f7d2db9c8536611c80bf412); protocol OCS-F3-Q2Q3-BOUNDED-v1 sha256 ff25219245f39b854dfc35fb74880e17366075362734bb91d2c3fe791a18b0d2",
+        "purpose": "Merged bounded qualification evidence"
+      }
+    ],
+    "interfacesAndDependencies": [
+      "GitHub REST API"
+    ],
+    "knownBaselineFailures": [
+      "Original F3-A FAIL (DEV-PE-1, 23 failed assertions) is permanent history."
+    ]
+  },
+  "acceptance": {
+    "riskTier": "T3",
+    "riskRationale": "Adjudication of safety-critical qualification obligations; documentation only; the report proposes and does not decide.",
+    "successConditions": [
+      "Each member answered against the nine-point acceptance test with explicit verdicts and exact evidence references.",
+      "Options A, B and C compared; none adopted.",
+      "Q2 and Q3 remain OPEN; Q7 and Q8 holds preserved.",
+      "No contract amendment, waiver or certification claim."
+    ],
+    "negativeControls": [
+      "Same-lineage adversarial review (Worker E).",
+      "Verification of merged evidence manifest and protocol hash from main.",
+      "PR file list verified documentation-only."
+    ],
+    "newEvidence": [],
+    "reusedEvidence": [
+      {
+        "source": {
+          "location": "cogno-us/cognous-stack-qualification",
+          "identity": "bounded package at 01c1da1caee0e8dac45e82cde7721ea7d1fbf70d",
+          "purpose": "Merged bounded evidence"
+        },
+        "applicability": "Read-only; verified SHA256SUMS and protocol hash from merged main."
+      }
+    ],
+    "notRun": [
+      {
+        "test": "Any new test or qualification",
+        "reason": "Not authorized by this work package."
+      }
+    ],
+    "qualificationBoundary": "Architectural and evidentiary adjudication proposal. Not a contract amendment, not formal independent certification, not Tier 1, not production authorization."
+  },
+  "delivery": {
+    "artifacts": [
+      "docs/f3-q240-closeout/09-f3-class-a-final-adjudication-2026-10-30.md"
+    ],
+    "reportFields": [
+      "Source and protocol identities",
+      "A25(a) determination",
+      "A25(e) host determination",
+      "A25(e) effective determination",
+      "Contract and interface conclusions",
+      "Impossibility-proof confidence and limits",
+      "Adversarial findings",
+      "Recommended option",
+      "Proposed decision language",
+      "PR and merge status",
+      "Issue #240 status",
+      "Remaining gates"
+    ],
+    "pullRequest": "documentation PR on cogno-us/cognous-stack-qualification"
+  },
+  "boundaries": {
+    "stopConditions": [
+      "A conclusion would rest on plausibility instead of source or evidence",
+      "A change to code, tests, oracle, protocol or contract would be needed",
+      "A waiver or certification would be implied",
+      "The merge is denied by an authorization control"
+    ],
+    "escalationOwner": "Architect (operator)",
+    "outOfScope": [
+      "Production implementation, protected evaluators, the frozen F3 oracle, the successor interpretation, historical raw evidence: read-only.",
+      "Final independent Tier 1 campaign (DEFERRED, NOT WAIVED); broad regression; mutation campaign beyond the cases named here.",
+      "Registry #58/#59, Control Plane #87, constructor tolerance, Ed25519 #26/#34, V09, DEF-OBS-TOL-OVERFLOW-1, release/production, R1 refactoring: HELD or separate.",
+      "Formal F3-A acceptance, competent certification, constitutional adoption: reserved to the Architect/competent authority."
+    ]
+  },
+  "governance": {
+    "constitutionalRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "projectAdoption": {
+      "status": "UNVERIFIED",
+      "evidence": "Standing OCS technical baseline 1c2e920f4e58e07a52e8e2408a506cf7dbc1292b; dcdbe3b is a prospective orchestration convention only. No ADOPTION.md-form instrument exists for 1c2e920, 230c0af or dcdbe3b (Registry docs 09 and 12; independently re-found in this closeout, see 05-proposed-adoption-instrument.md). All 23 CA rows are byte-identical at the three revisions; the review-tier label inverts (Tier 1 critical at 1c2e920, Tier 3 critical at 230c0af/dcdbe3b), so state criticality as critical/routine or T0-T4, never bare 'Tier N'. This packet creates no adoption event."
+    },
+    "complianceAddendumRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "testingPolicyRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "archetypeSource": "ENGINEERING_COMPLIANCE_ADDENDUM.md '### Archetype A' table (verbatim cells) at cogno-us/cognous-engineering-constitution@dcdbe3b76843d672ca3cfb1f000124ecd78ed03c; default Archetype A articles per its section 2. Cells extracted mechanically by tools/render and compared with the source text in the PR (see README).",
+    "clauses": [
+      {
+        "article": "CA01",
+        "requiredBehavior": "Inspect and reuse qualified, versioned components.",
+        "prohibitedShortcut": "Duplicate an owned capability for convenience.",
+        "binding": "Reuse existing merged evidence only: bounded package results/third-party/cp-739efe7-f3-q2q3-bounded-20261030 (PR #254 merge 01c1da1c, protocol sha256 ff252192...18b0d2), D-1 isolation package, original F3-A and readjudication packages, dossier 08. No new test, harness or fixture is authored or run."
+      },
+      {
+        "article": "CA03",
+        "requiredBehavior": "Identify the controlling source, external reliance boundary, duties, expected acceptance and the authority by which a proposed change may acquire canonical standing.",
+        "prohibitedShortcut": "Start against an unnamed or mutable contract.",
+        "binding": "Controlling sources are exact-source bound: CP 739efe7d (src tree d248bde4), Registry pin a40fe755, Registry records 02, 03, 06, 11, 12, 13, 14 on Registry main 6b96a9a6, hub main 01c1da1c. Authority order: frozen contract text and record 12 Class A control; records 06/11 are builder-prepared, human adoption pending; evidence-method requirements and historical oracle expectations are ranked below and kept distinct."
+      },
+      {
+        "article": "CA04",
+        "requiredBehavior": "Distinguish implementation inspection, independent qualification, competent certification and final integration; preserve independence wherever required.",
+        "prohibitedShortcut": "Fit an oracle to implementation or substitute developer tests.",
+        "binding": "Adjudication is kept apart from execution and certification: this lead builder adjudicates read-only; Workers A-D analyze separate members/contract; Worker E challenges the combined findings. All share one session lineage, so none is independent; no organizational independence, formal acceptance or certification is claimed. The Architect decides."
+      },
+      {
+        "article": "CA18",
+        "requiredBehavior": "Version, authenticate and review governance-critical policy and rule changes; protect established mandatory invariants against configuration override.",
+        "prohibitedShortcut": "Treat unreviewed settings or evaluator changes as governing authority, weaken mandatory checks or introduce an unaccountable decision path.",
+        "binding": "Protected invariants are untouched: no guard, evaluator, frozen oracle, test or protocol is changed; no authorization or refusal requirement is weakened; any proposed clarification is a PROPOSAL that must not weaken runtime authorization, refusal or evidence requirements. Historical verdicts (original F3-A FAIL, 23 assertions) are preserved."
+      },
+      {
+        "article": "CA21",
+        "requiredBehavior": "Preserve relied-upon external semantics or obtain an explicit authorized compatibility transition.",
+        "prohibitedShortcut": "Introduce silent contract, rights, evidence or interface regressions through internal refactoring.",
+        "binding": "External interface commitments are preserved: no implementation, schema, reason vocabulary or contract text is amended; Options B and C are proposals only and are not adopted; standing holds (Registry #58/#59, Control Plane #87, constructor tolerance, Ed25519 #26/#34, V09, DEF-OBS-TOL-OVERFLOW-1, R1, final Tier 1, release/production) are unchanged."
+      }
+    ]
+  }
+}

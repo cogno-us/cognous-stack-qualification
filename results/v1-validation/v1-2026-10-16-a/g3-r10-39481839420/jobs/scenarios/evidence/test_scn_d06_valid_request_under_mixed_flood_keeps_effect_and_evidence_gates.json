@@ -1,0 +1,705 @@
+{
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "tested_revision_match": true,
+        "tree": "c4146c16e416d4e8f3619a7b553d1691d389817c"
+      },
+      "evidence_pack": {
+        "commit": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "tested_revision_match": true,
+        "tree": "67c703b3182221e233220b607c4428a17baadd50"
+      },
+      "exchange": {
+        "commit": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "tested_revision_match": true,
+        "tree": "bdc7a5c6be6fd035b9e17c5867d25030c853e689"
+      },
+      "manifest": {
+        "commit": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "tested_revision_match": true,
+        "tree": "3bda14d9974b0645f14cd2a1ca9924951ac87be6"
+      },
+      "odes": {
+        "commit": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "tested_revision_match": true,
+        "tree": "6d011177f7ae9c1f082eb0727cc0254392ed5713"
+      },
+      "replay": {
+        "commit": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "tested_revision_match": true,
+        "tree": "b2df198599e7faf27966e5428b27ef0f4f36de19"
+      },
+      "runtime": {
+        "commit": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "tested_revision_match": true,
+        "tree": "31af6d1f253796b1abf09aa7152804871094f49b"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "6b16962db140590b808f02b5c2cb11a217aec46f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "hard_gates": {
+    "excess_duplicate_effects": "effects beyond one per effect id",
+    "unauthorized_effects": "effects whose grant/target differ from the single authorized flow"
+  },
+  "measurement_policy": "report-only, no thresholds (owner decision D5)",
+  "run1": {
+    "metrics": {
+      "baseline": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 0,
+          "voluntary": 101
+        },
+        "cpu_seconds_process_all_threads": 0.1128,
+        "cpu_utilisation_of_one_core": 0.893,
+        "label": "baseline_valid_request",
+        "latency": {
+          "all": {
+            "max_ms": 126.32,
+            "mean_ms": 126.32,
+            "n": 1,
+            "p50_ms": 126.32,
+            "p95_ms": 126.32,
+            "p99_ms": 126.32
+          },
+          "valid": {
+            "max_ms": 126.32,
+            "mean_ms": 126.32,
+            "n": 1,
+            "p50_ms": 126.32,
+            "p95_ms": 126.32,
+            "p99_ms": 126.32
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 218908,
+          "rss_after": 218908,
+          "rss_before": 218908
+        },
+        "report_only": true,
+        "request_rate_per_second": 7.91,
+        "requests": 1,
+        "storage_bytes": {
+          "after": 117360,
+          "before": 90621,
+          "growth": 26739,
+          "growth_per_request": 26739.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.1263
+      },
+      "under_flood": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 10
+        },
+        "context_switches": {
+          "involuntary": 276,
+          "voluntary": 7495
+        },
+        "cpu_seconds_process_all_threads": 24.1911,
+        "cpu_utilisation_of_one_core": 0.986,
+        "label": "valid_request_under_flood",
+        "latency": {
+          "actor_spoof": {
+            "max_ms": 8870.09,
+            "mean_ms": 5020.14,
+            "n": 6,
+            "p50_ms": 6556.088,
+            "p95_ms": 8870.09,
+            "p99_ms": 8870.09
+          },
+          "adapter_mismatch": {
+            "max_ms": 8962.098,
+            "mean_ms": 5637.095,
+            "n": 6,
+            "p50_ms": 7081.34,
+            "p95_ms": 8962.098,
+            "p99_ms": 8962.098
+          },
+          "all": {
+            "max_ms": 8978.107,
+            "mean_ms": 696.662,
+            "n": 262,
+            "p50_ms": 6.215,
+            "p95_ms": 6556.088,
+            "p99_ms": 8870.09
+          },
+          "array_over_10000_items": {
+            "max_ms": 24.244,
+            "mean_ms": 7.776,
+            "n": 20,
+            "p50_ms": 5.777,
+            "p95_ms": 24.244,
+            "p99_ms": 24.244
+          },
+          "authority_context_missing": {
+            "max_ms": 3644.27,
+            "mean_ms": 1958.718,
+            "n": 6,
+            "p50_ms": 2367.061,
+            "p95_ms": 3644.27,
+            "p99_ms": 3644.27
+          },
+          "integer_over_256_bits": {
+            "max_ms": 131.563,
+            "mean_ms": 13.149,
+            "n": 20,
+            "p50_ms": 5.035,
+            "p95_ms": 131.563,
+            "p99_ms": 131.563
+          },
+          "manifest_digest_forged": {
+            "max_ms": 8862.187,
+            "mean_ms": 5600.802,
+            "n": 6,
+            "p50_ms": 6751.604,
+            "p95_ms": 8862.187,
+            "p99_ms": 8862.187
+          },
+          "nesting_over_32": {
+            "max_ms": 20.864,
+            "mean_ms": 5.267,
+            "n": 20,
+            "p50_ms": 5.436,
+            "p95_ms": 20.864,
+            "p99_ms": 20.864
+          },
+          "non_finite_amount": {
+            "max_ms": 39.687,
+            "mean_ms": 7.45,
+            "n": 20,
+            "p50_ms": 6.641,
+            "p95_ms": 39.687,
+            "p99_ms": 39.687
+          },
+          "non_plain_value": {
+            "max_ms": 28.483,
+            "mean_ms": 6.069,
+            "n": 20,
+            "p50_ms": 1.699,
+            "p95_ms": 28.483,
+            "p99_ms": 28.483
+          },
+          "non_string_key": {
+            "max_ms": 23.471,
+            "mean_ms": 5.577,
+            "n": 20,
+            "p50_ms": 3.907,
+            "p95_ms": 23.471,
+            "p99_ms": 23.471
+          },
+          "none_envelope": {
+            "max_ms": 79.857,
+            "mean_ms": 13.116,
+            "n": 20,
+            "p50_ms": 7.56,
+            "p95_ms": 79.857,
+            "p99_ms": 79.857
+          },
+          "not_an_envelope": {
+            "max_ms": 106.97,
+            "mean_ms": 14.123,
+            "n": 20,
+            "p50_ms": 5.04,
+            "p95_ms": 106.97,
+            "p99_ms": 106.97
+          },
+          "object_over_10000_keys": {
+            "max_ms": 13.237,
+            "mean_ms": 4.877,
+            "n": 20,
+            "p50_ms": 5.445,
+            "p95_ms": 13.237,
+            "p99_ms": 13.237
+          },
+          "operation_wrong_type": {
+            "max_ms": 54.771,
+            "mean_ms": 8.076,
+            "n": 20,
+            "p50_ms": 4.751,
+            "p95_ms": 54.771,
+            "p99_ms": 54.771
+          },
+          "principal_swap": {
+            "max_ms": 8610.956,
+            "mean_ms": 5147.515,
+            "n": 6,
+            "p50_ms": 6654.936,
+            "p95_ms": 8610.956,
+            "p99_ms": 8610.956
+          },
+          "string_over_1MiB": {
+            "max_ms": 38.644,
+            "mean_ms": 5.899,
+            "n": 20,
+            "p50_ms": 2.012,
+            "p95_ms": 38.644,
+            "p99_ms": 38.644
+          },
+          "target_out_of_scope": {
+            "max_ms": 8978.107,
+            "mean_ms": 5522.902,
+            "n": 6,
+            "p50_ms": 5764.822,
+            "p95_ms": 8978.107,
+            "p99_ms": 8978.107
+          },
+          "unknown_action": {
+            "max_ms": 2403.887,
+            "mean_ms": 1229.121,
+            "n": 6,
+            "p50_ms": 1523.594,
+            "p95_ms": 2403.887,
+            "p99_ms": 2403.887
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 227324,
+          "rss_after": 227324,
+          "rss_before": 218908
+        },
+        "report_only": true,
+        "request_rate_per_second": 10.68,
+        "requests": 262,
+        "storage_bytes": {
+          "after": 1042462,
+          "before": 90621,
+          "growth": 951841,
+          "growth_per_request": 3633.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 24.5288
+      }
+    },
+    "outcome": {
+      "distinct_effect_ids": 1,
+      "effect_targets_and_grants": [
+        [
+          "urn:cognous:grant:routine-1",
+          "urn:cognous:synthetic-account:customer-001"
+        ]
+      ],
+      "effects_final": 1,
+      "evidence_stages": [
+        [
+          "replay_import",
+          "accepted"
+        ],
+        [
+          "evidence_pack_import",
+          "flagged"
+        ],
+        [
+          "odes_recipient",
+          "accepted"
+        ]
+      ],
+      "redelivery_after_flood": [
+        "reconciled",
+        false
+      ]
+    },
+    "report_only": {
+      "flood_outcome_kinds": {
+        "ValueError: exact execution envelope and operation required": 60,
+        "ValueError: execution array exceeds budget": 20,
+        "ValueError: execution input exceeds structural budget": 20,
+        "ValueError: execution input requires plain builtin values": 20,
+        "ValueError: execution integer exceeds budget": 20,
+        "ValueError: execution number must be finite": 20,
+        "ValueError: execution object exceeds budget": 20,
+        "ValueError: execution object keys must be exact strings": 20,
+        "ValueError: execution string exceeds byte budget": 20,
+        "returned": 42
+      },
+      "needed_retry_after_flood": null,
+      "valid_completed_during_flood": {
+        "returned": "executed"
+      }
+    }
+  },
+  "run2": {
+    "metrics": {
+      "baseline": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 0,
+          "voluntary": 100
+        },
+        "cpu_seconds_process_all_threads": 0.112,
+        "cpu_utilisation_of_one_core": 0.891,
+        "label": "baseline_valid_request",
+        "latency": {
+          "all": {
+            "max_ms": 125.684,
+            "mean_ms": 125.684,
+            "n": 1,
+            "p50_ms": 125.684,
+            "p95_ms": 125.684,
+            "p99_ms": 125.684
+          },
+          "valid": {
+            "max_ms": 125.684,
+            "mean_ms": 125.684,
+            "n": 1,
+            "p50_ms": 125.684,
+            "p95_ms": 125.684,
+            "p99_ms": 125.684
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 233376,
+          "rss_after": 232444,
+          "rss_before": 233468
+        },
+        "report_only": true,
+        "request_rate_per_second": 7.95,
+        "requests": 1,
+        "storage_bytes": {
+          "after": 117360,
+          "before": 90621,
+          "growth": 26739,
+          "growth_per_request": 26739.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.1257
+      },
+      "under_flood": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 10
+        },
+        "context_switches": {
+          "involuntary": 366,
+          "voluntary": 7684
+        },
+        "cpu_seconds_process_all_threads": 25.1619,
+        "cpu_utilisation_of_one_core": 0.988,
+        "label": "valid_request_under_flood",
+        "latency": {
+          "actor_spoof": {
+            "max_ms": 9255.552,
+            "mean_ms": 5171.382,
+            "n": 6,
+            "p50_ms": 6673.626,
+            "p95_ms": 9255.552,
+            "p99_ms": 9255.552
+          },
+          "adapter_mismatch": {
+            "max_ms": 9175.041,
+            "mean_ms": 5815.9,
+            "n": 6,
+            "p50_ms": 7381.991,
+            "p95_ms": 9175.041,
+            "p99_ms": 9175.041
+          },
+          "all": {
+            "max_ms": 9255.552,
+            "mean_ms": 716.438,
+            "n": 262,
+            "p50_ms": 6.888,
+            "p95_ms": 6673.626,
+            "p99_ms": 9175.041
+          },
+          "array_over_10000_items": {
+            "max_ms": 20.645,
+            "mean_ms": 7.243,
+            "n": 20,
+            "p50_ms": 6.903,
+            "p95_ms": 20.645,
+            "p99_ms": 20.645
+          },
+          "authority_context_missing": {
+            "max_ms": 3724.357,
+            "mean_ms": 2029.235,
+            "n": 6,
+            "p50_ms": 2532.27,
+            "p95_ms": 3724.357,
+            "p99_ms": 3724.357
+          },
+          "integer_over_256_bits": {
+            "max_ms": 58.054,
+            "mean_ms": 9.47,
+            "n": 20,
+            "p50_ms": 6.318,
+            "p95_ms": 58.054,
+            "p99_ms": 58.054
+          },
+          "manifest_digest_forged": {
+            "max_ms": 9138.848,
+            "mean_ms": 5775.164,
+            "n": 6,
+            "p50_ms": 6906.811,
+            "p95_ms": 9138.848,
+            "p99_ms": 9138.848
+          },
+          "nesting_over_32": {
+            "max_ms": 19.481,
+            "mean_ms": 5.024,
+            "n": 20,
+            "p50_ms": 4.416,
+            "p95_ms": 19.481,
+            "p99_ms": 19.481
+          },
+          "non_finite_amount": {
+            "max_ms": 21.113,
+            "mean_ms": 6.984,
+            "n": 20,
+            "p50_ms": 5.977,
+            "p95_ms": 21.113,
+            "p99_ms": 21.113
+          },
+          "non_plain_value": {
+            "max_ms": 35.157,
+            "mean_ms": 6.106,
+            "n": 20,
+            "p50_ms": 6.273,
+            "p95_ms": 35.157,
+            "p99_ms": 35.157
+          },
+          "non_string_key": {
+            "max_ms": 80.59,
+            "mean_ms": 14.793,
+            "n": 20,
+            "p50_ms": 6.731,
+            "p95_ms": 80.59,
+            "p99_ms": 80.59
+          },
+          "none_envelope": {
+            "max_ms": 19.449,
+            "mean_ms": 5.887,
+            "n": 20,
+            "p50_ms": 6.617,
+            "p95_ms": 19.449,
+            "p99_ms": 19.449
+          },
+          "not_an_envelope": {
+            "max_ms": 24.186,
+            "mean_ms": 9.113,
+            "n": 20,
+            "p50_ms": 7.631,
+            "p95_ms": 24.186,
+            "p99_ms": 24.186
+          },
+          "object_over_10000_keys": {
+            "max_ms": 20.334,
+            "mean_ms": 5.679,
+            "n": 20,
+            "p50_ms": 5.502,
+            "p95_ms": 20.334,
+            "p99_ms": 20.334
+          },
+          "operation_wrong_type": {
+            "max_ms": 81.82,
+            "mean_ms": 12.338,
+            "n": 20,
+            "p50_ms": 7.066,
+            "p95_ms": 81.82,
+            "p99_ms": 81.82
+          },
+          "principal_swap": {
+            "max_ms": 8965.483,
+            "mean_ms": 5254.507,
+            "n": 6,
+            "p50_ms": 6717.938,
+            "p95_ms": 8965.483,
+            "p99_ms": 8965.483
+          },
+          "string_over_1MiB": {
+            "max_ms": 27.07,
+            "mean_ms": 6.123,
+            "n": 20,
+            "p50_ms": 5.271,
+            "p95_ms": 27.07,
+            "p99_ms": 27.07
+          },
+          "target_out_of_scope": {
+            "max_ms": 9189.702,
+            "mean_ms": 5701.314,
+            "n": 6,
+            "p50_ms": 6171.361,
+            "p95_ms": 9189.702,
+            "p99_ms": 9189.702
+          },
+          "unknown_action": {
+            "max_ms": 2363.7,
+            "mean_ms": 1241.103,
+            "n": 6,
+            "p50_ms": 1551.532,
+            "p95_ms": 2363.7,
+            "p99_ms": 2363.7
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 233468,
+          "rss_after": 233468,
+          "rss_before": 232444
+        },
+        "report_only": true,
+        "request_rate_per_second": 10.29,
+        "requests": 262,
+        "storage_bytes": {
+          "after": 1042462,
+          "before": 90621,
+          "growth": 951841,
+          "growth_per_request": 3633.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 25.4552
+      }
+    },
+    "outcome": {
+      "distinct_effect_ids": 1,
+      "effect_targets_and_grants": [
+        [
+          "urn:cognous:grant:routine-1",
+          "urn:cognous:synthetic-account:customer-001"
+        ]
+      ],
+      "effects_final": 1,
+      "evidence_stages": [
+        [
+          "replay_import",
+          "accepted"
+        ],
+        [
+          "evidence_pack_import",
+          "flagged"
+        ],
+        [
+          "odes_recipient",
+          "accepted"
+        ]
+      ],
+      "redelivery_after_flood": [
+        "reconciled",
+        false
+      ]
+    },
+    "report_only": {
+      "flood_outcome_kinds": {
+        "ValueError: exact execution envelope and operation required": 60,
+        "ValueError: execution array exceeds budget": 20,
+        "ValueError: execution input exceeds structural budget": 20,
+        "ValueError: execution input requires plain builtin values": 20,
+        "ValueError: execution integer exceeds budget": 20,
+        "ValueError: execution number must be finite": 20,
+        "ValueError: execution object exceeds budget": 20,
+        "ValueError: execution object keys must be exact strings": 20,
+        "ValueError: execution string exceeds byte budget": 20,
+        "returned": 42
+      },
+      "needed_retry_after_flood": null,
+      "valid_completed_during_flood": {
+        "returned": "executed"
+      }
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:3cf8107f9ec48a6810f9d8eb4ae35f1a5cbdde958d6c34ef96f90b663eddc14d",
+    "run2_outcome_digest": "sha256:3cf8107f9ec48a6810f9d8eb4ae35f1a5cbdde958d6c34ef96f90b663eddc14d",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "valid flow concurrent with malformed-envelope and unauthenticated-decision flood",
+  "test": "test_scn_d06_valid_request_under_mixed_flood_keeps_effect_and_evidence_gates",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0.0",
+  "overall_status": "MATCHED REFUND 20/20 PASSED; PORTABLE EVIDENCE VERIFIED; OPERATIONAL QUALIFICATION DEFERRED",
+  "profile": "native-local-destination-and-approval-fixtures/1",
+  "selected": false,
+  "human_oversight": "NOT EVALUATED",
+  "verified_at": "2026-10-16T17:56:58.163718+00:00",
+  "verification_method": "36 exact-source native local trials, standalone SQLite snapshots and portable cross-checks; 92 native fixture tests and 16 subtests. Prior OpenAI pilot and its accounting preserved without rerunning paid calls.",
+  "starting_qualification_sha": "dcedf33e5f53ad4a86c3019c0d16f863a60db1f2",
+  "phases": [
+    {
+      "id": "T1",
+      "scope": "Versioned contracts",
+      "dependencies": [],
+      "status": "INTEGRATED",
+      "next_action": "No further action within the bounded local implementation scope; residual qualification gaps remain listed",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
+    },
+    {
+      "id": "T2",
+      "scope": "Native deterministic harness",
+      "dependencies": [
+        "T1"
+      ],
+      "status": "INTEGRATED",
+      "next_action": "No further action within the bounded local implementation scope; residual qualification gaps remain listed",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
+    },
+    {
+      "id": "T3",
+      "scope": "Calibrated evaluation",
+      "dependencies": [
+        "T2"
+      ],
+      "status": "INTEGRATED",
+      "next_action": "No further action within the bounded local implementation scope; residual qualification gaps remain listed",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
+    },
+    {
+      "id": "T4",
+      "scope": "Bounded OpenAI actual-agent pilot",
+      "dependencies": [
+        "T3"
+      ],
+      "status": "INTEGRATED",
+      "next_action": "Completed 25/25 diagnostic trials via [PR #17](https://github.com/cogno-us/cognous-stack-qualification/pull/17) and [run 38821035491](https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491); retain evidence/accounting, no paid reruns; broader agent coverage remains unqualified",
+      "owner": "T0",
+      "branch": "testing/openai-pilot-resume",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/17",
+      "merge_sha": "4c817a5eaa53c51e91322f8204864f039ab11d1f"
+    },
+    {
+      "id": "CLOSEOUT",
+      "scope": "Integration and evidence",
+      "dependencies": [
+        "T3"
+      ],
+      "status": "INTEGRATED",
+      "next_action": "Matched refund completed: [20/20 trials and reciprocal package](../reports/matched-refund-2026-10-16.md). Ready for bounded review; not transmitted. Operational qualification and downstream consumer interoperability remain unestablished.",
+      "owner": "T0",
+      "branch": "testing/t0-serial-qualification",
+      "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+      "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5"
+    }
+  ],
+  "variant_counts": {
+    "PASS": 36
+  },
+  "evidence": {
+    "path": "results/serial/native-exchange-20261016/record.json",
+    "sha256": "1cdd5c2fd08d82d42eea390dd8fd923fd9b94207c44b7eca996e6904e7a57cf5"
+  },
+  "tested_sources": {
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "dirty": false,
+      "files": {
+        "component-lock.json": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+        "reference_profiles/assurance_runtime.py": "4ea3285be6265fd2f77bf8aea2a0da359bd360541dea0c4711e8c90b9be47397",
+        "reference_profiles/bounded_json.py": "dbf74babbf7cb19d4e7a70f37f09f6f2a797bfb896fc2912cbc72075bd7552ef",
+        "reference_profiles/protected_destination.py": "5947adbe1a8c75ed20ddea911b42a75ce75bfa6442e3afe97ed1fb7546d62bc9",
+        "reference_profiles/trust_evidence.py": "0e53a022b6c30552996825db102c5cc9ecef5860e8d0103f74289e54a14d503f",
+        "tests/test_integrated_assurance.py": "40270a0a0597c50a5ec9faa8d0ffa69bf4dc93cb6be0ff9320c2f81e3705b326",
+        "tests/test_protected_destination.py": "f8f226551fa98f280ac04ee6d01d084cdd07c1f6d1b55553c5471c7de1a2a579"
+      },
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "qualification": {
+      "commit": "347df5d833eb6888a1ad3bb716bfc96072f46f6b",
+      "dirty": false,
+      "files": {
+        "qualification/serial/plan.json": "294a74f117e72fb2510f20751564b68f47ff8e802b0d48756fe14fa016c92eea",
+        "scenarios/catalog.json": "242beb8a2196cd29e0778592af645d3c1678daa474cb844c25f47ca13becdad7",
+        "schemas/trajectory-evidence-v2.schema.json": "5ae202f632e524e5da9c4684f529a9b928646ac8091ebe307bffd5f2064fe022",
+        "tools/run_serial_qualification.py": "a7a6efcc87f0b5a7bd5fb3e069b9bb349f29ea506b18987636dcc519911fca56",
+        "tools/trajectory_contract.py": "b33ee5826b1327c28278ef586a70ff40015acb10ceccc063733de23c26b3ae14"
+      },
+      "repository": "cogno-us/cognous-stack-qualification"
+    }
+  },
+  "blockers": [
+    {
+      "id": "EXPORT-MAPPING",
+      "reason": "Native local destination/approval records have no verified Replay or Evidence Pack producer mapping",
+      "owner": "Artifact adapter maintainers",
+      "resolution": "Verify supported producer contract or implement separately scoped native adapter; do not substitute sidecar as producer output"
+    },
+    {
+      "id": "OPERATIONAL-ASSURANCE",
+      "reason": "Read-only observer shares a trusted OS user; process/network containment and production identity are outside these fixtures",
+      "owner": "Deployment owner",
+      "resolution": "Deployment-specific configuration and independent access evidence before operational claims"
+    }
+  ],
+  "deferred_closeout": [
+    "After current testing and engineering, before final publication: inspect exact package bytes for credentials, PII and proprietary ISS content; verify owner-approved exclusions and notices; reconcile live issues/PRs with evidence. Do not execute during this increment or schedule automation."
+  ],
+  "checks": [
+    {
+      "command": "python -m unittest discover -s tests -v",
+      "result": "62 passed including retained-evidence rejection tests"
+    },
+    {
+      "command": "python -m pytest -q tests/test_protected_destination.py tests/test_destination_ingress.py tests/test_integrated_assurance.py",
+      "result": "117 passed; 16 subtests passed",
+      "evidence": "results/serial/native-20261015/t0-native.xml"
+    },
+    {
+      "command": "PYTHONPATH=<hub>:<hub>/tests python -m pytest -q -p no:cacheprovider suites/cognous-open-control-stack/tests/test_destination_restore_boundary.py -k 'not same_host_c1'",
+      "result": "8 passed; 4 optional component-dependent cases deselected",
+      "evidence": "results/serial/native-20261015/t0-restore.xml"
+    }
+  ],
+  "integration": {
+    "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/12",
+    "tested_pr_head": "6f8ce9672a35accd3bcc08fba4a764d7b2bbe667",
+    "merge_sha": "67959657c97479828c68bf02f748012ef372f7d5",
+    "postmerge_local_trials": {
+      "PASS": 36
+    },
+    "postmerge_tooling_tests": 62,
+    "release_authorized": false,
+    "production_authorized": false
+  },
+  "resolved_blockers": [
+    {
+      "id": "MODEL-CREDENTIAL",
+      "reason": "Claude Opus 5.5 / USD 20 bounded campaign authorized; Actions secret reported configured; execution pending PR 14 merge",
+      "owner": "Agent runtime owner",
+      "resolution": "Bounded OpenAI pilot completed at run 38821035491; earlier Claude/configuration state retained as history, not a current blocker",
+      "status": "SUPERSEDED"
+    }
+  ],
+  "actual_agent_pilot": {
+    "status": "COMPLETE",
+    "provider": "openai-direct",
+    "model": "gpt-6.1-sol",
+    "scope": "Five bounded nonselected synthetic variants, five repetitions each; not A01\u2013A06 or full selected-stack qualification",
+    "qualification_commit": "4c817a5eaa53c51e91322f8204864f039ab11d1f",
+    "hub_commit": "4bb101ca6dd5ee8f821bc44a7af935b5e389562e",
+    "pr": "https://github.com/cogno-us/cognous-stack-qualification/pull/17",
+    "workflow_run": "https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491",
+    "expected_trials": 25,
+    "verdict_counts": {
+      "PASS": 25
+    },
+    "unexecuted_trials": 0,
+    "artifact": {
+      "id": 12013785164,
+      "name": "openai-gpt-6.1-sol-pilot-38821035491",
+      "url": "https://github.com/cogno-us/cognous-stack-qualification/actions/runs/38821035491/artifacts/12013785164",
+      "zip_sha256": "4f9ce2a5f4df1431c669f67f5e25d8564682d9e0d3b70827dbb561ad5c507154",
+      "manifest_member": "openai-results/manifest.json",
+      "manifest_sha256": "187a29385ac2123bd1f4c86421712da5950f8973cfd69bd4ecb540df79deaeb8",
+      "ledger_member": "openai-campaign/ledger.sqlite",
+      "ledger_sha256": "32ce9010a2ab934931f77d5831ebb5dbd0e9a1fe6fb9cb626b7a8862505a6c2c",
+      "prior_attempt_member": "prior-openai-attempt.zip",
+      "prior_attempt_sha256": "c800440c9f3c05f8c27cb689a6adc207d7ce26ac97a60931395b639dd4a59c0a",
+      "expires_at": "2027-01-13T23:01:59Z",
+      "retention_note": "Artifact bytes remain in the retained Actions artifact; hashes and links do not preserve them after expiry. No raw model records, ledger or prior attempt are republished by this update."
+    },
+    "budget": {
+      "calls": [
+        {
+          "count": 1,
+          "microdollars": 70480,
+          "state": "RESERVED"
+        },
+        {
+          "count": 95,
+          "microdollars": 107560,
+          "state": "SETTLED"
+        }
+      ],
+      "cap_usd": "19.908",
+      "charged_or_reserved_usd": "0.17804",
+      "scope": "client campaign accounting at recorded rates; not provider invoice guarantee"
+    },
+    "limitations": [
+      "Remaining USD 19.908 allowance as stated in the conversation. Prior evidence and accounting remain in their existing location. Client accounting is not an invoice guarantee; no provider spending-limit prerequisite.",
+      "Twenty-five synthetic diagnostic trials, at most 150 paid requests; no automatic retries or further campaign authorization.",
+      "Provider model ID is recorded per response; no finer immutable snapshot is advertised for this model.",
+      "Native local profiles remain nonselected and observer shares the trusted host; human oversight NOT EVALUATED.",
+      "Memory/compaction, tenant-memory isolation and multi-agent handoff remain NOT RUN. No full catalog acceptance."
+    ],
+    "paid_reruns_authorized": false,
+    "source_context": "Native deterministic tested_sources above remain their original identities; this pilot has its separate exact sources. No historical record or ledger is rewritten."
+  },
+  "reciprocal_exchange": {
+    "status": "PORTABLE LOCAL EVIDENCE VERIFIED; NOT MATCHED-REQUEST COMPARISON ACCEPTANCE",
+    "test_source": "347df5d833eb6888a1ad3bb716bfc96072f46f6b",
+    "native_exports": "Replay/Evidence Pack mapping NOT RUN for this family",
+    "writer_entry": "NOT INSTRUMENTED; native duplicate admission exercised",
+    "monetary_refund": "NOT RUN; synthetic insertion fixture only",
+    "transmitted": false
+  },
+  "matched_refund_exchange": {
+    "status": "READY TO SHARE; NOT TRANSMITTED",
+    "report": "reports/matched-refund-2026-10-16.md",
+    "summary": "results/comparisons/matched-refund-20261016/summary.json",
+    "profile": "matched-synthetic-refund/1; native local atomic, nonselected",
+    "trial_counts": {
+      "PASS": 20
+    },
+    "runtime_regression_tests": 40,
+    "qualification_tooling_tests": 114,
+    "archive_sha256": "750d6ce590b6f877f02865534aa85bdb8cc1adbbe3753a1df28933e2753306d2",
+    "scqos_rerun": false,
+    "release_authorized": false,
+    "production_authorized": false
+  }
+}

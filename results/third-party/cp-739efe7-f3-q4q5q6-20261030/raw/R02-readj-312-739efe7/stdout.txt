@@ -1,0 +1,105 @@
+..............................................F.                         [100%]
+=================================== FAILURES ===================================
+______________________ test_G4_documentation_limits_S_DOC ______________________
+
+    def test_G4_documentation_limits_S_DOC():
+        chk = Check("G4_S_DOC")
+        root = _cp_root()
+        docp = root / "docs" / "effective-configuration-binding.md"
+        text = docp.read_text(encoding="utf-8")
+        low = text.lower()
+        chk.ok("D1a_unsigned_store", "unsigned" in low)
+        chk.ok("D1b_no_anti_rollback_guarantee", "no anti-rollback guarantee" in low)
+        chk.ok("D1c_cutoff_no_durable_provenance", "no durable provenance" in low and "legacy_cutoff" in low)
+        chk.ok("D1d_mixed_fleet", "mixed fleet" in low or "mixed-fleet" in low)
+        masked = [(n, l.strip()[:300]) for n, l in enumerate(text.splitlines(), 1) if "masked" in l.lower() or ("stricter" in l.lower() and "host" in l.lower())]
+        chk.ok("D2_masked_host_change_limitation_stated", any("masked" in l.lower() for _, l in masked) and any("stricter" in l.lower() for _, l in masked), lines=masked)
+        aff = re.compile(r"(prevent|protect|guarantee|defen[cd]|ensure|resist)", re.I)
+        neg = re.compile(r"\b(no|not|never|without|cannot|does not|do not|isn't|nor|neither|absent|held|separate held item)\b", re.I)
+        affirmative = []
+        for rel in ("docs/effective-configuration-binding.md", "docs/final3-consumers.md", "docs/d07-purpose-observation-anchor-correction.md", "src/agent_control_plane/effective_configuration_binding.py",
+                    "src/agent_control_plane/registry_governed_lifecycle.py"):
+            p = root / rel
+            if not p.is_file():
+                continue
+            for n, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+                if re.search(r"roll(ed)?[- ]?back", line, re.I):
+                    is_aff = bool(aff.search(line)) and not neg.search(line)
+                    rec(chk.case, "OBSERVATION", check="rollback_line", file=rel, line=n, text=line.strip()[:300], looks_affirmative=is_aff)
+                    if is_aff:
+                        affirmative.append((rel, n))
+        chk.ok("D3_no_line_affirms_rollback_protection", affirmative == [], lines=affirmative)
+        pin_lines = [(n, l.strip()[:400]) for n, l in enumerate(text.splitlines(), 1) if re.search(r"pin[- ]export|claim issuance", l, re.I)]
+        chk.obs("D4_pin_export_claim_lines", lines=pin_lines)
+        chk.ok("D4a_doc_states_pin_export_not_active_no_payload", any(re.search(r"not\s+`?active`?", l) and "payload" in l.lower() for _, l in pin_lines))
+        chk.ok("D4b_doc_states_no_effect_time_refusal_on_pin_export_claim", any(re.search(r"no\s+`?EffectTimeRefusal`?", l) for _, l in pin_lines))
+        bad = [(n, l) for n, l in pin_lines if re.search(r"durable\s+`?EffectTimeRefusal`?", l) and not re.search(r"\b(no|not|never|without)\b", l, re.I) and re.search(r"pin[- ]export", l, re.I)]
+        chk.ok("D4c_no_line_attributes_durable_refusal_to_pin_export", bad == [], lines=bad)
+        stale = {"final3-consumers.md section 6 (D-07 status)": None}
+        chk.obs("D5_docs_changed_vs_739efe7_listed_in_manifest", note="see git diff stat in raw results")
+>       chk.done()
+
+../../harness/test_readj_gaps.py:280: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_readj_gaps.Check object at 0x7f1ef8cbefc0>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: G4_S_DOC: failed ['D2_masked_host_change_limitation_stated', 'D4b_doc_states_no_effect_time_refusal_on_pin_export_claim', 'D4c_no_line_attributes_durable_refusal_to_pin_export']
+E       assert not ['D2_masked_host_change_limitation_stated', 'D4b_doc_states_no_effect_time_refusal_on_pin_export_claim', 'D4c_no_line_attributes_durable_refusal_to_pin_export']
+E        +  where ['D2_masked_host_change_limitation_stated', 'D4b_doc_states_no_effect_time_refusal_on_pin_export_claim', 'D4c_no_line_attributes_durable_refusal_to_pin_export'] = <test_readj_gaps.Check object at 0x7f1ef8cbefc0>.fails
+
+../../harness/test_readj_gaps.py:53: AssertionError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[scope.consumer_id]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[scope.tenant_id]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[scope.action_id]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[scope.institution_id]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[scope.authority_domain]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[host_profile_digest]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[effective_profile_digest]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[f4_scalars.status_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[f4_scalars.approval_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[other_scalars.clock_tolerance_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[other_scalars.identity_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[other_scalars.mandate_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[observation_policy.max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[observation_policy.clock_tolerance_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[observation_policy=null]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[families.0.slot]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[families.0.family_id]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[families.0.contract_version]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[families.0.family_schema_revision]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[families.0.effective_policy_digest]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[families=none_declared]
+PASSED ../../harness/test_readj_gaps.py::test_G1_pin_export_mismatch[families=extra_class_age_declared]
+PASSED ../../harness/test_readj_gaps.py::test_G1_instrument_detects_refusal_write
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[scope.consumer_id]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[scope.tenant_id]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[scope.action_id]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[scope.institution_id]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[scope.authority_domain]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[host_profile_digest]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[effective_profile_digest]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[f4_scalars.status_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[f4_scalars.approval_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[other_scalars.clock_tolerance_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[other_scalars.identity_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[other_scalars.mandate_max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[observation_policy.max_age_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[observation_policy.clock_tolerance_seconds]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[observation_policy=null]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[families.0.slot]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[families.0.family_id]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[families.0.contract_version]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[families.0.family_schema_revision]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[families.0.effective_policy_digest]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[families=none_declared]
+PASSED ../../harness/test_readj_gaps.py::test_G2_claim_issuance_mismatch[families=extra_class_age_declared]
+PASSED ../../harness/test_readj_gaps.py::test_G3_A06_legacy_pin_cutoff0_idx0
+PASSED ../../harness/test_readj_gaps.py::test_G5a_persisted_member_content
+FAILED ../../harness/test_readj_gaps.py::test_G4_documentation_limits_S_DOC
+1 failed, 47 passed in 9.07s
+exit=1

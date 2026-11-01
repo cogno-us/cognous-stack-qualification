@@ -1,0 +1,8 @@
+PROBE eff.eff_commit.E1_no_reissue {"new": "sha256:a81105623559e1c423a007b25185511e8283a6143e19c6681b4ccbcfc497286e", "orig": "sha256:d394f0057ecf9f8a5c68741d40b60f16a81256431ce080f4f0864562649c4b01"}
+PROBE eff.exec.E1_no_reissue {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["runtime_authority_approval_mismatch"]], "new_refusal_vocab": ["runtime-authority-reasons/0.1"], "raised": "PermissionError"}
+PROBE eff.eff_commit.E2_reissued {"new": "sha256:a81105623559e1c423a007b25185511e8283a6143e19c6681b4ccbcfc497286e", "orig": "sha256:d394f0057ecf9f8a5c68741d40b60f16a81256431ce080f4f0864562649c4b01"}
+PROBE eff.exec.E2_reissued {"attempt_status": null, "binding_status": "mismatch", "dest_calls": 0, "dest_unchanged": true, "is_permission_error": true, "msg": "authorization-critical inputs changed before effect", "new_attempts": 0, "new_refusal_reasons": [["authorization_binding_changed"]], "new_refusal_vocab": ["runtime-authority-reasons/0.1"], "raised": "PermissionError"}
+PROBE eff.bindingdiff.E2_reissued {"result": "authorized", "split": [["runtime_authority.approval_commitment", "runtime_authority.catalogue_digest"], ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.effective_profile_digest", "runtime_authority.effective_configuration.members.families.0.effective_policy_digest"]]}
+PROBE h1.bindingdiff {"result": "authorized", "split": [[], ["runtime_authority.effective_configuration.digest", "runtime_authority.effective_configuration.members.host_profile_digest"]]}
+PROBE done {"tmp": "/tmp/d1probe-42__z9yf"}
+exit=0

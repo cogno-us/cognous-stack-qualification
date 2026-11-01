@@ -1,0 +1,992 @@
+{
+ "cases": [
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_os.py::test_fa1_05_supplier_identity_cannot_install_or_replace_a_pin",
+   "expected": "REAL two identities: the installer user installs the real Control Plane export; the executor user (the claim supplier's side) tries to open the store read-write, insert a row, create a table, create a journal or a sibling store, create a fence, create or rename over the anchor: every attempt denied by the OS, store/anchor/log bytes unchanged; the same identity CAN read the pin through the guard's reader and take a shared flock",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "attempts": {
+     "anchor_replace_via_rename": "denied",
+     "anchor_tmp_create": "denied",
+     "create_table": "denied:sqlite:attempt to write a readonly database",
+     "fence_create_for_forged": "denied",
+     "insert_forged_row": "denied:sqlite:attempt to write a readonly database",
+     "journal_create": "denied",
+     "new_store_in_dir": "denied"
+    },
+    "bytes_unchanged": true,
+    "executor_identity_uid": 30034,
+    "executor_may_read": [
+     [
+      1,
+      "active"
+     ]
+    ],
+    "file_owner_uids": {
+     "a6925e0df648c56c2a801f9fbb8ed803640211e8a18a9ee38ba124b79ba6bd39.fence": 30033,
+     "installer.log": 30033,
+     "pins.anchor.json": 30033,
+     "pins.sqlite3": 30033
+    },
+    "installer_identity_uid": 30033,
+    "installer_output": [
+     "installed",
+     "custody-ok"
+    ],
+    "installer_stderr": "",
+    "no_journal_created": true,
+    "probe_stderr": "",
+    "shared_flock": "ok",
+    "store_dir_listing": [
+     "fences",
+     "installer.log",
+     "pins.sqlite3"
+    ]
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-05",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_os.py::test_fa1_06a_executor_identity_cannot_modify_pin_files_or_paths",
+   "expected": "(a) REAL executor identity attempts UPDATE/DELETE/DROP through SQLite, and open-for-write, append, truncate, unlink, rename and chmod of the pin store, the anchor, the fence and the log, and to unlink every fence: all denied, bytes unchanged, the guard's reader still sees the pin",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "attempts": {
+     "anchor_append": "denied",
+     "anchor_chmod": "denied",
+     "anchor_open_write": "denied",
+     "anchor_rename": "denied",
+     "anchor_truncate": "denied",
+     "anchor_unlink": "denied",
+     "delete_rows": "denied:sqlite:attempt to write a readonly database",
+     "drop_table": "denied:sqlite:attempt to write a readonly database",
+     "fence_append": "denied",
+     "fence_chmod": "denied",
+     "fence_dir_unlink_all": "denied",
+     "fence_open_write": "denied",
+     "fence_rename": "denied",
+     "fence_truncate": "denied",
+     "fence_unlink": "denied",
+     "log_append": "denied",
+     "log_chmod": "denied",
+     "log_open_write": "denied",
+     "log_rename": "denied",
+     "log_truncate": "denied",
+     "log_unlink": "denied",
+     "store_append": "denied",
+     "store_chmod": "denied",
+     "store_open_write": "denied",
+     "store_rename": "denied",
+     "store_truncate": "denied",
+     "store_unlink": "denied",
+     "update_row_status": "denied:sqlite:attempt to write a readonly database"
+    },
+    "bytes_and_modes_unchanged": true,
+    "executor_may_read": [
+     [
+      1,
+      "active"
+     ]
+    ],
+    "executor_uid": 30034,
+    "installer_uid": 30033,
+    "probe_stderr": ""
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-06",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_os.py::test_fa1_19_crash_before_the_intent_is_durable_leaves_no_barrier",
+   "expected": "crash A: the installer is killed before the anchor replace: no intent, no pending, no state change, admission accepts; the restarted installer re-derives the transition from the Control Plane export and completes it; the next attempt is REFUSED pin_status:revoked",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "admission_before_rederive": "accept",
+    "after_typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "child_returncode": -9,
+    "child_stderr": "",
+    "pending_after_restart": null,
+    "rederive": "complete",
+    "state_unchanged": true
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-19",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_os.py::test_fa1_20_crash_with_intent_durable_holds_the_covered_decision_until_the_installer_restarts",
+   "expected": "crash B/D/F/H: the installer is killed right after the intent is durable and stays down: the covered decision is HELD pin_transition_pending for the whole interval, an UNRELATED decision is admitted and executes, the intent is not cleared by anything else; the restarted installer's mandatory reconcile completes the transition through the exclusive fence and the covered decision is then REFUSED pin_status:revoked. Unrelated decision is synthetic by construction",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "after_typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "child_returncode": -9,
+    "child_stderr": "",
+    "counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "fa1-claim-1": "issued",
+      "unrel-2": "consumed"
+     },
+     "effects": 1,
+     "execution_claims_v1": 2
+    },
+    "covered_while_installer_down": [
+     "HELD",
+     "HELD",
+     "HELD"
+    ],
+    "intent_unchanged_while_down": true,
+    "reconcile": [
+     "complete"
+    ],
+    "unrelated_status": "executed"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-20",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_os.py::test_fa1_21_crash_while_holding_the_exclusive_fence_with_a_hot_journal",
+   "expected": "crash C: the installer is SIGKILLed inside the terminal transaction with a hot journal left behind: the OS releases the lock; an unrelated decision is HELD [pin_store_unreadable] while the journal is hot and the covered decision is HELD; the restarted installer rolls the uncommitted rows back and completes the transition; no commit is fabricated; the unrelated decision executes again. Unrelated decision is synthetic by construction",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "child_returncode": -9,
+    "child_stderr": "",
+    "covered_typed": {
+     "cause": "pin_transition_pending",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "journal_hot": true,
+    "junk_rows_after_recovery": 0,
+    "lock_released_by_os": true,
+    "reconcile": [
+     "complete"
+    ],
+    "statuses": [
+     "active",
+     "revoked"
+    ],
+    "unrelated_after_recovery": "executed",
+    "unrelated_while_hot": {
+     "cause": "pin_store_unreadable",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-21",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_os.py::test_fa1_22_crash_after_the_row_commit_before_the_anchor_completion",
+   "expected": "crash E: killed after the terminal row commits and before the anchor completes: no effect is admitted for the decision (HOLD pin_transition_pending per 6.2 steps 0/2, or REFUSE pin_status:revoked per the section 7 table; both fail closed); the restarted installer verifies the row against the intent and completes the anchor; a row that does NOT match the intent yields HOLD for every decision [pin_anchor_inconsistent] and the installer refuses. Unrelated decision is synthetic",
+   "mandatory": true,
+   "note": "The guard HOLDs in state E (stricter than the section 7 table's 'accept; the terminal row refuses'); both fail closed with 0 effects",
+   "observed": {
+    "anchor_after": 3,
+    "child_returncode": -9,
+    "intent_present_after_crash": true,
+    "mismatch_reconcile": [
+     [
+      "refused",
+      "pin_anchor_inconsistent"
+     ]
+    ],
+    "mismatch_unrelated_typed": {
+     "cause": "pin_anchor_inconsistent",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "reconcile": [
+     "reconciled"
+    ],
+    "rows_after_crash": [
+     "active",
+     "revoked"
+    ],
+    "runtime_typed": {
+     "cause": "pin_transition_pending",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "table_admission": "accept"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-22",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_01_original_fa1_substitution_is_refused_and_the_historical_control_executes",
+   "expected": "historical V08 AU-7 scenario: binding rewritten to another validly activated operation with every commitment recomputed. PATCHED: REFUSE policy_identity_mismatch[pin_binding_mismatch:operation], 0 effects, 0 receipts. CONTROL (same claim, same store, destination WITHOUT the pin option) executes: the attack is real and the pin is what stops it",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "chain": [
+     "v02_support.tenant_flow -> BoundedAuthorizationWorkflow.decide (authorized)",
+     "agent_control_plane.local_authority_effect.materialize_local_execution_claim(policy_binding=...)"
+    ],
+    "control_unpinned_counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "forged-op": "consumed"
+     },
+     "effects": 1,
+     "execution_claims_v1": 1
+    },
+    "control_unpinned_status": "executed",
+    "forged_binding_operation": "op-other",
+    "forged_claim_verifies": true,
+    "historical_breach_reproduced_without_pin": true,
+    "patched_counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "forged-op": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "patched_status": "denied",
+    "patched_typed": {
+     "cause": "pin_binding_mismatch:operation",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "pin_installed": "installed"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-01",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_02_workflow_issued_claim_executes_and_the_receipt_carries_the_pin",
+   "expected": "real Control Plane decision, export, installer pin, workflow-issued claim: executes with 1 effect; the receipt records pin_epoch/pin_digest of the stored row",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "chain": [
+     "v02_support.tenant_flow -> BoundedAuthorizationWorkflow.decide (authorized)",
+     "agent_control_plane.local_authority_effect.provision_local_execution_claim(provision=destination.provision_claim, policy_binding=...)"
+    ],
+    "counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "fa1-claim-1": "consumed"
+     },
+     "effects": 1,
+     "execution_claims_v1": 1
+    },
+    "installed": "installed",
+    "receipt_pin": {
+     "anchor_committed_epoch": 1,
+     "payload_digest": "sha256:638327e86e6ef3b6ab0b4b9c7616e896be84ec2d69337c966ad0698e1e383ee0",
+     "pin_digest": "sha256:f557ebf8bb84742cc530e7cb15d6b148e7639dc27b181cad4a0233b4bba683cc",
+     "pin_epoch": 1
+    },
+    "status": "executed"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-02",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_03_cross_operation_selection_never_consults_the_other_operations_registry_row",
+   "expected": "two activated operations; pin for A; the claim names B with B's own (wide) effective-policy digest and the executor runs B's wide policy: REFUSE at the pin; the Registry guard is never asked about B",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "check_effect_calls": [],
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "forged-b": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "forged_operation": "op-other",
+    "pin_operation": "op-transfer",
+    "registry_row_of_b_consulted": false,
+    "typed": {
+     "cause": "pin_binding_mismatch:operation",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-03",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_04_recomputed_commitments_never_change_the_outcome",
+   "expected": "the supplier alters a binding member and recomputes approval/policy/evidence/authority-state and claim commitments (the claim verifies): REFUSE policy_identity_mismatch[pin_binding_mismatch:*]; recomputation changes nothing",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "changed_member": "policy_binding.selection_epoch",
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "recomputed": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "forged_claim_verifies": true,
+    "operation_commitment_unchanged": true,
+    "typed": {
+     "cause": "pin_binding_mismatch:selection_epoch",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-04",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_07_missing_pin_is_refused_with_no_fallback",
+   "expected": "verified store, no row for the decision. (a) no per-decision fence exists (the installer creates it with the pin): HOLD verifier_unavailable[pin_fence_unavailable] per Amendment 4 6.1; (b) a fence exists but there is no row: REFUSE policy_identity_mismatch[pin_absent]. 0 effects, no fallback",
+   "mandatory": true,
+   "note": "The plan text expected pin_absent for the no-fence state; the adopted contract (6.1) makes an absent fence a HOLD. Both are fail-closed with 0 effects.",
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "fence_without_row": {
+     "cause": "pin_absent",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "no_fence": {
+     "cause": "pin_fence_unavailable",
+     "code": "verifier_unavailable",
+     "refusal_class": "HOLD"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-07",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_08_stale_grant_revision_is_refused_by_the_pin",
+   "expected": "a pin that records a different grant_revision than the (honest, workflow-issued) claim: REFUSE policy_identity_mismatch[pin_lineage_mismatch:grant_revision]. INPUT IS SYNTHETIC: the pin's payload is the real export with grant_revision replaced; forging the claim instead is stopped earlier by the existing approval-state validation (observed in the qualification exploration), so that route cannot reach the pin",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "claim_grant_revision": "1",
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "installed": "installed",
+    "typed": {
+     "cause": "pin_lineage_mismatch:grant_revision",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-08",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_09_superseded_pin_is_refused_after_the_full_fenced_protocol",
+   "expected": "terminal `superseded` committed through intent, exclusive fence, row commit and anchor completion; the claim is REFUSED pin_status:superseded. INPUT: synthetic terminal assessment",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "anchor_committed_epoch": 2,
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "install_result": "complete",
+    "statuses": [
+     "active",
+     "superseded"
+    ],
+    "typed": {
+     "cause": "pin_status:superseded",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-09",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_10_revocation_committed_before_the_effect_refuses_it",
+   "expected": "claim issued, grant then revoked in the Control Plane: the REAL export reports terminal/revoked, the installer commits it; the effect is REFUSED pin_status:revoked with 0 effects; the Control Plane also refuses to issue a new claim",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "export_reason": "persisted authority no longer supports the decision: grant_revoked",
+    "export_state": "terminal",
+    "install_result": "complete",
+    "late_claim": "PermissionError: authorization-critical inputs changed before claim issuance",
+    "typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-10",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_11_revocation_serializes_with_effects_in_flight",
+   "expected": "three effects of the decision in flight (one parked after its pin step, two holding the shared fence): the revocation stays pending, no terminal row, no unfenced commit; the parked effect commits with pin_epoch 1; the others are HELD by the pending intent; after they leave the terminal row commits (epoch 2 > every receipt epoch) and a later claim is REFUSED pin_status:revoked",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "fa1-claim-1": "consumed",
+      "fa1-claim-2": "issued",
+      "fa1-claim-3": "issued",
+      "fa1-claim-4": "issued"
+     },
+     "effects": 1,
+     "execution_claims_v1": 4
+    },
+    "in_flight_results": {
+     "fa1-claim-": "denied"
+    },
+    "installer_while_in_flight": "pending_blocked",
+    "later_claim_typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "mid": {
+     "anchor_committed": 1,
+     "pending": true,
+     "statuses": [
+      "active"
+     ]
+    },
+    "receipt_pin_epochs": [
+     1
+    ],
+    "reconcile": [
+     "complete"
+    ],
+    "statuses_after": [
+     "active",
+     "revoked"
+    ],
+    "terminal_epoch": 2
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-11",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_12_revocation_propagation_delay_is_characterized",
+   "expected": "the Control Plane has revoked but the installer has not started: the effect still passes under the old pin (CHARACTERIZED, documented limit, Amendment 4 section 12); from the first read after the installer's work the next claim is REFUSED pin_status:revoked",
+   "mandatory": true,
+   "note": "propagation window: an effect admitted before the installer acts is not stopped by the pin",
+   "observed": {
+    "after_installer_typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "effect_in_window": "executed",
+    "effects_in_window": 1,
+    "export_state": "terminal",
+    "install_result": "complete"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-12",
+   "verdict": "CHARACTERIZED"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_13_unavailable_fence_holder_keeps_the_transition_pending_and_holds_new_effects",
+   "expected": "a REAL separate process holds the shared fence and never releases it: the revocation stays pending_blocked (no terminal row, committed epoch unchanged, intent preserved, no completion reported); new effects for the decision are HELD pin_transition_pending; after the holder exits, recovery completes it through the exclusive fence and the next attempt is REFUSED pin_status:revoked",
+   "failure": "cfg.anchor_path.read_bytes())\n            held = rig.run(cid)\n            log = rig.installer.read_log()\n            completed_logged = any(e.get(\"outcome\") == \"complete\" for e in log)\n        vh, typed = judge(held, rig.counts(), \"store_unknown\", \"HOLD\", \"pin_transition_pending\")\n        done = rig.installer.reconcile()\n        res = rig.run(cid)\n        vr, typed_after = judge(res, rig.counts(), \"policy_identity_mismatch\", \"REFUSE\", \"pin_status:revoked\")\n        ok = (blocked.outcome == \"pending_blocked\" and mid_rows == [\"active\"] and anchor[\"committed_epoch\"] == 1 and anchor[\"intent\"] is not None and not completed_logged\n              and any(r.outcome == \"complete\" for r in done) and [r[\"status\"] for r in rig.rows()] == [\"active\", \"revoked\"])\n>       finish(ev, f.verdict_of(vh, vr) if ok else \"INCONCLUSIVE\", blocked=blocked.outcome, rows_while_held=mid_rows, anchor_while_held={\"committed_epoch\": anchor[\"committed_epoch\"],\n               \"intent\": anchor[\"intent\"] is not None}, new_effect_typed=typed, completion_logged_while_held=completed_logged, recovery=[r.outcome for r in done],\n               after_recovery_typed=typed_after, counts=rig.counts())\n\nsuites/tier1-v08-fa1/test_fa1_software.py:325: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nev = {'case': 'suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_13_unavailable_fence_holder_keeps_the_transition_pending..., 'new_effect_typed': {'code': 'store_unknown', 'refusal_class': 'HOLD', 'cause': 'pin_transition_pending'}, ...}, ...}\nverdict = 'INCONCLUSIVE', note = None\nobserved = {'blocked': 'pending_blocked', 'rows_while_held': ['active'], 'anchor_while_held': {'committed_epoch': 1, 'intent': True}, 'new_effect_typed': {'code': 'store_unknown', 'refusal_class': 'HOLD', 'cause': 'pin_transition_pending'}, ...}\n\n    def finish(ev, verdict, note=None, **observed):\n        ev[\"observed\"].update(observed)\n        ev[\"verdict\"] = verdict\n        if note:\n            ev[\"note\"] = note\n>       assert verdict in (\"HELD\", \"CHARACTERIZED\"), (verdict, {k: observed[k] for k in list(observed)[:6]})\nE       AssertionError: ('INCONCLUSIVE', {'blocked': 'pending_blocked', 'rows_while_held': ['active'], 'anchor_while_held': {'committed_epoch'...True}, 'new_effect_typed': {'code': 'store_unknown', 'refusal_class': 'HOLD', 'cause': 'pin_transition_pending'}, ...})\nE       assert 'INCONCLUSIVE' in ('HELD', 'CHARACTERIZED')\n\nsuites/tier1-v08-fa1/test_fa1_software.py:40: AssertionError",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "after_recovery_typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "anchor_while_held": {
+     "committed_epoch": 1,
+     "intent": true
+    },
+    "blocked": "pending_blocked",
+    "completion_logged_while_held": true,
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "new_effect_typed": {
+     "cause": "pin_transition_pending",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    },
+    "recovery": [
+     "complete"
+    ],
+    "rows_while_held": [
+     "active"
+    ]
+   },
+   "outcome": "FAILED",
+   "scenario": "FA1-13",
+   "verdict": "INCONCLUSIVE"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_14_pending_revocation_holds_only_the_covered_decision_and_completes_without_flock_fairness",
+   "expected": "a stream of new claims for the covered decision is HELD every time while a revocation is pending; three UNRELATED decisions keep being admitted and execute without touching the covered fence; once the pre-intent holder leaves, the revocation completes at once (no reliance on flock fairness). UNRELATED decisions are synthetic by construction (the fixture cannot mint a second decision with another effect_id)",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "after_typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "blocked": "pending_blocked",
+    "completion_seconds_after_holder_exit": 0.004,
+    "covered_all_held": true,
+    "covered_attempts": 3,
+    "effects": 3,
+    "unrelated_statuses": [
+     "executed",
+     "executed",
+     "executed"
+    ]
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-14",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_15_stale_authorization_replay_is_refused_by_runtime_and_installer",
+   "expected": "claim for a terminal decision: Runtime REFUSE pin_status:revoked; the installer refuses (and logs) an attempt to re-activate the terminal decision; no new row",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "installer_detail": "re-activation after terminal row (revoked) refused",
+    "installer_replay": "refused",
+    "refusal_logged": true,
+    "runtime_typed": {
+     "cause": "pin_status:revoked",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    },
+    "statuses": [
+     "active",
+     "revoked"
+    ]
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-15",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_16_restoring_an_older_pin_store_is_held",
+   "expected": "pin store restored to the earlier ACTIVE state with the anchor intact: HOLD [pin_anchor_inconsistent]; the earlier active pin is not honoured; 0 effects",
+   "mandatory": true,
+   "note": "A CONSISTENT restore of store and anchor together is undetectable (Amendment 4 section 7): recorded as CHARACTERIZED by analysis, not as a pass",
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "terminal_install": "complete",
+    "typed": {
+     "cause": "pin_anchor_inconsistent",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-16",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_17_external_anchor_mismatch_holds_every_decision",
+   "expected": "(a) anchor ahead of the store, (b) head digest different at the same epoch, (c) intent in an invalid relation (not committed+1): each HOLDs the covered AND an unrelated decision with [pin_anchor_inconsistent] (for (c) the covered decision may instead report [pin_transition_pending] from the lock-free barrier); 0 effects",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued",
+      "unrel-2": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 2
+    },
+    "variants": {
+     "a_anchor_ahead": {
+      "covered": {
+       "cause": "pin_anchor_inconsistent",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "unrelated": {
+       "cause": "pin_anchor_inconsistent",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      }
+     },
+     "b_head_digest_differs": {
+      "covered": {
+       "cause": "pin_anchor_inconsistent",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "unrelated": {
+       "cause": "pin_anchor_inconsistent",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      }
+     },
+     "c_intent_invalid_relation": {
+      "covered": {
+       "cause": "pin_transition_pending",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "unrelated": {
+       "cause": "pin_anchor_inconsistent",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      }
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-17",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_18_unavailable_anchor_holds_every_decision_and_stops_the_installer",
+   "expected": "anchor removed: HOLD [pin_anchor_unavailable] for every decision; the installer refuses to write; nothing changes; restoring the anchor restores admission",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "installer_detail": "pin_anchor_unavailable",
+    "installer_with_missing_anchor": "refused",
+    "rows_before": 1,
+    "rows_while_missing": 1,
+    "status_after_restore": "executed",
+    "typed": {
+     "cause": "pin_anchor_unavailable",
+     "code": "store_unknown",
+     "refusal_class": "HOLD"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-18",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_23_original_f01_widening_still_refuses_beneath_a_valid_pin",
+   "expected": "the pin and the claim agree (the approval-side binding names the wide policy digest) but the activated Registry record is narrower and the executor runs the wide policy: the pin step PASSES and F-01 containment REFUSES policy_identity_mismatch[policy_not_subset:allowed_actions]; 0 effects",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "pin_passed": true,
+    "typed": {
+     "cause": "policy_not_subset:allowed_actions",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-23",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_24_a_second_f01_set_is_contained_beneath_the_pin",
+   "expected": "same arrangement widening allowed_units: REFUSE policy_identity_mismatch[policy_not_subset:allowed_units]; the other three sets run in the Runtime F-01 CI suite",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "typed": {
+     "cause": "policy_not_subset:allowed_units",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-24",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_25_valid_narrower_policy_executes_under_the_pin",
+   "expected": "activated record WIDER than the executor policy; valid pin; the narrower policy executes (1 effect)",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "fa1-claim-1": "consumed"
+     },
+     "effects": 1,
+     "execution_claims_v1": 1
+    },
+    "status": "executed"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-25",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_26_transaction_critical_evidence_failure_commits_nothing_and_releases_the_fence",
+   "expected": "the receipt/evidence insert fails: 0 committed effects/attempts/receipts/budget, the claim stays issued, and the shared fence is released",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "error": "IntegrityError",
+    "fence_released": true,
+    "status": "denied"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-26",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_27_required_scope_legacy_claim_without_a_binding_is_refused",
+   "expected": "a workflow-issued claim WITHOUT a policy binding on a pin-required destination: REFUSE policy_identity_mismatch[pin_required_binding_absent]; no legacy fallback; 0 effects",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "claim_has_binding": false,
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "fa1-claim-1": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "typed": {
+     "cause": "pin_required_binding_absent",
+     "code": "policy_identity_mismatch",
+     "refusal_class": "REFUSE"
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-27",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_28_supplier_seeded_first_writer_rows_confer_no_authority",
+   "expected": "the supplier seeds a claim FIRST (a different grant, every commitment recomputed, envelope consistent): it is REFUSED with 0 effects, and the honest claim still executes; the seeded rows confer no authority. The refusing control is recorded (existing approval-state validation or the pin lineage check)",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "effects_after_seeded": 0,
+    "final_counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "fa1-claim-1": "consumed",
+      "seeded": "issued"
+     },
+     "effects": 1,
+     "execution_claims_v1": 2
+    },
+    "honest_status": "executed",
+    "seeded_claim_verifies": true,
+    "seeded_error": "authoritative approval state invalid",
+    "seeded_provision_error": null,
+    "seeded_status": "denied",
+    "seeded_typed": null
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-28",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_29_installer_preconditions_install_no_pin_for_unsupported_authority",
+   "expected": "an expired grant, a host binding that no longer matches the committed catalogue, an unknown decision and a non-active/unknown assessment each produce NO pin; the Control Plane export raises, and the installer refuses and LOGS what reaches it",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "control_plane_export": {
+     "catalogue_or_binding_mismatch": "PermissionError: host policy binding digest does not match the configured profile",
+     "expired_grant": "returned state=unknown payload=none",
+     "unknown_decision": "PermissionError: decision is not the immutable persisted decision"
+    },
+    "installer_garbage": "refused",
+    "installer_unknown_state": "refused",
+    "pin_rows": 0,
+    "refusals_logged": 2
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-29",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08-fa1/test_fa1_software.py::test_fa1_06b_pin_paths_and_options_are_host_only",
+   "expected": "(b) a caller cannot redirect the pin store, anchor or fence through executor/destination arguments, attributes or a claim member: unexpected arguments raise TypeError, the frozen configuration attributes raise AttributeError, and a claim carrying a path member is rejected or ignored with the host-configured paths unchanged. In-process attribute freezing is defence in depth, NOT an isolation boundary",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "attempts": {
+     "claim_with_path_member": "rejected:PermissionError",
+     "disable_required_property": "AttributeError",
+     "execute_claim_atomic_kwarg": "TypeError",
+     "executor_execute_kwarg": "TypeError",
+     "rebind_config_attribute": "AttributeError",
+     "rebind_reader_attribute": "AttributeError"
+    },
+    "config_unchanged": true,
+    "governed_execution_after_attempts": "executed"
+   },
+   "outcome": "PASSED",
+   "scenario": "FA1-06",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Test design and execution by the Lead Builder session of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "FAILED": 1,
+  "PASSED": 29,
+  "SKIP": 0,
+  "executed": 30
+ },
+ "environment": {
+  "euid": 0,
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "0fd44d03d69aa49f8022472aedd0f8187a8e8ea9",
+  "registry": "1a4de32605519c505142b1ba3a57fa5b259b0b2c",
+  "runtime": "ad1805e22b1dee4f3201a228f85e1c4599bbebe5"
+ },
+ "harness_commit": "f187dadae6d5940256af90dbb75fd3e025e481cf",
+ "historical_v08_assessment": "7b72de9ac7e4898c0f9bdad3e9b337775cc9c543",
+ "run_number": 1,
+ "schema": "v08-fa1-results/1",
+ "verdicts": {
+  "CHARACTERIZED": 1,
+  "HELD": 28,
+  "INCONCLUSIVE": 1
+ },
+ "worker": "lead"
+}

@@ -1,0 +1,39 @@
+name: Reasons successor candidate
+on:
+  pull_request:
+    paths:
+      - suites/reasons-successor/**
+      - process/registry-v1/reasons-successor-pin.proposed.v1.json
+      - .github/workflows/reasons-successor-candidate.yml
+  push:
+    paths:
+      - suites/reasons-successor/**
+      - process/registry-v1/reasons-successor-pin.proposed.v1.json
+      - .github/workflows/reasons-successor-candidate.yml
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: cogno-us/cognous-control-plane
+          ref: fff27ebf356007e1eb3bb24198efc7e3e3f0c5eb
+          path: components/control_plane
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --require-hashes -r .github/locks/cryptography-pydantic-pytest-a9a750.txt
+      - run: python -m pytest suites/reasons-successor -q -p no:cacheprovider
+        env:
+          REASONS_CP_DIR: ${{ github.workspace }}/components/control_plane

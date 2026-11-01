@@ -1,0 +1,160 @@
+{
+  "actual_effects_executed": false,
+  "checks": [
+    {
+      "check": "exchange_exact_source/control_plane",
+      "expected_revision": "c7f122ba3a6e39f9268a7163c99be3ee514cd97e",
+      "observed_revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b",
+      "passed": false
+    },
+    {
+      "check": "exchange_exact_source/moltbot_safe",
+      "expected_revision": "309e194c1b0a3de23e11e20133e6eaf88875e48a",
+      "observed_revision": "fd6b76fa0e85feb5b67324114bf790d3a12fdaf1",
+      "passed": false
+    },
+    {
+      "check": "exchange_exact_source/replay_bundle",
+      "expected_revision": "83fbaf2a0f6f071aca1ea0af859eb8fc6385c26a",
+      "observed_revision": "733e282bf5af82787e2f4e146a378b94df15869a",
+      "passed": false
+    },
+    {
+      "check": "exchange_exact_source/odes",
+      "expected_revision": "25c7ad608c2e6fd9f450e075db6bbf3ee4091a49",
+      "observed_revision": "42d0893217b82c22dcbdc47a19a3e25d074e7078",
+      "passed": false
+    },
+    {
+      "check": "exchange_exact_source/governance_evidence_pack",
+      "expected_revision": "1e789c7d67a897097445faef1813fb0cd22d55e5",
+      "observed_revision": "3090ef7b715bf109e786632e2be4b2a2008a5a7f",
+      "passed": false
+    },
+    {
+      "check": "exchange_exact_source/action_manifest",
+      "expected_revision": "46c950bed37fe3812000895430bc0312d29e37ce",
+      "observed_revision": "e385f8c19b4444817a8b84b72ed6edbc37deb807",
+      "passed": false
+    },
+    {
+      "check": "replay_control_plane_admission",
+      "observed_revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b",
+      "passed": false,
+      "supported_revisions": [
+        "283500652d47a692fb0b99a1172a6d5faffbd9a7",
+        "2ea9528eeb87e14ff10f05de06473122b9df540f",
+        "248d899634d9db3518e831bc7ab568a48733f825",
+        "d3dadee70bd319812b207389ab1e0f6efe511916",
+        "c7f122ba3a6e39f9268a7163c99be3ee514cd97e",
+        "2a17b2ba147462a592d9b1882aad09d8a3eb7904"
+      ]
+    },
+    {
+      "check": "odes_control_plane_admission",
+      "observed_revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b",
+      "passed": false,
+      "supported_revisions": [
+        "283500652d47a692fb0b99a1172a6d5faffbd9a7",
+        "2ea9528eeb87e14ff10f05de06473122b9df540f",
+        "248d899634d9db3518e831bc7ab568a48733f825",
+        "d3dadee70bd319812b207389ab1e0f6efe511916",
+        "c7f122ba3a6e39f9268a7163c99be3ee514cd97e"
+      ]
+    },
+    {
+      "check": "evidence_pack_control_plane_admission",
+      "observed_revision": "996baeb476c8745b1a58ddc968b9eecc6a39b76b",
+      "passed": false,
+      "supported_revisions": [
+        "283500652d47a692fb0b99a1172a6d5faffbd9a7",
+        "2ea9528eeb87e14ff10f05de06473122b9df540f",
+        "248d899634d9db3518e831bc7ab568a48733f825",
+        "d3dadee70bd319812b207389ab1e0f6efe511916",
+        "c7f122ba3a6e39f9268a7163c99be3ee514cd97e",
+        "2a17b2ba147462a592d9b1882aad09d8a3eb7904"
+      ]
+    }
+  ],
+  "invocations": [
+    {
+      "exception": "RuntimeError",
+      "message": "candidate source identity mismatch: agent_control_plane.bounded",
+      "operation": "exchange_load_executor_runtime"
+    },
+    {
+      "exception": "ImportContractError",
+      "message": "unsupported Control Plane revision",
+      "operation": "replay_current_control_plane"
+    }
+  ],
+  "limitations": [
+    "Admission mapping inspection and two actual API refusals only; no scenario success is asserted.",
+    "The empty Replay record probes revision rejection before payload parsing; it is not a valid execution fixture.",
+    "No compatibility constants, source revisions, tests or validation rules were patched."
+  ],
+  "loaded_sources": {
+    "agent_governance_evidence_pack.importer": {
+      "path": "governance_evidence_pack/src/agent_governance_evidence_pack/importer.py",
+      "sha256": "768068180f73e2288698290c43040f1cd5d16cc53b1ccf2a726af2a82c1884cb"
+    },
+    "agent_replay_bundle.importers": {
+      "path": "replay_bundle/src/agent_replay_bundle/importers.py",
+      "sha256": "0795d7947631ef494008690d96c7fdc2aeddf851ff9239cbc754df519393ccf1"
+    },
+    "experiments.odex_gax_imx_reference.gax_ref_runtime": {
+      "path": "gax_imx_transport/experiments/odex_gax_imx_reference/gax_ref_runtime.py",
+      "sha256": "57b620f6445974b09679255bd183776ccad715fbff87315db9e350616bf0d47b"
+    },
+    "odes.common": {
+      "path": "odes/src/odes/common.py",
+      "sha256": "cdaa08962f1cdfd1be5c4ed297df8ec1fe0cbb49eef5c6b96cac2d72726ad153"
+    }
+  },
+  "pins": {
+    "action_manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "sha": "e385f8c19b4444817a8b84b72ed6edbc37deb807",
+      "tree": "fc718989e7f15422e18af2b2f45107569fa4abac"
+    },
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "sha": "996baeb476c8745b1a58ddc968b9eecc6a39b76b",
+      "tree": "971b954e77fb8429fa8a76074e0a6be0ac238cfa"
+    },
+    "gax_imx_transport": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "sha": "71d1a113d43be48da782a57dc8314f317ce7e4cf",
+      "tree": "07cb43766936fe6f8cdb3017392bdab17e6e7dbc"
+    },
+    "governance_evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "sha": "3090ef7b715bf109e786632e2be4b2a2008a5a7f",
+      "tree": "195ea324c6e971e7d54190b55c36424e72079c11"
+    },
+    "moltbot_safe": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "sha": "fd6b76fa0e85feb5b67324114bf790d3a12fdaf1",
+      "tree": "25141b96a33506c409a1078a15f5a19e6b5d8f14"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "sha": "42d0893217b82c22dcbdc47a19a3e25d074e7078",
+      "tree": "ad75494aa91a482aeaf232599c7f291a72238ebe"
+    },
+    "replay_bundle": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "sha": "733e282bf5af82787e2f4e146a378b94df15869a",
+      "tree": "8cddb4d8b92dcf96684a89f0057dbfa10fd49a40"
+    }
+  },
+  "production_deployment_authorized": false,
+  "profile_sha256": "bb1a7819483c9289f18aa296b0a8c09399e85222b13db782b3e28560551323c2",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "reference_release_authorized": false,
+  "runner_sha256": "818880e447fc91986e76fe28680487af9c3b0652c251aa3f8b7944a287076a1e",
+  "scenario_execution": "NOT RUN: source admission prerequisite fails",
+  "schema": "cognous.final-source-preflight/1",
+  "selected": false,
+  "source_admission_passed": false
+}

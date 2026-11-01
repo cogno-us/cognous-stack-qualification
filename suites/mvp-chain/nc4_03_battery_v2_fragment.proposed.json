@@ -1,0 +1,1056 @@
+{
+ "schema": "cognous.mvp-mandatory-battery-fragment/1",
+ "status": "PROPOSED fragment for battery v2 (Worker B2). Apply on top of mandatory-battery.proposed.v1.json (v1 is never edited).",
+ "pending_rows": [],
+ "remove": "pending_rows[0] (placeholder NC4-03-origin-rule-negative-mutations, rows: []) is deleted; battery v2 carries pending_rows: [] (G-14 passes: no placeholder remains)",
+ "oracle": {
+  "expectations_in_force": "process/mvp-chain/expectations.proposed.v8.json (NC4-03 changed, NC4-03a..d added, per nc4_03_oracle_v8_fragment.proposed.json)"
+ },
+ "invocations_mvp_chain_paths_add": [
+  "suites/mvp-chain/test_nc4_03_mutation_set.py",
+  "suites/mvp-chain/test_nc4_03_host_subcases.py"
+ ],
+ "unchanged": "the 183 supplementary_nc4_03_predicate entries KW-001..KW-183 (test_kwflow.py) and NC4-03's oracle_row entry test_row[NC4-03] stay as in v1",
+ "tests_added": [
+  {
+   "id": "NC4-03a",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC4-03a]",
+   "row": "NC4-03a"
+  },
+  {
+   "id": "NC4-03b",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC4-03b]",
+   "row": "NC4-03b"
+  },
+  {
+   "id": "NC4-03c",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC4-03c]",
+   "row": "NC4-03c"
+  },
+  {
+   "id": "NC4-03d",
+   "kind": "oracle_row",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_mvp_chain.py",
+   "test": "test_row[NC4-03d]",
+   "row": "NC4-03d"
+  },
+  {
+   "id": "NM-001",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_every_mutation_and_control_is_fully_specified_with_the_six_fields"
+  },
+  {
+   "id": "NM-002",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_every_family_has_a_negative_control_pair_or_a_noop"
+  },
+  {
+   "id": "NM-003",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_every_rule_the_predicate_can_emit_is_the_expected_rejection_of_at_least_one_mutation"
+  },
+  {
+   "id": "NM-004",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_set_is_declared_deterministic_and_host_independent_and_is_not_the_host_file"
+  },
+  {
+   "id": "NM-005",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_set_target_equals_the_predicate_constants_and_the_pinned_hub"
+  },
+  {
+   "id": "NM-006",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_malformed_sets_are_rejected_by_the_structure_check"
+  },
+  {
+   "id": "NM-007",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M001]"
+  },
+  {
+   "id": "NM-008",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M002]"
+  },
+  {
+   "id": "NM-009",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M003]"
+  },
+  {
+   "id": "NM-010",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M004]"
+  },
+  {
+   "id": "NM-011",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M005]"
+  },
+  {
+   "id": "NM-012",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M006]"
+  },
+  {
+   "id": "NM-013",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M007]"
+  },
+  {
+   "id": "NM-014",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M008]"
+  },
+  {
+   "id": "NM-015",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M009]"
+  },
+  {
+   "id": "NM-016",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M010]"
+  },
+  {
+   "id": "NM-017",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M011]"
+  },
+  {
+   "id": "NM-018",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M012]"
+  },
+  {
+   "id": "NM-019",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M013]"
+  },
+  {
+   "id": "NM-020",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M014]"
+  },
+  {
+   "id": "NM-021",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M015]"
+  },
+  {
+   "id": "NM-022",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M016]"
+  },
+  {
+   "id": "NM-023",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M017]"
+  },
+  {
+   "id": "NM-024",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M018]"
+  },
+  {
+   "id": "NM-025",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M019]"
+  },
+  {
+   "id": "NM-026",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M020]"
+  },
+  {
+   "id": "NM-027",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M021]"
+  },
+  {
+   "id": "NM-028",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M022]"
+  },
+  {
+   "id": "NM-029",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M023]"
+  },
+  {
+   "id": "NM-030",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M024]"
+  },
+  {
+   "id": "NM-031",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M025]"
+  },
+  {
+   "id": "NM-032",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M026]"
+  },
+  {
+   "id": "NM-033",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M027]"
+  },
+  {
+   "id": "NM-034",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M028]"
+  },
+  {
+   "id": "NM-035",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M029]"
+  },
+  {
+   "id": "NM-036",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M030]"
+  },
+  {
+   "id": "NM-037",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M031]"
+  },
+  {
+   "id": "NM-038",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M032]"
+  },
+  {
+   "id": "NM-039",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M033]"
+  },
+  {
+   "id": "NM-040",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M034]"
+  },
+  {
+   "id": "NM-041",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M035]"
+  },
+  {
+   "id": "NM-042",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M036]"
+  },
+  {
+   "id": "NM-043",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M037]"
+  },
+  {
+   "id": "NM-044",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M038]"
+  },
+  {
+   "id": "NM-045",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M039]"
+  },
+  {
+   "id": "NM-046",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M040]"
+  },
+  {
+   "id": "NM-047",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M041]"
+  },
+  {
+   "id": "NM-048",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M042]"
+  },
+  {
+   "id": "NM-049",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M043]"
+  },
+  {
+   "id": "NM-050",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M044]"
+  },
+  {
+   "id": "NM-051",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M045]"
+  },
+  {
+   "id": "NM-052",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M046]"
+  },
+  {
+   "id": "NM-053",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M047]"
+  },
+  {
+   "id": "NM-054",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M048]"
+  },
+  {
+   "id": "NM-055",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M049]"
+  },
+  {
+   "id": "NM-056",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M050]"
+  },
+  {
+   "id": "NM-057",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M051]"
+  },
+  {
+   "id": "NM-058",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M052]"
+  },
+  {
+   "id": "NM-059",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M053]"
+  },
+  {
+   "id": "NM-060",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M054]"
+  },
+  {
+   "id": "NM-061",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M055]"
+  },
+  {
+   "id": "NM-062",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M056]"
+  },
+  {
+   "id": "NM-063",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M057]"
+  },
+  {
+   "id": "NM-064",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M058]"
+  },
+  {
+   "id": "NM-065",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M059]"
+  },
+  {
+   "id": "NM-066",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M060]"
+  },
+  {
+   "id": "NM-067",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M061]"
+  },
+  {
+   "id": "NM-068",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M062]"
+  },
+  {
+   "id": "NM-069",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M063]"
+  },
+  {
+   "id": "NM-070",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M064]"
+  },
+  {
+   "id": "NM-071",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M065]"
+  },
+  {
+   "id": "NM-072",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M066]"
+  },
+  {
+   "id": "NM-073",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M067]"
+  },
+  {
+   "id": "NM-074",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M068]"
+  },
+  {
+   "id": "NM-075",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_is_rejected_as_expected[M069]"
+  },
+  {
+   "id": "NM-076",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-FIELD-NOOP]"
+  },
+  {
+   "id": "NM-077",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-FIELD-BENIGN]"
+  },
+  {
+   "id": "NM-078",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-BINDING-NOOP]"
+  },
+  {
+   "id": "NM-079",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-BINDING-BENIGN]"
+  },
+  {
+   "id": "NM-080",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-LITERAL-NOOP]"
+  },
+  {
+   "id": "NM-081",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-LITERAL-BENIGN]"
+  },
+  {
+   "id": "NM-082",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-OBJECT-NOOP]"
+  },
+  {
+   "id": "NM-083",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-OBJECT-BENIGN]"
+  },
+  {
+   "id": "NM-084",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-FIXEDFORM-NOOP]"
+  },
+  {
+   "id": "NM-085",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-OR-FIXEDFORM-BENIGN]"
+  },
+  {
+   "id": "NM-086",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-GENERIC-FORWARD-NOOP]"
+  },
+  {
+   "id": "NM-087",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-GENERIC-FORWARD-BENIGN]"
+  },
+  {
+   "id": "NM-088",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_is_accepted_so_the_predicate_cannot_false_pass[C-PIN-NOOP]"
+  },
+  {
+   "id": "NM-089",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_does_not_satisfy_any_rejection_predicate_of_its_family[OR-FIELD]"
+  },
+  {
+   "id": "NM-090",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_does_not_satisfy_any_rejection_predicate_of_its_family[OR-BINDING]"
+  },
+  {
+   "id": "NM-091",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_does_not_satisfy_any_rejection_predicate_of_its_family[OR-LITERAL]"
+  },
+  {
+   "id": "NM-092",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_does_not_satisfy_any_rejection_predicate_of_its_family[OR-OBJECT]"
+  },
+  {
+   "id": "NM-093",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_does_not_satisfy_any_rejection_predicate_of_its_family[OR-FIXEDFORM]"
+  },
+  {
+   "id": "NM-094",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_does_not_satisfy_any_rejection_predicate_of_its_family[GENERIC-FORWARD]"
+  },
+  {
+   "id": "NM-095",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_control_does_not_satisfy_any_rejection_predicate_of_its_family[PIN]"
+  },
+  {
+   "id": "NM-096",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_deterministic_record_passes_and_is_stable_across_runs"
+  },
+  {
+   "id": "NM-097",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_deterministic_record_is_identical_under_a_different_host_environment"
+  },
+  {
+   "id": "NM-098",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_mutation_runner_never_touches_host_apis_or_the_host_module"
+  },
+  {
+   "id": "NM-099",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_a_scanner_that_accepts_everything_cannot_pass_the_set"
+  },
+  {
+   "id": "NM-100",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_a_scanner_that_rejects_everything_cannot_pass_the_set"
+  },
+  {
+   "id": "NM-101",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_an_unapplied_mutation_is_never_counted_as_rejected"
+  },
+  {
+   "id": "NM-102",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_wrong_interpreter_or_missing_input_is_blocked_never_pass"
+  },
+  {
+   "id": "NM-103",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_a_different_hub_tree_is_fail_never_pass"
+  },
+  {
+   "id": "NM-104",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_the_pinned_checkout_is_not_modified_by_a_run"
+  },
+  {
+   "id": "NM-105",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[all_blocked-PASS]"
+  },
+  {
+   "id": "NM-106",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[all_blocked-FAIL]"
+  },
+  {
+   "id": "NM-107",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[all_fail-PASS]"
+  },
+  {
+   "id": "NM-108",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[all_fail-FAIL]"
+  },
+  {
+   "id": "NM-109",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[all_pass-PASS]"
+  },
+  {
+   "id": "NM-110",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[all_pass-FAIL]"
+  },
+  {
+   "id": "NM-111",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[mixed-PASS]"
+  },
+  {
+   "id": "NM-112",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_host_results_never_alter_or_obscure_the_deterministic_verdict[mixed-FAIL]"
+  },
+  {
+   "id": "NM-113",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_nc4_03_keeps_every_v7_predicate_unchanged_except_the_scenario_prefix"
+  },
+  {
+   "id": "NM-114",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_fragment_rows_are_complete_mandatory_and_placeholder_free"
+  },
+  {
+   "id": "NM-115",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_fragment_mutation_set_predicates_match_the_set_file"
+  },
+  {
+   "id": "NM-116",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_nc4_03_row_evaluates_pass_on_the_deterministic_observation_and_ignores_the_host_scenario"
+  },
+  {
+   "id": "NM-117",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_nc4_03_row_is_fail_when_the_deterministic_mutation_set_fails"
+  },
+  {
+   "id": "NM-118",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[PASS-PASS-NC4-03a]"
+  },
+  {
+   "id": "NM-119",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[PASS-PASS-NC4-03b]"
+  },
+  {
+   "id": "NM-120",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[PASS-PASS-NC4-03c]"
+  },
+  {
+   "id": "NM-121",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[PASS-PASS-NC4-03d]"
+  },
+  {
+   "id": "NM-122",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[BLOCKED-BLOCKED-NC4-03a]"
+  },
+  {
+   "id": "NM-123",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[BLOCKED-BLOCKED-NC4-03b]"
+  },
+  {
+   "id": "NM-124",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[BLOCKED-BLOCKED-NC4-03c]"
+  },
+  {
+   "id": "NM-125",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[BLOCKED-BLOCKED-NC4-03d]"
+  },
+  {
+   "id": "NM-126",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[FAIL-FAIL-NC4-03a]"
+  },
+  {
+   "id": "NM-127",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[FAIL-FAIL-NC4-03b]"
+  },
+  {
+   "id": "NM-128",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[FAIL-FAIL-NC4-03c]"
+  },
+  {
+   "id": "NM-129",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_map_each_host_status_to_the_same_oracle_status[FAIL-FAIL-NC4-03d]"
+  },
+  {
+   "id": "NM-130",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_do_not_pass_on_a_harness_written_status_string_alone[NC4-03a]"
+  },
+  {
+   "id": "NM-131",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_do_not_pass_on_a_harness_written_status_string_alone[NC4-03b]"
+  },
+  {
+   "id": "NM-132",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_do_not_pass_on_a_harness_written_status_string_alone[NC4-03c]"
+  },
+  {
+   "id": "NM-133",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_v8_host_rows_do_not_pass_on_a_harness_written_status_string_alone[NC4-03d]"
+  },
+  {
+   "id": "NM-134",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_the_host_scenario_records_the_observed_facts_the_rows_assert"
+  },
+  {
+   "id": "NM-135",
+   "kind": "supplementary_nc4_03_mutation_set",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_mutation_set.py",
+   "test": "test_frozen_set_matches_its_derivation_from_the_supplementary_tables"
+  },
+  {
+   "id": "NM-136",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_every_host_subcase_is_fully_specified_with_the_six_fields_and_is_separate"
+  },
+  {
+   "id": "NM-137",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_host_record_is_well_formed_on_any_host"
+  },
+  {
+   "id": "NM-138",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_developer_optout_can_never_be_pass"
+  },
+  {
+   "id": "NM-139",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_unknown_profile_blocks_identity_subcases_only"
+  },
+  {
+   "id": "NM-140",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_a_probe_exception_blocks_that_subcase_only"
+  },
+  {
+   "id": "NM-141",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_scenario_observation_never_marks_the_whole_scenario_blocked"
+  },
+  {
+   "id": "NM-142",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_real_host_record_cannot_change_a_deterministic_record"
+  },
+  {
+   "id": "NM-143",
+   "kind": "supplementary_nc4_03_host_subcases",
+   "invocation": "mvp-chain",
+   "file": "suites/mvp-chain/test_nc4_03_host_subcases.py",
+   "test": "test_host_module_does_not_import_the_mutation_runner"
+  }
+ ],
+ "counts": {
+  "oracle_row_entries_added": 4,
+  "supplementary_entries_added": 143,
+  "tests_added_total": 147,
+  "pending_rows_before": 1,
+  "pending_rows_after": 0
+ }
+}

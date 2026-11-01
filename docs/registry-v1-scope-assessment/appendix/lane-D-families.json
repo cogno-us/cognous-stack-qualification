@@ -1,0 +1,3704 @@
+{
+ "meta": {
+  "lane": "D",
+  "pins": {
+   "control_plane": "7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+   "runtime": "c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+   "qualification": "998d39c5ba1c9d537be8289f7658f2e9cde6cbba",
+   "earlier_r07_runtime": "ec728da6dc301a664b331ac8986afd6e850a1273",
+   "earlier_r07_cp": "0a41faa972699f7ec3063967a14cd9bdd3e67d27"
+  },
+  "complexity_scale": {
+   "definition": "Ordinal implementation-complexity score for migrating the family's configurable fields to registry-managed typed records. Rule-based so it can be audited; it measures engineering/decision burden, NOT security value or customer value. Label: REASONED INFERENCE (lane D's own scale; not an R07 construct).",
+   "levels": {
+    "1": "At most 3 fields; one component; composition definable (set/min) and bounded differential evidence already exists (S05 for F1a).",
+    "2": "At most 5 fields; one component; composition definable without any open decision; no differential evidence yet.",
+    "3": "Typed non-set payload, scattered literals, or a must-agree pair across two components; composition definable per scalar below a code floor; no open critical decision (only low-priority classification).",
+    "4": "Composition conditional on an unruled decision (D4/D5/D6/D12, or a critical D1 row) OR cross-component binding is required OR a Tier 1 UNRESOLVED S02 row sits on the family.",
+    "5": "Composition not definable under current evidence (new semantics or a security-weakening mode) OR two or more independent level-4 triggers across components."
+   }
+  },
+  "citation_prefixes": {
+   "RT": "Runtime head",
+   "CP": "Control Plane head",
+   "REG": "registry-main docs",
+   "Q": "qualification repo",
+   "OCS": "open-control-stack 51c579a"
+  }
+ },
+ "families": [
+  {
+   "family": "F1a",
+   "title": "LocalExecutionPolicy allow-sets: units, adapters, actions",
+   "definition_source": [
+    {
+     "claim": "R07 02 defines F1a as allowed_units, allowed_adapters, allowed_actions; S02 section 6 narrowed the first increment to exactly these three.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:42",
+      "REG:docs/s02-inventory.md:76"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "allowed_units",
+     "type": "frozenset[str] of non-empty str (empty frozenset is accepted by the constructor)",
+     "cite": "RT:engine/safe_executor.py:365"
+    },
+    {
+     "field": "allowed_adapters",
+     "type": "frozenset[str]",
+     "cite": "RT:engine/safe_executor.py:362"
+    },
+    {
+     "field": "allowed_actions",
+     "type": "frozenset[str]",
+     "cite": "RT:engine/safe_executor.py:363"
+    }
+   ],
+   "evaluator": {
+    "component": "Runtime",
+    "entries": [
+     {
+      "claim": "LocalExecutionPolicy.check: adapter membership at 417-418, action at 419-420, unit at 423-424 (class 359-372, __post_init__ 374-395, check 410-430).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:359",
+       "RT:engine/safe_executor.py:374",
+       "RT:engine/safe_executor.py:410",
+       "RT:engine/safe_executor.py:417",
+       "RT:engine/safe_executor.py:419",
+       "RT:engine/safe_executor.py:423"
+      ]
+     },
+     {
+      "claim": "Call sites of check: Route A observe (control_plane_adapter.py:101), LocalDestinationExecutor.execute_snapshot (safe_executor.py:890), Route B AtomicLocalControlPlaneExecutor.execute (atomic_local_control_plane_executor.py:69).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/control_plane_adapter.py:101",
+       "RT:engine/safe_executor.py:890",
+       "RT:engine/atomic_local_control_plane_executor.py:69"
+      ]
+     }
+    ],
+    "cp_involvement": "None. No Control Plane source references LocalExecutionPolicy or safe_executor (grep)."
+   },
+   "source_revision": {
+    "read_at": "Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f (safe_executor.py git blob 2fc880dae37eac76e5074533435740ce0684209d, equal to the blob R07/R08 state for the S01/S03 pin)",
+    "r07_read_at": "Runtime ec728da6dc301a664b331ac8986afd6e850a1273",
+    "match_with_r07_claims": {
+     "claim": "File content matches R07 03/06 claims: fields 358-372, __post_init__ 374-395, check 410-430 all verified at the head; blob hash equals the value stated in r08-preparation/10 and r10-feasibility.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:358",
+      "REG:docs/r08-preparation/10-source-revision-reconciliation-and-review-closure.md:25"
+     ]
+    },
+    "history_check": {
+     "claim": "Cannot diff against ec728da6: the local clone has no history for that object. Equality of safe_executor.py rests on the matching blob hash (SOURCE FACT) and on doc 10's statement that only local_authority_effect.py differs (REPORTED).",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Host code constructs a frozen LocalExecutionPolicy with Python literals and passes it to the executor; no file, environment or registry mechanism exists. Examples: Runtime README demo (README.md:82-86) and the OCS synthetic ingress host (OCS repo tools/mvp_ingress/synthetic_host.py:126-130, read at OCS head 51c579a; note the brief lists this repo as not cloned, but it is present locally).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:README.md:82",
+      "OCS:tools/mvp_ingress/synthetic_host.py:126",
+      "RT:engine/control_plane_adapter.py:56",
+      "RT:engine/atomic_local_control_plane_executor.py:14"
+     ]
+    },
+    {
+     "claim": "How a production operator or customer constructs the policy is not established: no production caller exists in the sources read (destination is synthetic SQLite).",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Fixed check order institution, authority-domain, adapter, action, target, unit, amount, one-effect, effect-count and the exact reason texts.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:410"
+     ]
+    },
+    {
+     "claim": "__post_init__ fail-closed construction: sets must be exact frozenset of non-empty str; prefixes non-empty; mode in vocabulary.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:374"
+     ]
+    },
+    {
+     "claim": "Strict number validators (bool/subclass excluded, finite, non-negative, ints <= 2**53) and exact-one-effect rule on the operation.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:252",
+      "RT:engine/safe_executor.py:267",
+      "RT:engine/safe_executor.py:316"
+     ]
+    },
+    {
+     "claim": "Target well-formedness and match-mode vocabulary (M1/F2; out of scope for F1a).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:343",
+      "RT:engine/safe_executor.py:347"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "allowed_units / allowed_adapters / allowed_actions",
+     "units": "set of opaque exact strings (no wildcards, 1-128 chars per S03)",
+     "order": "none (unordered set)",
+     "floor_ceiling": "No numeric floor. Empty effective set = deny-all for that dimension.",
+     "tightening_direction": "Intersection: effective = caller INTERSECT registry; a registry value never widens the caller.",
+     "unsupported_case_outcome": "Optional-overlay refusal leaves caller policy unchanged (S04, T7); mandatory profile must DENY/HOLD (D7, not authorized).",
+     "status": "Established for the bounded trusted-host, inactive profile by S05 differential evidence (builder-authored oracle, T10); NOT a proof; does not transfer to a successor contract.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:20",
+      "REG:docs/r08-preparation/05-minimum-operational-profile.md:13"
+     ]
+    },
+    {
+     "field": "deny-all representation",
+     "units": "n/a",
+     "order": "n/a",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "n/a",
+     "unsupported_case_outcome": "Frozen S03 refuses empty lists, so deny-all cannot be authored in a record (successor contract, R08 E-03/V4). The Runtime constructor itself accepts an empty frozenset (verified by constructing the dataclass locally); this contradicts a statement in r10-feasibility that __post_init__ refuses empty sets (true only for allowed_target_prefixes).",
+     "status": "MISMATCH recorded (see limitations)",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:374"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "F1a/F1b/F1c/F1d are one dataclass and one check(); a registry record for F1a only leaves the other six dimensions caller-owned. The five set fields and the numeric/target fields are evaluated in one fixed order, so partial registry coverage does not change order.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:410"
+     ]
+    },
+    {
+     "claim": "F1a values must be coherent with Control Plane manifest action ids and adapter ids (op fields come from the validated CP binding); no code binds the two sets, the host integrator does (C-01 unnamed).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/r08-preparation/08-decisions-and-dependencies.md:29"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D2",
+     "D3",
+     "D7",
+     "D13",
+     "D11 (sequencing; F1b preferred next)"
+    ],
+    "s02_unresolved_rows": [],
+    "note": "R08 05 states F1a/F1b were not found to depend on an unresolved S02 row beyond the shared S06 deny-all/refusal questions; the dependence was not adjudicated (do not treat as cleared).",
+    "other_open": [
+     "V1-V6 (selection fields, effective-policy binding, lifecycle vocabulary, deny-all, participation granularity, MSOP)",
+     "R10 F1 effect-time gap UNQUALIFIED (policy.check runs outside the atomic transaction)"
+    ]
+   },
+   "tests": [
+    {
+     "id": "suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_a_stricter_local_policy_overrides_institutional_authorization[adapter|action|unit]",
+     "scenario": "C11",
+     "what": "Replaces allowed_adapters/actions/units with disjoint values on the real Route A flow; asserts refusal, no destination mutation, no attempt.",
+     "cite": "Q:suites/v1-scenarios/test_scn_c11.py:176"
+    },
+    {
+     "id": "suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_b_stricter_local_policy_overrides_claimed_authority[adapter|action|unit]",
+     "scenario": "C11",
+     "what": "Same on Route B (atomic claim).",
+     "cite": "Q:suites/v1-scenarios/test_scn_c11.py:202"
+    },
+    {
+     "id": "suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_out_of_scope_operation_denied_with_no_effect[adapter_id|action_id|unit]",
+     "scenario": null,
+     "what": "Direct evaluator probe with positive control.",
+     "cite": "Q:suites/v1-probes/test_runtime_probes.py:115"
+    },
+    {
+     "id": "suites/wiki-derived/test_wp_d_manifest_change_control.py (assert 'local action restriction' in res.error, line 740)",
+     "scenario": null,
+     "what": "Asserts the exact action-restriction reason text.",
+     "cite": "Q:suites/wiki-derived/test_wp_d_manifest_change_control.py:740"
+    },
+    {
+     "id": "suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_local_restriction_prevents_sandbox_dispatch",
+     "scenario": "C11 (coverage-map)",
+     "what": "Local restriction prevents sandbox dispatch.",
+     "cite": "Q:suites/cognous-execution-runtime/tests/test_openshell_environment.py:244"
+    }
+   ],
+   "tests_note": "Run state of these tests (PASS/FAIL/NOT RUN) was not assessed in this lane; coverage-map.json marks scenario_verdict NOT RUN for C11 and mapping_status PARTIAL (UNVERIFIED beyond that). S05 differential evidence lives in the registry repo (not read here). Component-local tests that also exercise the check (Runtime tests/test_route_a_local_policy_reason.py, tests/test_exact_target_matching.py) are NOT relocated into the qualification repo.",
+   "authenticated_selection_dependency": {
+    "status": "Pin-only S04 overlay exists for F1a, inactive, called by nothing; authenticated selection/activation not designed or approved (R08/R09 not passed).",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": [
+     {
+      "claim": "Architect-recommended MSOP Option 1 is F1a with all fourteen lifecycle elements, but the operator has NOT adopted any MSOP.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:80"
+      ]
+     }
+    ]
+   },
+   "complexity": {
+    "fields": 3,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Yes (intersection), established only for the bounded inactive profile",
+    "score": 1,
+    "rationale": "Three fields, one component, set intersection, bounded differential evidence exists. Score excludes the shared R08-R10 infrastructure, which dominates real cost.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Successor-contract differential battery against an independent oracle (S05 does not transfer; oracle was builder-authored).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/r08-preparation/09-implementation-readiness.md:35"
+     ]
+    },
+    {
+     "claim": "Mandatory-participation negatives: missing/expired/revoked/forged selection must HOLD/DENY, never fall back to the broader caller policy (D7).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67"
+     ]
+    },
+    {
+     "claim": "Effect-time evidence for the R10 gap: the F1 check runs before the atomic transaction; guarantee is UNQUALIFIED until an integration design exists.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/r10-feasibility/r10-effect-boundary-feasibility.md:17"
+     ]
+    },
+    {
+     "claim": "Empty-intersection / deny-all case, order-of-check preservation and reason-text equality tests.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:410"
+     ]
+    },
+    {
+     "claim": "Independent qualifier + oracle author designated first (D13/F-01).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+     ]
+    }
+   ],
+   "exclusion_effects_note": "See main report: if F1a is excluded, allow-sets remain host-code literals (works today); lost: central governance, rotation, audit of who set them. REASONED INFERENCE."
+  },
+  {
+   "family": "F1b",
+   "title": "LocalExecutionPolicy allow-sets: institutions, authority domains",
+   "definition_source": [
+    {
+     "claim": "R07 02 defines F1b as allowed_institutions and allowed_authority_domains; R07 04 fit code B (same type/check, new contract version because S03 `supplies` is fixed).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:42",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:21"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "allowed_institutions",
+     "type": "frozenset[str]",
+     "cite": "RT:engine/safe_executor.py:360"
+    },
+    {
+     "field": "allowed_authority_domains",
+     "type": "frozenset[str]",
+     "cite": "RT:engine/safe_executor.py:361"
+    }
+   ],
+   "evaluator": {
+    "component": "Runtime",
+    "entries": [
+     {
+      "claim": "LocalExecutionPolicy.check: institution at 413-414, authority-domain at 415-416. The same check also pins institution/domain via the trusted-context check in the Route A adapter (control_plane_adapter.py ~85-92).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:413",
+       "RT:engine/safe_executor.py:415",
+       "RT:engine/control_plane_adapter.py:90"
+      ]
+     }
+    ],
+    "cp_involvement": "Indirect: op.institution_id and op.authority_domain are copied from the CP-validated binding; the allow-set itself is Runtime-only."
+   },
+   "source_revision": {
+    "read_at": "Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+    "r07_read_at": "Runtime ec728da6dc301a664b331ac8986afd6e850a1273",
+    "match_with_r07_claims": {
+     "claim": "Same evaluator file/blob as F1a; check lines match R07.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:410"
+     ]
+    },
+    "history_check": {
+     "claim": "No history for ec728da6 locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Same as F1a: host-constructed LocalExecutionPolicy literals; additionally the Route A adapter takes trusted_institution_id / trusted_authority_domain as separate constructor values and compares them to the operation (a second, independent institution/domain check).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/control_plane_adapter.py:56",
+      "RT:engine/control_plane_adapter.py:90"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Check order and reason texts; trusted-context binding in the adapter; __post_init__ validation.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:410",
+      "RT:engine/safe_executor.py:374"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "allowed_institutions / allowed_authority_domains",
+     "units": "opaque exact strings",
+     "order": "none",
+     "floor_ceiling": "none numeric",
+     "tightening_direction": "Intersection with caller value (proposed in R07; same operator as F1a).",
+     "unsupported_case_outcome": "As F1a. Needs a new contract version because S03 refuses unknown fields.",
+     "status": "Definable; no differential evidence for these two fields (S05 covers F1a only).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:21",
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:48"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "Scope binding: a selection's tenant/institution scope (v1.2 section 3.1) and the policy's allowed_institutions are different layers; R08 05 notes F1b adds the scope-binding dimension but no new registry function.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/r08-preparation/05-minimum-operational-profile.md:73"
+     ]
+    },
+    {
+     "claim": "op.institution_id/op.authority_domain are produced by CP; Runtime adapter compares them to separately supplied trusted values. Registry set must contain the deployed values or all operations are refused.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/control_plane_adapter.py:90"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D11 (F1b recommended first extension; not authorized)",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [],
+    "note": "No UNRESOLVED S02 row maps to F1b (R07 02 lists W-rows only for F1c/F1d).",
+    "other_open": [
+     "E-10 whether F1b joins as an additive second increment",
+     "V1-V6"
+    ]
+   },
+   "tests": [
+    {
+     "id": "suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_a_stricter_local_policy_overrides_institutional_authorization[institution|authority_domain]",
+     "scenario": "C11",
+     "what": "Disjoint institution/domain sets refuse an authorized decision.",
+     "cite": "Q:suites/v1-scenarios/test_scn_c11.py:176"
+    },
+    {
+     "id": "suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_b_stricter_local_policy_overrides_claimed_authority[institution|authority_domain]",
+     "scenario": "C11",
+     "what": "Route B same.",
+     "cite": "Q:suites/v1-scenarios/test_scn_c11.py:202"
+    },
+    {
+     "id": "suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_out_of_scope_operation_denied_with_no_effect[institution_id|authority_domain]",
+     "scenario": null,
+     "what": "Direct evaluator probe.",
+     "cite": "Q:suites/v1-probes/test_runtime_probes.py:115"
+    },
+    {
+     "id": "suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py::test_actor_principal_institution_domain_substitution",
+     "scenario": "C18 (coverage-map)",
+     "what": "Identity substitution; supporting only per coverage-map gap text.",
+     "cite": "Q:suites/cognous-open-control-stack/tests/test_paired_request_enforcement.py"
+    }
+   ],
+   "tests_note": "Run state not assessed. C11 mapping_status PARTIAL, scenario_verdict NOT RUN in coverage-map.json.",
+   "authenticated_selection_dependency": {
+    "status": "Same as F1a; additionally a contract version change is required; D11 ruling names F1b the preferred first extension but authorizes nothing.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 2,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Yes (intersection); no evidence yet",
+    "score": 2,
+    "rationale": "Two fields, same evaluator and type as F1a; needs successor contract and a new battery.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "New differential battery (S05 machinery reusable only if the qualifier re-approves expectations).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/r08-preparation/09-implementation-readiness.md:35"
+     ]
+    },
+    {
+     "claim": "Test that a registry set that omits the deployed institution refuses everything (fail-closed, not fail-open) and that the adapter trusted-context check still applies independently.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/control_plane_adapter.py:90"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F1c",
+   "title": "LocalExecutionPolicy ceilings: max_amount, max_effects",
+   "definition_source": [
+    {
+     "claim": "R07 02 defines F1c as max_amount and max_effects; R07 04 fit code C (numeric payload; W1-015 binary64 handling; W8-091 origin).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:42",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:22"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "max_amount",
+     "type": "int or float, exact builtin types only, finite, non-negative, ints <= 2**53 (bool excluded); one unit-less number compared against float(op.amount) regardless of op.unit",
+     "cite": "RT:engine/safe_executor.py:366"
+    },
+    {
+     "field": "max_effects",
+     "type": "exact int >= 1; compared against op.effective_max_effects (the grant-derived cap), NOT against op.effects (which must equal exactly 1)",
+     "cite": "RT:engine/safe_executor.py:367"
+    }
+   ],
+   "evaluator": {
+    "component": "Runtime (policy ceiling) with operand origin in Control Plane",
+    "entries": [
+     {
+      "claim": "LocalExecutionPolicy.check: amount ceiling 425-426 (`float(op.amount) > max_amount`); one-effect rule 427-428; effect-count ceiling 429-430.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:425",
+       "RT:engine/safe_executor.py:427",
+       "RT:engine/safe_executor.py:429"
+      ]
+     },
+     {
+      "claim": "Operand effective_max_effects is minimum of requirement permission max_effects, grant permission max_effects, and action effect_limits.max_effects (default proposal effects) in BoundedAuthorizationWorkflow._resolve_inputs.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:2570"
+      ]
+     },
+     {
+      "claim": "CP carries it into the claim (local_authority_effect.py:449; R07 03 cites :443, which is the pre-head coordinate - see limitations) and the dispatch (bounded.py:1797).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/local_authority_effect.py:449",
+       "CP:src/agent_control_plane/bounded.py:1797"
+      ]
+     },
+     {
+      "claim": "Two further, independent effect-count enforcements exist: cumulative per-grant count in DurableRefundDestination (`local cumulative max_effects exhausted`) and the atomic budget row in the Route B destination.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:811",
+       "RT:engine/local_authority_effect.py:848"
+      ]
+     },
+     {
+      "claim": "CP has its own amount ceilings from manifest/action limits and grant permission: _manifest_mismatches (missing_amount_limit, amount > limit) and the permission max_amount compare.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:2682",
+       "CP:src/agent_control_plane/bounded.py:2735"
+      ]
+     }
+    ],
+    "cp_involvement": "Operand origin and separate CP-side amount/effect ceilings; the Runtime ceiling is a local second layer (C11 'institutional authorization cannot override stricter local permissions')."
+   },
+   "source_revision": {
+    "read_at": "Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f; Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "r07_read_at": "Runtime ec728da6dc301a664b331ac8986afd6e850a1273; CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+    "match_with_r07_claims": {
+     "claim": "bounded.py:2570-2574 min() matches R07 03 (W8-091). local_authority_effect.py coordinate is 449 at head vs :443 in R07/S02: CP local_authority_effect.py is one of the two CP files that differ between pin and head (+8/-2 per doc 10), so the shift is consistent with that diff; not independently verified.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:2570",
+      "CP:src/agent_control_plane/local_authority_effect.py:449"
+     ]
+    },
+    "history_check": {
+     "claim": "No history for pins locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Host-constructed LocalExecutionPolicy literals (OCS synthetic host passes max_amount=1000, max_effects=1). The CP-side limits come from the signed/validated manifest action `effect_limits`/limits and grant permissions, not from a host profile.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "OCS:tools/mvp_ingress/synthetic_host.py:130",
+      "CP:src/agent_control_plane/bounded.py:2682"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Exact-one-effect rule (op.effects must equal 1; check re-asserts) so a ceiling above 1 never admits a multi-effect operation.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:316",
+      "RT:engine/safe_executor.py:427"
+     ]
+    },
+    {
+     "claim": "Strict binary64 handling (W1-015: ints beyond 2**53 refused so no silent rounding before compare).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:262",
+      "RT:engine/safe_executor.py:267"
+     ]
+    },
+    {
+     "claim": "Strict `>` comparison: amount equal to ceiling is allowed; non-negative floor of 0.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:425"
+     ]
+    },
+    {
+     "claim": "Cumulative per-grant and atomic-budget enforcement stay in the destination and are independent of the policy ceiling.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:811",
+      "RT:engine/local_authority_effect.py:848"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "max_amount",
+     "units": "unit-less number (the policy does not tie the ceiling to op.unit; multi-unit allow-sets share one ceiling) - composition across currencies undefined",
+     "order": "total order on reals within [0, 2**53] for ints; floats finite",
+     "floor_ceiling": "Floor 0 by code; a code hard cap would need to be defined (R07 04 says 'needs a code hard cap and a floor')",
+     "tightening_direction": "Minimum (registry may only lower) - R07 PROPOSAL, pending D4/D6",
+     "unsupported_case_outcome": "NaN/inf/bool/str/negative/over-2**53 int refused whole (record_invalid class); optional-overlay refusal leaves caller ceiling",
+     "status": "Not ruled: D6 (invariant | caller data | registry-eligible | layered) and W1-015 representation concern open",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:22",
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:14"
+     ]
+    },
+    {
+     "field": "max_effects",
+     "units": "count (exact int >=1) of grant-derived cap",
+     "order": "integers",
+     "floor_ceiling": "Floor 1 by code (_strict_positive_int); effects==1 rule makes ceiling >1 only relevant to the grant-derived operand",
+     "tightening_direction": "Minimum - R07 PROPOSAL, pending D6",
+     "unsupported_case_outcome": "Non-int/bool/<1 refused whole",
+     "status": "Not ruled; origin of operand is a 3-way CP minimum (W8-091 UNRESOLVED classification)",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/03-source-crosswalk.md:34",
+      "CP:src/agent_control_plane/bounded.py:2570"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "F1c depends on the effect-cap origin (W8-091): operand computed in CP bounded.py, ceiling in Runtime. Registry value can only affect the Runtime side.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:55",
+      "CP:src/agent_control_plane/bounded.py:2570"
+     ]
+    },
+    {
+     "claim": "Three distinct 'max effects' notions interact: policy.max_effects vs effective_max_effects (safe_executor.py:429), cumulative count (safe_executor.py:811), atomic budget (local_authority_effect.py:848). A registry ceiling lowering only the first does not change the other two.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:429",
+      "RT:engine/safe_executor.py:811",
+      "RT:engine/local_authority_effect.py:848"
+     ]
+    },
+    {
+     "claim": "Interacts with F5 evidence/limits only through the grant (permission max_amount/max_effects live in authority data, not in F1c).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:2735"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D6",
+     "D4",
+     "D1 (W8-091)",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [
+     "W8-091"
+    ],
+    "note": "W1-015 (2**53) is classified MANDATORY-INVARIANT (not UNRESOLVED) but is a stated representation prerequisite for F1c in R07 04.",
+    "other_open": [
+     "R10 effect-time gap (F1 ceilings are checked outside the atomic transaction)",
+     "V1-V6"
+    ]
+   },
+   "tests": [
+    {
+     "id": "suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_a_stricter_local_policy_overrides_institutional_authorization[max_amount]",
+     "scenario": "C11",
+     "what": "max_amount=1 against an authorized larger amount: refused. max_effects is NOT in POLICY_DIMS.",
+     "cite": "Q:suites/v1-scenarios/test_scn_c11.py:92"
+    },
+    {
+     "id": "suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_out_of_scope_operation_denied_with_no_effect[amount-1000.01]",
+     "scenario": null,
+     "what": "Amount just over ceiling refused.",
+     "cite": "Q:suites/v1-probes/test_runtime_probes.py:115"
+    },
+    {
+     "id": "suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_cumulative_effect_budget_enforced_across_effect_ids",
+     "scenario": null,
+     "what": "Cumulative per-grant count (a different mechanism from policy.max_effects).",
+     "cite": "Q:suites/v1-probes/test_runtime_probes.py:151"
+    },
+    {
+     "id": "suites/v1-scenarios/test_add_c2c_bi.py (dataclasses.replace(policy, max_effects=budget), lines 107,160,245) and test_scn_c16.py:332",
+     "scenario": "C16",
+     "what": "Budget exhaustion with policy.max_effects set; asserts 'local cumulative max_effects exhausted'.",
+     "cite": "Q:suites/v1-scenarios/test_add_c2c_bi.py:107"
+    },
+    {
+     "id": "suites/mvp-chain/kwflow_fixtures/negative/n52_client_effective_max_effects.py",
+     "scenario": "MVP chain",
+     "what": "Client-supplied effective_max_effects negative fixture.",
+     "cite": "Q:suites/mvp-chain/kwflow_fixtures/negative/n52_client_effective_max_effects.py"
+    }
+   ],
+   "tests_note": "No qualification test isolates the policy.max_effects effect-count ceiling (`local effect-count restriction`) as a refusal; the Runtime repo's own test names for it (S02 W1-043) are not in suites/ and the S02-named test (test_effective_max_effects_equal_to_policy_max_is_allowed) was not found in the Runtime head tests/ directory (UNVERIFIED which repo holds it).",
+   "authenticated_selection_dependency": {
+    "status": "Blocked first by classification (D6) and typed numeric payload; then same R08-R10 chain.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 2,
+    "cross_component_binding_needed": true,
+    "composition_definable": "Conditionally (minimum under a code cap/floor) once D6 is ruled",
+    "score": 4,
+    "rationale": "Level-4 triggers: Tier 1 UNRESOLVED row (W8-091), unruled D6, operand originates in CP; unit-less amount ceiling.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Numeric-boundary battery: equality, 0, 2**53, 2**53+1, NaN/inf, bool, negative, float-vs-int; both Route A and B.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:267"
+     ]
+    },
+    {
+     "claim": "Test the isolated `local effect-count restriction` and `local amount restriction` refusals (currently only amount is isolated by C11).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:425"
+     ]
+    },
+    {
+     "claim": "Multi-unit semantics (one ceiling shared across allowed units) must be specified and tested before any registry value is accepted.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:423"
+     ]
+    },
+    {
+     "claim": "Independent oracle for min(caller, registry) with code cap; no registry value may raise the ceiling.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:22"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F1d",
+   "title": "LocalExecutionPolicy target scope: allowed_target_prefixes, target_match",
+   "definition_source": [
+    {
+     "claim": "R07 02 defines F1d as allowed_target_prefixes and target_match; R07 04 fit code D (prefix semantics, not set membership); R07 08 D9 ruling: stays deferred until containment and matching-mode semantics are shown non-widening.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:42",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:23",
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:69"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "allowed_target_prefixes",
+     "type": "non-empty tuple of non-empty str (entries may end in a separator)",
+     "cite": "RT:engine/safe_executor.py:364"
+    },
+    {
+     "field": "target_match",
+     "type": "one of 'segment' (default), 'exact', 'legacy-prefix'",
+     "cite": "RT:engine/safe_executor.py:372"
+    }
+   ],
+   "evaluator": {
+    "component": "Runtime",
+    "entries": [
+     {
+      "claim": "LocalExecutionPolicy._target_allowed (396-408) consuming _TARGET_MATCH_MODES (343), _TARGET_SEPARATORS (344, '/' and ':') and _target_is_well_formed (347-355); check calls it at 421-422.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:396",
+       "RT:engine/safe_executor.py:343",
+       "RT:engine/safe_executor.py:347",
+       "RT:engine/safe_executor.py:421"
+      ]
+     }
+    ],
+    "cp_involvement": "None (op.target comes from the CP-validated proposal)."
+   },
+   "source_revision": {
+    "read_at": "Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+    "r07_read_at": "Runtime ec728da6dc301a664b331ac8986afd6e850a1273",
+    "match_with_r07_claims": {
+     "claim": "R07 03 W1-029 claims (target_match default segment :372; __post_init__ rejection :393-394; _target_allowed :396-408; legacy-prefix goes straight to startswith) verified.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:372",
+      "RT:engine/safe_executor.py:393",
+      "RT:engine/safe_executor.py:405"
+     ]
+    },
+    "history_check": {
+     "claim": "No pin history locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Host-constructed LocalExecutionPolicy literals; the mode set itself has no override path (module constant).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:343",
+      "OCS:tools/mvp_ingress/synthetic_host.py:129"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Match-mode vocabulary and separators (M1/F2; W1-029 UNRESOLVED; W1-030).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:343"
+     ]
+    },
+    {
+     "claim": "Target well-formedness refusals in every mode: NUL/control/format/surrogate/line-separator characters and dot-segments.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:347"
+     ]
+    },
+    {
+     "claim": "Non-empty prefix tuple and non-empty entries (an empty prefix would match everything via startswith).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:389"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "allowed_target_prefixes",
+     "units": "strings interpreted by a mode-dependent prefix relation",
+     "order": "NO defined order: containment between prefixes depends on mode and separators",
+     "floor_ceiling": "none defined",
+     "tightening_direction": "NOT DEFINED. List intersection of prefix strings is not the intersection of the target sets they admit.",
+     "unsupported_case_outcome": "composition_unsupported (R07 06 class) - refuse whole",
+     "status": "Deferred by D9 ruling",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:58",
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:69"
+     ]
+    },
+    {
+     "field": "target_match",
+     "units": "enum of 3",
+     "order": "For a FIXED entry list the admitted sets nest: exact subset of segment subset of legacy-prefix (derived from the code at 400-407); no stated tightening order in R07",
+     "floor_ceiling": "legacy-prefix is security-weakening (explicit opt-in per CHANGELOG)",
+     "tightening_direction": "Candidate 'toward exact' is REASONED INFERENCE only; not ruled",
+     "unsupported_case_outcome": "composition_unsupported / relaxation_unsupported",
+     "status": "Not ruled",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:400",
+      "RT:CHANGELOG.md:20"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "Mode vocabulary is M1/F2 (code-owned); F1d cannot be migrated without deciding whether the vocabulary stays in code (W1-029).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:105"
+     ]
+    },
+    {
+     "claim": "Target well-formedness is applied before prefix matching in every mode, so a registry prefix cannot admit malformed targets.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:397"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D9",
+     "D4",
+     "D1 (W1-029)",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [
+     "W1-029"
+    ],
+    "note": "W1-030 (separators) is CONFIGURABLE-CANDIDATE, Tier 1, kept in code per R07.",
+    "other_open": []
+   },
+   "tests": [
+    {
+     "id": "suites/v1-scenarios/test_scn_c11.py::test_scn_c11_route_a_stricter_local_policy_overrides_institutional_authorization[target_prefix]",
+     "scenario": "C11",
+     "what": "Replaces allowed_target_prefixes wholesale with a disjoint prefix; refusal. Tests the evaluator, not any composition.",
+     "cite": "Q:suites/v1-scenarios/test_scn_c11.py:85"
+    },
+    {
+     "id": "suites/v1-probes/test_runtime_probes.py::test_probe_policy_bypass_out_of_scope_operation_denied_with_no_effect[target-prod-account]",
+     "scenario": null,
+     "what": "Out-of-prefix target refused.",
+     "cite": "Q:suites/v1-probes/test_runtime_probes.py:115"
+    }
+   ],
+   "tests_note": "No qualification test varies target_match or tests segment/exact/legacy-prefix; the Runtime repo's tests/test_exact_target_matching.py does (not relocated to the qualification repo). Search of suites/ for target_match found no hit.",
+   "authenticated_selection_dependency": {
+    "status": "Blocked before any selection question: composition semantics undefined and deferred by ruling (D9).",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 2,
+    "cross_component_binding_needed": false,
+    "composition_definable": "No",
+    "score": 5,
+    "rationale": "Composition not definable; includes a security-weakening mode; new containment semantics required.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Before any use: a written containment relation per mode proved non-widening by an independent oracle with property tests over targets (including separator and well-formedness edge cases).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:396"
+     ]
+    },
+    {
+     "claim": "Mode-ordering test showing a registry value can never move the effective mode toward legacy-prefix.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:405"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F3",
+   "title": "Size, depth, timeout budgets",
+   "definition_source": [
+    {
+     "claim": "R07 02 section 3 F3: admission and I/O guards; mostly literals; W1-007/008 are Tier 1 admission guards, others Tier 2 minimum; composition: minimum below a code hard cap with a floor; admission guards not eligible.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:58",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:25"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "_admit_plain_data structural budget: depth 32, nodes 10000",
+     "type": "int literals",
+     "cite": "RT:engine/safe_executor.py:155"
+    },
+    {
+     "field": "_admit_plain_data max_bytes=1048576 (keyword never passed by snapshot_envelope or validate_snapshot), per-container 10000, int bit_length 256",
+     "type": "int literals",
+     "cite": "RT:engine/safe_executor.py:147"
+    },
+    {
+     "field": "OpenShell JSON byte budget 1048576; CLI output max_bytes 1048576; CLI stdin 64 KiB; synthetic request 64 KiB",
+     "type": "int literals",
+     "cite": "RT:engine/openshell_environment.py:36"
+    },
+    {
+     "field": "OpenShellConfig.timeout_seconds default 15, range 1-30; runtime/cpu/memory pinned to docker/1/256Mi (W2-082 UNRESOLVED)",
+     "type": "int / str",
+     "cite": "RT:engine/openshell_environment.py:74"
+    },
+    {
+     "field": "strict_json MAX_TEXT=200 (safe_text limit); CP cli_run MAX_INPUT_BYTES = 1 MiB",
+     "type": "int literals",
+     "cite": "CP:src/agent_control_plane/strict_json.py:21"
+    }
+   ],
+   "evaluator": {
+    "component": "Runtime and Control Plane (both)",
+    "entries": [
+     {
+      "claim": "Runtime _admit_plain_data (147-184), called from snapshot_envelope (200) and validate_snapshot (289).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:147",
+       "RT:engine/safe_executor.py:200",
+       "RT:engine/safe_executor.py:289"
+      ]
+     },
+     {
+      "claim": "Runtime OpenShell: _bounded_json (35), _bounded_cli_output (115-118), OpenShellConfig.__post_init__ (75-95), invoke (210).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/openshell_environment.py:35",
+       "RT:engine/openshell_environment.py:115",
+       "RT:engine/openshell_environment.py:90",
+       "RT:engine/openshell_environment.py:210"
+      ]
+     },
+     {
+      "claim": "CP strict_json.safe_text (24) and cli_run input size check (169-170).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/strict_json.py:24",
+       "CP:src/agent_control_plane/cli_run.py:169"
+      ]
+     }
+    ],
+    "cp_involvement": "Independent CP copies of different guards; no shared constant."
+   },
+   "source_revision": {
+    "read_at": "Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f; Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "r07_read_at": "Runtime ec728da6dc301a664b331ac8986afd6e850a1273; CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+    "match_with_r07_claims": {
+     "claim": "R07 line cites 147-184, strict_json.py:21,24-33, cli_run.py:61 (MAX_INPUT_BYTES) verified; openshell lines 74-77/89-90 verified (89-90 is the qualified-profile check at 89-90; timeout range at 93-94).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:147",
+      "CP:src/agent_control_plane/cli_run.py:61",
+      "RT:engine/openshell_environment.py:89"
+     ]
+    },
+    "history_check": {
+     "claim": "No pin history locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Literals; one keyword default (`max_bytes`) that no caller overrides; OpenShellConfig fields set by the host when building the config, with values outside the qualified profile rejected.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:147",
+      "RT:engine/openshell_environment.py:89"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Admission guards W1-007/008 (hostile-input DoS bound) must keep a fixed upper bound; floors so a value cannot disable a limit; exact-type rules (plain builtin values only).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:153",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:25"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "each scalar budget (bytes, depth, nodes, seconds)",
+     "units": "bytes / count / seconds - per field",
+     "order": "integers",
+     "floor_ceiling": "Floor required so a registry value cannot disable the limit; code hard cap above",
+     "tightening_direction": "Minimum below a hard cap (R07 PROPOSAL, pending D4); admission guards not eligible",
+     "unsupported_case_outcome": "refuse whole; no coercion",
+     "status": "Not ruled (D4)",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:26",
+      "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:55"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "OpenShell qualified-profile values (W2-082) are qualified externally; changing them is a qualification decision, linked to F3 by R07 not by S02.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:60"
+     ]
+    },
+    {
+     "claim": "F9 (tenant length) and F3 both are shape/size admission bounds with independent copies in each component.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:319"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D1 (W2-082)",
+     "D4",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [
+     "W2-082 (linked by R07 not S02)"
+    ],
+    "note": "W1-007/W1-008 are CONFIGURABLE-CANDIDATE but Tier 1 admission guards.",
+    "other_open": []
+   },
+   "tests": [
+    {
+     "id": "suites/v1-scenarios/test_scn_d06.py::test_scn_d06_malformed_runtime_admission_flood (cases string_over_1MiB, nesting_over_32, object/array_over_10000, integer_over_256_bits defined in _d06_d07_d08_helpers.py:882-889)",
+     "scenario": "D06",
+     "what": "Exercises the _admit_plain_data budgets with the exact refusal texts.",
+     "cite": "Q:suites/v1-scenarios/_d06_d07_d08_helpers.py:882"
+    },
+    {
+     "id": "suites/cognous-execution-runtime/tests/test_openshell_environment.py::test_environment_substitution_holds[timeout_seconds-16], ::test_unsupported_profile_rejected",
+     "scenario": null,
+     "what": "OpenShell timeout/profile substitution rejected.",
+     "cite": "Q:suites/cognous-execution-runtime/tests/test_openshell_environment.py:123"
+    }
+   ],
+   "tests_note": "No qualification test targets strict_json MAX_TEXT or the CP 1 MiB input check by name (grep). Run state not assessed.",
+   "authenticated_selection_dependency": {
+    "status": "Same chain; plus per-guard tier split would be needed (Tier 1 guards excluded).",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 11,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Per scalar below a code floor/cap once D4 rules direction",
+    "score": 3,
+    "rationale": "Many scattered literals across two components, mixed tier, floor design needed; no critical decision except W2-082 sub-part.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Per-guard boundary tests (limit, limit+1, registry-lowered limit, attempt to raise above hard cap or to 0).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:155"
+     ]
+    },
+    {
+     "claim": "Tier split verified: Tier 1 admission guards unreachable by registry data.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:25"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F4",
+   "title": "Observation, status and approval freshness bounds",
+   "definition_source": [
+    {
+     "claim": "R07 02 F4: admission freshness gates in bounded.py plus Runtime recovery_resolution window; `ActionClass.max_status_age_seconds` is owned by F5, not F4.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:62",
+      "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:114"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "ObservationPolicy.max_age_seconds (required, >0, no default) and clock_tolerance_seconds (default 5, >=0)",
+     "type": "int seconds",
+     "cite": "CP:src/agent_control_plane/bounded.py:413"
+    },
+    {
+     "field": "BoundedAuthorizationWorkflow constructor: status_max_age_seconds, identity_max_age_seconds, mandate_max_age_seconds, approval_max_age_seconds (each default 60), clock_tolerance_seconds (5)",
+     "type": "int seconds",
+     "cite": "CP:src/agent_control_plane/bounded.py:1271"
+    },
+    {
+     "field": "cli_run literal ObservationPolicy(max_age_seconds=300, clock_tolerance_seconds=5)",
+     "type": "literal",
+     "cite": "CP:src/agent_control_plane/cli_run.py:510"
+    },
+    {
+     "field": "FreshnessProfile: lease_acquire_timeout_seconds 5.0, reaper_interval_seconds 30, nonce True, max_age_extension_seconds 0, anchor_deadline_to_inputs False",
+     "type": "float/int/bool",
+     "cite": "CP:src/agent_control_plane/freshness.py:62"
+    },
+    {
+     "field": "Runtime recovery_resolution observation window 0 <= age <= 86400 s (inline literal)",
+     "type": "int literal",
+     "cite": "RT:engine/recovery_resolution.py:266"
+    },
+    {
+     "field": "Evidence-obligation max_age_seconds read from authority-context data (not a host field)",
+     "type": "int from data",
+     "cite": "CP:src/agent_control_plane/bounded.py:2545"
+    }
+   ],
+   "evaluator": {
+    "component": "Control Plane (primary) and Runtime (recovery window): both",
+    "entries": [
+     {
+      "claim": "_reconcile_observation: missing policy -> observation_policy_missing (1901); future limit = reference + clock_tolerance (1922); stale when age > max_age (1925).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:1890",
+       "CP:src/agent_control_plane/bounded.py:1901",
+       "CP:src/agent_control_plane/bounded.py:1922",
+       "CP:src/agent_control_plane/bounded.py:1925"
+      ]
+     },
+     {
+      "claim": "_observe_and_reconcile missing policy on observe failure (1858).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:1844",
+       "CP:src/agent_control_plane/bounded.py:1858"
+      ]
+     },
+     {
+      "claim": "_fresh (2017-2024) used for identity (2352), mandate (2366), grant status (2398-2399), conflicts (2445), current (2469), approval (2505), evidence obligations (2547, 2556).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:2017",
+       "CP:src/agent_control_plane/bounded.py:2352",
+       "CP:src/agent_control_plane/bounded.py:2366",
+       "CP:src/agent_control_plane/bounded.py:2398",
+       "CP:src/agent_control_plane/bounded.py:2505"
+      ]
+     },
+     {
+      "claim": "Runtime recovery_resolution append: freshness assessed inside the lock; 'HOLD: synthetic observation outside 24-hour window'.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/recovery_resolution.py:266"
+      ]
+     }
+    ],
+    "cp_involvement": "Control Plane owns the gates; Runtime has an independent window literal."
+   },
+   "source_revision": {
+    "read_at": "Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c; Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+    "r07_read_at": "CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27; Runtime ec728da6dc301a664b331ac8986afd6e850a1273",
+    "match_with_r07_claims": {
+     "claim": "R07 03 claims verified: observation_policy_missing at ~1856/1899 (actual 1858, 1901); ObservationPolicy at 409-415; cli_run.py:510; recovery_resolution.py:266-269. bounded.py reported identical at pin and head by doc 10 (blob 2cc8d998 in r10).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1858",
+      "CP:src/agent_control_plane/cli_run.py:510",
+      "RT:engine/recovery_resolution.py:266"
+     ]
+    },
+    "history_check": {
+     "claim": "No pin history locally; bounded.py equality rests on doc 10/r10 statements.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Host constructor keyword arguments and an ObservationPolicy model passed to BoundedAuthorizationWorkflow; opt-in FreshnessProfile inside the host RuntimeAuthorityProfile; the CLI hard-codes 300/5.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1263",
+      "CP:src/agent_control_plane/cli_run.py:510",
+      "CP:src/agent_control_plane/runtime_authority.py:162"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Missing observation policy fails closed to a hold (observation_policy_missing); tolerance never extends the staleness window; future observations beyond tolerance rejected; trusted-clock handling; precedence rules (W7-042).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1901",
+      "CP:src/agent_control_plane/bounded.py:1922"
+     ]
+    },
+    {
+     "claim": "Lower bound age >= 0 in the Runtime window.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/recovery_resolution.py:267"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "each age bound (status/identity/mandate/approval/observation)",
+     "units": "integer seconds",
+     "order": "totally ordered scalars; no ruled relation between 60 (status, per class) and 300 (destination observation)",
+     "floor_ceiling": "Code floor needed (>0); ceiling = code default",
+     "tightening_direction": "Minimum under a ruled direction (R07 PROPOSAL); D4 ruled that no universal direction exists",
+     "unsupported_case_outcome": "refuse whole / effective_value_invalid",
+     "status": "Not ruled",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:59",
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:65"
+     ]
+    },
+    {
+     "field": "clock_tolerance_seconds, max_age_extension_seconds, anchor_deadline_to_inputs, nonce",
+     "units": "seconds / booleans",
+     "order": "no single direction",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "NOT DEFINABLE as one rule (R07 04 section 4 item 3)",
+     "unsupported_case_outcome": "composition_unsupported",
+     "status": "Not definable",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:60"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "F4/F5 overlap on the same decision: grant-status age is judged at bounded.py:2398-2399 using ActionClass.max_status_age_seconds when a runtime-authority profile exists, else the constructor's status_max_age_seconds (both default 60). R07 assigns the class field solely to F5 but the constructor argument is in F4's source range; two host-set fields feed one check selected by `if self.runtime_authority_profile`.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:2398",
+      "CP:src/agent_control_plane/runtime_authority.py:87",
+      "CP:src/agent_control_plane/bounded.py:1271"
+     ]
+    },
+    {
+     "claim": "Same age bound also drives _class_age_bound with freshness extensions (an extension never raises an irreversible class).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1358",
+      "CP:src/agent_control_plane/bounded.py:1370"
+     ]
+    },
+    {
+     "claim": "Depends on a trusted clock source and observation authority (not provided by a registry record).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:38"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D1 (W6-042; 60-versus-300 relationship)",
+     "D4",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [
+     "W6-042",
+     "(adjacent, not mapped by R07: W6-004 EVIDENCE_KINDS and W6-005 UNKNOWN_BEHAVIORS govern obligations whose max_age_seconds is read at bounded.py:2545-2556)"
+    ],
+    "note": "60-versus-300 is an explicit UNRESOLVED relationship, not an S02 row.",
+    "other_open": [
+     "W8-041 reaper_interval, W8-042 nonce are F4-adjacent candidates (Tier 2 / Tier 1 until reviewed)"
+    ]
+   },
+   "tests": [
+    {
+     "id": "suites/v1-probes/test_control_plane_probes.py::test_probe_clock_uncertainty_future_observation_accepted_exactly_up_to_declared_tolerance[0|5|30]",
+     "scenario": null,
+     "what": "Tolerance boundary.",
+     "cite": "Q:suites/v1-probes/test_control_plane_probes.py:44"
+    },
+    {
+     "id": "suites/v1-probes/test_control_plane_probes.py::test_probe_clock_uncertainty_tolerance_never_extends_the_staleness_window",
+     "scenario": null,
+     "what": "Staleness boundary (age == max_age is last fresh instant).",
+     "cite": "Q:suites/v1-probes/test_control_plane_probes.py:55"
+    },
+    {
+     "id": "suites/v1-probes/test_control_plane_probes.py::test_probe_clock_uncertainty_missing_observation_policy_holds_rather_than_assuming_a_tolerance",
+     "scenario": null,
+     "what": "observation_policy_missing hold.",
+     "cite": "Q:suites/v1-probes/test_control_plane_probes.py:82"
+    },
+    {
+     "id": "suites/v1-probes/test_control_plane_probes.py::test_probe_clock_uncertainty_must_be_declared_non_negative_and_age_positive",
+     "scenario": null,
+     "what": "Model validation of ObservationPolicy fields and default tolerance 5.",
+     "cite": "Q:suites/v1-probes/test_control_plane_probes.py:72"
+    },
+    {
+     "id": "suites/v1-scenarios/test_add_molt_verify.py::test_add_molt_verify_e3_grant_status_freshness_is_not_per_item",
+     "scenario": null,
+     "what": "Default 60 s bound and class-level bounds 5/120 s on grant status.",
+     "cite": "Q:suites/v1-scenarios/test_add_molt_verify.py:47"
+    },
+    {
+     "id": "suites/operation-identity/test_freshness_profile.py::test_stalled_check_past_class_age_refused_at_dispatch (and ::test_outage_extension_recorded_with_authority)",
+     "scenario": null,
+     "what": "Opt-in freshness/0.1 deadline and age extension.",
+     "cite": "Q:suites/operation-identity/test_freshness_profile.py:190"
+    },
+    {
+     "id": "suites/cognous-execution-runtime/tests/test_observation_compatibility.py (stale -> observation_stale; missing policy)",
+     "scenario": null,
+     "what": "Observation reasons through the Runtime/CP seam.",
+     "cite": "Q:suites/cognous-execution-runtime/tests/test_observation_compatibility.py:16"
+    }
+   ],
+   "tests_note": "The Runtime 86400 s window has no test in suites/ (grep for 86400/24-hour finds only an unrelated ten-year-skew test). Run state not assessed.",
+   "authenticated_selection_dependency": {
+    "status": "Needs the Control Plane to become a registry consumer (E-04); blocked by W6-042 and 60-vs-300.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": [
+     {
+      "claim": "R08 05 notes F4/F5 are the families whose evaluators live in the Control Plane; an F1-only profile does not make the Control Plane a consumer.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:15"
+      ]
+     }
+    ]
+   },
+   "complexity": {
+    "fields": 14,
+    "cross_component_binding_needed": true,
+    "composition_definable": "Per scalar only, after each direction is ruled; not definable across bounds/clocks",
+    "score": 5,
+    "rationale": "Composition not definable as one rule; two components; open critical rows (W6-042, 60-vs-300); wide blast radius; clock authority dependency.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Per-scalar boundary and changed-condition tests with a controllable trusted clock; negative tests that a registry value cannot raise any bound above the code/host value or lower the tolerance to disable future-rejection.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1922"
+     ]
+    },
+    {
+     "claim": "Separate test for the F4/F5 selection at bounded.py:2398 (profile vs constructor).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:2398"
+     ]
+    },
+    {
+     "claim": "Cross-component: Runtime window literal and CP gates must be shown not to contradict.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/recovery_resolution.py:266"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F5",
+   "title": "Per-action-class authority declarations",
+   "definition_source": [
+    {
+     "claim": "R07 02 F5: ActionClass and RuntimeAuthorityProfile host profile; sole owner of max_status_age_seconds; relaxing toggles (allow_synthetic_resolver) never registry-configurable; tightening subset only.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:66",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:28",
+      "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:129"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "ActionClass: class_id, irreversible (default True), max_status_age_seconds (default 60, >=0), on_unreadable (refuse|bounded_tolerance), requires_revocation_assurance, reversibility, reversible_until, reversal_cost, reads_protected_data, counterparty_observable",
+     "type": "pydantic fields",
+     "cite": "CP:src/agent_control_plane/runtime_authority.py:85"
+    },
+    {
+     "field": "RuntimeAuthorityProfile: catalogue_version, actions, producer_keys, allow_synthetic_resolver (default False; relaxing, excluded), and opt-in sub-profiles operation_identity, freshness, holder_inventory, merge, reversibility, dedupe, terminal_revocation",
+     "type": "pydantic fields",
+     "cite": "CP:src/agent_control_plane/runtime_authority.py:154"
+    },
+    {
+     "field": "R07 tightening subset (illustrative only): max_status_age_seconds lowered, on_unreadable bounded_tolerance->refuse, requires_revocation_assurance false->true",
+     "type": "R07 proposal",
+     "cite": "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:61"
+    }
+   ],
+   "evaluator": {
+    "component": "Control Plane only",
+    "entries": [
+     {
+      "claim": "Model validation: ActionClass (82-110, validator calls reversibility.check_class_members), RuntimeAuthorityProfile (150-179, merge/dedupe need operation_identity), validate_extensions (251; holder_inventory_missing at 358-359).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/runtime_authority.py:82",
+       "CP:src/agent_control_plane/runtime_authority.py:150",
+       "CP:src/agent_control_plane/runtime_authority.py:251",
+       "CP:src/agent_control_plane/runtime_authority.py:358"
+      ]
+     },
+     {
+      "claim": "Gates in BoundedAuthorizationWorkflow: _resolve_journal class checks (action_class_unknown 2110; irreversible with non-refuse on_unreadable -> action_class_invalid 2111; unauthenticated resolver unless allow_synthetic_resolver 2113); _read_grant bounded_tolerance branch (2189); _class_age_bound (1358); status freshness (2398-2399).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:2069",
+       "CP:src/agent_control_plane/bounded.py:2110",
+       "CP:src/agent_control_plane/bounded.py:2113",
+       "CP:src/agent_control_plane/bounded.py:2189",
+       "CP:src/agent_control_plane/bounded.py:1358",
+       "CP:src/agent_control_plane/bounded.py:2398"
+      ]
+     },
+     {
+      "claim": "reversibility.check_class_members derives `irreversible` from `reversibility` and rejects conflicts (irreversible_flag_mismatch, protected_read_not_irreversible, unobservable_not_strict).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/reversibility.py:125",
+       "CP:src/agent_control_plane/reversibility.py:143",
+       "CP:src/agent_control_plane/reversibility.py:157"
+      ]
+     }
+    ],
+    "cp_involvement": "Entirely Control Plane."
+   },
+   "source_revision": {
+    "read_at": "Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "r07_read_at": "CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+    "match_with_r07_claims": {
+     "claim": "R07 03/04 claims verified for allow_synthetic_resolver (bounded.py:1288, 2113), profile fields 153-170, reversibility.py:125-143 and 129-160. Minor: R07 02 cites runtime_authority.py:87-121 for ActionClass; ActionClass is declared at 82-110 and 87-121 spans ActionClass fields plus EvidenceCriterion (cosmetic).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1288",
+      "CP:src/agent_control_plane/bounded.py:2113",
+      "CP:src/agent_control_plane/runtime_authority.py:82",
+      "CP:src/agent_control_plane/reversibility.py:125"
+     ]
+    },
+    "history_check": {
+     "claim": "runtime_authority.py/reversibility.py equality with the pin rests on doc 10 (identical per whole-tree diff stat).",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Trusted host configuration: a dict/model passed as runtime_authority_profile to BoundedAuthorizationWorkflow, validated and snapshotted at construction; the profile is committed into approvals (approval_commitment).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1263",
+      "CP:src/agent_control_plane/runtime_authority.py:186"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Authenticated-resolver requirement; allow_synthetic_resolver requires an explicit test clock.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:1288",
+      "CP:src/agent_control_plane/bounded.py:2113"
+     ]
+    },
+    {
+     "claim": "Derived `irreversible` cannot be changed alone; irreversible class must have on_unreadable=refuse; extension never raises an irreversible class's bound.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/reversibility.py:143",
+      "CP:src/agent_control_plane/bounded.py:2111",
+      "CP:src/agent_control_plane/bounded.py:1370"
+     ]
+    },
+    {
+     "claim": "A class must be declared by the host; a payload may not add one (action_class_unknown / relaxation_unsupported).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:2110",
+      "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:129"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "max_status_age_seconds",
+     "units": "integer seconds",
+     "order": "integers",
+     "floor_ceiling": "floor 0 by model (ge=0); a floor >0 needed; ceiling = host value",
+     "tightening_direction": "lower (PROPOSAL [I]); D4 unruled",
+     "unsupported_case_outcome": "refuse whole",
+     "status": "Not ruled",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:61"
+     ]
+    },
+    {
+     "field": "on_unreadable, requires_revocation_assurance",
+     "units": "enum / bool",
+     "order": "refuse stricter than bounded_tolerance; true stricter than false (PROPOSAL [I])",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "one-way only",
+     "unsupported_case_outcome": "relaxation_unsupported",
+     "status": "Not ruled",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:61"
+     ]
+    },
+    {
+     "field": "irreversible / reversibility members",
+     "units": "coupled enum + derived bool",
+     "order": "n/a",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "Coupled composition deferred; standalone changes excluded",
+     "unsupported_case_outcome": "relaxation_unsupported",
+     "status": "Excluded",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:61"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "Sub-profiles for F4 (freshness), F7 (dedupe, merge) sit inside the same RuntimeAuthorityProfile; merge/dedupe require operation_identity.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/runtime_authority.py:174",
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:68"
+     ]
+    },
+    {
+     "claim": "max_status_age_seconds vs the F4 constructor status_max_age_seconds feed one check (see F4).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:2398"
+     ]
+    },
+    {
+     "claim": "Holder inventory (W8-068) is F5-adjacent host data feeding holder_inventory_missing.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/runtime_authority.py:358"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D1 (W8-014)",
+     "D4",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [
+     "W8-014"
+    ],
+    "note": "W8-068 (HolderInventory) CONFIGURABLE-CANDIDATE, Tier 1 until reviewed.",
+    "other_open": []
+   },
+   "tests": [
+    {
+     "id": "suites/v1-probes/test_authority_ra_probes.py::test_probe_addauthra_reversible_tolerance_needs_unexpired_grant_and_matching_revision_and_scope",
+     "scenario": null,
+     "what": "bounded_tolerance branch.",
+     "cite": "Q:suites/v1-probes/test_authority_ra_probes.py:252"
+    },
+    {
+     "id": "suites/v1-probes/test_authority_ra_probes.py::test_probe_addauthra_unauthenticated_resolver_cannot_authorize_or_derive_a_revocation",
+     "scenario": null,
+     "what": "Resolver authentication requirement; also touches allow_synthetic_resolver at 555.",
+     "cite": "Q:suites/v1-probes/test_authority_ra_probes.py:552"
+    },
+    {
+     "id": "suites/v1-probes/test_authority_ra_probes.py::test_probe_addauthra_reversible_class_tolerance_cannot_override_a_known_purpose_closure_or_outage",
+     "scenario": null,
+     "what": "Tolerance limits.",
+     "cite": "Q:suites/v1-probes/test_authority_ra_probes.py:492"
+    },
+    {
+     "id": "suites/operation-identity/test_reversibility_profile.py::test_reversible_until_past_deadline_treated_irreversible (and ::test_purpose_outage_*)",
+     "scenario": null,
+     "what": "Reversibility members and on_unreadable tolerance.",
+     "cite": "Q:suites/operation-identity/test_reversibility_profile.py:167"
+    },
+    {
+     "id": "suites/outside-holder/test_holder_probe.py::test_requires_revocation_assurance_class_holds_until_inventory_exists",
+     "scenario": null,
+     "what": "requires_revocation_assurance + holder inventory.",
+     "cite": "Q:suites/outside-holder/test_holder_probe.py:112"
+    },
+    {
+     "id": "suites/v1-scenarios/test_add_molt_verify.py::test_add_molt_verify_e3_grant_status_freshness_is_not_per_item",
+     "scenario": null,
+     "what": "Class-level max_status_age_seconds 5/120 s.",
+     "cite": "Q:suites/v1-scenarios/test_add_molt_verify.py:47"
+    }
+   ],
+   "tests_note": "No suites/ test references irreversible_flag_mismatch (the derived-field coupling). Run state not assessed.",
+   "authenticated_selection_dependency": {
+    "status": "Needs Control Plane consumer (E-04); blocked by W8-014 and D4; tightening-only subset required.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 10,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Per field, directional; set-level (class add) not defined",
+    "score": 4,
+    "rationale": "Tier 1, UNRESOLVED W8-014, D4 unruled, coupled derived fields, requires class-selection semantics; single component.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Negative tests that no payload can add a class, flip a relaxing toggle, or set `irreversible` alone.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/reversibility.py:143"
+     ]
+    },
+    {
+     "claim": "Profile-commitment tests: registry-derived effective profile must be what approval_commitment hashes, else approvals bind a different profile.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/runtime_authority.py:186"
+     ]
+    },
+    {
+     "claim": "Per-field monotonic tightening battery with independent oracle.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:61"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F6",
+   "title": "Agent permission allow-list",
+   "definition_source": [
+    {
+     "claim": "R07 02 F6: Runtime PermissionSystem.is_allowed, JSON file {agent: [perm,...]}; per-agent intersection; absent-agent behaviour needs a ruling (D5).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:70",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:62",
+      "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:79"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "permissions mapping: agent_id -> list of permission strings (exact membership)",
+     "type": "JSON object of string -> list[str]",
+     "cite": "RT:engine/permissions.py:20"
+    },
+    {
+     "field": "agents_absent_from_record (UNDECIDED in R07 06: unconstrained | deny)",
+     "type": "undecided",
+     "cite": "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:91"
+    }
+   ],
+   "evaluator": {
+    "component": "Runtime",
+    "entries": [
+     {
+      "claim": "PermissionSystem.is_allowed (15-23): non-str action -> False; absent agent/non-list entry -> False; exact string membership. _load (8-13): FileNotFoundError -> {} (deny-all); malformed JSON is not caught (raises).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/permissions.py:15",
+       "RT:engine/permissions.py:8",
+       "RT:engine/permissions.py:11"
+      ]
+     },
+     {
+      "claim": "Only caller: legacy AgentEngine.execute_action (engine.py:31). AgentEngine's docstring says it is not the supported execution path, performs no side effect and can never report successful execution; agent_id is caller-asserted and never authenticated.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/engine.py:19",
+       "RT:engine/engine.py:31",
+       "RT:engine/engine.py:10"
+      ]
+     }
+    ],
+    "cp_involvement": "None."
+   },
+   "source_revision": {
+    "read_at": "Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+    "r07_read_at": "Runtime ec728da6dc301a664b331ac8986afd6e850a1273",
+    "match_with_r07_claims": {
+     "claim": "R07 03 F6 claims verified: is_allowed 15-23, missing file -> {} -> deny-all, permissions.json 4 lines; W2-002 malformed JSON raises verified (json.load not wrapped). Note permissions.py is unchanged in kind but R07 states it is 'not in this repository's baseline' (registry baseline) - not verifiable here.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/permissions.py:15",
+      "RT:engine/permissions.json:1"
+     ]
+    },
+    "history_check": {
+     "claim": "No pin history locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "A JSON file path passed to AgentEngine(sandbox_dir, permissions_file, audit_log_file); a sample file ships in the repo (agent1 read/write, agent2 read).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/engine.py:17",
+      "RT:engine/permissions.json:1"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Exact-string membership (no substring grants), missing file -> deny-all, non-list entry -> deny, non-str action -> deny; malformed JSON raises at construction.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/permissions.py:15"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "per-agent permission list",
+     "units": "set of exact strings per agent key",
+     "order": "none",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "Per-agent intersection (definable)",
+     "unsupported_case_outcome": "refuse whole",
+     "status": "Definable per agent",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:62"
+     ]
+    },
+    {
+     "field": "agent present in caller file but absent from registry record",
+     "units": "n/a",
+     "order": "n/a",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "Two internally consistent, different policies: unconstrained (overlay: caller list stands) or deny (key-wise intersection removes the agent). NOT RESOLVED (D5). Current evaluator on an agent absent from the caller's own file returns deny; that is a different question from registry-record silence.",
+     "unsupported_case_outcome": "undecided",
+     "status": "D5 UNRESOLVED; needs source-backed baseline and operational-profile semantics",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:66",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:62",
+      "RT:engine/permissions.py:20"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "None in code. Semantically adjacent to CP manifest/grant authority (agent permission is a local file check, not tied to grants or to the F1 allow-sets).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/engine.py:31"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D5",
+     "D4 (n/a numeric)",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [],
+    "note": "R07 02 states none of the 32 rows concerns F6; absent-agent semantics is a new question. W2-001 is CONFIGURABLE-CANDIDATE Tier 1; W2-002 MANDATORY-INVARIANT.",
+    "other_open": [
+     "new baseline import required for permissions.py"
+    ]
+   },
+   "tests": [
+    {
+     "id": "suites/v1-probes/test_runtime_probes.py::test_probe_permissions_legacy_engine_denies_unlisted_agent_and_never_executes",
+     "scenario": "D09 (related)",
+     "what": "Unlisted agent 'intruder' -> PermissionError; unlisted action -> PermissionError; allowed action still executed=False.",
+     "cite": "Q:suites/v1-probes/test_runtime_probes.py:161"
+    },
+    {
+     "id": "suites/v1-scenarios/test_scn_d09.py::test_scn_d09_legacy_agent_engine_performs_no_side_effect",
+     "scenario": "D09",
+     "what": "Permitted legacy action reports unsupported/no execution; unpermitted refused.",
+     "cite": "Q:suites/v1-scenarios/test_scn_d09.py:330"
+    },
+    {
+     "id": "suites/mvp-d09/test_mvp_d09_exact_runtime.py (legacy AgentEngine pointed at route B directory; database unchanged)",
+     "scenario": "D09",
+     "what": "Legacy engine cannot affect route B state.",
+     "cite": "Q:suites/mvp-d09/test_mvp_d09_exact_runtime.py:233"
+    }
+   ],
+   "tests_note": "Runtime repo's own tests/test_permissions.py (3 tests) is not relocated into the qualification repo. No qualification test covers malformed JSON or missing file. Run state not assessed.",
+   "authenticated_selection_dependency": {
+    "status": "Needs a new baseline/evaluator registration; PLUS the evaluator sits on an unsupported legacy path with caller-asserted identity, so activation questions are moot until a supported consumer exists (REASONED INFERENCE).",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": [
+     {
+      "claim": "R11 default order lists F6 second after F1 set fields, but no supported execution path consumes F6 today.",
+      "label": "REASONED INFERENCE",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:110"
+      ]
+     }
+    ]
+   },
+   "complexity": {
+    "fields": 2,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Per agent yes; absent-agent no until D5",
+    "score": 4,
+    "rationale": "Level-4 trigger: composition conditional on unruled D5. Otherwise small (one mapping, one component).",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Tests for both absent-agent semantics only after a ruling; until then none can be written as pass criteria.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:66"
+     ]
+    },
+    {
+     "claim": "Malformed JSON, missing file, non-list entry, substring-grant negatives against the registry-composed map.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/permissions.py:8"
+     ]
+    },
+    {
+     "claim": "Identity-authentication gap: agent_id is asserted, so qualification can only show allow-list mechanics, not agent authentication.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/engine.py:10"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F7",
+   "title": "Dedupe and replay-window defaults",
+   "definition_source": [
+    {
+     "claim": "R07 02 F7: Runtime dedupe_destination.py (default 600 s) and CP DedupeProfile (provider_horizon <= escalation_deadline < dedupe_ttl); Tier 2 minimum; guard itself Tier 1; composition conditional.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:74",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:59",
+      "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:97"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "DedupeTtlOperationDestination dedupe_ttl_seconds (default 600; positive int)",
+     "type": "int seconds",
+     "cite": "RT:engine/dedupe_destination.py:105"
+    },
+    {
+     "field": "DedupeProfile.dedupe_ttl_seconds, provider_horizon_seconds, escalation_deadline_seconds (each >0)",
+     "type": "int seconds",
+     "cite": "CP:src/agent_control_plane/dedupe.py:58"
+    },
+    {
+     "field": "Destination-declared dedupe_capability ('dedupe-ttl/0.1') and dedupe_ttl_seconds (a destination attribute, never inferred)",
+     "type": "str / int",
+     "cite": "CP:src/agent_control_plane/dedupe.py:97"
+    }
+   ],
+   "evaluator": {
+    "component": "Both Control Plane and Runtime (cross-component binding required)",
+    "entries": [
+     {
+      "claim": "Runtime DedupeTtlMixin._operation_guard: different effect id inside TTL -> operation_already_committed; row deleted after TTL; in-progress hold ignored after TTL.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/dedupe_destination.py:76",
+       "RT:engine/dedupe_destination.py:82",
+       "RT:engine/dedupe_destination.py:86"
+      ]
+     },
+     {
+      "claim": "CP DedupeProfile ordering validator (62-67); dedupe_mode (95-100); unresolved_effects (111-135); blocks_new_key (138-141); applied_under_other_effect (144-155); classify (158-175); due_escalations (178-194).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/dedupe.py:62",
+       "CP:src/agent_control_plane/dedupe.py:95",
+       "CP:src/agent_control_plane/dedupe.py:111",
+       "CP:src/agent_control_plane/dedupe.py:144",
+       "CP:src/agent_control_plane/dedupe.py:158"
+      ]
+     },
+     {
+      "claim": "Gate wiring: _effect_gate_n4 (1569) emits dedupe_unresolved_attempt_blocks_new_key / dedupe_operation_effect_applied; reached only via _operation_gate when a merge or dedupe profile is configured; escalation_pass / dedupe_report (1514-1538).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:1569",
+       "CP:src/agent_control_plane/bounded.py:1578",
+       "CP:src/agent_control_plane/bounded.py:1580",
+       "CP:src/agent_control_plane/bounded.py:1527"
+      ]
+     },
+     {
+      "claim": "Related code-owned dedupe that is not F7 data: effect_id PRIMARY KEY + operation digest binding (safe_executor.py:508, 790-805); non-TTL operation guard used by the selected Route B destination (operation_identity_destination.py:43-49; operation_identity_atomic_destination.py:37-38).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:508",
+       "RT:engine/safe_executor.py:790",
+       "RT:engine/operation_identity_destination.py:43",
+       "RT:engine/operation_identity_atomic_destination.py:37"
+      ]
+     }
+    ],
+    "cp_involvement": "Yes: ledger gates and escalation are CP; the key-forgetting TTL is Runtime."
+   },
+   "source_revision": {
+    "read_at": "Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c; Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f",
+    "r07_read_at": "CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27; Runtime ec728da6dc301a664b331ac8986afd6e850a1273",
+    "match_with_r07_claims": {
+     "claim": "R07 03 W3-063/W9-027 statements verified in content: _operation_guard behaviour, TTL positive int + default 600 (line 105), DedupeProfile ordering, dedupe_mode capability rule, ledger never expires. dedupe.py/merge.py/bounded.py reported identical at pin and head by doc 10 (not diffed here).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/dedupe_destination.py:76",
+      "CP:src/agent_control_plane/dedupe.py:62"
+     ]
+    },
+    "history_check": {
+     "claim": "No pin history locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Destination TTL: constructor keyword of the CI/local synthetic destination. Control-plane profile: host-governed RuntimeAuthorityProfile.dedupe (needs operation_identity). Both opt-in; with neither set nothing runs and no stored byte changes.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/dedupe_destination.py:105",
+      "CP:src/agent_control_plane/runtime_authority.py:168",
+      "CP:src/agent_control_plane/runtime_authority.py:174",
+      "CP:src/agent_control_plane/dedupe.py:3"
+     ]
+    },
+    {
+     "claim": "The module states that no real provider implements the capability.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:28"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Ordering provider_horizon <= escalation_deadline < dedupe_ttl; capability never inferred; destination TTL must be >= profile TTL else mode none; in_progress never mints a new key; ledger memory never expires; effect-id dedupe never expires.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:62",
+      "CP:src/agent_control_plane/dedupe.py:95",
+      "CP:src/agent_control_plane/dedupe.py:147"
+     ]
+    },
+    {
+     "claim": "Runtime guard rolls back and refuses inside the effect transaction; positive-int TTL.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/dedupe_destination.py:44",
+      "RT:engine/dedupe_destination.py:84"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "dedupe_ttl_seconds / escalation_deadline_seconds / provider_horizon_seconds",
+     "units": "integer seconds",
+     "order": "joint: horizon <= deadline < ttl (strict < only at the deadline/ttl pair)",
+     "floor_ceiling": "all >0 by model; floors/caps not defined",
+     "tightening_direction": "Candidate meet (max TTL, min deadline, min horizon) preserves the ordering [R07 inference], but the direction is an assumption: smaller TTL widens the duplicate window, earlier deadline trades availability; horizon direction not established. D4 forbids inferring direction from numeric type.",
+     "unsupported_case_outcome": "effective_value_invalid after composition; dependency_missing if destination capability absent",
+     "status": "Conditionally definable, NOT established",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:59",
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:65"
+     ]
+    },
+    {
+     "field": "destination capability dependency",
+     "units": "capability string + ttl",
+     "order": "destination ttl >= profile ttl",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "Raising the effective profile TTL above the destination's declared TTL drops dedupe_mode from destination_ttl to none: a 'stricter' meet can weaken behaviour unless the capability is re-checked after composition (R07 hazard; confirmed by dedupe.py:95-100).",
+     "unsupported_case_outcome": "dependency_missing",
+     "status": "Cross-component binding required",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:59",
+      "CP:src/agent_control_plane/dedupe.py:95"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "F7 sits inside F5's RuntimeAuthorityProfile and requires operation_identity/0.1 (and merge/dedupe both read the same ledger).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/runtime_authority.py:174"
+     ]
+    },
+    {
+     "claim": "F7 depends on a Runtime destination implementing dedupe-ttl/0.1; the selected Route B destination declares no dedupe_capability (dedupe_mode would be 'none'), so profile TTL semantic cannot be 'destination_ttl' on that route.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "Q:suites/mvp-d2-route-b/test_inventory_negatives.py:146",
+      "CP:src/agent_control_plane/dedupe.py:97"
+     ]
+    },
+    {
+     "claim": "Escalation-deadline ordering relates F7 to F4 only through the ledger clock; no code link to freshness bounds.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:178"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D12",
+     "D4",
+     "D1 (W3-063, W9-027)",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [
+     "W3-063",
+     "W9-027"
+    ],
+    "note": "W3-062 (default 600) is CONFIGURABLE-CANDIDATE, Tier 3 in S02's own row but Tier 2 minimum in the normalised crosswalk (S02 section 3).",
+    "other_open": []
+   },
+   "tests": [
+    {
+     "id": "suites/operation-identity/test_dedupe_profile.py::test_expired_destination_key_does_not_make_a_duplicate_fresh",
+     "scenario": "C09 (related)",
+     "what": "With profile: CP ledger refuses dedupe_operation_effect_applied after destination key expiry; one effect.",
+     "cite": "Q:suites/operation-identity/test_dedupe_profile.py:146"
+    },
+    {
+     "id": "suites/operation-identity/test_dedupe_profile.py::test_a_second_effect_lands_when_the_destination_key_expires_today",
+     "scenario": null,
+     "what": "KNOWN-LIMIT assertion: profile absent, a second effect lands. Passes by asserting the limit; it is not protection.",
+     "cite": "Q:suites/operation-identity/test_dedupe_profile.py:168"
+    },
+    {
+     "id": "suites/operation-identity/test_dedupe_profile.py::test_in_progress_never_mints_a_second_key / ::test_in_progress_then_renewal_dispatches_a_second_key_today (known-limit)",
+     "scenario": null,
+     "what": "in_progress handling with and without profile.",
+     "cite": "Q:suites/operation-identity/test_dedupe_profile.py:215"
+    },
+    {
+     "id": "suites/operation-identity/test_dedupe_profile.py::test_escalation_fires_inside_the_key_ttl_and_says_whether_the_key_was_still_remembered / ::test_a_late_escalation_is_flagged_after_the_key_ttl / ::test_same_effect_id_is_deduped_after_the_ttl_because_effect_id_dedupe_never_expires",
+     "scenario": null,
+     "what": "Deadline/horizon/TTL semantics and effect-id non-expiry.",
+     "cite": "Q:suites/operation-identity/test_dedupe_profile.py:257"
+    },
+    {
+     "id": "suites/mvp-d2-route-b/test_inventory_negatives.py::test_REFUSED_selected_destination_never_forgets_an_operation_after_time_passes / ::test_dedupe_ttl_destination_class_has_no_atomic_claim_path_and_is_not_the_selected_class",
+     "scenario": null,
+     "what": "Selected Route B destination uses the non-TTL guard; the TTL-forgetting class is not the selected class.",
+     "cite": "Q:suites/mvp-d2-route-b/test_inventory_negatives.py:129"
+    },
+    {
+     "id": "suites/operation-identity/test_atomic_route_operation_identity.py::test_atomic_route_legacy_cap_two_renewal_commits_two_effects_today (known-limit) / ::test_atomic_route_operation_key_refuses_the_renewed_claim_at_cap_two",
+     "scenario": null,
+     "what": "Default path allows a second effect when the cap permits; opt-in operation key refuses it.",
+     "cite": "Q:suites/operation-identity/test_atomic_route_operation_identity.py:96"
+    },
+    {
+     "id": "suites/mvp-d2-route-b/test_inventory_negatives.py::test_REACHABLE_direct_destination_call_with_caller_chosen_operation_id_defeats_identity",
+     "scenario": null,
+     "what": "PASSES when a hole exists: direct destination call defeats operation identity. Documents reachability, not safety.",
+     "cite": "Q:suites/mvp-d2-route-b/test_inventory_negatives.py:165"
+    },
+    {
+     "id": "suites/operation-identity/test_merge_profile.py (merge_gate path; 9 tests) and suites/v1-scenarios/test_scn_c09.py (10 tests) and test_scn_d06.py::test_scn_d06_concurrent_duplicate_deliveries_at_most_one_effect",
+     "scenario": "C09, D06",
+     "what": "Repeat delivery and concurrent duplicates at most one effect (effect-id / claim consumption; not F7 data).",
+     "cite": "Q:suites/v1-scenarios/test_scn_c09.py:68"
+    }
+   ],
+   "tests_note": "Runtime repo's tests/test_n4_dedupe_destination.py (9 tests) is not relocated into suites/. No qualification test exercises dedupe.unresolved_effects or merge.attempt_outcomes with an 'absent' closeout (it cannot be stored; see special analysis 1). *_today and test_REACHABLE_* tests pass by asserting a limit or hole and are not protection evidence. Run state not assessed.",
+   "authenticated_selection_dependency": {
+    "status": "Needs both components as consumers and a destination capability; blocked by D4 direction, W3-063, W9-027/D12.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": [
+     {
+      "claim": "The only destination that implements the TTL capability is a CI/local synthetic aid with no authority; no provider implements it.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/dedupe_destination.py:16",
+       "CP:src/agent_control_plane/dedupe.py:28"
+      ]
+     }
+    ]
+   },
+   "complexity": {
+    "fields": 4,
+    "cross_component_binding_needed": true,
+    "composition_definable": "Conditional, not established",
+    "score": 5,
+    "rationale": "Two level-4 triggers across components (D4 direction + capability dependency + unresolved W3-063/W9-027).",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Joint-ordering tests on the effective triple after composition; capability re-check after composition (TTL above destination TTL must not silently weaken to mode none).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:95"
+     ]
+    },
+    {
+     "claim": "Time-controlled tests at TTL-1, TTL, TTL+1 for both components with an injected clock; ledger-vs-destination agreement tests.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/dedupe_destination.py:82"
+     ]
+    },
+    {
+     "claim": "Duplicate/irreversible-effect oracle independent of the builder (D13).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+     ]
+    },
+    {
+     "claim": "Do not count *_today / test_REACHABLE_* tests as protection.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "Q:suites/operation-identity/test_dedupe_profile.py:168"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F8",
+   "title": "Demo policy tool lists",
+   "definition_source": [
+    {
+     "claim": "F8 IS defined in R07/S02: 'Demo policy tool lists' (CP demo_policies.py:36-39, 81-84; rows W4-020/021), demo only, literals, no tests found, Tier 3 not asserted, treated as Tier 2 until reviewed. R07 02 states F8 is not a policy family and not a candidate.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/s02-inventory.md:46",
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:105"
+     ]
+    },
+    {
+     "claim": "F1c, F1d and F8 are all defined in the corpus: F1c/F1d in R07 02 F1 sub-group list; F8 in S02 section 3 and R07 02 section 4 note.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:42"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "read_only_recorder defaults: allowed_tools [crm_read, notes_search], blocked_tools [email_send, file_write]; authority record scope [read], source demo_policy_config",
+     "type": "list literals",
+     "cite": "CP:src/agent_control_plane/demo_policies.py:36"
+    },
+    {
+     "field": "write_enabled_recorder defaults: allowed_tools [crm_read, crm_write, notes_search], blocked_tools [email_send]; authority record scope [read, write]",
+     "type": "list literals",
+     "cite": "CP:src/agent_control_plane/demo_policies.py:81"
+    }
+   ],
+   "evaluator": {
+    "component": "Control Plane",
+    "entries": [
+     {
+      "claim": "PolicyGate._apply_rules reads frame.blocked_tools / frame.allowed_tools and active authority scopes (blocked_tool_policy, unknown_tool_policy, write_authority_policy ...); the demo lists only supply defaults to RunRecorder.start_run.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/policy_gate.py:159",
+       "CP:src/agent_control_plane/policy_gate.py:168",
+       "CP:src/agent_control_plane/policy_gate.py:203",
+       "CP:src/agent_control_plane/records.py:92"
+      ]
+     }
+    ],
+    "cp_involvement": "Entirely CP; the lists are not read by the gate unless a caller uses the demo helper."
+   },
+   "source_revision": {
+    "read_at": "Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "r07_read_at": "CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+    "match_with_r07_claims": {
+     "claim": "demo_policies.py:36-39 and 81-84 verified; read_only_recorder/write_enabled_recorder have no callers in CP src/tests/docs (only docs/README.md:67 mentions the file) and none in the qualification suites.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/demo_policies.py:36",
+      "CP:src/agent_control_plane/demo_policies.py:81"
+     ]
+    },
+    "history_check": {
+     "claim": "No pin history locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Function arguments allowed_tools / blocked_tools (None selects the demo default); the real mechanism for any run is RunRecorder.start_run(allowed_tools, blocked_tools).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/demo_policies.py:13",
+      "CP:src/agent_control_plane/records.py:92"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "PolicyGate rule chain and order (first-match; read_allowed_tool_policy never consults scopes - W4-004 UNRESOLVED; default escalation).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/policy_gate.py:159",
+      "CP:src/agent_control_plane/policy_gate.py:196"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "tool allow/block lists",
+     "units": "string sets",
+     "order": "n/a",
+     "floor_ceiling": "n/a",
+     "tightening_direction": "Not defined; family is not a registry candidate",
+     "unsupported_case_outcome": "n/a",
+     "status": "Out of scope per R07",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:105"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "Demo helper grants authority records (scope read / read+write) that unlock the write rule in PolicyGate (W4-023), so the demo lists are authority-adjacent although uncalled.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/demo_policies.py:95",
+      "CP:src/agent_control_plane/policy_gate.py:203"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D1 (W4-022, W4-023)"
+    ],
+    "s02_unresolved_rows": [
+     "W4-022",
+     "W4-023",
+     "(adjacent: W4-004 read rule, W4-014/015 PolicyConfig.default_action, W4-018, W9-007 PolicyGate() default)"
+    ],
+    "note": "No D-decision proposes migrating F8.",
+    "other_open": []
+   },
+   "tests": [],
+   "tests_note": "No test found in suites/ or the CP clone referencing the demo recorders (grep read_only_recorder / demo_policies).",
+   "authenticated_selection_dependency": {
+    "status": "Not applicable: not a candidate.",
+    "common": [],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 4,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Not applicable",
+    "score": 1,
+    "rationale": "Mechanics only (literal lists, uncalled helpers). The scale's level-4 rule would fire on W4-023 (Tier 1 UNRESOLVED) if F8 were a candidate; R07 says it is not, so the score reports mechanics and NOT migration readiness.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "None proposed: R07 does not nominate F8. If ever reviewed, confirm the demo helpers are unused outside demos and the Tier 2 classification.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/s02-inventory.md:46"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F9",
+   "title": "Tenant id length bound",
+   "definition_source": [
+    {
+     "claim": "R07 02 F9: tenant id max length 128 in Runtime safe_executor.py:318-321 and CP bounded.py:151-154; lowering only; very low value.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:78",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:32"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "tenant_id length 1..128 (max_length literal)",
+     "type": "int literal",
+     "cite": "RT:engine/safe_executor.py:319"
+    }
+   ],
+   "evaluator": {
+    "component": "Both (Runtime validate_snapshot; CP pydantic models)",
+    "entries": [
+     {
+      "claim": "Runtime validate_snapshot tenant_id check (318-321).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "RT:engine/safe_executor.py:318"
+      ]
+     },
+     {
+      "claim": "CP model copies of max_length=128: TenantRuntimeProposal (bounded.py:154), TenantAuthorizationBinding (297), TenantApprovalProjection (local_authority_effect.py:45), TenantPolicyProjection (56), TenantLocalExecutionClaim (127). R07 lists only bounded.py:151-154; five CP copies plus one Runtime copy exist at the head.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/bounded.py:154",
+       "CP:src/agent_control_plane/bounded.py:297",
+       "CP:src/agent_control_plane/local_authority_effect.py:45",
+       "CP:src/agent_control_plane/local_authority_effect.py:56",
+       "CP:src/agent_control_plane/local_authority_effect.py:127"
+      ]
+     }
+    ],
+    "cp_involvement": "Five independent copies in CP."
+   },
+   "source_revision": {
+    "read_at": "Runtime c5e97e87dd239c821b1b4a406a55dcd03c5bc61f; Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "r07_read_at": "pins",
+    "match_with_r07_claims": {
+     "claim": "R07 undercounts the copies (2 cited vs 6 found); Runtime copy at 318-321 matches; CP bounded.py:154 matches (R07: 151-154).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:318",
+      "CP:src/agent_control_plane/bounded.py:154"
+     ]
+    },
+    "history_check": {
+     "claim": "local_authority_effect.py differs between pin and head in CP (doc 10); whether the three copies there pre-date the head is not determinable locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "None: bare literals in each file.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:319"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "min_length=1 (non-empty tenant is an isolation condition); exact-str type check; shape validation itself.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:319",
+      "CP:src/agent_control_plane/bounded.py:154"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "tenant_id max length",
+     "units": "characters",
+     "order": "integers",
+     "floor_ceiling": "floor 1 by code; ceiling = literal 128",
+     "tightening_direction": "Lowering only (minimum) (R07 PROPOSAL)",
+     "unsupported_case_outcome": "refuse whole",
+     "status": "Definable but all copies must agree",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:32"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "A lowered value applied in only one copy would make components disagree (Runtime accepts what CP refuses or the reverse): must-agree across 6 sites.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:319",
+      "CP:src/agent_control_plane/bounded.py:154"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D4 (minor)",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [],
+    "note": "W1-027 and W6-008 are CONFIGURABLE-CANDIDATE (Tier 2); W6-008 notes no test for the 128 bound.",
+    "other_open": []
+   },
+   "tests": [],
+   "tests_note": "No qualification test targets the 128 bound (grep for 128/129 with tenant or length). Tenant-isolation tests exist for other tenant mechanics (e.g. suites/cognous-execution-runtime/tests/test_w3_c8_actual_tenant.py) but not this bound. Run state not assessed.",
+   "authenticated_selection_dependency": {
+    "status": "Same chain; no value case.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 1,
+    "cross_component_binding_needed": true,
+    "composition_definable": "Yes (minimum)",
+    "score": 3,
+    "rationale": "One scalar but six must-agree copies in two components, no tests; trivially definable composition.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Boundary test at 128/129 in every copy and agreement test across components before any value could be registry-supplied.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "RT:engine/safe_executor.py:319"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F10",
+   "title": "Diagnostic trend thresholds",
+   "definition_source": [
+    {
+     "claim": "R07 02 F10: reason_vocabulary.py thresholds 5 and 1; non-gating; no authority semantics.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:82",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:33"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "minimum_prior_count (default 5), minimum_current_exposure (default 1)",
+     "type": "int keyword defaults",
+     "cite": "CP:src/agent_control_plane/reason_vocabulary.py:22"
+    }
+   ],
+   "evaluator": {
+    "component": "Control Plane",
+    "entries": [
+     {
+      "claim": "refusal_trends: negative-value check (31), eligibility (37), _trend_report call (38). Output is an investigation signal; not a gate.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/reason_vocabulary.py:21",
+       "CP:src/agent_control_plane/reason_vocabulary.py:31",
+       "CP:src/agent_control_plane/reason_vocabulary.py:37"
+      ]
+     }
+    ],
+    "cp_involvement": "Entirely CP."
+   },
+   "source_revision": {
+    "read_at": "Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "r07_read_at": "CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+    "match_with_r07_claims": {
+     "claim": "Signature at 21-25 with defaults on 22-23 (R07: 21-25, 31-32); matches.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/reason_vocabulary.py:22"
+     ]
+    },
+    "history_check": {
+     "claim": "reason-vocabulary files reported identical by doc 10.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "Keyword arguments of refusal_trends; callers pass exposures and may override thresholds.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/reason_vocabulary.py:22"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Non-negative validation; the report never infers tampering and does not gate.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/reason_vocabulary.py:31"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "thresholds",
+     "units": "counts",
+     "order": "integers",
+     "floor_ceiling": "floor 0",
+     "tightening_direction": "None needed (no authority semantics)",
+     "unsupported_case_outcome": "n/a",
+     "status": "No composition needed",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:33"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "None. Reason-vocabulary versioning is M7/D8, separate from these thresholds.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:16"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D2",
+     "D3",
+     "D7",
+     "D13 (low relevance)"
+    ],
+    "s02_unresolved_rows": [],
+    "note": "W5-002 CONFIGURABLE-CANDIDATE Tier 3 in its row; R07 treats as Tier 2 minimum.",
+    "other_open": []
+   },
+   "tests": [
+    {
+     "id": "suites/v1-probes/test_rule_revision_probes.py::test_probe_n2_row_version_predates_adoption_flagged / ::test_probe_n2_pre_split_counts_tainted",
+     "scenario": null,
+     "what": "refusal_trends is called with default thresholds; thresholds themselves not asserted.",
+     "cite": "Q:suites/v1-probes/test_rule_revision_probes.py:219"
+    },
+    {
+     "id": "suites/v1-probes/test_authority_ra_probes.py::test_probe_addauthra_refusal_trend_report_names_unmapped_codes",
+     "scenario": null,
+     "what": "Trend report content.",
+     "cite": "Q:suites/v1-probes/test_authority_ra_probes.py:679"
+    }
+   ],
+   "tests_note": "Defaults 5 and 1 are not asserted by any qualification test found.",
+   "authenticated_selection_dependency": {
+    "status": "Same chain; negligible value.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 2,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Not needed",
+    "score": 1,
+    "rationale": "Two non-gating kwargs, one component, no composition.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "Threshold boundary test; confirm non-gating (no decision reads the report).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/reason_vocabulary.py:37"
+     ]
+    }
+   ]
+  },
+  {
+   "family": "F11",
+   "title": "Redaction defaults",
+   "definition_source": [
+    {
+     "claim": "R07 02 F11: RedactionConfig defaults and CLI binding; Tier 2 minimum with confidentiality controls treated as Tier 1; union composition inside a closed ordered category set.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/02-rule-family-taxonomy.md:86",
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:63"
+     ]
+    }
+   ],
+   "configurable_fields": [
+    {
+     "field": "redact_payloads (True), redact_targets (False), redact_final_output (False), redact_reasons (False)",
+     "type": "bool",
+     "cite": "CP:src/agent_control_plane/models.py:424"
+    },
+    {
+     "field": "replacement ('[REDACTED]'), keep_fingerprints (False)",
+     "type": "str / bool",
+     "cite": "CP:src/agent_control_plane/models.py:439"
+    },
+    {
+     "field": "CLI binding: redact_payloads forced True; targets/final-output/reasons/replacement from flags; keep_fingerprints never set",
+     "type": "CLI flags",
+     "cite": "CP:src/agent_control_plane/cli.py:107"
+    }
+   ],
+   "evaluator": {
+    "component": "Control Plane",
+    "entries": [
+     {
+      "claim": "redaction.redact_run_record / redact_replay_bundle / redact_tool_execution_result call _apply_redaction with config or RedactionConfig(); CLI builds the config in _redaction_config_from_args.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "CP:src/agent_control_plane/redaction.py:16",
+       "CP:src/agent_control_plane/redaction.py:27",
+       "CP:src/agent_control_plane/cli.py:107"
+      ]
+     }
+    ],
+    "cp_involvement": "Entirely CP."
+   },
+   "source_revision": {
+    "read_at": "Control Plane 7a4bcd40b3b49e61ff3c294dcca53b52f460b22c",
+    "r07_read_at": "CP 0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+    "match_with_r07_claims": {
+     "claim": "models.py:420-451 and cli.py:107-114 verified.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/models.py:420",
+      "CP:src/agent_control_plane/cli.py:107"
+     ]
+    },
+    "history_check": {
+     "claim": "No pin history locally.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   },
+   "existing_configuration_mechanism": [
+    {
+     "claim": "RedactionConfig object passed by the caller; CLI flags --targets --final-output --reasons --replacement.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/redaction.py:16",
+      "CP:src/agent_control_plane/cli.py:107"
+     ]
+    }
+   ],
+   "code_owned_invariants": [
+    {
+     "claim": "Redaction of protected data cannot be removed by data (R07); CLI forces redact_payloads=True; fingerprints blanked whenever payloads/targets are redacted unless keep_fingerprints is set (unkeyed SHA-256 re-derivable for small search spaces).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/cli.py:109",
+      "CP:src/agent_control_plane/models.py:443"
+     ]
+    }
+   ],
+   "typed_composition": [
+    {
+     "field": "redaction category toggles",
+     "units": "bool set over closed categories",
+     "order": "more redaction is stricter",
+     "floor_ceiling": "protected categories not removable",
+     "tightening_direction": "Union of redaction categories (R07 PROPOSAL), only inside a closed ordered category set owned by code",
+     "unsupported_case_outcome": "composition_unsupported",
+     "status": "Blocked by tier classification",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:63"
+     ]
+    }
+   ],
+   "cross_family_dependencies": [
+    {
+     "claim": "Distinct from the ODES/replay-bundle redaction that scenario C13 exercises (different component and mechanism).",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "Q:suites/v1-scenarios/test_scn_c13.py:209"
+     ]
+    }
+   ],
+   "unresolved_decisions": {
+    "registry_decisions": [
+     "D1 (tier classification; W9-002 is a candidate row, not UNRESOLVED)",
+     "D2",
+     "D3",
+     "D7",
+     "D13"
+    ],
+    "s02_unresolved_rows": [],
+    "note": "R07: Tier 2 minimum, confidentiality controls treated Tier 1 until reviewed.",
+    "other_open": []
+   },
+   "tests": [
+    {
+     "id": "suites/v1-probes/test_scan_fix_control_plane_probes.py::test_probe_redacted_export_does_not_keep_a_rederivable_fingerprint",
+     "scenario": "C13 (related, not same mechanism)",
+     "what": "RedactionConfig(redact_targets=True) blanks the fingerprint by default.",
+     "cite": "Q:suites/v1-probes/test_scan_fix_control_plane_probes.py:77"
+    }
+   ],
+   "tests_note": "Only one qualification test touches CP RedactionConfig. C13 tests exercise ODES/replay redaction, not this mechanism. Run state not assessed.",
+   "authenticated_selection_dependency": {
+    "status": "Same chain; confidentiality classification blocks first.",
+    "common": [
+     {
+      "claim": "R08 successor contract is not approved; the readiness verdict is NOT READY FOR IMPLEMENTATION; no R08/R09 implementation, family migration, activation or pin approval is authorized.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/09-implementation-readiness.md:15"
+      ]
+     },
+     {
+      "claim": "D2 ruling: operational selection requires authenticated authority; pin-only integrity is insufficient; trust root, signing and custody are R09 work and not designed or approved.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:63"
+      ]
+     },
+     {
+      "claim": "No registry hook exists in either component at the pinned heads: a grep of Runtime engine/ and Control Plane src/ for the registry consumer/overlay API (apply_registry_overlay, registry_contract) finds nothing; the registry S04 consumer is called by no OCS component.",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/r08-preparation/05-minimum-operational-profile.md:12"
+      ]
+     },
+     {
+      "claim": "Plan v1.2 sequencing: R08 (versioned contract) -> R09 (authentication, selection lifecycle, custody) -> R10 (consumer wiring, mandatory/optional participation, effect-time boundary) -> R11 (each family migrated only under separate operator authorization, oracle and independent qualifier).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:93",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:98",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:103",
+       "REG:docs/plans/PROJECT_PLAN-v1.2.md:108"
+      ]
+     },
+     {
+      "claim": "Mandatory-participation profile is permitted as design capability only (D7 ruling); the independent Tier 1 qualification owner is not designated (D13).",
+      "label": "SOURCE FACT",
+      "cites": [
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:67",
+       "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:72"
+      ]
+     }
+    ],
+    "family_specific": []
+   },
+   "complexity": {
+    "fields": 6,
+    "cross_component_binding_needed": false,
+    "composition_definable": "Union within closed code-owned categories",
+    "score": 3,
+    "rationale": "Bool/str payload, single component, tier classification pending, CLI binding to settle.",
+    "label": "REASONED INFERENCE"
+   },
+   "qualification_requirements": [
+    {
+     "claim": "For every category: registry cannot reduce redaction below the code floor; payload redaction cannot be disabled; fingerprints blanked unless explicitly (and non-registry) kept.",
+     "label": "REASONED INFERENCE",
+     "cites": [
+      "CP:src/agent_control_plane/models.py:443"
+     ]
+    }
+   ]
+  }
+ ],
+ "special_analyses": {
+  "1_F7_dedupe_adequacy": {
+   "question": "Does existing code-owned dedupe adequately protect duplicate or irreversible-effect outcomes? (D12 NOT resolved.)",
+   "layers": [
+    {
+     "claim": "Layer 1, effect_id PRIMARY KEY and operation-digest binding in the Runtime destination: the same effect id is deduped forever (no expiry).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:508",
+      "RT:engine/safe_executor.py:790",
+      "Q:suites/operation-identity/test_dedupe_profile.py:257"
+     ]
+    },
+    {
+     "claim": "Layer 2, operation-key guard with NO TTL, used by the selected Route B atomic destination: refuses a different effect id for an already-committed operation. Opt-in (operation-identity profile).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/operation_identity_destination.py:43",
+      "RT:engine/operation_identity_atomic_destination.py:37",
+      "Q:suites/mvp-d2-route-b/test_inventory_negatives.py:129"
+     ]
+    },
+    {
+     "claim": "Layer 3, TTL-forgetting guard (default 600 s) exists only in DedupeTtlOperationDestination, a CI/local aid with no atomic claim path; not the selected class.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/dedupe_destination.py:105",
+      "RT:engine/dedupe_destination.py:82"
+     ]
+    },
+    {
+     "claim": "Layer 4, CP ledger gates blocks_new_key and applied_under_other_effect (ledger never expires), reached only through _effect_gate_n4 via _operation_gate when a merge/dedupe profile is configured.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:138",
+      "CP:src/agent_control_plane/dedupe.py:144",
+      "CP:src/agent_control_plane/bounded.py:1554",
+      "CP:src/agent_control_plane/bounded.py:1569"
+     ]
+    },
+    {
+     "claim": "Default path (no operation-identity profile): a second effect on renewal/expiry lands when the cap allows; asserted by *_today tests that pass by asserting the limit. These are KNOWN_LIMIT_ASSERTED, not protection.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "Q:suites/operation-identity/test_atomic_route_operation_identity.py:96",
+      "Q:suites/operation-identity/test_dedupe_profile.py:168"
+     ]
+    }
+   ],
+   "d12_discrepancy": [
+    {
+     "claim": "dedupe.unresolved_effects treats ANY closeout as resolving an attempt (closed set has no observed_state filter).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:122"
+     ]
+    },
+    {
+     "claim": "dedupe.applied_under_other_effect and merge.attempt_outcomes count a closeout only if observed_state is applied or partial.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:152",
+      "CP:src/agent_control_plane/merge.py:141"
+     ]
+    },
+    {
+     "claim": "The applied_under_other_effect docstring says 'any attempt with a closeout' while its code filters to applied/partial.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:147",
+      "CP:src/agent_control_plane/dedupe.py:152"
+     ]
+    },
+    {
+     "claim": "The two functions would differ ONLY for a closeout whose observed_state is neither applied nor partial (for example absent).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/dedupe.py:122",
+      "CP:src/agent_control_plane/merge.py:141"
+     ]
+    }
+   ],
+   "reachability": [
+    {
+     "claim": "AttemptCloseout.observed_state is typed Literal['applied','partial'].",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:449"
+     ]
+    },
+    {
+     "claim": "The only writer, close_uncertain_attempts, returns early unless the observation state is applied or partial, then validates the whole document before writing.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:668",
+      "CP:src/agent_control_plane/bounded.py:670"
+     ]
+    },
+    {
+     "claim": "_read_document validates every read against BoundedRunRecord, so a hand-edited record with another observed_state would fail validation on read.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "CP:src/agent_control_plane/bounded.py:598",
+      "CP:src/agent_control_plane/bounded.py:600"
+     ]
+    }
+   ],
+   "known": [
+    {
+     "claim": "Through the supported store path the divergent input cannot be produced, so the discrepancy has no demonstrated execution path to a wrong outcome. This is NOT a finding that it is harmless: no analysis of future writers, extension fields or other schema versions was performed.",
+     "label": "REASONED INFERENCE",
+     "cites": []
+    },
+    {
+     "claim": "Supported-path evidence supports only: for closeouts in {applied, partial} the two functions agree.",
+     "label": "REASONED INFERENCE",
+     "cites": []
+    }
+   ],
+   "unknown": [
+    {
+     "claim": "Whether the maintainers intend closeouts of other states ever to exist (for example absent, to be added by D12 or later work); the intent of the unfiltered set at dedupe.py:122 versus the docstring at :147 is unstated.",
+     "label": "UNVERIFIED",
+     "cites": []
+    },
+    {
+     "claim": "Whether any supported or planned writer or schema revision can emit another observed_state.",
+     "label": "UNVERIFIED",
+     "cites": []
+    },
+    {
+     "claim": "Whether adequacy holds under a real provider: no provider implements the capability, and no qualification test covers a real destination that forgets keys.",
+     "label": "UNVERIFIED",
+     "cites": []
+    },
+    {
+     "claim": "Whether the Route B default (profile absent) is acceptable for the V1 profile: the *_today tests show a second effect lands when the cap permits.",
+     "label": "UNVERIFIED",
+     "cites": []
+    }
+   ],
+   "not_called_defect": "Per brief: no supported execution path plus exact-source evidence of a wrong outcome was found, so the discrepancy is recorded as an unresolved source inconsistency tied to D12, not as a defect (label REASONED INFERENCE).",
+   "adequacy_verdict": "UNDETERMINED for the V1 profile. Code-owned layers 1 and 2 exist and are tested; layer 2 and 4 require opt-in profiles; the default path is a known limit. Whether that is adequate is a decision, not a source fact. (REASONED INFERENCE)"
+  },
+  "2_F1d_target_prefixes": {
+   "evaluator": [
+    {
+     "claim": "LocalExecutionPolicy._target_allowed: first rejects ill-formed targets in every mode, then exact -> equality; segment -> equality or startswith(prefix + separator) or prefix already ends in a separator; legacy-prefix -> bare startswith.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:396",
+      "RT:engine/safe_executor.py:400",
+      "RT:engine/safe_executor.py:405"
+     ]
+    }
+   ],
+   "why_deferred": [
+    {
+     "claim": "D9 ruling: F1d stays deferred until containment and matching-mode semantics are shown non-widening.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:69"
+     ]
+    },
+    {
+     "claim": "A registry list of prefixes cannot be composed by string-list intersection: whether prefix A admits a subset of prefix B depends on the match mode and separator rule, so the intersection of strings is not the intersection of admitted targets.",
+     "label": "REASONED INFERENCE",
+     "cites": []
+    },
+    {
+     "claim": "Mode choice is itself a widening/narrowing control: for a fixed entry list the admitted sets nest exact subset of segment subset of legacy-prefix (derived from the code). A registry-supplied mode could therefore widen; a rule of 'toward exact only' would be new semantics not in R07.",
+     "label": "REASONED INFERENCE",
+     "cites": []
+    },
+    {
+     "claim": "legacy-prefix is documented as a security-weakening opt-in.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:CHANGELOG.md:20"
+     ]
+    },
+    {
+     "claim": "Zero qualification tests vary target_match; the Runtime-local tests/test_exact_target_matching.py is not relocated.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "Q:suites/v1-probes/test_runtime_probes.py:115"
+     ]
+    }
+   ],
+   "status": "Deferred (D9). Complexity score 5."
+  },
+  "3_F6_absent_agent_D5": {
+   "evaluator": [
+    {
+     "claim": "is_allowed returns False for an agent absent from the loaded map; _load turns a missing file into an empty map (deny-all).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/permissions.py:15",
+      "RT:engine/permissions.py:8"
+     ]
+    }
+   ],
+   "d5": [
+    {
+     "claim": "D5 is UNRESOLVED: the registry-record semantics for an agent present in the caller's file but absent from the registry record is undecided (unconstrained vs deny).",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:66",
+      "REG:docs/registry-schema-analysis/06-family-schema-proposals.md:91"
+     ]
+    },
+    {
+     "claim": "Both options are internally consistent under R07: overlay leaves the caller's list; key-wise intersection removes the agent.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/04-schema-fitness-matrix.md:62"
+     ]
+    },
+    {
+     "claim": "Current evaluator behaviour for an agent absent from the caller's OWN file is deny; this does not answer registry-record silence.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/permissions.py:20"
+     ]
+    },
+    {
+     "claim": "Consequence for the V1 scope: F6 cannot receive a pass criterion for absent-agent handling until D5 is ruled; additionally the only consumer is the legacy AgentEngine with caller-asserted agent_id and no side effect, which bounds F6's customer value (value judgment belongs to the lead).",
+     "label": "REASONED INFERENCE",
+     "cites": []
+    }
+   ]
+  },
+  "4_max_effects_max_amount_D6": {
+   "d6": [
+    {
+     "claim": "D6 UNRESOLVED: whether max_effects and max_amount are code invariants, caller data, registry-eligible or layered.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "REG:docs/registry-schema-analysis/08-open-architectural-decisions.md:14"
+     ]
+    },
+    {
+     "claim": "max_amount: Runtime strict > compare of float(op.amount) against a unit-less ceiling; CP has its own independent amount ceilings from manifest/action limits and grant permission.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:425",
+      "CP:src/agent_control_plane/bounded.py:2682",
+      "CP:src/agent_control_plane/bounded.py:2735"
+     ]
+    },
+    {
+     "claim": "max_effects: the Runtime ceiling is compared with op.effective_max_effects, which CP computes as a three-way minimum; the exact-one-effect rule (op.effects == 1) is separate; cumulative and atomic budgets are two further independent counts.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:429",
+      "CP:src/agent_control_plane/bounded.py:2570",
+      "RT:engine/safe_executor.py:427",
+      "RT:engine/safe_executor.py:811",
+      "RT:engine/local_authority_effect.py:848"
+     ]
+    },
+    {
+     "claim": "Three layers (caller policy, CP computed cap, destination budget) exist today; a registry value could participate only in the first.",
+     "label": "SOURCE FACT",
+     "cites": [
+      "RT:engine/safe_executor.py:429"
+     ]
+    },
+    {
+     "claim": "Facts established that bear on D6 (not a ruling): all amount/effect enforcement points are code-owned today; the ceiling VALUES are caller data in both components; qualification isolates the amount refusal (C11) but not the effect-count refusal.",
+     "label": "REASONED INFERENCE",
+     "cites": []
+    }
+   ]
+  },
+  "5_evaluator_locality": [
+   {
+    "family": "F1a",
+    "where": "Runtime",
+    "binding_G3": "No",
+    "note": "allow-sets from one frozen dataclass in Runtime",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F1b",
+    "where": "Runtime (operands from CP)",
+    "binding_G3": "Partial: values must equal CP-issued institution/domain",
+    "note": "adapter trusted-context check is a second Runtime check",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F1c",
+    "where": "Runtime ceiling + CP operand and CP-side limits",
+    "binding_G3": "Yes",
+    "note": "effective_max_effects computed in CP, ceiling in Runtime",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F1d",
+    "where": "Runtime",
+    "binding_G3": "No (blocked by semantics, D9)",
+    "note": "",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F3",
+    "where": "Both (independent literals)",
+    "binding_G3": "No (independent guards)",
+    "note": "",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F4",
+    "where": "CP primary + Runtime recovery window literal",
+    "binding_G3": "Yes",
+    "note": "must not contradict across components",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F5",
+    "where": "CP only",
+    "binding_G3": "No cross-component; needs CP as consumer",
+    "note": "profile hashed into approvals",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F6",
+    "where": "Runtime only (legacy path)",
+    "binding_G3": "No",
+    "note": "",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F7",
+    "where": "Both",
+    "binding_G3": "Yes",
+    "note": "destination capability + CP ledger/profile",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F8",
+    "where": "CP only (demo)",
+    "binding_G3": "No",
+    "note": "not a candidate",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F9",
+    "where": "Both (6 copies)",
+    "binding_G3": "Yes (must agree)",
+    "note": "",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F10",
+    "where": "CP only",
+    "binding_G3": "No",
+    "note": "non-gating",
+    "label": "SOURCE FACT"
+   },
+   {
+    "family": "F11",
+    "where": "CP only",
+    "binding_G3": "No",
+    "note": "",
+    "label": "SOURCE FACT"
+   }
+  ]
+ },
+ "limitations": [
+  "Source pins: Control Plane HEAD 7a4bcd40 and Runtime HEAD c5e97e87 were read. Runtime ec728da6 and CP 0a41faa9 are NOT available locally (shallow clones); the pin-to-head comparison is by content versus R07 doc claims, plus blob-hash equality for safe_executor.py. File-equality claims for other files rest on r08-preparation/10 and r10 statements (REPORTED, not re-derived). (UNVERIFIED)",
+  "Mismatches found vs R07 text: (a) CP local_authority_effect.py effective_max_effects coordinate is 449 at head vs :443 in R07/S02 (that file differs between pin and head per doc 10); (b) F9 has 6 length-128 copies, R07 cites 2; (c) r10-feasibility says LocalExecutionPolicy.__post_init__ refuses empty sets, but a local construction showed an empty allow-set is accepted (only allowed_target_prefixes must be non-empty); (d) several S02-named Runtime test names were not located in suites/; (e) R07 02 cites runtime_authority.py:87-121 for ActionClass, declared at 82-110 (cosmetic). All SOURCE FACT except where stated.",
+  "Run state: no test was run. Test ids are cited from reading; PASS/FAIL/NOT RUN is not asserted. coverage-map.json lists scenario verdicts NOT RUN. Nothing here converts NOT RUN to PASS.",
+  "Component-local tests in Runtime and Control Plane repos (for example tests/test_exact_target_matching.py, test_permissions.py, test_n4_dedupe_destination.py, test_route_a_local_policy_reason.py) were read as source but are not part of the qualification suites.",
+  "The open-control-stack repo is present locally (/home/claude/cogno-us/cognous-open-control-stack, read at 51c579a) although the brief says it is not cloned; only tools/mvp_ingress/synthetic_host.py:126-130 was used. The registry repo S04/S05 code and tests were not read; claims about S05 differential evidence rest on the R07/R08 docs.",
+  "The 1-5 complexity scale is lane D's own rule-based construct (REASONED INFERENCE). It excludes shared R08-R10 infrastructure, and scores F8 on mechanics only.",
+  "Cross-family and unresolved-decision mappings follow R07 doc statements; I did not adjudicate any D1/D5/D6/D12 row and did not read all 32 UNRESOLVED S02 rows, only those R07 maps to a family or that sit adjacent in the same code.",
+  "Production deployment: how a real operator constructs LocalExecutionPolicy or profiles is not shown by any source read (synthetic hosts only). Customer, regulatory or revenue relevance is not assessed and not assumed.",
+  "Dedupe analysis covers pure-function and store-path reading only; no concurrency, crash, or provider behaviour was exercised."
+ ]
+}

@@ -1,0 +1,199 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:11bf0c3a95f10b109e26febf45dca59365702a1406880c562ba215beba16c3fa",
+    "run2_digest": "sha256:11bf0c3a95f10b109e26febf45dca59365702a1406880c562ba215beba16c3fa",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "505a3590114705b7ebf736b92dd189f338134635",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "afedbd6da3572f53b526c797bbe41cb26dc00cb9"
+      },
+      "exchange": {
+        "commit": "ec6ba5bdaaf3a53db312790de5e60e90c3b92fe4",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "f7ba44749c5aa0abf1b67bdb5605267802093474"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "5675f1b96d95ba69510656bf73b1006110ef5b57",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "71d1b377d1a77a9de6af618a3d625060ba543e2c"
+      },
+      "replay": {
+        "commit": "def0ee0f3af713283ea3cd13f0caf79e1607b651",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "0caea786da735b4878682642a7cb1a30da48ecde"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r2.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "authority_rows": {
+        "authority_approvals_v1": [
+          {
+            "approval_ref": "urn:cognous:approval:atomic",
+            "approver": "urn:cognous:principal:human",
+            "grant_id": "urn:cognous:grant:atomic",
+            "grant_revision": "1",
+            "policy_versions_json": "[{\"ref\":\"urn:cognous:policy:atomic\",\"version\":\"1\"}]",
+            "proposal_commitment": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "role_id": "urn:cognous:role:reviewer",
+            "status": "active",
+            "tenant_id": null
+          }
+        ],
+        "authority_evidence_v1": [
+          {
+            "kind": "authorization",
+            "max_age_seconds": 300,
+            "obligation_id": "urn:cognous:evidence:atomic",
+            "observed_at": "2026-10-07T16:00:00+00:00",
+            "required": 1,
+            "source_ref": "urn:cognous:source:entitlement",
+            "state": "current",
+            "unknown_behavior": "hold_effect"
+          }
+        ],
+        "authority_grants_v1": [
+          {
+            "authority_domain": "refunds",
+            "expires_at": "2026-10-07T17:00:00+00:00",
+            "grant_id": "urn:cognous:grant:atomic",
+            "institution_id": "urn:cognous:institution:test",
+            "not_before": "2026-10-07T15:59:00+00:00",
+            "revision": "1",
+            "status": "revoked",
+            "tenant_id": null
+          }
+        ],
+        "authority_policies_v1": [
+          {
+            "ref": "urn:cognous:policy:atomic",
+            "status": "active",
+            "tenant_id": null,
+            "version": "1"
+          }
+        ]
+      },
+      "excess_duplicate_effects": 0,
+      "original_claim_attempt": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "authoritative grant state invalid",
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "provisioning": "PermissionError: existing authoritative grant state rejects claim provisioning",
+      "unauthorized_effects": 0,
+      "update": "revoked_grant"
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "authority_rows": {
+        "authority_approvals_v1": [
+          {
+            "approval_ref": "urn:cognous:approval:atomic",
+            "approver": "urn:cognous:principal:human",
+            "grant_id": "urn:cognous:grant:atomic",
+            "grant_revision": "1",
+            "policy_versions_json": "[{\"ref\":\"urn:cognous:policy:atomic\",\"version\":\"1\"}]",
+            "proposal_commitment": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "role_id": "urn:cognous:role:reviewer",
+            "status": "active",
+            "tenant_id": null
+          }
+        ],
+        "authority_evidence_v1": [
+          {
+            "kind": "authorization",
+            "max_age_seconds": 300,
+            "obligation_id": "urn:cognous:evidence:atomic",
+            "observed_at": "2026-10-07T16:00:00+00:00",
+            "required": 1,
+            "source_ref": "urn:cognous:source:entitlement",
+            "state": "current",
+            "unknown_behavior": "hold_effect"
+          }
+        ],
+        "authority_grants_v1": [
+          {
+            "authority_domain": "refunds",
+            "expires_at": "2026-10-07T17:00:00+00:00",
+            "grant_id": "urn:cognous:grant:atomic",
+            "institution_id": "urn:cognous:institution:test",
+            "not_before": "2026-10-07T15:59:00+00:00",
+            "revision": "1",
+            "status": "revoked",
+            "tenant_id": null
+          }
+        ],
+        "authority_policies_v1": [
+          {
+            "ref": "urn:cognous:policy:atomic",
+            "status": "active",
+            "tenant_id": null,
+            "version": "1"
+          }
+        ]
+      },
+      "excess_duplicate_effects": 0,
+      "original_claim_attempt": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "authoritative grant state invalid",
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "provisioning": "PermissionError: existing authoritative grant state rejects claim provisioning",
+      "unauthorized_effects": 0,
+      "update": "revoked_grant"
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "C17",
+  "test": "test_scn_c17_route_b_stale_provisioning_cannot_overwrite_or_revive_newer_state[revoked_grant]",
+  "verdict": "PASS"
+}

@@ -1,0 +1,691 @@
+{
+ "schema": "cognous.mvp-chain-expectations-fragment/1",
+ "status": "PROPOSED fragment by worker b1 of OCS-MVP-QGATE-05 for oracle v8 (rows in the shape of expectations.proposed.v7.json rows). Not frozen; the lead assembles v8; v7 stays byte-identical.",
+ "rows": [
+  {
+   "id": "NC2-07",
+   "mandatory": true,
+   "evidence_level": "real-os-process-kill",
+   "title": "REAL OS process death (A1): a child process executing the pinned route B atomic executor on a durable on-disk store is killed with SIGKILL by another process at each of three deterministic seams (after BEGIN, after the effect insert before COMMIT, after COMMIT before any acknowledgement); a FRESH process then reopens the same store. Pre-COMMIT seams: zero effect, attempt, receipt and operation rows, claim still issued, reconcile hold / no_durable_effect_for_claim and never retry-eligible; the still-issued claim, if presented again, executes exactly once and then is refused (claim is not usable). Post-COMMIT seam: one effect with receipt, claim consumed, reconcile applied (same effect id, not retry-eligible), re-presentation denied and not attempted. At most one effect at every observation. Process death only (no power loss); synthetic fault injection (simulate=) is not used and is not evidence for this row",
+   "scenario": "nc_process_kill",
+   "blocked_if": [
+    {
+     "obs": "nc_process_kill.after_begin.victim.seam_reached",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.victim.seam_reached",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.victim.seam_reached",
+     "op": "false"
+    }
+   ],
+   "all": [
+    {
+     "obs": "nc_process_kill.after_begin.victim.alive_before_kill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.victim.kill_signal_sent",
+     "op": "eq",
+     "value": 9
+    },
+    {
+     "obs": "nc_process_kill.after_begin.victim.killed_by_sigkill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.victim.term_signal",
+     "op": "eq",
+     "value": 9
+    },
+    {
+     "obs": "nc_process_kill.after_begin.victim.completed_without_kill",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.victim.proc_gone_after",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.pre_recovery.run_json_unchanged_by_kill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.observer_is_fresh_process",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.decision_found_in_persisted_record",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.on_reopen.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.on_reopen.attempt_rows",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.on_reopen.receipt_rows",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.on_reopen.operation_rows",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.on_reopen.budget_used",
+     "op": "eq",
+     "value": [
+      0
+     ]
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.on_reopen.claim_state",
+     "op": "eq",
+     "value": "issued"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.reconcile_first.status",
+     "op": "eq",
+     "value": "hold"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.reconcile_first.reason",
+     "op": "eq",
+     "value": "no_durable_effect_for_claim"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.reconcile_first.claim_state",
+     "op": "eq",
+     "value": "issued"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.reconcile_first.retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_again.status",
+     "op": "eq",
+     "value": "executed"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_again.acknowledged",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_again.attempted",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_again.newly_executed",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_again.observed_state",
+     "op": "eq",
+     "value": "applied"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.after_execute_again.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.reconcile_second.status",
+     "op": "eq",
+     "value": "applied"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.reconcile_second.effect_id_matches_expected",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.reconcile_second.retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_third.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_third.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_third.acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.execute_third.error",
+     "op": "contains",
+     "value": "claim is not usable"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.final.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.effect_ids_final_match_expected",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.final.claim_state",
+     "op": "eq",
+     "value": "consumed"
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.final.attempt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.final.receipt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.final.budget_used",
+     "op": "eq",
+     "value": [
+      1
+     ]
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.final.operation_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_begin.recovered.max_effect_count",
+     "op": "lte",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.victim.alive_before_kill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.victim.kill_signal_sent",
+     "op": "eq",
+     "value": 9
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.victim.killed_by_sigkill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.victim.term_signal",
+     "op": "eq",
+     "value": 9
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.victim.completed_without_kill",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.victim.proc_gone_after",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.pre_recovery.run_json_unchanged_by_kill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.observer_is_fresh_process",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.decision_found_in_persisted_record",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.on_reopen.effect_count",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.on_reopen.attempt_rows",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.on_reopen.receipt_rows",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.on_reopen.operation_rows",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.on_reopen.budget_used",
+     "op": "eq",
+     "value": [
+      0
+     ]
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.on_reopen.claim_state",
+     "op": "eq",
+     "value": "issued"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.reconcile_first.status",
+     "op": "eq",
+     "value": "hold"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.reconcile_first.reason",
+     "op": "eq",
+     "value": "no_durable_effect_for_claim"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.reconcile_first.claim_state",
+     "op": "eq",
+     "value": "issued"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.reconcile_first.retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_again.status",
+     "op": "eq",
+     "value": "executed"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_again.acknowledged",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_again.attempted",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_again.newly_executed",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_again.observed_state",
+     "op": "eq",
+     "value": "applied"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.after_execute_again.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.reconcile_second.status",
+     "op": "eq",
+     "value": "applied"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.reconcile_second.effect_id_matches_expected",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.reconcile_second.retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_third.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_third.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_third.acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.execute_third.error",
+     "op": "contains",
+     "value": "claim is not usable"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.final.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.effect_ids_final_match_expected",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.final.claim_state",
+     "op": "eq",
+     "value": "consumed"
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.final.attempt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.final.receipt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.final.budget_used",
+     "op": "eq",
+     "value": [
+      1
+     ]
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.final.operation_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_effect_insert_before_commit.recovered.max_effect_count",
+     "op": "lte",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.victim.alive_before_kill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.victim.kill_signal_sent",
+     "op": "eq",
+     "value": 9
+    },
+    {
+     "obs": "nc_process_kill.after_commit.victim.killed_by_sigkill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.victim.term_signal",
+     "op": "eq",
+     "value": 9
+    },
+    {
+     "obs": "nc_process_kill.after_commit.victim.completed_without_kill",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.victim.proc_gone_after",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.pre_recovery.run_json_unchanged_by_kill",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.observer_is_fresh_process",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.decision_found_in_persisted_record",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.on_reopen.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.effect_ids_match_expected_on_reopen",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.on_reopen.claim_state",
+     "op": "eq",
+     "value": "consumed"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.on_reopen.attempt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.on_reopen.receipt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.on_reopen.operation_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.on_reopen.budget_used",
+     "op": "eq",
+     "value": [
+      1
+     ]
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.reconcile_first.status",
+     "op": "eq",
+     "value": "applied"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.reconcile_first.effect_id_matches_expected",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.reconcile_first.retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_again.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_again.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_again.acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_again.newly_executed",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_again.error",
+     "op": "contains",
+     "value": "claim is not usable"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.reconcile_second.status",
+     "op": "eq",
+     "value": "applied"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.reconcile_second.effect_id_matches_expected",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.reconcile_second.retry_eligible",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_third.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_third.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_third.acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.execute_third.error",
+     "op": "contains",
+     "value": "claim is not usable"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.final.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.effect_ids_final_match_expected",
+     "op": "true"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.final.claim_state",
+     "op": "eq",
+     "value": "consumed"
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.final.attempt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.final.receipt_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.final.budget_used",
+     "op": "eq",
+     "value": [
+      1
+     ]
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.final.operation_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_process_kill.after_commit.recovered.max_effect_count",
+     "op": "lte",
+     "value": 1
+    }
+   ]
+  },
+  {
+   "id": "NC3-04",
+   "mandatory": true,
+   "title": "Operation-ledger pruning (A2, documented limit): after one committed effect for an operation id on route B, with an unrecorded revision-2 renewal, the Control Plane decision holds as operation_renewal_unrecorded while the ledger is intact (control); with the operations rows removed from the run record the Control Plane no longer holds it (disclosed known limit: no retention rule; recorded, not judged) and a claim for it is issued, but the route B destination refuses it as operation_already_committed (returned denied, not attempted, not acknowledged) and the independent readback still shows exactly the one original effect and one destination operation row. The row does not claim that pruning is detected or prevented by the Control Plane, and says nothing about a lost destination ledger",
+   "scenario": "nc_ledger_pruning",
+   "all": [
+    {
+     "obs": "nc_ledger_pruning.first.status",
+     "op": "eq",
+     "value": "executed"
+    },
+    {
+     "obs": "nc_ledger_pruning.first.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ledger_pruning.first.destination_operation_rows",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ledger_pruning.control.ledger_rows",
+     "op": "gte",
+     "value": 1
+    },
+    {
+     "obs": "nc_ledger_pruning.control.decision_result",
+     "op": "eq",
+     "value": "hold"
+    },
+    {
+     "obs": "nc_ledger_pruning.control.decision_reasons",
+     "op": "contains",
+     "value": "operation_renewal_unrecorded"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.prune_cp",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.rows_removed",
+     "op": "gte",
+     "value": 1
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.rows_after",
+     "op": "eq",
+     "value": 0
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.destination_operation_rows_before_second",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.claim_issued",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.second_execute.raised",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.second_execute.status",
+     "op": "eq",
+     "value": "denied"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.second_execute.error",
+     "op": "eq",
+     "value": "operation_already_committed"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.second_execute.attempted",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.second_execute.acknowledged",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.second_execute.newly_executed",
+     "op": "false"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.effect_count",
+     "op": "eq",
+     "value": 1
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.only_original_effect",
+     "op": "true"
+    },
+    {
+     "obs": "nc_ledger_pruning.pruned.destination_operation_rows_after",
+     "op": "eq",
+     "value": 1
+    }
+   ]
+  }
+ ],
+ "rationale": {
+  "NC2-07": "Architect ruling A1: a real OS-level process kill is a MANDATORY row. Expected outcome is the pinned code's own contract (Runtime c5e97e87 local_authority_effect.execute_claim_atomic single SQLite transaction + reconcile_claim_exact), not an invented recovery: nothing recovers the caller's acknowledgement; the destination state decides.",
+  "NC3-04": "Architect ruling A2: dedicated mandatory row for operation-ledger pruning, not NC3-03 by substitution. Documented limitation preserved: Control Plane has no retention rule; protection is the destination-side operation guard only."
+ }
+}

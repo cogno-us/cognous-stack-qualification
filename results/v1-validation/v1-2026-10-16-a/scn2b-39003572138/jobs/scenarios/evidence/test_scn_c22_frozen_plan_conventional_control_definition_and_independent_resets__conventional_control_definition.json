@@ -1,0 +1,498 @@
+{
+  "assumption": "catalog does not define the conventional control; this is the simplest honest allow-list/approval check without binding or ledger",
+  "conventional_control": "(DEFINED HERE BEFORE ANY RUN; the catalog does not define it sufficiently, so this is the simplest honest\nconventional control, recorded as an assumption in the report). ``ConventionalControl`` is a plain allow-list + approval check:\n  * facts it holds (the same facts the V1 arm's policy/claims hold): allowed actors, principals, adapters, actions, a target prefix,\n    allowed units, a maximum amount, a maximum number of effects in the store, and an approval registry\n    {approval_id -> action_id, status (active/revoked), expires_at}.\n  * check, at call time, against LIVE state: actor, principal, adapter, action and unit are allow-listed; the target starts with the\n    prefix; amount <= maximum; effects == 1; the request's approval exists, is active, is unexpired and was granted for the SAME action;\n    the number of effect rows already stored is below the maximum.\n  * act: if every check passed, INSERT one row into a plain table (autoincrement key, no UNIQUE constraint) and return success.\n  * deliberately NOT present (this is what \"without the V1 binding/ledger\" means): no operation/claim binding (the approval is not\n    bound to the exact target, amount or payload, only to the action), no commitment over the request, no idempotency key or\n    deduplication, no attempt/ledger records, and the check and the write are NOT one transaction (check-then-act).\n  * client behaviour is part of the frozen conditions and identical for both arms: on an UNKNOWN outcome (lost acknowledgement) the\n    client retries the same request once.\n  * recovery (separate trajectory): the operator queries the store for a row carrying the request's approval id and resubmits only\n    if none exists (one manual query); the V1 arm uses the reference's exact-original ``reconcile_claim``.\nThe conventional control is NOT a model of any particular product, of OPA/LangGraph-style applications (the hub battery's adapters\nadd idempotency, transactions and audit) or of what a well-engineered conventional system can do; results characterise exactly this\nbaseline against exactly this V1 route (route B, atomic-claim profile) and nothing more.",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+      },
+      "exchange": {
+        "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+      },
+      "replay": {
+        "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+      },
+      "runtime": {
+        "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "plan": [
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [
+        1
+      ],
+      "cap": 1,
+      "expected": 1,
+      "id": "L1_permitted_exact",
+      "kind": "legit",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0,
+        "2": 50.0
+      },
+      "authorized": [
+        1,
+        2
+      ],
+      "cap": 2,
+      "expected": 2,
+      "id": "L2_permitted_two_distinct_within_budget",
+      "kind": "legit",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        },
+        {
+          "n": 2,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "3": 75.0
+      },
+      "authorized": [
+        3
+      ],
+      "cap": 1,
+      "expected": 1,
+      "id": "L3_permitted_larger_amount_with_its_own_approval",
+      "kind": "legit",
+      "steps": [
+        {
+          "n": 3,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0,
+        "2": 50.0
+      },
+      "authorized": [
+        1,
+        2
+      ],
+      "cap": 2,
+      "expected": 2,
+      "id": "L4_permitted_after_store_restart",
+      "kind": "legit",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        },
+        {
+          "op": "restart"
+        },
+        {
+          "n": 2,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A01_changed_target_within_prefix",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "target": "urn:cognous:synthetic-account:customer-999"
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A02_changed_amount_within_cap",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "amount": 900.0
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A03_changed_payload",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "payload_reason": "substituted"
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A04_actor_not_allowlisted",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "actor": "urn:cognous:identity:not-allowlisted"
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A05_adapter_not_allowlisted",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "adapter_id": "urn:cognous:adapter:not-allowlisted"
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A06_target_outside_prefix",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "target": "urn:elsewhere:account:1"
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A07_amount_over_policy_cap",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "amount": 1500.0
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A08_effects_two",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {
+            "effects": 2
+          }
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A09_approval_revoked_before_call",
+      "kind": "attack",
+      "steps": [
+        {
+          "op": "revoke_approval"
+        },
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A10_approval_expired",
+      "kind": "attack",
+      "steps": [
+        {
+          "hours": 2,
+          "op": "advance_clock"
+        },
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [],
+      "cap": 1,
+      "expected": 0,
+      "id": "A11_approval_revoked_between_check_and_write",
+      "kind": "attack",
+      "steps": [
+        {
+          "between": "revoke_approval",
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [
+        1
+      ],
+      "cap": 2,
+      "expected": 1,
+      "id": "A12_lost_ack_then_client_retry",
+      "kind": "attack",
+      "steps": [
+        {
+          "lose_ack": true,
+          "n": 1,
+          "op": "submit",
+          "overrides": {},
+          "retry_on_unknown": true
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [
+        1
+      ],
+      "cap": 2,
+      "expected": 1,
+      "id": "A13_duplicate_redelivery",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        },
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0
+      },
+      "authorized": [
+        1
+      ],
+      "cap": 2,
+      "expected": 1,
+      "id": "A14_resubmission_after_store_restart",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        },
+        {
+          "op": "restart"
+        },
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0,
+        "2": 50.0,
+        "3": 50.0
+      },
+      "authorized": [
+        1,
+        2,
+        3
+      ],
+      "cap": 2,
+      "expected": 2,
+      "id": "A15_budget_exhaustion_sequential",
+      "kind": "attack",
+      "steps": [
+        {
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        },
+        {
+          "n": 2,
+          "op": "submit",
+          "overrides": {}
+        },
+        {
+          "n": 3,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    },
+    {
+      "approved": {
+        "1": 50.0,
+        "2": 50.0
+      },
+      "authorized": [
+        1,
+        2
+      ],
+      "cap": 1,
+      "expected": 1,
+      "id": "A16_last_unit_taken_between_check_and_write",
+      "kind": "attack",
+      "steps": [
+        {
+          "between": "submit_other:2",
+          "n": 1,
+          "op": "submit",
+          "overrides": {}
+        }
+      ]
+    }
+  ],
+  "plan_digest": "sha256:2d73614b1721839fe596d885a4c03d51cae3885b93c6209604fadc07d3fc2ef1",
+  "report_only": true,
+  "scenario": "C22",
+  "test": "test_scn_c22_frozen_plan_conventional_control_definition_and_independent_resets"
+}

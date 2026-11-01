@@ -1,0 +1,1151 @@
+F..FFFFFFFFF..F..FFFFFFF                                                 [100%]
+=================================== FAILURES ===================================
+_ test_wiki_l06_018_three_normal_exchanges_between_the_registered_agents_each_execute_once _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec47d7cd70>
+
+    @wiki_case('TC-L06-018')
+    def test_wiki_l06_018_three_normal_exchanges_between_the_registered_agents_each_execute_once(routes):
+        for i in range(3):
+            flow = routes.flow()
+            message = E.make_msg(flow, f'normal-{i}')
+>           executed_once(flow, run(flow, message))
+                                ^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_018_a_replayed_message_adds_no_second_effect_and_a_reused_identifier_with_other_bytes_is_refused _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec49e6a650>
+
+    @wiki_case('TC-L06-018')
+    def test_wiki_l06_018_a_replayed_message_adds_no_second_effect_and_a_reused_identifier_with_other_bytes_is_refused(routes):
+        flow = routes.flow()
+        message = E.make_msg(flow, 'original')
+>       executed_once(flow, run(flow, message))
+                            ^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:205: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_018_an_expired_message_and_a_message_replayed_after_authority_was_withdrawn_have_no_effect _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec48024640>
+
+    @wiki_case('TC-L06-018')
+    def test_wiki_l06_018_an_expired_message_and_a_message_replayed_after_authority_was_withdrawn_have_no_effect(routes):
+        flow = routes.flow()
+        expired = E.make_msg(flow, 'expired', expires_at='2026-10-05T18:00:00+00:00')
+        res = run(flow, expired)
+>       assert handling(res) == 'REFUSE' and errors(res) == ['GAX-FRESHNESS-EXPIRED'] and effects(flow) == []
+E       AssertionError: assert ('REFUSE' == 'REFUSE'
+E         
+E           REFUSE and ['GAX-FRESHNE...AFTER-EXPIRY'] == ['GAX-FRESHNESS-EXPIRED']
+E         
+E         At index 0 diff: 'GAX-FRESHNESS-CREATED-AFTER-EXPIRY' != 'GAX-FRESHNESS-EXPIRED'
+E         Use -v to get more diff)
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:225: AssertionError
+_ test_wiki_l06_018_a_retired_a_unregistered_and_a_misaddressed_sender_are_refused _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec480ea8d0>
+
+    @wiki_case('TC-L06-018')
+    def test_wiki_l06_018_a_retired_a_unregistered_and_a_misaddressed_sender_are_refused(routes):
+        flow = routes.flow()
+        flow.registry.trusted_senders.discard(E.SENDER)  # the agent is retired from the registry
+        res = run(flow, E.make_msg(flow, 'retired'))
+        assert handling(res) == 'REFUSE' and errors(res) == [E.SENDER_UNTRUSTED] and effects(flow) == []
+        flow = routes.flow()
+        res = run(flow, E.make_msg(flow, 'unregistered', sender='unregistered-agent'))
+        assert handling(res) == 'REFUSE' and errors(res) == [E.SENDER_UNTRUSTED] and effects(flow) == []
+        flow = routes.flow()
+        res = run(flow, E.make_msg(flow, 'misaddressed', recipient='other-recipient'))
+        assert handling(res) == 'REFUSE' and errors(res) == [E.WRONG_RECIPIENT] and effects(flow) == []
+        # a registered sender with a request outside the authority: accepted for assessment, then held by the Control Plane
+        flow = routes.flow()
+        bundle = hostile_bundle(flow, action_id='urn:cognous:action:refund-issue-high-v1', requested_permissions=['refund.issue.high'])
+        approve(flow, bundle)
+>       res = run(flow, E.make_msg(flow, 'out-of-scope', bundle=bundle), bundle=bundle)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:250: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_018_a_forged_message_claiming_a_registered_agent_is_accepted_when_consistent_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec4a0ff8a0>
+
+    @wiki_case('TC-L06-018')
+    def test_wiki_l06_018_a_forged_message_claiming_a_registered_agent_is_accepted_when_consistent_known_limit(routes):
+        flow = routes.flow()
+        genuine = E.make_msg(flow, 'genuine')
+        # the forger holds no secret: the message is made from public members and the public digest function of the exchange
+        forged = E.resign(flow.gax, genuine, message_id='forged-by-a-third-party', conversation_id='conv-forged')
+        assert not [k for k in forged if any(w in k.lower() for w in ('signature', 'mac', 'key', 'token', 'cert'))]  # no authentication member
+        assert forged['message_digest'] == flow.gax.digest({k: v for k, v in forged.items() if k != 'message_digest'})
+>       res = run(flow, forged)
+              ^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:263: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_018_refusals_before_acceptance_are_returned_and_not_stored_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec49ff3680>
+
+    @wiki_case('TC-L06-018')
+    def test_wiki_l06_018_refusals_before_acceptance_are_returned_and_not_stored_known_limit(routes):
+        flow = routes.flow()
+        tampered = E.make_msg(flow, 'tampered')
+        tampered['requested_action']['amount'] = 500.0
+        assert handling(run(flow, tampered)) == 'NOT_UNDERSTOOD'
+        refused = routes.flow()
+        assert handling(run(refused, E.make_msg(refused, 'unregistered', sender='nobody'))) == 'REFUSE'
+        for f in (flow, refused):
+            assert sum(store_counts(f).values()) == 0  # the store holds nothing of a refusal: no message, no workflow
+        accepted = routes.flow()
+>       executed_once(accepted, run(accepted, E.make_msg(accepted, 'accepted')))
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:282: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_040_eight_valid_messages_are_accepted_and_each_executes_the_bounded_operation_once _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec47cfac50>
+
+    @wiki_case('TC-L06-040')
+    def test_wiki_l06_040_eight_valid_messages_are_accepted_and_each_executes_the_bounded_operation_once(routes):
+        assert len(VALID_EIGHT) == 8
+        for name, change in VALID_EIGHT.items():
+            flow = routes.flow()
+            base = E.make_msg(flow, f'valid-{name}'.replace('_', '-'))
+            message = E.resign(flow.gax, base, **change) if change else base
+>           executed_once(flow, run(flow, message))
+                                ^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:336: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_040_each_of_twelve_invalid_messages_ends_without_any_effect_beyond_the_bounded_operation _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec480d1450>
+
+    @wiki_case('TC-L06-040')
+    def test_wiki_l06_040_each_of_twelve_invalid_messages_ends_without_any_effect_beyond_the_bounded_operation(routes):
+        rejected = accepted = 0
+        for name, (_, kind) in INVALID_TWELVE.items():
+            flow = routes.flow()
+            res, exc = attempt(flow, invalid_message(flow, name))
+>           assert exc is None, (name, exc)
+E           AssertionError: ('extra_member_top_level', 'RuntimeError: candidate source identity mismatch: agent_control_plane.bounded')
+E           assert 'RuntimeError: candidate source identity mismatch: agent_control_plane.bounded' is None
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:345: AssertionError
+_ test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec48151310>
+
+    @wiki_case('TC-L06-040')
+    def test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit(routes):
+        # five of the twelve are rejected, so the criterion of at least eleven is not met; the seven that are accepted are accepted as data
+        outcomes = {}
+        for name in INVALID_TWELVE:
+            flow = routes.flow()
+            res, exc = attempt(flow, invalid_message(flow, name))
+            outcomes[name] = 'rejected' if res is not None and handling(res) != 'ACCEPT_FOR_ASSESSMENT' else 'accepted_as_data'
+        assert outcomes == {name: kind for name, (_, kind) in INVALID_TWELVE.items()}
+        assert sum(v == 'rejected' for v in outcomes.values()) == 5 and sum(v == 'rejected' for v in outcomes.values()) < 11
+        # the created-at member is not checked for its type at all, and an uncomparable sender stops the assessment with an exception
+        flow = routes.flow()
+>       assert handling(run(flow, E.resign(flow.gax, E.make_msg(flow, 'created-number'), created_at=5))) == 'ACCEPT_FOR_ASSESSMENT'
+E       AssertionError: assert 'NOT_UNDERSTOOD' == 'ACCEPT_FOR_ASSESSMENT'
+E         
+E         - ACCEPT_FOR_ASSESSMENT
+E         + NOT_UNDERSTOOD
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:370: AssertionError
+_ test_wiki_l06_040_extra_members_content_types_and_size_are_accepted_as_data_while_mistyped_members_are_refused_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec48150230>
+
+    @wiki_case('TC-L06-040')
+    def test_wiki_l06_040_extra_members_content_types_and_size_are_accepted_as_data_while_mistyped_members_are_refused_known_limit(routes):
+        """Replaces the declaration of the test above, whose last two assertions describe the exchange route before it refused a
+        created-at member and a sender member of a type that cannot be compared (that test is kept unchanged and is withdrawn by an
+        appended amendment of the pre-registration). This test states the behaviour of the pinned exchange as the limit."""
+        # five of the twelve are rejected, so the criterion of at least eleven is not met; the seven that are accepted are accepted as data
+        outcomes = {}
+        for name in INVALID_TWELVE:
+            flow = routes.flow()
+            res, exc = attempt(flow, invalid_message(flow, name))
+>           assert exc is None, (name, exc)
+E           AssertionError: ('extra_member_top_level', 'RuntimeError: candidate source identity mismatch: agent_control_plane.bounded')
+E           assert 'RuntimeError: candidate source identity mismatch: agent_control_plane.bounded' is None
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:386: AssertionError
+__ test_wiki_l06_039_six_in_scope_requests_are_allowed_and_each_executes_once __
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec47cb3790>
+
+    @wiki_case('TC-L06-039')
+    def test_wiki_l06_039_six_in_scope_requests_are_allowed_and_each_executes_once(routes):
+        for amount in IN_SCOPE_AMOUNTS:
+            flow = routes.flow()
+            bundle = hostile_bundle(flow, amount=amount)
+            approve(flow, bundle)
+>           executed_once(flow, run(flow, E.make_msg(flow, f'in-scope-{int(amount)}', bundle=bundle), bundle=bundle), amount=amount)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:458: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_039_the_decision_names_the_scope_of_the_actor_and_the_user_of_the_request_not_the_senders _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec48063ac0>
+
+    @wiki_case('TC-L06-039')
+    def test_wiki_l06_039_the_decision_names_the_scope_of_the_actor_and_the_user_of_the_request_not_the_senders(routes):
+        expected = {'write_high_value_action': 'action_class_unknown', 'write_amount_above_limit': 'amount_exceeded', 'other_users_account': 'target_out_of_scope',
+                    'other_user_as_principal': 'proposal_identity_binding_mismatch', 'tool_of_another_adapter': 'adapter_mismatch'}
+        for name, reason in expected.items():
+            flow = routes.flow()
+            message, bundle, _ = request_for(flow, name)
+>           res = run(flow, message, bundle=bundle)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:490: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_039_the_sender_label_is_not_bound_to_the_actor_so_a_listed_low_trust_sender_has_the_rights_of_the_named_actor_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec48143800>
+
+    @wiki_case('TC-L06-039')
+    def test_wiki_l06_039_the_sender_label_is_not_bound_to_the_actor_so_a_listed_low_trust_sender_has_the_rights_of_the_named_actor_known_limit(routes):
+        flow = routes.flow()
+        flow.registry.trusted_senders.add('research-agent')  # a low-trust agent that the recipient lists as a sender
+        message = E.make_msg(flow, 'from-research', sender='research-agent')
+        assert message['sender'] == 'research-agent' and message['requested_action']['actor'] == 'urn:cognous:identity:refund-agent-1'
+>       res = run(flow, message)
+              ^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:508: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_039_a_held_request_is_retained_with_the_proposal_of_the_actor_and_the_user_and_not_the_sender_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec481322b0>
+
+    @wiki_case('TC-L06-039')
+    def test_wiki_l06_039_a_held_request_is_retained_with_the_proposal_of_the_actor_and_the_user_and_not_the_sender_known_limit(routes):
+        flow = routes.flow()
+        message, bundle, _ = request_for(flow, 'other_users_account')
+>       run(flow, message, bundle=bundle)
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:520: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_045_five_requests_are_each_reconstructed_across_the_exchange_decision_effect_and_replay_from_retained_identifiers _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec48131450>
+
+    @wiki_case('TC-L06-045')
+    def test_wiki_l06_045_five_requests_are_each_reconstructed_across_the_exchange_decision_effect_and_replay_from_retained_identifiers(routes):
+        seen = []
+        for i in range(5):
+            flow = routes.flow()
+            bundle = hostile_bundle(flow, correlation_id=f'user-request-{i}', amount=10.0 * (i + 1))
+            approve(flow, bundle)
+            message = E.make_msg(flow, f'hop-{i}', bundle=bundle, conversation_id=f'conv-request-{i}')
+>           res = run(flow, message, bundle=bundle)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:555: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_045_the_hop_names_the_actor_the_user_the_payload_commitment_and_the_decision_but_not_the_caller_and_callee_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec47c2de20>
+
+    @wiki_case('TC-L06-045')
+    def test_wiki_l06_045_the_hop_names_the_actor_the_user_the_payload_commitment_and_the_decision_but_not_the_caller_and_callee_known_limit(routes):
+        flow = routes.flow()
+>       res = run(flow, E.make_msg(flow, 'hop-fields'))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:570: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_045_the_correlation_identifier_is_not_a_member_of_the_message_known_limit _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec47cb5950>
+
+    @wiki_case('TC-L06-045')
+    def test_wiki_l06_045_the_correlation_identifier_is_not_a_member_of_the_message_known_limit(routes):
+        flow = routes.flow()
+        bundle = hostile_bundle(flow, correlation_id='user-request-42')
+        approve(flow, bundle)
+        message = E.make_msg(flow, 'hop-limit', bundle=bundle)
+        assert 'user-request-42' not in json.dumps(message)  # the message carries a message and a conversation identifier only
+>       res = run(flow, message, bundle=bundle)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:586: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+_ test_wiki_l06_045_a_retried_request_keeps_the_identifiers_and_a_missing_current_bundle_is_reported_as_a_gap _
+
+routes = <test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fec4814ba50>
+
+    @wiki_case('TC-L06-045')
+    def test_wiki_l06_045_a_retried_request_keeps_the_identifiers_and_a_missing_current_bundle_is_reported_as_a_gap(routes):
+        flow = routes.flow()
+        message = E.make_msg(flow, 'hop-retry')
+>       first = run(flow, message)
+                ^^^^^^^^^^^^^^^^^^
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:597: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:84: in run
+    return E.run_msg(flow, message, reg=registry, bundle=bundle, **extra)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+suites/wiki-derived/test_wp_e_exchange_injection.py:213: in run_msg
+    return flow.gax.run_exchange(message, bundle or flow.bundle, reg or flow.registry, flow.dest, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in run_exchange
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1063: in _finish_exchange
+    artifacts = run_current()
+                ^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:1057: in <lambda>
+    return _finish_exchange(message, assessment, store, lease_holder, lambda: _run_current_request(message=message, bundle=bundle, manifest=manifest, destination=destination, store_path=store_path, resolver=resolver, evaluation_time=evaluation_time, execution_policy_factory=execution_policy_factory, observation_policy=observation_policy, observation_clock=observation_clock, mutate_resolver_after_decision=mutate_resolver_after_decision, lose_ack=lose_ack, partial_delivery=partial_delivery, store=store, lease_holder=lease_holder, fault_after_dispatch=fault_after_dispatch, fault_evidence_once=fault_evidence_once, generation_fence=generation_fence, lineage_generation=lineage_generation, runtime_authority_profile=runtime_authority_profile, allow_test_time=allow_test_time))
+                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:937: in _run_current_request
+    runtime = load_executor_runtime()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:421: in load_executor_runtime
+    _verify_refusal_profile_sources(cp_root, molt_root)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cp_root = PosixPath('/home/claude/cs-components/control_plane')
+molt_root = PosixPath('/home/claude/cs-components/runtime')
+
+    def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path | None = None) -> None:
+        """Refuse false candidate provenance; this is source identity, not trust.
+    
+        Each module's file path is resolved and its Git identity checked *before*
+        the module is imported; the imported module must then come from that exact
+        verified file. This in-process check is a provenance-consistency check,
+        not a trust boundary: the fresh-checkout pre-check in the qualification
+        harness is the gate against modified or shadowed dependency checkouts.
+        """
+        expected = {
+            "agent_control_plane.bounded": (CP_REVISION, cp_root / "src" / "agent_control_plane" if cp_root else None),
+            "engine.producer_contract": (MOLTBOT_REVISION, molt_root / "engine" if molt_root else None),
+            "agent_replay_bundle.importers": (REPLAY_REVISION, None),
+            "odes.exporter": (ODES_REVISION, None),
+            "agent_governance_evidence_pack.importer": (EVIDENCE_PACK_REVISION, None),
+        }
+        verified = {}
+        checkouts = {}
+        for name, (revision, package_dir) in expected.items():
+            module_file, executed = _locate_without_import(name, package_dir)
+            directory = module_file.parent
+            try:
+                actual, changed = _git_source_identity(directory, executed)
+                untracked = _untracked_in_package_tree(executed[0].parent)
+                toplevel = Path(subprocess.check_output(
+                    ["git", "-C", str(directory), "rev-parse", "--show-toplevel"], text=True, timeout=10
+                ).strip()).resolve()
+            except (subprocess.CalledProcessError, OSError) as exc:
+                raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+            if actual != revision or changed:
+>               raise RuntimeError(f"candidate source identity mismatch: {name}")
+E               RuntimeError: candidate source identity mismatch: agent_control_plane.bounded
+
+../cs-components/exchange/experiments/odex_gax_imx_reference/gax_ref_runtime.py:358: RuntimeError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_message_modified_in_transit_is_not_understood_and_nothing_is_dispatched
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_modified_request_with_recomputed_digests_is_refused_against_the_retained_commitments
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_a_message_of_another_schema_version_or_without_one_is_reported
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_every_rejection_carries_a_typed_reason_code_and_none_is_stored_known_limit
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_six_out_of_scope_requests_are_denied_in_both_phrasings_with_no_effect[plain]
+PASSED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_six_out_of_scope_requests_are_denied_in_both_phrasings_with_no_effect[urgent_administrator]
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_three_normal_exchanges_between_the_registered_agents_each_execute_once
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_replayed_message_adds_no_second_effect_and_a_reused_identifier_with_other_bytes_is_refused
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_an_expired_message_and_a_message_replayed_after_authority_was_withdrawn_have_no_effect
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_retired_a_unregistered_and_a_misaddressed_sender_are_refused
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_a_forged_message_claiming_a_registered_agent_is_accepted_when_consistent_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_018_refusals_before_acceptance_are_returned_and_not_stored_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_eight_valid_messages_are_accepted_and_each_executes_the_bounded_operation_once
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_each_of_twelve_invalid_messages_ends_without_any_effect_beyond_the_bounded_operation
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_040_extra_members_content_types_and_size_are_accepted_as_data_while_mistyped_members_are_refused_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_six_in_scope_requests_are_allowed_and_each_executes_once
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_the_decision_names_the_scope_of_the_actor_and_the_user_of_the_request_not_the_senders
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_the_sender_label_is_not_bound_to_the_actor_so_a_listed_low_trust_sender_has_the_rights_of_the_named_actor_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_039_a_held_request_is_retained_with_the_proposal_of_the_actor_and_the_user_and_not_the_sender_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_five_requests_are_each_reconstructed_across_the_exchange_decision_effect_and_replay_from_retained_identifiers
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_the_hop_names_the_actor_the_user_the_payload_commitment_and_the_decision_but_not_the_caller_and_callee_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_the_correlation_identifier_is_not_a_member_of_the_message_known_limit
+FAILED suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py::test_wiki_l06_045_a_retried_request_keeps_the_identifiers_and_a_missing_current_bundle_is_reported_as_a_gap
+18 failed, 6 passed in 39.84s

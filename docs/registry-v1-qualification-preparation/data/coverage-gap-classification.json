@@ -1,0 +1,217 @@
+{
+ "note": "Preparation-time classification of the 33 gate-to-class tagging gaps. Classification is a preparation judgment, not a result; the independent lead and the QPR-1 gate binding confirm it. JUSTIFIED NOT APPLICABLE requires justification_source. No row is created merely to fill a count.",
+ "gaps": [
+  {
+   "gate_id": "QG-01",
+   "control_slug": "string_based_decision",
+   "classification": "MISSING REQUIRED CONTROL",
+   "rationale": "The five-field differential gate needs exact-string membership negatives (case, substring, wildcard and near-miss members are not members). Oracles QO cover it and the grid has 5 near-miss members, but no negative-control row exists."
+  },
+  {
+   "gate_id": "QG-01",
+   "control_slug": "mismatched_claim_identity",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-01 compares old and new evaluator behaviour for the five Runtime fields; claim-carried identity is exercised under QG-06, QG-07, QG-10 and QG-11.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-01"
+  },
+  {
+   "gate_id": "QG-01",
+   "control_slug": "route_a_not_credited",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "Route A is out of V1 and earns no credit toward QG-01, QG-09 or QG-10; Route A rows are retained only for accidental-change detection.",
+   "justification_source": "03-differential-regression-test-plan.md section 3 and the approved Route B-only scope"
+  },
+  {
+   "gate_id": "QG-03",
+   "control_slug": "required_absence",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-03 covers freshness bounds only; required-policy absence is QG-06.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-03"
+  },
+  {
+   "gate_id": "QG-03",
+   "control_slug": "string_based_decision",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-03 is a numeric freshness differential; no string-based decision is in its subject.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-03"
+  },
+  {
+   "gate_id": "QG-03",
+   "control_slug": "expired_selection",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-03 bounds observation age, not selection expiry; selection expiry is QG-06 and QG-08.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-03"
+  },
+  {
+   "gate_id": "QG-04",
+   "control_slug": "mismatched_claim_identity",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-04 covers the per-class age bound and approval/profile commitment; claim identity is QG-06, QG-07, QG-10 and QG-11.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-04"
+  },
+  {
+   "gate_id": "QG-04",
+   "control_slug": "required_absence",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-04 does not own required-policy absence; that is QG-06.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-04"
+  },
+  {
+   "gate_id": "QG-05",
+   "control_slug": "revoked_selection",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "A revoked selection must not be activated or resurrected; revocation controls on the activation path bear on the configuration-change gate."
+  },
+  {
+   "gate_id": "QG-05",
+   "control_slug": "expired_selection",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "An expired selection must not be activated; expiry controls on the activation path bear on the configuration-change gate."
+  },
+  {
+   "gate_id": "QG-05",
+   "control_slug": "concurrent_revocation",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "Check-to-commit revocation races belong to QG-08 and QG-09; QG-05 covers activation, supersession, rollback and epoch.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-05"
+  },
+  {
+   "gate_id": "QG-06",
+   "control_slug": "epoch_downgrade",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "A stale or rolled-back epoch is one of the stale conditions that must refuse without broader fallback."
+  },
+  {
+   "gate_id": "QG-06",
+   "control_slug": "durable_state_missing_or_corrupt",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Unavailable, invalid or corrupt authority state must fail closed without caller fallback."
+  },
+  {
+   "gate_id": "QG-07",
+   "control_slug": "mismatched_claim_identity",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "The gate covers a selection for the wrong tenant or scope; mismatched claim identity controls bear on it."
+  },
+  {
+   "gate_id": "QG-07",
+   "control_slug": "string_based_decision",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-07 is exact-string set containment on the five fields, covered by oracle rows; the string-based-decision class concerns reason-code carriage.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-07"
+  },
+  {
+   "gate_id": "QG-08",
+   "control_slug": "stale_approval_revival",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "Approval revival is owned by QG-03, QG-04 and QG-10; QG-08 covers revocation and expiry of selections.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-08"
+  },
+  {
+   "gate_id": "QG-09",
+   "control_slug": "forged_selection",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "Signature forgery is refused at verification and activation (QG-05, QG-12); QG-09 covers the policy enforced at commit, whose substitution controls are already tagged.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-09"
+  },
+  {
+   "gate_id": "QG-09",
+   "control_slug": "epoch_downgrade",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Epoch bumped or swapped between check and commit are effect-boundary races."
+  },
+  {
+   "gate_id": "QG-09",
+   "control_slug": "string_based_decision",
+   "classification": "CONTRACT-BLOCKED",
+   "rationale": "Commit-time structured reason-code carriage is undecided (OPEN-Q3/Q5); the affected control NC-102 is BLOCKED_ON_CONTRACT.",
+   "blocked_on": "OPEN-Q3/Q5"
+  },
+  {
+   "gate_id": "QG-10",
+   "control_slug": "confused_deputy",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Confused deputy between families is a cross-component policy consistency concern."
+  },
+  {
+   "gate_id": "QG-10",
+   "control_slug": "route_a_not_credited",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "Route A is out of V1 and earns no credit toward QG-10.",
+   "justification_source": "03-differential-regression-test-plan.md section 3 and the approved Route B-only scope"
+  },
+  {
+   "gate_id": "QG-11",
+   "control_slug": "mismatched_claim_identity",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Evidence and replay must refuse a claim or evidence identity that disagrees with the governing record and selection."
+  },
+  {
+   "gate_id": "QG-11",
+   "control_slug": "forged_selection",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Replay and verifier must refuse forged selection artifacts."
+  },
+  {
+   "gate_id": "QG-11",
+   "control_slug": "required_absence",
+   "classification": "JUSTIFIED NOT APPLICABLE",
+   "rationale": "QG-11 covers evidence naming and replay refusal; required-policy absence is QG-06.",
+   "justification_source": "gate statement in data/gate-definitions.json (from the P1 gate matrix), QG-11"
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "expired_selection",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "QG-12 aggregates the hostile-input negatives for every class; existing controls of this class exist and are tagged to other gates."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "epoch_downgrade",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "QG-12 aggregates the hostile-input negatives for every class; existing controls of this class exist and are tagged to other gates."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "concurrent_revocation",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "QG-12 aggregates the hostile-input negatives for every class; existing controls of this class exist and are tagged to other gates."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "stale_approval_revival",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "QG-12 aggregates the hostile-input negatives for every class; existing controls of this class exist and are tagged to other gates."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "restore_rollback",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "QG-12 aggregates the hostile-input negatives for every class; existing controls of this class exist and are tagged to other gates."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "registry_denyall_vs_evaluator_denial",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Existing prepared controls of this class need the QG-12 tag; NC-096 stays BLOCKED_ON_CONTRACT (OPEN-Q6)."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "invalid_freshness_input",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "QG-12 aggregates the hostile-input negatives for every class; existing controls of this class exist and are tagged to other gates."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "outage_extension_widening",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Prepared controls of this class need the QG-12 tag; NC-114 stays BLOCKED_ON_CONTRACT (O-1)."
+  },
+  {
+   "gate_id": "QG-12",
+   "control_slug": "route_a_not_credited",
+   "classification": "EXISTING CONTROL NEEDS TAGGING",
+   "rationale": "Route A bypass controls are disclosure/attack rows; tagging them records the not-credited classification."
+  }
+ ]
+}

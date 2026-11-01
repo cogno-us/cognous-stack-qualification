@@ -1,0 +1,76 @@
+{
+  "schema": "cognous.v1-validation-job/1",
+  "component": "gax_imx_transport",
+  "repository": "cogno-us/cognous-governed-exchange",
+  "pinned_sha": "fdc2a410383396553254a39ae641c88b78ee13f1",
+  "actual_sha": "fdc2a410383396553254a39ae641c88b78ee13f1",
+  "os": "ubuntu-latest",
+  "python": "3.12.15",
+  "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+  "workflow_run": "39349033320",
+  "run_attempt": "1",
+  "job": "components",
+  "attempts": [
+    {
+      "attempt": 1,
+      "installs": [
+        {
+          "target": ".[dev,test]",
+          "rc": 0
+        }
+      ],
+      "returncode": 0,
+      "execution_seconds": 24.07,
+      "timed_out": false,
+      "counts": {
+        "testcases": 311,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "setup_ok": true,
+      "outcome": "PASS"
+    }
+  ],
+  "timeout_seconds": 900,
+  "inventory": {
+    "ci_runs_on": {
+      "generation-fence.yml": [
+        "ubuntu-latest"
+      ],
+      "tests.yml": [
+        "ubuntu-latest"
+      ]
+    },
+    "test_dirs": [
+      "tests"
+    ],
+    "test_files": [
+      "tests/test_checkout_source_check.py",
+      "tests/test_effect_ownership.py",
+      "tests/test_exchange_input_and_source_repairs.py",
+      "tests/test_generation_fence.py",
+      "tests/test_generation_type_check.py",
+      "tests/test_governed_message_transport.py",
+      "tests/test_message_field_types.py",
+      "tests/test_security_review_hardening.py"
+    ],
+    "test_file_count": 8,
+    "ci_workflows": [
+      "generation-fence.yml",
+      "merged-consumer-chain.yml",
+      "tests.yml",
+      "typed-refusal.yml"
+    ],
+    "has_pyproject": true,
+    "has_requirements": []
+  },
+  "status": "PASS",
+  "reason": null,
+  "log": {
+    "sha256_uncompressed": "4a60d22334a72d63daf437eda9793ecfd8f8f18e62305f51cb16e022079ba4ef",
+    "bytes_uncompressed": 1196,
+    "retained": true,
+    "file": "job.log.gz"
+  }
+}

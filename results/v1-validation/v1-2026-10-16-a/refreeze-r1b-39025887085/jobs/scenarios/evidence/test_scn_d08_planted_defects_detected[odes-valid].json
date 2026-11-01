@@ -1,0 +1,684 @@
+{
+  "by_class": {
+    "corrupt": {
+      "detected": 5,
+      "missed": [],
+      "planted": 5
+    },
+    "drop": {
+      "detected": 13,
+      "missed": [],
+      "planted": 13
+    },
+    "duplicate": {
+      "detected": 8,
+      "missed": [],
+      "planted": 8
+    },
+    "remove_observation": {
+      "detected": 4,
+      "missed": [],
+      "planted": 4
+    },
+    "reorder": {
+      "detected": 6,
+      "missed": [],
+      "planted": 6
+    }
+  },
+  "case": "valid",
+  "detected": 36,
+  "detection_means": "any consumer stage rejecting (typed refusal/exception) or flagging (incomplete/invalid/new failing dimension)",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "family": "odes",
+  "missed": 0,
+  "not_applicable_nothing_to_plant": [],
+  "planted": 36,
+  "run1": {
+    "table": {
+      "odes.execution_facts.accepted_control_plane_observations.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.accepted_control_plane_observations.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.accepted_control_plane_observations.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.accepted_control_plane_observations.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.corrupt_acknowledgement_summary": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.corrupt_destination_observed": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.destination_effects.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.destination_effects.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.destination_effects.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.executor_observations.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.executor_observations.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.executor_observations.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.promote_independent_delivery_verification": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.promote_retry_permission": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.remove_destination_observation_scope": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.import_reports.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.corrupt": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      }
+    }
+  },
+  "run2": {
+    "table": {
+      "odes.execution_facts.accepted_control_plane_observations.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.accepted_control_plane_observations.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.accepted_control_plane_observations.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.accepted_control_plane_observations.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.control_plane_attempt_transitions.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.corrupt_acknowledgement_summary": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.corrupt_destination_observed": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.destination_effects.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.destination_effects.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.destination_effects.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.executor_observations.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.executor_observations.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.executor_observations.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.promote_independent_delivery_verification": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.promote_retry_permission": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.reconciliations.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.remove_destination_observation_scope": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.execution_facts.resolution_check_event.reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.import_reports.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.corrupt": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.duplicate_first": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      },
+      "odes.retained_bundle.records.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "flagged",
+        "stage": "odes_recipient",
+        "why": "replay_semantic=fail,fail:package_content_integrity,fail:replay_semantic_consistency"
+      }
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:83d978cd0370f65ad75293eb73d86fe9acfce169f795fae3c9ec66924150496a",
+    "run2_outcome_digest": "sha256:83d978cd0370f65ad75293eb73d86fe9acfce169f795fae3c9ec66924150496a",
+    "verdict": "MATCH"
+  },
+  "scenario": "D08",
+  "test": "test_scn_d08_planted_defects_detected[odes-valid]"
+}

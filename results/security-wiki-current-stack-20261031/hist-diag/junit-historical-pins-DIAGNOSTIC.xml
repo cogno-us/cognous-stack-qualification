@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="15" time="34.326" timestamp="2026-10-31T09:04:32.767840+00:00" hostname="vm"><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l06_022_suspended_grant_refuses_the_next_effect_of_one_holder_while_a_second_holder_executes" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="621" time="0.705"><properties><property name="wiki_case" value="TC-L06-022" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l06_022_suspension_persists_across_restart" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="663" time="0.245"><properties><property name="wiki_case" value="TC-L06-022" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l06_022_stop_journal_retains_requester_and_reason_in_order" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="692" time="0.051"><properties><property name="wiki_case" value="TC-L06-022" /></properties><failure message="ValueError: stop event sequence must increase">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-72/test_wiki_l06_022_stop_journal0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa73b9f7b50&gt;
+
+    @wiki_case('TC-L06-022')
+    def test_wiki_l06_022_stop_journal_retains_requester_and_reason_in_order(tmp_path, monkeypatch):
+        """The local stop journal holds what the controlling process records at each step, ordered by sequence. The journal is a
+        record of observations: it does not check who the requester is, and it is not a mechanism that stops anything."""
+        from engine.c8_source_evidence import LocalStopJournal, STOP_KINDS
+        flow, holders, executor = three_holders(tmp_path, monkeypatch)
+        dest = flow.dest
+        stopped, other = holders['holder-1'], holders['holder-2']
+        assert W.execute_b(flow, stopped[0], executor=executor)[0].status == 'executed'
+        journal_path = tmp_path / 'stop-journal.sqlite'
+        j = LocalStopJournal(journal_path)
+        life, effect = 'stop-holder-1', stopped[1].env.effect_id
+        requester, reason = 'urn:cognous:principal:operations-lead', 'synthetic_incident_drill'
+    
+        j.record(event_id='e1', sequence=1, lifecycle_id=life, effect_id=effect, kind='stop_requested',
+                 observation={'requester': requester, 'reason': reason, 'grant_id': grant_of(stopped[0])})
+        dest.set_grant_status(grant_of(stopped[0]), status='suspended')
+        with sqlite3.connect(Path(dest.path)) as db:
+            status = db.execute('SELECT status FROM authority_grants_v1 WHERE grant_id=?', (grant_of(stopped[0]),)).fetchone()[0]
+        j.record(event_id='e2', sequence=2, lifecycle_id=life, effect_id=effect, kind='stop_acknowledged',
+                 observation={'grant_status': status})
+        refused = W.execute_b(flow, stopped[1], executor=executor)[0]
+        j.record(event_id='e3', sequence=3, lifecycle_id=life, effect_id=effect, kind='dispatch_closed',
+                 observation={'next_effect_status': refused.status, 'attempted': refused.attempted})
+        before = W.destination_effects(flow)
+        j.record(event_id='e4', sequence=4, lifecycle_id=life, effect_id=effect, kind='quiescence_observed',
+                 observation={'effect_rows_unchanged': W.destination_effects(flow) == before})
+        # a second, unrelated lifecycle interleaved in time does not mix into the first
+        j.record(event_id='x1', sequence=5, lifecycle_id='stop-other', effect_id=other[0].env.effect_id, kind='stop_requested',
+                 observation={'requester': 'urn:cognous:principal:someone-else', 'reason': 'other_reason'})
+        from engine.safe_executor import snapshot_envelope
+        recon = dest.reconcile_claim(stopped[0].claim.claim_id, snapshot_envelope(stopped[0].env))
+        j.record(event_id='e5', sequence=6, lifecycle_id=life, effect_id=effect, kind='destination_reconciled',
+                 observation={'status': recon['status'], 'retry_eligible': recon['retry_eligible']})
+    
+        exported = LocalStopJournal(journal_path).export(life)  # read back through a new handle on the file
+        events = exported['events']
+        assert [e['kind'] for e in events] == list(STOP_KINDS)
+        assert [e['sequence'] for e in events] == [1, 2, 3, 4, 6]
+        assert events[0]['observation'] == {'requester': requester, 'reason': reason, 'grant_id': grant_of(stopped[0])}
+        assert events[1]['observation'] == {'grant_status': 'suspended'}
+        assert events[2]['observation'] == {'next_effect_status': 'denied', 'attempted': False}
+        assert events[3]['observation'] == {'effect_rows_unchanged': True}
+        assert events[4]['observation'] == {'status': 'applied', 'retry_eligible': False}
+        assert exported['provenance'] == 'explicit_local_controller_observations_only'
+        assert LocalStopJournal(journal_path).export('stop-other')['events'][0]['observation']['reason'] == 'other_reason'
+        # the order is the sequence: a repeated sequence or event identifier is refused, an unknown kind is refused
+        with pytest.raises(sqlite3.IntegrityError):
+&gt;           j.record(event_id='e6', sequence=3, lifecycle_id=life, effect_id=effect, kind='dispatch_closed', observation={})
+
+suites/wiki-derived/test_wp_c_budget_stop_recovery.py:741: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;engine.c8_source_evidence.LocalStopJournal object at 0x7fa73b9d5010&gt;
+event_id = 'e6', sequence = 3, lifecycle_id = 'stop-holder-1'
+effect_id = 'effect-11', kind = 'dispatch_closed', observation = {}
+
+    def record(self, *, event_id: str, sequence: int, lifecycle_id: str,
+               effect_id: str, kind: str, observation: dict) -&gt; None:
+        if kind not in STOP_KINDS or not isinstance(observation,dict):
+            raise ValueError("unsupported stop event")
+        if not all(isinstance(x,str) and x for x in (event_id,lifecycle_id,effect_id)):
+            raise ValueError("stop event identity required")
+        if type(sequence) is not int or sequence &lt; 0:
+            raise ValueError("stop event sequence must be an int &gt;= 0")
+        db = sqlite3.connect(self.path, isolation_level=None)
+        try:
+            db.execute("BEGIN IMMEDIATE")
+            try:
+                last = db.execute("SELECT MAX(sequence) FROM c8_stop_events").fetchone()[0]
+                if last is not None and sequence &lt;= last:
+&gt;                   raise ValueError("stop event sequence must increase")
+E                   ValueError: stop event sequence must increase
+
+../scn-components/runtime/engine/c8_source_evidence.py:74: ValueError</failure></testcase><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l06_022_call_already_committed_is_reported_applied_and_not_rolled_back" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="752" time="0.288"><properties><property name="wiki_case" value="TC-L06-022" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l15_019_restore_of_authority_and_destination_files_preserves_grants_budgets_claims_and_effects" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="866" time="0.319"><properties><property name="wiki_case" value="TC-L15-019" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l15_019_consumed_claim_stays_consumed_and_the_retry_is_refused_after_restore" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="912" time="0.318"><properties><property name="wiki_case" value="TC-L15-019" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l15_019_destination_restored_without_authority_state_refuses_or_holds" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="953" time="0.040"><properties><property name="wiki_case" value="TC-L15-019" /></properties><failure message="AssertionError: assert ('unknown' == 'denied'&#10;  &#10;  - denied&#10;  + unknown)">tmp_path = PosixPath('/tmp/pytest-of-root/pytest-72/test_wiki_l15_019_destination_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fa73c846d60&gt;
+
+    @wiki_case('TC-L15-019')
+    def test_wiki_l15_019_destination_restored_without_authority_state_refuses_or_holds(tmp_path, monkeypatch):
+        # route B: the effect tables go back to an older state while the authority tables (claim consumed) stay: fail closed
+        (tmp_path / 'b1').mkdir()
+        flow = W.route_b(tmp_path / 'b1', effect_nos=(1,), budget_max=1)
+        old = tmp_path / 'before-effect.sqlite'
+        sqlite_backup(flow.dest.path, old)
+        assert W.execute_b(flow, flow.parts[0])[0].status == 'executed'
+        restore_tables(old, flow.dest.path, EFFECT_TABLES)
+        executor = reopen_b(flow, max_effects=1)
+        assert W.destination_effects(flow) == [], 'the effect rows are gone with their tables'
+        res = W.execute_b(flow, flow.parts[0], executor=executor)[0]
+        assert res.status == 'denied' and not res.attempted and 'execution claim is not usable' in (res.error or '')
+        assert W.destination_effects(flow) == [], 'nothing is admitted from the half-restored state'
+        assert flow.dest.claim_state(flow.parts[0].claim.claim_id) == 'consumed'
+    
+        # route B: the authority tables go back to an older state while the effects stay: refused by effect uniqueness
+        (tmp_path / 'b2').mkdir()
+        flow2 = W.route_b(tmp_path / 'b2', effect_nos=(1,), budget_max=1)
+        old2 = tmp_path / 'before-effect-2.sqlite'
+        sqlite_backup(flow2.dest.path, old2)
+        assert W.execute_b(flow2, flow2.parts[0])[0].status == 'executed'
+        committed = W.destination_effects(flow2)
+        restore_tables(old2, flow2.dest.path, AUTHORITY_TABLES)
+        executor2 = reopen_b(flow2, max_effects=1)
+        assert flow2.dest.claim_state(flow2.parts[0].claim.claim_id) == 'issued'
+        res2 = W.execute_b(flow2, flow2.parts[0], executor=executor2)[0]
+&gt;       assert res2.status == 'denied' and not res2.newly_executed
+E       AssertionError: assert ('unknown' == 'denied'
+E         
+E         - denied
+E         + unknown)
+
+suites/wiki-derived/test_wp_c_budget_stop_recovery.py:981: AssertionError</failure></testcase><testcase classname="suites.wiki-derived.test_wp_c_budget_stop_recovery" name="test_wiki_l15_019_restore_of_an_older_backup_readmits_later_effects_known_limit" file="suites/wiki-derived/test_wp_c_budget_stop_recovery.py" line="1008" time="0.343"><properties><property name="wiki_case" value="TC-L15-019" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g4_tool_call_and_approval_controls" name="test_wiki_l09_004_thirty_calls_twenty_in_scope_and_ten_out_of_scope_by_scope_and_by_resource" file="suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py" line="464" time="15.319"><properties><property name="wiki_case" value="TC-L09-004" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g4_tool_call_and_approval_controls" name="test_wiki_l09_004_the_destination_credential_is_narrower_than_the_decision_and_refuses_an_out_of_scope_commit" file="suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py" line="483" time="0.145"><properties><property name="wiki_case" value="TC-L09-004" /></properties><failure message="AssertionError: (ExecutionResult(status='failed', decision_id='45b8eb86-1fed-4b43-af9d-14ec4a0efd48', effect_id='sha256:d19d83b15e0ec1...e': '2026-10-05T19:00:00+00:00', 'observation_max_age_seconds': 300, 'observation_clock_tolerance_seconds': 5}}), None)&#10;assert (None is None and ('failed', 'e...t', 'unknown') == ('failed', 'e...it', 'absent')&#10;  &#10;  At index 2 diff: 'unknown' != 'absent'&#10;  Use -v to get more diff)">work = &lt;test_wp_g4_tool_call_and_approval_controls.Work object at 0x7fa73ba60a50&gt;
+
+    @wiki_case('TC-L09-004')
+    def test_wiki_l09_004_the_destination_credential_is_narrower_than_the_decision_and_refuses_an_out_of_scope_commit(work):
+        flow = work.flow()
+        b = flow.d.binding
+        assert flow.d.result == 'authorized'
+        # the credential held at the destination loses the scope after the decision: the commit is refused there, with no effect
+        flow.dest.set_effective_grant(principal=flow.p.principal, grant_id=b.grant_id, revision=b.grant_revision, permissions=['some.other.scope'])
+        res, exc = D.execute_for(flow, flow.p, flow.d)
+&gt;       assert exc is None and (res.status, res.error, res.observed_state) == ('failed', 'effective_grant_changed_at_commit', 'absent'), (res, exc)
+E       AssertionError: (ExecutionResult(status='failed', decision_id='45b8eb86-1fed-4b43-af9d-14ec4a0efd48', effect_id='sha256:d19d83b15e0ec1...e': '2026-10-05T19:00:00+00:00', 'observation_max_age_seconds': 300, 'observation_clock_tolerance_seconds': 5}}), None)
+E       assert (None is None and ('failed', 'e...t', 'unknown') == ('failed', 'e...it', 'absent')
+E         
+E         At index 2 diff: 'unknown' != 'absent'
+E         Use -v to get more diff)
+
+suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py:492: AssertionError</failure></testcase><testcase classname="suites.wiki-derived.test_wp_g4_tool_call_and_approval_controls" name="test_wiki_l09_004_requests_through_injected_text_for_wider_access_are_refused" file="suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py" line="498" time="0.200"><properties><property name="wiki_case" value="TC-L09-004" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g4_tool_call_and_approval_controls" name="test_wiki_l09_004_elevation_needs_a_new_grant_revision_and_a_fresh_approval_bound_to_it" file="suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py" line="515" time="1.142"><properties><property name="wiki_case" value="TC-L09-004" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g4_tool_call_and_approval_controls" name="test_wiki_l09_004_a_scope_violation_is_retained_with_the_grant_identifier_and_revision" file="suites/wiki-derived/test_wp_g4_tool_call_and_approval_controls.py" line="539" time="0.185"><properties><property name="wiki_case" value="TC-L09-004" /></properties></testcase><testcase classname="suites.wiki-derived.test_wp_g5_exchange_messages_and_correlation" name="test_wiki_l06_018_an_expired_message_and_a_message_replayed_after_authority_was_withdrawn_have_no_effect" file="suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py" line="219" time="0.276"><properties><property name="wiki_case" value="TC-L06-018" /></properties><failure message="AssertionError: assert ('REFUSE' == 'REFUSE'&#10;  &#10;    REFUSE and ['GAX-FRESHNE...AFTER-EXPIRY'] == ['GAX-FRESHNESS-EXPIRED']&#10;  &#10;  At index 0 diff: 'GAX-FRESHNESS-CREATED-AFTER-EXPIRY' != 'GAX-FRESHNESS-EXPIRED'&#10;  Use -v to get more diff)">routes = &lt;test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fa73bea7770&gt;
+
+    @wiki_case('TC-L06-018')
+    def test_wiki_l06_018_an_expired_message_and_a_message_replayed_after_authority_was_withdrawn_have_no_effect(routes):
+        flow = routes.flow()
+        expired = E.make_msg(flow, 'expired', expires_at='2026-10-05T18:00:00+00:00')
+        res = run(flow, expired)
+&gt;       assert handling(res) == 'REFUSE' and errors(res) == ['GAX-FRESHNESS-EXPIRED'] and effects(flow) == []
+E       AssertionError: assert ('REFUSE' == 'REFUSE'
+E         
+E           REFUSE and ['GAX-FRESHNE...AFTER-EXPIRY'] == ['GAX-FRESHNESS-EXPIRED']
+E         
+E         At index 0 diff: 'GAX-FRESHNESS-CREATED-AFTER-EXPIRY' != 'GAX-FRESHNESS-EXPIRED'
+E         Use -v to get more diff)
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:225: AssertionError</failure></testcase><testcase classname="suites.wiki-derived.test_wp_g5_exchange_messages_and_correlation" name="test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit" file="suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py" line="357" time="14.004"><properties><property name="wiki_case" value="TC-L06-040" /></properties><failure message="AssertionError: assert 'NOT_UNDERSTOOD' == 'ACCEPT_FOR_ASSESSMENT'&#10;  &#10;  - ACCEPT_FOR_ASSESSMENT&#10;  + NOT_UNDERSTOOD">routes = &lt;test_wp_g5_exchange_messages_and_correlation.Routes object at 0x7fa73c47c410&gt;
+
+    @wiki_case('TC-L06-040')
+    def test_wiki_l06_040_the_schema_check_does_not_reject_extra_members_content_types_or_size_known_limit(routes):
+        # five of the twelve are rejected, so the criterion of at least eleven is not met; the seven that are accepted are accepted as data
+        outcomes = {}
+        for name in INVALID_TWELVE:
+            flow = routes.flow()
+            res, exc = attempt(flow, invalid_message(flow, name))
+            outcomes[name] = 'rejected' if res is not None and handling(res) != 'ACCEPT_FOR_ASSESSMENT' else 'accepted_as_data'
+        assert outcomes == {name: kind for name, (_, kind) in INVALID_TWELVE.items()}
+        assert sum(v == 'rejected' for v in outcomes.values()) == 5 and sum(v == 'rejected' for v in outcomes.values()) &lt; 11
+        # the created-at member is not checked for its type at all, and an uncomparable sender stops the assessment with an exception
+        flow = routes.flow()
+&gt;       assert handling(run(flow, E.resign(flow.gax, E.make_msg(flow, 'created-number'), created_at=5))) == 'ACCEPT_FOR_ASSESSMENT'
+E       AssertionError: assert 'NOT_UNDERSTOOD' == 'ACCEPT_FOR_ASSESSMENT'
+E         
+E         - ACCEPT_FOR_ASSESSMENT
+E         + NOT_UNDERSTOOD
+
+suites/wiki-derived/test_wp_g5_exchange_messages_and_correlation.py:370: AssertionError</failure></testcase></testsuite></testsuites>

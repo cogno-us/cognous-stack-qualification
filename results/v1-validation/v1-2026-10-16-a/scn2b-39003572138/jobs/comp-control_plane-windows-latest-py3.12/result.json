@@ -1,0 +1,101 @@
+{
+  "schema": "cognous.v1-validation-job/1",
+  "component": "control_plane",
+  "repository": "cogno-us/cognous-control-plane",
+  "pinned_sha": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+  "actual_sha": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+  "os": "windows-latest",
+  "python": "3.12.10",
+  "platform": "Windows-2025Server-10.0.26100-SP0",
+  "workflow_run": "39003572138",
+  "run_attempt": "1",
+  "job": "components",
+  "attempts": [
+    {
+      "attempt": 1,
+      "installs": [
+        {
+          "target": ".[dev,test]",
+          "rc": 0
+        }
+      ],
+      "returncode": 2,
+      "execution_seconds": 1.92,
+      "timed_out": false,
+      "counts": {
+        "testcases": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "setup_ok": true,
+      "outcome": "FAIL",
+      "reason": "test failures/errors"
+    }
+  ],
+  "timeout_seconds": 300,
+  "inventory": {
+    "ci_runs_on": {
+      "o6-p0-check-commit-inventory.yml": [
+        "ubuntu-latest"
+      ],
+      "o6-p1b-durable-refusal.yml": [
+        "ubuntu-latest"
+      ],
+      "tests.yml": [
+        "ubuntu-latest"
+      ],
+      "w5-microsoft-agt.yml": [
+        "ubuntu-latest"
+      ]
+    },
+    "test_dirs": [
+      "tests"
+    ],
+    "test_files": [
+      "tests/test_adversarial_review.py",
+      "tests/test_blocked_action.py",
+      "tests/test_bounded_authorization.py",
+      "tests/test_check_commit_inventory.py",
+      "tests/test_cli.py",
+      "tests/test_decision_input_commitment_profile.py",
+      "tests/test_determinism.py",
+      "tests/test_frame_immutability.py",
+      "tests/test_framework_integration_demo.py",
+      "tests/test_local_authority_effect_profile.py",
+      "tests/test_microsoft_agt.py",
+      "tests/test_moltbook_addendum.py",
+      "tests/test_negative_resolution_evidence.py",
+      "tests/test_persistence.py",
+      "tests/test_policy_config.py",
+      "tests/test_policy_gate.py",
+      "tests/test_policy_traces.py",
+      "tests/test_record_store_concurrency.py",
+      "tests/test_redaction.py",
+      "tests/test_reliance_record.py",
+      "tests/test_replay_bundle.py",
+      "tests/test_run_recorder.py",
+      "tests/test_runtime_authority.py",
+      "tests/test_signing.py",
+      "tests/test_tool_adapter.py",
+      "tests/test_validation.py"
+    ],
+    "test_file_count": 26,
+    "ci_workflows": [
+      "o6-p0-check-commit-inventory.yml",
+      "o6-p1b-durable-refusal.yml",
+      "tests.yml",
+      "w5-microsoft-agt.yml"
+    ],
+    "has_pyproject": true,
+    "has_requirements": []
+  },
+  "status": "FAIL",
+  "reason": "test failures/errors",
+  "log": {
+    "sha256_uncompressed": "9b671300aa906e2c5510b7696c59e3853a77899f79bc093e9bf2c88d5907bdb1",
+    "bytes_uncompressed": 2371,
+    "retained": true,
+    "file": "job.log.gz"
+  }
+}

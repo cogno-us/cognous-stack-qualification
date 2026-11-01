@@ -1,0 +1,964 @@
+{
+  "by_class": {
+    "corrupt": {
+      "detected": 12,
+      "missed": [],
+      "planted": 12
+    },
+    "drop": {
+      "detected": 19,
+      "missed": [],
+      "planted": 19
+    },
+    "duplicate": {
+      "detected": 9,
+      "missed": [],
+      "planted": 9
+    },
+    "remove_observation": {
+      "detected": 2,
+      "missed": [],
+      "planted": 2
+    },
+    "reorder": {
+      "detected": 3,
+      "missed": [],
+      "planted": 3
+    }
+  },
+  "case": "unreadable",
+  "detected": 45,
+  "detection_means": "any consumer stage rejecting (typed refusal/exception) or flagging (incomplete/invalid/new failing dimension)",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "tested_revision_match": true,
+        "tree": "c4146c16e416d4e8f3619a7b553d1691d389817c"
+      },
+      "evidence_pack": {
+        "commit": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "tested_revision_match": true,
+        "tree": "67c703b3182221e233220b607c4428a17baadd50"
+      },
+      "exchange": {
+        "commit": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "tested_revision_match": true,
+        "tree": "bdc7a5c6be6fd035b9e17c5867d25030c853e689"
+      },
+      "manifest": {
+        "commit": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "tested_revision_match": true,
+        "tree": "3bda14d9974b0645f14cd2a1ca9924951ac87be6"
+      },
+      "odes": {
+        "commit": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "tested_revision_match": true,
+        "tree": "6d011177f7ae9c1f082eb0727cc0254392ed5713"
+      },
+      "replay": {
+        "commit": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "tested_revision_match": true,
+        "tree": "b2df198599e7faf27966e5428b27ef0f4f36de19"
+      },
+      "runtime": {
+        "commit": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "tested_revision_match": true,
+        "tree": "31af6d1f253796b1abf09aa7152804871094f49b"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "6b16962db140590b808f02b5c2cb11a217aec46f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "family": "bundle",
+  "missed": 0,
+  "not_applicable_nothing_to_plant": [
+    "bundle.links.drop_all",
+    "bundle.record[effect_time_refusal].reorder_swap_first_two",
+    "bundle.record[execution_envelope].reorder_swap_first_two",
+    "bundle.record[execution_result].reorder_swap_first_two",
+    "bundle.record[executor_control_plane_evidence].reorder_swap_first_two",
+    "bundle.record[input_time_floors].reorder_swap_first_two",
+    "bundle.record[runtime_decision].reorder_swap_first_two",
+    "bundle.record[runtime_proposal].reorder_swap_first_two"
+  ],
+  "planted": 45,
+  "run1": {
+    "table": {
+      "bundle.commitments.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay commitments differs from accepted reconstruction"
+      },
+      "bundle.import_reports.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay import_reports differs from accepted reconstruction"
+      },
+      "bundle.import_reports.drop_findings": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay import_reports differs from accepted reconstruction"
+      },
+      "bundle.links.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "bundle.record[effect_time_refusal].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "bundle.record[effect_time_refusal].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: executor refusal lacks matching denied durable lineage"
+      },
+      "bundle.record[effect_time_refusal].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: executor refusal lacks matching denied durable lineage"
+      },
+      "bundle.record[effect_time_refusal].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[effect_time_refusal].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[execution_envelope].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot envelope has dangling decision_id <uuid>~tampered"
+      },
+      "bundle.record[execution_envelope].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_envelope"
+      },
+      "bundle.record[execution_envelope].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_envelope"
+      },
+      "bundle.record[execution_envelope].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[execution_envelope].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[execution_result].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot execution_result identifiers do not match execution envelope"
+      },
+      "bundle.record[execution_result].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_result"
+      },
+      "bundle.record[execution_result].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_result"
+      },
+      "bundle.record[execution_result].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[execution_result].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[executor_control_plane_evidence].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: result Control Plane evidence differs from export"
+      },
+      "bundle.record[executor_control_plane_evidence].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: producer 2.0.0 requires exactly one retained Control Plane evidence record"
+      },
+      "bundle.record[executor_control_plane_evidence].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: producer 2.0.0 requires exactly one retained Control Plane evidence record"
+      },
+      "bundle.record[executor_control_plane_evidence].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[executor_control_plane_evidence].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[input_time_floors].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: accepted observation requires timezone-aware times"
+      },
+      "bundle.record[input_time_floors].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: typed refusal profile requires one time-floor record"
+      },
+      "bundle.record[input_time_floors].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: typed refusal profile requires one time-floor record"
+      },
+      "bundle.record[input_time_floors].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[input_time_floors].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[resolution_check].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay records differs from accepted reconstruction"
+      },
+      "bundle.record[resolution_check].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "bundle.record[resolution_check].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "bundle.record[resolution_check].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[resolution_check].reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: resolution checks are out of journal order"
+      },
+      "bundle.record[resolution_check_event].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.record[resolution_check_event].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: resolution journal missing"
+      },
+      "bundle.record[resolution_check_event].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.record[resolution_check_event].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[resolution_check_event].reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.record[runtime_decision].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay records differs from accepted reconstruction"
+      },
+      "bundle.record[runtime_decision].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: reconstruction bundle must retain at least one runtime_decision"
+      },
+      "bundle.record[runtime_decision].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: reconstruction bundle must retain at least one runtime_decision"
+      },
+      "bundle.record[runtime_decision].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[runtime_decision].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[runtime_proposal].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: decisions[0].binding.proposal_commitment conflicts with committed operation"
+      },
+      "bundle.record[runtime_proposal].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot envelope requires the corresponding RuntimeProposal for cross-record validation"
+      },
+      "bundle.record[runtime_proposal].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot envelope requires the corresponding RuntimeProposal for cross-record validation"
+      },
+      "bundle.record[runtime_proposal].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[runtime_proposal].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.records.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.semantics.promote_destination_observation": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay semantics differs from accepted reconstruction"
+      },
+      "bundle.semantics.promote_independent_verification": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay semantics differs from accepted reconstruction"
+      },
+      "bundle.status.corrupt": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay status differs from accepted reconstruction"
+      }
+    }
+  },
+  "run2": {
+    "table": {
+      "bundle.commitments.drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay commitments differs from accepted reconstruction"
+      },
+      "bundle.import_reports.drop_all": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay import_reports differs from accepted reconstruction"
+      },
+      "bundle.import_reports.drop_findings": {
+        "applicable": true,
+        "class": "remove_observation",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay import_reports differs from accepted reconstruction"
+      },
+      "bundle.links.drop_all": {
+        "applicable": false,
+        "class": "drop"
+      },
+      "bundle.record[effect_time_refusal].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: dangling/substituted refusal binding"
+      },
+      "bundle.record[effect_time_refusal].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: executor refusal lacks matching denied durable lineage"
+      },
+      "bundle.record[effect_time_refusal].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: executor refusal lacks matching denied durable lineage"
+      },
+      "bundle.record[effect_time_refusal].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[effect_time_refusal].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[execution_envelope].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot envelope has dangling decision_id <uuid>~tampered"
+      },
+      "bundle.record[execution_envelope].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_envelope"
+      },
+      "bundle.record[execution_envelope].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_envelope"
+      },
+      "bundle.record[execution_envelope].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[execution_envelope].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[execution_result].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot execution_result identifiers do not match execution envelope"
+      },
+      "bundle.record[execution_result].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_result"
+      },
+      "bundle.record[execution_result].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: execution evidence requires exactly one execution_result"
+      },
+      "bundle.record[execution_result].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[execution_result].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[executor_control_plane_evidence].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: result Control Plane evidence differs from export"
+      },
+      "bundle.record[executor_control_plane_evidence].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: producer 2.0.0 requires exactly one retained Control Plane evidence record"
+      },
+      "bundle.record[executor_control_plane_evidence].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: producer 2.0.0 requires exactly one retained Control Plane evidence record"
+      },
+      "bundle.record[executor_control_plane_evidence].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[executor_control_plane_evidence].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[input_time_floors].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: accepted observation requires timezone-aware times"
+      },
+      "bundle.record[input_time_floors].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: typed refusal profile requires one time-floor record"
+      },
+      "bundle.record[input_time_floors].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: typed refusal profile requires one time-floor record"
+      },
+      "bundle.record[input_time_floors].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[input_time_floors].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[resolution_check].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay records differs from accepted reconstruction"
+      },
+      "bundle.record[resolution_check].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "bundle.record[resolution_check].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: completed journal differs from actual resolution check"
+      },
+      "bundle.record[resolution_check].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[resolution_check].reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: resolution checks are out of journal order"
+      },
+      "bundle.record[resolution_check_event].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.record[resolution_check_event].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: resolution journal missing"
+      },
+      "bundle.record[resolution_check_event].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.record[resolution_check_event].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[resolution_check_event].reorder_swap_first_two": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.record[runtime_decision].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay records differs from accepted reconstruction"
+      },
+      "bundle.record[runtime_decision].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: reconstruction bundle must retain at least one runtime_decision"
+      },
+      "bundle.record[runtime_decision].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: reconstruction bundle must retain at least one runtime_decision"
+      },
+      "bundle.record[runtime_decision].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[runtime_decision].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.record[runtime_proposal].corrupt_existing_value": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: decisions[0].binding.proposal_commitment conflicts with committed operation"
+      },
+      "bundle.record[runtime_proposal].drop_all": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot envelope requires the corresponding RuntimeProposal for cross-record validation"
+      },
+      "bundle.record[runtime_proposal].drop_first": {
+        "applicable": true,
+        "class": "drop",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: Moltbot envelope requires the corresponding RuntimeProposal for cross-record validation"
+      },
+      "bundle.record[runtime_proposal].duplicate": {
+        "applicable": true,
+        "class": "duplicate",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: duplicate or invalid retained record identity"
+      },
+      "bundle.record[runtime_proposal].reorder_swap_first_two": {
+        "applicable": false,
+        "class": "reorder"
+      },
+      "bundle.records.reorder_reverse": {
+        "applicable": true,
+        "class": "reorder",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed: typed refusal profile: journal missing opening or already closed"
+      },
+      "bundle.semantics.promote_destination_observation": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay semantics differs from accepted reconstruction"
+      },
+      "bundle.semantics.promote_independent_verification": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay semantics differs from accepted reconstruction"
+      },
+      "bundle.status.corrupt": {
+        "applicable": true,
+        "class": "corrupt",
+        "detected": true,
+        "how": "rejected",
+        "stage": "evidence_pack_import",
+        "why": "ImportContractError: pinned Replay semantic validation failed unexpectedly: retained Replay status differs from accepted reconstruction"
+      }
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:37b5863636265727dbd8d627953c78d71c7a3f179bc6a9605745c0a3c35e99eb",
+    "run2_outcome_digest": "sha256:37b5863636265727dbd8d627953c78d71c7a3f179bc6a9605745c0a3c35e99eb",
+    "verdict": "MATCH"
+  },
+  "scenario": "D08",
+  "test": "test_scn_d08_planted_defects_detected[bundle-unreadable]"
+}

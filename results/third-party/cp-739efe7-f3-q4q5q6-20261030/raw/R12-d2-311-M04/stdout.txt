@@ -1,0 +1,268 @@
+.FFFFF.FFF........                                                       [100%]
+=================================== FAILURES ===================================
+_________ test_Q5_mismatch_leaf[P1_f4_scalars.status_max_age_seconds] __________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_mismatch_leaf_P1_f4_sc0')
+row_id = 'P1_f4_scalars.status_max_age_seconds'
+leaf = ('f4_scalars', 'status_max_age_seconds')
+
+    @pytest.mark.parametrize("row_id,leaf", Q5_MISMATCH, ids=[x[0] for x in Q5_MISMATCH])
+    def test_Q5_mismatch_leaf(tmp_path, row_id, leaf):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        original = H.member_of(c.dir, c.did)
+        text = perturbed(c, lambda ra, item: ra.__setitem__(KEY, H.perturb_member(original, leaf)))
+        chk.ok("perturbed_member_differs_and_self_consistent",
+               H.member_of(c.dir, c.did)["digest"] != original["digest"] and H.my_digest(H.member_of(c.dir, c.did)["members"]) == H.member_of(c.dir, c.did)["digest"])
+        mat, prov = both_modes(E, c, text)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82bbfd10>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P1_f4_scalars.status_max_age_seconds: failed ['P1_f4_scalars.status_max_age_seconds:provision:R1_PermissionError_no_claim', 'P1_f4_scalars.status_max_age_seconds:provision:R2_documented_message', 'P1_f4_scalars.status_max_age_seconds:materialize_ref:R1_PermissionError_no_claim', 'P1_f4_scalars.status_max_age_seconds:materialize_ref:R2_documented_message', 'P1_f4_scalars.status_max_age_seconds:R3_provision_spy_not_called']
+E       assert not ['P1_f4_scalars.status_max_age_seconds:provision:R1_PermissionError_no_claim', 'P1_f4_scalars.status_max_age_seconds:p...age_seconds:materialize_ref:R2_documented_message', 'P1_f4_scalars.status_max_age_seconds:R3_provision_spy_not_called']
+E        +  where ['P1_f4_scalars.status_max_age_seconds:provision:R1_PermissionError_no_claim', 'P1_f4_scalars.status_max_age_seconds:p...age_seconds:materialize_ref:R2_documented_message', 'P1_f4_scalars.status_max_age_seconds:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82bbfd10>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+_______________ test_Q5_mismatch_leaf[P2_scope.authority_domain] _______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_mismatch_leaf_P2_scope0')
+row_id = 'P2_scope.authority_domain', leaf = ('scope', 'authority_domain')
+
+    @pytest.mark.parametrize("row_id,leaf", Q5_MISMATCH, ids=[x[0] for x in Q5_MISMATCH])
+    def test_Q5_mismatch_leaf(tmp_path, row_id, leaf):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        original = H.member_of(c.dir, c.did)
+        text = perturbed(c, lambda ra, item: ra.__setitem__(KEY, H.perturb_member(original, leaf)))
+        chk.ok("perturbed_member_differs_and_self_consistent",
+               H.member_of(c.dir, c.did)["digest"] != original["digest"] and H.my_digest(H.member_of(c.dir, c.did)["members"]) == H.member_of(c.dir, c.did)["digest"])
+        mat, prov = both_modes(E, c, text)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82c59e10>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P2_scope.authority_domain: failed ['P2_scope.authority_domain:provision:R1_PermissionError_no_claim', 'P2_scope.authority_domain:provision:R2_documented_message', 'P2_scope.authority_domain:materialize_ref:R1_PermissionError_no_claim', 'P2_scope.authority_domain:materialize_ref:R2_documented_message', 'P2_scope.authority_domain:R3_provision_spy_not_called']
+E       assert not ['P2_scope.authority_domain:provision:R1_PermissionError_no_claim', 'P2_scope.authority_domain:provision:R2_documented...scope.authority_domain:materialize_ref:R2_documented_message', 'P2_scope.authority_domain:R3_provision_spy_not_called']
+E        +  where ['P2_scope.authority_domain:provision:R1_PermissionError_no_claim', 'P2_scope.authority_domain:provision:R2_documented...scope.authority_domain:materialize_ref:R2_documented_message', 'P2_scope.authority_domain:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82c59e10>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+_________ test_Q5_mismatch_leaf[P3_families.0.effective_policy_digest] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_mismatch_leaf_P3_famil0')
+row_id = 'P3_families.0.effective_policy_digest'
+leaf = ('families', 0, 'effective_policy_digest')
+
+    @pytest.mark.parametrize("row_id,leaf", Q5_MISMATCH, ids=[x[0] for x in Q5_MISMATCH])
+    def test_Q5_mismatch_leaf(tmp_path, row_id, leaf):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        original = H.member_of(c.dir, c.did)
+        text = perturbed(c, lambda ra, item: ra.__setitem__(KEY, H.perturb_member(original, leaf)))
+        chk.ok("perturbed_member_differs_and_self_consistent",
+               H.member_of(c.dir, c.did)["digest"] != original["digest"] and H.my_digest(H.member_of(c.dir, c.did)["members"]) == H.member_of(c.dir, c.did)["digest"])
+        mat, prov = both_modes(E, c, text)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82c10b90>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P3_families.0.effective_policy_digest: failed ['P3_families.0.effective_policy_digest:provision:R1_PermissionError_no_claim', 'P3_families.0.effective_policy_digest:provision:R2_documented_message', 'P3_families.0.effective_policy_digest:materialize_ref:R1_PermissionError_no_claim', 'P3_families.0.effective_policy_digest:materialize_ref:R2_documented_message', 'P3_families.0.effective_policy_digest:R3_provision_spy_not_called']
+E       assert not ['P3_families.0.effective_policy_digest:provision:R1_PermissionError_no_claim', 'P3_families.0.effective_policy_digest...icy_digest:materialize_ref:R2_documented_message', 'P3_families.0.effective_policy_digest:R3_provision_spy_not_called']
+E        +  where ['P3_families.0.effective_policy_digest:provision:R1_PermissionError_no_claim', 'P3_families.0.effective_policy_digest...icy_digest:materialize_ref:R2_documented_message', 'P3_families.0.effective_policy_digest:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82c10b90>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+________________ test_Q5_mismatch_leaf[P4_host_profile_digest] _________________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_mismatch_leaf_P4_host_0')
+row_id = 'P4_host_profile_digest', leaf = ('host_profile_digest',)
+
+    @pytest.mark.parametrize("row_id,leaf", Q5_MISMATCH, ids=[x[0] for x in Q5_MISMATCH])
+    def test_Q5_mismatch_leaf(tmp_path, row_id, leaf):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        original = H.member_of(c.dir, c.did)
+        text = perturbed(c, lambda ra, item: ra.__setitem__(KEY, H.perturb_member(original, leaf)))
+        chk.ok("perturbed_member_differs_and_self_consistent",
+               H.member_of(c.dir, c.did)["digest"] != original["digest"] and H.my_digest(H.member_of(c.dir, c.did)["members"]) == H.member_of(c.dir, c.did)["digest"])
+        mat, prov = both_modes(E, c, text)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82d0c910>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P4_host_profile_digest: failed ['P4_host_profile_digest:provision:R1_PermissionError_no_claim', 'P4_host_profile_digest:provision:R2_documented_message', 'P4_host_profile_digest:materialize_ref:R1_PermissionError_no_claim', 'P4_host_profile_digest:materialize_ref:R2_documented_message', 'P4_host_profile_digest:R3_provision_spy_not_called']
+E       assert not ['P4_host_profile_digest:provision:R1_PermissionError_no_claim', 'P4_host_profile_digest:provision:R2_documented_messa..., 'P4_host_profile_digest:materialize_ref:R2_documented_message', 'P4_host_profile_digest:R3_provision_spy_not_called']
+E        +  where ['P4_host_profile_digest:provision:R1_PermissionError_no_claim', 'P4_host_profile_digest:provision:R2_documented_messa..., 'P4_host_profile_digest:materialize_ref:R2_documented_message', 'P4_host_profile_digest:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82d0c910>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+______________ test_Q5_mismatch_leaf[P5_effective_profile_digest] ______________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_mismatch_leaf_P5_effec0')
+row_id = 'P5_effective_profile_digest', leaf = ('effective_profile_digest',)
+
+    @pytest.mark.parametrize("row_id,leaf", Q5_MISMATCH, ids=[x[0] for x in Q5_MISMATCH])
+    def test_Q5_mismatch_leaf(tmp_path, row_id, leaf):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        original = H.member_of(c.dir, c.did)
+        text = perturbed(c, lambda ra, item: ra.__setitem__(KEY, H.perturb_member(original, leaf)))
+        chk.ok("perturbed_member_differs_and_self_consistent",
+               H.member_of(c.dir, c.did)["digest"] != original["digest"] and H.my_digest(H.member_of(c.dir, c.did)["members"]) == H.member_of(c.dir, c.did)["digest"])
+        mat, prov = both_modes(E, c, text)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:255: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82c8f550>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P5_effective_profile_digest: failed ['P5_effective_profile_digest:provision:R1_PermissionError_no_claim', 'P5_effective_profile_digest:provision:R2_documented_message', 'P5_effective_profile_digest:materialize_ref:R1_PermissionError_no_claim', 'P5_effective_profile_digest:materialize_ref:R2_documented_message', 'P5_effective_profile_digest:R3_provision_spy_not_called']
+E       assert not ['P5_effective_profile_digest:provision:R1_PermissionError_no_claim', 'P5_effective_profile_digest:provision:R2_docume...ctive_profile_digest:materialize_ref:R2_documented_message', 'P5_effective_profile_digest:R3_provision_spy_not_called']
+E        +  where ['P5_effective_profile_digest:provision:R1_PermissionError_no_claim', 'P5_effective_profile_digest:provision:R2_docume...ctive_profile_digest:materialize_ref:R2_documented_message', 'P5_effective_profile_digest:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82c8f550>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+___ test_Q5_stripped_invalid_unknown[P7_invalid_members_changed_old_digest] ____
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_stripped_invalid_unkno1')
+row_id = 'P7_invalid_members_changed_old_digest'
+fn = <function <lambda> at 0x7f2b840e8360>, cfg = None
+
+    @pytest.mark.parametrize("row_id,fn,cfg", Q5_OTHER, ids=[x[0] for x in Q5_OTHER])
+    def test_Q5_stripped_invalid_unknown(tmp_path, row_id, fn, cfg):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        text = perturbed(c, fn)
+        mat, prov = both_modes(E, c, text, cfg)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82c11f50>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P7_invalid_members_changed_old_digest: failed ['P7_invalid_members_changed_old_digest:provision:R1_PermissionError_no_claim', 'P7_invalid_members_changed_old_digest:provision:R2_documented_message', 'P7_invalid_members_changed_old_digest:materialize_ref:R1_PermissionError_no_claim', 'P7_invalid_members_changed_old_digest:materialize_ref:R2_documented_message', 'P7_invalid_members_changed_old_digest:R3_provision_spy_not_called']
+E       assert not ['P7_invalid_members_changed_old_digest:provision:R1_PermissionError_no_claim', 'P7_invalid_members_changed_old_digest...old_digest:materialize_ref:R2_documented_message', 'P7_invalid_members_changed_old_digest:R3_provision_spy_not_called']
+E        +  where ['P7_invalid_members_changed_old_digest:provision:R1_PermissionError_no_claim', 'P7_invalid_members_changed_old_digest...old_digest:materialize_ref:R2_documented_message', 'P7_invalid_members_changed_old_digest:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82c11f50>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+________ test_Q5_stripped_invalid_unknown[P8_invalid_digest_truncated] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_stripped_invalid_unkno2')
+row_id = 'P8_invalid_digest_truncated'
+fn = <function <lambda> at 0x7f2b840e8400>, cfg = None
+
+    @pytest.mark.parametrize("row_id,fn,cfg", Q5_OTHER, ids=[x[0] for x in Q5_OTHER])
+    def test_Q5_stripped_invalid_unknown(tmp_path, row_id, fn, cfg):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        text = perturbed(c, fn)
+        mat, prov = both_modes(E, c, text, cfg)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82abe5d0>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P8_invalid_digest_truncated: failed ['P8_invalid_digest_truncated:provision:R1_PermissionError_no_claim', 'P8_invalid_digest_truncated:provision:R2_documented_message', 'P8_invalid_digest_truncated:materialize_ref:R1_PermissionError_no_claim', 'P8_invalid_digest_truncated:materialize_ref:R2_documented_message', 'P8_invalid_digest_truncated:R3_provision_spy_not_called']
+E       assert not ['P8_invalid_digest_truncated:provision:R1_PermissionError_no_claim', 'P8_invalid_digest_truncated:provision:R2_docume...lid_digest_truncated:materialize_ref:R2_documented_message', 'P8_invalid_digest_truncated:R3_provision_spy_not_called']
+E        +  where ['P8_invalid_digest_truncated:provision:R1_PermissionError_no_claim', 'P8_invalid_digest_truncated:provision:R2_docume...lid_digest_truncated:materialize_ref:R2_documented_message', 'P8_invalid_digest_truncated:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82abe5d0>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+________ test_Q5_stripped_invalid_unknown[P9_unknown_version_resealed] _________
+
+tmp_path = PosixPath('/tmp/pytest-of-root/pytest-24/test_Q5_stripped_invalid_unkno3')
+row_id = 'P9_unknown_version_resealed'
+fn = <function <lambda> at 0x7f2b840e84a0>, cfg = None
+
+    @pytest.mark.parametrize("row_id,fn,cfg", Q5_OTHER, ids=[x[0] for x in Q5_OTHER])
+    def test_Q5_stripped_invalid_unknown(tmp_path, row_id, fn, cfg):
+        E = H.env()
+        chk = Check(f"Q5_{row_id}")
+        c = pin_case(tmp_path)
+        text = perturbed(c, fn)
+        mat, prov = both_modes(E, c, text, cfg)
+        rec(chk.case, "RAW", materialize=public(mat), provision=public(prov))
+        judge_refusal(chk, row_id, mat, prov)
+>       chk.done()
+
+../../harness/test_d2_q4q5.py:275: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <test_d2_q4q5.Check object at 0x7f2b82cc5490>
+
+    def done(self):
+>       assert not self.fails, f"{self.case}: failed {self.fails}"
+E       AssertionError: Q5_P9_unknown_version_resealed: failed ['P9_unknown_version_resealed:provision:R1_PermissionError_no_claim', 'P9_unknown_version_resealed:provision:R2_documented_message', 'P9_unknown_version_resealed:materialize_ref:R1_PermissionError_no_claim', 'P9_unknown_version_resealed:materialize_ref:R2_documented_message', 'P9_unknown_version_resealed:R3_provision_spy_not_called']
+E       assert not ['P9_unknown_version_resealed:provision:R1_PermissionError_no_claim', 'P9_unknown_version_resealed:provision:R2_docume...own_version_resealed:materialize_ref:R2_documented_message', 'P9_unknown_version_resealed:R3_provision_spy_not_called']
+E        +  where ['P9_unknown_version_resealed:provision:R1_PermissionError_no_claim', 'P9_unknown_version_resealed:provision:R2_docume...own_version_resealed:materialize_ref:R2_documented_message', 'P9_unknown_version_resealed:R3_provision_spy_not_called'] = <test_d2_q4q5.Check object at 0x7f2b82cc5490>.fails
+
+../../harness/test_d2_q4q5.py:61: AssertionError
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED ../../harness/test_d2_q4q5.py::test_Q5_P0_control_unperturbed
+PASSED ../../harness/test_d2_q4q5.py::test_Q5_stripped_invalid_unknown[P6_stripped_member_cutoff0]
+PASSED ../../harness/test_d2_q4q5.py::test_Q5_L1_legacy_accepted_cutoff1_idx0_stripped
+PASSED ../../harness/test_d2_q4q5.py::test_Q5_L2_legacy_generated_by_prior_binary_cutoff1_idx0
+PASSED ../../harness/test_d2_q4q5.py::test_Q5_T1_noncallable_provision_typeerror_before_write_unperturbed
+PASSED ../../harness/test_d2_q4q5.py::test_Q5_T2_noncallable_provision_typeerror_ordering_perturbed
+PASSED ../../harness/test_d2_q4q5.py::test_Q4b_B1_persisted_authority_domain_edit_classified_mismatch_via_public_status[pin]
+PASSED ../../harness/test_d2_q4q5.py::test_Q4b_B1_persisted_authority_domain_edit_classified_mismatch_via_public_status[f4]
+PASSED ../../harness/test_d2_q4q5.py::test_Q4b_B2_classify_live_vs_persisted_domain_pure
+PASSED ../../harness/test_d2_q4q5.py::test_Q4b_B3_scope_identity_derivation_blindness_demonstration
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_mismatch_leaf[P1_f4_scalars.status_max_age_seconds]
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_mismatch_leaf[P2_scope.authority_domain]
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_mismatch_leaf[P3_families.0.effective_policy_digest]
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_mismatch_leaf[P4_host_profile_digest]
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_mismatch_leaf[P5_effective_profile_digest]
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_stripped_invalid_unknown[P7_invalid_members_changed_old_digest]
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_stripped_invalid_unknown[P8_invalid_digest_truncated]
+FAILED ../../harness/test_d2_q4q5.py::test_Q5_stripped_invalid_unknown[P9_unknown_version_resealed]
+8 failed, 10 passed in 3.82s
+exit=1

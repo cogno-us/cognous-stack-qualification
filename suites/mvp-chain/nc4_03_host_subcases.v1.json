@@ -1,0 +1,178 @@
+{
+ "schema": "cognous.nc4-03-host-subcases/1",
+ "version": "v1",
+ "status": "PROPOSED by Worker B2 (OCS-MVP-QGATE-05) for Qualification freeze; not frozen, not an acceptance. A change is a NEW versioned file.",
+ "rulings": "Architect A3/A4 and D3 (issue #215 comment 6537418060): host-dependent predicates are explicit, separately identified subcases executed on the ratified 2751 bounded test profile; they may not make the deterministic mutation verdict ambiguous.",
+ "deterministic": false,
+ "host_dependent": true,
+ "affects_deterministic_verdict": false,
+ "separation_rule": "The deterministic verdict (nc4_03_mutation_set.v1.json, _nc4_03_mutations.run_deterministic) is computed first, from pinned source only, and recorded with its own sha256. These subcases are computed afterwards by _nc4_03_host.run_host_subcases, are reported under their own row ids and statuses, and are never inputs to the deterministic verdict. BLOCKED means the ratified profile is unavailable or the probe could not observe: it is reported as BLOCKED (acceptance INCOMPLETE for that row) and never converted to PASS or FAIL, and never changes NC4-03.",
+ "status_semantics": {
+  "PASS": "every named fact held on the ratified profile",
+  "FAIL": "an observed fact contradicts the ratified profile",
+  "BLOCKED": "profile unavailable (Yama absent, identities not named, not root, developer-optout, probe error); no weaker substitute"
+ },
+ "subcases": [
+  {
+   "id": "NC4-03a",
+   "name": "yama_ptrace_scope",
+   "input": {
+    "host_property": "kernel.yama.ptrace_scope read from /proc/sys/kernel/yama/ptrace_scope"
+   },
+   "operation": {
+    "kind": "host_probe",
+    "probe": "_nc4_03_host.sub_a_yama",
+    "action": "read the sysctl; no mutation of the host"
+   },
+   "expected": {
+    "outcome": "PASS",
+    "facts": [
+     "ptrace_scope in {1,2,3}"
+    ],
+    "absent_or_0": "BLOCKED (profile unsupported)"
+   },
+   "environment": {
+    "profile": "ratified bounded synthetic profile (D3): IPC directory mode 2751, socket 0660, peer-UID allowlist; GitHub-hosted ubuntu-24.04 with dedicated users named by MVP_INGRESS_USER, MVP_CLIENT_USER, MVP_IPC_GROUP; CPython 3.13; root only to drop privileges",
+    "not_production": true,
+    "developer_optout": "local dry run only; every status is capped at BLOCKED",
+    "requires_root": false
+   },
+   "evidence_source": {
+    "observation": "nc4_03_host.NC4-03a.status",
+    "record": "nc4_03_host.record.subcases[NC4-03a].observed.ptrace_scope",
+    "also": "hub env record isolation.ptrace_scope (G-11)"
+   },
+   "predicate": [
+    {
+     "obs": "nc4_03_host.NC4-03a.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03b",
+   "name": "uid_separation",
+   "input": {
+    "identities": "dedicated non-root ingress user, dedicated client user, outsider uid 65533, distinct primary groups"
+   },
+   "operation": {
+    "kind": "host_probe",
+    "probe": "_nc4_03_host.sub_b_uid_separation",
+    "action": "fork children that drop to the client and outsider uids (no supplementary groups) and read /proc/self/status"
+   },
+   "expected": {
+    "outcome": "PASS",
+    "facts": [
+     "ingress not root",
+     "client not root and distinct from ingress",
+     "distinct primary groups",
+     "outsider distinct",
+     "client and outsider CapEff == 0",
+     "effective uids as declared"
+    ]
+   },
+   "environment": {
+    "profile": "ratified bounded synthetic profile (D3): IPC directory mode 2751, socket 0660, peer-UID allowlist; GitHub-hosted ubuntu-24.04 with dedicated users named by MVP_INGRESS_USER, MVP_CLIENT_USER, MVP_IPC_GROUP; CPython 3.13; root only to drop privileges",
+    "not_production": true,
+    "developer_optout": "local dry run only; every status is capped at BLOCKED",
+    "requires_root": true
+   },
+   "evidence_source": {
+    "observation": "nc4_03_host.NC4-03b.status",
+    "record": "nc4_03_host.record.subcases[NC4-03b].observed.facts",
+    "also": "hub env record identity.* (G-11)"
+   },
+   "predicate": [
+    {
+     "obs": "nc4_03_host.NC4-03b.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03c",
+   "name": "ipc_2751_socket_profile",
+   "input": {
+    "ipc_directory": "owned by the ingress uid, group = dedicated IPC group, setgid, mode 2751",
+    "socket": "AF_UNIX stream bound by the ingress uid, chmod 0660"
+   },
+   "operation": {
+    "kind": "host_probe",
+    "probe": "_nc4_03_host.sub_c_ipc_2751",
+    "action": "create the directory and socket in a temp dir; probe as outsider uid 65533 (no groups) and as the group-member client"
+   },
+   "expected": {
+    "outcome": "PASS",
+    "facts": [
+     "dir mode 2751",
+     "dir group is the IPC group",
+     "socket mode 0660 and group inherited via setgid",
+     "outsider can stat the known socket name (ACCEPTED RESIDUAL, D3)",
+     "outsider cannot list the directory (EACCES)",
+     "outsider cannot connect (EACCES)",
+     "group-member client connects"
+    ]
+   },
+   "environment": {
+    "profile": "ratified bounded synthetic profile (D3): IPC directory mode 2751, socket 0660, peer-UID allowlist; GitHub-hosted ubuntu-24.04 with dedicated users named by MVP_INGRESS_USER, MVP_CLIENT_USER, MVP_IPC_GROUP; CPython 3.13; root only to drop privileges",
+    "not_production": true,
+    "developer_optout": "local dry run only; every status is capped at BLOCKED",
+    "requires_root": true
+   },
+   "evidence_source": {
+    "observation": "nc4_03_host.NC4-03c.status",
+    "record": "nc4_03_host.record.subcases[NC4-03c].observed",
+    "also": "hub env record ipc.* and qualification.outsider_denied_socket (G-11)"
+   },
+   "predicate": [
+    {
+     "obs": "nc4_03_host.NC4-03c.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  },
+  {
+   "id": "NC4-03d",
+   "name": "peer_uid_allowlist",
+   "input": {
+    "server": "pinned hub tools/mvp_ingress/server.py serve() with a stub core (no authority), allowlist = the one client uid",
+    "peers": "allowlisted client uid; a socket-group member uid 65531 that is not allowlisted"
+   },
+   "operation": {
+    "kind": "host_probe",
+    "probe": "_nc4_03_host.sub_d_peer_allowlist",
+    "action": "serve two connections on a 2751/0660 socket from a COPY of the hub tools tree; probe as both uids; call validate_allowed_uids([])"
+   },
+   "expected": {
+    "outcome": "PASS",
+    "facts": [
+     "empty allowlist refused",
+     "allowlisted client reaches the stub core",
+     "non-allowlisted group member receives PEER_NOT_ALLOWED and never reaches the core"
+    ]
+   },
+   "environment": {
+    "profile": "ratified bounded synthetic profile (D3): IPC directory mode 2751, socket 0660, peer-UID allowlist; GitHub-hosted ubuntu-24.04 with dedicated users named by MVP_INGRESS_USER, MVP_CLIENT_USER, MVP_IPC_GROUP; CPython 3.13; root only to drop privileges",
+    "not_production": true,
+    "developer_optout": "local dry run only; every status is capped at BLOCKED",
+    "requires_root": true,
+    "reads_hub_copy": "MVP_HUB_DIR/tools (copied, never written)"
+   },
+   "evidence_source": {
+    "observation": "nc4_03_host.NC4-03d.status",
+    "record": "nc4_03_host.record.subcases[NC4-03d].observed",
+    "also": "hub unit tests; does not replace NC4-02 execution evidence"
+   },
+   "predicate": [
+    {
+     "obs": "nc4_03_host.NC4-03d.status",
+     "op": "eq",
+     "value": "PASS"
+    }
+   ]
+  }
+ ]
+}

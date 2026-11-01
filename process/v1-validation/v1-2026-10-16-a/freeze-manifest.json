@@ -1,0 +1,189 @@
+{
+  "schema": "cognous.v1-validation-freeze/1",
+  "validation_id": "v1-2026-10-16-a",
+  "frozen_utc": "2026-10-16",
+  "subject": {
+    "name": "F5b-repaired seven-component bounded synthetic reference at the owner-approved public-reference-f5b-20261016 tags, with the remaining hub-lock components at their lock pins",
+    "owner_instruction": "Validation owner (Andr\u00e9 de Lima) designated hub 8517818f, qualification af9f5843 and runtime e20f92e1 as frozen V1.",
+    "selected_in_hub_component_lock": false,
+    "discrepancy": "The hub labels the F5b candidate nonselected: component-lock.json (sha256 dc66aafe...) still selects the W7 merged-producers-v1 generation. This validation's verdict applies to the F5b reference as designated by the owner. It does not transfer to, and is not transferred from, the W7 lock default. The W7 default is recorded under historical_selected_default and is not re-executed as a candidate.",
+    "scope": "Bounded synthetic local SQLite reference; no production, live effects or paid model calls unless separately authorized."
+  },
+  "identities": {
+    "hub": {
+      "repository": "cogno-us/cognous-open-control-stack",
+      "head": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "public_reference_tag": "public-reference-f5b-20261016",
+      "tag_commit": "a2d3a509856e1621105664c5f11195f6f6b100ce",
+      "head_minus_tag_files": [
+        "collateral/evidence-snapshot.json",
+        "docs/release-status.md"
+      ],
+      "head_minus_tag_note": "two commits (ee69312, merge 8517818) that only record the tags"
+    },
+    "qualification": {
+      "repository": "cogno-us/cognous-stack-qualification",
+      "closeout": "af9f5843b9188ee5c6dc0648206d1e92e41a73ef",
+      "public_reference_tag": "public-reference-f5b-20261016",
+      "tag_commit": "af9f5843b9188ee5c6dc0648206d1e92e41a73ef",
+      "main_at_freeze": "7d9ad9840f859544c4d6e3d15e6c16c56e7f7f90",
+      "post_closeout_note": "main contains qualification PR #29 (matched refund, commits 347df5d..a5b6daf) after the closeout. PR #29 evidence is reuse-candidate only and is re-verified before reuse."
+    },
+    "runtime": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "sha": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "public_reference_tag": "public-reference-f5b-20261016",
+      "quarantine_tag": "upstream-moltbot-quarantine-20261016"
+    }
+  },
+  "profile": {
+    "path": "profiles/security-runtime-f5b-candidate-20261016.json",
+    "repository": "cogno-us/cognous-open-control-stack",
+    "sha256": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274",
+    "qualification_profile": "process/security-runtime-f5b-20261016.json",
+    "exchange_compatibility_profile": "security-runtime-f5b-20261016"
+  },
+  "hub_file_hashes": {
+    "component-lock.json": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+    "tools/requirements-release.lock": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+    "profiles/security-runtime-f5b-candidate-20261016.json": "f159158cd9f5504a6e1c0683cbd136532c1c6938300dd17aa45f700ad9278274"
+  },
+  "qualification_file_hashes": {
+    "process/security-runtime-f5b-20261016.json": "a710b8c0eb4a6dba1f0770a957212b32a34fb8042e1d3726ef24a2b1db249ddd",
+    "tools/requirements-ci.lock": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495"
+  },
+  "components_subject": {
+    "control_plane": {
+      "repository": "cogno-us/cognous-control-plane",
+      "sha": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "profile_key": "control_plane",
+      "selected_by": "F5b candidate profile (hub profiles/security-runtime-f5b-candidate-20261016.json)"
+    },
+    "moltbot_safe": {
+      "repository": "cogno-us/cognous-execution-runtime",
+      "sha": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+      "profile_key": "runtime",
+      "selected_by": "F5b candidate profile (hub profiles/security-runtime-f5b-candidate-20261016.json)"
+    },
+    "replay_bundle": {
+      "repository": "cogno-us/cognous-replay-bundle",
+      "sha": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+      "profile_key": "replay",
+      "selected_by": "F5b candidate profile (hub profiles/security-runtime-f5b-candidate-20261016.json)"
+    },
+    "governance_evidence_pack": {
+      "repository": "cogno-us/cognous-governance-evidence-pack",
+      "sha": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+      "profile_key": "evidence_pack",
+      "selected_by": "F5b candidate profile (hub profiles/security-runtime-f5b-candidate-20261016.json)"
+    },
+    "odes": {
+      "repository": "cogno-us/open-decision-evidence-standard",
+      "sha": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+      "profile_key": "odes",
+      "selected_by": "F5b candidate profile (hub profiles/security-runtime-f5b-candidate-20261016.json)"
+    },
+    "gax_imx_transport": {
+      "repository": "cogno-us/cognous-governed-exchange",
+      "sha": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+      "profile_key": "exchange",
+      "selected_by": "F5b candidate profile (hub profiles/security-runtime-f5b-candidate-20261016.json)"
+    },
+    "action_manifest": {
+      "repository": "cogno-us/cognous-action-manifest",
+      "sha": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+      "profile_key": "manifest",
+      "selected_by": "F5b candidate profile (hub profiles/security-runtime-f5b-candidate-20261016.json)"
+    }
+  },
+  "components_lock_remainder": {
+    "bitrep": {
+      "repository": "cogno-us/cognous-evidence-attestation",
+      "sha": "5b5077dafde232a7801cb425c4efddcffb468723",
+      "selected_by": "hub component-lock.json (W7 lock; unchanged by F5b)",
+      "interfaces": [
+        "verification contract v1"
+      ]
+    },
+    "the_index": {
+      "repository": "cogno-us/cognous-evidence-registry",
+      "sha": "d5e45d275cb301d9684b543e93b05997991d1cf2",
+      "selected_by": "hub component-lock.json (W7 lock; unchanged by F5b)",
+      "interfaces": [
+        "local blockchain reference 0.1.0"
+      ]
+    },
+    "constitutional_authority": {
+      "repository": "cogno-us/cognous-institutional-governance",
+      "sha": "fb3d97938969a89e149e8ff8db2756091d1233fc",
+      "selected_by": "hub component-lock.json (W7 lock; unchanged by F5b)",
+      "interfaces": [
+        "Authority Context 0.1.0"
+      ]
+    }
+  },
+  "components_optional": {
+    "prp": {
+      "repository": "cogno-us/portable-reasoning-protocol",
+      "sha": "cb137f028e92448a56e785e3d4ea074b444fa225",
+      "optional": true,
+      "selected_by": "hub component-lock.json"
+    },
+    "research_intelligence": {
+      "repository": "cogno-us/research-intelligence-protocol",
+      "sha": "30c7274b49c07a0df4c8ca7b281f2e3f8ae68dee",
+      "optional": true,
+      "selected_by": "hub component-lock.json"
+    },
+    "tfa": {
+      "repository": "cogno-us/truth-freedom-agency-protocol",
+      "sha": "442d07b4891870abb1756fcb11c24ccf187706f4",
+      "optional": true,
+      "selected_by": "hub component-lock.json"
+    }
+  },
+  "historical_selected_default": {
+    "note": "W7 merged-producers-v1 selected default; excluded from this campaign except as a separately labelled reference",
+    "lock_sha256": "dc66aafeb15eb2d5695b2217019775a1a2e517b3a6ab55b07c1b37349d8ee5cc",
+    "runtime_pin": "c3c3ee7188b9367cf70b08074b9c40a5c70c94ac"
+  },
+  "exclusions": [
+    "Governed Exchange PR #2 (deferred, excluded by hub lock)",
+    "Historical compatibility test dependencies and previous-selected test dependencies in the hub lock",
+    "Upstream Moltbot application tree (quarantined at upstream-moltbot-quarantine-20261016)",
+    "Private repositories (igpg-practice-system, architecture-of-mind, others); no private material is read or published",
+    "Live OpenShell production confinement, production identity, real settlement, remote C2/C3",
+    "Paid actual-agent campaigns unless a budget (limit USD 20) is separately spent and recorded",
+    "Human participation studies"
+  ],
+  "platforms": {
+    "os": [
+      "ubuntu-latest",
+      "windows-latest",
+      "macos-latest"
+    ],
+    "python": [
+      "3.11 (ubuntu)",
+      "3.12"
+    ],
+    "runner_provider": "GitHub-hosted",
+    "runtime_versions_recorded_in": "freeze-verification.json and per-job result.json"
+  },
+  "harness": {
+    "repository": "cogno-us/cognous-stack-qualification",
+    "revision": "bound at dispatch: recorded as workflow github.sha in freeze-verification.json",
+    "overlays": "none: no source-layout overlay is applied to component repos; qualification suites use tools/install_suite.py only where the retained suite requires it"
+  },
+  "dependency_identity": {
+    "hub_requirements_lock_sha256": "3ca3407eee01541da280c089f6c7bb11566b584b3329c68f11e55d3e63921ba8",
+    "qualification_ci_lock_sha256": "2b5a036a74b40a5f13df62b4f567624c1865a94395ed198ec6967ae166250495",
+    "component_dependency_resolution": "Each component's own declared dependencies, resolved at job time; resolved pip freeze is retained per job. Unpinned resolution is recorded as a limitation, not hidden."
+  },
+  "rules": {
+    "no_pin_advance": true,
+    "no_candidate_enablement": true,
+    "no_default_change": true,
+    "product_code_unmodified": true,
+    "candidate_success_cannot_satisfy_selected_v1": "The subject here is the owner-designated F5b reference; W7-lock default evidence is never added to it."
+  }
+}

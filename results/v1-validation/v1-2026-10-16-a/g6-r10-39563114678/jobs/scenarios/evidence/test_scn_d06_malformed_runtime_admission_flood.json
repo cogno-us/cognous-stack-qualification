@@ -1,0 +1,841 @@
+{
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "tested_revision_match": true,
+        "tree": "c4146c16e416d4e8f3619a7b553d1691d389817c"
+      },
+      "evidence_pack": {
+        "commit": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "tested_revision_match": true,
+        "tree": "67c703b3182221e233220b607c4428a17baadd50"
+      },
+      "exchange": {
+        "commit": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "tested_revision_match": true,
+        "tree": "bdc7a5c6be6fd035b9e17c5867d25030c853e689"
+      },
+      "manifest": {
+        "commit": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "tested_revision_match": true,
+        "tree": "3bda14d9974b0645f14cd2a1ca9924951ac87be6"
+      },
+      "odes": {
+        "commit": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "tested_revision_match": true,
+        "tree": "6d011177f7ae9c1f082eb0727cc0254392ed5713"
+      },
+      "replay": {
+        "commit": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "tested_revision_match": true,
+        "tree": "b2df198599e7faf27966e5428b27ef0f4f36de19"
+      },
+      "runtime": {
+        "commit": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "tested_revision_match": true,
+        "tree": "31af6d1f253796b1abf09aa7152804871094f49b"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "6b16962db140590b808f02b5c2cb11a217aec46f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "measurement_policy": "report-only, no thresholds (owner decision D5)",
+  "run1": {
+    "metrics": {
+      "concurrent_phase": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 7,
+          "voluntary": 1726
+        },
+        "cpu_seconds_process_all_threads": 0.1357,
+        "cpu_utilisation_of_one_core": 0.704,
+        "label": "admission_flood_concurrent",
+        "latency": {
+          "all": {
+            "max_ms": 129.277,
+            "mean_ms": 4.098,
+            "n": 330,
+            "p50_ms": 0.572,
+            "p95_ms": 19.232,
+            "p99_ms": 54.183
+          },
+          "array_over_10000_items": {
+            "max_ms": 8.881,
+            "mean_ms": 1.72,
+            "n": 30,
+            "p50_ms": 0.652,
+            "p95_ms": 8.783,
+            "p99_ms": 8.881
+          },
+          "integer_over_256_bits": {
+            "max_ms": 18.918,
+            "mean_ms": 1.506,
+            "n": 30,
+            "p50_ms": 0.564,
+            "p95_ms": 3.875,
+            "p99_ms": 18.918
+          },
+          "nesting_over_32": {
+            "max_ms": 79.356,
+            "mean_ms": 8.86,
+            "n": 30,
+            "p50_ms": 0.596,
+            "p95_ms": 54.175,
+            "p99_ms": 79.356
+          },
+          "non_finite_amount": {
+            "max_ms": 34.029,
+            "mean_ms": 3.984,
+            "n": 30,
+            "p50_ms": 0.603,
+            "p95_ms": 33.916,
+            "p99_ms": 34.029
+          },
+          "non_plain_value": {
+            "max_ms": 8.752,
+            "mean_ms": 1.435,
+            "n": 30,
+            "p50_ms": 0.61,
+            "p95_ms": 4.099,
+            "p99_ms": 8.752
+          },
+          "non_string_key": {
+            "max_ms": 34.079,
+            "mean_ms": 2.668,
+            "n": 30,
+            "p50_ms": 0.563,
+            "p95_ms": 8.586,
+            "p99_ms": 34.079
+          },
+          "none_envelope": {
+            "max_ms": 129.277,
+            "mean_ms": 8.102,
+            "n": 30,
+            "p50_ms": 0.615,
+            "p95_ms": 34.719,
+            "p99_ms": 129.277
+          },
+          "not_an_envelope": {
+            "max_ms": 53.777,
+            "mean_ms": 3.628,
+            "n": 30,
+            "p50_ms": 0.55,
+            "p95_ms": 12.449,
+            "p99_ms": 53.777
+          },
+          "object_over_10000_keys": {
+            "max_ms": 104.193,
+            "mean_ms": 6.811,
+            "n": 30,
+            "p50_ms": 0.645,
+            "p95_ms": 34.215,
+            "p99_ms": 104.193
+          },
+          "operation_wrong_type": {
+            "max_ms": 54.183,
+            "mean_ms": 3.927,
+            "n": 30,
+            "p50_ms": 0.604,
+            "p95_ms": 33.849,
+            "p99_ms": 54.183
+          },
+          "string_over_1MiB": {
+            "max_ms": 19.232,
+            "mean_ms": 2.44,
+            "n": 30,
+            "p50_ms": 0.566,
+            "p95_ms": 18.936,
+            "p99_ms": 19.232
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 210100,
+          "rss_after": 210100,
+          "rss_before": 184848
+        },
+        "report_only": true,
+        "request_rate_per_second": 1711.83,
+        "requests": 330,
+        "storage_bytes": {
+          "after": 4337701,
+          "before": 2278085,
+          "growth": 2059616,
+          "growth_per_request": 6241.3
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.1928
+      },
+      "sequential_phase": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 0,
+          "voluntary": 1024
+        },
+        "cpu_seconds_process_all_threads": 0.0941,
+        "cpu_utilisation_of_one_core": 0.568,
+        "label": "admission_flood",
+        "latency": {
+          "all": {
+            "max_ms": 3.165,
+            "mean_ms": 0.497,
+            "n": 330,
+            "p50_ms": 0.442,
+            "p95_ms": 0.618,
+            "p99_ms": 1.982
+          },
+          "array_over_10000_items": {
+            "max_ms": 0.637,
+            "mean_ms": 0.454,
+            "n": 30,
+            "p50_ms": 0.442,
+            "p95_ms": 0.529,
+            "p99_ms": 0.637
+          },
+          "integer_over_256_bits": {
+            "max_ms": 0.892,
+            "mean_ms": 0.476,
+            "n": 30,
+            "p50_ms": 0.448,
+            "p95_ms": 0.58,
+            "p99_ms": 0.892
+          },
+          "nesting_over_32": {
+            "max_ms": 0.582,
+            "mean_ms": 0.464,
+            "n": 30,
+            "p50_ms": 0.459,
+            "p95_ms": 0.52,
+            "p99_ms": 0.582
+          },
+          "non_finite_amount": {
+            "max_ms": 3.165,
+            "mean_ms": 0.567,
+            "n": 30,
+            "p50_ms": 0.442,
+            "p95_ms": 1.459,
+            "p99_ms": 3.165
+          },
+          "non_plain_value": {
+            "max_ms": 0.604,
+            "mean_ms": 0.456,
+            "n": 30,
+            "p50_ms": 0.439,
+            "p95_ms": 0.57,
+            "p99_ms": 0.604
+          },
+          "non_string_key": {
+            "max_ms": 1.773,
+            "mean_ms": 0.525,
+            "n": 30,
+            "p50_ms": 0.449,
+            "p95_ms": 1.479,
+            "p99_ms": 1.773
+          },
+          "none_envelope": {
+            "max_ms": 1.982,
+            "mean_ms": 0.531,
+            "n": 30,
+            "p50_ms": 0.433,
+            "p95_ms": 1.546,
+            "p99_ms": 1.982
+          },
+          "not_an_envelope": {
+            "max_ms": 1.324,
+            "mean_ms": 0.472,
+            "n": 30,
+            "p50_ms": 0.431,
+            "p95_ms": 0.724,
+            "p99_ms": 1.324
+          },
+          "object_over_10000_keys": {
+            "max_ms": 1.982,
+            "mean_ms": 0.533,
+            "n": 30,
+            "p50_ms": 0.445,
+            "p95_ms": 1.533,
+            "p99_ms": 1.982
+          },
+          "operation_wrong_type": {
+            "max_ms": 0.791,
+            "mean_ms": 0.45,
+            "n": 30,
+            "p50_ms": 0.422,
+            "p95_ms": 0.642,
+            "p99_ms": 0.791
+          },
+          "string_over_1MiB": {
+            "max_ms": 2.7,
+            "mean_ms": 0.534,
+            "n": 30,
+            "p50_ms": 0.449,
+            "p95_ms": 0.748,
+            "p99_ms": 2.7
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 184848,
+          "rss_after": 184848,
+          "rss_before": 184508
+        },
+        "report_only": true,
+        "request_rate_per_second": 1992.0,
+        "requests": 330,
+        "storage_bytes": {
+          "after": 2278085,
+          "before": 90621,
+          "growth": 2187464,
+          "growth_per_request": 6628.7
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.1657
+      }
+    },
+    "outcome": {
+      "by_class": {
+        "array_over_10000_items": [
+          [
+            "ValueError",
+            "execution array exceeds budget",
+            true
+          ]
+        ],
+        "integer_over_256_bits": [
+          [
+            "ValueError",
+            "execution integer exceeds budget",
+            true
+          ]
+        ],
+        "nesting_over_32": [
+          [
+            "ValueError",
+            "execution input exceeds structural budget",
+            true
+          ]
+        ],
+        "non_finite_amount": [
+          [
+            "ValueError",
+            "execution number must be finite",
+            true
+          ]
+        ],
+        "non_plain_value": [
+          [
+            "ValueError",
+            "execution input requires plain builtin values",
+            true
+          ]
+        ],
+        "non_string_key": [
+          [
+            "ValueError",
+            "execution object keys must be exact strings",
+            true
+          ]
+        ],
+        "none_envelope": [
+          [
+            "ValueError",
+            "exact execution envelope and operation required",
+            true
+          ]
+        ],
+        "not_an_envelope": [
+          [
+            "ValueError",
+            "exact execution envelope and operation required",
+            true
+          ]
+        ],
+        "object_over_10000_keys": [
+          [
+            "ValueError",
+            "execution object exceeds budget",
+            true
+          ]
+        ],
+        "operation_wrong_type": [
+          [
+            "ValueError",
+            "exact execution envelope and operation required",
+            true
+          ]
+        ],
+        "string_over_1MiB": [
+          [
+            "ValueError",
+            "execution string exceeds byte budget",
+            true
+          ]
+        ]
+      },
+      "effects_after_flood": [],
+      "effects_after_valid": 1,
+      "n": 660,
+      "post_flood_valid": {
+        "returned": "executed"
+      },
+      "rejection_rows": [
+        [
+          660
+        ]
+      ]
+    }
+  },
+  "run2": {
+    "metrics": {
+      "concurrent_phase": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 27,
+          "voluntary": 1673
+        },
+        "cpu_seconds_process_all_threads": 0.1186,
+        "cpu_utilisation_of_one_core": 0.642,
+        "label": "admission_flood_concurrent",
+        "latency": {
+          "all": {
+            "max_ms": 179.731,
+            "mean_ms": 3.73,
+            "n": 330,
+            "p50_ms": 0.523,
+            "p95_ms": 8.857,
+            "p99_ms": 79.632
+          },
+          "array_over_10000_items": {
+            "max_ms": 129.288,
+            "mean_ms": 7.256,
+            "n": 30,
+            "p50_ms": 1.453,
+            "p95_ms": 33.799,
+            "p99_ms": 129.288
+          },
+          "integer_over_256_bits": {
+            "max_ms": 79.632,
+            "mean_ms": 5.368,
+            "n": 30,
+            "p50_ms": 0.554,
+            "p95_ms": 34.422,
+            "p99_ms": 79.632
+          },
+          "nesting_over_32": {
+            "max_ms": 11.788,
+            "mean_ms": 1.644,
+            "n": 30,
+            "p50_ms": 0.524,
+            "p95_ms": 8.856,
+            "p99_ms": 11.788
+          },
+          "non_finite_amount": {
+            "max_ms": 8.755,
+            "mean_ms": 1.239,
+            "n": 30,
+            "p50_ms": 0.481,
+            "p95_ms": 6.277,
+            "p99_ms": 8.755
+          },
+          "non_plain_value": {
+            "max_ms": 35.182,
+            "mean_ms": 3.497,
+            "n": 30,
+            "p50_ms": 0.59,
+            "p95_ms": 33.916,
+            "p99_ms": 35.182
+          },
+          "non_string_key": {
+            "max_ms": 9.635,
+            "mean_ms": 1.209,
+            "n": 30,
+            "p50_ms": 0.531,
+            "p95_ms": 3.55,
+            "p99_ms": 9.635
+          },
+          "none_envelope": {
+            "max_ms": 179.731,
+            "mean_ms": 7.07,
+            "n": 30,
+            "p50_ms": 0.516,
+            "p95_ms": 8.722,
+            "p99_ms": 179.731
+          },
+          "not_an_envelope": {
+            "max_ms": 129.667,
+            "mean_ms": 5.561,
+            "n": 30,
+            "p50_ms": 0.476,
+            "p95_ms": 8.596,
+            "p99_ms": 129.667
+          },
+          "object_over_10000_keys": {
+            "max_ms": 18.856,
+            "mean_ms": 2.101,
+            "n": 30,
+            "p50_ms": 0.543,
+            "p95_ms": 8.605,
+            "p99_ms": 18.856
+          },
+          "operation_wrong_type": {
+            "max_ms": 10.111,
+            "mean_ms": 1.331,
+            "n": 30,
+            "p50_ms": 0.499,
+            "p95_ms": 8.589,
+            "p99_ms": 10.111
+          },
+          "string_over_1MiB": {
+            "max_ms": 53.957,
+            "mean_ms": 4.754,
+            "n": 30,
+            "p50_ms": 0.537,
+            "p95_ms": 53.834,
+            "p99_ms": 53.957
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 215948,
+          "rss_after": 215940,
+          "rss_before": 210180
+        },
+        "report_only": true,
+        "request_rate_per_second": 1785.45,
+        "requests": 330,
+        "storage_bytes": {
+          "after": 4333629,
+          "before": 2751933,
+          "growth": 1581696,
+          "growth_per_request": 4793.0
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.1848
+      },
+      "sequential_phase": {
+        "concurrency": {
+          "max_in_flight_requests": 1,
+          "peak_python_threads": 1
+        },
+        "context_switches": {
+          "involuntary": 1,
+          "voluntary": 1022
+        },
+        "cpu_seconds_process_all_threads": 0.0984,
+        "cpu_utilisation_of_one_core": 0.556,
+        "label": "admission_flood",
+        "latency": {
+          "all": {
+            "max_ms": 4.609,
+            "mean_ms": 0.53,
+            "n": 330,
+            "p50_ms": 0.472,
+            "p95_ms": 0.655,
+            "p99_ms": 1.636
+          },
+          "array_over_10000_items": {
+            "max_ms": 1.536,
+            "mean_ms": 0.527,
+            "n": 30,
+            "p50_ms": 0.482,
+            "p95_ms": 0.665,
+            "p99_ms": 1.536
+          },
+          "integer_over_256_bits": {
+            "max_ms": 1.636,
+            "mean_ms": 0.523,
+            "n": 30,
+            "p50_ms": 0.475,
+            "p95_ms": 0.686,
+            "p99_ms": 1.636
+          },
+          "nesting_over_32": {
+            "max_ms": 1.482,
+            "mean_ms": 0.536,
+            "n": 30,
+            "p50_ms": 0.491,
+            "p95_ms": 0.867,
+            "p99_ms": 1.482
+          },
+          "non_finite_amount": {
+            "max_ms": 0.603,
+            "mean_ms": 0.482,
+            "n": 30,
+            "p50_ms": 0.479,
+            "p95_ms": 0.598,
+            "p99_ms": 0.603
+          },
+          "non_plain_value": {
+            "max_ms": 1.523,
+            "mean_ms": 0.517,
+            "n": 30,
+            "p50_ms": 0.481,
+            "p95_ms": 0.541,
+            "p99_ms": 1.523
+          },
+          "non_string_key": {
+            "max_ms": 1.443,
+            "mean_ms": 0.505,
+            "n": 30,
+            "p50_ms": 0.471,
+            "p95_ms": 0.545,
+            "p99_ms": 1.443
+          },
+          "none_envelope": {
+            "max_ms": 3.445,
+            "mean_ms": 0.553,
+            "n": 30,
+            "p50_ms": 0.453,
+            "p95_ms": 0.535,
+            "p99_ms": 3.445
+          },
+          "not_an_envelope": {
+            "max_ms": 4.609,
+            "mean_ms": 0.644,
+            "n": 30,
+            "p50_ms": 0.459,
+            "p95_ms": 1.375,
+            "p99_ms": 4.609
+          },
+          "object_over_10000_keys": {
+            "max_ms": 0.56,
+            "mean_ms": 0.479,
+            "n": 30,
+            "p50_ms": 0.477,
+            "p95_ms": 0.55,
+            "p99_ms": 0.56
+          },
+          "operation_wrong_type": {
+            "max_ms": 1.626,
+            "mean_ms": 0.504,
+            "n": 30,
+            "p50_ms": 0.454,
+            "p95_ms": 0.704,
+            "p99_ms": 1.626
+          },
+          "string_over_1MiB": {
+            "max_ms": 2.829,
+            "mean_ms": 0.565,
+            "n": 30,
+            "p50_ms": 0.473,
+            "p95_ms": 0.98,
+            "p99_ms": 2.829
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 210180,
+          "rss_after": 210180,
+          "rss_before": 210100
+        },
+        "report_only": true,
+        "request_rate_per_second": 1866.21,
+        "requests": 330,
+        "storage_bytes": {
+          "after": 2751933,
+          "before": 90621,
+          "growth": 2661312,
+          "growth_per_request": 8064.6
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 0.1768
+      }
+    },
+    "outcome": {
+      "by_class": {
+        "array_over_10000_items": [
+          [
+            "ValueError",
+            "execution array exceeds budget",
+            true
+          ]
+        ],
+        "integer_over_256_bits": [
+          [
+            "ValueError",
+            "execution integer exceeds budget",
+            true
+          ]
+        ],
+        "nesting_over_32": [
+          [
+            "ValueError",
+            "execution input exceeds structural budget",
+            true
+          ]
+        ],
+        "non_finite_amount": [
+          [
+            "ValueError",
+            "execution number must be finite",
+            true
+          ]
+        ],
+        "non_plain_value": [
+          [
+            "ValueError",
+            "execution input requires plain builtin values",
+            true
+          ]
+        ],
+        "non_string_key": [
+          [
+            "ValueError",
+            "execution object keys must be exact strings",
+            true
+          ]
+        ],
+        "none_envelope": [
+          [
+            "ValueError",
+            "exact execution envelope and operation required",
+            true
+          ]
+        ],
+        "not_an_envelope": [
+          [
+            "ValueError",
+            "exact execution envelope and operation required",
+            true
+          ]
+        ],
+        "object_over_10000_keys": [
+          [
+            "ValueError",
+            "execution object exceeds budget",
+            true
+          ]
+        ],
+        "operation_wrong_type": [
+          [
+            "ValueError",
+            "exact execution envelope and operation required",
+            true
+          ]
+        ],
+        "string_over_1MiB": [
+          [
+            "ValueError",
+            "execution string exceeds byte budget",
+            true
+          ]
+        ]
+      },
+      "effects_after_flood": [],
+      "effects_after_valid": 1,
+      "n": 660,
+      "post_flood_valid": {
+        "returned": "executed"
+      },
+      "rejection_rows": [
+        [
+          660
+        ]
+      ]
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:8f6adf83528bd30950c9e6a51d259c6ce3423665aab8bd9da6d9597f942a45db",
+    "run2_outcome_digest": "sha256:8f6adf83528bd30950c9e6a51d259c6ce3423665aab8bd9da6d9597f942a45db",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "runtime admission budgets (SafeExecutor.execute)",
+  "test": "test_scn_d06_malformed_runtime_admission_flood",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}

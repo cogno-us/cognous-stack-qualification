@@ -1,0 +1,277 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:4fff51d6cd05924eeedcf03fc8a8a213f6a40a819fb877b5a66a9eed8a2904c5",
+    "run2_digest": "sha256:4fff51d6cd05924eeedcf03fc8a8a213f6a40a819fb877b5a66a9eed8a2904c5",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+      },
+      "exchange": {
+        "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+      },
+      "replay": {
+        "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+      },
+      "runtime": {
+        "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "admission_rejections": 0,
+      "dimension": "tenant_substituted",
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "sha256:f42a2866e8359b1adca34c53c91f5f56b375203b6957fd7408f70d211629452a",
+          "operation_digest": "sha256:b6ef54385c5b425a0ec7ca1657dec3970fe2820955d7bfaf25f44f336bff5dc8",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:customer-001"
+        }
+      ],
+      "excess_duplicate_effects": 0,
+      "journal": {
+        "attempts": [
+          "attempted",
+          "acknowledged"
+        ],
+        "check_phases": [
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed",
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed"
+        ],
+        "decisions": [
+          "authorized"
+        ],
+        "reconciliations": [
+          "observed_absent",
+          "applied"
+        ],
+        "refusals": []
+      },
+      "layer": "envelope-only",
+      "refusal_records": "",
+      "result": {
+        "acknowledged": true,
+        "attempted": true,
+        "error": null,
+        "evidence_keys": [
+          "attempt",
+          "reconciliation"
+        ],
+        "newly_executed": true,
+        "observed_state": "applied",
+        "status": "executed"
+      },
+      "trajectory": {
+        "export": "ok",
+        "import_reports_complete": true,
+        "record_types": [
+          "control_plane_attempt_transition",
+          "destination_attempt",
+          "destination_attempt_event",
+          "destination_effect",
+          "effect_observation",
+          "execution_envelope",
+          "execution_result",
+          "executor_control_plane_evidence",
+          "executor_observation",
+          "input_time_floors",
+          "moltbot_attributed_control_plane_attempt",
+          "reconciliation",
+          "resolution_check",
+          "resolution_check_event",
+          "runtime_decision",
+          "runtime_proposal"
+        ],
+        "replay_import": "ok"
+      },
+      "unauthorized_effects": 1
+    },
+    "run": 1,
+    "violations": [
+      "altered tenant_substituted request must be refused; observed {'status': 'executed', 'attempted': True, 'acknowledged': True, 'observed_state': 'applied', 'newly_executed': True, 'error': None, 'evidence_keys': ['attempt', 'reconciliation']}",
+      "no destination mutation after altered tenant_substituted: expected [], observed [{'effect_id': 'sha256:f42a2866e8359b1adca34c53c91f5f56b375203b6957fd7408f70d211629452a', 'state': 'applied', 'operation_digest': 'sha256:b6ef54385c5b425a0ec7ca1657dec3970fe2820955d7bfaf25f44f336bff5dc8', 'target': 'urn:cognous:synthetic-account:customer-001', 'amount': 50.0}]",
+      "no dispatch attempt recorded for a refused request: expected [], observed [{'effect_id': 'sha256:f42a2866e8359b1adca34c53c91f5f56b375203b6957fd7408f70d211629452a', 'events': [('attempted', None), ('executed', None)]}]",
+      "refusal path must be observable in the destination failure/rejection records",
+      "hard gate: unauthorized effects: expected 0, observed 1"
+    ]
+  },
+  "run2": {
+    "observed": {
+      "admission_rejections": 0,
+      "dimension": "tenant_substituted",
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "sha256:f42a2866e8359b1adca34c53c91f5f56b375203b6957fd7408f70d211629452a",
+          "operation_digest": "sha256:b6ef54385c5b425a0ec7ca1657dec3970fe2820955d7bfaf25f44f336bff5dc8",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:customer-001"
+        }
+      ],
+      "excess_duplicate_effects": 0,
+      "journal": {
+        "attempts": [
+          "attempted",
+          "acknowledged"
+        ],
+        "check_phases": [
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed",
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed"
+        ],
+        "decisions": [
+          "authorized"
+        ],
+        "reconciliations": [
+          "observed_absent",
+          "applied"
+        ],
+        "refusals": []
+      },
+      "layer": "envelope-only",
+      "refusal_records": "",
+      "result": {
+        "acknowledged": true,
+        "attempted": true,
+        "error": null,
+        "evidence_keys": [
+          "attempt",
+          "reconciliation"
+        ],
+        "newly_executed": true,
+        "observed_state": "applied",
+        "status": "executed"
+      },
+      "trajectory": {
+        "export": "ok",
+        "import_reports_complete": true,
+        "record_types": [
+          "control_plane_attempt_transition",
+          "destination_attempt",
+          "destination_attempt_event",
+          "destination_effect",
+          "effect_observation",
+          "execution_envelope",
+          "execution_result",
+          "executor_control_plane_evidence",
+          "executor_observation",
+          "input_time_floors",
+          "moltbot_attributed_control_plane_attempt",
+          "reconciliation",
+          "resolution_check",
+          "resolution_check_event",
+          "runtime_decision",
+          "runtime_proposal"
+        ],
+        "replay_import": "ok"
+      },
+      "unauthorized_effects": 1
+    },
+    "run": 2,
+    "violations": [
+      "altered tenant_substituted request must be refused; observed {'status': 'executed', 'attempted': True, 'acknowledged': True, 'observed_state': 'applied', 'newly_executed': True, 'error': None, 'evidence_keys': ['attempt', 'reconciliation']}",
+      "no destination mutation after altered tenant_substituted: expected [], observed [{'effect_id': 'sha256:f42a2866e8359b1adca34c53c91f5f56b375203b6957fd7408f70d211629452a', 'state': 'applied', 'operation_digest': 'sha256:b6ef54385c5b425a0ec7ca1657dec3970fe2820955d7bfaf25f44f336bff5dc8', 'target': 'urn:cognous:synthetic-account:customer-001', 'amount': 50.0}]",
+      "no dispatch attempt recorded for a refused request: expected [], observed [{'effect_id': 'sha256:f42a2866e8359b1adca34c53c91f5f56b375203b6957fd7408f70d211629452a', 'events': [('attempted', None), ('executed', None)]}]",
+      "refusal path must be observable in the destination failure/rejection records",
+      "hard gate: unauthorized effects: expected 0, observed 1"
+    ]
+  },
+  "scenario": "D02",
+  "test": "test_scn_d02_route_a_envelope_substitution_is_refused[tenant_substituted]",
+  "verdict": "FAIL"
+}

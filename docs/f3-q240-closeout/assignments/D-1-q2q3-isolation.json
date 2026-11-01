@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "cognous-orchestrator-assignment-v1",
+  "identity": {
+    "workPackage": "OCS-F3-Q2Q3-ISOLATION-<DATE>",
+    "role": "independent_qualification_owner",
+    "primaryArchetype": "D",
+    "archetypeMeaning": "Apply an independently controlled oracle/protocol to frozen exact subjects; retain raw results, adverse findings and qualified verdict boundaries.",
+    "repository": "cogno-us/cognous-control-plane",
+    "baseCommitSha": "739efe7d8f16a0cee1efc7dd3a978d5d4d85fe69",
+    "currentHeadSha": "739efe7d8f16a0cee1efc7dd3a978d5d4d85fe69"
+  },
+  "authority": {
+    "objective": "Independently qualify, or honestly bound, isolation of the A25(a) scope.authority_domain member and the A25(e) host_profile_digest and effective_profile_digest members of the persisted effective-configuration binding at the frozen subject, using only supported interfaces and without disabling any mandatory guard.",
+    "sourceDecision": "Prepared by the Lead Qualification Coordinator under Architect directive OCS-F3-Q240-CLOSEOUT (2026-10-30). DISPATCH-READY BUT NOT DISPATCHED: requires written designation of the executing owner by the Architect/operator (issue #240 Q7).",
+    "allowedActions": [
+      "Read frozen subjects and evidence",
+      "Freeze protocol then run only the deterministic cases named here (scratch copies outside every checkout for any mutant)",
+      "File a new append-only evidence directory and open a PR; merge only if the Architect separately authorizes"
+    ],
+    "prohibitedActions": [
+      "Modify implementation, tests, protected evaluators, frozen oracle, successor interpretation or predecessor evidence",
+      "Disable, patch or bypass any mandatory guard to reach a member",
+      "Repair a defect and qualify the repair",
+      "Regenerate historical evidence or label new bytes original",
+      "Paid, production or live-effect execution; broad regression; full Tier 1"
+    ],
+    "paidExecution": {
+      "authorized": false,
+      "maximumUsd": 0
+    },
+    "mergeAuthorized": false,
+    "deploymentAuthorized": false
+  },
+  "ownership": {
+    "designatedWriter": "The designated independent qualification owner (unnamed; see 04-proposed-designation-record.md)",
+    "writablePaths": [
+      "results/third-party/cp-739efe7-f3-q2q3-isolation-<YYYYMMDD>/"
+    ],
+    "protectedPaths": [
+      "Everything else, including results/third-party/cp-739efe7-f3-independent-20261029/** and results/third-party/cp-739efe7-f3a-readjudication-20261030/**"
+    ],
+    "parallelWorkers": []
+  },
+  "inputs": {
+    "projectPlan": "docs/f3-q240-closeout/ (this package), issue #240 Q2 and Q3",
+    "frozenSources": [
+      {
+        "location": "cogno-us/cognous-control-plane",
+        "identity": "739efe7d8f16a0cee1efc7dd3a978d5d4d85fe69 (frozen executable subject; src tree d248bde478ae3f2ce050db4637f0c1203066e906). Live main b19c47ddd020409d24e52e70b11359c46265edbb is a later head and is NOT the subject; 8616d5f64a901b8f858359809193961a1124b5f6 differs from 739efe7 only in a registry_governed_policy.py module docstring (re-derive tree ids and AST equality; do not trust).",
+        "purpose": "Frozen subject; bind exact head at dispatch"
+      },
+      {
+        "location": "cogno-us/cognous-ocs-registry",
+        "identity": "Registry r08-v8 pin a40fe755e2384a99c37016fa9ad59396f1835900 as a detached git checkout (preflight reads git rev-parse HEAD; OCS_REQUIRE_REGISTRY_PIN=1); Registry main 6b96a9a658923954433dc1a4c13626fa5145b9c7 carries docs 02,03,06,11-14 under docs/family-migration/final-three/.",
+        "purpose": "Contract, frozen oracle (doc 03), successor interpretation (doc 06, record 11)"
+      },
+      {
+        "location": "cogno-us/cognous-stack-qualification",
+        "identity": "main b7d813111128cb31518620688f6e89e41042dadd; original evidence results/third-party/cp-739efe7-f3-independent-20261029/ (protocol sha256 e799b1083743526648a0c1c23d2c1455c0533ac843d88f3fe977dfd6a3850135; archive sha256 1d07a70439625de3b3e85e0ea3c088a43f14bc237649487d22d85da51a174fc5). Successor readjudication evidence: PR #242 head 2246a61c18a2c491a1230c21912b1240c109e90a, results/third-party/cp-739efe7-f3a-readjudication-20261030/ (frozen protocol sha256 04f4f950f526d6e98f056f5635bb7a1acad1d3332f46c3ec1b0897150a169ad6) - NOT in merged custody until PR #242 merges and is checksum-verified from a fresh checkout. Read from merged main if available; otherwise from the PR head and say so.",
+        "purpose": "Predecessor evidence to inspect, not to reproduce"
+      },
+      {
+        "location": "cogno-us/cognous-engineering-constitution",
+        "identity": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c (ADOPTION.md, ORCHESTRATION.md, ENGINEERING_COMPLIANCE_ADDENDUM.md, TESTING_POLICY.md, schemas/orchestrator-assignment-v1.schema.json)",
+        "purpose": "Governing text; quote clauses verbatim"
+      }
+    ],
+    "interfacesAndDependencies": [
+      "Python 3.11.18 baseline of all prior independent executions (Python 3.12 only where the assignment says so); pydantic 2.14.2; PyNaCl 1.6.2; pytest 9.2.0; cryptography 50.0.2 (record what you actually use).",
+      "gh via REST only if GraphQL is blocked; push needs an authorized add_repo with push access.",
+      "Source analysis: /docs/f3-q240-closeout/02-evidence-applicability-crosswalk.md, section Q2/Q3 plan (worker static analysis; file:line references to be re-verified)"
+    ],
+    "knownBaselineFailures": [
+      "Original harness at 739efe7: 23 failed assertions (DEV-PE-1) / 73 passed under the frozen literal oracle (preserved).",
+      "Readjudication harness at 739efe7: 1 failed / 47 passed (G4 documentation test)."
+    ]
+  },
+  "acceptance": {
+    "riskTier": "T4",
+    "riskRationale": "Prescribed independent qualification of a governance/safety-critical persisted authority binding; scoped sensitivity check, not the final Tier 1 campaign.",
+    "successConditions": [
+      "Each of the eight cases has an expected result frozen before execution (probe outcomes recorded first, then expectations frozen as amendments) and an observed result with raw log.",
+      "The report states for each member whether end-to-end isolation was demonstrated, only joint refusal was shown, or only component evidence exists, with the reachability/guard-order table.",
+      "A mutant kill (D06-M06, optional M14) is shown on the live-side cases, or its survival is reported."
+    ],
+    "negativeControls": [
+      "Unperturbed control executes and acknowledges exactly once.",
+      "Complementary binding-diff must be empty for any case called isolated.",
+      "Scratch mutants live on copies outside all checkouts."
+    ],
+    "newEvidence": [
+      {
+        "test": "Q-PROBE feasibility probe (F5 masked-host mint/restart/execute); record whatever it shows",
+        "purpose": "Confirm or refute the predicted route before freezing expectations",
+        "result": "PLANNED"
+      },
+      {
+        "test": "Q3-H0 control; Q3-H1 masked host edit end-to-end; Q3-H2 host/effective component equality",
+        "purpose": "A25(e) host_profile_digest isolation",
+        "result": "PLANNED"
+      },
+      {
+        "test": "Q3-E1 effective_profile_digest without re-issue; Q3-E2 with re-issue (joint, binding-diff recorded)",
+        "purpose": "A25(e) effective_profile_digest: guard-order and joint evidence",
+        "result": "PLANNED"
+      },
+      {
+        "test": "Q2-A1 component (two real worlds d1/d2); Q2-A2 natural joint; Q2-A3 GRAFT isolating case with scratch D06-M06 kill",
+        "purpose": "A25(a) authority_domain: component, joint and grafted isolation, plus reachability proof",
+        "result": "PLANNED"
+      },
+      {
+        "test": "Optional Q3-M14 scratch mutant host_profile_digest := effective digest",
+        "purpose": "Corroborate Q3-H1 sensitivity",
+        "result": "PLANNED"
+      }
+    ],
+    "reusedEvidence": [
+      {
+        "source": {
+          "location": "cogno-us/cognous-stack-qualification results/third-party/cp-739efe7-f3-independent-20261029/",
+          "identity": "harness-final test_f3a_independent.post-AMEND4.py and its A19 [effective_profile_digest] execute rows",
+          "purpose": "Persisted-side reseal evidence and harness library"
+        },
+        "applicability": "Library and rows reused only after hash and exact-source check at 739efe7; not rerun for A19 reseal rows."
+      }
+    ],
+    "notRun": [
+      {
+        "test": "Disabling manifest_digest, authority_domain or approval guards",
+        "reason": "Protected guards; forbidden by Q2/Q3 scope."
+      },
+      {
+        "test": "effective_profile_digest freshness-extension construction",
+        "reason": "Heavy and still joint."
+      },
+      {
+        "test": "Pin-export/claim variants",
+        "reason": "Covered by the readjudication gaps; out of this assignment."
+      }
+    ],
+    "qualificationBoundary": "Scoped technical result for Q2/Q3 only at 739efe7 (and 8616d5f only if separately derived and designated). Not Tier 1, not certification, no end-to-end isolation claim from component evidence."
+  },
+  "delivery": {
+    "artifacts": [
+      "results/third-party/cp-739efe7-f3-q2q3-isolation-<YYYYMMDD>/ (README, frozen protocol, raw, verdict, manifest.json, SHA256SUMS last)"
+    ],
+    "reportFields": [
+      "Independence provenance and limits (state first; BLOCKED if not established)",
+      "Exact heads, tree ids, pin, interpreter and dependency versions",
+      "Frozen protocol hash and amendment log",
+      "Per-case expected-before / observed results with raw log links",
+      "Reused versus new evidence with applicability",
+      "Adverse findings and counterexamples",
+      "What the evidence does NOT establish",
+      "Remaining holds"
+    ],
+    "pullRequest": "new evidence PR to cogno-us/cognous-stack-qualification; do not edit predecessor directories"
+  },
+  "boundaries": {
+    "stopConditions": [
+      "Independence of the executing session from the builder lineage, the original F3 qualifier session, the successor readjudication session (producer session_01VFvQdn8XjieqzRUfpEtpgy) and the Lead Qualification Coordinator cannot be established or recorded: report BLOCKED.",
+      "No written designation of this worker as independent qualification owner by the Architect/operator exists in the dispatch record: report BLOCKED naming the designating authority.",
+      "Any frozen head, tree id, Registry pin or protocol hash cannot be bound or re-derived: BLOCKED.",
+      "A defect in the implementation is observed: preserve the counterexample verbatim and stop; do not repair or qualify a repair.",
+      "A mandatory guard would have to be disabled, patched or bypassed to reach the member under test: do not; record the guard and downgrade the claim to joint/component.",
+      "Any paid, production or live-effect execution would be required: stop."
+    ],
+    "escalationOwner": "Architect (operator)",
+    "outOfScope": [
+      "Production implementation, protected evaluators, the frozen F3 oracle, the successor interpretation, historical raw evidence: read-only.",
+      "Final independent Tier 1 campaign (DEFERRED, NOT WAIVED); broad regression; mutation campaign beyond the cases named here.",
+      "Registry #58/#59, Control Plane #87, constructor tolerance, Ed25519 #26/#34, V09, DEF-OBS-TOL-OVERFLOW-1, release/production, R1 refactoring: HELD or separate.",
+      "Formal F3-A acceptance, competent certification, constitutional adoption: reserved to the Architect/competent authority."
+    ]
+  },
+  "governance": {
+    "constitutionalRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "projectAdoption": {
+      "status": "UNVERIFIED",
+      "evidence": "Standing OCS technical baseline 1c2e920f4e58e07a52e8e2408a506cf7dbc1292b; dcdbe3b is a prospective orchestration convention only. No ADOPTION.md-form instrument exists for 1c2e920, 230c0af or dcdbe3b (Registry docs 09 and 12; independently re-found in this closeout, see 05-proposed-adoption-instrument.md). All 23 CA rows are byte-identical at the three revisions; the review-tier label inverts (Tier 1 critical at 1c2e920, Tier 3 critical at 230c0af/dcdbe3b), so state criticality as critical/routine or T0-T4, never bare 'Tier N'. This packet creates no adoption event."
+    },
+    "complianceAddendumRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "testingPolicyRevision": "dcdbe3b76843d672ca3cfb1f000124ecd78ed03c",
+    "archetypeSource": "ENGINEERING_COMPLIANCE_ADDENDUM.md '### Archetype D' table (verbatim cells) at cogno-us/cognous-engineering-constitution@dcdbe3b76843d672ca3cfb1f000124ecd78ed03c; default Archetype D articles per its section 2. Cells extracted mechanically by tools/render and compared with the source text in the PR (see README).",
+    "clauses": [
+      {
+        "article": "CA04",
+        "requiredBehavior": "Distinguish implementation inspection, independent qualification, competent certification and final integration; preserve independence wherever required.",
+        "prohibitedShortcut": "Fit an oracle to implementation or substitute developer tests.",
+        "binding": "Freeze the execution protocol, expected results and instrument hashes BEFORE any candidate execution; your own scope and oracle, not the builder's or the coordinator's test selection; the coordinator's static predictions are PROPOSALS to be probed, not expectations. Claims allowed: 'isolated end-to-end' only if the binding-diff of persisted versus live-world decision is exactly the member leaf plus its digest; otherwise 'joint' with the diff recorded; never 'A25(a)/(e) PASS' from component evidence."
+      },
+      {
+        "article": "CA06",
+        "requiredBehavior": "Retain consequential decision ancestry, rejected alternatives, objections, adverse findings and supersession where legitimately relevant, subject to privacy and retention limits.",
+        "prohibitedShortcut": "Delete, relabel, overwrite or silently rescore failures.",
+        "binding": "Retain every raw log, failure, probe, exclusion and amendment append-only; the original F3-A FAIL (23 assertions), the readjudication 1-failed G4 result and the M06 original SURVIVED record are permanent predecessor evidence; never relabel or silently rescore. Preserve the original A25(a)/A25(e) UNREACHABLE-ISOLATED records and AMEND-3/4 history; report disagreement with them as a new finding, not as a correction."
+      },
+      {
+        "article": "CA07",
+        "requiredBehavior": "Bind claims to exact source, configuration, governing context and transition evidence; reconstruct authoritative pathways when deterministic execution replay is impossible.",
+        "prohibitedShortcut": "Transfer a pass across revisions.",
+        "binding": "Bind every claim to exact source (tree id), Registry pin, interpreter, dependency versions and harness hash. Python 3.11 results do not transfer to 3.12 or the reverse; 739efe7 results do not transfer to 8616d5f or main without tree and AST derivation. The F5 class-age fixture is new code: record its source hash; the GRAFT route relies on the documented unsigned store and must carry that label."
+      },
+      {
+        "article": "CA08",
+        "requiredBehavior": "Optimize authorization-to-independently-qualified outcome; distinguish lifecycle evidence.",
+        "prohibitedShortcut": "Treat PR counts, green CI or documents as delivery or qualification.",
+        "binding": "Distinguish lifecycle states: coordinator plan, builder CI, readjudication technical assessment, and your independent observation are different evidence classes; PR counts, green CI and documents are not qualification. The coordinator's source-trace predictions (host_profile_digest isolable on an F5 masked-host edit; authority_domain isolable only by GRAFT; effective_profile_digest joint-only) are unexecuted analysis."
+      },
+      {
+        "article": "CA23",
+        "requiredBehavior": "Separate contribution, inspection, qualification, certification and integration according to risk and governing independence requirements.",
+        "prohibitedShortcut": "Self-certify generated work or treat nominal human involvement as sufficient authority.",
+        "binding": "You must be a fresh owner designated in writing by the Architect/operator with a recorded independence basis, not the builder lineage, not the original F3 qualifier, not the readjudication producer (session_01VFvQdn8XjieqzRUfpEtpgy) and not the Lead Qualification Coordinator; a fresh AI session alone does not prove organizational independence (ADOPTION.md) and your result remains a scoped technical result until the competent certifier decides. The packet does not tell you what verdict to return."
+      }
+    ]
+  }
+}

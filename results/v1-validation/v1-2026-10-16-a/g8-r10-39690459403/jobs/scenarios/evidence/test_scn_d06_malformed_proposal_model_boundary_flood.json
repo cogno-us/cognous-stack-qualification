@@ -1,0 +1,452 @@
+{
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+        "tested_revision_match": true,
+        "tree": "ea5c10fc6918fb7546574cf001cf734b745e891b"
+      },
+      "evidence_pack": {
+        "commit": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "a3ebbb90559a44a88855139a182649d3792bb1ca",
+        "tested_revision_match": true,
+        "tree": "3d0450e3ec1679e1473096a21b4e33eee7a2b58e"
+      },
+      "exchange": {
+        "commit": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "7f7569b02666b99669a9fca61117ca1f4bce5f0d",
+        "tested_revision_match": true,
+        "tree": "136f273e89bbab4ab4d26facb56318d8919d1eac"
+      },
+      "manifest": {
+        "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+        "tested_revision_match": true,
+        "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be"
+      },
+      "odes": {
+        "commit": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "e86a25a1d660e74533337d38744e2934200a50ae",
+        "tested_revision_match": true,
+        "tree": "979971e196d5228d2ebb0e33e168c91c87ec63ec"
+      },
+      "replay": {
+        "commit": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "028f63d1c001f99580583888fa4b4e46d77a267b",
+        "tested_revision_match": true,
+        "tree": "0b8332192d2d934cd36620c3c7cfdff0469da2ce"
+      },
+      "runtime": {
+        "commit": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "ec728da6dc301a664b331ac8986afd6e850a1273",
+        "tested_revision_match": true,
+        "tree": "875e56103ecfd2875fde82c6e168ca5ced93cae3"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "59ca4c797b4c0700b581815a53b113a60bda1c67",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "0a41faa972699f7ec3063967a14cd9bdd3e67d27",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "ec728da6dc301a664b331ac8986afd6e850a1273"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "metrics": {
+      "concurrency": {
+        "max_in_flight_requests": 1,
+        "peak_python_threads": 9
+      },
+      "context_switches": {
+        "involuntary": 1,
+        "voluntary": 77
+      },
+      "cpu_seconds_process_all_threads": 0.0135,
+      "cpu_utilisation_of_one_core": 1.067,
+      "label": "model_boundary_flood",
+      "latency": {
+        "actor_wrong_type": {
+          "max_ms": 0.065,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.013,
+          "p95_ms": 0.024,
+          "p99_ms": 0.065
+        },
+        "all": {
+          "max_ms": 0.147,
+          "mean_ms": 0.018,
+          "n": 300,
+          "p50_ms": 0.015,
+          "p95_ms": 0.035,
+          "p99_ms": 0.071
+        },
+        "amount_wrong_type": {
+          "max_ms": 0.047,
+          "mean_ms": 0.017,
+          "n": 30,
+          "p50_ms": 0.014,
+          "p95_ms": 0.039,
+          "p99_ms": 0.047
+        },
+        "inf_amount": {
+          "max_ms": 0.074,
+          "mean_ms": 0.017,
+          "n": 30,
+          "p50_ms": 0.013,
+          "p95_ms": 0.033,
+          "p99_ms": 0.074
+        },
+        "missing_actor": {
+          "max_ms": 0.059,
+          "mean_ms": 0.02,
+          "n": 30,
+          "p50_ms": 0.017,
+          "p95_ms": 0.046,
+          "p99_ms": 0.059
+        },
+        "missing_payload": {
+          "max_ms": 0.041,
+          "mean_ms": 0.019,
+          "n": 30,
+          "p50_ms": 0.017,
+          "p95_ms": 0.035,
+          "p99_ms": 0.041
+        },
+        "nan_amount": {
+          "max_ms": 0.147,
+          "mean_ms": 0.021,
+          "n": 30,
+          "p50_ms": 0.014,
+          "p95_ms": 0.049,
+          "p99_ms": 0.147
+        },
+        "negative_amount": {
+          "max_ms": 0.071,
+          "mean_ms": 0.019,
+          "n": 30,
+          "p50_ms": 0.015,
+          "p95_ms": 0.044,
+          "p99_ms": 0.071
+        },
+        "negative_effects": {
+          "max_ms": 0.023,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.015,
+          "p95_ms": 0.021,
+          "p99_ms": 0.023
+        },
+        "payload_not_object": {
+          "max_ms": 0.03,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.015,
+          "p95_ms": 0.022,
+          "p99_ms": 0.03
+        },
+        "requested_permissions_not_list": {
+          "max_ms": 0.048,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.014,
+          "p95_ms": 0.034,
+          "p99_ms": 0.048
+        }
+      },
+      "memory_kb": {
+        "peak_counter_reset_at_start": true,
+        "peak_rss_during_block": 211920,
+        "rss_after": 211908,
+        "rss_before": 211916
+      },
+      "report_only": true,
+      "request_rate_per_second": 23683.52,
+      "requests": 300,
+      "storage_bytes": {
+        "after": 90621,
+        "before": 90621,
+        "growth": 0,
+        "growth_per_request": 0.0
+      },
+      "thresholds_applied": null,
+      "wall_seconds": 0.0127
+    },
+    "outcome": {
+      "by_class": {
+        "actor_wrong_type": [
+          "ValidationError"
+        ],
+        "amount_wrong_type": [
+          "ValidationError"
+        ],
+        "inf_amount": [
+          "ValidationError"
+        ],
+        "missing_actor": [
+          "ValidationError"
+        ],
+        "missing_payload": [
+          "ValidationError"
+        ],
+        "nan_amount": [
+          "ValidationError"
+        ],
+        "negative_amount": [
+          "ValidationError"
+        ],
+        "negative_effects": [
+          "ValidationError"
+        ],
+        "payload_not_object": [
+          "ValidationError"
+        ],
+        "requested_permissions_not_list": [
+          "ValidationError"
+        ]
+      },
+      "effects": [],
+      "journal_unchanged": true
+    }
+  },
+  "run2": {
+    "metrics": {
+      "concurrency": {
+        "max_in_flight_requests": 2,
+        "peak_python_threads": 9
+      },
+      "context_switches": {
+        "involuntary": 1,
+        "voluntary": 78
+      },
+      "cpu_seconds_process_all_threads": 0.0124,
+      "cpu_utilisation_of_one_core": 1.062,
+      "label": "model_boundary_flood",
+      "latency": {
+        "actor_wrong_type": {
+          "max_ms": 0.039,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.014,
+          "p95_ms": 0.028,
+          "p99_ms": 0.039
+        },
+        "all": {
+          "max_ms": 0.177,
+          "mean_ms": 0.018,
+          "n": 300,
+          "p50_ms": 0.015,
+          "p95_ms": 0.035,
+          "p99_ms": 0.064
+        },
+        "amount_wrong_type": {
+          "max_ms": 0.029,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.014,
+          "p95_ms": 0.027,
+          "p99_ms": 0.029
+        },
+        "inf_amount": {
+          "max_ms": 0.038,
+          "mean_ms": 0.015,
+          "n": 30,
+          "p50_ms": 0.013,
+          "p95_ms": 0.035,
+          "p99_ms": 0.038
+        },
+        "missing_actor": {
+          "max_ms": 0.064,
+          "mean_ms": 0.021,
+          "n": 30,
+          "p50_ms": 0.018,
+          "p95_ms": 0.048,
+          "p99_ms": 0.064
+        },
+        "missing_payload": {
+          "max_ms": 0.177,
+          "mean_ms": 0.024,
+          "n": 30,
+          "p50_ms": 0.017,
+          "p95_ms": 0.048,
+          "p99_ms": 0.177
+        },
+        "nan_amount": {
+          "max_ms": 0.046,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.014,
+          "p95_ms": 0.022,
+          "p99_ms": 0.046
+        },
+        "negative_amount": {
+          "max_ms": 0.037,
+          "mean_ms": 0.018,
+          "n": 30,
+          "p50_ms": 0.015,
+          "p95_ms": 0.036,
+          "p99_ms": 0.037
+        },
+        "negative_effects": {
+          "max_ms": 0.04,
+          "mean_ms": 0.016,
+          "n": 30,
+          "p50_ms": 0.015,
+          "p95_ms": 0.021,
+          "p99_ms": 0.04
+        },
+        "payload_not_object": {
+          "max_ms": 0.051,
+          "mean_ms": 0.018,
+          "n": 30,
+          "p50_ms": 0.016,
+          "p95_ms": 0.029,
+          "p99_ms": 0.051
+        },
+        "requested_permissions_not_list": {
+          "max_ms": 0.071,
+          "mean_ms": 0.018,
+          "n": 30,
+          "p50_ms": 0.014,
+          "p95_ms": 0.044,
+          "p99_ms": 0.071
+        }
+      },
+      "memory_kb": {
+        "peak_counter_reset_at_start": true,
+        "peak_rss_during_block": 211920,
+        "rss_after": 211916,
+        "rss_before": 211908
+      },
+      "report_only": true,
+      "request_rate_per_second": 25615.32,
+      "requests": 300,
+      "storage_bytes": {
+        "after": 90621,
+        "before": 90621,
+        "growth": 0,
+        "growth_per_request": 0.0
+      },
+      "thresholds_applied": null,
+      "wall_seconds": 0.0117
+    },
+    "outcome": {
+      "by_class": {
+        "actor_wrong_type": [
+          "ValidationError"
+        ],
+        "amount_wrong_type": [
+          "ValidationError"
+        ],
+        "inf_amount": [
+          "ValidationError"
+        ],
+        "missing_actor": [
+          "ValidationError"
+        ],
+        "missing_payload": [
+          "ValidationError"
+        ],
+        "nan_amount": [
+          "ValidationError"
+        ],
+        "negative_amount": [
+          "ValidationError"
+        ],
+        "negative_effects": [
+          "ValidationError"
+        ],
+        "payload_not_object": [
+          "ValidationError"
+        ],
+        "requested_permissions_not_list": [
+          "ValidationError"
+        ]
+      },
+      "effects": [],
+      "journal_unchanged": true
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:d57fedbbcaae26e45eaec37a710e571167349359aa16a75a986a502b59e90738",
+    "run2_outcome_digest": "sha256:d57fedbbcaae26e45eaec37a710e571167349359aa16a75a986a502b59e90738",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "Control Plane proposal model validation",
+  "test": "test_scn_d06_malformed_proposal_model_boundary_flood",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}

@@ -1,0 +1,4 @@
+diff -r /tmp/claude-0/work/d2/src/cp-739efe7/src/agent_control_plane/local_authority_effect.py /tmp/claude-0/work/d2/src/cp-739efe7-M04/src/agent_control_plane/local_authority_effect.py
+454a455,456
+>         if current is not None and isinstance(getattr(current, "runtime_authority", None), dict) and isinstance(decision.binding.runtime_authority, dict) and "effective_configuration" in decision.binding.runtime_authority:  # MUTANT
+>             current = current.model_copy(update={"runtime_authority": {**current.runtime_authority, "effective_configuration": decision.binding.runtime_authority["effective_configuration"]}})

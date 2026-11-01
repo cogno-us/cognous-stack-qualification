@@ -1,0 +1,40 @@
+{
+  "external_arm": "supplied evidence examined; SCQOS not reexecuted",
+  "input_fixture_sha256": "b3cbeb3d9f5ab8272b1b080dd366fd295268995c816cc48a795621b2388ea463",
+  "native_consequence_commitments": "architecture-specific; not asserted equal",
+  "params_commitment": "sha256:2d5c2f4e95ec908b9102d84d7db62c233354695e186baaab112fa2be50cd8bfc",
+  "shared_stimulus": {
+    "account": {
+      "balance_cents": 10000,
+      "resource": "synthetic-wallet:refund-demo-001",
+      "version": 1
+    },
+    "params": {
+      "currency": "USD",
+      "effect_id": "effect:synthetic-refund-001",
+      "expected_state_version": 1,
+      "refund_cents": 1000
+    },
+    "simulation_clock": {
+      "committed": "2026-10-15T12:01:00.000000Z",
+      "issued": "2026-10-15T12:00:00.000000Z",
+      "observed": "2026-10-15T12:02:00.000000Z"
+    }
+  },
+  "state_projections": {
+    "after": {
+      "preimage": {
+        "balance_cents": 9000,
+        "version": 2
+      },
+      "sha256": "sha256:5196bdfb96c6b682d29ca3e3a7b0dd36b5bec472ba9e98b8e18d4c929ca03e0a"
+    },
+    "before": {
+      "preimage": {
+        "balance_cents": 10000,
+        "version": 1
+      },
+      "sha256": "sha256:60f8f19f9be260d2dc8f235268248696365a198999d5e4b5342286703ec15022"
+    }
+  }
+}

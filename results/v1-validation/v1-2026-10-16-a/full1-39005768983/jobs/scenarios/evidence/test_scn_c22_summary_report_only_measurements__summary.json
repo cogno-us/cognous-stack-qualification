@@ -1,0 +1,433 @@
+{
+  "conventional_control_scope": "a plain allow-list/approval check without binding, ledger, idempotency or atomic check-and-write; not a model of any product",
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "893aca8dfb27ba5c5f3e833f2d29210ca7fc92e3",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "41c496293ab68ba242cf92870309e7ee21333bea"
+      },
+      "exchange": {
+        "commit": "8be6c6b80da8c5038d66419f84c10cc529f78137",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2a1bc3d3f6ecfb4e192d973194e4e82b2bcd06b4"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "eb83220c82f942e429a5e3ef5f677fdd5057ef84",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "21aa5522464b6aa771aad48ad6291fd15fd24441"
+      },
+      "replay": {
+        "commit": "79ba16d48b9be1e059b3045989c7df960c3df1c2",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "ddeb089c79f4511f8423047c4691dad553ece263"
+      },
+      "runtime": {
+        "commit": "e20f92e104aba2ba6ad06120d8549c6170eaf63f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "787423cb9f995dfc190c988d6a4a0ffe94609226"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "e20f92e104aba2ba6ad06120d8549c6170eaf63f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "human_effort": "NOT MEASURED: these deterministic batteries involve no human participant; approvals_required, claims_issued and denied_or_unknown_responses are artifact counts, not effort",
+  "latency_note": "wall time per submit on one host (V1 includes SQLite transaction and claim validation); not an intrinsic speed comparison",
+  "owner_decision": "D5: false blocks, latency, review burden reported only",
+  "per_case": {
+    "A01_changed_target_within_prefix": {
+      "conventional": {
+        "correct": false,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 1
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A02_changed_amount_within_cap": {
+      "conventional": {
+        "correct": false,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 1
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A03_changed_payload": {
+      "conventional": {
+        "correct": false,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 1
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A04_actor_not_allowlisted": {
+      "conventional": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A05_adapter_not_allowlisted": {
+      "conventional": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A06_target_outside_prefix": {
+      "conventional": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A07_amount_over_policy_cap": {
+      "conventional": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A08_effects_two": {
+      "conventional": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A09_approval_revoked_before_call": {
+      "conventional": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A10_approval_expired": {
+      "conventional": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A11_approval_revoked_between_check_and_write": {
+      "conventional": {
+        "correct": false,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 1
+      },
+      "v1": {
+        "correct": true,
+        "effects": 0,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A12_lost_ack_then_client_retry": {
+      "conventional": {
+        "correct": false,
+        "effects": 2,
+        "excess_duplicate_effects": 1,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A13_duplicate_redelivery": {
+      "conventional": {
+        "correct": false,
+        "effects": 2,
+        "excess_duplicate_effects": 1,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A14_resubmission_after_store_restart": {
+      "conventional": {
+        "correct": false,
+        "effects": 2,
+        "excess_duplicate_effects": 1,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A15_budget_exhaustion_sequential": {
+      "conventional": {
+        "correct": true,
+        "effects": 2,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 2,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "A16_last_unit_taken_between_check_and_write": {
+      "conventional": {
+        "correct": false,
+        "effects": 2,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 1
+      },
+      "v1": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "L1_permitted_exact": {
+      "conventional": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "L2_permitted_two_distinct_within_budget": {
+      "conventional": {
+        "correct": true,
+        "effects": 2,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 2,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "L3_permitted_larger_amount_with_its_own_approval": {
+      "conventional": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 1,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    },
+    "L4_permitted_after_store_restart": {
+      "conventional": {
+        "correct": true,
+        "effects": 2,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      },
+      "v1": {
+        "correct": true,
+        "effects": 2,
+        "excess_duplicate_effects": 0,
+        "false_blocks": 0,
+        "unauthorized_effects": 0
+      }
+    }
+  },
+  "plan_digest": "sha256:2d73614b1721839fe596d885a4c03d51cae3885b93c6209604fadc07d3fc2ef1",
+  "report_only": true,
+  "run_comparison": {
+    "run1_digest": "sha256:967b0fbb60b47997a992bd4b45a916017f2c26df3a8c1d74131405e0f3b66d6f",
+    "run2_digest": "sha256:967b0fbb60b47997a992bd4b45a916017f2c26df3a8c1d74131405e0f3b66d6f",
+    "verdict": "MATCH"
+  },
+  "scenario": "C22",
+  "test": "test_scn_c22_summary_report_only_measurements",
+  "thresholds_applied": null,
+  "totals_per_arm": {
+    "conventional": {
+      "approvals_required": 25,
+      "cases": 20,
+      "cases_correct": 12,
+      "claims_issued": 0,
+      "denied_or_unknown_responses": 9,
+      "excess_duplicate_effects": 3,
+      "false_blocks_on_permitted_cases": 0,
+      "false_blocks_total": 0,
+      "latency_ms": {
+        "max": 2.03,
+        "median": 0.723,
+        "n": 56,
+        "p95": 1.567
+      },
+      "permitted_cases": 4,
+      "unauthorized_effects": 5
+    },
+    "v1": {
+      "approvals_required": 25,
+      "cases": 20,
+      "cases_correct": 20,
+      "claims_issued": 25,
+      "denied_or_unknown_responses": 17,
+      "excess_duplicate_effects": 0,
+      "false_blocks_on_permitted_cases": 0,
+      "false_blocks_total": 0,
+      "latency_ms": {
+        "max": 13.846,
+        "median": 1.098,
+        "n": 56,
+        "p95": 3.92
+      },
+      "permitted_cases": 4,
+      "unauthorized_effects": 0
+    }
+  }
+}

@@ -1,0 +1,2935 @@
+{
+  "budget": {
+    "calls": [
+      {
+        "count": 36,
+        "microdollars": 396150,
+        "state": "SETTLED"
+      }
+    ],
+    "cap_usd": "3",
+    "charged_or_reserved_usd": "0.39615",
+    "scope": "client campaign accounting at recorded rates; not provider invoice guarantee"
+  },
+  "campaign": {
+    "automatic_retries": 0,
+    "campaign_id": "prp-openai-20261015",
+    "counted_input_limit": 15000,
+    "max_output_tokens": 1536,
+    "max_trial_spend_usd": "3.00",
+    "max_turns": 3,
+    "model": "gpt-6.1-sol",
+    "pricing": {
+      "cache_write_usd_per_million": "2.50",
+      "cached_input_usd_per_million": "0.10",
+      "input_usd_per_million": "2.00",
+      "output_usd_per_million": "10.00",
+      "source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "verified_on": "2026-10-15"
+    },
+    "prp_commit": "b3ffa8559db05188f3471c5b0bfe5d936a4bcb29",
+    "repetitions": 3,
+    "reserved_input_ceiling": 16000
+  },
+  "limitations": [
+    "Three paired repetitions of one synthetic author model; no general efficacy claim.",
+    "PRP adds instruction tokens; model/tools/settings/task inputs are matched.",
+    "Temperature/seed unavailable; medium reasoning fixed, hidden reasoning not logged.",
+    "Client spend estimates at recorded rates; no invoice guarantee.",
+    "Historical fixture unexecuted field describes its offline provenance; this manifest records actual execution."
+  ],
+  "model_revision": "Provider ID; finer immutable snapshot unavailable",
+  "prompt_hashes": {
+    "baseline": "7d31800841a2d6cd65ae801369f82ae6d88a6c3d8f74ceea5d6aa9573f9ab928",
+    "prp": "4a968b983d792e61a372129f76026ba37f735b085e66526c4b9d69218e31ac6e"
+  },
+  "runner_sha256": "97e9eabc653d0baf198d9dd5b840525adacea170b4173144c827153d9a854168",
+  "schedule": [
+    [
+      1,
+      "null",
+      "baseline"
+    ],
+    [
+      1,
+      "null",
+      "prp"
+    ],
+    [
+      1,
+      "discriminating",
+      "prp"
+    ],
+    [
+      1,
+      "discriminating",
+      "baseline"
+    ],
+    [
+      1,
+      "perturbed_weaker_signal",
+      "baseline"
+    ],
+    [
+      1,
+      "perturbed_weaker_signal",
+      "prp"
+    ],
+    [
+      2,
+      "discriminating",
+      "baseline"
+    ],
+    [
+      2,
+      "discriminating",
+      "prp"
+    ],
+    [
+      2,
+      "perturbed_weaker_signal",
+      "prp"
+    ],
+    [
+      2,
+      "perturbed_weaker_signal",
+      "baseline"
+    ],
+    [
+      2,
+      "null",
+      "prp"
+    ],
+    [
+      2,
+      "null",
+      "baseline"
+    ],
+    [
+      3,
+      "perturbed_weaker_signal",
+      "baseline"
+    ],
+    [
+      3,
+      "perturbed_weaker_signal",
+      "prp"
+    ],
+    [
+      3,
+      "null",
+      "baseline"
+    ],
+    [
+      3,
+      "null",
+      "prp"
+    ],
+    [
+      3,
+      "discriminating",
+      "prp"
+    ],
+    [
+      3,
+      "discriminating",
+      "baseline"
+    ]
+  ],
+  "scores": {
+    "behavioral_efficacy_established": false,
+    "pairs": [
+      {
+        "behavioral_efficacy_established": false,
+        "case_id": "prp-pair-synthetic-001",
+        "condition": "baseline",
+        "pair_passed": true,
+        "reference_model": "frozen_author_model",
+        "repetition": 1,
+        "twins": {
+          "discriminating": {
+            "chosen_loss": 1.0,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 1.0,
+              "act_h1": 9.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          },
+          "null": {
+            "chosen_loss": 2.2,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 5.0,
+              "act_h1": 5.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          }
+        }
+      },
+      {
+        "behavioral_efficacy_established": false,
+        "case_id": "prp-pair-synthetic-001",
+        "condition": "baseline",
+        "pair_passed": true,
+        "reference_model": "frozen_author_model",
+        "repetition": 2,
+        "twins": {
+          "discriminating": {
+            "chosen_loss": 1.0,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 1.0,
+              "act_h1": 9.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          },
+          "null": {
+            "chosen_loss": 2.2,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 5.0,
+              "act_h1": 5.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          }
+        }
+      },
+      {
+        "behavioral_efficacy_established": false,
+        "case_id": "prp-pair-synthetic-001",
+        "condition": "baseline",
+        "pair_passed": true,
+        "reference_model": "frozen_author_model",
+        "repetition": 3,
+        "twins": {
+          "discriminating": {
+            "chosen_loss": 1.0,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 1.0,
+              "act_h1": 9.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          },
+          "null": {
+            "chosen_loss": 2.2,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 5.0,
+              "act_h1": 5.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          }
+        }
+      },
+      {
+        "behavioral_efficacy_established": false,
+        "case_id": "prp-pair-synthetic-001",
+        "condition": "prp",
+        "pair_passed": true,
+        "reference_model": "frozen_author_model",
+        "repetition": 1,
+        "twins": {
+          "discriminating": {
+            "chosen_loss": 1.0,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 1.0,
+              "act_h1": 9.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          },
+          "null": {
+            "chosen_loss": 2.2,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 5.0,
+              "act_h1": 5.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          }
+        }
+      },
+      {
+        "behavioral_efficacy_established": false,
+        "case_id": "prp-pair-synthetic-001",
+        "condition": "prp",
+        "pair_passed": true,
+        "reference_model": "frozen_author_model",
+        "repetition": 2,
+        "twins": {
+          "discriminating": {
+            "chosen_loss": 1.0,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 1.0,
+              "act_h1": 9.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          },
+          "null": {
+            "chosen_loss": 2.2,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 5.0,
+              "act_h1": 5.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          }
+        }
+      },
+      {
+        "behavioral_efficacy_established": false,
+        "case_id": "prp-pair-synthetic-001",
+        "condition": "prp",
+        "pair_passed": true,
+        "reference_model": "frozen_author_model",
+        "repetition": 3,
+        "twins": {
+          "discriminating": {
+            "chosen_loss": 1.0,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 1.0,
+              "act_h1": 9.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          },
+          "null": {
+            "chosen_loss": 2.2,
+            "loss_optimal": true,
+            "losses": {
+              "act_h0": 5.0,
+              "act_h1": 5.0,
+              "defer": 3.2,
+              "gather": 2.2
+            },
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "posterior_matches": true,
+            "regret": 0.0,
+            "stopping_rule_met": true
+          }
+        }
+      }
+    ],
+    "perturbations": [
+      {
+        "condition": "baseline",
+        "direction_correct": true,
+        "expected_direction": 1,
+        "magnitude_scored": false,
+        "reference_model": "frozen_author_model",
+        "repetition": 1
+      },
+      {
+        "condition": "baseline",
+        "direction_correct": true,
+        "expected_direction": 1,
+        "magnitude_scored": false,
+        "reference_model": "frozen_author_model",
+        "repetition": 2
+      },
+      {
+        "condition": "baseline",
+        "direction_correct": true,
+        "expected_direction": 1,
+        "magnitude_scored": false,
+        "reference_model": "frozen_author_model",
+        "repetition": 3
+      },
+      {
+        "condition": "prp",
+        "direction_correct": true,
+        "expected_direction": 1,
+        "magnitude_scored": false,
+        "reference_model": "frozen_author_model",
+        "repetition": 1
+      },
+      {
+        "condition": "prp",
+        "direction_correct": true,
+        "expected_direction": 1,
+        "magnitude_scored": false,
+        "reference_model": "frozen_author_model",
+        "repetition": 2
+      },
+      {
+        "condition": "prp",
+        "direction_correct": true,
+        "expected_direction": 1,
+        "magnitude_scored": false,
+        "reference_model": "frozen_author_model",
+        "repetition": 3
+      }
+    ]
+  },
+  "source_hashes": {
+    "SKILL.md": "60146970e30edee6bcbf76d8fa7bbd37b930d962d99109c65b0a3043dedec62d",
+    "evaluations/paired-case.json": "bb99127f974ea71ac0a9ec833aa98aea79ee33d767c4de5ac82ea81c680d8649",
+    "references/prp-core.md": "985029da4411c5ed836ba2c61948be0518df1eb2f2870a29d5557d92c9dbcb07",
+    "references/runtime-control.md": "98cd6311f4b5d8cef3d3f5c56d19bb6309e3509c18a631af4e1bbdccab9e6dc7",
+    "references/source-lineage.md": "40b62f0dc7eb922598871e2ba04aace25a71e09d3b2fb9a7170488fa335071ce",
+    "tools/paired_evaluation.py": "7dc82474ec20c5240a4e966af815cd2b6f280b34bfd452b2738754b03cc73fdc"
+  },
+  "status": "COMPLETE",
+  "trials": [
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.896,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "f11f65f97d014c47a0b353feca2c6a1a",
+          "response_id": "resp_05daa0b3ee1fd20e016ad15bc27c7887d197ebfeb418663941",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 2554,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 3.73,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "f61140c947534dd68d6b34c730244463",
+          "response_id": "resp_05daa0b3ee1fd20e016ad15bc4b26087d192eddcf739d345cc",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 157,
+            "output_tokens_details": {
+              "reasoning_tokens": 50
+            },
+            "total_tokens": 649
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.5,
+          0.5
+        ],
+        "rationale": "Equal evidence likelihoods leave the prior unchanged at [0.5, 0.5]. Expected losses are 5 for either terminal action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. No stopping action meets the 1.2 stopping threshold; gather has the lowest expected loss."
+      },
+      "finished_at": "2026-10-15T23:03:36.299963+00:00",
+      "observation": "null",
+      "repetition": 1,
+      "started_at": "2026-10-15T23:03:30.159311+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_6FuST70R7PEta78s0iBPcqJB",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.5,
+              0.5
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "rationale": "Equal evidence likelihoods leave the prior unchanged at [0.5, 0.5]. Expected losses are 5 for either terminal action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. No stopping action meets the 1.2 stopping threshold; gather has the lowest expected loss."
+          },
+          "call_id": "call_7BEu3idIqEyW6B0s6FEOyutY",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.574,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "469251f54d8748239d71ba03f77ac9a0",
+          "response_id": "resp_0efd4052e7f9e02f016ad15bc8a65887d1ad2416182b1e7d1d",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 20916,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 3.847,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "78abe06e763645d8a987cc0912a70f16",
+          "response_id": "resp_0efd4052e7f9e02f016ad15bca8ad087d1a82697b023aa6703",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 150,
+            "output_tokens_details": {
+              "reasoning_tokens": 39
+            },
+            "total_tokens": 9858
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.5,
+          0.5
+        ],
+        "rationale": "The evidence is equally likely under both hypotheses, leaving the posterior at [0.5, 0.5]. Expected losses are 5 for either terminal action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. Terminal loss exceeds the 1.2 stopping threshold; gather has the lowest total expected loss."
+      },
+      "finished_at": "2026-10-15T23:03:42.264289+00:00",
+      "observation": "null",
+      "repetition": 1,
+      "started_at": "2026-10-15T23:03:36.300603+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_Fq5LZkuQT8S8aHuyBn3Wjhvs",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.5,
+              0.5
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "rationale": "The evidence is equally likely under both hypotheses, leaving the posterior at [0.5, 0.5]. Expected losses are 5 for either terminal action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. Terminal loss exceeds the 1.2 stopping threshold; gather has the lowest total expected loss."
+          },
+          "call_id": "call_jzDBR7QGE7PS89UGFlyZguuJ",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.464,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "dfd36a3c06a143338231d575e61375f9",
+          "response_id": "resp_06b3ee972bdbb5e6016ad15bce96ec87d187b668d15411ceb1",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 21156,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 4.37,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "1f5dc59a9bfa4d5c9b2372f4076bb1d2",
+          "response_id": "resp_06b3ee972bdbb5e6016ad15bd06a6087d1a927792c999acad6",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 174,
+            "output_tokens_details": {
+              "reasoning_tokens": 42
+            },
+            "total_tokens": 9882
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "act_h0",
+        "posterior": [
+          0.9,
+          0.1
+        ],
+        "rationale": "Bayes' rule with equal priors and evidence likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes expected loss and meets the stopping threshold of 1.2."
+      },
+      "finished_at": "2026-10-15T23:03:48.613180+00:00",
+      "observation": "discriminating",
+      "repetition": 1,
+      "started_at": "2026-10-15T23:03:42.265101+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_iS9xYlZMkAgpwRwzTeFDN8um",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.9,
+              0.1
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "act_h0",
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "rationale": "Bayes' rule with equal priors and evidence likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes expected loss and meets the stopping threshold of 1.2."
+          },
+          "call_id": "call_OYyszaDkISLfTzEm5WeiHbhy",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.661,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "3ff091c788de43cd8e0a280e9e34e38a",
+          "response_id": "resp_0e10cc5f6ab157eb016ad15bd4f19087d19fa98e4c07f96ee5",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 2634,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 3.863,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "e9483c313d964b47a5f6bfdf2b793c01",
+          "response_id": "resp_0e10cc5f6ab157eb016ad15bd6e59087d1a895d096be04b01e",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 165,
+            "output_tokens_details": {
+              "reasoning_tokens": 37
+            },
+            "total_tokens": 657
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "act_h0",
+        "posterior": [
+          0.9,
+          0.1
+        ],
+        "rationale": "Updating the equal prior with evidence likelihoods [0.9, 0.1] yields posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gather and delay costs. act_h0 minimizes expected loss and satisfies the stopping threshold of 1.2."
+      },
+      "finished_at": "2026-10-15T23:03:54.640783+00:00",
+      "observation": "discriminating",
+      "repetition": 1,
+      "started_at": "2026-10-15T23:03:48.616597+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_1rWoPen5ozQStgZN0FzUWghK",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.9,
+              0.1
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "act_h0",
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "rationale": "Updating the equal prior with evidence likelihoods [0.9, 0.1] yields posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gather and delay costs. act_h0 minimizes expected loss and satisfies the stopping threshold of 1.2."
+          },
+          "call_id": "call_dl5sKtcyxsPHrBtWIzyDPNxZ",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.266,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "11a5bba5bf87400b840c1a153a1edb73",
+          "response_id": "resp_0e44187ce88f8a96016ad15bdb13ac87d19fcd779c1f7f12af",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 3134,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 5.398,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "20e23e96811c4e1587b9428a0d2b6022",
+          "response_id": "resp_0e44187ce88f8a96016ad15bdc9fe887d186aa04adf97f3fe1",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 215,
+            "output_tokens_details": {
+              "reasoning_tokens": 79
+            },
+            "total_tokens": 707
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.8,
+          0.2
+        ],
+        "rationale": "Updating the equal prior with likelihoods [0.8, 0.2] gives posterior [0.8, 0.2]. The best terminal act, act_h0, has expected loss 2.0, exceeding the stopping threshold of 1.2. Gather has total expected loss 1.5 + 0.5 + 0.2 = 2.2, less than defer's 3.2, so gather is the minimum-loss allowed action."
+      },
+      "finished_at": "2026-10-15T23:04:01.924303+00:00",
+      "observation": "perturbed_weaker_signal",
+      "repetition": 1,
+      "started_at": "2026-10-15T23:03:54.642181+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_aTqWSJghCoCdWdjHAgdUnAGN",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.8,
+              0.2
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.8,
+              0.2
+            ],
+            "rationale": "Updating the equal prior with likelihoods [0.8, 0.2] gives posterior [0.8, 0.2]. The best terminal act, act_h0, has expected loss 2.0, exceeding the stopping threshold of 1.2. Gather has total expected loss 1.5 + 0.5 + 0.2 = 2.2, less than defer's 3.2, so gather is the minimum-loss allowed action."
+          },
+          "call_id": "call_wi9rs36kxnyuTJsecJfHOJrQ",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.381,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "3573e3425fe64c91a46e45c9ebbaad72",
+          "response_id": "resp_019b2151ff9e4f42016ad15be2403c87d19ad2832c923e35c6",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 21876,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 7.213,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "8bd9dd9191eb476e87b2e233dc45c316",
+          "response_id": "resp_019b2151ff9e4f42016ad15be3e9d087d1be7fd79300c81f7e",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 246,
+            "output_tokens_details": {
+              "reasoning_tokens": 132
+            },
+            "total_tokens": 9954
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.8,
+          0.2
+        ],
+        "rationale": "Bayesian updating gives P(H0|e)=0.8 and P(H1|e)=0.2. The best terminal action, act_h0, has expected loss 2.0, exceeding the 1.2 stopping threshold. Continue with gather: its total expected loss including gathering and delay costs is 2.2, versus 3.2 for defer."
+      },
+      "finished_at": "2026-10-15T23:04:11.018171+00:00",
+      "observation": "perturbed_weaker_signal",
+      "repetition": 1,
+      "started_at": "2026-10-15T23:04:01.929635+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_OI7WDTRAJncdupaZcB0BfMhf",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.8,
+              0.2
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.8,
+              0.2
+            ],
+            "rationale": "Bayesian updating gives P(H0|e)=0.8 and P(H1|e)=0.2. The best terminal action, act_h0, has expected loss 2.0, exceeding the 1.2 stopping threshold. Continue with gather: its total expected loss including gathering and delay costs is 2.2, versus 3.2 for defer."
+          },
+          "call_id": "call_FfeW6x2Xz2VLrNevNZDHPDYx",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.538,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "55ee058989df422bb6de881be77b08e2",
+          "response_id": "resp_0d989358b0aa896f016ad15beb8af087d19d87890997d975ec",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 2604,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 4.075,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "82e5160304144a57ba35b8a8a887b8ae",
+          "response_id": "resp_0d989358b0aa896f016ad15bed4cc887d18234358eb8136dd2",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 162,
+            "output_tokens_details": {
+              "reasoning_tokens": 39
+            },
+            "total_tokens": 654
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "act_h0",
+        "posterior": [
+          0.9,
+          0.1
+        ],
+        "rationale": "Updating the equal prior with evidence likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected losses are 1 for act_h0, 9 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes loss and meets the stopping threshold of 1.2."
+      },
+      "finished_at": "2026-10-15T23:04:17.266015+00:00",
+      "observation": "discriminating",
+      "repetition": 2,
+      "started_at": "2026-10-15T23:04:11.020047+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_gQkQxRSQxNX8lKPxYOoczTdc",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.9,
+              0.1
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "act_h0",
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "rationale": "Updating the equal prior with evidence likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected losses are 1 for act_h0, 9 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes loss and meets the stopping threshold of 1.2."
+          },
+          "call_id": "call_vZHdYWIqLWspxmbskOpZGJ3p",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.272,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "2747e7fde58146a2988532bf307a4ff7",
+          "response_id": "resp_038f0cfe4cd598f8016ad15bf1b07487d18aa485cb1b13bf05",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 21206,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 4.594,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "c306a73932af4428b6323c5d78c5acd0",
+          "response_id": "resp_038f0cfe4cd598f8016ad15bf35aa087d1aa0b91032b4fef10",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 179,
+            "output_tokens_details": {
+              "reasoning_tokens": 50
+            },
+            "total_tokens": 9887
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "act_h0",
+        "posterior": [
+          0.9,
+          0.1
+        ],
+        "rationale": "Bayes updating the equal prior with evidence likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected loss is 1.0 for act_h0 versus 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes loss and meets the stopping threshold of 1.2."
+      },
+      "finished_at": "2026-10-15T23:04:23.807989+00:00",
+      "observation": "discriminating",
+      "repetition": 2,
+      "started_at": "2026-10-15T23:04:17.267186+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_G7bXB80FpA7mqCNYTcTjAEKN",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.9,
+              0.1
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "act_h0",
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "rationale": "Bayes updating the equal prior with evidence likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected loss is 1.0 for act_h0 versus 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes loss and meets the stopping threshold of 1.2."
+          },
+          "call_id": "call_4SiXfu2ePO1hEb2Ujx9L6WpK",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.405,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "bb2a51a9cb0e4e37b30d195eb53e3120",
+          "response_id": "resp_0d2f84aae65ae24b016ad15bf82c0887d1904f0a082aff1303",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 21926,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 7.282,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "84d90cd1973d4a338a46f3f7daf8ef7e",
+          "response_id": "resp_0d2f84aae65ae24b016ad15bf9c9ac87d18e6bf7e4a2ef7923",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 251,
+            "output_tokens_details": {
+              "reasoning_tokens": 115
+            },
+            "total_tokens": 9959
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.8,
+          0.2
+        ],
+        "rationale": "Bayesian updating gives P(H0|e)=0.8 and P(H1|e)=0.2. The best terminal action, act_h0, has expected loss 2.0, above the 1.2 stopping threshold. Gather has total expected loss 1.5+0.5+0.2=2.2, below defer's 3+0.2=3.2, so gather is the minimum-loss action allowed by the stopping rule."
+      },
+      "finished_at": "2026-10-15T23:04:32.942542+00:00",
+      "observation": "perturbed_weaker_signal",
+      "repetition": 2,
+      "started_at": "2026-10-15T23:04:23.809276+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_EXKc92aQLeGzuqJelUXtZyFv",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.8,
+              0.2
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.8,
+              0.2
+            ],
+            "rationale": "Bayesian updating gives P(H0|e)=0.8 and P(H1|e)=0.2. The best terminal action, act_h0, has expected loss 2.0, above the 1.2 stopping threshold. Gather has total expected loss 1.5+0.5+0.2=2.2, below defer's 3+0.2=3.2, so gather is the minimum-loss action allowed by the stopping rule."
+          },
+          "call_id": "call_1FhFipIhZ851ntTcXq2DCUh7",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.411,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "19589f54024447708c9e383ff9f2a065",
+          "response_id": "resp_09ecb36e71ba83da016ad15c01381487d19df496c9d2e84c53",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 3534,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 6.787,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "ddebf171b00348019fc05b32a88f8001",
+          "response_id": "resp_09ecb36e71ba83da016ad15c02d4fc87d1a9dd0383059f169e",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 255,
+            "output_tokens_details": {
+              "reasoning_tokens": 143
+            },
+            "total_tokens": 747
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.8,
+          0.2
+        ],
+        "rationale": "Bayesian updating gives P(H0)=0.8 and P(H1)=0.2. The best terminal action, act_h0, has expected loss 2.0, above the stopping threshold of 1.2. Continue with gather: its total expected loss including gather and delay costs is 2.2, lower than defer's 3.2."
+      },
+      "finished_at": "2026-10-15T23:04:41.513278+00:00",
+      "observation": "perturbed_weaker_signal",
+      "repetition": 2,
+      "started_at": "2026-10-15T23:04:32.943841+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_sla6LzawNiy2T5FDd4iGtGfj",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.8,
+              0.2
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.8,
+              0.2
+            ],
+            "rationale": "Bayesian updating gives P(H0)=0.8 and P(H1)=0.2. The best terminal action, act_h0, has expected loss 2.0, above the stopping threshold of 1.2. Continue with gather: its total expected loss including gather and delay costs is 2.2, lower than defer's 3.2."
+          },
+          "call_id": "call_UgWg3pB85KhSjdBvsw7iy9sT",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.587,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "52eced4a935f45ec903810ca69293670",
+          "response_id": "resp_01c3339d13bca331016ad15c09d68c87d1b1eb07688549af6d",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 20676,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 4.044,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "d88e768d0dc747a0bc3ec7bbac7bc342",
+          "response_id": "resp_01c3339d13bca331016ad15c0b9f5c87d1911794f10325fe2f",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 126,
+            "output_tokens_details": {
+              "reasoning_tokens": 31
+            },
+            "total_tokens": 9834
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.5,
+          0.5
+        ],
+        "rationale": "Equal evidence likelihoods leave the prior unchanged. Expected losses are 5 for either hypothesis action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. Gather minimizes expected loss; the stopping threshold of 1.2 is not met."
+      },
+      "finished_at": "2026-10-15T23:04:47.562491+00:00",
+      "observation": "null",
+      "repetition": 2,
+      "started_at": "2026-10-15T23:04:41.514659+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_groES0LSC0RxhSARdlH5fZ8F",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.5,
+              0.5
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "rationale": "Equal evidence likelihoods leave the prior unchanged. Expected losses are 5 for either hypothesis action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. Gather minimizes expected loss; the stopping threshold of 1.2 is not met."
+          },
+          "call_id": "call_5drSlWBSCNgJ9WRY6DbloDpH",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.543,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "6963763a27ab487db5cbc2397e4bf86c",
+          "response_id": "resp_0e327fdbf51446a5016ad15c0fe0b087d192aaad4ceb29a63b",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 2424,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 3.791,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "49fc9d7ea5bc4a3bad857c42f0dfd3ac",
+          "response_id": "resp_0e327fdbf51446a5016ad15c1199e887d1bb000fe7aa461171",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 144,
+            "output_tokens_details": {
+              "reasoning_tokens": 38
+            },
+            "total_tokens": 636
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.5,
+          0.5
+        ],
+        "rationale": "The evidence is equally likely under both hypotheses, so the posterior remains [0.5, 0.5]. Expected losses are 5 for either hypothesis action, 3.2 for defer, and 2.2 for gather including costs. The stopping threshold of 1.2 is not met; gather has the lowest expected loss."
+      },
+      "finished_at": "2026-10-15T23:04:53.272013+00:00",
+      "observation": "null",
+      "repetition": 2,
+      "started_at": "2026-10-15T23:04:47.564131+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_uDn7zEZEOQQ19VLKPv06owQo",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.5,
+              0.5
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "rationale": "The evidence is equally likely under both hypotheses, so the posterior remains [0.5, 0.5]. Expected losses are 5 for either hypothesis action, 3.2 for defer, and 2.2 for gather including costs. The stopping threshold of 1.2 is not met; gather has the lowest expected loss."
+          },
+          "call_id": "call_xp0NJ9CsswTLRVaLQqcCACo2",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.477,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "e77e7954127c41a3ba344e5287cad010",
+          "response_id": "resp_02eb2e3ed017f209016ad15c15d16087d1a102fc1ef95151d6",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 3004,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 5.218,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "cf46d30d15744dcf944ad4afd17e2ee3",
+          "response_id": "resp_02eb2e3ed017f209016ad15c17891087d18f7576b30036d492",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 202,
+            "output_tokens_details": {
+              "reasoning_tokens": 91
+            },
+            "total_tokens": 694
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.8,
+          0.2
+        ],
+        "rationale": "Bayes updating gives posterior [0.8, 0.2]. The best terminal action, act_h0, has expected loss 2.0, exceeding the stopping threshold of 1.2. Gather has total expected loss 2.2 including gathering and delay costs, below defer's 3.2, so gather is preferred under the stopping rule."
+      },
+      "finished_at": "2026-10-15T23:05:00.644892+00:00",
+      "observation": "perturbed_weaker_signal",
+      "repetition": 3,
+      "started_at": "2026-10-15T23:04:53.274210+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_NJEdX2wJh3JRjkjNRJxB8gQ2",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.8,
+              0.2
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.8,
+              0.2
+            ],
+            "rationale": "Bayes updating gives posterior [0.8, 0.2]. The best terminal action, act_h0, has expected loss 2.0, exceeding the stopping threshold of 1.2. Gather has total expected loss 2.2 including gathering and delay costs, below defer's 3.2, so gather is preferred under the stopping rule."
+          },
+          "call_id": "call_wNN69PRZHZ8Ky0p58gDWyJiz",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.375,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "909b0665a68c4708a66f8a8bd3527e3c",
+          "response_id": "resp_01e41805d11696e9016ad15c1d129487d18cfe5b04bf4d02e7",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 22166,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 7.585,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "5e5692ecd757479e9f8d3cfb321c4eb8",
+          "response_id": "resp_01e41805d11696e9016ad15c1eeda887d1b40a5849ee628174",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 275,
+            "output_tokens_details": {
+              "reasoning_tokens": 140
+            },
+            "total_tokens": 9983
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.8,
+          0.2
+        ],
+        "rationale": "Bayesian updating gives P(H0|evidence)=0.8 and P(H1|evidence)=0.2. The best immediate commitment, act_h0, has expected loss 2, exceeding the stopping threshold of 1.2. Among non-commitment actions, gather has total expected loss 2.2 (1.5 + 0.5 gather cost + 0.2 delay), below defer's 3.2, so gather is preferred."
+      },
+      "finished_at": "2026-10-15T23:05:10.381558+00:00",
+      "observation": "perturbed_weaker_signal",
+      "repetition": 3,
+      "started_at": "2026-10-15T23:05:00.646604+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_LuLjViQzwAUIR7sihMzDXk5T",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.8,
+              0.2
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.8,
+              0.2
+            ],
+            "rationale": "Bayesian updating gives P(H0|evidence)=0.8 and P(H1|evidence)=0.2. The best immediate commitment, act_h0, has expected loss 2, exceeding the stopping threshold of 1.2. Among non-commitment actions, gather has total expected loss 2.2 (1.5 + 0.5 gather cost + 0.2 delay), below defer's 3.2, so gather is preferred."
+          },
+          "call_id": "call_k71ouf2WD1ZJuqNGlbs0RzRv",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.507,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "1be874f997624ccf87c4e34cc97a54d3",
+          "response_id": "resp_0468c73f6f362d1d016ad15c26b54487d1a1911975763f2c28",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 2454,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 3.944,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "42c391977df04ad2bd489249c03f0a95",
+          "response_id": "resp_0468c73f6f362d1d016ad15c2878ec87d1ae755cf527a3ff1a",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 147,
+            "output_tokens_details": {
+              "reasoning_tokens": 41
+            },
+            "total_tokens": 639
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.5,
+          0.5
+        ],
+        "rationale": "Equal evidence likelihoods leave the posterior at [0.5, 0.5]. Expected losses are 5 for either hypothesis action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. No terminal action meets the 1.2 stopping threshold; gather has the lowest expected loss."
+      },
+      "finished_at": "2026-10-15T23:05:16.304203+00:00",
+      "observation": "null",
+      "repetition": 3,
+      "started_at": "2026-10-15T23:05:10.383269+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_xZsXEMbo5e4LJg3MWeXePBZC",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.5,
+              0.5
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "rationale": "Equal evidence likelihoods leave the posterior at [0.5, 0.5]. Expected losses are 5 for either hypothesis action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. No terminal action meets the 1.2 stopping threshold; gather has the lowest expected loss."
+          },
+          "call_id": "call_91oeoyycPlFtloYUjMEChlUl",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.463,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "a27509fcad0c48b0997cec25f7c48ce7",
+          "response_id": "resp_0b7c9a1db1d80b67016ad15c2cab5c87d1bc29c781a4876a2c",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 20936,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 3.657,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "91ece7a4ec3e49f8aba395c7d424111c",
+          "response_id": "resp_0b7c9a1db1d80b67016ad15c2e9db887d1ae35e60fc1370803",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 152,
+            "output_tokens_details": {
+              "reasoning_tokens": 41
+            },
+            "total_tokens": 9860
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "gather",
+        "posterior": [
+          0.5,
+          0.5
+        ],
+        "rationale": "The evidence is equally likely under both hypotheses, so the posterior remains [0.5, 0.5]. Expected losses are 5 for either hypothesis action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. The stopping threshold of 1.2 is not met; gather has the lowest expected loss."
+      },
+      "finished_at": "2026-10-15T23:05:22.151240+00:00",
+      "observation": "null",
+      "repetition": 3,
+      "started_at": "2026-10-15T23:05:16.305984+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_dQVTJYNcsEK4yEnwwOrRwif3",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.5,
+              0.5
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "gather",
+            "posterior": [
+              0.5,
+              0.5
+            ],
+            "rationale": "The evidence is equally likely under both hypotheses, so the posterior remains [0.5, 0.5]. Expected losses are 5 for either hypothesis action, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. The stopping threshold of 1.2 is not met; gather has the lowest expected loss."
+          },
+          "call_id": "call_XxscNtD3QwoWYid4o8ua1jlL",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 19166,
+          "counted_input_tokens": 9435,
+          "incomplete_details": null,
+          "latency_seconds": 1.864,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "f5a4ac5e89f24847b3bcf04c9b900aee",
+          "response_id": "resp_053d458bbf78ac06016ad15c327da487d192e5044a9b393a19",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9513,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 9527
+          }
+        },
+        {
+          "charged_microdollars": 21146,
+          "counted_input_tokens": 9630,
+          "incomplete_details": null,
+          "latency_seconds": 4.551,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "090247d9dd6749e98deab45712aa172c",
+          "response_id": "resp_053d458bbf78ac06016ad15c348fc487d187287db140b0feae",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 9708,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 173,
+            "output_tokens_details": {
+              "reasoning_tokens": 44
+            },
+            "total_tokens": 9881
+          }
+        }
+      ],
+      "condition": "prp",
+      "decision": {
+        "action": "act_h0",
+        "posterior": [
+          0.9,
+          0.1
+        ],
+        "rationale": "Bayes updating the equal prior with likelihoods [0.9, 0.1] yields posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes expected loss and meets the stopping threshold of 1.2."
+      },
+      "finished_at": "2026-10-15T23:05:29.001983+00:00",
+      "observation": "discriminating",
+      "repetition": 3,
+      "started_at": "2026-10-15T23:05:22.153110+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_r3QF6Ucs0ujSjVey5VcHZhU4",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.9,
+              0.1
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "act_h0",
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "rationale": "Bayes updating the equal prior with likelihoods [0.9, 0.1] yields posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gathering and delay costs. act_h0 minimizes expected loss and meets the stopping threshold of 1.2."
+          },
+          "call_id": "call_imoOdlKCBuadQTW0WdTBSk1H",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    },
+    {
+      "calls": [
+        {
+          "charged_microdollars": 734,
+          "counted_input_tokens": 219,
+          "incomplete_details": null,
+          "latency_seconds": 1.942,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "62d2a1102bae4352bc4825046caadaa7",
+          "response_id": "resp_00f60af197fffee5016ad15c395ed087d1b25acccf6ecc36ae",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 297,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 14,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 311
+          }
+        },
+        {
+          "charged_microdollars": 2704,
+          "counted_input_tokens": 414,
+          "incomplete_details": null,
+          "latency_seconds": 4.599,
+          "model": "gpt-6.1-sol",
+          "reservation_id": "8e16162d65cd43f8b07ef735ca6eb419",
+          "response_id": "resp_00f60af197fffee5016ad15c3b886c87d1bb961889c80927f8",
+          "service_tier": "default",
+          "status": "completed",
+          "usage": {
+            "input_tokens": 492,
+            "input_tokens_details": {
+              "cache_write_tokens": 0,
+              "cached_tokens": 0
+            },
+            "output_tokens": 172,
+            "output_tokens_details": {
+              "reasoning_tokens": 46
+            },
+            "total_tokens": 664
+          }
+        }
+      ],
+      "condition": "baseline",
+      "decision": {
+        "action": "act_h0",
+        "posterior": [
+          0.9,
+          0.1
+        ],
+        "rationale": "Updating the equal prior with likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gather and delay costs. act_h0 minimizes loss and meets the stopping threshold of 1.2."
+      },
+      "finished_at": "2026-10-15T23:05:36.034765+00:00",
+      "observation": "discriminating",
+      "repetition": 3,
+      "started_at": "2026-10-15T23:05:29.003964+00:00",
+      "stop_reason": null,
+      "tool_trace": [
+        {
+          "arguments": {},
+          "call_id": "call_nf5833uuncfwtorSjOzc81it",
+          "name": "get_case",
+          "result": {
+            "actions": {
+              "act_h0": {
+                "kind": "act",
+                "loss": [
+                  0,
+                  10
+                ]
+              },
+              "act_h1": {
+                "kind": "act",
+                "loss": [
+                  10,
+                  0
+                ]
+              },
+              "defer": {
+                "delay_cost": 0.2,
+                "kind": "defer",
+                "loss": [
+                  3,
+                  3
+                ]
+              },
+              "gather": {
+                "delay_cost": 0.2,
+                "gather_cost": 0.5,
+                "kind": "gather",
+                "loss": [
+                  1.5,
+                  1.5
+                ]
+              }
+            },
+            "hypotheses": [
+              "H0",
+              "H1"
+            ],
+            "observed_evidence_likelihoods": [
+              0.9,
+              0.1
+            ],
+            "prior": [
+              0.5,
+              0.5
+            ],
+            "stop_expected_loss": 1.2
+          },
+          "turn": 1
+        },
+        {
+          "arguments": {
+            "action": "act_h0",
+            "posterior": [
+              0.9,
+              0.1
+            ],
+            "rationale": "Updating the equal prior with likelihoods [0.9, 0.1] gives posterior [0.9, 0.1]. Expected losses are 1.0 for act_h0, 9.0 for act_h1, 3.2 for defer including delay, and 2.2 for gather including gather and delay costs. act_h0 minimizes loss and meets the stopping threshold of 1.2."
+          },
+          "call_id": "call_ks3ypxlERjmVBT5moROgewvp",
+          "name": "report_decision",
+          "result": {
+            "accepted": true
+          },
+          "turn": 2
+        }
+      ],
+      "visible_messages": []
+    }
+  ]
+}

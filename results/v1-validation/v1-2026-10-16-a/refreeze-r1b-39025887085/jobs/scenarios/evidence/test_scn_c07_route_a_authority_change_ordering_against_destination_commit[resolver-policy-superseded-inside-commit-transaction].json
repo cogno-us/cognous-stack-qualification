@@ -1,0 +1,317 @@
+{
+  "assertion_scope": "named synthetic assertion against the frozen bounded reference; not whole-scenario acceptance",
+  "determinism": {
+    "assertion": "normalised observation of run 1 equals run 2 under unchanged conditions",
+    "run1_digest": "sha256:e31268a326353878da95910b185e6977205be821bd6e076da21a9ad800528167",
+    "run2_digest": "sha256:e31268a326353878da95910b185e6977205be821bd6e076da21a9ad800528167",
+    "verdict": "MATCH"
+  },
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+        "repository": "cogno-us/cognous-control-plane",
+        "tree": "3e4bf2c11ce292109ad89861337fea4df4fa140f"
+      },
+      "evidence_pack": {
+        "commit": "683246e05d291308211778ec48045df65466461f",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tree": "32e6c2e4f6fc0edd4193dfdd8a42d0b8a488580b"
+      },
+      "exchange": {
+        "commit": "da95378228b8f3205af49a86e68ba722961f6af0",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tree": "2469a91a352a4f495ec8bf880cf4417ad2526780"
+      },
+      "manifest": {
+        "commit": "2c36bcd0b620dbfe7ad924bc7196a3f0c04c5c5e",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tree": "20f9d0c4b2a0118c533b7cccb23c7fa889184f17"
+      },
+      "odes": {
+        "commit": "4e6d11691b9dea56a70026b6519159cf0e0ffd8b",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tree": "87df0d280526661d7e137956e07b55e40fca376a"
+      },
+      "replay": {
+        "commit": "0cfe7a6319930bccad3e9027a1dfbe3d6e29d657",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tree": "afe1608fb91cebb5a688aa7a5888a855af761fc6"
+      },
+      "runtime": {
+        "commit": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tree": "1112e7ea1383da87f0a68c7312f8058788754dd0"
+      }
+    },
+    "frozen_pins_asserted": {
+      "control_plane": "a34c3dc26f84a767a55f9d5c89dc0b53e63fefa5",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "4a83b175d2ef0e65a7ee22a0513bb94a5fdf3a6f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack",
+      "verified_in_this_run": true
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "profile": "process/security-runtime-f5b-20261016-r1.json",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "run1": {
+    "observed": {
+      "actual_order": [
+        "resolver_change_landed_inside_open_write_transaction"
+      ],
+      "change": "resolver-policy-superseded",
+      "commit_instrumentation": {
+        "calls": 1,
+        "new_durable": 1
+      },
+      "declared_linearization": "destination effective-grant row checked inside the commit transaction; resolver-side grant/policy read once at effect-time revalidation and not atomic with the commit (residual race by design)",
+      "effective_grants": [
+        [
+          "urn:cognous:grant:routine-1",
+          "active"
+        ]
+      ],
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+          "operation_digest": "sha256:ffcad4c587ea3a81df49e9b2c5d3ee817a929d07356d8704db82c1b9c70af175",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:customer-001"
+        }
+      ],
+      "effects_committed_after_change_landed": 0,
+      "excess_duplicate_effects": 0,
+      "journal": {
+        "attempts": [
+          "attempted",
+          "acknowledged"
+        ],
+        "check_phases": [
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed",
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed",
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed"
+        ],
+        "decisions": [
+          "authorized"
+        ],
+        "reconciliations": [
+          "observed_absent",
+          "applied"
+        ],
+        "refusals": [
+          [
+            "policy_stale_or_changed",
+            "policy_superseded"
+          ]
+        ]
+      },
+      "level": "resolver",
+      "point": "inside-commit-transaction",
+      "queued_writer_saw_effect_rows_when_landed": null,
+      "re_presentation": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "authorization-critical inputs changed before effect",
+        "evidence_keys": [
+          "failure_record_id",
+          "refusal"
+        ],
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "residual_race": {
+        "description": null,
+        "exposed": false
+      },
+      "result": {
+        "acknowledged": true,
+        "attempted": true,
+        "error": null,
+        "evidence_keys": [
+          "attempt",
+          "reconciliation"
+        ],
+        "newly_executed": true,
+        "observed_state": "applied",
+        "status": "executed"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 1,
+    "violations": []
+  },
+  "run2": {
+    "observed": {
+      "actual_order": [
+        "resolver_change_landed_inside_open_write_transaction"
+      ],
+      "change": "resolver-policy-superseded",
+      "commit_instrumentation": {
+        "calls": 1,
+        "new_durable": 1
+      },
+      "declared_linearization": "destination effective-grant row checked inside the commit transaction; resolver-side grant/policy read once at effect-time revalidation and not atomic with the commit (residual race by design)",
+      "effective_grants": [
+        [
+          "urn:cognous:grant:routine-1",
+          "active"
+        ]
+      ],
+      "effects": [
+        {
+          "amount": 50.0,
+          "effect_id": "sha256:d19d83b15e0ec164f3da356fe7a1ecef64734724d7fd65265e91e95f2ffe2829",
+          "operation_digest": "sha256:ffcad4c587ea3a81df49e9b2c5d3ee817a929d07356d8704db82c1b9c70af175",
+          "state": "applied",
+          "target": "urn:cognous:synthetic-account:customer-001"
+        }
+      ],
+      "effects_committed_after_change_landed": 0,
+      "excess_duplicate_effects": 0,
+      "journal": {
+        "attempts": [
+          "attempted",
+          "acknowledged"
+        ],
+        "check_phases": [
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed",
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed",
+          "opened",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "input",
+          "completed"
+        ],
+        "decisions": [
+          "authorized"
+        ],
+        "reconciliations": [
+          "observed_absent",
+          "applied"
+        ],
+        "refusals": [
+          [
+            "policy_stale_or_changed",
+            "policy_superseded"
+          ]
+        ]
+      },
+      "level": "resolver",
+      "point": "inside-commit-transaction",
+      "queued_writer_saw_effect_rows_when_landed": null,
+      "re_presentation": {
+        "acknowledged": false,
+        "attempted": false,
+        "error": "authorization-critical inputs changed before effect",
+        "evidence_keys": [
+          "failure_record_id",
+          "refusal"
+        ],
+        "newly_executed": false,
+        "observed_state": "unknown",
+        "status": "denied"
+      },
+      "residual_race": {
+        "description": null,
+        "exposed": false
+      },
+      "result": {
+        "acknowledged": true,
+        "attempted": true,
+        "error": null,
+        "evidence_keys": [
+          "attempt",
+          "reconciliation"
+        ],
+        "newly_executed": true,
+        "observed_state": "applied",
+        "status": "executed"
+      },
+      "unauthorized_effects": 0
+    },
+    "run": 2,
+    "violations": []
+  },
+  "scenario": "C07",
+  "test": "test_scn_c07_route_a_authority_change_ordering_against_destination_commit[resolver-policy-superseded-inside-commit-transaction]",
+  "verdict": "PASS"
+}

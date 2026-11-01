@@ -1,0 +1,433 @@
+{
+  "environment": {
+    "components": {
+      "control_plane": {
+        "commit": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-control-plane",
+        "tested_revision": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+        "tested_revision_match": true,
+        "tree": "c4146c16e416d4e8f3619a7b553d1691d389817c"
+      },
+      "evidence_pack": {
+        "commit": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governance-evidence-pack",
+        "tested_revision": "fd030615a782a064b89c57e8e40d7f220f99ff9e",
+        "tested_revision_match": true,
+        "tree": "67c703b3182221e233220b607c4428a17baadd50"
+      },
+      "exchange": {
+        "commit": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-governed-exchange",
+        "tested_revision": "fdc2a410383396553254a39ae641c88b78ee13f1",
+        "tested_revision_match": true,
+        "tree": "bdc7a5c6be6fd035b9e17c5867d25030c853e689"
+      },
+      "manifest": {
+        "commit": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "gate": "sha-pin",
+        "repository": "cogno-us/cognous-action-manifest",
+        "tested_revision": "ff5490828b2bf7f6a976da209f3f533701855687",
+        "tested_revision_match": true,
+        "tree": "3bda14d9974b0645f14cd2a1ca9924951ac87be6"
+      },
+      "odes": {
+        "commit": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "gate": "sha-pin",
+        "repository": "cogno-us/open-decision-evidence-standard",
+        "tested_revision": "2893d935f1cb60d1854a3802cc32d739ddfd4efb",
+        "tested_revision_match": true,
+        "tree": "6d011177f7ae9c1f082eb0727cc0254392ed5713"
+      },
+      "replay": {
+        "commit": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-replay-bundle",
+        "tested_revision": "6a6a477495ac24e813f12bb0fe314acfe8bac9cf",
+        "tested_revision_match": true,
+        "tree": "b2df198599e7faf27966e5428b27ef0f4f36de19"
+      },
+      "runtime": {
+        "commit": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "gate": "contract-matrix",
+        "repository": "cogno-us/cognous-execution-runtime",
+        "tested_revision": "6b16962db140590b808f02b5c2cb11a217aec46f",
+        "tested_revision_match": true,
+        "tree": "31af6d1f253796b1abf09aa7152804871094f49b"
+      }
+    },
+    "contract_matrix": [
+      {
+        "boundary": "lifecycle-runtime-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "runtime",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      },
+      {
+        "boundary": "lifecycle-control-plane-replay",
+        "consumer": {
+          "component": "replay",
+          "conformance_level": "L",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "contract": "execution-attempt-lifecycle",
+        "producer": {
+          "component": "control_plane",
+          "conformance_level": "P",
+          "contract_version": "0.1.0-draft",
+          "odes_commit": "e5fe3822a2d3c3f6885fd61acccb4bb6281041be",
+          "problems": []
+        },
+        "reasons": [],
+        "status": "conforms"
+      }
+    ],
+    "cpu_count": 4,
+    "frozen_pins_asserted": {
+      "control_plane": "2bac7875391cad0a431fa0d75208b7ade39743e3",
+      "hub": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "runtime": "6b16962db140590b808f02b5c2cb11a217aec46f"
+    },
+    "hub": {
+      "commit": "8517818fbf817897aacfb6fe7898c22aea46fd95",
+      "repository": "cogno-us/cognous-open-control-stack"
+    },
+    "live_effects": 0,
+    "network": "none",
+    "paid_model_calls": 0,
+    "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "python": "3.12.15",
+    "scenario_version": "1.0.0",
+    "sqlite": "3.45.1"
+  },
+  "note": "raw per-thread outcome kinds are report-only (race timing); the effect count is the gate",
+  "run1": {
+    "metrics": {
+      "chain": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 10,
+          "voluntary": 1663
+        },
+        "cpu_seconds_process_all_threads": 2.3987,
+        "cpu_utilisation_of_one_core": 0.936,
+        "label": "chain_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 2560.109,
+            "mean_ms": 2479.502,
+            "n": 8,
+            "p50_ms": 2490.386,
+            "p95_ms": 2560.109,
+            "p99_ms": 2560.109
+          },
+          "dup": {
+            "max_ms": 2560.109,
+            "mean_ms": 2479.502,
+            "n": 8,
+            "p50_ms": 2490.386,
+            "p95_ms": 2560.109,
+            "p99_ms": 2560.109
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 236628,
+          "rss_after": 235568,
+          "rss_before": 236560
+        },
+        "report_only": true,
+        "request_rate_per_second": 3.12,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 337280,
+          "before": 90621,
+          "growth": 246659,
+          "growth_per_request": 30832.4
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 2.5616
+      },
+      "exchange": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 8950,
+          "voluntary": 181031
+        },
+        "cpu_seconds_process_all_threads": 5.0821,
+        "cpu_utilisation_of_one_core": 0.985,
+        "label": "exchange_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 5156.726,
+            "mean_ms": 4473.969,
+            "n": 8,
+            "p50_ms": 4561.419,
+            "p95_ms": 5156.726,
+            "p99_ms": 5156.726
+          },
+          "dup": {
+            "max_ms": 5156.726,
+            "mean_ms": 4473.969,
+            "n": 8,
+            "p50_ms": 4561.419,
+            "p95_ms": 5156.726,
+            "p99_ms": 5156.726
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 235820,
+          "rss_after": 235368,
+          "rss_before": 235568
+        },
+        "report_only": true,
+        "request_rate_per_second": 1.55,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 991559,
+          "before": 335872,
+          "growth": 655687,
+          "growth_per_request": 81960.9
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 5.1578
+      }
+    },
+    "outcome": {
+      "chain_effects": 1,
+      "chain_new_claims": 1,
+      "chain_sequential": {
+        "returned": [
+          "reconciled",
+          false
+        ]
+      },
+      "exchange_effects": 1,
+      "exchange_new_claims": 0,
+      "exchange_sequential": {
+        "message": "single-proposal importer does not support multiple authorization bindings",
+        "raised": "ImportContractError"
+      }
+    },
+    "report_only": {
+      "chain": {
+        "attempts_table": [
+          [
+            8
+          ]
+        ],
+        "effects": 1,
+        "kinds": {
+          "returned": 8
+        },
+        "newly_executed_claims": 1,
+        "sequential_redelivery": {
+          "returned": [
+            "reconciled",
+            false
+          ]
+        }
+      },
+      "exchange": {
+        "effects": 1,
+        "kinds": {
+          "ImportContractError: single-proposal importer does not support multiple authorization bindings": 1,
+          "returned": 7
+        },
+        "newly_executed_claims": 0,
+        "sequential_redelivery": {
+          "message": "single-proposal importer does not support multiple authorization bindings",
+          "raised": "ImportContractError"
+        }
+      }
+    }
+  },
+  "run2": {
+    "metrics": {
+      "chain": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 9,
+          "voluntary": 1673
+        },
+        "cpu_seconds_process_all_threads": 2.3673,
+        "cpu_utilisation_of_one_core": 0.934,
+        "label": "chain_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 2532.097,
+            "mean_ms": 2454.192,
+            "n": 8,
+            "p50_ms": 2465.347,
+            "p95_ms": 2532.097,
+            "p99_ms": 2532.097
+          },
+          "dup": {
+            "max_ms": 2532.097,
+            "mean_ms": 2454.192,
+            "n": 8,
+            "p50_ms": 2465.347,
+            "p95_ms": 2532.097,
+            "p99_ms": 2532.097
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 235552,
+          "rss_after": 235336,
+          "rss_before": 235368
+        },
+        "report_only": true,
+        "request_rate_per_second": 3.16,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 543312,
+          "before": 90621,
+          "growth": 452691,
+          "growth_per_request": 56586.4
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 2.5336
+      },
+      "exchange": {
+        "concurrency": {
+          "max_in_flight_requests": 8,
+          "peak_python_threads": 9
+        },
+        "context_switches": {
+          "involuntary": 7085,
+          "voluntary": 182389
+        },
+        "cpu_seconds_process_all_threads": 5.2139,
+        "cpu_utilisation_of_one_core": 1.001,
+        "label": "exchange_duplicate_deliveries",
+        "latency": {
+          "all": {
+            "max_ms": 5205.698,
+            "mean_ms": 4719.856,
+            "n": 8,
+            "p50_ms": 4812.185,
+            "p95_ms": 5205.698,
+            "p99_ms": 5205.698
+          },
+          "dup": {
+            "max_ms": 5205.698,
+            "mean_ms": 4719.856,
+            "n": 8,
+            "p50_ms": 4812.185,
+            "p95_ms": 5205.698,
+            "p99_ms": 5205.698
+          }
+        },
+        "memory_kb": {
+          "peak_counter_reset_at_start": true,
+          "peak_rss_during_block": 235932,
+          "rss_after": 235336,
+          "rss_before": 235336
+        },
+        "report_only": true,
+        "request_rate_per_second": 1.54,
+        "requests": 8,
+        "storage_bytes": {
+          "after": 958567,
+          "before": 335872,
+          "growth": 622695,
+          "growth_per_request": 77836.9
+        },
+        "thresholds_applied": null,
+        "wall_seconds": 5.207
+      }
+    },
+    "outcome": {
+      "chain_effects": 1,
+      "chain_new_claims": 1,
+      "chain_sequential": {
+        "returned": [
+          "reconciled",
+          false
+        ]
+      },
+      "exchange_effects": 1,
+      "exchange_new_claims": 0,
+      "exchange_sequential": {
+        "message": "single-proposal importer does not support multiple authorization bindings",
+        "raised": "ImportContractError"
+      }
+    },
+    "report_only": {
+      "chain": {
+        "attempts_table": [
+          [
+            8
+          ]
+        ],
+        "effects": 1,
+        "kinds": {
+          "returned": 8
+        },
+        "newly_executed_claims": 1,
+        "sequential_redelivery": {
+          "returned": [
+            "reconciled",
+            false
+          ]
+        }
+      },
+      "exchange": {
+        "effects": 1,
+        "kinds": {
+          "ImportContractError: single-proposal importer does not support multiple authorization bindings": 1,
+          "returned": 7
+        },
+        "newly_executed_claims": 0,
+        "sequential_redelivery": {
+          "message": "single-proposal importer does not support multiple authorization bindings",
+          "raised": "ImportContractError"
+        }
+      }
+    }
+  },
+  "run_comparison": {
+    "assertion": "outcome digest of run 1 equals run 2 under unchanged conditions",
+    "run1_outcome_digest": "sha256:4ad65a51e7d37eb88f98e33f08785d4e1c0f5c5dbeeeae47ce66ddd3fc4fa07c",
+    "run2_outcome_digest": "sha256:4ad65a51e7d37eb88f98e33f08785d4e1c0f5c5dbeeeae47ce66ddd3fc4fa07c",
+    "verdict": "MATCH"
+  },
+  "scenario": "D06",
+  "surface": "8 simultaneous deliveries of one valid operation (chain and exchange)",
+  "test": "test_scn_d06_concurrent_duplicate_deliveries_at_most_one_effect",
+  "uncovered_subcases": {
+    "INGRESS_SATURATED typed refusal": "not exercisable: the reference has no ingress limiter, rate limit, queue or concurrency cap to saturate",
+    "bounded rejection history": "admission_rejections_v1, failure records and the Control Plane journal grow without bound (measured as storage growth)",
+    "network transport pressure": "no listener in the reference; ingress is a function call, so connection floods are not applicable",
+    "rate / queue / concurrency limiting": "absent from the reference; only per-request structural budgets exist (exercised)"
+  }
+}

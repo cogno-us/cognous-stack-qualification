@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="11" time="2.618" timestamp="2026-10-16T23:16:30.245695+00:00" hostname="runnervm8k3b6"><testcase classname="suites.v1-probes.test_index_probes" name="test_control_detector_flags_accept_all_stub" time="0.007" /><testcase classname="suites.v1-probes.test_index_probes" name="test_control_detector_clears_reject_all_stub" time="0.004" /><testcase classname="suites.v1-probes.test_index_probes" name="test_er02_forged_attestation_rejected_at_link_route" time="0.065"><failure message="AssertionError: link accepted with unverifiable attested_by&#10;assert not True&#10; +  where True = forged_link_accepted(&lt;starlette.testclient.TestClient object at 0x7efd9562e6f0&gt;)">index_client = &lt;starlette.testclient.TestClient object at 0x7efd9562e6f0&gt;
+
+    def test_er02_forged_attestation_rejected_at_link_route(index_client):
+        """ER-02-2: forged attestations are rejected (unsigned link with an unregistered attestor)."""
+&gt;       assert not forged_link_accepted(index_client), "link accepted with unverifiable attested_by"
+E       AssertionError: link accepted with unverifiable attested_by
+E       assert not True
+E        +  where True = forged_link_accepted(&lt;starlette.testclient.TestClient object at 0x7efd9562e6f0&gt;)
+
+test_index_probes.py:64: AssertionError</failure></testcase><testcase classname="suites.v1-probes.test_index_probes" name="test_er02_accepted_claim_cannot_be_updated_or_deleted" time="0.006" /><testcase classname="suites.v1-probes.test_index_probes" name="test_er02_duplicated_evidence_is_not_independent_corroboration" time="0.013"><failure message="AssertionError: independence_score=1.0 for 1 distinct source&#10;assert 1.0 &lt;= 0.2">index_client = &lt;starlette.testclient.TestClient object at 0x7efd9564aab0&gt;
+
+    def test_er02_duplicated_evidence_is_not_independent_corroboration(index_client):
+        """ER-02-4: five copies of one source must not read as five independent sources."""
+        c = index_client.post("/api/v1/claims/", json=CLAIM).json()
+        for i in range(5):
+            e = index_client.post("/api/v1/evidence/", json=evidence(i)).json()
+            index_client.post("/api/v1/evidence/links", json=link_payload(c["id"], e["id"], "probe_attestor"))
+        s = index_client.get(f"/api/v1/evidence/epistemic-status/{c['id']}").json()
+&gt;       assert s["independence_score"] &lt;= 0.2, f"independence_score={s['independence_score']} for 1 distinct source"
+E       AssertionError: independence_score=1.0 for 1 distinct source
+E       assert 1.0 &lt;= 0.2
+
+test_index_probes.py:83: AssertionError</failure></testcase><testcase classname="suites.v1-probes.test_index_probes" name="test_er02_status_reproducible_from_identical_inputs" time="0.007" /><testcase classname="suites.v1-probes.test_index_supersession_probes" name="test_probe_supersession_only_the_author_may_supersede_with_a_related_revision" time="2.280" /><testcase classname="suites.v1-probes.test_index_supersession_probes" name="test_probe_supersession_preserves_original_record_and_links_the_revision" time="0.000" /><testcase classname="suites.v1-probes.test_index_supersession_probes" name="test_probe_supersession_history_is_reconstructible_in_order_from_logs" time="0.000" /><testcase classname="suites.v1-probes.test_index_supersession_probes" name="test_probe_supersession_is_terminal_and_does_not_erase_later_criticism" time="0.000" /><testcase classname="suites.v1-probes.test_index_supersession_probes" name="test_probe_supersession_claims_service_refuses_rewrite_and_delete_of_accepted_claims" time="0.000" /></testsuite></testsuites>
