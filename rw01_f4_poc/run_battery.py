@@ -7,10 +7,14 @@ Runs, each as its own pytest process (pytest -rA, --junitxml):
   battery        this directory's end-to-end battery (rows N01..N28, findings F-n, protected-file re-verification)
   registry_pr    the Registry PR #86 new/edited tests at the pinned head
   replay_pr      the Replay PR #84 new tests and the edited Registry-governed test file at the pinned head
+  replay_f4      Replay F4 structural selector (ca94d6a8) regression set: the PR #84 suites above plus the E3 named-key guard / N23-N24 golden file, effective-configuration,
+                 expected-digest, refusal-journal, programme-2 suites and the new F4 selector suite (regression H)
   cp_pr          the Control Plane PR #102 new tests (against the CP-pinned Registry 6f600ab1, OCS_REQUIRE_REGISTRY_PIN=1)
   cp_repinned_*  the seven Control Plane test files whose bounded.py pin the PR changed (four against Registry 6f600ab1, three against the r08-v8 pin a40fe755)
 Then writes environment.json, summary.json, SUMMARY.md, rows.json and SHA256SUMS (a SHA-256 manifest of every output file) into --out.
-Exit code: 0 whenever every suite ran to completion (a FAIL row is a RESULT, printed and published, not a harness error); with --strict any failure is nonzero.
+Exit code: NONZERO if a suite could not run to completion, if ANY test of ANY suite failed or errored, or if ANY REQUIRED row (N01..N28, F-1, F1-A..F1-G, F1-BRIDGED, PF, S)
+is missing or not PASS. There is no tolerated FAIL row any more (the former intentional F-1 FAIL is replaced by the passing integration rows F1-A..F1-G). `--strict` is kept
+as an accepted no-op for old invocations.
 No network, no secrets, no model calls.
 """
 import argparse
@@ -34,6 +38,22 @@ def counts(xml_path: Path):
     return {"collected": t, "passed": t - f - e - s, "failed": f, "errors": e, "skipped": s}
 
 
+def suite_env(base, over):
+    """Suite environment; a PYTHONPATH already set by the caller (e.g. a throwaway PyNaCl directory when PyNaCl is not installed system-wide) is kept AFTER the suite's own entries."""
+    env = {**base, **over}
+    if over.get("PYTHONPATH") and base.get("PYTHONPATH"):
+        env["PYTHONPATH"] = over["PYTHONPATH"] + os.pathsep + base["PYTHONPATH"]
+    return env
+
+
+REQUIRED_ROWS = ["N%02d" % i for i in range(1, 29)] + ["F-1", "F1-A", "F1-B", "F1-C", "F1-D", "F1-E", "F1-F", "F1-G", "F1-BRIDGED", "PF", "S"]
+
+
+def row_result(entries):
+    res = [x["result"] for x in entries]
+    return "FAIL" if "FAIL" in res else "BLOCKED" if "BLOCKED" in res else "SKIP" if "SKIP" in res else "PASS"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", required=True)
@@ -49,6 +69,10 @@ def main():
         "registry_pr": dict(cwd=d("registry"), args=["tests/test_rw01_f4_verified_selection.py", "tests/test_rw01_f4_evidence_verifier.py", "tests/test_ext_s1_5_identity_module.py"], env={}),
         "replay_pr": dict(cwd=d("replay"), args=["tests/test_registry_authenticated_selection.py", "tests/test_registry_governed_expected_configuration_digest.py"],
                           env={"PYTHONPATH": str(d("replay") / "src")}),
+        "replay_f4": dict(cwd=d("replay"), args=["tests/test_registry_authenticated_selection.py", "tests/test_registry_governed_effective_configuration.py",
+                                                "tests/test_registry_governed_expected_configuration_digest.py", "tests/test_refusal_journal.py", "tests/test_programme2_profiles.py",
+                                                "tests/test_programme2_n4_and_pairing.py", "tests/test_registry_authenticated_selection_f4_governed.py"],
+                          env={"PYTHONPATH": str(d("replay") / "src")}),
         "cp_pr": dict(cwd=d("control_plane"), args=["tests/test_f4_selection_evidence.py", "tests/test_rw01_f4_poc_bounded_diff.py"],
                       env={"PYTHONPATH": str(d("control_plane") / "src"), "OCS_REGISTRY_PIN_DIR": str(d("registry_cp_pin")), "OCS_REQUIRE_REGISTRY_PIN": "1"}),
         "cp_repinned_6f600ab1": dict(cwd=d("control_plane"), args=["tests/test_f4_age_governance.py", "tests/test_f5_class_age_governance.py",
@@ -63,7 +87,7 @@ def main():
         raw = out / (name + ".raw.txt")
         print("=" * 30, name, "=" * 30, flush=True)
         proc = subprocess.run([sys.executable, "-m", "pytest", "-rA", "-p", "no:cacheprovider", "--junitxml", str(xml), *spec["args"]], cwd=spec["cwd"],
-                              env={**base_env, **spec["env"]}, capture_output=True, text=True)
+                              env=suite_env(base_env, spec["env"]), capture_output=True, text=True)
         raw.write_text(proc.stdout + ("\n--- stderr ---\n" + proc.stderr if proc.stderr.strip() else ""))
         sys.stdout.write(proc.stdout)
         if proc.stderr.strip():
@@ -88,7 +112,14 @@ def main():
         res = [x["result"] for x in rows[rid]]
         agg = "FAIL" if "FAIL" in res else "BLOCKED" if "BLOCKED" in res else "SKIP" if "SKIP" in res else "PASS"
         lines.append("| %s | %s | %d (%d pass, %d fail) |" % (rid, agg, len(res), res.count("PASS"), res.count("FAIL")))
+    failed = any(s.get("failed", 0) or s.get("errors", 0) for s in summary.values())
+    bad_rows = [r for r in REQUIRED_ROWS if r not in rows or row_result(rows[r]) != "PASS"]
+    bad_rows += [r for r in rows if r not in REQUIRED_ROWS and row_result(rows[r]) != "PASS"]
+    verdict = ["", "REQUIRED ROWS: %d required, %d not PASS/missing%s" % (len(REQUIRED_ROWS), len(bad_rows), (": " + ", ".join(bad_rows)) if bad_rows else "")]
+    verdict.append("RESULT: %s" % ("FAIL" if (harness_error or failed or bad_rows) else "PASS"))
+    lines += verdict
     (out / "SUMMARY.md").write_text("\n".join(lines) + "\n")
+    (out / "RESULT.txt").write_text("\n".join(verdict).lstrip("\n") + "\n")
     sums = []
     for p in sorted(out.iterdir()):
         if p.is_file() and p.name != "SHA256SUMS":
@@ -96,8 +127,7 @@ def main():
     (out / "SHA256SUMS").write_text("\n".join(sums) + "\n")
     print("\n".join(lines))
     print("\nSHA256SUMS:\n" + "\n".join(sums))
-    failed = any(s.get("failed", 0) or s.get("errors", 0) for s in summary.values())
-    sys.exit(1 if harness_error or (a.strict and failed) else 0)
+    sys.exit(1 if (harness_error or failed or bad_rows) else 0)
 
 
 if __name__ == "__main__":

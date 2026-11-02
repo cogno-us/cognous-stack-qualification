@@ -1,0 +1,998 @@
+{
+ "F-1": [
+  {
+   "boundary": "the same refusal happens WITHOUT the PoC: flag off, plain CUR import and the pre-existing Registry-governed profile (so the gap is pre-existing, not caused by carriage)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows.py::test_f1_the_gap_is_independent_of_carriage_real_f4_records_never_import_at_current_generation[None]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "the same refusal happens WITHOUT the PoC: flag off, plain CUR import and the pre-existing Registry-governed profile (so the gap is pre-existing, not caused by carriage)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows.py::test_f1_the_gap_is_independent_of_carriage_real_f4_records_never_import_at_current_generation[registry-governed-effective-configuration/0.1]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "root cause: the real F4 decision has no check_events journal and no runtime-authority/0.1 binding members (F4 refuses runtime_authority_profile)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows.py::test_f1_root_cause_is_the_absence_of_the_runtime_authority_journal_and_binding",
+   "result": "PASS"
+  },
+  {
+   "boundary": "cross-check that makes the bridge honest: Replay's own digest function reproduces the REAL CP effective_configuration digest, and the bridged record carries the real bytes verbatim",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows.py::test_f1_bridge_uses_the_real_effective_configuration_and_the_real_carried_bytes_verbatim",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_retrieved_record_is_byte_identical_to_what_cp_wrote",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_selection_evidence_at_documented_location_with_exact_signed_bytes",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_real_adapter_passes_all_11_layers_with_operator_inputs",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_operator_inputs_are_independent_of_the_record",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_forged_signature_refused_at_authenticity",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_wrong_expected_context_refused_at_scope[tenant-selection_scope_mismatch]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_wrong_expected_context_refused_at_scope[institution-selection_scope_mismatch]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_wrong_expected_context_refused_at_scope[domain-selection_scope_mismatch]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_wrong_expected_context_refused_at_scope[consumer-selection_consumer_mismatch]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_wrong_expected_context_refused_at_scope[operation-selection_operation_mismatch]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_other_tenant_genuine_record_refused_by_operator_snapshot",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_pin_wrong_expected_action_is_not_visible_to_adapter_but_visible_in_record",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_pin_substituted_genuine_record_passes_adapter_but_digest_differs_from_original",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_pin_mutated_effective_policy_expectation_yields_different_digest",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_negative_missing_evidence_when_carry_off",
+   "result": "PASS"
+  },
+  {
+   "boundary": "real CP F4 record producer: persisted+retrieved record, carried evidence, real adapter verdicts on it",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_real_record_producer.py::test_tampered_copy_signature_over_changed_bytes_refused_genuine_untouched",
+   "result": "PASS"
+  }
+ ],
+ "F1-A": [
+  {
+   "boundary": "REAL CP -> Replay positive: the genuine persisted+retrieved F4 record imports through the explicit F4 selector with the real adapter, 11 layers pass, claim-A markers only, retained decision byte-identical",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_a_genuine_record_imports_with_exact_claim_a_markers_and_all_11_layers",
+   "result": "PASS"
+  },
+  {
+   "boundary": "REAL: the F4 selector admits the record because of the operator's trust, never because of the record: the same record with a stub-free, wrong-snapshot operator is refused by the real adapter",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_a_trust_comes_from_the_operator_not_the_record",
+   "result": "PASS"
+  }
+ ],
+ "F1-B": [
+  {
+   "boundary": "forged signature: the real producer re-run with a WRONG signing key; the operator's snapshot admits only the genuine key -> signature_invalid at layer authenticity, not imported",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_b_forged_signature_is_refused_at_authenticity",
+   "result": "PASS"
+  }
+ ],
+ "F1-BRIDGED": [
+  {
+   "boundary": "honest status of the old BRIDGED rows: still COMPONENT evidence only (grafted journal members, re-sealed) -- not CP-to-Replay integration; the REAL integration is F1-A..F1-G",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_old_bridged_positive_row_is_still_component_evidence_only",
+   "result": "PASS"
+  }
+ ],
+ "F1-C": [
+  {
+   "boundary": "wrong scope: the OPERATOR's ExpectedContext/action/operation differs from the record scope -> registry_evidence_scope_mismatch (Replay pre-check, verifier never reached)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_c_operator_scope_mismatch_is_refused_before_the_verifier[tenant]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope: the OPERATOR's ExpectedContext/action/operation differs from the record scope -> registry_evidence_scope_mismatch (Replay pre-check, verifier never reached)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_c_operator_scope_mismatch_is_refused_before_the_verifier[institution]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope: the OPERATOR's ExpectedContext/action/operation differs from the record scope -> registry_evidence_scope_mismatch (Replay pre-check, verifier never reached)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_c_operator_scope_mismatch_is_refused_before_the_verifier[domain]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope: the OPERATOR's ExpectedContext/action/operation differs from the record scope -> registry_evidence_scope_mismatch (Replay pre-check, verifier never reached)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_c_operator_scope_mismatch_is_refused_before_the_verifier[consumer]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope: the OPERATOR's ExpectedContext/action/operation differs from the record scope -> registry_evidence_scope_mismatch (Replay pre-check, verifier never reached)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_c_operator_scope_mismatch_is_refused_before_the_verifier[operation]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope: the OPERATOR's ExpectedContext/action/operation differs from the record scope -> registry_evidence_scope_mismatch (Replay pre-check, verifier never reached)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_c_operator_scope_mismatch_is_refused_before_the_verifier[action]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope: a genuine record produced end to end for ANOTHER tenant is refused against the default operator context",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_c_genuine_record_of_another_tenant_is_refused",
+   "result": "PASS"
+  }
+ ],
+ "F1-D": [
+  {
+   "boundary": "substituted record (i): a different GENUINE Registry record text swapped into the carried evidence (TAMPERED copy; original untouched) -> real adapter refuses at record_binding",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_d_i_substituted_registry_record_text_is_refused_at_record_binding",
+   "result": "PASS"
+  },
+  {
+   "boundary": "substituted record (ii): the carried evidence is the evidence of a DIFFERENT genuine CP run; observed behaviour and its limits",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_d_ii_evidence_of_a_different_genuine_run_observed_behaviour_and_limits",
+   "result": "PASS"
+  }
+ ],
+ "F1-E": [
+  {
+   "boundary": "effective-policy digest mismatch: operator host-age expectation differs from the record's f4_ages row -> registry_evidence_effective_digest_mismatch (verifier passes, Replay cross-check refuses)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_e_operator_expected_effective_policy_differs_from_the_record[ages0]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "effective-policy digest mismatch: operator host-age expectation differs from the record's f4_ages row -> registry_evidence_effective_digest_mismatch (verifier passes, Replay cross-check refuses)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_e_operator_expected_effective_policy_differs_from_the_record[ages1]",
+   "result": "PASS"
+  }
+ ],
+ "F1-F": [
+  {
+   "boundary": "missing evidence: real CP run WITHOUT carry_selection_evidence -> selection_evidence_missing (verifier never reached)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_f_run_without_carry_selection_evidence_is_refused_as_missing",
+   "result": "PASS"
+  }
+ ],
+ "F1-G": [
+  {
+   "boundary": "authenticated-profile downgrade (a): the F4 selector WITHOUT operator trust is refused registry_evidence_trust_missing (never structural-only)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_g_a_f4_selector_without_trust_is_refused",
+   "result": "PASS"
+  },
+  {
+   "boundary": "authenticated-profile downgrade (b): plain/legacy governed profiles and no selector never import the real record (resolution journal), never structural-only or caller-trusted",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_g_b_legacy_profiles_and_no_selector_refuse_the_real_record[None]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "authenticated-profile downgrade (b): plain/legacy governed profiles and no selector never import the real record (resolution journal), never structural-only or caller-trusted",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_g_b_legacy_profiles_and_no_selector_refuse_the_real_record[registry-governed-effective-configuration/0.1]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "authenticated-profile downgrade (b2): the OLD authenticated selector (registry-authenticated-selection/0.1) without trust is trust_missing; with trust it still refuses the F4 shape (no F4 relaxation without the F4 selector)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_g_b2_old_authenticated_selector_does_not_admit_the_f4_shape",
+   "result": "PASS"
+  },
+  {
+   "boundary": "authenticated-profile downgrade (c): trust passed with a non-F4 selector / conflicting modes / non-CUR revision is refused with the specific code, verifier never reached",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_g_c_trust_with_non_f4_selector_and_conflicting_modes_are_refused",
+   "result": "PASS"
+  },
+  {
+   "boundary": "closed absence under the F4 selector (Replay ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[check_events]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "closed absence under the F4 selector (Replay ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[vocabulary_changes]",
+   "result": "PASS"
+  }
+ ],
+ "N01": [
+  {
+   "boundary": "valid: real Registry signature carried by the real CP decision, admitted by Replay authenticated profile via the real adapter; exact marker set",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n01_valid_selection_is_admitted_with_exactly_the_claim_a_markers",
+   "result": "PASS"
+  },
+  {
+   "boundary": "valid: the carried bytes ARE the signed material, and Registry's own verify (independent call, not via Replay) admits exactly them with the operator's trust",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows.py::test_n01_carried_bytes_are_the_exact_signed_material_and_registry_admits_them_directly",
+   "result": "PASS"
+  }
+ ],
+ "N02": [
+  {
+   "boundary": "forged signature: one signature byte flipped in the carried selection -> real Registry layer authenticity refuses (signature_invalid)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n02_flipped_signature_byte_is_signature_invalid_at_the_authenticity_layer",
+   "result": "PASS"
+  },
+  {
+   "boundary": "forged signature: re-signed with a different key under the trusted key id -> signature_invalid at authenticity",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n02_statement_resigned_by_another_key_is_signature_invalid",
+   "result": "PASS"
+  },
+  {
+   "boundary": "forged signature at the CP boundary: the real CP workflow refuses forged material at construction/decision (no decision, nothing carried)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows.py::test_n02_cp_boundary_refuses_a_forged_selection_before_any_decision_is_written",
+   "result": "PASS"
+  }
+ ],
+ "N03": [
+  {
+   "boundary": "unknown signer: the CP host trusted key 2 (genuine, authorised); the operator's INDEPENDENT snapshot does not list it -> issuer_untrusted at the authenticity-adjacent issuer check",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n03_signer_unknown_to_the_operator_snapshot_is_issuer_untrusted",
+   "result": "PASS"
+  }
+ ],
+ "N04": [
+  {
+   "boundary": "wrong issuer grant: the signer is trusted but NOT authorised for this operation in the operator snapshot -> issuer_not_authorized (authenticated True, ok False)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n04_issuer_without_the_grant_is_issuer_not_authorized",
+   "result": "PASS"
+  }
+ ],
+ "N05": [
+  {
+   "boundary": "wrong tenant, Replay pre-check: operator expects another tenant than the record scope -> registry_evidence_scope_mismatch, verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n05_operator_tenant_differs_from_the_record_scope_replay_precheck",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong tenant, Registry layer: a genuinely signed selection for ANOTHER tenant substituted into the evidence -> selection_scope_mismatch at the scope layer",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n05_genuine_selection_for_another_tenant_is_selection_scope_mismatch",
+   "result": "PASS"
+  }
+ ],
+ "N06": [
+  {
+   "boundary": "wrong action/operation, Replay pre-check: operator action id / operation id differ from the record scope -> registry_evidence_scope_mismatch, verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n06_operator_action_or_operation_differs_replay_precheck[over0]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong action/operation, Replay pre-check: operator action id / operation id differ from the record scope -> registry_evidence_scope_mismatch, verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n06_operator_action_or_operation_differs_replay_precheck[over1]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong operation, Registry layer: a genuinely signed selection for ANOTHER operation substituted -> selection_operation_mismatch at the scope layer",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n06_genuine_selection_for_another_operation_is_selection_operation_mismatch",
+   "result": "PASS"
+  },
+  {
+   "boundary": "adapter-side R9 rule: expected_context.operation != expected_operation_id is refused by Replay trust validation before anything is called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n06_context_operation_must_equal_expected_operation_id",
+   "result": "PASS"
+  }
+ ],
+ "N07": [
+  {
+   "boundary": "wrong scope, Replay pre-check: operator institution / authority_domain / consumer differ from the record scope -> registry_evidence_scope_mismatch, verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n07_operator_scope_differs_replay_precheck[institution]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope, Replay pre-check: operator institution / authority_domain / consumer differ from the record scope -> registry_evidence_scope_mismatch, verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n07_operator_scope_differs_replay_precheck[authority_domain]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope, Replay pre-check: operator institution / authority_domain / consumer differ from the record scope -> registry_evidence_scope_mismatch, verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n07_operator_scope_differs_replay_precheck[consumer_id]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope, Registry layer: genuinely signed selection for another institution / authority_domain / consumer substituted -> selection_scope_mismatch / selection_consumer_mismatch at the scope layer",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n07_genuine_selection_for_another_scope_is_refused_at_the_scope_layer[over0-grant_over0-selection_scope_mismatch]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope, Registry layer: genuinely signed selection for another institution / authority_domain / consumer substituted -> selection_scope_mismatch / selection_consumer_mismatch at the scope layer",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n07_genuine_selection_for_another_scope_is_refused_at_the_scope_layer[over1-grant_over1-selection_scope_mismatch]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "wrong scope, Registry layer: genuinely signed selection for another institution / authority_domain / consumer substituted -> selection_scope_mismatch / selection_consumer_mismatch at the scope layer",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n07_genuine_selection_for_another_scope_is_refused_at_the_scope_layer[over2-grant_over2-selection_consumer_mismatch]",
+   "result": "PASS"
+  }
+ ],
+ "N08": [
+  {
+   "boundary": "substituted record: another GENUINE sealed record with the same id/version but other payload, selection unchanged -> record_digest_mismatch at record_binding",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n08_other_genuine_sealed_record_with_same_ids_is_record_digest_mismatch",
+   "result": "PASS"
+  },
+  {
+   "boundary": "edited record text: payload edited without resealing -> digest_mismatch at record_binding",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n08_edited_record_text_is_digest_mismatch",
+   "result": "PASS"
+  },
+  {
+   "boundary": "substituted selection+record: a genuine pair with a TIGHTER signed bound changes the effective policy -> registry_evidence_effective_digest_mismatch (Replay gate over operator host ages)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n08_genuine_pair_with_a_different_effective_policy_is_detected_by_the_effective_digest",
+   "result": "PASS"
+  },
+  {
+   "boundary": "STATED NON-DETECTION: substitution by another genuine selection that yields the SAME effective values is admitted (marker lists substitution_by_other_genuine_selection as not verified)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n08_limit_genuine_pair_with_the_same_effective_values_is_not_detected",
+   "result": "PASS"
+  }
+ ],
+ "N09": [
+  {
+   "boundary": "altered effective policy digest in the CP record (configuration resealed with Replay's own function so the structural check passes) -> registry_evidence_effective_digest_mismatch",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n09_altered_f4_ages_row_digest_is_effective_digest_mismatch",
+   "result": "PASS"
+  },
+  {
+   "boundary": "altered f4_scalars (resealed) -> the recorded row digest no longer matches the verifier's: effective_digest_mismatch or effective_values_mismatch, never admitted",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n09_altered_f4_scalars_are_refused",
+   "result": "PASS"
+  },
+  {
+   "boundary": "altered digest WITHOUT resealing: refused by Replay's structural effective_configuration check before any verifier call",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n09_altered_digest_without_reseal_is_a_structural_refusal",
+   "result": "PASS"
+  }
+ ],
+ "N10": [
+  {
+   "boundary": "missing evidence: the REAL CP decision with carriage OFF (flag default) -> selection_evidence_missing; no fallback to structural-only",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n10_real_decision_without_carriage_is_selection_evidence_missing",
+   "result": "PASS"
+  },
+  {
+   "boundary": "missing evidence: member present on a non-authorized decision / absent on the authorized one / null / empty",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n10_null_or_empty_evidence_is_refused[null]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "missing evidence: member present on a non-authorized decision / absent on the authorized one / null / empty",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n10_null_or_empty_evidence_is_refused[empty_dict]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "missing evidence: member present on a non-authorized decision / absent on the authorized one / null / empty",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n10_null_or_empty_evidence_is_refused[empty_list]",
+   "result": "PASS"
+  }
+ ],
+ "N11": [
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[extra_key_verdict-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[extra_key_authenticated-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[missing_key-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[version-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[text_int-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[empty_text-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[oversize-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[naive_verified_at-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[non_utc_verified_at-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed evidence: closed key set, version, types, size, unencodable text -> selection_evidence_malformed (Replay shape gate), verifier NOT called",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_malformed_evidence_is_refused[operation_empty-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "foreign-typed text (bytes) / non-exact types in the record: refused by Replay's exact-type snapshot with schema_violation BEFORE any verifier call (review fix M-1)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_bytes_text_is_refused_by_the_exact_type_snapshot_before_the_verifier",
+   "result": "PASS"
+  },
+  {
+   "boundary": "unencodable text (lone surrogate): refused fail-closed with a typed code BEFORE the verifier; the code is Replay's generic input-bound schema_violation, NOT the frozen contract's selection_evidence_malformed (observation F-2)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_lone_surrogate_text_is_refused_typed_before_the_verifier_but_with_schema_violation",
+   "result": "PASS"
+  },
+  {
+   "boundary": "malformed at the Registry layer: well-shaped but non-selection text (garbage / wrong contract envelope) -> the real adapter's typed refusal, never admitted",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n11_well_shaped_but_unparseable_selection_text_is_refused_by_the_registry_adapter",
+   "result": "PASS"
+  },
+  {
+   "boundary": "M-1 class at the real boundary: a dict-SUBCLASS selection_evidence / decision / record that serves genuine signed text to verification and forged text afterwards is refused with schema_violation BEFORE any verifier call (exact-type snapshot)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_m1_a_dict_subclass_cannot_get_genuine_text_verified_while_forged_text_persists[evidence]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "M-1 class at the real boundary: a dict-SUBCLASS selection_evidence / decision / record that serves genuine signed text to verification and forged text afterwards is refused with schema_violation BEFORE any verifier call (exact-type snapshot)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_m1_a_dict_subclass_cannot_get_genuine_text_verified_while_forged_text_persists[decision]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "M-1 class at the real boundary: a dict-SUBCLASS selection_evidence / decision / record that serves genuine signed text to verification and forged text afterwards is refused with schema_violation BEFORE any verifier call (exact-type snapshot)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_m1_a_dict_subclass_cannot_get_genuine_text_verified_while_forged_text_persists[record]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "M-1 class: str-subclass text, non-str dict keys and bytes anywhere in the record are refused with schema_violation before the verifier",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_m1_non_exact_types_anywhere_in_the_record_are_refused_before_the_verifier[str_subclass]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "M-1 class: str-subclass text, non-str dict keys and bytes anywhere in the record are refused with schema_violation before the verifier",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_m1_non_exact_types_anywhere_in_the_record_are_refused_before_the_verifier[non_str_key]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "M-1 class: str-subclass text, non-str dict keys and bytes anywhere in the record are refused with schema_violation before the verifier",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_m1_non_exact_types_anywhere_in_the_record_are_refused_before_the_verifier[tuple_value]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "M-1 class: str-subclass text, non-str dict keys and bytes anywhere in the record are refused with schema_violation before the verifier",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_m1_non_exact_types_anywhere_in_the_record_are_refused_before_the_verifier[bytes_member]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "L-1: echo expectations are fixed BEFORE the verifier call; a verifier that mutates the request in place to verify genuine text while Replay holds forged text is refused (input_echo_mismatch)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_l1_a_verifier_that_rewrites_the_request_in_place_cannot_launder_forged_text",
+   "result": "PASS"
+  }
+ ],
+ "N12": [
+  {
+   "boundary": "revoked key in the operator-supplied snapshot (the CP host's older snapshot did not know) -> issuer_key_revoked; revoked selection epoch -> selection_revoked",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n12_revoked_key_and_revoked_selection_in_the_supplied_snapshot",
+   "result": "PASS"
+  }
+ ],
+ "N13": [
+  {
+   "boundary": "withdrawn selection: a genuinely signed WITHDRAWAL of the selection substituted for the carried selection -> selection_withdrawn (authenticated True, ok False)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n13_genuinely_signed_withdrawal_is_selection_withdrawn",
+   "result": "PASS"
+  },
+  {
+   "boundary": "withdrawn selection at the CP boundary: the real CP workflow refuses to decide on a withdrawal (no decision, nothing carried)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows.py::test_n13_cp_boundary_refuses_a_withdrawal",
+   "result": "PASS"
+  }
+ ],
+ "N14": [
+  {
+   "boundary": "below-minimum epoch: operator snapshot floor min_epochs=(sel-test-1, 2) vs epoch 1 -> selection_epoch_stale at the epoch layer; at the floor -> admitted and epoch_floor_applied True",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n14_epoch_below_the_floor_is_selection_epoch_stale_and_at_the_floor_is_admitted",
+   "result": "PASS"
+  },
+  {
+   "boundary": "snapshot-version floors: min_trust_snapshot_version above the snapshot, last_accepted_snapshot of a newer/same-version-other-fingerprint snapshot -> trust_snapshot_version_stale; equal fingerprint admitted",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n14_snapshot_version_floors",
+   "result": "PASS"
+  }
+ ],
+ "N15": [
+  {
+   "boundary": "expired snapshot at an explicit verification time (as_of): T == snapshot valid_until -> trust_snapshot_expired at trust_snapshot; selection window enforced at T",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n15_expired_snapshot_and_selection_window_at_the_explicit_time",
+   "result": "PASS"
+  },
+  {
+   "boundary": "time inputs: naive datetime / wrong type -> registry_evidence_trust_malformed; time_mode now with a time far from the real clock -> registry_evidence_time_inconsistent (verifier never called)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n15_time_input_validation",
+   "result": "PASS"
+  }
+ ],
+ "N16": [
+  {
+   "boundary": "verdict injection cannot grant admission when the honest consumer constructs the real adapter: the adapter takes no verdict, and refuses any non-exact verifier",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n16_adapter_has_no_verdict_input_and_refuses_non_exact_verifiers",
+   "result": "PASS"
+  },
+  {
+   "boundary": "verdict-shaped values in every place a caller controls are refused: dict/bytes/str as verifier, verdict JSON as selection_text, verdict as extra evidence member",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n16_verdict_shaped_inputs_grant_nothing",
+   "result": "PASS"
+  },
+  {
+   "boundary": "DOCUMENTED LIMITATION NF-2: a caller-injected STUB verifier is accepted by Replay alone (Replay cannot tell it from the adapter) - the marker still says unattested/injected and registry_authenticated False",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n16_limit_nf2_injected_stub_is_accepted_by_replay_alone_and_the_marker_says_unattested",
+   "result": "PASS"
+  }
+ ],
+ "N17": [
+  {
+   "boundary": "no downgrade to structural-only: selector without trust, trust None, trust without/with another selector, verifier error -> typed refusals, never a structural bundle",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n17_profile_cannot_downgrade_to_structural_only",
+   "result": "PASS"
+  }
+ ],
+ "N18": [
+  {
+   "boundary": "no downgrade to the caller-trusted digest match: selector+expected digest conflict; old selector+expected digest+evidence undeclared; correct digest does not rescue forged evidence",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n18_profile_cannot_downgrade_to_caller_trusted_digest",
+   "result": "PASS"
+  }
+ ],
+ "N19": [
+  {
+   "boundary": "non-ASCII signed content, positive, CP->real adapter: the REAL CP workflow carries a selection whose SIGNED statement has a non-ASCII tenant (signature over ensure_ascii=True bytes); the real adapter admits the carried bytes in both text encodings. (Replay-bridge limit: the fixture proposal commits to tenant-alpha, and Registry/CP reject non-ASCII record content, so Replay admission of non-ASCII is not exercised end-to-end.)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n19_non_ascii_tenant_is_carried_by_cp_and_admitted_by_the_real_adapter[False]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "non-ASCII signed content, positive, CP->real adapter: the REAL CP workflow carries a selection whose SIGNED statement has a non-ASCII tenant (signature over ensure_ascii=True bytes); the real adapter admits the carried bytes in both text encodings. (Replay-bridge limit: the fixture proposal commits to tenant-alpha, and Registry/CP reject non-ASCII record content, so Replay admission of non-ASCII is not exercised end-to-end.)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n19_non_ascii_tenant_is_carried_by_cp_and_admitted_by_the_real_adapter[True]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "non-ASCII negative: a signature over ensure_ascii=False bytes -> refused by the real CP boundary (signature_invalid, nothing carried) and by the real adapter (signature_invalid at authenticity)",
+   "evidence": "REAL",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n19_signature_over_ensure_ascii_false_bytes_is_signature_invalid",
+   "result": "PASS"
+  }
+ ],
+ "N20": [
+  {
+   "boundary": "authenticated=True but ok=False (unauthorised scope grant) is refused: the Replay gate admits on ok AND code AND all eleven layers, never on authenticated",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n20_authenticated_true_with_ok_false_is_refused",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Replay's verdict gate on a REAL adapter verdict altered in flight: ok True but a layer not pass / authenticated False / code set -> registry_evidence_not_authenticated (Replay-side gate only)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n20_replay_gate_refuses_an_ok_verdict_that_is_not_fully_authenticated[layer_not_evaluated]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Replay's verdict gate on a REAL adapter verdict altered in flight: ok True but a layer not pass / authenticated False / code set -> registry_evidence_not_authenticated (Replay-side gate only)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n20_replay_gate_refuses_an_ok_verdict_that_is_not_fully_authenticated[layer_refuse]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Replay's verdict gate on a REAL adapter verdict altered in flight: ok True but a layer not pass / authenticated False / code set -> registry_evidence_not_authenticated (Replay-side gate only)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n20_replay_gate_refuses_an_ok_verdict_that_is_not_fully_authenticated[authenticated_false]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Replay's verdict gate on a REAL adapter verdict altered in flight: ok True but a layer not pass / authenticated False / code set -> registry_evidence_not_authenticated (Replay-side gate only)",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows.py::test_n20_replay_gate_refuses_an_ok_verdict_that_is_not_fully_authenticated[code_set]",
+   "result": "PASS"
+  }
+ ],
+ "N21": [
+  {
+   "boundary": "wrong/missing F4 family: required_families other than {f4}; evidence family altered; f4_ages row removed; a genuine non-F4 selection+record substituted",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n21_wrong_or_missing_family",
+   "result": "PASS"
+  }
+ ],
+ "N22": [
+  {
+   "boundary": "altered Replay record after verification, DETECTED: unaltered control re-verifies with the same binding digest; text swaps, covered configuration edits and scalar edits are refused on re-admission",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n22_detected_alterations",
+   "result": "PASS"
+  },
+  {
+   "boundary": "STATED NON-DETECTIONS: (a) a tighter resealed edit is admitted when the operator's host ages are those same tighter values (copied from the record); detected when the operator holds the real ones; (b) decision fields = claim B",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n22_stated_non_detections",
+   "result": "PASS"
+  }
+ ],
+ "N23": [
+  {
+   "boundary": "structural-only mode unchanged: Replay PR head and base produce byte-identical results (bundles and refusals) for every captured governed record plus the REAL F4 effective_configuration record without evidence",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_compat_rows.py::test_n23_structural_only_is_byte_identical_to_the_base_replay",
+   "result": "PASS"
+  }
+ ],
+ "N24": [
+  {
+   "boundary": "caller-trusted digest mode unchanged: byte-identical to the base Replay; a matching digest still succeeds (no Registry authentication), a wrong digest still refuses effective_configuration_expected_mismatch",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_compat_rows.py::test_n24_caller_trusted_digest_is_byte_identical_and_still_not_authentication",
+   "result": "PASS"
+  }
+ ],
+ "N25": [
+  {
+   "boundary": "CP decisions without selection_evidence: flag omitted and flag False at PR head produce run.json texts BYTE-IDENTICAL to the base b19c47dd (authorized+executed store and hold store)",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_compat_rows.py::test_n25_flag_off_output_is_byte_identical_to_the_base_revision",
+   "result": "PASS"
+  },
+  {
+   "boundary": "CP legacy golden: the base-produced and head-produced stores equal the golden fixture of the CP PR (tests/fixtures/rw01_f4_poc_legacy_run_b19c47dd.json) exactly",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_compat_rows.py::test_n25_equals_the_cp_pr_legacy_golden",
+   "result": "PASS"
+  },
+  {
+   "boundary": "flag ON changes nothing except the one added member on the authorized decision; the hold store is byte-identical (nothing carried on a hold)",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_compat_rows.py::test_n25_flag_on_adds_only_the_member_to_authorized_decisions",
+   "result": "PASS"
+  }
+ ],
+ "N26": [
+  {
+   "boundary": "(a) a CP record with selection_evidence fails PLAIN Replay import with undeclared_member (exact), under the plain selector and the old governed selector, with and without expected digest; every older revision also refuses",
+   "evidence": "BRIDGED,SUBPROCESS",
+   "nodeid": "battery/test_downstream_n26.py::test_n26_a_record_with_selection_evidence_fails_plain_replay_import",
+   "result": "PASS"
+  },
+  {
+   "boundary": "(b) ODES: the authenticated-profile bundle is REFUSED - on the exact Replay revision when the PoC Replay is installed, on content when the accepted Replay 6f45e288 is installed; the plain control bundle is accepted by ODES with the accepted Replay",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_downstream_n26.py::test_n26_odes_refuses_the_authenticated_bundle",
+   "result": "PASS"
+  },
+  {
+   "boundary": "(b) Evidence Pack: the authenticated-profile bundle is REFUSED with the PoC Replay and with the accepted Replay (producer profile identity contradicts the accepted mapping); plain control accepted with the accepted Replay",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_downstream_n26.py::test_n26_pack_refuses_the_authenticated_bundle",
+   "result": "PASS"
+  },
+  {
+   "boundary": "(c) INERT PASS, reported precisely: a plain bundle with selection_evidence injected post hoc is ACCEPTED by ODES and the Pack under the ACCEPTED Replay (signed blob carried and digested, never verified downstream); refused on the exact Replay revision under the PoC Replay",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_downstream_n26.py::test_n26_injected_selection_evidence_passes_inertly_downstream_only_under_the_accepted_replay",
+   "result": "PASS"
+  },
+  {
+   "boundary": "(d) Exchange r3 strict source-identity check refuses the PoC Control Plane head (candidate source identity mismatch: agent_control_plane.bounded); the base CP passes that first check and stops later at a source (engine.producer_contract) this battery does not pin",
+   "evidence": "SUBPROCESS",
+   "nodeid": "battery/test_downstream_n26.py::test_n26_exchange_refuses_the_poc_control_plane_head",
+   "result": "PASS"
+  }
+ ],
+ "N27": [
+  {
+   "boundary": "CP decision fields not covered by the Registry signature (time_source, decided_at, operation_horizon, reasons) edited before re-import are NOT detected; binding digest unchanged; no marker ever says the CP decision is authenticated",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n27_uncovered_decision_fields_are_not_detected_and_never_labelled_authenticated[time_source-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "CP decision fields not covered by the Registry signature (time_source, decided_at, operation_horizon, reasons) edited before re-import are NOT detected; binding digest unchanged; no marker ever says the CP decision is authenticated",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n27_uncovered_decision_fields_are_not_detected_and_never_labelled_authenticated[horizon_expiry-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "CP decision fields not covered by the Registry signature (time_source, decided_at, operation_horizon, reasons) edited before re-import are NOT detected; binding digest unchanged; no marker ever says the CP decision is authenticated",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n27_uncovered_decision_fields_are_not_detected_and_never_labelled_authenticated[horizon_not_before-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "CP decision fields not covered by the Registry signature (time_source, decided_at, operation_horizon, reasons) edited before re-import are NOT detected; binding digest unchanged; no marker ever says the CP decision is authenticated",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n27_uncovered_decision_fields_are_not_detected_and_never_labelled_authenticated[reasons-<lambda>]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "decision fields guarded only structurally: decided_at is refused by Replay's own structural check (not by the signature); result flipped away from authorized -> undeclared_member; none of it makes the decision authenticated",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n27_decided_at_and_result_edits_are_structural_refusals_not_signature_detections",
+   "result": "PASS"
+  }
+ ],
+ "N28": [
+  {
+   "boundary": "missing crypto dependency: PyNaCl made unimportable -> the adapter's documented unavailable path -> verdict verifier_unavailable -> Replay registry_evidence_verifier_unavailable (BLOCKED), no admission, no structural fallback",
+   "evidence": "BRIDGED",
+   "nodeid": "battery/test_e2e_rows_b.py::test_n28_missing_ed25519_backend_is_blocked_never_admitted",
+   "result": "PASS"
+  }
+ ],
+ "PF": [
+  {
+   "boundary": "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_cp_protected_files.py::test_bounded_py_old_and_new_sha256_and_blob_are_recomputed_and_equal_the_crosswalk",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_cp_protected_files.py::test_bounded_py_diff_is_exactly_six_added_lines_and_zero_removed",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_cp_protected_files.py::test_the_set_of_files_the_cp_pr_changes_is_exactly_the_declared_fifteen",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_cp_protected_files.py::test_no_other_protected_file_changed_every_pinned_source_file_is_unchanged_except_bounded_py",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_cp_protected_files.py::test_old_hash_is_kept_as_a_named_constant_in_every_repinned_assertion_and_the_seventh_is_flagged",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_cp_protected_files.py::test_the_updated_tripwire_still_detects_an_unrelated_one_byte_modification_of_bounded_py",
+   "result": "PASS"
+  },
+  {
+   "boundary": "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_cp_protected_files.py::test_registry_governed_lifecycle_py_is_changed_but_is_not_in_any_protected_pin_set",
+   "result": "PASS"
+  }
+ ],
+ "S": [
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[control_plane]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[control_plane_base]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[evidence_pack]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[exchange]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[odes]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[registry]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[registry_base]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[registry_cp_pin]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[registry_v8_pin]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[replay]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "source provenance: git rev-parse HEAD and HEAD^{tree} equal sources.json for every pinned repository",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pinned_source_is_exactly_the_declared_commit_and_tree[replay_base]",
+   "result": "PASS"
+  },
+  {
+   "boundary": "dependency provenance: real Ed25519 backend is PyNaCl 1.6.2 from the Registry hash-locked requirements-ed25519.lock.txt",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_pynacl_is_the_locked_version_and_signs_and_verifies_for_real",
+   "result": "PASS"
+  },
+  {
+   "boundary": "registry PR #86 changes NO existing production file and the CP test pin 6f600ab1 production code is byte-identical to PR #86 head (so the single-process run is faithful to the CP tests' pin)",
+   "evidence": "STATIC",
+   "nodeid": "battery/test_00_sources.py::test_registry_pr86_adds_only_new_production_files_and_pin_6f600ab1_production_code_is_identical",
+   "result": "PASS"
+  }
+ ]
+}

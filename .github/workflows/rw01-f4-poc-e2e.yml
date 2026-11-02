@@ -1,11 +1,12 @@
 # RW-01-F4-PoC end-to-end qualification battery (hosted run). Register cogno-us/cognous-open-control-stack#259 (RW-01), parent #254.
 #
 # STATUS OF THIS RESULT: developer/qualification evidence of CLAIM A only (a Registry selection signature admitted by an operator-supplied
-# verifier). Claim B (Control Plane decision authenticated) is NOT made. Synthetic Ed25519 keys, mechanism only; no trust root; decision-time only;
-# not production, not adoption, not Q7, not a release claim.
-# Scope: runs rw01_f4_poc/run_battery.py, which runs the N01-N28 battery plus the Registry #86 / Replay #84 / Control Plane #102 own test suites
-# against the sources pinned in rw01_f4_poc/sources.json (fetched by exact SHA, HEAD and tree verified). A failing row (for example the F-1 finding)
-# is a RESULT: it is printed and published and does NOT fail the job. The job fails only when the harness cannot run to a complete record.
+# verifier). Claim B (Control Plane decision authenticated) is NOT made. Synthetic Ed25519 keys, mechanism only; no trust root; decision-time only.
+# OPERATIONAL TRUST NOT ESTABLISHED / PRODUCTION ADOPTION NOT AUTHORIZED. Not Q7, not a release claim.
+# Scope: runs rw01_f4_poc/run_battery.py, which runs the N01-N28 battery, the REAL Control Plane -> Replay integration rows F1-A..F1-G (Replay F4 structural
+# selector) plus the Registry #86 / Replay #84 / Control Plane #102 own test suites against the sources pinned in rw01_f4_poc/sources.json (fetched by exact SHA,
+# HEAD and tree verified). THE JOB FAILS if ANY test fails or if ANY required row (N01-N28, F-1, F1-A..F1-G, F1-BRIDGED, PF, S) is missing or not PASS:
+# run_battery.py exits nonzero, and the run step uses `bash -eo pipefail`, so the pipe into tee cannot mask it. No tolerated FAIL row exists.
 # No secrets, read-only token, no paid models, no network use by the tests themselves.
 # Third-party actions are pinned by full commit SHA:
 #   actions/checkout       v4.2.2 -> 11bd71901bbe5b1630ceea73d27597364c9af683
@@ -64,13 +65,16 @@ jobs:
 
       - name: Run the battery (pytest -rA, junit, SHA-256 manifest)
         run: |
-          python rw01_f4_poc/run_battery.py --src "$RUNNER_TEMP/src" --out "$RUNNER_TEMP/rw01-evidence" 2>&1 | tee "$RUNNER_TEMP/runner-console.txt"
+          mkdir -p "$RUNNER_TEMP/rw01-evidence"
           cp "$RUNNER_TEMP/sources-identity.tsv" "$RUNNER_TEMP/rw01-evidence/"
+          # exit status is the battery's: nonzero when any test fails or any required row is not PASS (pipefail is on for `shell: bash`)
+          python rw01_f4_poc/run_battery.py --src "$RUNNER_TEMP/src" --out "$RUNNER_TEMP/rw01-evidence" 2>&1 | tee "$RUNNER_TEMP/runner-console.txt"
 
       - name: Print the result tables
         if: always()
         run: |
           cat "$RUNNER_TEMP/rw01-evidence/SUMMARY.md" || true
+          cat "$RUNNER_TEMP/rw01-evidence/RESULT.txt" || true
           cat "$RUNNER_TEMP/rw01-evidence/SHA256SUMS" || true
 
       - name: Upload artifacts (raw pytest -rA output, junit, summary, rows, environment, SHA-256)

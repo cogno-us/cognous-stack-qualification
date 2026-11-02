@@ -1,9 +1,14 @@
 # RW-01-F4-PoC end-to-end qualification battery
 
-> **INTEGRATED CLAIM NOT ESTABLISHED.** The hosted check is green BY DESIGN: it tolerates the single intentional FAIL row. That FAIL (F-1) is a
-> documented finding, not a defect of the harness: a REAL `GovernedAgeWorkflow` run record is refused by EVERY Replay profile at structural
-> validation (`typed refusal profile: resolution journal missing`), and this is pre-existing at the base commits. A green workflow therefore does
-> NOT mean an integrated Control Plane -> Replay chain exists. Do not read this PR as establishing one.
+> **OPERATIONAL TRUST NOT ESTABLISHED / PRODUCTION ADOPTION NOT AUTHORIZED.** This is developer/qualification evidence of CLAIM A only (a Registry selection
+> signature admitted by an operator-supplied verifier, synthetic keys, decision time). Claim B (Control Plane decision authenticated) and Registry origin are NOT
+> established. The hosted check now FAILS if any test fails or any required row (N01-N28, F-1, F1-A..F1-G, F1-BRIDGED, PF, S) is not PASS; there is no tolerated FAIL row.
+>
+> **F-1 recovery.** The former intentional F-1 FAIL (a real `GovernedAgeWorkflow` record refused at structural validation, "resolution journal missing") is replaced by the
+> passing REAL integration rows **F1-A .. F1-G** in `battery/test_f1_integrated_rows.py`: a genuine persisted and retrieved CP record imports into the real Replay
+> (`ca94d6a8`, explicit selector `registry-authenticated-selection-f4-governed/0.1`) with the real `RegistryEvidenceVerifierV2` and operator-supplied trust, with no
+> grafting, no re-sealing and no edit of the retrieved record; each negative is paired with the control positive. The old BRIDGED rows remain COMPONENT evidence only.
+> Limits are listed under "Known limitations". Builder-tested developer evidence, not independent qualification.
 
 Register: cogno-us/cognous-open-control-stack#259 (RW-01), parent #254. Constitution pin 1c2e920f4e58e07a52e8e2408a506cf7dbc1292b.
 Gate 0: https://github.com/cogno-us/cognous-open-control-stack/issues/259#issuecomment-6577903097
@@ -24,8 +29,8 @@ modifies any existing file or any other repository.
 Run locally: `bash fetch_sources.sh /dev/shm/src && python run_battery.py --src /dev/shm/src --out /dev/shm/out`
 (needs hash-locked PyNaCl, pydantic, pytest, jsonschema; see the workflow). CI: `.github/workflows/rw01-f4-poc-e2e.yml`.
 
-## REAL versus BRIDGED evidence (73 of 115 tests run on the bridged record)
-Evidence kinds (the `evidence` field in `evidence/local/rows.json`): REAL 12, BRIDGED 73 (+1 BRIDGED,SUBPROCESS), SUBPROCESS 9, STATIC 20.
+## REAL versus BRIDGED evidence (73 of 153 battery tests still run on the bridged record; the integrated CP-to-Replay rows are F1-A..F1-G)
+Evidence kinds (the `evidence` field in `rows.json` of a run): REAL 50, BRIDGED 73 (+1 BRIDGED,SUBPROCESS), SUBPROCESS 9, STATIC 20 (153 battery tests).
 - What is REAL in every BRIDGED test: the Registry signature verification (real PyNaCl Ed25519, synthetic keys), the real `RegistryEvidenceVerifierV2`
   adapter, the bytes the real Control Plane `GovernedAgeWorkflow` carries as selection evidence, and the real CP `effective_configuration`
   (Replay's own digest function reproduces the real CP digest).
@@ -66,7 +71,15 @@ Evidence kinds (the `evidence` field in `evidence/local/rows.json`): REAL 12, BR
 | N26 | 1 BRIDGED,SUBPROCESS, 4 SUBPROCESS |
 | N27 | 5 BRIDGED |
 | N28 | 1 BRIDGED |
-| F-1 | 5 REAL |
+| F-1 | 20 REAL |
+| F1-A | 2 REAL |
+| F1-B | 1 REAL |
+| F1-BRIDGED | 1 REAL |
+| F1-C | 7 REAL |
+| F1-D | 2 REAL |
+| F1-E | 2 REAL |
+| F1-F | 1 REAL |
+| F1-G | 7 REAL |
 | PF | 7 STATIC |
 | S | 13 STATIC |
 
@@ -85,15 +98,23 @@ newer Python 3.13.x on the runner). Environmental, unrelated to this change; mai
 - Some rows pin stated NON-detections (N08, N22); those tests assert the limitation, they do not claim detection.
 
 ## Findings the battery reports (FAIL rows are results, not hidden)
-- F-1 (FAIL, intentional): a REAL `GovernedAgeWorkflow` run record is refused by every Replay profile at structural validation
-  (`typed refusal profile: resolution journal missing`) because the real F4 decision has no `check_events` journal and no runtime-authority/0.1
-  binding members. The gap exists with the carriage flag off and with the pre-existing profile, so it is not caused by the PoC. The remaining N-rows
-  therefore use a BRIDGED record: the real CP bytes with the journal/binding members that Replay requires added and re-sealed; the tests cross-check
-  that Replay's digest function reproduces the real CP effective-configuration digest and that the real bytes are carried verbatim.
+- F-1 (RESOLVED for the explicit F4 path; was an intentional FAIL): a REAL `GovernedAgeWorkflow` run record is still refused by every PRE-EXISTING Replay profile at
+  structural validation (`typed refusal profile: resolution journal missing`) because the real F4 decision has no `check_events` journal and no runtime-authority/0.1
+  binding members; the remaining F-1 rows pin exactly that (old selectors never import it). It is imported only through the new explicit selector
+  `registry-authenticated-selection-f4-governed/0.1` (Replay ca94d6a8), rows F1-A..F1-G. The N01-N28 rows still use a BRIDGED record (the real CP bytes with the
+  journal/binding members that the old profiles require added and re-sealed); they are component evidence, not CP-to-Replay integration.
 - F-3: `tests/test_f5_class_age_governance.py` holds a seventh `bounded.py` pin beyond the six of the frozen contract (needs ratification).
 
 ## Known limitations
-- The bridged record is not a CP-produced run record (see F-1). N-rows on it prove Replay and Registry behaviour, not an end-to-end CP-to-Replay flow.
+- The bridged record is not a CP-produced run record (see F-1). N-rows on it prove Replay and Registry behaviour, not an end-to-end CP-to-Replay flow; the integrated
+  flow is F1-A..F1-G only.
+- F1-D(ii) limit: the selection signature binds no run id or decision id. Evidence of a second genuine CP run with byte-identical signed material is indistinguishable
+  and is admitted (asserted, not hidden); evidence with a different signed bound or another tenant is refused (effective-digest cross-check / real adapter).
+- Replay's operator trust object has no "expected effective-policy digest" field: the operator supplies host ages and Replay compares the verdict's digest with the record's
+  `f4_ages` row (row F1-E). The Replay F4 shape check is closed-absence only (journal and runtime-authority members must be absent); the CP decision fields remain unsigned
+  (claim B not made); `reverify_retained_registry_evidence` does not support the F4 selector; the verifier cannot be distinguished from a stub by Replay (NF-2).
+- Hosted pins: Replay `ca94d6a8` (PR #84 head), Control Plane `cf7f5268` (PR #102 head = 6648ae2c + CI-only commit; the protected-file crosswalk row PF adds the one workflow file
+  `.github/workflows/tests.yml` to the changed set), Registry `52ff5f7d` unchanged.
 - N26 (downstream pins) is checked by subprocess probes against the pinned ODES, Evidence Pack and Exchange sources.
 - Three CP test files assert the r08-v8 Registry pin (a40fe755) and run against it; the others run against Registry 6f600ab1.
 - Hosted-run artifacts return HTTP 403 on download, so raw output is also committed here and posted as PR comments with a SHA-256 manifest.

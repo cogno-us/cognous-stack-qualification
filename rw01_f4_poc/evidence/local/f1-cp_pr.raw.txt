@@ -1,0 +1,98 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
+rootdir: /dev/shm/f1q/fetch/control_plane
+configfile: pyproject.toml
+plugins: platformdirs-4.13.0, anyio-4.15.1
+collected 83 items
+
+tests/test_f4_selection_evidence.py .................................... [ 43%]
+....................                                                     [ 67%]
+tests/test_rw01_f4_poc_bounded_diff.py ...........................       [100%]
+
+==================================== PASSES ====================================
+------------- generated xml file: /dev/shm/f1q/out/cp_pr.junit.xml -------------
+=========================== short test summary info ============================
+PASSED tests/test_f4_selection_evidence.py::test_n25_default_off_decisions_carry_nothing_and_the_member_is_absent_from_every_dump[None]
+PASSED tests/test_f4_selection_evidence.py::test_n25_default_off_decisions_carry_nothing_and_the_member_is_absent_from_every_dump[False]
+PASSED tests/test_f4_selection_evidence.py::test_n25_legacy_decision_is_byte_identical_to_the_decision_of_b19c47dd_golden_comparison
+PASSED tests/test_f4_selection_evidence.py::test_n25_flag_on_changes_nothing_but_the_added_member_golden_comparison
+PASSED tests/test_f4_selection_evidence.py::test_legacy_decisions_without_the_member_load_with_none_and_redump_without_it
+PASSED tests/test_f4_selection_evidence.py::test_carried_texts_are_the_exact_verified_bytes_and_nothing_else_is_read
+PASSED tests/test_f4_selection_evidence.py::test_carried_bytes_survive_the_store_round_trip_byte_exact_and_equal_the_decision
+PASSED tests/test_f4_selection_evidence.py::test_carried_text_with_non_ascii_and_escapes_round_trips_byte_exact[caf\xe9 \u4e2d\u6587 \U0001f600 \r\n\t"\\ end]
+PASSED tests/test_f4_selection_evidence.py::test_only_authorized_decisions_carry_evidence_holds_do_not
+PASSED tests/test_f4_selection_evidence.py::test_binding_ecb_digest_effect_identity_and_authorization_result_are_identical_with_carriage_on_and_off
+PASSED tests/test_f4_selection_evidence.py::test_equal_replacement_selection_semantics_are_preserved_and_the_carried_bytes_are_the_replacements_l05
+PASSED tests/test_f4_selection_evidence.py::test_execute_requires_persisted_equals_decision_and_a_tampered_stored_evidence_refuses
+PASSED tests/test_f4_selection_evidence.py::test_commit_gate_cannot_substitute_carried_bytes
+PASSED tests/test_f4_selection_evidence.py::test_a_revoked_selection_at_the_commit_gate_is_refused_and_the_carried_evidence_is_untouched
+PASSED tests/test_f4_selection_evidence.py::test_independent_registry_reverification_of_the_persisted_carried_bytes_passes_with_real_ed25519
+PASSED tests/test_f4_selection_evidence.py::test_tampered_carried_selection_signature_fails_the_independent_verification_with_signature_invalid
+PASSED tests/test_f4_selection_evidence.py::test_tampered_carried_statement_fails_the_independent_verification_with_and_without_a_recomputed_digest
+PASSED tests/test_f4_selection_evidence.py::test_tampered_carried_record_text_fails_the_independent_verification_at_record_binding
+PASSED tests/test_f4_selection_evidence.py::test_independent_verification_with_a_foreign_trust_snapshot_fails_so_carriage_confers_no_trust
+PASSED tests/test_f4_selection_evidence.py::test_n27_no_trust_verdict_or_authenticated_field_exists_is_carried_or_persisted
+PASSED tests/test_f4_selection_evidence.py::test_n27_extra_members_are_refused_at_construction_and_at_load[extra0]
+PASSED tests/test_f4_selection_evidence.py::test_n27_extra_members_are_refused_at_construction_and_at_load[extra1]
+PASSED tests/test_f4_selection_evidence.py::test_n27_extra_members_are_refused_at_construction_and_at_load[extra2]
+PASSED tests/test_f4_selection_evidence.py::test_n27_extra_members_are_refused_at_construction_and_at_load[extra3]
+PASSED tests/test_f4_selection_evidence.py::test_n27_extra_members_are_refused_at_construction_and_at_load[extra4]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[version-selection-evidence/0.2]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[contract_version-r08-v1]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[family-f5-class-age]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[operation_id-]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[verified_at-2026-10-05T19:00:00]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[verified_at-not a time]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[verified_at-2026-10-05T19:00:00+02:00]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[record_text-bytes]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[selection_text-5]
+PASSED tests/test_f4_selection_evidence.py::test_n11_malformed_evidence_is_a_typed_refusal[selection_text-None]
+PASSED tests/test_f4_selection_evidence.py::test_n11_size_cap_is_65536_utf8_bytes_per_text
+PASSED tests/test_f4_selection_evidence.py::test_n11_unencodable_text_is_a_typed_refusal_never_an_uncaught_exception[lone \ud800 surrogate]
+PASSED tests/test_f4_selection_evidence.py::test_n11_unencodable_text_is_a_typed_refusal_never_an_uncaught_exception[\udfff]
+PASSED tests/test_f4_selection_evidence.py::test_n11_unencodable_text_is_a_typed_refusal_never_an_uncaught_exception[ok then \udc80]
+PASSED tests/test_f4_selection_evidence.py::test_for_f4_refuses_a_naive_or_non_datetime_verification_time
+PASSED tests/test_f4_selection_evidence.py::test_unrepresentable_material_at_the_decision_boundary_refuses_before_any_write
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[1]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[0]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[yes]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[True]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[None]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[1.0]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[bad6]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[bad7]
+PASSED tests/test_f4_selection_evidence.py::test_flag_must_be_an_exact_bool[bad8]
+PASSED tests/test_f4_selection_evidence.py::test_flag_exact_bool_is_accepted_and_is_not_authority[True]
+PASSED tests/test_f4_selection_evidence.py::test_flag_exact_bool_is_accepted_and_is_not_authority[False]
+PASSED tests/test_f4_selection_evidence.py::test_other_governed_workflows_refuse_the_flag_f4_only_scope
+PASSED tests/test_f4_selection_evidence.py::test_wire_shape_golden_fixture_is_the_exact_json_of_a_carried_selection_evidence_object
+PASSED tests/test_f4_selection_evidence.py::test_wire_shape_fixture_contains_no_trust_verdict_or_authenticated_member
+PASSED tests/test_f4_selection_evidence.py::test_mutation_a_lifecycle_that_carried_other_bytes_than_it_verified_would_be_caught
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_current_bounded_py_matches_the_new_pins_exactly
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_reverse_applying_the_authorized_hunks_reproduces_the_old_pins
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_line_diff_is_six_additions_and_zero_removals
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_only_the_authorized_symbols_were_added
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_crosswalk_every_pinned_assertion_keeps_its_old_value_and_pins_exactly_one_new_value[tests/test_f4_age_governance.py-sha256-BOUNDED_SHA256_AT_D66AE07-BOUNDED_SHA256_RW01_F4_POC-c219f8825a8ddf9da1fe6771ae575af0a9069ac8a04eadd40f093a9adb13655b-4052ff87bfc90d3a4092ee690969354cd58769a9b542c4e5d1fa74ce821856ae]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_crosswalk_every_pinned_assertion_keeps_its_old_value_and_pins_exactly_one_new_value[tests/test_final3_composed_binding.py-sha256-BOUNDED_SHA256_BEFORE_RW01_F4_POC-BOUNDED_SHA256_RW01_F4_POC-c219f8825a8ddf9da1fe6771ae575af0a9069ac8a04eadd40f093a9adb13655b-4052ff87bfc90d3a4092ee690969354cd58769a9b542c4e5d1fa74ce821856ae]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_crosswalk_every_pinned_assertion_keeps_its_old_value_and_pins_exactly_one_new_value[tests/test_f5_class_unreadable_governance.py-sha256-BOUNDED_SHA256_BEFORE_RW01_F4_POC-BOUNDED_SHA256_RW01_F4_POC-c219f8825a8ddf9da1fe6771ae575af0a9069ac8a04eadd40f093a9adb13655b-4052ff87bfc90d3a4092ee690969354cd58769a9b542c4e5d1fa74ce821856ae]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_crosswalk_every_pinned_assertion_keeps_its_old_value_and_pins_exactly_one_new_value[tests/test_freshness_purpose_anchor_successor.py-sha256-BOUNDED_SHA256_BEFORE_RW01_F4_POC-BOUNDED_SHA256_RW01_F4_POC-c219f8825a8ddf9da1fe6771ae575af0a9069ac8a04eadd40f093a9adb13655b-4052ff87bfc90d3a4092ee690969354cd58769a9b542c4e5d1fa74ce821856ae]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_crosswalk_every_pinned_assertion_keeps_its_old_value_and_pins_exactly_one_new_value[tests/test_governed_policy_composition.py-sha256-BOUNDED_SHA256_BEFORE_RW01_F4_POC-BOUNDED_SHA256_RW01_F4_POC-c219f8825a8ddf9da1fe6771ae575af0a9069ac8a04eadd40f093a9adb13655b-4052ff87bfc90d3a4092ee690969354cd58769a9b542c4e5d1fa74ce821856ae]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_crosswalk_every_pinned_assertion_keeps_its_old_value_and_pins_exactly_one_new_value[tests/test_v02_legacy_claim_vector.py-git-blob-BOUNDED_BLOB_BEFORE_RW01_F4_POC-BOUNDED_BLOB_RW01_F4_POC-2cc8d998ff0a8fec3112a8b0634111fcf8fbef17-b5329804b05a83990af1a3ca17eb61c13080c12f]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_crosswalk_new_values_are_the_real_hashes_of_the_edited_file
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_negative_mutation_the_updated_tripwire_detects_unrelated_modification
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_negative_mutation_runs_the_real_git_blob_assertion_against_a_mutated_copy
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_negative_mutation_runs_the_real_sha256_assertion_against_a_mutated_copy
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[effective_configuration_binding.py-0e2ab1d2fe8917ec9ec6bdd5a47a966880ab2fb0]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[freshness.py-0c4647f69ed5bb52d8e1e0e607faf6da061634f2]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[holder_inventory.py-248e930437cd6dec682a43bb626ceccf83804b68]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[policy_binding.py-426d47797e92f19690a21b4e8b5dc1c35d1b579c]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[registry_f4_age_governance.py-9f4532ab0df92ace75a5d3020eefe8306494c1fb]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[registry_f5_class_age_governance.py-86076b4a3d20c4dd72c26c313c074660cd1a5ee6]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[registry_f5_class_unreadable_governance.py-dae2cf5c1c53d93573342dab382bd88806266b1b]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[registry_governed_policy.py-e677b80abe47ec51467a32b43158949d47c03416]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[reversibility.py-a6be4bfe555d16b7d40289cef113ae156fd8c843]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[rule_revision.py-9ca71a8db3f790b0dde3127c4f34b563463859cb]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[runtime_authority.py-03b4efdfd67c2e384c00ac7342ef3bbf18160811]
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_exactly_the_authorized_source_inventory_is_new_or_changed
+PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_addendum_the_seventh_pinned_assertion_found_in_test_f5_class_age_governance_keeps_its_old_value
+============================== 83 passed in 6.00s ==============================

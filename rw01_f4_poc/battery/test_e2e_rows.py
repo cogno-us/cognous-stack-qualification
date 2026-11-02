@@ -26,14 +26,8 @@ def wire_unbridged(pr):
 
 
 # =============================================================================================================== F-1 (finding)
-@pytest.mark.row("F-1", "Replay structural validation of a REAL GovernedAgeWorkflow run record: the authenticated profile must admit it (it does not; finding)")
-@REAL
-def test_f1_a_real_cp_f4_run_record_is_importable_by_replay_authenticated_profile(pr):
-    """EXPECTED-BY-THE-SPRINT behaviour: the real CP F4 output (flag on) is imported by Replay under the authenticated profile. ACTUAL: ImportContractError
-    'typed refusal profile: resolution journal missing' (refusal_evidence.py:252) before admission is reached. This test FAILS on purpose: it is the finding."""
-    cp, proposal = wire_unbridged(pr)
-    bundle, trust_obj = admitted(cp, proposal)
-    assert bundle.metadata["registry_selection_admitted_by_injected_verifier"] is True
+# NOTE (F-1 recovery): the former intentional-FAIL row `test_f1_a_real_cp_f4_run_record_is_importable_by_replay_authenticated_profile` is REPLACED by the real passing integration
+# row F1-A in test_f1_integrated_rows.py (F4 selector, Replay ca94d6a8). The tests below stay: they pin that the OLD selectors/legacy profiles still refuse a real F4 record.
 
 
 @pytest.mark.row("F-1", "the same refusal happens WITHOUT the PoC: flag off, plain CUR import and the pre-existing Registry-governed profile (so the gap is pre-existing, not caused by carriage)")

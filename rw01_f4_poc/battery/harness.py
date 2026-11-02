@@ -334,12 +334,12 @@ CLAIMS_KEY = "registry_claims_asserted_by_verifier_verdict"
 OLD_CLAIMS_KEY = "registry_verified_claims"
 
 
-def assert_exact_claim_a_markers(bundle, *, issuer="issuer-test-1", epoch=1, selection_id="sel-test-1", time_mode="as_of_historical"):
+def assert_exact_claim_a_markers(bundle, *, issuer="issuer-test-1", epoch=1, selection_id="sel-test-1", time_mode="as_of_historical", profile=None):
     m = bundle.metadata
     assert m["registry_authenticated"] is False
     assert m["registry_origin"] == "registry_origin_unverified"
     assert m["control_plane_decision_authenticated"] is False
-    assert m["control_plane_profile"] == SELECTOR
+    assert m["control_plane_profile"] == (SELECTOR if profile is None else profile)
     assert m["registry_selection_verification"] == RE.MARKER_SELECTION_VERIFICATION
     assert m["registry_selection_admitted_by_injected_verifier"] is True
     assert m["registry_authentication_claim"] == "A_selection_signature_per_injected_verifier"

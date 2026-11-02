@@ -5,3 +5,8 @@ Hosted runs of .github/workflows/rw01-f4-poc-e2e.yml (pull_request events), PR #
 The run on the documentation-only head after that is recorded in a PR comment.
 Hosted: battery 115 collected / 114 passed / 1 failed (F-1, intentional); registry_pr 533/533; replay_pr 730/730; cp_pr 83/83; cp_repinned_6f600ab1 385/385; cp_repinned_v8 305/305.
 INTEGRATED CLAIM NOT ESTABLISHED: the check is green by design; F-1 is an intentional documented FAIL (a real GovernedAgeWorkflow record is refused by every Replay profile, 'resolution journal missing', pre-existing at base).
+
+SUPERSESSION NOTE (F-1 recovery; the lines above are the historical record of those hosted runs and are kept unchanged):
+The intentional F-1 FAIL and the banner "INTEGRATED CLAIM NOT ESTABLISHED / green by design" describe those earlier runs only. After the F-1 recovery the battery pins Replay ca94d6a8 and
+Control Plane cf7f5268, the F-1 FAIL row is replaced by the passing integration rows F1-A..F1-G, and the workflow fails on ANY failed test or non-PASS required row.
+The banner OPERATIONAL TRUST NOT ESTABLISHED / PRODUCTION ADOPTION NOT AUTHORIZED stands. No hosted run of the new head is recorded here.
