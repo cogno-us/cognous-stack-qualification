@@ -1,5 +1,10 @@
 # RW-01-F4-PoC end-to-end qualification battery
 
+> **INTEGRATED CLAIM NOT ESTABLISHED.** The hosted check is green BY DESIGN: it tolerates the single intentional FAIL row. That FAIL (F-1) is a
+> documented finding, not a defect of the harness: a REAL `GovernedAgeWorkflow` run record is refused by EVERY Replay profile at structural
+> validation (`typed refusal profile: resolution journal missing`), and this is pre-existing at the base commits. A green workflow therefore does
+> NOT mean an integrated Control Plane -> Replay chain exists. Do not read this PR as establishing one.
+
 Register: cogno-us/cognous-open-control-stack#259 (RW-01), parent #254. Constitution pin 1c2e920f4e58e07a52e8e2408a506cf7dbc1292b.
 Gate 0: https://github.com/cogno-us/cognous-open-control-stack/issues/259#issuecomment-6577903097
 
@@ -18,6 +23,57 @@ modifies any existing file or any other repository.
 
 Run locally: `bash fetch_sources.sh /dev/shm/src && python run_battery.py --src /dev/shm/src --out /dev/shm/out`
 (needs hash-locked PyNaCl, pydantic, pytest, jsonschema; see the workflow). CI: `.github/workflows/rw01-f4-poc-e2e.yml`.
+
+## REAL versus BRIDGED evidence (73 of 115 tests run on the bridged record)
+Evidence kinds (the `evidence` field in `evidence/local/rows.json`): REAL 12, BRIDGED 73 (+1 BRIDGED,SUBPROCESS), SUBPROCESS 9, STATIC 20.
+- What is REAL in every BRIDGED test: the Registry signature verification (real PyNaCl Ed25519, synthetic keys), the real `RegistryEvidenceVerifierV2`
+  adapter, the bytes the real Control Plane `GovernedAgeWorkflow` carries as selection evidence, and the real CP `effective_configuration`
+  (Replay's own digest function reproduces the real CP digest).
+- What is BRIDGED: the surrounding run-record members (e.g. the resolution journal / `check_events` and runtime-authority binding members) that Replay's
+  structural validation requires and the real F4 decision does not produce. They are grafted from Replay's own fixture and the record is re-sealed.
+  BRIDGED tests therefore prove Registry, adapter and Replay behaviour on real carried bytes, NOT an end-to-end CP -> Replay flow.
+- N19 does NOT traverse Replay with the real adapter: a non-ASCII statement tenant breaks the fixture bridge. N19 is REAL at the CP -> real-adapter
+  boundary (carriage, positive in both text encodings, and the ensure_ascii=False negative). Replay-side and adapter/core coverage of non-ASCII is in
+  the Registry PR #86 adapter/core tests (`registry_pr` suite).
+
+| row | tests by evidence kind |
+|---|---|
+| N01 | 1 BRIDGED, 1 REAL |
+| N02 | 2 BRIDGED, 1 REAL |
+| N03 | 1 BRIDGED |
+| N04 | 1 BRIDGED |
+| N05 | 2 BRIDGED |
+| N06 | 4 BRIDGED |
+| N07 | 6 BRIDGED |
+| N08 | 4 BRIDGED |
+| N09 | 3 BRIDGED |
+| N10 | 4 BRIDGED |
+| N11 | 21 BRIDGED |
+| N12 | 1 BRIDGED |
+| N13 | 1 BRIDGED, 1 REAL |
+| N14 | 2 BRIDGED |
+| N15 | 2 BRIDGED |
+| N16 | 2 BRIDGED, 1 REAL |
+| N17 | 1 BRIDGED |
+| N18 | 1 BRIDGED |
+| N19 | 3 REAL |
+| N20 | 5 BRIDGED |
+| N21 | 1 BRIDGED |
+| N22 | 2 BRIDGED |
+| N23 | 1 SUBPROCESS |
+| N24 | 1 SUBPROCESS |
+| N25 | 3 SUBPROCESS |
+| N26 | 1 BRIDGED,SUBPROCESS, 4 SUBPROCESS |
+| N27 | 5 BRIDGED |
+| N28 | 1 BRIDGED |
+| F-1 | 5 REAL |
+| PF | 7 STATIC |
+| S | 13 STATIC |
+
+## Unrelated, pre-existing repository failure
+The repository's own `Catalog validation` workflow fails on this PR AND on a rerun of main at c9004a6d
+(`tests/test_mvp_acceptance_gate.py`, planted-pyc test: `AttributeError: module 'importlib._bootstrap_external' has no attribute '_RAW_MAGIC_NUMBER'`,
+newer Python 3.13.x on the runner). Environmental, unrelated to this change; main's runs from earlier on 2026-11-02 passed.
 
 ## What is claimed (and what is not)
 - Claim A only: a Registry selection signature, carried through the Control Plane run record, is admitted by an OPERATOR-SUPPLIED verifier
