@@ -1,0 +1,46 @@
+{
+ "schema": "cap-v01-g1-pinned-sources/1",
+ "sprint": "CAP-v0.1-G1",
+ "register": "cogno-us/cognous-open-control-stack#259",
+ "contract": "https://github.com/cogno-us/cognous-open-control-stack/issues/259#issuecomment-6589180377",
+ "qualification_base": "3450bfad4136fd489843531fa13535460fc89cbc",
+ "note": "Every source is identified by exact commit SHA and its HEAD is verified (no branch, tag or default-branch substitution). The Control Plane checkout MUST have full history (the tripwire diffs the G1 head against the BASE commit). Layout: <CAP_SRC_DIR>/<dir>.",
+ "sources": {
+  "control_plane": {
+   "repo": "cognous-control-plane",
+   "sha": "2ebc3e6669509caf0d93a5b1df8849e0efb641c9",
+   "dir": "control_plane",
+   "branch": "main",
+   "role": "unit under test: merged G1 commit (module agent_control_plane.registry_authority_profile) on top of the merged F4 PoC"
+  },
+  "control_plane_base": {
+   "repo": "cognous-control-plane",
+   "sha": "8b97d32ff9a5aee640e61704637ff60dc57a84d9",
+   "dir": null,
+   "role": "G1 base: merged squash commit of PR #102 (an ancestor of the G1 head inside the full-history control_plane checkout; not a separate directory)"
+  },
+  "registry": {
+   "repo": "cognous-ocs-registry",
+   "sha": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb",
+   "dir": "registry",
+   "role": "real verifier core v2_verified_selection (verify_f4_selection_v2), real Ed25519Verifier, test builders r08_support/s01_support"
+  },
+  "replay": {
+   "repo": "cognous-replay-bundle",
+   "sha": "6651abef2dfc0960b09907ed268db45e809ee814",
+   "dir": "replay",
+   "role": "registry-authenticated-selection/0.1 import, used by P1 to consume the replay_trust_kwargs inputs"
+  }
+ },
+ "tripwire": {
+  "cp_changed_files_exactly": [
+   ".github/workflows/tests.yml",
+   "CHANGELOG.md",
+   "docs/registry-authority-profile.md",
+   "docs/registry-f4-selection-source-custody.md",
+   "src/agent_control_plane/registry_authority_profile.py",
+   "tests/test_registry_authority_profile.py"
+  ],
+  "bounded_py": {"path": "src/agent_control_plane/bounded.py", "sha256_prefix": "4052ff87", "git_blob_prefix": "b5329804"}
+ }
+}
