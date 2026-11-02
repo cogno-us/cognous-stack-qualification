@@ -1,0 +1,87 @@
+# RW-01-F4-PoC end-to-end qualification battery (hosted run). Register cogno-us/cognous-open-control-stack#259 (RW-01), parent #254.
+#
+# STATUS OF THIS RESULT: developer/qualification evidence of CLAIM A only (a Registry selection signature admitted by an operator-supplied
+# verifier). Claim B (Control Plane decision authenticated) is NOT made. Synthetic Ed25519 keys, mechanism only; no trust root; decision-time only.
+# OPERATIONAL TRUST NOT ESTABLISHED / PRODUCTION ADOPTION NOT AUTHORIZED. Not Q7, not a release claim.
+# Scope: runs rw01_f4_poc/run_battery.py, which runs the N01-N28 battery, the REAL Control Plane -> Replay integration rows F1-A..F1-G (Replay F4 structural
+# selector) plus the Registry #86 / Replay #84 / Control Plane #102 own test suites against the sources pinned in rw01_f4_poc/sources.json (fetched by exact SHA,
+# HEAD and tree verified). THE JOB FAILS if ANY test fails or if ANY required row (N01-N28, F-1, F1-A..F1-G, F1-BRIDGED, PF, S) is missing or not PASS:
+# run_battery.py exits nonzero, and the run step uses `bash -eo pipefail`, so the pipe into tee cannot mask it. No tolerated FAIL row exists.
+# No secrets, read-only token, no paid models, no network use by the tests themselves.
+# Third-party actions are pinned by full commit SHA:
+#   actions/checkout       v4.2.2 -> 11bd71901bbe5b1630ceea73d27597364c9af683
+#   actions/setup-python   v5.6.0 -> a26af69be951a213d495a4c3e4e4022e16d87065
+#   actions/upload-artifact v4.6.2 -> ea165f8d65b6e75b540449e92b4886f43607fa02
+name: RW-01-F4-PoC end-to-end battery
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'rw01_f4_poc/**'
+      - '.github/workflows/rw01-f4-poc-e2e.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rw01-f4-poc-e2e-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHONDONTWRITEBYTECODE: '1'
+  GIT_TERMINAL_PROMPT: '0'
+
+jobs:
+  e2e-battery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout the qualification repository at the exact event commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python (pinned minor)
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.13'
+
+      - name: Fetch the pinned sources by exact SHA and verify HEAD and tree
+        run: |
+          bash rw01_f4_poc/fetch_sources.sh "$RUNNER_TEMP/src" | tee "$RUNNER_TEMP/sources-identity.tsv"
+
+      - name: Install hash-locked dependencies (including hash-locked PyNaCl)
+        run: |
+          python -m pip install --require-hashes -r .github/locks/cryptography-pydantic-pytest-a9a750.txt
+          python -m pip install --require-hashes -r .github/locks/jsonschema-pyyaml-c943d3.txt
+          python -m pip install --require-hashes -r "$RUNNER_TEMP/src/registry/requirements-ed25519.lock.txt"
+          python -c "import nacl, pytest, pydantic, jsonschema; print('PyNaCl', nacl.__version__, 'pytest', pytest.__version__, 'pydantic', pydantic.VERSION)"
+          git status --porcelain --untracked-files=all
+
+      - name: Run the battery (pytest -rA, junit, SHA-256 manifest)
+        run: |
+          mkdir -p "$RUNNER_TEMP/rw01-evidence"
+          cp "$RUNNER_TEMP/sources-identity.tsv" "$RUNNER_TEMP/rw01-evidence/"
+          # exit status is the battery's: nonzero when any test fails or any required row is not PASS (pipefail is on for `shell: bash`)
+          python rw01_f4_poc/run_battery.py --src "$RUNNER_TEMP/src" --out "$RUNNER_TEMP/rw01-evidence" 2>&1 | tee "$RUNNER_TEMP/runner-console.txt"
+
+      - name: Print the result tables
+        if: always()
+        run: |
+          cat "$RUNNER_TEMP/rw01-evidence/SUMMARY.md" || true
+          cat "$RUNNER_TEMP/rw01-evidence/RESULT.txt" || true
+          cat "$RUNNER_TEMP/rw01-evidence/SHA256SUMS" || true
+
+      - name: Upload artifacts (raw pytest -rA output, junit, summary, rows, environment, SHA-256)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: rw01-f4-poc-e2e-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rw01-evidence
+          retention-days: 90
+          if-no-files-found: error
