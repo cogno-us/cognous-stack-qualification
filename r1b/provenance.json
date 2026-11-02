@@ -1,0 +1,114 @@
+{
+ "note": "Hand-classified from the test source at the pinned Replay SHA. Replay cannot infer where an expected-digest string came from; the independence of PINNED is asserted by the test author (comment in the test file) and is NOT verified by this workflow. Success of any case is a CALLER-TRUSTED CONFIGURATION MATCH, never REGISTRY_AUTHENTICATED.",
+ "classes": [
+  "INDEPENDENT-HARDCODED-VECTOR",
+  "NON-INDEPENDENT-COPIED-FROM-RECORD",
+  "N/A"
+ ],
+ "by_function": {
+  "test_R1_P01": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal; fixture asserted equal to it, not derived from it"
+  },
+  "test_R1_P01b": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal"
+  },
+  "test_R1_P01c": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "age_only literal recorded by the real Control Plane (asserted by the test author)"
+  },
+  "test_R1_P02": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal for the trusted-mode comparison run"
+  },
+  "test_R1_P03": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal"
+  },
+  "test_R1_N01": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal; refusal occurs at the integrity check before the comparison"
+  },
+  "test_R1_N02": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal"
+  },
+  "test_R1_N02b": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal"
+  },
+  "test_R1_N02c": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal"
+  },
+  "test_R1_N03": {
+   "class": "NON-INDEPENDENT-COPIED-FROM-RECORD",
+   "note": "expected digest copied from the forged record under test; accepted by design (documents the trust boundary)"
+  },
+  "test_R1_N04": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "hardcoded wrong literals and a flipped PINNED digit"
+  },
+  "test_R1_N05": {
+   "class": "N/A",
+   "note": "explicit None, no digest supplied"
+  },
+  "test_R1_N06": {
+   "class": "N/A",
+   "note": "malformed literals, refused before any comparison"
+  },
+  "test_R1_N06b": {
+   "class": "N/A",
+   "note": "non-string values, refused before any comparison"
+  },
+  "test_R1_N06c": {
+   "class": "N/A",
+   "note": "str subclass of PINNED, refused as malformed before any comparison"
+  },
+  "test_R1_N06d": {
+   "class": "N/A",
+   "note": "malformed literal, refused before the record is read"
+  },
+  "test_R1_N07": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "digests built by a test-local builder, itself asserted equal to PINNED; not read from the record under test"
+  },
+  "test_R1_N08": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED/None/'' literals; refused as unsupported profile before any comparison"
+  },
+  "test_R1_N08b": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal; refused at the selector before any comparison"
+  },
+  "test_R1_N08c": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal; refused before any comparison"
+  },
+  "test_R1_N08d": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal; refused at the missing member before the comparison"
+  },
+  "test_R1_N08e": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal passed to check_run directly; no decision present"
+  },
+  "test_R1_N09": {
+   "class": "N/A",
+   "note": "explicit None and falsy values, no digest supplied"
+  },
+  "test_R1_N09b": {
+   "class": "N/A",
+   "note": "private sentinel object, malformed"
+  },
+  "test_the_parameter_is_keyword_only_and_the_only_new_public_signature_change": {
+   "class": "N/A",
+   "note": "signature inspection"
+  },
+  "test_refusal_semantics_of_existing_negative_records_are_preserved_in_trusted_mode": {
+   "class": "INDEPENDENT-HARDCODED-VECTOR",
+   "note": "PINNED literal; refusals precede the comparison"
+  }
+ }
+}

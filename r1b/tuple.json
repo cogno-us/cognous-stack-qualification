@@ -1,0 +1,52 @@
+{
+  "schema": "r1b-tuple/1",
+  "purpose": "OCS-254-R1B targeted developer observation of the modified boundaries only; not Q7, not certification",
+  "components": {
+    "replay": {
+      "repo": "cognous-replay-bundle",
+      "draft_pr": 82,
+      "sha": "2d8b00664572e1adeb899c6722a71befbff141ba",
+      "tree": "b2932497304ad589b1085d8b586ddc1fc1a2c583",
+      "frozen_s3_baseline_sha": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",
+      "frozen_s3_baseline_tree": "0bdee3eacd650ecb0e99781635a972e68cbe2853"
+    },
+    "exchange": {
+      "repo": "cognous-governed-exchange",
+      "draft_pr": 64,
+      "sha": "4184c1e3fe8500503bc11aae38088963e942c000",
+      "tree": "c73d2d5b43c6864dda99746c1978aa6f244ea788",
+      "frozen_s3_baseline_sha": "746378d74bff59314bdcf8f0b50b19ab94679ba9",
+      "frozen_s3_baseline_tree": "dcbe909f96d7c83e6281c5679283bd65cf19dbdb"
+    }
+  },
+  "replay": {
+    "test_file": "tests/test_registry_governed_expected_configuration_digest.py",
+    "expected_tests": 71,
+    "required_functions_in_provenance": "r1b/provenance.json"
+  },
+  "exchange": {
+    "test_file": "tests/test_exchange_input_and_source_repairs.py",
+    "expected_tests": 35,
+    "functions": [
+      "test_replace_ref_substitution_is_refused_before_the_substituted_code_executes",
+      "test_replace_refs_are_not_interpreted_by_the_identity_and_blob_checks",
+      "test_checkout_with_a_replace_ref_is_reported",
+      "test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_refusal",
+      "test_replace_ref_substitution_in_the_manifest_checkout_is_refused"
+    ]
+  },
+  "mutants": [
+    {"id": "replay-M1", "component": "replay", "patch": "r1b/mutations/replay-M1-bypass-expected-comparison.patch",
+     "weakness": "expected-digest comparison bypassed (resealed substitution accepted under trusted match)",
+     "must_fail": ["test_R1_N02_resealed_substitution_is_refused_under_trusted_match_and_still_accepted_by_default", "test_R1_N04_a_wrong_independent_expected_digest_is_refused"]},
+    {"id": "replay-M2", "component": "replay", "patch": "r1b/mutations/replay-M2-accept-explicit-missing-expected.patch",
+     "weakness": "explicit missing (None) expected digest no longer refused (downgrade to structural-only)",
+     "must_fail": ["test_R1_N05_an_explicit_missing_expected_digest_is_refused_not_downgraded", "test_R1_N09_an_explicit_none_cannot_become_a_structural_only_acceptance"]},
+    {"id": "exchange-E1", "component": "exchange", "patch": "r1b/mutations/exchange-E1-drop-no-replace-objects.patch",
+     "weakness": "--no-replace-objects prefix removed from every source-reading git call",
+     "must_fail": ["test_replace_refs_are_not_interpreted_by_the_identity_and_blob_checks", "test_replace_ref_substitution_in_the_manifest_checkout_is_refused"]},
+    {"id": "exchange-E2", "component": "exchange", "patch": "r1b/mutations/exchange-E2-drop-replace-ref-refusal.patch",
+     "weakness": "refs/replace refusal removed from the checkout source check",
+     "must_fail": ["test_checkout_with_a_replace_ref_is_reported"]}
+  ]
+}
