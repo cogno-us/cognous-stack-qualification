@@ -1,0 +1,46 @@
+{
+ "schema": "cap-v02-g2-pinned-sources/1",
+ "sprint": "CAP-v0.1-G2",
+ "register": "cogno-us/cognous-open-control-stack#259",
+ "contract": "https://github.com/cogno-us/cognous-open-control-stack/issues/259#issuecomment-6589180377 (section 5) + sprint brief",
+ "qualification_base": "58d063d5",
+ "note": "Every source is identified by exact commit SHA and its HEAD is verified (no branch, tag or default-branch substitution). The Control Plane checkout MUST have full history in the hosted run (the tripwire diffs the G2 head against merged G1 main). Layout: <CAP_SRC_DIR>/<dir>. The Control Plane pin is re-pinnable: set CAP_CP_SHA (and CAP_CP_BASE_SHA) in the environment to qualify a later head; the default is the value below.",
+ "sources": {
+  "control_plane": {
+   "repo": "cognous-control-plane",
+   "sha": "925f7c4a7594965e336f2c34394cc52426c48b00",
+   "dir": "control_plane",
+   "branch": "cap-v02/g2-freshness-state",
+   "role": "unit under test: G2 head (modules registry_authority_state and registry_authority_profile) on top of merged G1 main"
+  },
+  "control_plane_base": {
+   "repo": "cognous-control-plane",
+   "sha": "2ebc3e6669509caf0d93a5b1df8849e0efb641c9",
+   "dir": null,
+   "role": "G2 base: merged G1 main (an ancestor of the G2 head inside the full-history control_plane checkout; not a separate directory)"
+  },
+  "registry": {
+   "repo": "cognous-ocs-registry",
+   "sha": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb",
+   "dir": "registry",
+   "role": "real verifier core v2_verified_selection (verify_f4_selection_v2), real Ed25519Verifier, conformance kit registry_conformance.highwater, test builders r08_support/s01_support"
+  },
+  "replay": {
+   "repo": "cognous-replay-bundle",
+   "sha": "6651abef2dfc0960b09907ed268db45e809ee814",
+   "dir": "replay",
+   "role": "pinned for parity with G1 (the G1 regression imports it); G2 tests do not use Replay directly"
+  }
+ },
+ "tripwire": {
+  "cp_changed_files_exactly": [
+   ".github/workflows/tests.yml",
+   "CHANGELOG.md",
+   "docs/registry-authority-profile.md",
+   "src/agent_control_plane/registry_authority_profile.py",
+   "src/agent_control_plane/registry_authority_state.py",
+   "tests/test_registry_authority_state.py"
+  ],
+  "bounded_py": {"path": "src/agent_control_plane/bounded.py", "sha256_prefix": "4052ff87", "git_blob_prefix": "b5329804"}
+ }
+}
