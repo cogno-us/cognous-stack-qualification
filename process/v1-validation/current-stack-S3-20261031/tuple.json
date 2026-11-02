@@ -1,0 +1,107 @@
+{
+ "label": "S3 current-stack tuple (generation 2), frozen 2026-10-31 from the merged component heads",
+ "option_A_status": "NOT AVAILABLE: hub component-lock.json (hub dd522c50) is stale (pins pre-MVP CP 0a41faa9; no ocs-registry entry); no authoritative integration manifest records this tuple (a reviewable candidate is being prepared separately and is not adopted). This is an assembled tuple, not an authoritative one.",
+ "components": {
+  "control_plane": [
+   "cogno-us/cognous-control-plane",
+   "b19c47ddd020409d24e52e70b11359c46265edbb"
+  ],
+  "runtime": [
+   "cogno-us/cognous-execution-runtime",
+   "f7a55e2a8494801e49193f9f46935f0a971c248d"
+  ],
+  "replay": [
+   "cogno-us/cognous-replay-bundle",
+   "d395e37c443fedf1bf6b9a4651338b7b7de4a553"
+  ],
+  "evidence_pack": [
+   "cogno-us/cognous-governance-evidence-pack",
+   "96f5f2e126a9c27a75716658d4d2e85baf94b40b"
+  ],
+  "odes": [
+   "cogno-us/open-decision-evidence-standard",
+   "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae"
+  ],
+  "exchange": [
+   "cogno-us/cognous-governed-exchange",
+   "746378d74bff59314bdcf8f0b50b19ab94679ba9"
+  ],
+  "manifest": [
+   "cogno-us/cognous-action-manifest",
+   "fa170815ef96a54c233d0dd9da821b60debabf8b"
+  ],
+  "registry_migrated": [
+   "cogno-us/cognous-ocs-registry",
+   "6b96a9a658923954433dc1a4c13626fa5145b9c7"
+  ],
+  "index": [
+   "cogno-us/cognous-evidence-registry",
+   "b2485998b88256c2b322493800d1fba076814cbd"
+  ],
+  "bitrep": [
+   "cogno-us/cognous-evidence-attestation",
+   "981036c315856c71207984797b0c4e48d3b3921d"
+  ],
+  "governance": [
+   "cogno-us/cognous-institutional-governance",
+   "03a90c14c4a178997df2b6e527f67452b9c6bb7a"
+  ],
+  "verifier": [
+   "cogno-us/cognous-open-control-stack-verifier",
+   "39d46b494558e271439966bec98b26dc4d040cc4"
+  ],
+  "ergonomics": [
+   "cogno-us/cognous-open-control-stack-ergonomics",
+   "bea582b378af1b0d6854ffe3a1de40df5ad7a0ab"
+  ],
+  "orchestrator": [
+   "cogno-us/cognous-stack-orchestrator",
+   "721f4406701d24171b72025a5b8a06687594928b"
+  ],
+  "hub": [
+   "cogno-us/cognous-open-control-stack",
+   "dd522c504d0cd2bdf463b791a729fe9029cca224"
+  ],
+  "qualification": [
+   "cogno-us/cognous-stack-qualification",
+   "5409d4776a9daff204fc97b71958b4dee12687b0"
+  ]
+ },
+ "registry_facts": {
+  "code_equals": "a40fe755e2384a99c37016fa9ad59396f1835900 (r08-v8; CP tests PIN_V8). Re-verified 2026-10-31 (git diff a40fe755..6b96a9a6, 28 commits): 62 paths differ (59 added, 3 modified), ALL under docs/ or README.md; subtree ids of registry_adapters, registry_conformance, registry_consumer, registry_contract, registry_records, registry_successor, tests, tools, baseline and root requirements/pytest.ini are identical; 12 .py files under docs/ are analysis scripts not imported by any package/test/CP builder. The probe exercises a40fe755 bytes (CP builders gate on git rev-parse HEAD), never 6b96a9a6 bytes.",
+  "ancestors_of_registry_main_verified": [
+   "a40fe755e2384a99c37016fa9ad59396f1835900 (v8)",
+   "b73c59e6769acd5af7263397e81dfc6fa4561f38 (v7)",
+   "42a666328b974a7581013358bcf8bc7b9eac7761 (v6)"
+  ],
+  "cp_head_contains": "739efe7d (project-doc CP main) is an ancestor of b19c47dd; CP head accepts Registry pins v5..v8",
+  "runtime_tests_pin_older_registry": "Runtime tests assert older Registry pins (e.g. b7e6a173 r08-v4); per-test pins are NOT the current registry"
+ },
+ "known_consistency_risks": [
+  "Replay/ODES/Pack re-tie to CP b19c47dd, Runtime f7a55e2a and Manifest fa170815: the CUR names (Replay CONTROL_PLANE_CUR_REVISION/MOLTBOT_CUR_REVISION, ODES CUR_REVISIONS) were verified equal by import/inspection of the merged heads and cur collects the same 326 ids as p2 (merged-components-verification); behavioural consistency is OBSERVED only by the 41-case run, not assumed.",
+  "Exchange 746378d7 (squash-merge of PR #63) defines profile security-runtime-current-20261031-r2 for exactly this tuple (verified in gax_ref_runtime.py of that commit). Known unhardened residual recorded in that source: git replace refs in a candidate checkout are not neutralised by the source-identity check.",
+  "The cur suite-generation labels are caller-asserted PROVISIONAL DEVELOPMENT PINS inherited from the P2-style generation scheme; they are not independently qualified provenance.",
+  "The migrated Registry 6b96a9a6 is recorded but not exercised by the Wiki harness; the separate probe exercises code-equal a40fe755 bytes (6b96a9a6 differs only under docs/ and README.md).",
+  "No integration manifest records this tuple: it is an assembled tuple, not an authoritative one."
+ ],
+ "worktrees": "/home/claude/cs-components/{control_plane,runtime,replay,evidence_pack,odes,exchange,manifest,registry,index,bitrep,governance} (detached, pristine)",
+ "verified_trees": {
+  "verified_utc": "2026-10-31",
+  "method": "git ls-remote origin refs/heads/main == SHA for every component; gh api commits/<sha> (replay, evidence_pack, odes); tree ids from git rev-parse <sha>^{tree}",
+  "trees": {
+   "control_plane": "039219b5aba7a157fff79781c716067fad7ed985",
+   "runtime": "97da8323368bb5a573fd157b11a9c1dda1178a10",
+   "replay": "0bdee3eacd650ecb0e99781635a972e68cbe2853",
+   "evidence_pack": "2fc26d4c86e65b22bdffedf1090a15e7167440d3",
+   "odes": "d8b33261de975fc504ff8f0ac30a8f47e8ebd43f",
+   "manifest": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
+   "registry": "38d50602ae725e208f010baba05bbf7b908e76ac",
+   "registry_code_equal_a40fe755": "eab8ebcc24243c1abc9b6db834b7ef498f1bcb91",
+   "exchange": "dcbe909f96d7c83e6281c5679283bd65cf19dbdb"
+  }
+ },
+ "merged_names_verified": {
+  "replay": "agent_replay_bundle.importers.CONTROL_PLANE_CUR_REVISION == b19c47dd..., MOLTBOT_CUR_REVISION == f7a55e2a... (verified by import from git archive of d395e37c)",
+  "odes": "odes.common.CUR_REVISIONS == {manifest fa170815, replay d395e37c, control_plane b19c47dd, moltbot_safe f7a55e2a}; CUR_PROFILE_VERSION == odes-cognous-stack-export-0.2.7-security-runtime-cur-candidate (git archive of 77fd7a1c)"
+ }
+}
