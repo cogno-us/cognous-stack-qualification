@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Local convenience: fetch the pinned CAP v0.1 G1 sources by exact SHA into <destination-dir>/<dir> and verify HEAD. The hosted workflow uses actions/checkout instead.
-# The Control Plane is fetched WITH FULL HISTORY of the G1 branch (the tripwire diffs the head against the base commit); Registry and Replay are fetched by SHA.
+# The Control Plane is fetched WITH FULL HISTORY of main (the tripwire diffs the head against the base commit); Registry and Replay are fetched by SHA.
 # usage: fetch_sources.sh <destination-dir>      (no secrets, public repositories only)
 set -euo pipefail
 dest="${1:?destination directory}"
