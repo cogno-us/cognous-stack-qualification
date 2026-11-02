@@ -1,0 +1,13 @@
+diff --git a/src/agent_replay_bundle/importers.py b/src/agent_replay_bundle/importers.py
+index 36d70a3..ddd17e4 100644
+--- a/src/agent_replay_bundle/importers.py
++++ b/src/agent_replay_bundle/importers.py
+@@ -1116,7 +1116,7 @@ def import_bounded_workflow(
+             **({"control_plane_profile": REGISTRY_GOVERNED_PROFILE,
+                 **({"effective_configuration_verification": "caller_trusted_configuration_match", "registry_authenticated": False,
+                     "registry_origin": "registry_origin_unverified"} if trusted_match else
+-                   {"effective_configuration_verification": "internal_consistency_only_registry_source_revision_unverified"})} if registry_governed else {}),
++                   {"effective_configuration_verification": "registry_authenticated_by_replay"})} if registry_governed else {}),
+             "alvorada_revision": ALVORADA_REVISION,
+         },
+     )

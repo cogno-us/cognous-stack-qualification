@@ -1,0 +1,866 @@
+{
+ "schema": "r1c-tuple/1",
+ "purpose": "OCS-257 W2 R1C-final-source / r3-candidate observation: Replay, ODES, Evidence Pack and Control Plane are bound to ACTUAL MERGE COMMITS and trees; Exchange is the r3 PR #65 CANDIDATE head (UNMERGED). Targeted developer observation, not Q7, not certification, no claim promotion. FINAL merged-head Exchange evidence is NOT yet produced: after the operator merges PR #65, edit the single 'exchange' line of this file to the actual merge commit and tree and rerun only legs C1,C2,C3,D1,E1,E2,H (see results/security-wiki-r1c-r3-20261102/RUN-RECORD.md).",
+ "report": {
+  "title": "# Security R1C-final-source / r3-candidate (developer observation: merged Replay, ODES, Pack, CP; Exchange r3 CANDIDATE head)",
+  "scope": "Scope: affected boundaries only. Replay 6f45e288, ODES d461f0ba, Evidence Pack 39fecb00 and Control Plane b19c47dd are actual merge commits; the Exchange is the UNMERGED PR #65 candidate head c1975014 (not a merged identity). The earlier candidate observation (r1c/tuple.json) is a separate record. Not Q7, not certification, no release claim."
+ },
+ "components": {
+  "replay": {
+   "repo": "cognous-replay-bundle",
+   "sha": "6f45e288ae37ec7e7712f9296760927d2d843bba",
+   "tree": "b2932497304ad589b1085d8b586ddc1fc1a2c583",
+   "role": "MERGED main commit (Replay #82)",
+   "full_history": true
+  },
+  "odes": {
+   "repo": "open-decision-evidence-standard",
+   "sha": "d461f0ba3feccef3593ab6efdbf930569d669767",
+   "tree": "e6ed482de7e9a1eabc3f17641180764803bcbe0b",
+   "role": "MERGED main commit (ODES #143 merge)"
+  },
+  "pack": {
+   "repo": "cognous-governance-evidence-pack",
+   "sha": "39fecb004f3d4c4e87673d79d8d9399314f551e4",
+   "tree": "e7b591a5c85d5476cbffa69cf8bd17cac76fb318",
+   "role": "MERGED main commit (Evidence Pack #66 merge)"
+  },
+  "exchange": {"repo": "cognous-governed-exchange", "sha": "c1975014ad1c28e05383d0655c8c93503c0600c7", "tree": "c2bc951ef1738f1ff548e11e236191286e74f803", "role": "Exchange r3 CANDIDATE head, not merged identity (PR #65 UNMERGED)"},
+  "cp": {
+   "repo": "cognous-control-plane",
+   "sha": "b19c47ddd020409d24e52e70b11359c46265edbb",
+   "tree": "039219b5aba7a157fff79781c716067fad7ed985",
+   "role": "Control Plane main (parity leg and real-source check)"
+  },
+  "runtime": {
+   "repo": "cognous-execution-runtime",
+   "sha": "f7a55e2a8494801e49193f9f46935f0a971c248d",
+   "tree": "97da8323368bb5a573fd157b11a9c1dda1178a10",
+   "role": "Execution Runtime (real-source check only)"
+  },
+  "manifest": {
+   "repo": "cognous-action-manifest",
+   "sha": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+   "tree": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
+   "role": "Action Manifest (real-source check only)"
+  },
+  "exchange_main": {
+   "repo": "cognous-governed-exchange",
+   "sha": "8fa8d3e77c4b24fefddb333795f9b6d3457dc556",
+   "tree": "c73d2d5b43c6864dda99746c1978aa6f244ea788",
+   "role": "Exchange main merge commit (Exchange #64): historical r2 leg only"
+  },
+  "replay_r2": {
+   "repo": "cognous-replay-bundle",
+   "sha": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",
+   "tree": "0bdee3eacd650ecb0e99781635a972e68cbe2853",
+   "role": "SUPERSEDED r2 Replay (#81): genuine r2 tuple and negative controls"
+  },
+  "odes_r2": {
+   "repo": "open-decision-evidence-standard",
+   "sha": "77fd7a1cb1dd7a2dbc9ac3c02538a617056688ae",
+   "tree": "d8b33261de975fc504ff8f0ac30a8f47e8ebd43f",
+   "role": "r2 ODES (merge of #142): genuine r2 tuple and negative controls"
+  },
+  "odes_near": {
+   "repo": "open-decision-evidence-standard",
+   "sha": "fe3c1416bca0c1ea1091f08ba570ecfc68e3bb2f",
+   "tree": "e6ed482de7e9a1eabc3f17641180764803bcbe0b",
+   "role": "ODES PR #143 head: SAME TREE as the merge, one commit different (negative control: identity is the commit, not the tree)"
+  },
+  "pack_r2": {
+   "repo": "cognous-governance-evidence-pack",
+   "sha": "96f5f2e126a9c27a75716658d4d2e85baf94b40b",
+   "tree": "2fc26d4c86e65b22bdffedf1090a15e7167440d3",
+   "role": "r2 Evidence Pack (merge of #65): genuine r2 tuple and negative controls"
+  },
+  "replay_p2": {
+   "repo": "cognous-replay-bundle",
+   "sha": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+   "tree": "b68151a2f957a468d398a4bcb4b3936217eb449d",
+   "role": "historical P2 Replay: prerequisite of the Pack full suite only"
+  }
+ },
+ "superseded_replay_pin": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",
+ "legs": [
+  {
+   "id": "A1",
+   "title": "A: actual merged ODES d461f0ba current-generation e2e against actual merged Replay 6f45e288",
+   "needs": [
+    "odes",
+    "replay"
+   ],
+   "cwd": "{odes}",
+   "args": [
+    "tests/test_current_generation.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{odes}/src",
+    "ODES_TEST_REPLAY_REPO": "{replay}",
+    "ODES_REQUIRE_CUR_E2E": "1"
+   },
+   "expected": 180,
+   "component": "odes",
+   "pin": {
+    "file": "src/odes/common.py",
+    "regex": "^CUR_REPLAY_REVISION = \"([0-9a-f]{40})\"$",
+    "equals": "replay"
+   }
+  },
+  {
+   "id": "A2",
+   "title": "A: actual merged Pack 39fecb00 current-generation e2e against actual merged Replay 6f45e288",
+   "needs": [
+    "pack",
+    "replay"
+   ],
+   "cwd": "{pack}",
+   "args": [
+    "tests/test_current_generation.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{pack}:{pack}/src",
+    "AGEP_CUR_REPLAY_SOURCE": "{replay}",
+    "AGEP_REQUIRE_CUR_E2E": "1"
+   },
+   "expected": 148,
+   "component": "pack",
+   "pin": {
+    "file": "src/agent_governance_evidence_pack/importer.py",
+    "regex": "^CUR_REPLAY_PIN = \"([0-9a-f]{40})\"$",
+    "equals": "replay"
+   }
+  },
+  {
+   "id": "A3",
+   "title": "A: ODES full suite at the merge (CI configuration, Replay e2e on)",
+   "needs": [
+    "odes",
+    "replay"
+   ],
+   "cwd": "{odes}",
+   "component": "odes",
+   "args": [
+    "tests"
+   ],
+   "env": {
+    "PYTHONPATH": "{odes}/src",
+    "ODES_TEST_REPLAY_REPO": "{replay}",
+    "ODES_REQUIRE_CUR_E2E": "1"
+   },
+   "expected": null,
+   "skip_ok": [
+    "could not import 'rfc8785'",
+    "needs the accepted Replay revision installed"
+   ],
+   "pth": [
+    "{odes}/src"
+   ]
+  },
+  {
+   "id": "A4",
+   "title": "A: Pack full suite at the merge (native-job configuration, P2 Replay on path; test_cli excluded)",
+   "needs": [
+    "pack",
+    "replay_p2",
+    "cp"
+   ],
+   "cwd": "{pack}",
+   "component": "pack",
+   "args": [
+    "tests",
+    "--ignore=tests/test_cli.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{pack}:{pack}/src:{replay_p2}/src:{cp}/src"
+   },
+   "expected": null,
+   "covered_by": "A2"
+  },
+  {
+   "id": "B1",
+   "title": "B: merged ODES and Pack carry the Replay MERGE SHA 6f45e288 in their Replay-facing pin constants (static source constants)",
+   "type": "realsource",
+   "needs": [
+    "odes",
+    "pack",
+    "replay"
+   ],
+   "cwd": "{work}",
+   "component": "odes",
+   "expected": 2,
+   "cases": [
+    {
+     "name": "pin-odes-CUR_REPLAY_REVISION-equals-replay-merge",
+     "kind": "pin",
+     "component": "odes",
+     "file": "src/odes/common.py",
+     "regex": "^CUR_REPLAY_REVISION = \"([0-9a-f]{40})\"$",
+     "equals": "replay"
+    },
+    {
+     "name": "pin-pack-CUR_REPLAY_PIN-equals-replay-merge",
+     "kind": "pin",
+     "component": "pack",
+     "file": "src/agent_governance_evidence_pack/importer.py",
+     "regex": "^CUR_REPLAY_PIN = \"([0-9a-f]{40})\"$",
+     "equals": "replay"
+    }
+   ]
+  },
+  {
+   "id": "B2",
+   "title": "B: ODES negative test - superseded d395e37c refused (extracted from A1)",
+   "type": "extract",
+   "from": "A1",
+   "names": [
+    "test_the_superseded_replay_d395e37c_is_refused_as_the_current_generation",
+    "test_the_replay_pin_is_this_one_literal_and_defined_in_one_place"
+   ]
+  },
+  {
+   "id": "B3",
+   "title": "B: Pack negative test - superseded d395e37c refused by the pinned gate (extracted from A2)",
+   "type": "extract",
+   "from": "A2",
+   "names": [
+    "test_the_pinned_gate_refuses_the_superseded_replay_heads[d395e37c]"
+   ]
+  },
+  {
+   "id": "C1",
+   "title": "C: Exchange r3 CANDIDATE head c1975014 - full test file tests/test_exchange_input_and_source_repairs.py (r3 successor profile, r2 retention, replace-ref hardening)",
+   "needs": [
+    "exchange"
+   ],
+   "cwd": "{exchange}",
+   "component": "exchange",
+   "args": [
+    "tests/test_exchange_input_and_source_repairs.py"
+   ],
+   "env": {},
+   "expected": 474,
+   "skip_ok": [
+    "all r2 pins are resolved",
+    "same commit in both generations: not a substitution",
+    "PR #62 head object not present in this checkout"
+   ]
+  },
+  {
+   "id": "C2",
+   "title": "C: Exchange r3 profile block constants equal the bound tuple (static source constants)",
+   "type": "realsource",
+   "needs": [
+    "exchange",
+    "cp",
+    "runtime",
+    "manifest",
+    "replay",
+    "odes",
+    "pack"
+   ],
+   "cwd": "{work}",
+   "component": "exchange",
+   "expected": 6,
+   "cases": [
+    {
+     "name": "r3-block-CP_REVISION-equals-cp",
+     "kind": "pin",
+     "component": "exchange",
+     "file": "experiments/odex_gax_imx_reference/gax_ref_runtime.py",
+     "after": "RUNTIME_COMPATIBILITY_PROFILE == \"security-runtime-current-20261031-r3\":",
+     "regex": "^    CP_REVISION = \"([0-9a-f]{40})\"$",
+     "equals": "cp"
+    },
+    {
+     "name": "r3-block-MOLTBOT_REVISION-equals-runtime",
+     "kind": "pin",
+     "component": "exchange",
+     "file": "experiments/odex_gax_imx_reference/gax_ref_runtime.py",
+     "after": "RUNTIME_COMPATIBILITY_PROFILE == \"security-runtime-current-20261031-r3\":",
+     "regex": "^    MOLTBOT_REVISION = \"([0-9a-f]{40})\"$",
+     "equals": "runtime"
+    },
+    {
+     "name": "r3-block-MANIFEST_REVISION-equals-manifest",
+     "kind": "pin",
+     "component": "exchange",
+     "file": "experiments/odex_gax_imx_reference/gax_ref_runtime.py",
+     "after": "RUNTIME_COMPATIBILITY_PROFILE == \"security-runtime-current-20261031-r3\":",
+     "regex": "^    MANIFEST_REVISION = \"([0-9a-f]{40})\"$",
+     "equals": "manifest"
+    },
+    {
+     "name": "r3-block-REPLAY_REVISION-equals-replay",
+     "kind": "pin",
+     "component": "exchange",
+     "file": "experiments/odex_gax_imx_reference/gax_ref_runtime.py",
+     "after": "RUNTIME_COMPATIBILITY_PROFILE == \"security-runtime-current-20261031-r3\":",
+     "regex": "^    REPLAY_REVISION = \"([0-9a-f]{40})\"$",
+     "equals": "replay"
+    },
+    {
+     "name": "r3-block-ODES_REVISION-equals-odes",
+     "kind": "pin",
+     "component": "exchange",
+     "file": "experiments/odex_gax_imx_reference/gax_ref_runtime.py",
+     "after": "RUNTIME_COMPATIBILITY_PROFILE == \"security-runtime-current-20261031-r3\":",
+     "regex": "^    ODES_REVISION = \"([0-9a-f]{40})\"$",
+     "equals": "odes"
+    },
+    {
+     "name": "r3-block-EVIDENCE_PACK_REVISION-equals-pack",
+     "kind": "pin",
+     "component": "exchange",
+     "file": "experiments/odex_gax_imx_reference/gax_ref_runtime.py",
+     "after": "RUNTIME_COMPATIBILITY_PROFILE == \"security-runtime-current-20261031-r3\":",
+     "regex": "^    EVIDENCE_PACK_REVISION = \"([0-9a-f]{40})\"$",
+     "equals": "pack"
+    }
+   ]
+  },
+  {
+   "id": "C3",
+   "title": "C: REAL-SOURCE check - r3 profile ACCEPTED against REAL fetched CP, Runtime, Manifest, Replay 6f45e288, ODES d461f0ba, Pack 39fecb00 (Exchange r3 candidate head)",
+   "type": "realsource",
+   "needs": [
+    "exchange",
+    "cp",
+    "runtime",
+    "manifest",
+    "replay",
+    "odes",
+    "pack"
+   ],
+   "cwd": "{work}",
+   "component": "exchange",
+   "expected": 2,
+   "cases": [
+    {
+     "name": "real-r3-verifier-accepts-the-real-r3-tuple",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "ACCEPTED",
+     "entry": "verify"
+    },
+    {
+     "name": "real-r3-public-load_executor_runtime-accepts-the-real-r3-tuple",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "ACCEPTED",
+     "entry": "load"
+    }
+   ]
+  },
+  {
+   "id": "D1",
+   "title": "D: historical r2 compatibility - r2 ACCEPTED against the genuine r2 tuple (Replay d395e37c, ODES 77fd7a1c, Pack 96f5f2e1) on Exchange main 8fa8d3e7 and on the r3 candidate head; main has no r3 profile",
+   "type": "realsource",
+   "needs": [
+    "exchange",
+    "exchange_main",
+    "cp",
+    "runtime",
+    "manifest",
+    "replay",
+    "odes",
+    "pack",
+    "replay_r2",
+    "odes_r2",
+    "pack_r2"
+   ],
+   "cwd": "{work}",
+   "component": "exchange_main",
+   "expected": 5,
+   "cases": [
+    {
+     "name": "hist-main-8fa8d3e7-r2-accepts-the-genuine-r2-tuple",
+     "kind": "verify",
+     "exchange": "exchange_main",
+     "profile": "security-runtime-current-20261031-r2",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay_r2",
+      "odes": "odes_r2",
+      "pack": "pack_r2"
+     },
+     "expect": "ACCEPTED",
+     "entry": "verify"
+    },
+    {
+     "name": "hist-r3head-r2-still-accepts-the-genuine-r2-tuple",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r2",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay_r2",
+      "odes": "odes_r2",
+      "pack": "pack_r2"
+     },
+     "expect": "ACCEPTED",
+     "entry": "verify"
+    },
+    {
+     "name": "hist-main-8fa8d3e7-r2-refuses-the-r3-sources",
+     "kind": "verify",
+     "exchange": "exchange_main",
+     "profile": "security-runtime-current-20261031-r2",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "agent_replay_bundle.importers"
+    },
+    {
+     "name": "hist-main-8fa8d3e7-has-no-r3-profile-and-refuses-the-name",
+     "kind": "verify",
+     "exchange": "exchange_main",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_text": "unsupported GAX runtime compatibility profile"
+    },
+    {
+     "name": "hist-main-8fa8d3e7-r2-public-load-accepts-the-genuine-r2-tuple",
+     "kind": "verify",
+     "exchange": "exchange_main",
+     "profile": "security-runtime-current-20261031-r2",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay_r2",
+      "odes": "odes_r2",
+      "pack": "pack_r2"
+     },
+     "expect": "ACCEPTED",
+     "entry": "load"
+    }
+   ]
+  },
+  {
+   "id": "E1",
+   "title": "E: REAL-SOURCE mixed-generation, one-commit-different, dirty-tracked-file and git-replace refusals (Exchange r3 candidate head)",
+   "type": "realsource",
+   "needs": [
+    "exchange",
+    "cp",
+    "runtime",
+    "manifest",
+    "replay",
+    "odes",
+    "pack",
+    "replay_r2",
+    "odes_r2",
+    "pack_r2",
+    "odes_near"
+   ],
+   "cwd": "{work}",
+   "component": "exchange",
+   "expected": 10,
+   "cases": [
+    {
+     "name": "real-r3-refuses-the-r2-replay-d395e37c-with-r3-odes-and-pack",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay_r2",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "agent_replay_bundle.importers"
+    },
+    {
+     "name": "real-r3-refuses-a-one-commit-different-odes-fe3c1416-same-tree-as-the-merge",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes_near",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "odes.exporter"
+    },
+    {
+     "name": "real-r3-refuses-the-r2-odes-77fd7a1c",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes_r2",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "odes.exporter"
+    },
+    {
+     "name": "real-r3-refuses-the-r2-pack-96f5f2e1",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack_r2"
+     },
+     "expect": "REFUSED",
+     "expect_module": "agent_governance_evidence_pack.importer"
+    },
+    {
+     "name": "real-r3-refuses-the-complete-r2-source-tuple",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay_r2",
+      "odes": "odes_r2",
+      "pack": "pack_r2"
+     },
+     "expect": "REFUSED",
+     "expect_module": "agent_replay_bundle.importers"
+    },
+    {
+     "name": "real-r2-profile-refuses-the-r3-sources-mixed",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r2",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "agent_replay_bundle.importers"
+    },
+    {
+     "name": "real-r3-refuses-a-dirty-tracked-entry-module-in-replay",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "agent_replay_bundle.importers",
+     "derive": {
+      "role": "replay",
+      "op": "dirty_entry",
+      "file": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "name": "real-r3-refuses-a-dirty-tracked-non-entry-file-in-odes",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "odes.exporter",
+     "derive": {
+      "role": "odes",
+      "op": "dirty_other"
+     }
+    },
+    {
+     "name": "real-r3-refuses-a-git-replaced-replay-checkout-refs-replace-present",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "agent_replay_bundle.importers",
+     "derive": {
+      "role": "replay",
+      "op": "replace"
+     }
+    },
+    {
+     "name": "real-r3-refuses-a-git-replaced-odes-checkout-refs-replace-present",
+     "kind": "verify",
+     "exchange": "exchange",
+     "profile": "security-runtime-current-20261031-r3",
+     "sources": {
+      "cp": "cp",
+      "runtime": "runtime",
+      "manifest": "manifest",
+      "replay": "replay",
+      "odes": "odes",
+      "pack": "pack"
+     },
+     "expect": "REFUSED",
+     "expect_module": "odes.exporter",
+     "derive": {
+      "role": "odes",
+      "op": "replace"
+     }
+    }
+   ]
+  },
+  {
+   "id": "E2",
+   "title": "E: Exchange modelled mixed-generation refusal tests by node (r2/r3 mixed tuples; fake checkouts, complements the real-source E1)",
+   "needs": [
+    "exchange"
+   ],
+   "cwd": "{exchange}",
+   "component": "exchange",
+   "args": [
+    "tests/test_exchange_input_and_source_repairs.py",
+    "-k",
+    "test_current_profile_refuses_a_mixed_tuple or test_r2_L_mixed_generation_is_refused or test_r2_P_r2_refuses_a_historical_substitute or test_r2_P_r2_manifest_substitute_from_another_generation_is_refused or test_r3_mixed_old_new_replay_odes_pack_is_refused or test_r3_and_r2_shipped_recut_pins_refuse_sources_of_the_other_generation"
+   ],
+   "env": {},
+   "expected": 59,
+   "skip_ok": [
+    "same commit in both generations: not a substitution"
+   ]
+  },
+  {
+   "id": "F",
+   "title": "F: Replay caller-trusted expected-digest behaviour retained at the merge 6f45e288 (71 tests; CALLER-TRUSTED CONFIGURATION MATCH only)",
+   "needs": [
+    "replay"
+   ],
+   "cwd": "{replay}",
+   "component": "replay",
+   "args": [
+    "tests/test_registry_governed_expected_configuration_digest.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{replay}/src"
+   },
+   "expected": 71
+  },
+  {
+   "id": "G",
+   "title": "G: structural-only default mode still emits the UNQUALIFIED marker and no authenticated label (non-authentication marker)",
+   "needs": [
+    "replay"
+   ],
+   "cwd": "{work}",
+   "component": "replay",
+   "args": [
+    "{r1c}/legE/test_e_structural_only.py",
+    "--rootdir",
+    "{r1c}/legE"
+   ],
+   "env": {
+    "PYTHONPATH": "{replay}:{replay}/src"
+   },
+   "expected": 1
+  },
+  {
+   "id": "H",
+   "title": "H: Exchange replace-object hardening on the r3 candidate head (39 = the 35 of 8fa8d3e7 plus 4 from the r3 profile joining the parametrized strict set; plus 3 r3-specific)",
+   "needs": [
+    "exchange"
+   ],
+   "cwd": "{exchange}",
+   "component": "exchange",
+   "args": [
+    "tests/test_exchange_input_and_source_repairs.py",
+    "-k",
+    "test_replace_ref_substitution_is_refused_before_the_substituted_code_executes or test_replace_refs_are_not_interpreted_by_the_identity_and_blob_checks or test_checkout_with_a_replace_ref_is_reported or test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_refusal or test_replace_ref_substitution_in_the_manifest_checkout_is_refused or test_r3_replace_ref_substitution_is_refused_before_the_substituted_code_executes"
+   ],
+   "env": {},
+   "expected": 42
+  },
+  {
+   "id": "I",
+   "title": "I: CP b19c47dd vs Replay 6f45e288 FAMILY_TABLE parity",
+   "needs": [
+    "cp",
+    "replay"
+   ],
+   "cwd": "{work}",
+   "component": "replay",
+   "args": [
+    "{r1c}/parity/test_family_table_parity.py",
+    "--rootdir",
+    "{r1c}/parity"
+   ],
+   "env": {
+    "CP_SRC": "{cp}/src",
+    "REPLAY_SRC": "{replay}/src"
+   },
+   "expected": 3
+  }
+ ],
+ "mutants": [
+  {
+   "id": "M1",
+   "leg": "A1",
+   "component": "odes",
+   "patch": "r1c/mutations/C-M1-odes-pin-reverted-to-d395e37c.patch",
+   "weakness": "ODES CUR Replay pin reverted to d395e37c",
+   "must_fail": [
+    "test_the_superseded_replay_d395e37c_is_refused_as_the_current_generation",
+    "test_the_replay_pin_is_this_one_literal_and_defined_in_one_place"
+   ]
+  },
+  {
+   "id": "M2",
+   "leg": "A2",
+   "component": "pack",
+   "patch": "r1c/mutations/C-M2-pack-pin-reverted-to-d395e37c.patch",
+   "weakness": "Pack CUR Replay pin reverted to d395e37c",
+   "must_fail": [
+    "test_the_pinned_gate_refuses_the_superseded_replay_heads[d395e37c]"
+   ]
+  },
+  {
+   "id": "M3",
+   "leg": "F",
+   "component": "replay",
+   "patch": "r1c/mutations/D-M1-replay-bypass-expected-comparison.patch",
+   "weakness": "expected-digest comparison bypassed (resealed substitution accepted under trusted match)",
+   "must_fail": [
+    "test_R1_N02_resealed_substitution_is_refused_under_trusted_match_and_still_accepted_by_default",
+    "test_R1_N04_a_wrong_independent_expected_digest_is_refused"
+   ]
+  },
+  {
+   "id": "M4",
+   "leg": "G",
+   "component": "replay",
+   "patch": "r1c/mutations/E-M1-replay-structural-marker-replaced.patch",
+   "weakness": "default-mode structural marker replaced by an authenticated-sounding label",
+   "must_fail": [
+    "test_default_mode_import_emits_the_unqualified_marker_and_no_registry_authenticated_label"
+   ]
+  },
+  {
+   "id": "M5",
+   "leg": "H",
+   "component": "exchange",
+   "patch": "r1c/mutations/F-M1-exchange-drop-no-replace-objects.patch",
+   "weakness": "--no-replace-objects prefix removed from every source-reading git call",
+   "must_fail": [
+    "test_replace_refs_are_not_interpreted_by_the_identity_and_blob_checks",
+    "test_replace_ref_substitution_in_the_manifest_checkout_is_refused"
+   ]
+  },
+  {
+   "id": "M6",
+   "leg": "I",
+   "component": "replay",
+   "patch": "r1c/mutations/P-M1-replay-family-table-entry-altered.patch",
+   "weakness": "Replay FAMILY_TABLE class_age contract version altered (r08-v2 -> r08-v3)",
+   "must_fail": [
+    "test_constants_and_tables_are_identical",
+    "test_replay_accepts_cp_built_member_and_recomputes_the_same_digest"
+   ]
+  },
+  {
+   "id": "M7",
+   "leg": "C3",
+   "component": "exchange",
+   "patch": "r1c/mutations/M7-exchange-r3-replay-pin-reverted-to-d395e37c.patch",
+   "weakness": "Exchange r3 profile Replay pin reverted to d395e37c (r3 would again accept the superseded Replay)",
+   "must_fail": [
+    "real-r3-verifier-accepts-the-real-r3-tuple",
+    "real-r3-public-load_executor_runtime-accepts-the-real-r3-tuple"
+   ]
+  },
+  {
+   "id": "M8",
+   "leg": "E1",
+   "component": "exchange",
+   "patch": "r1c/mutations/M8-exchange-refs-replace-refusal-removed.patch",
+   "weakness": "Exchange refs/replace refusal removed from the checkout source check (a replaced checkout would be accepted)",
+   "must_fail": [
+    "real-r3-refuses-a-git-replaced-replay-checkout-refs-replace-present",
+    "real-r3-refuses-a-git-replaced-odes-checkout-refs-replace-present"
+   ]
+  },
+  {
+   "id": "M9",
+   "leg": "E1",
+   "component": "exchange",
+   "patch": "r1c/mutations/M9-exchange-identity-comparison-disabled.patch",
+   "weakness": "Exchange source identity comparison disabled (any revision/dirty state accepted)",
+   "must_fail": [
+    "real-r3-refuses-the-r2-replay-d395e37c-with-r3-odes-and-pack",
+    "real-r3-refuses-a-one-commit-different-odes-fe3c1416-same-tree-as-the-merge",
+    "real-r3-refuses-the-r2-odes-77fd7a1c"
+   ]
+  }
+ ]
+}

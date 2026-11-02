@@ -1,0 +1,351 @@
+{
+ "schema": "r1c-tuple/1",
+ "purpose": "OCS-254-R1C targeted developer observation of the affected boundaries only (Replay 6f45e288 re-tie in ODES/Pack candidates, Replay trusted-match retention, Exchange hardening retention, CP/Replay family-table parity). Not Q7, not certification. odes and pack are CANDIDATE PR heads, not merge SHAs: rebind after merge by editing this file.",
+ "components": {
+  "replay": {
+   "repo": "cognous-replay-bundle",
+   "sha": "6f45e288ae37ec7e7712f9296760927d2d843bba",
+   "tree": "b2932497304ad589b1085d8b586ddc1fc1a2c583",
+   "full_history": true,
+   "role": "main merge commit (Replay #82)"
+  },
+  "replay_p2": {
+   "repo": "cognous-replay-bundle",
+   "sha": "40012b8c174c6f25685bd5d9bc93ff46cc9a5842",
+   "tree": "b68151a2f957a468d398a4bcb4b3936217eb449d",
+   "role": "historical P2 Replay: prerequisite of the Pack historical-generation tests only"
+  },
+  "exchange": {
+   "repo": "cognous-governed-exchange",
+   "sha": "8fa8d3e77c4b24fefddb333795f9b6d3457dc556",
+   "tree": "c73d2d5b43c6864dda99746c1978aa6f244ea788",
+   "role": "main merge commit (Exchange #64)"
+  },
+  "odes": {
+   "repo": "open-decision-evidence-standard",
+   "sha": "fe3c1416bca0c1ea1091f08ba570ecfc68e3bb2f",
+   "tree": "e6ed482de7e9a1eabc3f17641180764803bcbe0b",
+   "role": "CANDIDATE head of PR #143 (not a merge SHA)"
+  },
+  "pack": {
+   "repo": "cognous-governance-evidence-pack",
+   "sha": "c461ae8c99ac96112f812cc4a9a3412fe136aed2",
+   "tree": "65181250a18b52d1e96b60d29c25527b4ff596f3",
+   "role": "CANDIDATE head of PR #66 (not a merge SHA)"
+  },
+  "cp": {
+   "repo": "cognous-control-plane",
+   "sha": "b19c47ddd020409d24e52e70b11359c46265edbb",
+   "tree": "039219b5aba7a157fff79781c716067fad7ed985",
+   "role": "Control Plane (parity leg only)"
+  }
+ },
+ "superseded_replay_pin": "d395e37c443fedf1bf6b9a4651338b7b7de4a553",
+ "legs": [
+  {
+   "id": "A1",
+   "title": "A: ODES candidate current-generation e2e against Replay 6f45e288",
+   "needs": [
+    "odes",
+    "replay"
+   ],
+   "cwd": "{odes}",
+   "args": [
+    "tests/test_current_generation.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{odes}/src",
+    "ODES_TEST_REPLAY_REPO": "{replay}",
+    "ODES_REQUIRE_CUR_E2E": "1"
+   },
+   "expected": 180,
+   "component": "odes",
+   "pin": {
+    "file": "src/odes/common.py",
+    "regex": "^CUR_REPLAY_REVISION = \"([0-9a-f]{40})\"$",
+    "equals": "replay"
+   }
+  },
+  {
+   "id": "A2",
+   "title": "A: Pack candidate current-generation e2e against Replay 6f45e288",
+   "needs": [
+    "pack",
+    "replay"
+   ],
+   "cwd": "{pack}",
+   "args": [
+    "tests/test_current_generation.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{pack}:{pack}/src",
+    "AGEP_CUR_REPLAY_SOURCE": "{replay}",
+    "AGEP_REQUIRE_CUR_E2E": "1"
+   },
+   "expected": 148,
+   "component": "pack",
+   "pin": {
+    "file": "src/agent_governance_evidence_pack/importer.py",
+    "regex": "^CUR_REPLAY_PIN = \"([0-9a-f]{40})\"$",
+    "equals": "replay"
+   }
+  },
+  {
+   "id": "B1",
+   "title": "B: ODES historical-generation tests unchanged (no Replay installed)",
+   "needs": [
+    "odes"
+   ],
+   "cwd": "{odes}",
+   "component": "odes",
+   "args": [
+    "tests/test_security_cloud_regressions.py",
+    "tests/test_replay_semantic_comparison.py",
+    "tests/test_exporter_qualified_gate.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{odes}/src"
+   },
+   "expected": 122
+  },
+  {
+   "id": "B2",
+   "title": "B: Pack historical-generation tests unchanged (P2 Replay 40012b8c on path)",
+   "needs": [
+    "pack",
+    "replay_p2"
+   ],
+   "cwd": "{pack}",
+   "component": "pack",
+   "args": [
+    "tests/test_p2_generation.py",
+    "tests/test_p4_generation.py",
+    "tests/test_f5b_generation.py",
+    "tests/test_security_cloud_regressions.py",
+    "tests/test_security_review_hardening.py",
+    "tests/test_replay_semantic_comparison.py",
+    "tests/test_replay_recovery_report_revalidation.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{pack}:{pack}/src:{replay_p2}/src"
+   },
+   "expected": 172
+  },
+  {
+   "id": "C1",
+   "title": "C: ODES negative test - superseded d395e37c refused",
+   "type": "extract",
+   "from": "A1",
+   "names": [
+    "test_the_superseded_replay_d395e37c_is_refused_as_the_current_generation"
+   ]
+  },
+  {
+   "id": "C2",
+   "title": "C: Pack negative test - superseded d395e37c head refused by the pinned gate",
+   "type": "extract",
+   "from": "A2",
+   "names": [
+    "test_the_pinned_gate_refuses_the_superseded_replay_heads[d395e37c]"
+   ]
+  },
+  {
+   "id": "D",
+   "title": "D: Replay caller-trusted expected-digest behaviour retained at 6f45e288 (CALLER-TRUSTED CONFIGURATION MATCH only)",
+   "needs": [
+    "replay"
+   ],
+   "cwd": "{replay}",
+   "component": "replay",
+   "args": [
+    "tests/test_registry_governed_expected_configuration_digest.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{replay}/src"
+   },
+   "expected": 71
+  },
+  {
+   "id": "E",
+   "title": "E: structural-only default mode still emits the UNQUALIFIED marker and no authenticated label",
+   "needs": [
+    "replay"
+   ],
+   "cwd": "{work}",
+   "component": "replay",
+   "args": [
+    "{r1c}/legE/test_e_structural_only.py",
+    "--rootdir",
+    "{r1c}/legE"
+   ],
+   "env": {
+    "PYTHONPATH": "{replay}:{replay}/src"
+   },
+   "expected": 1
+  },
+  {
+   "id": "F",
+   "title": "F: Exchange replace-ref hardening retained at 8fa8d3e7 (35 tests)",
+   "needs": [
+    "exchange"
+   ],
+   "cwd": "{exchange}",
+   "component": "exchange",
+   "args": [
+    "tests/test_exchange_input_and_source_repairs.py",
+    "-k",
+    "test_replace_ref_substitution_is_refused_before_the_substituted_code_executes or test_replace_refs_are_not_interpreted_by_the_identity_and_blob_checks or test_checkout_with_a_replace_ref_is_reported or test_unrelated_branches_and_tags_do_not_trip_the_replace_ref_refusal or test_replace_ref_substitution_in_the_manifest_checkout_is_refused"
+   ],
+   "env": {},
+   "expected": 35
+  },
+  {
+   "id": "G",
+   "title": "G: Exchange source identity mismatch / dirty source refused (existing tests, same file)",
+   "needs": [
+    "exchange"
+   ],
+   "cwd": "{exchange}",
+   "component": "exchange",
+   "args": [
+    "tests/test_exchange_input_and_source_repairs.py",
+    "-k",
+    "test_tampered_tracked_module_is_refused_before_it_executes or test_untracked_planted_package_is_refused_before_it_executes or test_untracked_package_directory_shadowing_tracked_module_is_refused_before_it_executes or test_stray_extension_module_beside_tracked_module_is_refused or test_planted_unchecked_bytecode_for_tracked_module_is_refused or test_untracked_top_level_module_at_checkout_path_root_is_refused or test_current_profile_refuses_a_mixed_tuple or test_current_profile_refuses_a_substituted_revision or test_current_profile_refuses_a_tampered_identity or test_real_module_raises_from_the_strict_check_on_a_mismatched_revision or test_real_module_refuses_a_tampered_checkout or test_r2_N_tampered_checkout_is_refused_before_execution or test_r2_FK_changed_component_sha_is_refused"
+   ],
+   "env": {},
+   "expected": 91
+  },
+  {
+   "id": "H1",
+   "title": "H: ODES full suite (CI configuration, Replay e2e on)",
+   "needs": [
+    "odes",
+    "replay"
+   ],
+   "cwd": "{odes}",
+   "component": "odes",
+   "args": [
+    "tests"
+   ],
+   "env": {
+    "PYTHONPATH": "{odes}/src",
+    "ODES_TEST_REPLAY_REPO": "{replay}",
+    "ODES_REQUIRE_CUR_E2E": "1"
+   },
+   "expected": null,
+   "skip_ok": [
+    "could not import 'rfc8785'",
+    "needs the accepted Replay revision installed"
+   ],
+   "pth": [
+    "{odes}/src"
+   ]
+  },
+  {
+   "id": "H2",
+   "title": "H: Pack full suite (native-job configuration, P2 Replay on path; test_cli excluded)",
+   "needs": [
+    "pack",
+    "replay_p2",
+    "cp"
+   ],
+   "cwd": "{pack}",
+   "component": "pack",
+   "args": [
+    "tests",
+    "--ignore=tests/test_cli.py"
+   ],
+   "env": {
+    "PYTHONPATH": "{pack}:{pack}/src:{replay_p2}/src:{cp}/src"
+   },
+   "expected": null,
+   "covered_by": "A2"
+  },
+  {
+   "id": "P",
+   "title": "Parity: CP b19c47dd vs Replay 6f45e288 FAMILY_TABLE (task 5)",
+   "needs": [
+    "cp",
+    "replay"
+   ],
+   "cwd": "{work}",
+   "component": "replay",
+   "args": [
+    "{r1c}/parity/test_family_table_parity.py",
+    "--rootdir",
+    "{r1c}/parity"
+   ],
+   "env": {
+    "CP_SRC": "{cp}/src",
+    "REPLAY_SRC": "{replay}/src"
+   },
+   "expected": 3
+  }
+ ],
+ "mutants": [
+  {
+   "id": "C-M1",
+   "leg": "A1",
+   "component": "odes",
+   "patch": "r1c/mutations/C-M1-odes-pin-reverted-to-d395e37c.patch",
+   "weakness": "ODES CUR Replay pin reverted to d395e37c",
+   "must_fail": [
+    "test_the_superseded_replay_d395e37c_is_refused_as_the_current_generation",
+    "test_the_replay_pin_is_this_one_literal_and_defined_in_one_place"
+   ]
+  },
+  {
+   "id": "C-M2",
+   "leg": "A2",
+   "component": "pack",
+   "patch": "r1c/mutations/C-M2-pack-pin-reverted-to-d395e37c.patch",
+   "weakness": "Pack CUR Replay pin reverted to d395e37c",
+   "must_fail": [
+    "test_the_pinned_gate_refuses_the_superseded_replay_heads[d395e37c]"
+   ]
+  },
+  {
+   "id": "D-M1",
+   "leg": "D",
+   "component": "replay",
+   "patch": "r1c/mutations/D-M1-replay-bypass-expected-comparison.patch",
+   "weakness": "expected-digest comparison bypassed (resealed substitution accepted under trusted match)",
+   "must_fail": [
+    "test_R1_N02_resealed_substitution_is_refused_under_trusted_match_and_still_accepted_by_default",
+    "test_R1_N04_a_wrong_independent_expected_digest_is_refused"
+   ]
+  },
+  {
+   "id": "E-M1",
+   "leg": "E",
+   "component": "replay",
+   "patch": "r1c/mutations/E-M1-replay-structural-marker-replaced.patch",
+   "weakness": "default-mode structural marker replaced by an authenticated-sounding label",
+   "must_fail": [
+    "test_default_mode_import_emits_the_unqualified_marker_and_no_registry_authenticated_label"
+   ]
+  },
+  {
+   "id": "F-M1",
+   "leg": "F",
+   "component": "exchange",
+   "patch": "r1c/mutations/F-M1-exchange-drop-no-replace-objects.patch",
+   "weakness": "--no-replace-objects prefix removed from every source-reading git call",
+   "must_fail": [
+    "test_replace_refs_are_not_interpreted_by_the_identity_and_blob_checks",
+    "test_replace_ref_substitution_in_the_manifest_checkout_is_refused"
+   ]
+  },
+  {
+   "id": "P-M1",
+   "leg": "P",
+   "component": "replay",
+   "patch": "r1c/mutations/P-M1-replay-family-table-entry-altered.patch",
+   "weakness": "Replay FAMILY_TABLE class_age contract version altered (r08-v2 -> r08-v3)",
+   "must_fail": [
+    "test_constants_and_tables_are_identical",
+    "test_replay_accepts_cp_built_member_and_recomputes_the_same_digest"
+   ]
+  }
+ ]
+}

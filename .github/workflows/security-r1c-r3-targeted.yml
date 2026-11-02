@@ -1,0 +1,118 @@
+# Security R1C-final-source / r3-candidate targeted (developer observation) - OCS-257 W2 (Issue #257, static plan G2), remediation record Issue #256 (cogno-us/cognous-open-control-stack).
+# Governing: Engineering Constitution cogno-us/cognous-engineering-constitution@1c2e920f4e58e07a52e8e2408a506cf7dbc1292b
+# (TESTING_POLICY: a test must fail when the weakness is restored; BLOCKED, not PASS, when a prerequisite is unavailable; CA06 preserve evidence; CA16 no claim promotion).
+#
+# STATUS: developer observation on a GitHub-hosted runner. NOT Q7, NOT independent qualification, NOT certification; changes no release or production hold.
+# This is a SECOND, separately identified observation beside security-r1c-targeted.yml (the CANDIDATE-head observation, kept as is). Tuple: r1c/tuple-final.json
+# (printed with its sha256): Replay 6f45e288, ODES d461f0ba, Evidence Pack 39fecb00 and Control Plane b19c47dd are ACTUAL MERGE COMMITS (HEAD and tree verified);
+# the Exchange is the UNMERGED PR #65 CANDIDATE head c1975014 ("Exchange r3 CANDIDATE head, not merged identity"). FINAL merged-head Exchange evidence is NOT produced here:
+# after the operator merges PR #65, edit the one "exchange" line of r1c/tuple-final.json and dispatch this workflow with legs=C1,C2,C3,D1,E1,E2,H.
+# A Replay trusted match is a CALLER-TRUSTED CONFIGURATION MATCH only, never Registry authentication. This job FAILS on any FAIL/BLOCKED verdict or surviving mutant.
+# Pins as in security-r1c-targeted.yml: actions/checkout v4.2.2 -> 11bd7190...; setup-python v5.6.0 -> a26af69b...; upload-artifact v4.6.2 -> ea165f8d...
+# Artifacts cannot be downloaded from the authoring sandbox: per-test verdicts are ALSO emitted as check-run annotations and the job summary.
+name: Security R1C r3 targeted (developer observation)
+
+on:
+  workflow_dispatch:
+    inputs:
+      legs:
+        description: 'Comma list of leg ids to run (empty = all). Final Exchange rebinding: C1,C2,C3,D1,E1,E2,H'
+        required: false
+        default: ''
+  pull_request:
+    paths:
+      - 'r1c/**'
+      - '.github/workflows/security-r1c-r3-targeted.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-r1c-r3-targeted-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+env:
+  R1C_TAG: 'R1C-r3'
+  LEGS_INPUT: ${{ github.event.inputs.legs }}
+  PYTHONDONTWRITEBYTECODE: '1'
+  GIT_TERMINAL_PROMPT: '0'
+
+jobs:
+  r1c-r3-targeted:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout the qualification repository at the exact event commit
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python (pinned minor)
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.13'
+
+      - name: Install hash-locked dependencies (pytest 8.3.5, pydantic 2.13.5, cryptography 50.0.0, jsonschema 4.23.0; no other install)
+        run: |
+          python -m pip install --require-hashes -r r1c/locks/r1c-pytest-pydantic-cryptography-jsonschema.txt
+          python -c "import pydantic, pytest, cryptography, jsonschema; print('imports OK', pydantic.VERSION, pytest.__version__)"
+          echo "R1C_OUT=$RUNNER_TEMP/r1c-out" >> "$GITHUB_ENV"
+          echo "R1C_WORK=$RUNNER_TEMP/r1c-work" >> "$GITHUB_ENV"
+          echo "TMPDIR=$RUNNER_TEMP" >> "$GITHUB_ENV"
+
+      - name: Fetch exact SHAs, run the targeted legs A-I, run nine mutations
+        run: |
+          set +e
+          python r1c/run_r1c.py run --tuple r1c/tuple-final.json ${LEGS_INPUT:+--legs "$LEGS_INPUT"} --work "$R1C_WORK" --out "$R1C_OUT"
+          rc=$?
+          mkdir -p "$R1C_OUT"
+          echo "$rc" > "$R1C_OUT/runner.rc"
+          exit 0
+
+      - name: Annotations - A and B (merged ODES/Pack e2e, identity pins, d395e37c negatives)
+        if: always()
+        run: python r1c/run_r1c.py annotate --out "$R1C_OUT" --legs A1,A2,A3,A4,B1,B2,B3 --skip-missing || true
+
+      - name: Annotations - C (Exchange r3 candidate head, real-source accept)
+        if: always()
+        run: python r1c/run_r1c.py annotate --out "$R1C_OUT" --legs C1,C2,C3 --skip-missing || true
+
+      - name: Annotations - D and E (historical r2, mixed-generation and real-source refusals)
+        if: always()
+        run: python r1c/run_r1c.py annotate --out "$R1C_OUT" --legs D1,E1,E2 --skip-missing || true
+
+      - name: Annotations - F, G, H, I (Replay digest and marker, Exchange replace hardening, parity)
+        if: always()
+        run: python r1c/run_r1c.py annotate --out "$R1C_OUT" --legs F,G,H,I --skip-missing || true
+
+      - name: Annotations - mutation verdicts
+        if: always()
+        run: python r1c/run_r1c.py annotate --out "$R1C_OUT" --legs MUT || true
+
+      - name: Upload artifacts (junit, logs, tuple, identity, env, mutation outputs, verdict CSVs, SHA-256)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: security-r1c-r3-targeted-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/r1c-out
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Gate - fail on any FAIL, BLOCKED or surviving mutant
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os, sys
+          p = os.path.join(os.environ['R1C_OUT'], 'status.json')
+          try:
+              s = json.load(open(p))
+          except (OSError, ValueError) as e:
+              print('::error::status.json missing or unreadable (BLOCKED): ' + repr(e)); sys.exit(1)
+          print(json.dumps(s, indent=1))
+          if not s.get('ok'):
+              print('::error::R1C r3 targeted observation not clean: FAIL/BLOCKED verdict, problem, or surviving mutant'); sys.exit(1)
+          PY
