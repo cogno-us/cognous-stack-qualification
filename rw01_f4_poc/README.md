@@ -6,7 +6,7 @@
 >
 > **F-1 recovery.** The former intentional F-1 FAIL (a real `GovernedAgeWorkflow` record refused at structural validation, "resolution journal missing") is replaced by the
 > passing REAL integration rows **F1-A .. F1-G** in `battery/test_f1_integrated_rows.py`: a genuine persisted and retrieved CP record imports into the real Replay
-> (`ca94d6a8`, explicit selector `registry-authenticated-selection-f4-governed/0.1`) with the real `RegistryEvidenceVerifierV2` and operator-supplied trust, with no
+> (`6651abef`, merged PR #84, tree identical to former PR head `ca94d6a8`; explicit selector `registry-authenticated-selection-f4-governed/0.1`) with the real `RegistryEvidenceVerifierV2` and operator-supplied trust, with no
 > grafting, no re-sealing and no edit of the retrieved record; each negative is paired with the control positive. The old BRIDGED rows remain COMPONENT evidence only.
 > Limits are listed under "Known limitations". Builder-tested developer evidence, not independent qualification.
 
@@ -101,7 +101,7 @@ newer Python 3.13.x on the runner). Environmental, unrelated to this change; mai
 - F-1 (RESOLVED for the explicit F4 path; was an intentional FAIL): a REAL `GovernedAgeWorkflow` run record is still refused by every PRE-EXISTING Replay profile at
   structural validation (`typed refusal profile: resolution journal missing`) because the real F4 decision has no `check_events` journal and no runtime-authority/0.1
   binding members; the remaining F-1 rows pin exactly that (old selectors never import it). It is imported only through the new explicit selector
-  `registry-authenticated-selection-f4-governed/0.1` (Replay ca94d6a8), rows F1-A..F1-G. The N01-N28 rows still use a BRIDGED record (the real CP bytes with the
+  `registry-authenticated-selection-f4-governed/0.1` (Replay 6651abef = merged PR #84; tree identical to former head ca94d6a8), rows F1-A..F1-G. The N01-N28 rows still use a BRIDGED record (the real CP bytes with the
   journal/binding members that the old profiles require added and re-sealed); they are component evidence, not CP-to-Replay integration.
 - F-3: `tests/test_f5_class_age_governance.py` holds a seventh `bounded.py` pin beyond the six of the frozen contract (needs ratification).
 
@@ -113,8 +113,8 @@ newer Python 3.13.x on the runner). Environmental, unrelated to this change; mai
 - Replay's operator trust object has no "expected effective-policy digest" field: the operator supplies host ages and Replay compares the verdict's digest with the record's
   `f4_ages` row (row F1-E). The Replay F4 shape check is closed-absence only (journal and runtime-authority members must be absent); the CP decision fields remain unsigned
   (claim B not made); `reverify_retained_registry_evidence` does not support the F4 selector; the verifier cannot be distinguished from a stub by Replay (NF-2).
-- Hosted pins: Replay `ca94d6a8` (PR #84 head), Control Plane `cf7f5268` (PR #102 head = 6648ae2c + CI-only commit; the protected-file crosswalk row PF adds the one workflow file
-  `.github/workflows/tests.yml` to the changed set), Registry `52ff5f7d` unchanged.
+- Hosted pins: Replay `6651abef` (merged PR #84; tree identical to former head `ca94d6a8`), Control Plane `8b97d32f` (merged PR #102; tree identical to former head `cf7f5268` = 6648ae2c + CI-only commit; the protected-file crosswalk row PF adds the one workflow file
+  `.github/workflows/tests.yml` to the changed set), Registry `7de0ec9f` (merged PR #86; tree identical to former head `52ff5f7d`). Pin change only: the source trees are unchanged.
 - N26 (downstream pins) is checked by subprocess probes against the pinned ODES, Evidence Pack and Exchange sources.
 - Three CP test files assert the r08-v8 Registry pin (a40fe755) and run against it; the others run against Registry 6f600ab1.
 - Hosted-run artifacts return HTTP 403 on download, so raw output is also committed here and posted as PR comments with a SHA-256 manifest.

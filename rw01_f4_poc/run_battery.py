@@ -7,7 +7,7 @@ Runs, each as its own pytest process (pytest -rA, --junitxml):
   battery        this directory's end-to-end battery (rows N01..N28, findings F-n, protected-file re-verification)
   registry_pr    the Registry PR #86 new/edited tests at the pinned head
   replay_pr      the Replay PR #84 new tests and the edited Registry-governed test file at the pinned head
-  replay_f4      Replay F4 structural selector (ca94d6a8) regression set: the PR #84 suites above plus the E3 named-key guard / N23-N24 golden file, effective-configuration,
+  replay_f4      Replay F4 structural selector (Replay main 6651abef, merged PR #84; tree identical to former PR head ca94d6a8) regression set: the PR #84 suites above plus the E3 named-key guard / N23-N24 golden file, effective-configuration,
                  expected-digest, refusal-journal, programme-2 suites and the new F4 selector suite (regression H)
   cp_pr          the Control Plane PR #102 new tests (against the CP-pinned Registry 6f600ab1, OCS_REQUIRE_REGISTRY_PIN=1)
   cp_repinned_*  the seven Control Plane test files whose bounded.py pin the PR changed (four against Registry 6f600ab1, three against the r08-v8 pin a40fe755)

@@ -1,8 +1,7 @@
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/qual/rw01_f4_poc
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/qual/rw01_f4_poc
 configfile: pytest.ini
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 153 items
 
 battery/test_00_sources.py .............                                 [  8%]
@@ -16,7 +15,7 @@ battery/test_f1_integrated_rows.py .......................               [ 89%]
 battery/test_f1_real_record_producer.py ................                 [100%]
 
 ==================================== PASSES ====================================
------------- generated xml file: /dev/shm/f1q/out/battery.junit.xml ------------
+------ generated xml file: /home/claude/f1q/scratch/out/battery.junit.xml ------
 == RW-01-F4-PoC N-row mapping (row -> result -> nodeid -> boundary exercised) ==
 N01  PASS    (2 tests)
       PASS    battery/test_e2e_rows.py::test_n01_valid_selection_is_admitted_with_exactly_the_claim_a_markers  [BRIDGED]  {valid: real Registry signature carried by the real CP decision, admitted by Replay authenticated profile via the real adapter; exact marker set}
@@ -186,8 +185,8 @@ F1-G PASS    (7 tests)
       PASS    battery/test_f1_integrated_rows.py::test_f1_g_b_legacy_profiles_and_no_selector_refuse_the_real_record[registry-governed-effective-configuration/0.1]  [REAL]  {authenticated-profile downgrade (b): plain/legacy governed profiles and no selector never import the real record (resolution journal), never structural-only or caller-trusted}
       PASS    battery/test_f1_integrated_rows.py::test_f1_g_b2_old_authenticated_selector_does_not_admit_the_f4_shape  [REAL]  {authenticated-profile downgrade (b2): the OLD authenticated selector (registry-authenticated-selection/0.1) without trust is trust_missing; with trust it still refuses the F4 shape (no F4 relaxation without the F4 selector)}
       PASS    battery/test_f1_integrated_rows.py::test_f1_g_c_trust_with_non_f4_selector_and_conflicting_modes_are_refused  [REAL]  {authenticated-profile downgrade (c): trust passed with a non-F4 selector / conflicting modes / non-CUR revision is refused with the specific code, verifier never reached}
-      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[check_events]  [REAL]  {closed absence under the F4 selector (Replay ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
-      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[vocabulary_changes]  [REAL]  {closed absence under the F4 selector (Replay ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
+      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[check_events]  [REAL]  {closed absence under the F4 selector (Replay 6651abef, tree identical to former head ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
+      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[vocabulary_changes]  [REAL]  {closed absence under the F4 selector (Replay 6651abef, tree identical to former head ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
 PF   PASS    (7 tests)
       PASS    battery/test_cp_protected_files.py::test_bounded_py_old_and_new_sha256_and_blob_are_recomputed_and_equal_the_crosswalk  [STATIC]  {Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)}
       PASS    battery/test_cp_protected_files.py::test_bounded_py_diff_is_exactly_six_added_lines_and_zero_removed  [STATIC]  {Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)}
@@ -364,4 +363,4 @@ PASSED battery/test_f1_real_record_producer.py::test_pin_substituted_genuine_rec
 PASSED battery/test_f1_real_record_producer.py::test_pin_mutated_effective_policy_expectation_yields_different_digest
 PASSED battery/test_f1_real_record_producer.py::test_negative_missing_evidence_when_carry_off
 PASSED battery/test_f1_real_record_producer.py::test_tampered_copy_signature_over_changed_bytes_refused_genuine_untouched
-============================= 153 passed in 20.31s =============================
+============================= 153 passed in 21.39s =============================

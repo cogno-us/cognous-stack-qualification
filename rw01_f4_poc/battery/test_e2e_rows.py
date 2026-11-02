@@ -27,7 +27,7 @@ def wire_unbridged(pr):
 
 # =============================================================================================================== F-1 (finding)
 # NOTE (F-1 recovery): the former intentional-FAIL row `test_f1_a_real_cp_f4_run_record_is_importable_by_replay_authenticated_profile` is REPLACED by the real passing integration
-# row F1-A in test_f1_integrated_rows.py (F4 selector, Replay ca94d6a8). The tests below stay: they pin that the OLD selectors/legacy profiles still refuse a real F4 record.
+# row F1-A in test_f1_integrated_rows.py (F4 selector, Replay 6651abef, tree identical to former head ca94d6a8). The tests below stay: they pin that the OLD selectors/legacy profiles still refuse a real F4 record.
 
 
 @pytest.mark.row("F-1", "the same refusal happens WITHOUT the PoC: flag off, plain CUR import and the pre-existing Registry-governed profile (so the gap is pre-existing, not caused by carriage)")

@@ -10,3 +10,5 @@ SUPERSESSION NOTE (F-1 recovery; the lines above are the historical record of th
 The intentional F-1 FAIL and the banner "INTEGRATED CLAIM NOT ESTABLISHED / green by design" describe those earlier runs only. After the F-1 recovery the battery pins Replay ca94d6a8 and
 Control Plane cf7f5268, the F-1 FAIL row is replaced by the passing integration rows F1-A..F1-G, and the workflow fails on ANY failed test or non-PASS required row.
 The banner OPERATIONAL TRUST NOT ESTABLISHED / PRODUCTION ADOPTION NOT AUTHORIZED stands. No hosted run of the new head is recorded here.
+
+SUPERSESSION NOTE 2 (closeout re-pin, 2026-11-02): PRs #86/#102/#84 are now merged (squash). The battery pins Registry 7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb, Control Plane 8b97d32ff9a5aee640e61704637ff60dc57a84d9 and Replay 6651abef2dfc0960b09907ed268db45e809ee814; their trees are IDENTICAL to the former PR heads (52ff5f7d / cf7f5268 / ca94d6a8), so the pins named above are superseded by identity of merged commit only. The lines above are unchanged history. No hosted run of the re-pinned head is recorded here.

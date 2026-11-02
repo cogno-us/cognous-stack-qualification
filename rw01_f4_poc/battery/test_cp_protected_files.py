@@ -17,7 +17,7 @@ EXPECTED_CHANGED = {
     "tests/test_f4_age_governance.py", "tests/test_f4_selection_evidence.py", "tests/test_f5_class_age_governance.py", "tests/test_f5_class_unreadable_governance.py",
     "tests/test_final3_composed_binding.py", "tests/test_freshness_purpose_anchor_successor.py", "tests/test_governed_policy_composition.py", "tests/test_rw01_f4_poc_bounded_diff.py",
     "tests/test_v02_legacy_claim_vector.py",
-    # CP head cf7f5268 = 6648ae2c + one CI-only commit (workflow step list only, no source/test file); the fifteen above are unchanged. Re-pin of F-1 qualification.
+    # CP pin 8b97d32f (merged PR #102, tree identical to former head cf7f5268) = 6648ae2c + one CI-only commit (workflow step list only, no source/test file); the fifteen above are unchanged. Re-pin of F-1 qualification.
     ".github/workflows/tests.yml"}
 pytestmark = [pytest.mark.row("PF", "Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)"), pytest.mark.evidence("STATIC")]
 

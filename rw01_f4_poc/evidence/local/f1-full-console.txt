@@ -1,9 +1,8 @@
 ============================== battery ==============================
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/qual/rw01_f4_poc
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/qual/rw01_f4_poc
 configfile: pytest.ini
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 153 items
 
 battery/test_00_sources.py .............                                 [  8%]
@@ -17,7 +16,7 @@ battery/test_f1_integrated_rows.py .......................               [ 89%]
 battery/test_f1_real_record_producer.py ................                 [100%]
 
 ==================================== PASSES ====================================
------------- generated xml file: /dev/shm/f1q/out/battery.junit.xml ------------
+------ generated xml file: /home/claude/f1q/scratch/out/battery.junit.xml ------
 == RW-01-F4-PoC N-row mapping (row -> result -> nodeid -> boundary exercised) ==
 N01  PASS    (2 tests)
       PASS    battery/test_e2e_rows.py::test_n01_valid_selection_is_admitted_with_exactly_the_claim_a_markers  [BRIDGED]  {valid: real Registry signature carried by the real CP decision, admitted by Replay authenticated profile via the real adapter; exact marker set}
@@ -187,8 +186,8 @@ F1-G PASS    (7 tests)
       PASS    battery/test_f1_integrated_rows.py::test_f1_g_b_legacy_profiles_and_no_selector_refuse_the_real_record[registry-governed-effective-configuration/0.1]  [REAL]  {authenticated-profile downgrade (b): plain/legacy governed profiles and no selector never import the real record (resolution journal), never structural-only or caller-trusted}
       PASS    battery/test_f1_integrated_rows.py::test_f1_g_b2_old_authenticated_selector_does_not_admit_the_f4_shape  [REAL]  {authenticated-profile downgrade (b2): the OLD authenticated selector (registry-authenticated-selection/0.1) without trust is trust_missing; with trust it still refuses the F4 shape (no F4 relaxation without the F4 selector)}
       PASS    battery/test_f1_integrated_rows.py::test_f1_g_c_trust_with_non_f4_selector_and_conflicting_modes_are_refused  [REAL]  {authenticated-profile downgrade (c): trust passed with a non-F4 selector / conflicting modes / non-CUR revision is refused with the specific code, verifier never reached}
-      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[check_events]  [REAL]  {closed absence under the F4 selector (Replay ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
-      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[vocabulary_changes]  [REAL]  {closed absence under the F4 selector (Replay ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
+      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[check_events]  [REAL]  {closed absence under the F4 selector (Replay 6651abef, tree identical to former head ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
+      PASS    battery/test_f1_integrated_rows.py::test_f1_g_d_present_even_empty_journal_members_are_refused[vocabulary_changes]  [REAL]  {closed absence under the F4 selector (Replay 6651abef, tree identical to former head ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)}
 PF   PASS    (7 tests)
       PASS    battery/test_cp_protected_files.py::test_bounded_py_old_and_new_sha256_and_blob_are_recomputed_and_equal_the_crosswalk  [STATIC]  {Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)}
       PASS    battery/test_cp_protected_files.py::test_bounded_py_diff_is_exactly_six_added_lines_and_zero_removed  [STATIC]  {Control Plane protected-file independent re-verification (bounded.py crosswalk, every changed file, no other protected file changed)}
@@ -365,13 +364,12 @@ PASSED battery/test_f1_real_record_producer.py::test_pin_substituted_genuine_rec
 PASSED battery/test_f1_real_record_producer.py::test_pin_mutated_effective_policy_expectation_yields_different_digest
 PASSED battery/test_f1_real_record_producer.py::test_negative_missing_evidence_when_carry_off
 PASSED battery/test_f1_real_record_producer.py::test_tampered_copy_signature_over_changed_bytes_refused_genuine_untouched
-============================= 153 passed in 20.31s =============================
+============================= 153 passed in 21.39s =============================
 ============================== registry_pr ==============================
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/fetch/registry
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/src/registry
 configfile: pytest.ini
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 533 items
 
 tests/test_rw01_f4_verified_selection.py ............................... [  5%]
@@ -387,7 +385,7 @@ tests/test_ext_s1_5_identity_module.py ................................. [ 69%]
 .................                                                        [100%]
 
 ==================================== PASSES ====================================
----------- generated xml file: /dev/shm/f1q/out/registry_pr.junit.xml ----------
+---- generated xml file: /home/claude/f1q/scratch/out/registry_pr.junit.xml ----
 =========================== short test summary info ============================
 PASSED tests/test_rw01_f4_verified_selection.py::test_n01_valid_f4_selection_is_admitted_with_all_eleven_layers
 PASSED tests/test_rw01_f4_verified_selection.py::test_n01_result_is_immutable_and_its_record_is_a_private_copy
@@ -922,13 +920,12 @@ PASSED tests/test_ext_s1_5_identity_module.py::test_mutants_of_the_module_are_de
 PASSED tests/test_ext_s1_5_identity_module.py::test_mutants_of_the_module_are_detected[verdict_for compares a hostile stage]
 PASSED tests/test_ext_s1_5_identity_module.py::test_mutants_of_the_module_are_detected[projection stage compared without a type check]
 PASSED tests/test_ext_s1_5_identity_module.py::test_mutants_of_the_module_are_detected[scope key members]
-======================= 533 passed in 242.13s (0:04:02) ========================
+======================= 533 passed in 253.45s (0:04:13) ========================
 ============================== replay_pr ==============================
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/fetch/replay
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/src/replay
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 730 items
 
 tests/test_registry_authenticated_selection.py ......................... [  3%]
@@ -945,7 +942,7 @@ tests/test_registry_governed_expected_configuration_digest.py .......... [ 91%]
 .............................................................            [100%]
 
 ==================================== PASSES ====================================
------------ generated xml file: /dev/shm/f1q/out/replay_pr.junit.xml -----------
+----- generated xml file: /home/claude/f1q/scratch/out/replay_pr.junit.xml -----
 =========================== short test summary info ============================
 PASSED tests/test_registry_authenticated_selection.py::test_N01_valid_evidence_is_admitted_through_the_real_enforcement_boundary_and_the_markers_are_exactly_the_conservative_set
 PASSED tests/test_registry_authenticated_selection.py::test_the_wire_request_has_exactly_the_frozen_keys_and_the_operators_inputs_not_the_records
@@ -1677,13 +1674,12 @@ PASSED tests/test_registry_governed_expected_configuration_digest.py::test_R1_N0
 PASSED tests/test_registry_governed_expected_configuration_digest.py::test_R1_N09b_the_unset_sentinel_is_private_and_not_a_valid_expected_value
 PASSED tests/test_registry_governed_expected_configuration_digest.py::test_the_parameter_is_keyword_only_and_the_only_new_public_signature_change
 PASSED tests/test_registry_governed_expected_configuration_digest.py::test_refusal_semantics_of_existing_negative_records_are_preserved_in_trusted_mode
-============================= 730 passed in 7.28s ==============================
+============================= 730 passed in 9.27s ==============================
 ============================== replay_f4 ==============================
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/fetch/replay
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/src/replay
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 1276 items
 
 tests/test_registry_authenticated_selection.py ......................... [  1%]
@@ -1713,7 +1709,7 @@ tests/test_registry_authenticated_selection_f4_governed.py ............. [ 97%]
 .............................                                            [100%]
 
 ==================================== PASSES ====================================
------------ generated xml file: /dev/shm/f1q/out/replay_f4.junit.xml -----------
+----- generated xml file: /home/claude/f1q/scratch/out/replay_f4.junit.xml -----
 =========================== short test summary info ============================
 PASSED tests/test_registry_authenticated_selection.py::test_N01_valid_evidence_is_admitted_through_the_real_enforcement_boundary_and_the_markers_are_exactly_the_conservative_set
 PASSED tests/test_registry_authenticated_selection.py::test_the_wire_request_has_exactly_the_frozen_keys_and_the_operators_inputs_not_the_records
@@ -2991,13 +2987,12 @@ PASSED tests/test_registry_authenticated_selection_f4_governed.py::test_reverify
 PASSED tests/test_registry_authenticated_selection_f4_governed.py::test_presence_of_selection_evidence_never_selects_the_f4_profile
 PASSED tests/test_registry_authenticated_selection_f4_governed.py::test_default_path_is_unchanged_and_all_real_fixtures_still_import_under_the_f4_selector
 SKIPPED [1] tests/test_programme2_profiles.py:478: could not import 'agent_governance_evidence_pack.importer': No module named 'agent_governance_evidence_pack'
-======================= 1275 passed, 1 skipped in 11.05s =======================
+======================= 1275 passed, 1 skipped in 13.33s =======================
 ============================== cp_pr ==============================
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/fetch/control_plane
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/src/control_plane
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 83 items
 
 tests/test_f4_selection_evidence.py .................................... [ 43%]
@@ -3005,7 +3000,7 @@ tests/test_f4_selection_evidence.py .................................... [ 43%]
 tests/test_rw01_f4_poc_bounded_diff.py ...........................       [100%]
 
 ==================================== PASSES ====================================
-------------- generated xml file: /dev/shm/f1q/out/cp_pr.junit.xml -------------
+------- generated xml file: /home/claude/f1q/scratch/out/cp_pr.junit.xml -------
 =========================== short test summary info ============================
 PASSED tests/test_f4_selection_evidence.py::test_n25_default_off_decisions_carry_nothing_and_the_member_is_absent_from_every_dump[None]
 PASSED tests/test_f4_selection_evidence.py::test_n25_default_off_decisions_carry_nothing_and_the_member_is_absent_from_every_dump[False]
@@ -3090,13 +3085,12 @@ PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_c
 PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_no_other_protected_file_changed[runtime_authority.py-03b4efdfd67c2e384c00ac7342ef3bbf18160811]
 PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_exactly_the_authorized_source_inventory_is_new_or_changed
 PASSED tests/test_rw01_f4_poc_bounded_diff.py::test_e1_addendum_the_seventh_pinned_assertion_found_in_test_f5_class_age_governance_keeps_its_old_value
-============================== 83 passed in 6.00s ==============================
+============================== 83 passed in 6.34s ==============================
 ============================== cp_repinned_6f600ab1 ==============================
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/fetch/control_plane
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/src/control_plane
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 385 items
 
 tests/test_f4_age_governance.py ........................................ [ 10%]
@@ -3111,7 +3105,7 @@ tests/test_freshness_purpose_anchor_successor.py ....................... [ 53%]
 tests/test_v02_legacy_claim_vector.py .................                  [100%]
 
 ==================================== PASSES ====================================
------ generated xml file: /dev/shm/f1q/out/cp_repinned_6f600ab1.junit.xml ------
+- generated xml file: /home/claude/f1q/scratch/out/cp_repinned_6f600ab1.junit.xml -
 =========================== short test summary info ============================
 PASSED tests/test_f4_age_governance.py::test_g01_scope_derivation_is_the_registry_context_and_a_valid_selection_applies
 PASSED tests/test_f4_age_governance.py::test_g02_below_equal_above_and_boundaries_never_widen[10-60-10]
@@ -3498,13 +3492,12 @@ PASSED tests/test_v02_legacy_claim_vector.py::test_l05_protected_sources_are_byt
 PASSED tests/test_v02_legacy_claim_vector.py::test_l05_protected_sources_are_byte_identical_to_the_base[src/agent_control_plane/policy_binding.py-426d47797e92f19690a21b4e8b5dc1c35d1b579c]
 PASSED tests/test_v02_legacy_claim_vector.py::test_l05_protected_sources_are_byte_identical_to_the_base[src/agent_control_plane/runtime_authority.py-03b4efdfd67c2e384c00ac7342ef3bbf18160811]
 PASSED tests/test_v02_legacy_claim_vector.py::test_l06_legacy_refusals_are_unchanged
-============================= 385 passed in 50.30s =============================
+============================= 385 passed in 56.32s =============================
 ============================== cp_repinned_v8 ==============================
 ============================= test session starts ==============================
-platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0
-rootdir: /dev/shm/f1q/fetch/control_plane
+platform linux -- Python 3.13.18, pytest-8.3.5, pluggy-1.7.0
+rootdir: /home/claude/f1q/src/control_plane
 configfile: pyproject.toml
-plugins: platformdirs-4.13.0, anyio-4.15.1
 collected 305 items
 
 tests/test_f5_class_unreadable_governance.py ........................... [  8%]
@@ -3516,7 +3509,7 @@ tests/test_governed_policy_composition.py .............................. [ 77%]
 .....................................................................    [100%]
 
 ==================================== PASSES ====================================
--------- generated xml file: /dev/shm/f1q/out/cp_repinned_v8.junit.xml ---------
+-- generated xml file: /home/claude/f1q/scratch/out/cp_repinned_v8.junit.xml ---
 =========================== short test summary info ============================
 PASSED tests/test_f5_class_unreadable_governance.py::test_g01_valid_selection_narrows_bounded_tolerance_to_refuse_and_carries_identity
 PASSED tests/test_f5_class_unreadable_governance.py::test_g02_the_four_value_pairs_never_widen_and_the_unnamed_class_keeps_its_host_value[bounded_tolerance-refuse]
@@ -3823,7 +3816,7 @@ PASSED tests/test_governed_policy_composition.py::test_z03_protected_evaluators_
 PASSED tests/test_governed_policy_composition.py::test_z03_protected_evaluators_are_unmodified_by_the_consolidation[rule_revision.py]
 PASSED tests/test_governed_policy_composition.py::test_z03_protected_evaluators_are_unmodified_by_the_consolidation[runtime_authority.py]
 PASSED tests/test_governed_policy_composition.py::test_z04_the_shared_lifecycle_holds_no_policy_no_registry_import_and_never_touches_a_governed_field
-============================= 305 passed in 35.26s =============================
+============================= 305 passed in 39.04s =============================
 # RW-01-F4-PoC battery summary
 
 | suite | collected | passed | failed | errors | skipped |
@@ -3884,20 +3877,20 @@ RESULT: PASS
 SHA256SUMS:
 cd5929c3605d25ab3898ba4653f63ddc4ca283ffe2373a3a0261ec573ce218bd  RESULT.txt
 062db61b37608da147a156d0ef53a03183fb9129fc2e4e39a91a16baadaf3c5c  SUMMARY.md
-e56c89b887fb253fc1fbc2115d4f7b2adccf9fb555db833c55ad62a27cc25ecd  battery.junit.xml
-4e522cdffd2a29a942a54b487a58781643e8bac81c9c08c94843d5145d7af50e  battery.raw.txt
-62b2f95a6bb2fa5e3e38da936eda5dba7f120d468fda9966fe881b56bba1f9ef  cp_pr.junit.xml
-9f84fd961e3ed67d4d452ab50348f7934040d7be90d88f7d09ff50f2fa733985  cp_pr.raw.txt
-5d476d4b44a1637b539795dade106c2bbde649031617d7a7b038c7a83b7884cf  cp_repinned_6f600ab1.junit.xml
-22585919c1c383de0af88b053f5050e6f1fabf0ec819a0f43d01023340035423  cp_repinned_6f600ab1.raw.txt
-a967e7b59065c253a7abf28889495422bb7d7880d00ef0b4e1ac8137b8a42ae6  cp_repinned_v8.junit.xml
-6391e23b1c99547112a651ca624c85efe5ecb8d5891a304e856cc5d9f7c4df6a  cp_repinned_v8.raw.txt
-c0993700f41917254283e958c5ad7c1f81c51d9cb77d3c48321644e4a0898345  environment.json
-f9c9122cd93904f10193059a06811eee510a906ebf2a6c33c78fb4db3394cb94  registry_pr.junit.xml
-36621ba468315a53ec10f95f96327fe5a4de59fa6d5c6520493a7c3f84b6e844  registry_pr.raw.txt
-d9c534474f1a12e73770741c48f77ba3654f21f2a8dd32a27a3bf7d7378676b8  replay_f4.junit.xml
-3686e3f0dea4de194f1601e7c548cc4acf4cf5c49014c8ca8e82cdc2dbf514b8  replay_f4.raw.txt
-5559f549af8b632b562fa2fd8d07ac0d8b7ce372712005dccc6084503490f2c0  replay_pr.junit.xml
-1e8003bb5dc526164df1ef84a9fb1d8275c71a915bdf99fa8301a647879eec35  replay_pr.raw.txt
-2d785f69213a683ab14f963e836d412fd38724ba860d6df419b8e4d6cf32b42a  rows.json
+0295ff6b751ac3ff2583277197f4bc233c555763b4e43a02d697c615d1418204  battery.junit.xml
+aa8895e931cbf3b59384a22c93eeaefee487973229ba34f365517445fe3843f1  battery.raw.txt
+1ab18db7e590a9587be220e899bcb3fc53740c007d61c3dc14a96353000f9aae  cp_pr.junit.xml
+1a83c3eb8cefb5c9b3dbc078382bcb7460bf2a5ca66f6d9c4750ecca33ae5505  cp_pr.raw.txt
+d84f6ad20debe260c65c8f147a841b413068196ba400533f3a52642f9ac5478b  cp_repinned_6f600ab1.junit.xml
+2dffdc5b9a05e8b282326e94ba9993bd115450d17bf17b526a9780aa40d65990  cp_repinned_6f600ab1.raw.txt
+2f8a7ae1322bdd26484d3c602494cf51fc1328e79eeb88f7f98e4e26ec2ded24  cp_repinned_v8.junit.xml
+a18663b0beac72b2da7da0a95399288e679504898f82ffca3d31aaa53fedd315  cp_repinned_v8.raw.txt
+fcdb6ab8bc10925dee5aab0afc2d3d3bbcad0654defed8825440942508e8fde0  environment.json
+8c3f3ed69bba3a26dff28220e150c3c845c8eae403558c3d4eb2d76b72f6e735  registry_pr.junit.xml
+8dbc30fc07daaec51e79b5e7a6c7701d3c3c3a1df5b9adcbaed0d983765f1fab  registry_pr.raw.txt
+a1d1d5a568a45664d24efb6e51aeff5043f79cfe3b49346c795dae001e36fef6  replay_f4.junit.xml
+8ac84e9d12453bca558a711fc9122253f155649f247e4af00d1d0bacbe03affc  replay_f4.raw.txt
+97f6ac55860c4bffaa4b85d560905c0833b06cd8801dde8a41f6163306d59ffd  replay_pr.junit.xml
+61937a52c5cc79fa4ce7d6c33d94d692c9d3e8edce51f8b5bdb3573910636834  replay_pr.raw.txt
+e8b67eb132071cc9cc10f8b6cf4836cc26809a4063cc9a24f6b23133778872fb  rows.json
 09db1dd80e21b0d5646c4445093a4998a73e5e24e3da1987eecf3da20e145103  summary.json

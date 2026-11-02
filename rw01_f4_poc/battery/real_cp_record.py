@@ -212,7 +212,7 @@ def verify_with_real_adapter(evidence: dict, operator: OperatorInputs) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------------------------------------ the single Replay call
-F4_SELECTOR = H.RE.REGISTRY_AUTHENTICATED_SELECTION_F4_PROFILE   # "registry-authenticated-selection-f4-governed/0.1" (Replay ca94d6a8), imported from the pinned Replay
+F4_SELECTOR = H.RE.REGISTRY_AUTHENTICATED_SELECTION_F4_PROFILE   # "registry-authenticated-selection-f4-governed/0.1" (Replay 6651abef, tree identical to former head ca94d6a8), imported from the pinned Replay
 
 
 def import_through_replay_f4(record: dict, trust: OperatorInputs, *, proposal: dict, verifier=None, selector=F4_SELECTOR, revision=None, pass_trust: bool = True, **extra):

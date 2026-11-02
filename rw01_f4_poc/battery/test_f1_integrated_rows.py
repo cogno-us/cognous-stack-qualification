@@ -283,7 +283,7 @@ def test_old_bridged_positive_row_is_still_component_evidence_only(rr, tmp_path)
 
 
 # ======================================================================================================================================================== F1-G (d)
-@rowmark("G", "closed absence under the F4 selector (Replay ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)")
+@rowmark("G", "closed absence under the F4 selector (Replay 6651abef, tree identical to former head ca94d6a8): journal / vocabulary members added to the persisted record, even EMPTY, are refused undeclared_member (TAMPERED copies; control positive first)")
 @REAL
 @pytest.mark.parametrize("member", ["check_events", "vocabulary_changes"])
 def test_f1_g_d_present_even_empty_journal_members_are_refused(rr, member):
