@@ -11,6 +11,7 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 HEX40 = re.compile(r"[0-9a-f]{40}")
+TUPLE_FOR_LEGS = {}  # the tuple being run (set by cmd_run; read by realsource legs)
 CHUNK = 3300
 CODES = re.compile(r"effective_configuration_[a-z_]+|candidate source identity mismatch[:\w. ]*|refs/replace|exact qualified Replay revision|is not the pinned revision|[a-z_]+_(?:refused|mismatch|missing|malformed)")
 
@@ -116,7 +117,14 @@ def run_leg(leg, dirs, d, rev):
         pth = Path(sysconfig.get_paths()["purelib"]) / ("r1c-%s.pth" % leg["id"])
         pth.write_text("\n".join(sub(x) for x in leg["pth"]) + "\n")
     try:
-        ids, rc = pytest(cwd, [sub(a) for a in leg["args"]], {k: sub(v) for k, v in leg.get("env", {}).items()}, d / "junit.xml", d / "pytest.log")
+        if leg.get("type") == "realsource":  # real-checkout verification cases (r1c/legC/realsource.py); writes the same junit.xml shape
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("r1c_realsource", HERE / "legC" / "realsource.py")
+            rs = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(rs)
+            ids, rc = rs.execute(leg, dirs, d, TUPLE_FOR_LEGS, dirs["work"]), 0
+        else:
+            ids, rc = pytest(cwd, [sub(a) for a in leg["args"]], {k: sub(v) for k, v in leg.get("env", {}).items()}, d / "junit.xml", d / "pytest.log")
     finally:
         if pth:
             pth.unlink()
@@ -181,7 +189,7 @@ def mutate(t, m, leg, dirs, work, out, main_rows):
         return row
     copy = work / ("mutant-" + m["id"])
     shutil.rmtree(copy, ignore_errors=True)
-    shutil.copytree(dirs[m["component"]], copy, symlinks=True)
+    shutil.copytree(dirs[m["component"]], copy, symlinks=True, ignore=shutil.ignore_patterns("__pycache__"))
     if sh(["git", "apply", "--check", "--verbose", str(patch)], cwd=copy, log=mdir / "apply-check.log").returncode:
         row["detail"] = "git apply --check failed"
         return row
@@ -222,11 +230,19 @@ def cmd_run(a):
     out, work = Path(a.out).resolve(), Path(a.work).resolve()
     out.mkdir(parents=True, exist_ok=True)
     work.mkdir(parents=True, exist_ok=True)
-    tpath = HERE / "tuple.json"
+    tpath = Path(a.tuple).resolve() if a.tuple else HERE / "tuple.json"  # default unchanged; --tuple selects e.g. r1c/tuple-final.json
     t = json.loads(tpath.read_text())
-    shutil.copy(tpath, out / "tuple.json")
-    (out / "tuple.json.sha256").write_text("%s  tuple.json\n" % sha256(tpath))
-    print("tuple.json sha256", sha256(tpath))
+    if a.legs:  # rerun a subset (e.g. after rebinding the Exchange): legs and the mutants attached to them; the full tuple file is still recorded
+        sel = a.legs.split(",")
+        unknown = [x for x in sel if x not in {l["id"] for l in t["legs"]}]
+        if unknown:
+            raise SystemExit("unknown leg ids: %s" % unknown)
+        t["legs"] = [l for l in t["legs"] if l["id"] in sel]
+        t["mutants"] = [m for m in t["mutants"] if m["leg"] in sel]
+    TUPLE_FOR_LEGS.update(t)
+    shutil.copy(tpath, out / tpath.name)
+    (out / (tpath.name + ".sha256")).write_text("%s  %s\n" % (sha256(tpath), tpath.name))
+    print(tpath.name, "sha256", sha256(tpath))
     check_tuple(t)
     status = {"problems": [], "legs": {}, "mutation": {}}
     dirs, errs = fetch(t, work, out)
@@ -283,8 +299,9 @@ def finish(out, t, status, mrows):
     status["ok"] = (not status["problems"] and len(status["legs"]) == len(t["legs"]) and bad == 0 and len(mrows) == len(t["mutants"])
                     and all(r["verdict"] == "MUTATION_DETECTED" for r in mrows))
     (out / "status.json").write_text(json.dumps(status, indent=1))
-    L = ["# Security R1C targeted (developer observation on CANDIDATE heads)", "",
-         "Scope: affected boundaries only. ODES #143 and Pack #66 are candidate PR heads, not merge SHAs; rebinding to merge SHAs is a follow-up edit of r1c/tuple.json. Not Q7, not certification, no release claim.",
+    rep = t.get("report", {})
+    L = [rep.get("title", "# Security R1C targeted (developer observation on CANDIDATE heads)"), "",
+         rep.get("scope", "Scope: affected boundaries only. ODES #143 and Pack #66 are candidate PR heads, not merge SHAs; rebinding to merge SHAs is a follow-up edit of r1c/tuple.json. Not Q7, not certification, no release claim."),
          "A Replay trusted match is a CALLER-TRUSTED CONFIGURATION MATCH only, never Registry authentication; structural-only mode stays UNQUALIFIED.", "",
          "Overall: **%s**" % ("PASS" if status["ok"] else "FAIL/BLOCKED"), "", "| leg | PASS | FAIL | BLOCKED | SKIP_COVERED | SKIP_DOCUMENTED |", "|---|---|---|---|---|---|"]
     for k, v in status["legs"].items():
@@ -307,6 +324,9 @@ def esc(s):
     return s.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
 
 
+TAG = os.environ.get("R1C_TAG", "R1C")
+
+
 def emit(title, lines, bad):
     chunks, cur = [], ""
     for l in lines:
@@ -317,9 +337,9 @@ def emit(title, lines, bad):
     if cur:
         chunks.append(cur)
     for i, c in enumerate(chunks, 1):
-        print("::notice title=R1C %s %d/%d (%d lines, %d not-PASS)::%s" % (title, i, len(chunks), len(lines), len(bad), esc(c.rstrip())))
+        print("::notice title=%s %s %d/%d (%d lines, %d not-PASS)::%s" % (TAG, title, i, len(chunks), len(lines), len(bad), esc(c.rstrip())))
     for l in bad[:4]:
-        print("::error title=R1C %s not PASS::%s" % (title, esc(l)))
+        print("::error title=%s %s not PASS::%s" % (TAG, title, esc(l)))
 
 
 def cmd_annotate(a):
@@ -329,6 +349,9 @@ def cmd_annotate(a):
             lines = ["%s %s [%s] fixed=%s | %s | patch %s | other failing=%s" % (r["verdict"], r["mutant"], r["leg"], r.get("fixed_tree_same_tests", "-"), r["weakness"][:60], r["patch_sha256"][:12],
                                                                               r.get("other_failing_tests", "-")) for r in json.load(open(out / "mutation-results.json"))]
             emit("mutants", lines, [l for l in lines if not l.startswith("MUTATION_DETECTED")])
+            continue
+        if a.skip_missing and not (out / ("verdicts-%s.csv" % leg)).exists():
+            print("::notice title=%s leg %s::not run in this invocation (leg subset)" % (TAG, leg))
             continue
         rows = list(csv.DictReader(open(out / ("verdicts-%s.csv" % leg))))
         short = lambda r: "%s %s | %s" % (r["verdict"], r["test_id"][:78], r["first_refusal_or_failure_boundary"][:56])
@@ -345,6 +368,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     sp = ap.add_subparsers(dest="cmd", required=True)
     r = sp.add_parser("run"); r.add_argument("--work", required=True); r.add_argument("--out", required=True)
-    n = sp.add_parser("annotate"); n.add_argument("--out", required=True); n.add_argument("--legs", required=True)
+    r.add_argument("--tuple", default=None); r.add_argument("--legs", default=None)
+    n = sp.add_parser("annotate"); n.add_argument("--out", required=True); n.add_argument("--legs", required=True); n.add_argument("--skip-missing", action="store_true")
     a = ap.parse_args()
     sys.exit(cmd_run(a) if a.cmd == "run" else cmd_annotate(a))

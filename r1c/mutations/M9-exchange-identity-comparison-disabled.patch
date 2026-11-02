@@ -1,0 +1,13 @@
+diff --git a/experiments/odex_gax_imx_reference/gax_ref_runtime.py b/experiments/odex_gax_imx_reference/gax_ref_runtime.py
+index 309bf0e..1bc2beb 100644
+--- a/experiments/odex_gax_imx_reference/gax_ref_runtime.py
++++ b/experiments/odex_gax_imx_reference/gax_ref_runtime.py
+@@ -402,7 +402,7 @@ def _verify_refusal_profile_sources(cp_root: Path | None = None, molt_root: Path
+             ).strip()).resolve()
+         except (subprocess.CalledProcessError, OSError) as exc:
+             raise RuntimeError(f"candidate source identity mismatch: {name}") from exc
+-        if actual != revision or changed:
++        if False:
+             raise RuntimeError(f"candidate source identity mismatch: {name}")
+         try:
+             tree_problems = _checkout_source_problems(toplevel)
