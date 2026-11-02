@@ -25,7 +25,7 @@ def test_component_shas_are_recorded():
     shas["qualification_base"] = H.SPEC["qualification_base"]
     print("\n" + "\n".join(f"{k} {v}" for k, v in shas.items()))
     H.evidence("component-shas", shas)
-    assert shas["control_plane"] == "4f553705c670ecc898245d73ada910589f279eb6" or os.environ.get("CAP_CP_SHA")
+    assert shas["control_plane"] == "925f7c4a7594965e336f2c34394cc52426c48b00" or os.environ.get("CAP_CP_SHA")
     assert shas["registry"] == "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb" and shas["replay"] == "6651abef2dfc0960b09907ed268db45e809ee814"
 
 
