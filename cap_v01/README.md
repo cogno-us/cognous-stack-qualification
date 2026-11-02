@@ -1,6 +1,6 @@
 # CAP v0.1 gate G1 - independent qualification tests
 
-Independent tests (negatives N1-N4, positive P1, source/tripwire rows S and T) for the Control Plane G1 head
+Independent tests (negatives N1-N4, positive P1, source/tripwire rows S and T) for the merged Control Plane G1 commit
 `registry_authority_profile` (`ocs-authority-profile/0.1`), written from the frozen contract
 (cogno-us/cognous-open-control-stack#259, comment 6589180377), not from the implementer's tests.
 
