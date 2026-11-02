@@ -44,11 +44,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
 
-      - name: Checkout Control Plane G1 head (full history)
+      - name: Checkout merged Control Plane G1 commit (full history)
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           repository: cogno-us/cognous-control-plane
-          ref: ce3c229ac8dcd83042413cb33b60ca5b4ebb9ae6
+          ref: 2ebc3e6669509caf0d93a5b1df8849e0efb641c9
           fetch-depth: 0
           path: _src/control_plane
           persist-credentials: false
