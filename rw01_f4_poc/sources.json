@@ -1,0 +1,95 @@
+{
+ "schema": "rw01-f4-poc-pinned-sources/1",
+ "sprint": "RW-01-F4-PoC",
+ "register": "cogno-us/cognous-open-control-stack#259",
+ "parent": "cogno-us/cognous-open-control-stack#254",
+ "constitution": "cogno-us/cognous-engineering-constitution@1c2e920f4e58e07a52e8e2408a506cf7dbc1292b",
+ "gate0": "https://github.com/cogno-us/cognous-open-control-stack/issues/259#issuecomment-6577903097",
+ "qualification_base": "c9004a6d49b6bf219a38fabe0d1a6e86d141f3be",
+ "note": "Every source is fetched by exact commit SHA and its HEAD and tree are verified; no branch, tag or default-branch substitution. 'role' says what the battery uses it for.",
+ "sources": {
+  "registry": {
+   "repo": "cognous-ocs-registry",
+   "sha": "52ff5f7dd8145793a77add1574d54a9aa3351283",
+   "tree": "6866eda49094a514cb4682da5670f9d9191868d5",
+   "dir": "registry",
+   "role": "Registry PR #86 head (review-fix pin; test-only delta from 0d0f7773): verifier core v2_verified_selection + adapter RegistryEvidenceVerifierV2 (the real verifier) and the signing helpers of its tests"
+  },
+  "registry_base": {
+   "repo": "cognous-ocs-registry",
+   "sha": "085db15299923c170ce201b86c59a54e2ba9e462",
+   "tree": "2e0372f1431d156c4fcd637a8a75d9f22f5cc7f0",
+   "dir": "registry_base",
+   "role": "Registry PR #86 base (proves PR #86 changes no existing production file)"
+  },
+  "registry_cp_pin": {
+   "repo": "cognous-ocs-registry",
+   "sha": "6f600ab1150f00ef3d96834159b1807e866a78b6",
+   "tree": "bca6415ed0712be26ddcf80e0fd74dfc7294f861",
+   "dir": "registry_cp_pin",
+   "role": "the Registry pin the Control Plane tests assert (OCS_REGISTRY_PIN_DIR); used to run the CP PR tests unchanged"
+  },
+  "control_plane": {
+   "repo": "cognous-control-plane",
+   "sha": "6648ae2cf70b8a873aeac36306b72b1b2763775c",
+   "tree": "7a46eb26688a517e2189603f21ede1f8eafbabc7",
+   "dir": "control_plane",
+   "role": "Control Plane PR #102 head: GovernedAgeWorkflow(carry_selection_evidence=True)"
+  },
+  "control_plane_base": {
+   "repo": "cognous-control-plane",
+   "sha": "b19c47ddd020409d24e52e70b11359c46265edbb",
+   "tree": "039219b5aba7a157fff79781c716067fad7ed985",
+   "dir": "control_plane_base",
+   "role": "Control Plane PR #102 base (protected-file crosswalk, legacy byte comparison)"
+  },
+  "replay": {
+   "repo": "cognous-replay-bundle",
+   "sha": "b46b9e88e4153e781b66293fda2982583b31d102",
+   "tree": "df4ab220137fcba5336c5ca41901335a2ce36340",
+   "dir": "replay",
+   "role": "Replay PR #84 head (review-fix pin M-1/L-1; marker renamed registry_claims_asserted_by_verifier_verdict): import_bounded_workflow under registry-authenticated-selection/0.1"
+  },
+  "replay_base": {
+   "repo": "cognous-replay-bundle",
+   "sha": "6f45e288ae37ec7e7712f9296760927d2d843bba",
+   "tree": "b2932497304ad589b1085d8b586ddc1fc1a2c583",
+   "dir": "replay_base",
+   "role": "Replay PR #84 base (byte-identity of the structural-only and caller-trusted modes; the accepted Replay of the downstream tuple)"
+  },
+  "odes": {
+   "repo": "open-decision-evidence-standard",
+   "sha": "d461f0ba3feccef3593ab6efdbf930569d669767",
+   "tree": "e6ed482de7e9a1eabc3f17641180764803bcbe0b",
+   "dir": "odes",
+   "role": "downstream (N26), unmodified"
+  },
+  "evidence_pack": {
+   "repo": "cognous-governance-evidence-pack",
+   "sha": "39fecb004f3d4c4e87673d79d8d9399314f551e4",
+   "tree": "e7b591a5c85d5476cbffa69cf8bd17cac76fb318",
+   "dir": "evidence_pack",
+   "role": "downstream (N26), unmodified"
+  },
+  "exchange": {
+   "repo": "cognous-governed-exchange",
+   "sha": "37f72b6944de279a91807221d93a7e91edf04faa",
+   "tree": "c2bc951ef1738f1ff548e11e236191286e74f803",
+   "dir": "exchange",
+   "role": "downstream (N26), unmodified"
+  },
+  "registry_v8_pin": {
+   "repo": "cognous-ocs-registry",
+   "sha": "a40fe755e2384a99c37016fa9ad59396f1835900",
+   "tree": "eab8ebcc24243c1abc9b6db834b7ef498f1bcb91",
+   "dir": "registry_v8_pin",
+   "role": "the r08-v8 Registry pin that three repinned CP test files assert (OCS_REGISTRY_PIN_DIR); used unchanged"
+  }
+ },
+ "expected_pr_heads": {
+  "registry_pr": 86,
+  "control_plane_pr": 102,
+  "replay_pr": 84,
+  "replay_main_at_dispatch": "a3155c70 (tests-only drift since the PR base; not used)"
+ }
+}
