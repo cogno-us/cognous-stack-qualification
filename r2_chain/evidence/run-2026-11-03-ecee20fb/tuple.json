@@ -1,0 +1,38 @@
+{
+ "schema": "r2-private-preview-qualification-tuple/1",
+ "label": "PRIVATE PREVIEW QUALIFICATION TUPLE",
+ "statement": "PRIVATE PREVIEW QUALIFICATION TUPLE - preview-only, NOT canonical. It does not modify, replace or reference the canonical component-lock.json and is not an adoption or release statement.",
+ "sprint": "R2 / PRIVATE-PREVIEW CHAIN QUALIFICATION",
+ "register": "cogno-us/cognous-open-control-stack#259",
+ "parent": "cogno-us/cognous-open-control-stack#254",
+ "constitution": "cogno-us/cognous-engineering-constitution@1c2e920f4e58e07a52e8e2408a506cf7dbc1292b",
+ "qualification_base": "ac92cc860af6477192e7bc74de9ccba007785f41",
+ "qualification_head": "NOT RECORDED HERE: the qualification revision is the candidate head under test and cannot be self-referential in this file. It is recorded at run time (git rev-parse HEAD of the checkout; GITHUB_SHA in CI) into source-identity.json.",
+ "note": "Every source is fetched by exact commit SHA and its HEAD and tree are verified; no branch, tag or default-branch substitution. 'role' says what the chain uses it for; 'interface' names the contract/profile exercised.",
+ "sources": {
+  "control_plane": {
+   "repo": "cognous-control-plane",
+   "sha": "46372de34ef1ce882cff1aa9664c38a98afb2a3b",
+   "tree": "1441ab5eea62dbc1bf5b0558538e8f149e430c6e",
+   "dir": "control_plane",
+   "role": "final R1 state of the Control Plane: produces the governed decision and the retained bounded record",
+   "interface": "GovernedAgeWorkflow(carry_selection_evidence=True)"
+  },
+  "registry": {
+   "repo": "cognous-ocs-registry",
+   "sha": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb",
+   "tree": "6866eda49094a514cb4682da5670f9d9191868d5",
+   "dir": "registry",
+   "role": "F4 baseline of the OCS Registry: signed authority/policy selection evidence and the injected verifier",
+   "interface": "RegistryEvidenceVerifierV2 (registry_consumer.evidence_verifier; v2_verified_selection)"
+  },
+  "replay": {
+   "repo": "cognous-replay-bundle",
+   "sha": "6651abef2dfc0960b09907ed268db45e809ee814",
+   "tree": "6f1153ce5f58749c6a9f1c96b7ad31dc92c32dde",
+   "dir": "replay",
+   "role": "F4 baseline of Replay: re-admission of the retained bounded record under the F4 selection profile",
+   "interface": "registry-authenticated-selection-f4-governed/0.1 (import_bounded_workflow under registry-authenticated-selection/0.1)"
+  }
+ }
+}

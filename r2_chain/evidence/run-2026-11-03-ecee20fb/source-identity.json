@@ -1,0 +1,84 @@
+{
+ "canonical": false,
+ "label": "PRIVATE PREVIEW QUALIFICATION TUPLE",
+ "manifest_schema": "r2-private-preview-qualification-tuple/1",
+ "modules_checked": [
+  "agent_control_plane",
+  "agent_control_plane.bounded",
+  "agent_control_plane.registry_f4_age_governance",
+  "agent_replay_bundle",
+  "agent_replay_bundle.effective_configuration",
+  "agent_replay_bundle.importers",
+  "agent_replay_bundle.registry_evidence",
+  "registry_adapters.ed25519_verifier",
+  "registry_consumer.evidence_verifier",
+  "registry_successor",
+  "registry_successor.v2_verified_selection"
+ ],
+ "ok": true,
+ "preview_only": true,
+ "problems": [],
+ "qualification": {
+  "dirty_under_r2_chain": false,
+  "github_sha": null,
+  "head": "ecee20fbb8d47341bada66009fd6fff2d864db78",
+  "tree": "3663b9af2b445f01d72febc31a7a6acd6fb0acbe",
+  "tuple_label": "PRIVATE PREVIEW QUALIFICATION TUPLE"
+ },
+ "schema": "r2-source-identity-report/1",
+ "sources": {
+  "control_plane": {
+   "clean": true,
+   "dir": "/tmp/r2-participant.e7Mgkx/src/control_plane",
+   "expected_sha": "46372de34ef1ce882cff1aa9664c38a98afb2a3b",
+   "expected_tree": "1441ab5eea62dbc1bf5b0558538e8f149e430c6e",
+   "interface": "GovernedAgeWorkflow(carry_selection_evidence=True)",
+   "module_files": {
+    "agent_control_plane": "/tmp/r2-participant.e7Mgkx/src/control_plane/src/agent_control_plane/__init__.py",
+    "agent_control_plane.bounded": "/tmp/r2-participant.e7Mgkx/src/control_plane/src/agent_control_plane/bounded.py",
+    "agent_control_plane.registry_f4_age_governance": "/tmp/r2-participant.e7Mgkx/src/control_plane/src/agent_control_plane/registry_f4_age_governance.py"
+   },
+   "observed_sha": "46372de34ef1ce882cff1aa9664c38a98afb2a3b",
+   "observed_tree": "1441ab5eea62dbc1bf5b0558538e8f149e430c6e",
+   "problems": [],
+   "repo": "cognous-control-plane",
+   "role": "final R1 state of the Control Plane: produces the governed decision and the retained bounded record"
+  },
+  "registry": {
+   "clean": true,
+   "dir": "/tmp/r2-participant.e7Mgkx/src/registry",
+   "expected_sha": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb",
+   "expected_tree": "6866eda49094a514cb4682da5670f9d9191868d5",
+   "interface": "RegistryEvidenceVerifierV2 (registry_consumer.evidence_verifier; v2_verified_selection)",
+   "module_files": {
+    "registry_adapters.ed25519_verifier": "/tmp/r2-participant.e7Mgkx/src/registry/registry_adapters/ed25519_verifier.py",
+    "registry_consumer.evidence_verifier": "/tmp/r2-participant.e7Mgkx/src/registry/registry_consumer/evidence_verifier.py",
+    "registry_successor": "/tmp/r2-participant.e7Mgkx/src/registry/registry_successor/__init__.py",
+    "registry_successor.v2_verified_selection": "/tmp/r2-participant.e7Mgkx/src/registry/registry_successor/v2_verified_selection.py"
+   },
+   "observed_sha": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb",
+   "observed_tree": "6866eda49094a514cb4682da5670f9d9191868d5",
+   "problems": [],
+   "repo": "cognous-ocs-registry",
+   "role": "F4 baseline of the OCS Registry: signed authority/policy selection evidence and the injected verifier"
+  },
+  "replay": {
+   "clean": true,
+   "dir": "/tmp/r2-participant.e7Mgkx/src/replay",
+   "expected_sha": "6651abef2dfc0960b09907ed268db45e809ee814",
+   "expected_tree": "6f1153ce5f58749c6a9f1c96b7ad31dc92c32dde",
+   "interface": "registry-authenticated-selection-f4-governed/0.1 (import_bounded_workflow under registry-authenticated-selection/0.1)",
+   "module_files": {
+    "agent_replay_bundle": "/tmp/r2-participant.e7Mgkx/src/replay/src/agent_replay_bundle/__init__.py",
+    "agent_replay_bundle.effective_configuration": "/tmp/r2-participant.e7Mgkx/src/replay/src/agent_replay_bundle/effective_configuration.py",
+    "agent_replay_bundle.importers": "/tmp/r2-participant.e7Mgkx/src/replay/src/agent_replay_bundle/importers.py",
+    "agent_replay_bundle.registry_evidence": "/tmp/r2-participant.e7Mgkx/src/replay/src/agent_replay_bundle/registry_evidence.py"
+   },
+   "observed_sha": "6651abef2dfc0960b09907ed268db45e809ee814",
+   "observed_tree": "6f1153ce5f58749c6a9f1c96b7ad31dc92c32dde",
+   "problems": [],
+   "repo": "cognous-replay-bundle",
+   "role": "F4 baseline of Replay: re-admission of the retained bounded record under the F4 selection profile"
+  }
+ }
+}
