@@ -252,9 +252,12 @@ def build_flow(tmp: Path, mat, *, carry=None, host=None, tenant=None, **kw):
         kw["carry_selection_evidence"] = carry
     if host:
         kw.update(host)
-    return GovernedAgeWorkflow(scope=kw.pop("scope", SCOPE), selection_source=Source(mat), verifier=kw.pop("verifier", ev.Ed25519Verifier()), allow_test_time=True,
+    source = Source(mat)
+    flow = GovernedAgeWorkflow(scope=kw.pop("scope", SCOPE), selection_source=source, verifier=kw.pop("verifier", ev.Ed25519Verifier()), allow_test_time=True,
                                construction_time=NOW, manifest=manifest(), destination=LocalRefundDestination(tmp / "destination.json"),
                                records=BoundedRecordStore(tmp / "run.json", "run-1"), observation_policy=ObservationPolicy(max_age_seconds=300, clock_tolerance_seconds=5), **kw)
+    flow.r2_selection_source = source          # probe: how often the Control Plane pulled the Registry selection material
+    return flow
 
 
 # ------------------------------------------------------------------------------------------------------------------------------ fixture-style record helpers
