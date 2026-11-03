@@ -41,7 +41,7 @@ For the synthetic refund-age workflow, within this tuple:
 - C. Replay passed the original carried selection text / record text through the injected Registry verifier;
 - D. Replay bound the verifier verdict to the exact retained record;
 - E. the expected positive path is admitted;
-- F. the defined negative cases (A-S, plus one persistence/reload negative G2) are refused with typed codes and produce no admission marker.
+- F. the defined negative cases (A-S, plus one persistence/reload negative G2) are refused and produce no admission marker. Almost all refusals carry an exact typed code that the tests assert; a few sub-cases in rows L, Q and S are refused by Replay's untyped guard (code `None`) and are asserted by message text.
 
 ## What it does NOT prove
 
@@ -56,8 +56,19 @@ Replay claim-scope markers stay as the current contract declares them, e.g. `reg
 
 ## Result labels
 
-`PASS`, `FAIL`, `REFUSED_AS_EXPECTED` (expected refusal observed with the expected typed code), `NOT_RUN`, `NOT_APPLICABLE` (only where a case does not apply, e.g. negative G "where applicable"). A refusal is never reported as `PASS`. Any `FAIL` or `NOT_RUN` row, a missing required row, or a source-identity problem makes the run exit nonzero.
+`PASS`, `FAIL`, `REFUSED_AS_EXPECTED` (expected refusal observed with the expected typed code), `NOT_RUN`, `NOT_APPLICABLE` (a case that does not apply, or one of the four documented-limit rows below, which assert observed ADMITTED behavior and are never counted as refusals). A refusal is never reported as `PASS`. Any `FAIL` or `NOT_RUN` row, a missing required row, or a source-identity problem makes the run exit nonzero.
 
 ## Evidence
 
 Written to `out_dir`: `summary.json`, `rows.jsonl`, `positive-case.json`, `source-identity.json`, `environment.json`, `tuple.json`, `sources-identity.tsv`, `junit.xml`, `pytest.log`, `SHA256SUMS`. Index: [`evidence/README.md`](evidence/README.md). Dependencies: `requirements.lock` (hash-locked). CI: `.github/workflows/r2-joined-chain.yml`.
+
+## Documented limits (not refusals)
+
+These behaviors of the pinned contracts are asserted, recorded as `NOT_APPLICABLE` rows (`J-limit`, `L-limit`, `O-limit`, `S-limit`), and NOT claimed as refusals. A behavior change would make them FAIL.
+
+- J-limit: swapping in identical or effective-value-equivalent genuine evidence is admitted; the marker lists `substitution_by_other_genuine_selection` as not verified.
+- L-limit: source-revision binding is declaration-only and unattested. A well-formed but wrong declared revision is admitted and marked `operator_declared_unattested`; only malformed revisions are refused (row L).
+- O-limit: Replay does not cross-check the verdict's `selection_digest` and `bound_record_digest` members. The sha256 echoes of the exact texts are checked.
+- S-limit: an identical duplicate signature entry and trailing whitespace on the selection text are admitted.
+
+Note: two `engine` modules from the Registry's vendored `baseline/execution-runtime` load through the Registry's own consumer. The Execution Runtime component is not used or qualified here.

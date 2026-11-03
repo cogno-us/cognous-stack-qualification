@@ -1,8 +1,8 @@
-# R2 joined-chain evidence index (stub)
+# R2 joined-chain evidence index
 
 PRIVATE PREVIEW QUALIFICATION TUPLE (preview-only, NOT canonical; `component-lock.json` untouched). Synthetic only; single synthetic tenant; claim A only.
 
-The committed run evidence is produced later by the lead from the exact candidate head and is added to this directory. Until then this file is only the index of what a run produces. It does not assert that any run has passed.
+Committed run: [`run-2026-11-03-ecee20fb/`](run-2026-11-03-ecee20fb/) - clean-checkout participant run at tested code head `ecee20fbb8d47341bada66009fd6fff2d864db78` (disposition PASS: 10 PASS, 35 REFUSED_AS_EXPECTED, 4 NOT_APPLICABLE documented limits, 0 FAIL). Later commits on the PR branch add evidence and documentation only, no code. Negative matrix: `run-2026-11-03-ecee20fb/negative-matrix.md`. The four NOT_APPLICABLE rows are documented limits (ADMITTED behavior), see `../README.md`.
 
 Reproduce: `bash r2_chain/participant_run.sh [out_dir]` (see `../README.md`). Evidence files written by `run_chain.py` to `out_dir`:
 
