@@ -4,6 +4,8 @@
 # Real Control Plane GovernedAgeWorkflow + real Registry verify_f4_selection_v2 (11 layers) + exact Ed25519Verifier (PyNaCl) + the unchanged Registry conformance kit + a REAL persisted
 # state file + REAL separate Python processes; SYNTHETIC keys, mechanism only. CLAIM: synthetic restart-safe. OPERATIONAL TRUST IS NOT ESTABLISHED; local integrity detects accidental
 # damage only (whole-store replacement by an older valid copy is NOT detected locally: G3). Not an operational-trust, adoption or release claim. G3 is NOT tested here.
+# H1: the lane also writes assurance-labels.json (NON-PRODUCTION; derived from the loaded profile; written on pass and on failure) into the evidence and its SHA-256 manifest.
+# The CP schema/examples (H1) are NOT in this qualified lane: it stays pinned at CP 925f7c4a (see cap_v02/README.md).
 # Includes the G1 regression (the unmodified cap_v01 behavioural tests run against the G2 head).
 # THE JOB FAILS on any failure, error, skip or xfail, or if fewer tests than the expected count ran (cap_v02/junit_gate.py). No secrets, read-only token, no network use by tests.
 # Third-party actions are pinned by full commit SHA (same as cap-v01-g1.yml):
@@ -31,7 +33,7 @@ env:
   PYTHONDONTWRITEBYTECODE: '1'
   GIT_TERMINAL_PROMPT: '0'
   CAP_REQUIRE_FULL_HISTORY: '1'
-  EXPECTED_MIN_TESTS: '250'
+  EXPECTED_MIN_TESTS: '255'
   CP_G2_SHA: 925f7c4a7594965e336f2c34394cc52426c48b00
 
 jobs:
@@ -90,6 +92,7 @@ jobs:
           CAP_SRC_DIR: ${{ github.workspace }}/_src
           CAP_EVIDENCE_DIR: ${{ runner.temp }}/cap-v02-g2-evidence
           CAP_CP_SHA: ${{ env.CP_G2_SHA }}
+          CAP_QUAL_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir -p "$CAP_EVIDENCE_DIR"
           cd cap_v02
@@ -98,6 +101,20 @@ jobs:
       - name: Junit gate (fails on any failure, error, skip, xfail or fewer tests than expected)
         run: |
           python cap_v02/junit_gate.py "$RUNNER_TEMP/cap-v02-g2-evidence/junit.xml" --min-tests "$EXPECTED_MIN_TESTS"
+
+      - name: Print and check the assurance labels (NON-PRODUCTION; no authentication or operational-trust claim)
+        if: always()
+        run: |
+          f="$RUNNER_TEMP/cap-v02-g2-evidence/g2-evidence/assurance-labels.json"
+          cat "$f"
+          python - "$f" <<'PY'
+          import json, sys
+          d = json.load(open(sys.argv[1]))
+          assert d["label"] == "NON-PRODUCTION" and d["mode"] == "synthetic-verified" and d["claim"] == "A mechanism, synthetic keys", d
+          assert d["authenticated_authority"] is False and d["operational_trust"] is False, d
+          assert d["derived_inputs"]["profile_mode"] == "synthetic" and all(len(v) == 40 for v in d["sources"].values()), d
+          print("assurance labels OK; battery_result =", d["battery_result"])
+          PY
 
       - name: Print the SHA-256 manifest of the changed Control Plane files
         if: always()

@@ -498,3 +498,25 @@ def child_admit(kit: Kit, selection: Sel, *, as_of=None, **kw) -> dict:
 
 def child_read(kit: Kit) -> dict:
     return run_child("read", config=str(kit.config_path), digest=kit.digest)
+
+
+# ---------------------------------------------------------------------------------------------------------------------------------------------- assurance labels (H1)
+LABELS_DRAFT: dict = {}   # filled by test_g2_09 from the LOADED profile; conftest writes it with the final battery result
+
+
+def assurance_labels(profile, *, digest_supplied: bool, battery_result: str) -> dict:
+    """Machine-readable assurance labels for the lane's evidence. Derived from the loaded profile, never constants for its inputs. Refuses to label a non-synthetic profile as
+    synthetic-verified. Says plainly what is NOT claimed. There is no provider concept: `derived_inputs` only reports what the loaded profile declares."""
+    if profile.mode != "synthetic":
+        raise ValueError("assurance labels are defined for synthetic-verified profiles only")
+    return {
+        "schema": "cap-assurance-labels/1", "lane": "cap-v02-g2", "label": "NON-PRODUCTION", "mode": "synthetic-verified",
+        "claim": "A mechanism, synthetic keys", "authenticated_authority": False, "operational_trust": False,
+        "not_claimed": ["B: Control Plane decision authenticated", "operational trust", "production adoption", "independently anchored anti-rollback (G3)"],
+        "derived_inputs": {"profile_mode": profile.mode, "state_backend": profile.state_backend, "clock_kind": profile.clock_kind,
+                           "snapshot_source_kind": profile.config["snapshot"]["source"]["kind"], "expected_config_digest_supplied": bool(digest_supplied)},
+        "sources": {"qualification": os.environ.get("CAP_QUAL_SHA", "unset"), "control_plane": SOURCES["control_plane"]["sha"],
+                    "registry": SOURCES["registry"]["sha"], "replay": SOURCES["replay"]["sha"]},
+        "battery_result": battery_result,
+    }
+

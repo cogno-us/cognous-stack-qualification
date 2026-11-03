@@ -57,3 +57,9 @@ pytest, pydantic. Re-pin the Control Plane head without editing files with `CAP_
 
 Evidence written under `$CAP_EVIDENCE_DIR`: `cp-changed-files.sha256`, `evidence-manifest.sha256`, `g2-evidence/*.json` (persisted state before/after, restart transcript, concurrency outcomes,
 crash residue, refusal codes, limits), `g1-regression-*.{xml,txt}`.
+
+## Assurance labels (H1)
+The lane writes `g2-evidence/assurance-labels.json` (schema `cap-assurance-labels/1`) next to the other evidence, lists it in `evidence-manifest.sha256`, and the workflow prints and checks it. It is derived from the profile the battery actually loads (profile mode, state backend, clock kind, snapshot source kind, whether `expected_config_digest` was supplied) plus the four source SHAs, and carries `battery_result` (`passed` or `failed`; written on failure too). Fixed statements: `label: NON-PRODUCTION`, `mode: synthetic-verified`, `claim: A mechanism, synthetic keys`, `authenticated_authority: false`, `operational_trust: false`, and what is not claimed (claim B, operational trust, production adoption, anchored anti-rollback). The battery clock is a fixed instant, not a trusted clock. There is no provider concept and no keyless/structural mode.
+
+The Control Plane H1 files (schema, examples, example tests) are **not** part of this qualified lane: the lane stays pinned at CP `925f7c4a` and its tripwire still requires exactly the six declared files. Those files are covered by the Control Plane's own must-not-skip `tests.yml` step only.
+
