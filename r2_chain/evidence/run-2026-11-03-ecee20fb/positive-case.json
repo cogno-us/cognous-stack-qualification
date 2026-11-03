@@ -1,0 +1,309 @@
+{
+ "assertions": [
+  {
+   "check": "P00 subject modules resolve under the pinned source trees (no shadow module)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P01 Registry emits valid F4 selection evidence (signed envelope of the synthetic F4 record; family f4-control-plane-age-bounds)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P01b the real RegistryEvidenceVerifierV2 independently accepts the emitted evidence (ok, authenticated, 11 layers pass)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P02 Control Plane received the exact selection evidence (selection source pulled; retained evidence texts equal the Registry-emitted bytes)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P03 Control Plane decision is authorized under the expected synthetic conditions (result authorized, no reasons, synthetic tenant, expected action id)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P04 retained bounded record preserves the original selection evidence unchanged (byte-identical texts, whole evidence object equal to what the Control Plane wrote)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P05 persisted and reloaded through the supported BoundedRecordStore path (fresh store; identical bytes; reloaded model carries the same evidence)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P06 Replay imports the retained record under the explicit F4 profile (profile string, current-generation revision)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P07 Replay receives independent operator trust inputs (operator snapshot is a separate object from the Control Plane host trust; nothing of trust/time/ages is in the record)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P08 Replay invoked the real Registry verifier exactly once, passing the original carried selection text and record text unchanged",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P09 Registry verifier returned an accepted verdict (ok, code None, authenticated, all 11 layers pass, not a caller-injected stub)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10a binding of the SELECTION DIGEST: marker == verdict == independently recomputed Registry statement digest of the signed statement",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10b binding of the RECORD DIGEST: marker == verdict == the Registry-sealed record_digest of the carried record",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10c binding of the OPERATION ID: carried evidence, the verifier request and the operator expectation all say the operation",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10d binding of the EXPECTED ACTION ID: admission_binding_digest recomputes with the operator action id and changes when the expected action id changes",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10e binding of the TRUST SNAPSHOT: marker id/version == operator reference == verdict id/version, and fingerprint marker == verdict fingerprint",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10f binding of the EXPECTED HOST AGES: the verifier request carried the operator host ages; verdict effective values == min(host ages, signed bound) == the record's f4_scalars; effective-policy digest == operator-computed == f4_ages row",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10g binding of the SOURCE REVISIONS: the operator-declared revisions in the admission markers equal the checked-out HEADs of the pinned Control Plane and Registry (Replay revision is the git HEAD of the replay tree actually imported)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10h the admission binding digest is bound to this decision's exact retained record: it changes when the carried record text is substituted",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P10 binding (summary): selection digest, record digest, operation id, expected action id, trust snapshot, host ages and source revisions are all bound",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P11 Replay admission succeeds (a bundle is returned; the admitted runtime_decision is byte-identical to the persisted decision including selection_evidence)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P12 success markers match the expected F4 contract exactly (profile, claim A text, decision-time-only scope, unattested snapshot, claims/not-verified lists, scope note, success marker key set)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P12b the metadata carries every Replay success marker key",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P13 no claim-B marker appears (no claim-B/decision-authenticated/origin-verified/authority key; control_plane_decision_authenticated False; claim is the A-text only)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P14 registry_authenticated remains False, per the current declared Replay contract (claim A is the injected verifier's admission, not Replay authentication)",
+   "detail": "",
+   "result": "PASS"
+  },
+  {
+   "check": "P15 no external effect executed: the bounded local destination holds no effect, the record has no attempt/observation/reconciliation, the Control Plane was not asked to execute, and the Replay import left destination, run.json and the loaded record byte-identical",
+   "detail": "",
+   "result": "PASS"
+  }
+ ],
+ "binding": {
+  "admission_binding_digest": "sha256:e3c368a724be592cb8e28e7fefdfced7a8559f834fb39dd58ef5bd896182b09c",
+  "effective_policy_digest": "sha256:a17569ebacb26731c770d0bc32bf66c47afe51d627fd9a9f09894cadc57aaa4f",
+  "expected_action_id": "urn:cognous:action:refund-issue-routine-v1",
+  "host_ages_effective_values": {
+   "approval_max_age_seconds": 60,
+   "status_max_age_seconds": 60
+  },
+  "operation_id": "refund-issue-routine",
+  "record_digest": "sha256:773efb8e21d6f22f68ae0963bdba47df28a431a4523990877b5b4f05ce8a8891",
+  "selection_digest": "sha256:d52de6e701d285497a0700b567126f11dd7deb184fc49a84a8bdd9ce4d81c57a",
+  "source_revisions": {
+   "attestation": "operator_declared_unattested",
+   "control_plane": "46372de34ef1ce882cff1aa9664c38a98afb2a3b",
+   "registry": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb"
+  },
+  "trust_snapshot": [
+   "snap-test-1",
+   1,
+   "sha256:e050bad3326a70aedbe97723b1a4f85afe3bc9922769fd4a62f5aee8e30f126b"
+  ]
+ },
+ "claims_not_made": [
+  "claim B",
+  "Registry origin/authority",
+  "production readiness",
+  "multi-tenant isolation",
+  "operational trust"
+ ],
+ "label": "PRIVATE PREVIEW QUALIFICATION TUPLE - positive joined-chain case (synthetic, single tenant, claim A only)",
+ "markers": {
+  "claim_scope_note": "mechanism verified with synthetic keys; Registry-origin authority not established; claim B not made; decision-time only; operator trust inputs independence unverified",
+  "control_plane_decision_authenticated": false,
+  "control_plane_profile": "registry-authenticated-selection-f4-governed/0.1",
+  "effective_configuration_verification": "internal_consistency_only_registry_source_revision_unverified",
+  "registry_authenticated": false,
+  "registry_authentication_claim": "A_selection_signature_per_injected_verifier",
+  "registry_claims_asserted_by_verifier_verdict": [
+   "selection_signature_by_snapshot_key",
+   "record_binding",
+   "issuer_grant_scope_operation",
+   "time_window_at_T",
+   "snapshot_floors_if_supplied",
+   "effective_policy_digest_matches_signed_bound_over_operator_host_ages"
+  ],
+  "registry_declared_source_revisions": {
+   "attestation": "operator_declared_unattested",
+   "control_plane": "46372de34ef1ce882cff1aa9664c38a98afb2a3b",
+   "registry": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb"
+  },
+  "registry_evidence": [
+   {
+    "admission_binding_digest": "sha256:e3c368a724be592cb8e28e7fefdfced7a8559f834fb39dd58ef5bd896182b09c",
+    "bound_record_digest": "sha256:773efb8e21d6f22f68ae0963bdba47df28a431a4523990877b5b4f05ce8a8891",
+    "decision_id": "3435ef75-c7eb-4afe-9783-4bc72db597f9",
+    "effective_policy_digest": "sha256:a17569ebacb26731c770d0bc32bf66c47afe51d627fd9a9f09894cadc57aaa4f",
+    "epoch": 1,
+    "epoch_floor_applied": false,
+    "family": "f4-control-plane-age-bounds",
+    "issuer_id": "issuer-test-1",
+    "registry_contract": "r08-v2",
+    "selection_digest": "sha256:d52de6e701d285497a0700b567126f11dd7deb184fc49a84a8bdd9ce4d81c57a",
+    "selection_id": "sel-test-1",
+    "trust_snapshot_fingerprint": "sha256:e050bad3326a70aedbe97723b1a4f85afe3bc9922769fd4a62f5aee8e30f126b"
+   }
+  ],
+  "registry_floors_applied": {
+   "last_accepted_snapshot": false,
+   "min_trust_snapshot_version": true
+  },
+  "registry_not_verified": [
+   "verifier_genuineness",
+   "cp_decision_fields_not_covered_by_signature",
+   "action_id_not_in_signed_statement",
+   "selection_is_latest",
+   "effect_time_validity",
+   "snapshot_correctness_independence",
+   "substitution_by_other_genuine_selection",
+   "real_world_issuer_identity"
+  ],
+  "registry_origin": "registry_origin_unverified",
+  "registry_selection_admitted_by_injected_verifier": true,
+  "registry_selection_verification": "admitted_by_operator_supplied_verifier_replay_holds_no_crypto",
+  "registry_trust_snapshot_attestation": "operator_supplied_unattested",
+  "registry_trust_snapshot_id": "snap-test-1",
+  "registry_trust_snapshot_version": 1,
+  "registry_verified_as_of": "2026-10-05T19:00:00Z",
+  "registry_verified_scope": "decision_time_only",
+  "registry_verified_time_mode": "as_of_historical"
+ },
+ "no_effect": {
+  "attempts": 0,
+  "destination": {
+   "effects": {},
+   "grant_effect_counts": {}
+  },
+  "executed": false,
+  "observations": 0
+ },
+ "operator_inputs": {
+  "expected_action_id": "urn:cognous:action:refund-issue-routine-v1",
+  "expected_host_ages": {
+   "approval_max_age_seconds": 60,
+   "status_max_age_seconds": 60
+  },
+  "expected_operation_id": "refund-issue-routine",
+  "time_mode": "as_of",
+  "trust_snapshot_ref": [
+   "snap-test-1",
+   1
+  ],
+  "verification_time": "2026-10-05T19:00:00+00:00"
+ },
+ "profile": "registry-authenticated-selection-f4-governed/0.1",
+ "record": {
+  "decision_id": "3435ef75-c7eb-4afe-9783-4bc72db597f9",
+  "decision_sha256": "9893ec8bf6ae5d15af865623e5fab1d7e40a07067a57c634bc2e58980d064cf0",
+  "record_text_sha256": "5121083e233dae571b524e99e76432cd576ee56ed834f1a3fd3d46cb4145adc8",
+  "run_id": "run-1",
+  "run_json_sha256": "b392fd11c45fde3016bb16fc0b9ec2ed66efb3b5a6c79c3b2fa7ec47c5ea5090",
+  "selection_text_sha256": "c8c60a2fa2d8bf43b2776baf41aba3fb6f9dbe96d3cc4f0a3944123f43de2520"
+ },
+ "replay_expected_control_plane_revision": "b19c47ddd020409d24e52e70b11359c46265edbb",
+ "tuple": {
+  "control_plane": "46372de34ef1ce882cff1aa9664c38a98afb2a3b",
+  "registry": "7de0ec9f8471c7a2ff630eb4035fa24d60b5e2eb",
+  "replay": "6651abef2dfc0960b09907ed268db45e809ee814"
+ },
+ "verdict": {
+  "authenticated": true,
+  "bound_record_digest": "sha256:773efb8e21d6f22f68ae0963bdba47df28a431a4523990877b5b4f05ce8a8891",
+  "code": null,
+  "contract": "registry-evidence-verdict/0.1",
+  "effective_policy_digest": "sha256:a17569ebacb26731c770d0bc32bf66c47afe51d627fd9a9f09894cadc57aaa4f",
+  "effective_values": {
+   "approval_max_age_seconds": 60,
+   "status_max_age_seconds": 60
+  },
+  "epoch": 1,
+  "epoch_floor_applied": false,
+  "family": "f4-control-plane-age-bounds",
+  "floors_applied": {
+   "last_accepted_snapshot": false,
+   "min_trust_snapshot_version": true
+  },
+  "issuer_id": "issuer-test-1",
+  "layers": {
+   "authenticity": "pass",
+   "authority": "pass",
+   "disposition": "pass",
+   "epoch": "pass",
+   "integrity": "pass",
+   "record_binding": "pass",
+   "revocation": "pass",
+   "scope": "pass",
+   "structural": "pass",
+   "time": "pass",
+   "trust_snapshot": "pass"
+  },
+  "ok": true,
+  "record_text_sha256": "5121083e233dae571b524e99e76432cd576ee56ed834f1a3fd3d46cb4145adc8",
+  "registry_contract": "r08-v2",
+  "selection_digest": "sha256:d52de6e701d285497a0700b567126f11dd7deb184fc49a84a8bdd9ce4d81c57a",
+  "selection_id": "sel-test-1",
+  "selection_text_sha256": "c8c60a2fa2d8bf43b2776baf41aba3fb6f9dbe96d3cc4f0a3944123f43de2520",
+  "trust_snapshot_fingerprint": "sha256:e050bad3326a70aedbe97723b1a4f85afe3bc9922769fd4a62f5aee8e30f126b",
+  "trust_snapshot_id": "snap-test-1",
+  "trust_snapshot_version": 1,
+  "verification_time_utc": "2026-10-05T19:00:00Z",
+  "verifier_implementation": {
+   "name": "registry-evidence-verifier-v2",
+   "registry_revision": "085db15299923c170ce201b86c59a54e2ba9e462+rw01-f4-poc"
+  }
+ },
+ "verifier_calls": 1
+}
