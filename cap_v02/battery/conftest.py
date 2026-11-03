@@ -4,6 +4,7 @@ Every test carries `@pytest.mark.row("G2.x", "boundary")`; rows and boundaries g
 At session end every file under $CAP_EVIDENCE_DIR/g2-evidence gets a SHA-256 line in $CAP_EVIDENCE_DIR/evidence-manifest.sha256.
 """
 import hashlib
+import json
 import sys
 from pathlib import Path
 
@@ -56,6 +57,17 @@ def pytest_sessionfinish(session, exitstatus):
     if H.EVIDENCE_DIR is None:
         return
     ev = H.EVIDENCE_DIR / "g2-evidence"
+    # assurance labels: derived from the profile the battery actually loaded; written on pass AND on failure (the upload step runs `if: always()`)
+    result = "passed" if exitstatus == 0 else "failed"
+    if H.LABELS_DRAFT:
+        ev.mkdir(parents=True, exist_ok=True)
+        H.LABELS_DRAFT["battery_result"] = result
+        (ev / "assurance-labels.json").write_text(json.dumps(H.LABELS_DRAFT, sort_keys=True, indent=1) + "\n")
+    elif ev.is_dir() or exitstatus != 0:
+        ev.mkdir(parents=True, exist_ok=True)
+        (ev / "assurance-labels.json").write_text(json.dumps({"schema": "cap-assurance-labels/1", "lane": "cap-v02-g2", "label": "NON-PRODUCTION", "mode": "synthetic-verified",
+                                                              "operational_trust": False, "authenticated_authority": False, "battery_result": "failed",
+                                                              "reason": "labels test did not run"}, sort_keys=True, indent=1) + "\n")
     if not ev.is_dir():
         return
     lines = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  g2-evidence/{p.name}" for p in sorted(ev.iterdir()) if p.is_file()]
