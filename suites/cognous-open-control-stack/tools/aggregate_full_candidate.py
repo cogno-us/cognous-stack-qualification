@@ -28,8 +28,11 @@ def validate_reports(reports, digest, profile=None):
         if batch=='authority' and (len(report.get('extra',[]))!=1 or report['extra'][0]['returncode']!=0):
             raise ValueError('OpenShell mock gate missing or failed')
         if batch=='registry':
-            if len(report.get('extra',[]))!=3 or any(r['returncode'] for r in report['extra']):
-                raise ValueError('optional static evidence missing or failed')
+            # PRP and Research Intelligence are retired from active OCS scope.
+            # Historical profile references remain provenance only; TFA is the
+            # sole remaining optional static instruction-layer check here.
+            if len(report.get('extra',[]))!=1 or any(r['returncode'] for r in report['extra']):
+                raise ValueError('current OCS optional static evidence missing or failed')
             if not {('index_local_chain',1),('index_local_chain',2)}.issubset(observed):
                 raise ValueError('Index chain evidence missing')
 

@@ -42,6 +42,9 @@ from tools.optional_execution_profile import validate_checkout, qualification_en
 LOCK=json.loads((ROOT/"component-lock.json").read_text())
 WORK=ROOT/".reference-work"
 REUSE_CHECKOUTS=False
+# These repositories are no longer part of OCS. Historical profiles may still
+# mention them, but current OCS qualification must not clone or evaluate them.
+NON_OCS_COMPONENTS = {"prp", "research_intelligence"}
 BATCHES = {
     "authority": {"control_plane", "control_plane_store", "hub_release_gate"},
     "exchange": {"gax_observation_repair", "gax_reference", "governed_transport", "governed_transport_integration", "gax_public_runtime_artifacts", "research_qualification"},
@@ -146,6 +149,8 @@ def main():
     execution_state="tested in pinned CI" if os.environ.get("GITHUB_ACTIONS")=="true" else "tested locally"
     components={}; setup=[]
     for name,spec in LOCK["components"].items():
+        if name in NON_OCS_COMPONENTS:
+            continue
         key="core_interop_sha" if name=="moltbot_safe" else "sha"
         components[name]=checkout(name,spec,key)
     components["moltbot_safe_accepted"]=checkout("moltbot_safe_accepted",LOCK["components"]["moltbot_safe"],"accepted_sha")
@@ -467,7 +472,7 @@ def main():
             if candidate:mock_env["COGNOUS_SYNTHETIC_SERVICE_TIME"]="2026-10-05T19:00:00Z"
             extra.append(run([sys.executable,"-m","pytest","-q",*(["-p","tools.reference_release"] if candidate else []),str(molt/"tests/test_openshell_environment.py"),"--junitxml",str(out/"openshell-mock.xml")],env=mock_env))
         if args.batch=="registry":
-            for name in ("prp","research_intelligence","tfa"):
+            for name in ("tfa",):
                 extra.append({"returncode":int(bool(static_json_check(components[name]))),"scope":"static JSON only"})
         report={"release_dependency_lock_sha256":sha256(ROOT/"tools/requirements-release.lock"),"batch":args.batch,"profile_sha256":sha256(profile_path),"profile":LOCK,"selected_regression_pins":{name:run(["git","rev-parse","HEAD"],cwd=path,check=True)["output"].strip() for name,path in selected_regression.items()},"synthetic_service_clock":env.get("COGNOUS_SYNTHETIC_SERVICE_TIME"),"qualification_commit":run(["git","rev-parse","HEAD"],cwd=qualification_root,check=True)["output"].strip() if qualification_root else None,"qualification_manifest_sha256":sha256(qualification_root/"migrations/cross-component-2026-10-15.json") if qualification_root else None,"suite_runs":runs,"representative_runs":representative_runs,"representative_repeatable":representative_repeatable,"extra":extra,"passed":bool(runs) and all(r["returncode"]==0 for r in runs+extra) and (args.batch!="exchange" or representative_repeatable),"release_qualified":False}
         (out/(args.batch+"-summary.json")).write_text(json.dumps(report,indent=2)+"\n")
@@ -502,7 +507,7 @@ def main():
     openshell.pop("output")
 
     optional={}
-    for name in ("prp","research_intelligence","tfa"):
+    for name in ("tfa",):
         failures=static_json_check(components[name])
         optional[name]={"state":execution_state if not failures else "blocked","check":"JSON syntax/static artifact parse only; model-behavior evaluations unexecuted","failures":failures}
 
