@@ -1656,9 +1656,8 @@ class CopilotReviewFix2Tests(GateTests):
                      "unchecked": py_compile.PycInvalidationMode.UNCHECKED_HASH}[mode]
         py_compile.compile(str(other), cfile=cache, doraise=True, invalidation_mode=mode_enum)
         if mode == "checked":  # a checked-hash pyc needs the hash of the SOURCE it is placed beside
-            import importlib._bootstrap_external as be
             data = bytearray(Path(cache).read_bytes())
-            data[8:16] = be._imp.source_hash(be._RAW_MAGIC_NUMBER, pre.read_bytes())
+            data[8:16] = importlib.util.source_hash(pre.read_bytes())
             Path(cache).write_bytes(bytes(data))
         sys.path.insert(0, str(ROOT / "suites/mvp-chain"))
         try:
