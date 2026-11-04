@@ -413,7 +413,8 @@ def test_synthetic_clock_evidence_is_labelled_and_never_claims_temporal_enforcem
     assert plain["synthetic_service_clock"] is None and "synthetic_service_clock_notice" not in plain
 
 
-@pytest.mark.parametrize("stage", ["replay_merged", "evidence_pack_merged", "odes_merged", "gax_public_runtime_artifacts", "gax_historical_artifacts"])
+@pytest.mark.parametrize("stage", ["replay_merged", "evidence_pack_merged", "odes_merged", "gax_public_runtime_artifacts", "gax_historical_artifacts",
+                                   "evidence_pack_v2", "evidence_pack_persistence"])
 def test_historical_producer_stages_are_labelled_and_cannot_substitute_for_current_qualification(stage):
     labels = rr.evidence_labels(stage, {"GAX_RUNTIME_COMPATIBILITY_PROFILE": rr.HISTORICAL_GAX_PROFILE})
     assert labels["generation"] == "historical" and labels["runtime_profile"] == "merged-producers-v1"
@@ -495,3 +496,156 @@ def test_index_local_chain_fails_if_either_supported_invocation_fails(monkeypatc
 def test_the_frozen_matrix_and_declared_batches_are_unchanged_by_the_relocation_wiring():
     assert BATCHES["registry"] == {"bitrep_verification", "index_bitrep_binding"}
     assert "gax_public_runtime_artifacts" in BATCHES["exchange"] and "research_qualification" in BATCHES["exchange"]
+
+
+# --- Historical tuple source, producer-v2 labelling, per-scenario evidence -------------------------------------
+import hashlib as _hashlib
+
+_TUPLE = {"action_manifest": "46c950bed37fe3812000895430bc0312d29e37ce", "control_plane": "d3dadee70bd319812b207389ab1e0f6efe511916",
+          "moltbot_safe": "c3c3ee7188b9367cf70b08074b9c40a5c70c94ac", "replay_bundle": "459e4ba62fca49364aebb0050cd5fb2dd5a71bfa",
+          "governance_evidence_pack": "b4baccd823d2a73be276c1de745b19cf7c56a0d6", "odes": "c5e9a0f3695ae836b803be06c46d2c669642ee03",
+          "gax_imx_transport": "a1cbc7b28f702283b0e4f3192bb43e4a9e618ebf"}
+
+
+def _profiles(root, mutate=None):
+    components = {n: {"repository": "cogno-us/" + n, "sha": s} for n, s in _TUPLE.items()}
+    for relative in rr.HISTORICAL_TUPLE_PROFILES:
+        data = {"runtime_profile": "merged-producers-v1", "components": copy.deepcopy(components)}
+        if mutate:
+            mutate(relative, data)
+        _touch(root / relative, json.dumps(data))
+
+
+def test_historical_tuple_is_read_verbatim_from_the_hub_profiles(tmp_path):
+    _profiles(tmp_path)
+    loaded = rr.load_historical_tuple(tmp_path)
+    assert {n: v["sha"] for n, v in loaded.items()} == _TUPLE
+    assert all(v["repository"] == "cogno-us/" + n for n, v in loaded.items())
+
+
+@pytest.mark.parametrize("mutation", ["missing_component", "short_sha", "wrong_profile", "disagree"])
+def test_historical_tuple_fails_closed(tmp_path, mutation):
+    def mutate(relative, data):
+        second = relative.endswith("full-release-candidate.json")
+        if mutation == "missing_component" and second:
+            del data["components"]["odes"]
+        if mutation == "short_sha" and not second:
+            data["components"]["control_plane"]["sha"] = "d3dadee7"
+        if mutation == "wrong_profile" and second:
+            data["runtime_profile"] = "security-runtime-p2-20261018"
+        if mutation == "disagree" and second:
+            data["components"]["replay_bundle"]["sha"] = "0" * 40
+    _profiles(tmp_path, mutate)
+    with pytest.raises(RuntimeError):
+        rr.load_historical_tuple(tmp_path)
+
+
+def test_historical_tuple_fails_closed_when_a_profile_file_is_absent(tmp_path):
+    with pytest.raises(RuntimeError, match="unreadable"):
+        rr.load_historical_tuple(tmp_path)
+
+
+def test_historical_tuple_does_not_read_the_component_lock(tmp_path):
+    _profiles(tmp_path)
+    _touch(tmp_path / "component-lock.json", "{not json")
+    assert rr.load_historical_tuple(tmp_path)
+
+
+def test_historical_environment_selects_the_frozen_roots_under_the_exact_historical_profile(tmp_path):
+    roots = {n: tmp_path / n for n in _TUPLE}
+    env = rr.historical_tuple_env({"PYTHONPATH": "/current", "COGNOUS_SYNTHETIC_SERVICE_TIME": "2026-08-08T01:00:00Z",
+                                   "GAX_RUNTIME_COMPATIBILITY_PROFILE": "security-runtime-p2-20261018"}, roots)
+    assert env["GAX_RUNTIME_COMPATIBILITY_PROFILE"] == "merged-producers-v1"
+    assert "COGNOUS_SYNTHETIC_SERVICE_TIME" not in env
+    assert env["PYTHONPATH"].split(":")[0] == str(roots["control_plane"] / "src") and env["PYTHONPATH"].endswith("/current")
+    assert env["ARB_PINNED_MANIFEST_FIXTURE"] == str(roots["action_manifest"] / "examples/refund_integration_v1_1.manifest.json")
+    assert env["ARB_V2_CONTROL_PLANE_ROOT"] == env["AGEP_PERSISTENCE_CONTROL_PLANE_ROOT"] == str(roots["control_plane"])
+    assert env["ARB_V2_MOLTBOT_ROOT"] == env["AGEP_ACCEPTED_EXECUTOR_ROOT"] == str(roots["moltbot_safe"])
+    assert env["ODES_V2_REPLAY_ROOT"] == env["AGEP_ACCEPTED_REPLAY_ROOT"] == str(roots["replay_bundle"])
+    assert env["UPSTREAM_GAX_ROOT"] == str(roots["gax_imx_transport"])
+
+
+def test_producer_v2_stages_are_historical_generation_and_only_when_run_under_the_historical_profile():
+    for stage in ("evidence_pack_v2", "evidence_pack_persistence"):
+        assert stage in rr.HISTORICAL_LOCK_STAGES and stage in rr.HISTORICAL_PRODUCER_STAGES and stage not in rr.HISTORICAL_TUPLE_STAGES
+        assert rr.evidence_labels(stage, {"GAX_RUNTIME_COMPATIBILITY_PROFILE": "merged-producers-v1"})["generation"] == "historical"
+        # label follows the environment actually used, not the stage name alone
+        assert rr.evidence_labels(stage, {"GAX_RUNTIME_COMPATIBILITY_PROFILE": "security-runtime-p2-20261018"})["generation"] == "current"
+    assert "replay" not in rr.HISTORICAL_TUPLE_STAGES and "odes" not in rr.HISTORICAL_TUPLE_STAGES
+
+
+def test_merge_junit_appends_the_historical_subset_to_the_stage_file(tmp_path):
+    main = _touch(tmp_path / "replay.xml", '<testsuites><testsuite name="a" tests="1"><testcase name="test_one"/></testsuite></testsuites>')
+    sub = _touch(tmp_path / "sub.xml", '<testsuite name="b" tests="2"><testcase name="test_two"/><testcase name="test_three[x]"><failure message="m"/></testcase></testsuite>')
+    assert rr.merge_junit(main, [sub]) == ["test_two", "test_three[x]"]
+    import xml.etree.ElementTree as ET
+    assert [c.get("name") for c in ET.parse(main).getroot().iter("testcase")] == ["test_one", "test_two", "test_three[x]"]
+
+
+def _matrix(*identifiers, status="passed"):
+    return {"scenarios": [{"id": "s", "status": status, "supporting_test_identifiers": [{"test_id": i} for i in identifiers]}]}
+
+
+def test_scenario_on_a_historical_suite_is_marked_and_is_not_a_current_pass():
+    rows = rr.scenario_evidence(_matrix("gax_public_runtime_artifacts::test_x"), {"gax_public_runtime_artifacts"}, set())
+    assert rows[0]["generation"] == "historical" and rows[0]["counts_as_current_qualification_pass"] is False
+    assert rows[0]["historical_result_substitutes_for_current_qualification"] is False
+
+
+def test_scenario_resolving_partly_on_historical_tests_is_mixed_and_current_only_when_none_are_historical():
+    mixed = rr.scenario_evidence(_matrix("replay::test_a", "replay::test_real_producer_import[success]"), set(), {("replay", "test_real_producer_import")})
+    assert mixed[0]["generation"] == "mixed" and mixed[0]["historical_dependencies"] == ["replay::test_real_producer_import[success]"]
+    assert mixed[0]["counts_as_current_qualification_pass"] is False
+    current = rr.scenario_evidence(_matrix("replay::test_a", "odes::test_b"), {"gax_public_runtime_artifacts"}, {("replay", "other")})
+    assert current[0]["generation"] == "current" and current[0]["counts_as_current_qualification_pass"] is True
+    failed = rr.scenario_evidence(_matrix("replay::test_a", status="failed"), set(), set())
+    assert failed[0]["counts_as_current_qualification_pass"] is False
+
+
+def test_scenario_evidence_never_edits_the_matrix_results():
+    matrix = _matrix("evidence_pack_v2::test_actual_lifecycle[a]")
+    before = copy.deepcopy(matrix)
+    rr.scenario_evidence(matrix, {"evidence_pack_v2"}, set())
+    assert matrix == before
+
+
+def test_runner_wiring_reads_the_historical_tuple_runs_producer_v2_historically_and_reports_scenarios():
+    source = inspect.getsource(rr.main)
+    assert 'hist_roots[hname]=checkout("historical_tuple_"+hname,hspec)' in source and "load_historical_tuple(ROOT)" in source
+    assert "if security_runtime and not candidate:" in source
+    assert "hist_stage_env[name] if name in hist_stage_env else lock_hist_env" in source
+    assert "lock_hist_env[name] if name in HISTORICAL_LOCK_STAGES and name in lock_hist_env" in source
+    assert 'summary["scenario_evidence"]=scenario_evidence(' in source and '"registry_overlay_evidence"' in source
+    assert 'REPLAY_PUBLISHED_RESULTS_TEST' in source and 'hist_roots["replay_bundle"]' in source
+    assert '"component-lock.json"' not in inspect.getsource(rr.load_historical_tuple)
+
+
+def test_a_missing_relocated_file_is_a_nonzero_stage_and_cannot_pass_the_gate(tmp_path):
+    missing = rr.relocated_path("cognous-replay-bundle", tmp_path / "component", "tests/absent.py", tmp_path / "qualification")
+    record = rr.run([sys.executable, "-m", "pytest", "-q", str(missing)], cwd=tmp_path)
+    assert record["returncode"] != 0
+    assert not rr.release_passes([record], [{"returncode": 0}], True, True, {"returncode": 0})
+
+
+def test_lock_rooted_historical_stages_only_gain_the_historical_manifest_and_profile():
+    base = {"PYTHONPATH": "/lock", "ARB_V2_CONTROL_PLANE_ROOT": "/previous", "COGNOUS_SYNTHETIC_SERVICE_TIME": "x",
+            "ARB_PINNED_MANIFEST_FIXTURE": "/current/manifest.json", "GAX_RUNTIME_COMPATIBILITY_PROFILE": "security-runtime-p2-20261018"}
+    env = rr.historical_manifest_env(base, "/hist/manifest")
+    assert env["ARB_V2_CONTROL_PLANE_ROOT"] == "/previous" and env["PYTHONPATH"] == "/lock"
+    assert env["ARB_PINNED_MANIFEST_FIXTURE"] == "/hist/manifest/examples/refund_integration_v1_1.manifest.json"
+    assert env["GAX_RUNTIME_COMPATIBILITY_PROFILE"] == "merged-producers-v1" and "COGNOUS_SYNTHETIC_SERVICE_TIME" not in env
+    assert base["ARB_PINNED_MANIFEST_FIXTURE"] == "/current/manifest.json"
+
+
+@pytest.mark.parametrize("stage,component", [("replay_merged", "replay_bundle"), ("odes_merged", "odes"),
+                                             ("evidence_pack_merged", "governance_evidence_pack"), ("gax_public_runtime_artifacts", None)])
+def test_merged_stages_keep_the_selected_component_under_test_ahead_of_the_historical_producers(tmp_path, stage, component):
+    roots = {n: tmp_path / n for n in _TUPLE}
+    env = rr.historical_tuple_env({"PYTHONPATH": "/selected"}, roots, rr.COMPONENT_UNDER_TEST.get(stage))
+    entries = env["PYTHONPATH"].split(":")
+    assert entries[-1] == "/selected"
+    sources = {"replay_bundle": str(roots["replay_bundle"] / "src"), "odes": str(roots["odes"] / "src"),
+               "governance_evidence_pack": str(roots["governance_evidence_pack"] / "src")}
+    for name, path in sources.items():
+        assert (path in entries) == (name != component)
+    assert env["GAX_RUNTIME_COMPATIBILITY_PROFILE"] == "merged-producers-v1"

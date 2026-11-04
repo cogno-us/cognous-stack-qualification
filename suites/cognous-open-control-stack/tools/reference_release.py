@@ -72,7 +72,24 @@ def required_batches(profile):
 # historical result is a record about that generation and must never be read as current-profile qualification.
 HISTORICAL_GAX_PROFILE = "merged-producers-v1"
 HISTORICAL_PRODUCER_STAGES = frozenset({"replay_merged", "evidence_pack_merged", "odes_merged",
-                                        "gax_public_runtime_artifacts", "gax_historical_artifacts"})
+                                        "gax_public_runtime_artifacts", "gax_historical_artifacts",
+                                        "evidence_pack_v2", "evidence_pack_persistence"})
+# Stages that, under a security-runtime lock, run against the frozen merged-producers-v1 tuple read from the Hub's own
+# profiles/merged-consumer-chain.json (read-only; never component-lock.json and never constants in this runner).
+HISTORICAL_TUPLE_STAGES = frozenset({"replay_merged", "evidence_pack_merged", "odes_merged", "gax_public_runtime_artifacts"})
+# The producer-v2 and persistence suites assert OTHER historical generations (the lock's previous_selected /
+# previous_accepted roots, which the runner already checks out) but all of them assert the historical manifest 46c950be.
+HISTORICAL_LOCK_STAGES = frozenset({"evidence_pack_v2", "evidence_pack_persistence"})
+HISTORICAL_TUPLE_COMPONENTS = ("action_manifest", "control_plane", "moltbot_safe", "replay_bundle",
+                               "governance_evidence_pack", "odes", "gax_imx_transport")
+HISTORICAL_TUPLE_PROFILES = ("profiles/merged-consumer-chain.json", "profiles/full-release-candidate.json")
+# Producer-v2 tests restored into the Replay/ODES directory stages assert the same historical tuple, so they run as a
+# separate historical invocation whose results are merged into the stage's junit file (the matrix resolves by suite name).
+HISTORICAL_DIRECTORY_EXTRAS = {
+    "replay": ("cognous-replay-bundle", ("tests/test_producer_v2.py", "tests/test_producer_v2_persistence.py")),
+    "odes": ("open-decision-evidence-standard", ("tests/test_producer_v2.py",)),
+}
+REPLAY_PUBLISHED_RESULTS_TEST = "test_published_v2_examples_preserve_profiles_and_content"
 # Deterministic developer-test stages whose fixtures are dated against a fixed clock. The Control Plane evaluates
 # on its own clock unless test time is allowed, so these stages receive the existing explicit synthetic service
 # clock (patched through ``-p tools.reference_release``) under a security-runtime lock.
@@ -94,14 +111,139 @@ def synthetic_clock_for_stage(stage, runtime_profile):
 def evidence_labels(stage, suite_env):
     """Explicit evidence metadata derived from the environment a stage actually ran with."""
     clock = suite_env.get("COGNOUS_SYNTHETIC_SERVICE_TIME")
-    labels = {"generation": "historical" if stage in HISTORICAL_PRODUCER_STAGES else "current",
-              "runtime_profile": suite_env.get("GAX_RUNTIME_COMPATIBILITY_PROFILE"),
+    profile = suite_env.get("GAX_RUNTIME_COMPATIBILITY_PROFILE")
+    # Historical only when the stage is a historical-generation stage AND actually ran under the historical profile.
+    historical = stage in HISTORICAL_PRODUCER_STAGES and profile == HISTORICAL_GAX_PROFILE
+    labels = {"generation": "historical" if historical else "current",
+              "runtime_profile": profile,
               "synthetic_service_clock": clock}
-    if stage in HISTORICAL_PRODUCER_STAGES:
+    if historical:
         labels["historical_result_substitutes_for_current_qualification"] = False
     if clock:
         labels["synthetic_service_clock_notice"] = SYNTHETIC_CLOCK_NOTICE
     return labels
+
+
+def load_historical_tuple(root):
+    """The frozen merged-producers-v1 tuple, verbatim from the Hub's existing profile files; fails closed.
+
+    Read-only: nothing is defined here and component-lock.json is not consulted. Both profile files must declare the
+    historical runtime profile and agree on repository and revision for all seven components.
+    """
+    root = Path(root)
+    loaded = []
+    for relative in HISTORICAL_TUPLE_PROFILES:
+        try:
+            loaded.append(json.loads((root / relative).read_text()))
+        except (OSError, ValueError) as error:
+            raise RuntimeError("historical tuple profile unreadable: %s (%s)" % (relative, error)) from error
+    tuple_ = {}
+    for relative, profile in zip(HISTORICAL_TUPLE_PROFILES, loaded):
+        if profile.get("runtime_profile") != HISTORICAL_GAX_PROFILE:
+            raise RuntimeError("historical tuple profile %s does not declare %s" % (relative, HISTORICAL_GAX_PROFILE))
+        for name in HISTORICAL_TUPLE_COMPONENTS:
+            spec = (profile.get("components") or {}).get(name)
+            sha = (spec or {}).get("core_interop_sha" if name == "moltbot_safe" else "sha") or (spec or {}).get("sha")
+            repo = (spec or {}).get("repository")
+            if not spec or not repo or not isinstance(sha, str) or len(sha) != 40 or any(c not in "0123456789abcdef" for c in sha):
+                raise RuntimeError("historical tuple component %s missing or malformed in %s" % (name, relative))
+            if name in tuple_ and tuple_[name] != {"repository": repo, "sha": sha}:
+                raise RuntimeError("historical tuple profiles disagree on %s" % name)
+            tuple_[name] = {"repository": repo, "sha": sha}
+    return tuple_
+
+
+# Merged-producer suites test the SELECTED component against the frozen historical producers (as the owning
+# repositories' merged-producer workflows do), so the selected component stays first on the import path.
+COMPONENT_UNDER_TEST = {"replay_merged": "replay_bundle", "odes_merged": "odes", "evidence_pack_merged": "governance_evidence_pack"}
+
+
+def historical_tuple_env(base_env, roots, under_test=None):
+    """Environment for historical stages: the frozen tuple's roots, under the exact historical profile.
+
+    ``under_test`` names a tuple component that is the component being qualified: its historical source is left off
+    the import path so the selected checkout (already on ``base_env['PYTHONPATH']``) is what runs.
+    """
+    manifest = str(roots["action_manifest"] / "examples/refund_integration_v1_1.manifest.json")
+    cp, molt, replay, odes = roots["control_plane"], roots["moltbot_safe"], roots["replay_bundle"], roots["odes"]
+    agep, gax = roots["governance_evidence_pack"], roots["gax_imx_transport"]
+    env = dict(base_env)
+    env.pop("COGNOUS_SYNTHETIC_SERVICE_TIME", None)
+    env["GAX_RUNTIME_COMPATIBILITY_PROFILE"] = HISTORICAL_GAX_PROFILE
+    sources = {"control_plane": cp / "src", "replay_bundle": replay / "src", "governance_evidence_pack": agep / "src",
+               "odes": odes / "src", "gax_imx_transport": gax, "moltbot_safe": molt}
+    env["PYTHONPATH"] = os.pathsep.join([str(path) for name, path in sources.items() if name != under_test]
+                                        + [base_env.get("PYTHONPATH", "")])
+    for key in ("MOLTBOT_SAFE_MANIFEST_FIXTURE", "UPSTREAM_MANIFEST_EXAMPLE", "ARB_PINNED_MANIFEST_FIXTURE",
+                "ODES_PINNED_MANIFEST_FIXTURE", "AGEP_PINNED_MANIFEST_FIXTURE", "AGEP_MANIFEST_FIXTURE"):
+        env[key] = manifest
+    for key in ("MOLTBOT_SAFE_CONTROL_PLANE_ROOT", "UPSTREAM_CONTROL_PLANE_ROOT", "ARB_PINNED_CONTROL_PLANE_ROOT",
+                "ODES_PINNED_CONTROL_PLANE_ROOT", "AGEP_PINNED_CONTROL_PLANE_ROOT", "ARB_V2_CONTROL_PLANE_ROOT",
+                "ARB_V2_PERSISTENCE_CONTROL_PLANE_ROOT", "AGEP_PERSISTENCE_CONTROL_PLANE_ROOT"):
+        env[key] = str(cp)
+    for key in ("MOLTBOT_SAFE_ROOT", "UPSTREAM_MOLTBOT_SAFE_ROOT", "ARB_PINNED_MOLTBOT_ROOT", "ODES_PINNED_MOLTBOT_ROOT",
+                "AGEP_PINNED_MOLTBOT_ROOT", "ARB_V2_MOLTBOT_ROOT", "AGEP_ACCEPTED_EXECUTOR_ROOT"):
+        env[key] = str(molt)
+    for key in ("ODES_PINNED_REPLAY_ROOT", "AGEP_PINNED_REPLAY_ROOT", "ODES_V2_REPLAY_ROOT", "AGEP_ACCEPTED_REPLAY_ROOT"):
+        env[key] = str(replay)
+    env["AGEP_V2_ODES_ROOT"] = str(odes)
+    env["UPSTREAM_GAX_ROOT"] = str(gax)
+    env["UPSTREAM_REPLAY_SUCCESS_EXAMPLE"] = str(replay / "examples/bounded_success_reconstruction_v0_2.json")
+    env["UPSTREAM_REPLAY_LOST_ACK_EXAMPLE"] = str(replay / "examples/bounded_lost_ack_reconstruction_v0_2.json")
+    return env
+
+
+def historical_manifest_env(stage_env, manifest_root):
+    """A lock-rooted historical stage environment with the historical manifest checkout and profile."""
+    env = dict(stage_env)
+    env.pop("COGNOUS_SYNTHETIC_SERVICE_TIME", None)
+    env["GAX_RUNTIME_COMPATIBILITY_PROFILE"] = HISTORICAL_GAX_PROFILE
+    fixture = str(Path(manifest_root) / "examples/refund_integration_v1_1.manifest.json")
+    for key in ("MOLTBOT_SAFE_MANIFEST_FIXTURE", "UPSTREAM_MANIFEST_EXAMPLE", "ARB_PINNED_MANIFEST_FIXTURE",
+                "ODES_PINNED_MANIFEST_FIXTURE", "AGEP_PINNED_MANIFEST_FIXTURE", "AGEP_MANIFEST_FIXTURE"):
+        env[key] = fixture
+    return env
+
+
+def merge_junit(destination, sources):
+    """Append the testsuites of ``sources`` to ``destination`` and return the merged test names."""
+    tree = ET.parse(destination)
+    root = tree.getroot()
+    if root.tag == "testsuite":
+        wrapper = ET.Element("testsuites")
+        wrapper.append(root)
+        tree, root = ET.ElementTree(wrapper), wrapper
+    names = []
+    for source in sources:
+        for suite in ET.parse(source).getroot().iter("testsuite"):
+            root.append(suite)
+            names.extend(case.get("name", "") for case in suite.iter("testcase"))
+    tree.write(destination, encoding="utf-8", xml_declaration=True)
+    return names
+
+
+def scenario_evidence(matrix_results, historical_stages, historical_tests):
+    """Per-scenario generation, without altering the matrix or its verdicts.
+
+    A scenario that resolves on any historical suite or historical test is marked, and a pass on it is never reported
+    as a current qualification pass.
+    """
+    rows = []
+    for scenario in (matrix_results or {}).get("scenarios", []):
+        dependencies = []
+        for item in scenario.get("supporting_test_identifiers", []):
+            suite, _, name = item["test_id"].partition("::")
+            base = name.split("[", 1)[0]
+            if suite in historical_stages or (suite, base) in historical_tests:
+                if item["test_id"] not in dependencies:
+                    dependencies.append(item["test_id"])
+        total = len({i["test_id"] for i in scenario.get("supporting_test_identifiers", [])})
+        generation = "current" if not dependencies else ("historical" if len(dependencies) == total else "mixed")
+        rows.append({"id": scenario["id"], "matrix_status": scenario.get("status"), "generation": generation,
+                     "historical_dependencies": dependencies,
+                     "counts_as_current_qualification_pass": scenario.get("status") == "passed" and generation == "current",
+                     "historical_result_substitutes_for_current_qualification": False})
+    return rows
 
 
 def relocated_path(suite, component_root, relative, qualification_root):
@@ -549,6 +691,17 @@ def main():
         # Historical producer-generation suites verify their frozen generation; they must not inherit the current profile.
         for target in (historical_merged_env, historical_gax_env):
             target["GAX_RUNTIME_COMPATIBILITY_PROFILE"]=HISTORICAL_GAX_PROFILE
+    hist_env=None; hist_roots={}
+    if security_runtime and not candidate:
+        # Decision G: the frozen historical tuple is read verbatim from the Hub's existing profile files (fail closed).
+        for hname,hspec in load_historical_tuple(ROOT).items():
+            hist_roots[hname]=checkout("historical_tuple_"+hname,hspec)
+        hist_env=historical_tuple_env(env,hist_roots)
+        hist_stage_env={stage:historical_tuple_env(env,hist_roots,COMPONENT_UNDER_TEST.get(stage)) for stage in HISTORICAL_TUPLE_STAGES}
+        lock_hist_env={stage:historical_manifest_env(stage_env,hist_roots["action_manifest"]) for stage,stage_env in
+                       (("evidence_pack_v2",agep_v2_env),("evidence_pack_persistence",agep_persistence_env),("replay",replay_env),("odes",odes_env))}
+    else:
+        lock_hist_env={}; hist_stage_env={}
     historical_gax_stages = {"gax_historical_artifacts"} if candidate else ({"gax_public_runtime_artifacts"} if security_runtime else set())
 
     refusal_env=env.copy()
@@ -563,9 +716,27 @@ def main():
 
     # Directory stages regain the tests that were relocated out of the pinned components (the scripts they call
     # sit beside the relocated Replay/ODES tests, so those two stages run from the relocated suite directory).
-    replay_relocated=relocated_more("cognous-replay-bundle",replay,["tests/test_producer_v2.py","tests/test_producer_v2_persistence.py","tests/test_pinned_integration.py"])
+    # Producer-v2 tests assert the historical tuple: under a security-runtime lock they leave the current directory
+    # stage and run as a historical invocation (see ``historical_extras`` below); otherwise they stay in the directory stage.
+    split_extras = hist_env is not None
+    replay_relocated=relocated_more("cognous-replay-bundle",replay,(["tests/test_pinned_integration.py"] if split_extras else ["tests/test_producer_v2.py","tests/test_producer_v2_persistence.py","tests/test_pinned_integration.py"]))
     agep_relocated=relocated_more("cognous-governance-evidence-pack",agep,["tests/test_importer.py","tests/test_accepted_executor_profile.py"])
-    odes_relocated=relocated_more("open-decision-evidence-standard",odes,["tests/test_producer_v2.py","tests/test_accepted_replay_profile.py","tests/test_odes_stack_export.py"])
+    odes_relocated=relocated_more("open-decision-evidence-standard",odes,(["tests/test_accepted_replay_profile.py","tests/test_odes_stack_export.py"] if split_extras else ["tests/test_producer_v2.py","tests/test_accepted_replay_profile.py","tests/test_odes_stack_export.py"]))
+    historical_extras={}   # stage -> [(label, command, cwd)] run under hist_env and merged into the stage's junit
+    if split_extras:
+        component_roots={"replay":replay,"odes":odes}
+        for stage,(hsuite,hrelatives) in HISTORICAL_DIRECTORY_EXTRAS.items():
+            moved=relocated_more(hsuite,component_roots[stage],list(hrelatives))
+            if not moved:
+                continue
+            suite_dir=suite_base/"suites"/hsuite
+            plans=[(stage+"-producer-v2",[sys.executable,"-m","pytest","-q",*[str(m) for m in moved],
+                    *(["-k","not "+REPLAY_PUBLISHED_RESULTS_TEST] if stage=="replay" else [])],suite_dir)]
+            if stage=="replay":
+                # That one test reads docs/ relative to the working directory, its siblings need scripts/: own invocation.
+                plans.append((stage+"-published-results",[sys.executable,"-m","pytest","-q",str(moved[0]),"-k",REPLAY_PUBLISHED_RESULTS_TEST],hist_roots["replay_bundle"]))
+            historical_extras[stage]=plans
+    historical_test_names=set()
     replay_cwd=suite_base/"suites"/"cognous-replay-bundle" if replay_relocated else replay
     odes_cwd=suite_base/"suites"/"open-decision-evidence-standard" if odes_relocated else odes
     suites=[
@@ -662,7 +833,7 @@ def main():
             actual=list(cmd)
             junit=rdir/f"{name}.xml"
             actual.extend(["--junitxml",str(junit)])
-            suite_env=(refusal_env if name.endswith("_refusal") else historical_gax_env if name in historical_gax_stages else historical_merged_env if name.endswith("_merged") else agep_historical_env if name=="evidence_pack" else agep_v2_env if name=="evidence_pack_v2" else agep_persistence_env if name=="evidence_pack_persistence" else replay_env if name=="replay" else odes_env if name=="odes" else env)
+            suite_env=(hist_stage_env[name] if name in hist_stage_env else lock_hist_env[name] if name in HISTORICAL_LOCK_STAGES and name in lock_hist_env else refusal_env if name.endswith("_refusal") else historical_gax_env if name in historical_gax_stages else historical_merged_env if name.endswith("_merged") else agep_historical_env if name=="evidence_pack" else agep_v2_env if name=="evidence_pack_v2" else agep_persistence_env if name=="evidence_pack_persistence" else replay_env if name=="replay" else odes_env if name=="odes" else env)
             suite_env={**suite_env,"BATCH4C_RESULTS_DIR":env["BATCH4C_RESULTS_DIR"],"GAX_QUALIFICATION_RESULTS":env["GAX_QUALIFICATION_RESULTS"],"STORE_CONCURRENCY_EVIDENCE":env["STORE_CONCURRENCY_EVIDENCE"]}
             stage_clock=synthetic_clock_for_stage(name,LOCK.get("runtime_profile"))
             if stage_clock:
@@ -670,8 +841,26 @@ def main():
             if candidate and (name in {"hub_release_gate","research_qualification","gax_observation_repair","gax_reference","gax_public_runtime_artifacts","governed_transport","governed_transport_integration"}) or stage_clock:
                 actual.extend(["-p","tools.reference_release"])
             rec=run(actual,cwd=cwd,env=suite_env)
+            subset=None
+            if name in historical_extras:
+                sub_dir=rdir/"historical-subsets"; sub_dir.mkdir(exist_ok=True)
+                sub_xml=[]; sub_rcs=[]; sub_out=""
+                for label,hcmd,hcwd in historical_extras[name]:
+                    hx=sub_dir/f"{label}.xml"; sub_xml.append(hx)
+                    hrec=run(list(hcmd)+["--junitxml",str(hx)],cwd=hcwd,env=lock_hist_env[name])
+                    sub_rcs.append(hrec["returncode"]); sub_out+=f"\n$ {' '.join(hrec['command'])}\n{hrec['output']}"
+                    (sub_dir/f"{label}.log").write_text(hrec["output"],encoding="utf-8")
+                present=[x for x in sub_xml if x.exists()]
+                moved_names=merge_junit(junit,present) if present and junit.exists() else []
+                historical_test_names.update((name,n.split("[",1)[0]) for n in moved_names)
+                subset={**evidence_labels("evidence_pack_v2",lock_hist_env[name]),"returncodes":sub_rcs,"tests":len(moved_names),
+                        "logs":[str((sub_dir/f"{x[0]}.log").relative_to(out)) for x in historical_extras[name]]}
+                if any(sub_rcs) or len(present)!=len(sub_xml):
+                    rec["returncode"]=rec["returncode"] or next((c for c in sub_rcs if c),1)
+                rec["output"]+="\n--- historical subset (merged-producers-v1 tuple) ---"+sub_out
             (rdir/f"{name}.log").write_text(rec["output"],encoding="utf-8")
             rec.update({"suite":name,"repetition":repetition,"log":str((rdir/f"{name}.log").relative_to(out)),"junit":str(junit.relative_to(out)),**evidence_labels(name,suite_env)})
+            if subset: rec["historical_subset"]=subset
             rec.pop("output")
             runs.append(rec)
 
@@ -787,7 +976,11 @@ def main():
         "synthetic_service_clock":{**{r["suite"]:r["synthetic_service_clock"] for r in runs if r.get("synthetic_service_clock")},
                                    **({"openshell_mock":openshell["synthetic_service_clock"]} if openshell.get("synthetic_service_clock") else {})},
         "synthetic_service_clock_notice":SYNTHETIC_CLOCK_NOTICE,
-        "historical_result_substitutes_for_current_qualification":False}
+        "historical_result_substitutes_for_current_qualification":False,
+        "historical_tuple_source":(list(HISTORICAL_TUPLE_PROFILES) if hist_env is not None else None),
+        "historical_tuple_revisions":{k:run(["git","rev-parse","HEAD"],cwd=v)["output"].strip() for k,v in hist_roots.items()},
+        "registry_overlay_evidence":({"path":"registry-overlay-evidence.json","sha256":sha256(out/"registry-overlay-evidence.json")} if (out/"registry-overlay-evidence.json").exists() else None)}
+    summary["scenario_evidence"]=scenario_evidence(matrix_results,{r["suite"] for r in runs if r.get("generation")=="historical"},historical_test_names)
     summary["release_gate_passed"]=release_passes(runs, representative_runs, representative_repeatable, matrix_pass, openshell)
     summary["candidate_qualification_passed"]=summary["release_gate_passed"]
     summary["gate_passed_for_selected_lock"]=summary["release_gate_passed"] and LOCK.get("qualification_status") != "candidate"
