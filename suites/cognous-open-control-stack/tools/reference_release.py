@@ -193,12 +193,16 @@ def provision_isolated_import_environment(venv_dir, checkouts, pins, *, base_pyt
     # --system-site-packages exposes only the *base* installation. When this runner itself runs inside a
     # virtual environment, expose that environment's packages too (appended, so the pinned editable installs
     # in the new environment still take precedence).
+    target = Path(_provision_step(records, [python, "-I", "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"],
+                                  env=env, label="locate isolated-import site-packages")["output"].strip().splitlines()[-1])
     parent = _provision_step(records, [base_python, "-I", "-c", "import sys, sysconfig; print(sys.prefix != sys.base_prefix); print(sysconfig.get_path('purelib'))"],
                              env=env, label="locate parent site-packages")["output"].strip().splitlines()
     if parent[-2] == "True":
-        target = _provision_step(records, [python, "-I", "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"],
-                                 env=env, label="locate isolated-import site-packages")["output"].strip().splitlines()[-1]
-        (Path(target) / "zz-parent-environment.pth").write_text(parent[-1] + "\n", encoding="utf-8")
+        (target / "zz-parent-environment.pth").write_text(parent[-1] + "\n", encoding="utf-8")
+    # ``-I`` children ignore PYTHONDONTWRITEBYTECODE, and the editable installs point at the pinned checkouts:
+    # without this they would leave ignored __pycache__ files in a checkout whose later strict source-identity
+    # verification rejects any untracked or ignored importable file. site-packages .pth files still run under -I.
+    (target / "zz-no-bytecode.pth").write_text("import sys; sys.dont_write_bytecode = True\n", encoding="utf-8")
     # A copy already visible through the system site-packages (stale, foreign or from another revision) would
     # make the isolated children test something other than the pin: refuse instead of masking.
     before = _probe_identity(python, env, ISOLATED_IMPORT_PACKAGES, records, "pre-install visibility probe")

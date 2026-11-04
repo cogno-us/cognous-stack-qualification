@@ -184,6 +184,17 @@ def test_isolated_children_import_the_pinned_replay_and_odes_sources(provisioned
         assert Path(child.stdout.strip()).resolve().is_relative_to(checkouts[component].resolve() / "src")
 
 
+def test_isolated_children_leave_the_pinned_checkout_pristine(provisioned):
+    # -I children ignore PYTHONDONTWRITEBYTECODE; a __pycache__ written into a pinned checkout would make the
+    # later strict source-identity verification reject it (and validate_checkout would refuse a reused one).
+    _root, checkouts, pins, python, _records = provisioned
+    for component, _dist, module in rr.ISOLATED_IMPORT_PACKAGES:
+        child = subprocess.run([python, "-I", "-c", "import %s" % module], capture_output=True, text=True, env={"PATH": "/usr/bin:/bin"})
+        assert child.returncode == 0, child.stderr
+        assert _git(checkouts[component], "status", "--porcelain", "--untracked-files=all", "--ignored=matching") == ""
+        rr.validate_checkout(checkouts[component], pins[component])
+
+
 def test_install_records_identify_package_and_exact_source_revision(provisioned):
     _root, checkouts, pins, _python, records = provisioned
     identities = {r["component"]: r for r in records if r.get("step") == "identity"}
