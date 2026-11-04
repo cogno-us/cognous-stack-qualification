@@ -9,9 +9,17 @@ read the exchange database to reconstruct them.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import os
 import sqlite3
+import sys
+import tempfile
 from pathlib import Path
+
+# The Exchange's authenticated loader (security-runtime profiles) requires that nothing writes bytecode into the
+# pinned checkouts it verifies; set before any pinned module is imported.
+sys.dont_write_bytecode = True
 
 from experiments.governed_message_transport import (
     AcceptedGaxRecipientAdapter,
@@ -32,11 +40,71 @@ from experiments.odex_gax_imx_reference.synthetic_fixture import (
     synthetic_observation_policy,
     synthetic_observation_clock,
 )
+if os.environ.get("GAX_RUNTIME_COMPATIBILITY_PROFILE","").startswith("security-runtime-"):
+    # The authenticated loader refuses any pinned package that was imported before it authenticated the sources, so it
+    # runs before the Evidence Pack imports below (the loader itself is the import path for the pinned packages).
+    load_executor_runtime()
 from agent_governance_evidence_pack.importer import build_evidence_pack_from_files
 from agent_governance_evidence_pack.loader import dump_evidence_pack
 from agent_governance_evidence_pack.trace_renderer import render_traceable_markdown
 
 EVAL="2026-08-08T01:00:00Z"
+SYNTHETIC_VALIDATOR="synthetic-validator"
+SYNTHETIC_EVIDENCE_MEMBERS=["synthetic-refund-entitlement"]
+
+
+def security_runtime_profile():
+    return os.environ.get("GAX_RUNTIME_COMPATIBILITY_PROFILE","").startswith("security-runtime-")
+
+
+def synthetic_runtime_authority(proposal, resolver, manifest, now):
+    """Trusted host configuration for the synthetic reference fixture (security-runtime profiles only).
+
+    Deterministic developer-test fixture: a fixed synthetic validator key signs the one required evidence record and the
+    approval is bound to the profile, exactly as the Control Plane's own runtime-authority tests do. It does not add
+    authority: the Control Plane still decides every grant, evidence and approval check. Never production configuration.
+    """
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from cryptography.hazmat.primitives import serialization
+    from experiments.odex_gax_imx_reference import gax_ref
+    bounded=gax_ref._pinned("agent_control_plane.bounded")
+    authority=gax_ref._pinned("agent_control_plane.runtime_authority")
+    key=Ed25519PrivateKey.from_private_bytes(hashlib.sha256(b"cognous-synthetic-reference-validator").digest())
+    public=key.public_key().public_bytes(serialization.Encoding.Raw,serialization.PublicFormat.Raw).hex()
+    context=resolver.contexts[proposal.authority_context_ref]
+    with tempfile.TemporaryDirectory() as directory:
+        baseline=bounded.BoundedAuthorizationWorkflow(
+            manifest=manifest,resolver=resolver,destination=bounded.LocalRefundDestination(Path(directory)/"destination.json"),
+            records=bounded.BoundedRecordStore(Path(directory)/"records.json","reference-baseline"),
+            observation_policy=synthetic_observation_policy(),allow_test_time=True).decide(proposal,now=now)
+    required=sorted(({"input_type":x.input_type,"input_id":x.input_id} for x in baseline.resolution_inputs),
+                    key=lambda x:(x["input_type"],x["input_id"]))
+    config=authority.RuntimeAuthorityProfile(
+        catalogue_version="synthetic-catalogue/1",
+        actions={proposal.action_id:authority.ActionClass(class_id="synthetic-irreversible",irreversible=True,
+                                                          max_status_age_seconds=60,on_unreadable="refuse")},
+        producer_keys={SYNTHETIC_VALIDATOR:public},allow_synthetic_resolver=True)
+    subject=bounded.commitment(SYNTHETIC_EVIDENCE_MEMBERS)
+    criteria={}
+    for obligation in context.get("requirement",{}).get("evidence",[]):
+        if not (obligation.get("required") and obligation.get("kind")=="authorization"):
+            continue
+        oid=obligation["obligation_id"]
+        criteria[oid]={"kind":"exact_members","producer_id":SYNTHETIC_VALIDATOR,"subject_digest":subject,
+                       "minimum_count":len(SYNTHETIC_EVIDENCE_MEMBERS),"members":SYNTHETIC_EVIDENCE_MEMBERS}
+        status=resolver.evidence[oid]
+        statement={"version":"validation-record/0.1","producer_id":SYNTHETIC_VALIDATOR,"obligation_id":status.obligation_id,
+                   "subject_digest":subject,"observed_at":status.observed_at,
+                   "institution_id":context["institution"]["institution_id"],
+                   "authority_domain":context["institution"]["authority_domain"],"tenant_id":context.get("tenant_id"),
+                   "values":{"validated_count":len(SYNTHETIC_EVIDENCE_MEMBERS),"validated_members":SYNTHETIC_EVIDENCE_MEMBERS}}
+        status.validation_record={"statement":statement,"signature":key.sign(bounded._canonical_bytes(statement)).hex()}
+    context["runtime_authority"]={"profile":"runtime-authority/0.1","required_inputs":required,
+                                  "required_inputs_digest":bounded.commitment(required),"evidence_criteria":criteria}
+    commitment=authority.approval_commitment(config,context)
+    for approval in resolver.approvals.values():
+        approval.runtime_authority_commitment=commitment
+    return config
 
 def load_json(path: str | Path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
@@ -362,6 +430,12 @@ def main():
     destination=runtime["DurableRefundDestination"](out/"destination")
     exchange_path=out/"gax-exchange.sqlite"
     registry=LocalRegistry({"refund-sender"},{"refund-recipient"},"refund-recipient")
+    authority_options={}
+    if security_runtime_profile():
+        # security-runtime-* requires the trusted profile as constructor keywords (Exchange adapter interface); the
+        # synthetic fixture is accepted only with allow_test_time=True, a deterministic developer-test clock.
+        authority_options={"runtime_authority_profile":synthetic_runtime_authority(proposal,resolver,manifest,parse_time(EVAL)),
+                           "allow_test_time":True}
     handler=AcceptedGaxRecipientAdapter(
         bundle=seed_bundle,
         registry=registry,
@@ -373,6 +447,7 @@ def main():
         execution_policy_factory=synthetic_refund_policy,
         observation_policy=synthetic_observation_policy(),
         observation_clock=synthetic_observation_clock,
+        **authority_options,
     )
     transport=LocalDurableTransport(
         sender_store_path=out/"transport-sender.sqlite",

@@ -649,3 +649,32 @@ def test_merged_stages_keep_the_selected_component_under_test_ahead_of_the_histo
     for name, path in sources.items():
         assert (path in entries) == (name != component)
     assert env["GAX_RUNTIME_COMPATIBILITY_PROFILE"] == "merged-producers-v1"
+
+
+# --- Exchange adapter supply side (security-runtime profiles) -------------------------------------------------
+def _transported_source():
+    return (Path(__file__).resolve().parents[1] / "tools" / "transported_reference.py").read_text()
+
+
+def test_transported_reference_supplies_the_trusted_authority_only_under_security_runtime_profiles():
+    source = _transported_source()
+    assert 'os.environ.get("GAX_RUNTIME_COMPATIBILITY_PROFILE","").startswith("security-runtime-")' in source
+    assert "authority_options={}\n    if security_runtime_profile():" in source          # empty (unchanged call) otherwise
+    assert '"allow_test_time":True' in source and "**authority_options," in source
+    assert "runtime_authority_profile" in source.split("authority_options={}", 1)[1].split("AcceptedGaxRecipientAdapter(", 1)[0]
+
+
+def test_transported_reference_authenticates_sources_before_importing_pinned_packages_and_writes_no_bytecode():
+    source = _transported_source()
+    assert source.index("sys.dont_write_bytecode = True") < source.index("from experiments.governed_message_transport")
+    loader = source.index("    load_executor_runtime()\nfrom agent_governance_evidence_pack.importer")
+    assert source.index("from experiments.odex_gax_imx_reference.gax_ref_runtime import") < loader
+    assert loader < source.index("from agent_governance_evidence_pack.importer")
+
+
+def test_synthetic_runtime_authority_is_a_labelled_deterministic_fixture_that_adds_no_authority():
+    source = _transported_source()
+    body = source.split("def synthetic_runtime_authority", 1)[1].split("\ndef ", 1)[0]
+    assert "Deterministic developer-test fixture" in body and "Never production configuration" in body
+    assert "Ed25519PrivateKey.from_private_bytes(hashlib.sha256(" in body        # fixed synthetic key, not random
+    assert "allow_synthetic_resolver=True" in body and "approval_commitment(config,context)" in body
