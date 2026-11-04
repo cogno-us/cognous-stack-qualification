@@ -42,7 +42,10 @@ from tools.optional_execution_profile import validate_checkout, qualification_en
 LOCK=json.loads((ROOT/"component-lock.json").read_text())
 WORK=ROOT/".reference-work"
 REUSE_CHECKOUTS=False
-# These repositories are no longer part of OCS. Historical profiles may still\n# mention them, but current OCS qualification must not clone or evaluate them.\nNON_OCS_COMPONENTS = {"prp", "research_intelligence"}\nBATCHES = {
+# These repositories are no longer part of OCS. Historical profiles may still
+# mention them, but current OCS qualification must not clone or evaluate them.
+NON_OCS_COMPONENTS = {"prp", "research_intelligence"}
+BATCHES = {
     "authority": {"control_plane", "control_plane_store", "hub_release_gate"},
     "exchange": {"gax_observation_repair", "gax_reference", "governed_transport", "governed_transport_integration", "gax_public_runtime_artifacts", "research_qualification"},
     "consumers": {"replay", "evidence_pack", "evidence_pack_v2", "evidence_pack_persistence", "odes", "replay_merged", "evidence_pack_merged", "odes_merged"},
