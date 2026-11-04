@@ -68,6 +68,61 @@ def required_batches(profile):
             for name, suites in BATCHES.items()}
 
 
+# Evidence labelling. Historical producer-generation suites run under their frozen historical GAX profile; a
+# historical result is a record about that generation and must never be read as current-profile qualification.
+HISTORICAL_GAX_PROFILE = "merged-producers-v1"
+HISTORICAL_PRODUCER_STAGES = frozenset({"replay_merged", "evidence_pack_merged", "odes_merged",
+                                        "gax_public_runtime_artifacts", "gax_historical_artifacts"})
+# Deterministic developer-test stages whose fixtures are dated against a fixed clock. The Control Plane evaluates
+# on its own clock unless test time is allowed, so these stages receive the existing explicit synthetic service
+# clock (patched through ``-p tools.reference_release``) under a security-runtime lock.
+SYNTHETIC_CLOCK_STAGES = {"research_qualification": "2026-08-08T01:00:00Z",
+                          "openshell_mock": "2026-10-05T19:00:00Z"}
+SYNTHETIC_CLOCK_NOTICE = ("Synthetic time gives deterministic developer-test fixtures a fixed clock. It is not evidence "
+                          "of operational temporal enforcement and does not qualify freshness, expiry or revocation behaviour.")
+
+
+def is_security_runtime_profile(profile):
+    return str(profile or "").startswith("security-runtime-")
+
+
+def synthetic_clock_for_stage(stage, runtime_profile):
+    """Fixed fixture time for a stage under a security-runtime lock, else None (clock unchanged)."""
+    return SYNTHETIC_CLOCK_STAGES.get(stage) if is_security_runtime_profile(runtime_profile) else None
+
+
+def evidence_labels(stage, suite_env):
+    """Explicit evidence metadata derived from the environment a stage actually ran with."""
+    clock = suite_env.get("COGNOUS_SYNTHETIC_SERVICE_TIME")
+    labels = {"generation": "historical" if stage in HISTORICAL_PRODUCER_STAGES else "current",
+              "runtime_profile": suite_env.get("GAX_RUNTIME_COMPATIBILITY_PROFILE"),
+              "synthetic_service_clock": clock}
+    if stage in HISTORICAL_PRODUCER_STAGES:
+        labels["historical_result_substitutes_for_current_qualification"] = False
+    if clock:
+        labels["synthetic_service_clock_notice"] = SYNTHETIC_CLOCK_NOTICE
+    return labels
+
+
+def relocated_path(suite, component_root, relative, qualification_root):
+    """Test location: the component's own copy while it exists, else the canonical relocated copy."""
+    own = Path(component_root) / relative
+    return own if own.exists() else Path(qualification_root) / "suites" / suite / relative
+
+
+def relocated_cwd(suite, component_root, relative, qualification_root):
+    """Working directory for a relocated test: the relocated suite owns its scripts/ directory."""
+    if (Path(component_root) / relative).exists():
+        return Path(component_root)
+    return Path(qualification_root) / "suites" / suite
+
+
+def relocated_extras(suite, component_root, relatives, qualification_root):
+    """Relocated copies of tests that a directory stage lost when the component stopped carrying them."""
+    return [relocated_path(suite, component_root, rel, qualification_root)
+            for rel in relatives if not (Path(component_root) / rel).exists()]
+
+
 def run(cmd, *, cwd=None, env=None, check=False):
     started=time.time()
     p=subprocess.Popen(cmd,cwd=cwd,env=env,text=True,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,start_new_session=True)
@@ -81,6 +136,16 @@ def run(cmd, *, cwd=None, env=None, check=False):
     rec={"command":cmd,"cwd":str(cwd or ROOT),"returncode":p.returncode,"seconds":round(time.time()-started,3),"output":output}
     if check and p.returncode: raise RuntimeError(output)
     return rec
+
+def run_index_local_chain(chain, env):
+    """Relocated registry chain tests with the supported invocations; one record, nonzero if either fails."""
+    parts=[run(["node","--test","test/protocol.test.mjs"],cwd=chain,env=env),
+           run([sys.executable,"python/test_bitrep.py"],cwd=chain,env=env)]
+    return {"command":[p["command"] for p in parts],"cwd":str(chain),
+            "returncode":next((p["returncode"] for p in parts if p["returncode"]),0),
+            "seconds":round(sum(p["seconds"] for p in parts),3),
+            "output":"".join(f"$ {' '.join(p['command'])}\n{p['output']}\n" for p in parts)}
+
 
 def sha256(path):
     h=hashlib.sha256()
@@ -289,6 +354,15 @@ def main():
         if len(matches)!=1 or sha256(path)!=matches[0]["destination_sha256"]:
             raise RuntimeError("Unrecorded canonical test adaptation: "+str(path))
         return path
+    # Cross-component tests were relocated into the Qualification checkout (migrations/cross-component-2026-10-15.json).
+    # Outside the typed-refusal candidate flow the runner finds them there when the pinned component no longer has them.
+    suite_base = qualification_root or ROOT/"_qualification"
+    def relocated(suite,component_root,relative):
+        return relocated_path(suite,component_root,relative,suite_base)
+    def relocated_dir(suite,component_root,relative):
+        return relocated_cwd(suite,component_root,relative,suite_base)
+    def relocated_more(suite,component_root,relatives):
+        return [] if candidate else [str(path) for path in relocated_extras(suite,component_root,relatives,suite_base)]
     selected_regression = {}
     if candidate:
         selected = json.loads((ROOT/"component-lock.json").read_text())
@@ -470,6 +544,13 @@ def main():
         })
         historical_gax_env.pop("COGNOUS_SYNTHETIC_SERVICE_TIME",None)
 
+    security_runtime = is_security_runtime_profile(LOCK.get("runtime_profile"))
+    if security_runtime and not candidate:
+        # Historical producer-generation suites verify their frozen generation; they must not inherit the current profile.
+        for target in (historical_merged_env, historical_gax_env):
+            target["GAX_RUNTIME_COMPATIBILITY_PROFILE"]=HISTORICAL_GAX_PROFILE
+    historical_gax_stages = {"gax_historical_artifacts"} if candidate else ({"gax_public_runtime_artifacts"} if security_runtime else set())
+
     refusal_env=env.copy()
     refusal_env.update({"ARB_REFUSAL_CP_ROOT":str(cp),
                         "ARB_REFUSAL_EXECUTOR_ROOT":str(molt)})
@@ -480,30 +561,37 @@ def main():
         setup.append({k:v for k,v in npm.items() if k!="output"})
         if npm["returncode"]: raise RuntimeError(npm["output"])
 
+    # Directory stages regain the tests that were relocated out of the pinned components (the scripts they call
+    # sit beside the relocated Replay/ODES tests, so those two stages run from the relocated suite directory).
+    replay_relocated=relocated_more("cognous-replay-bundle",replay,["tests/test_producer_v2.py","tests/test_producer_v2_persistence.py","tests/test_pinned_integration.py"])
+    agep_relocated=relocated_more("cognous-governance-evidence-pack",agep,["tests/test_importer.py","tests/test_accepted_executor_profile.py"])
+    odes_relocated=relocated_more("open-decision-evidence-standard",odes,["tests/test_producer_v2.py","tests/test_accepted_replay_profile.py","tests/test_odes_stack_export.py"])
+    replay_cwd=suite_base/"suites"/"cognous-replay-bundle" if replay_relocated else replay
+    odes_cwd=suite_base/"suites"/"open-decision-evidence-standard" if odes_relocated else odes
     suites=[
-      ("gax_observation_repair",[sys.executable,"-m","pytest","-q",str(gax/"tests/test_observation_repair.py")],ROOT),
-      ("gax_reference",[sys.executable,"-m","pytest","-q",str(gax/"tests/test_gax_imx_reference.py"),str(gax/"tests/test_gax_imx_redelivery.py")],ROOT),
+      ("gax_observation_repair",[sys.executable,"-m","pytest","-q",str(relocated("cognous-governed-exchange",gax,"tests/test_observation_repair.py"))],ROOT),
+      ("gax_reference",[sys.executable,"-m","pytest","-q",str(relocated("cognous-governed-exchange",gax,"tests/test_gax_imx_reference.py")),str(relocated("cognous-governed-exchange",gax,"tests/test_gax_imx_redelivery.py"))],ROOT),
       ("governed_transport",[sys.executable,"-m","pytest","-q",str(gax/"tests/test_governed_message_transport.py")],ROOT),
-      ("governed_transport_integration",[sys.executable,"-m","pytest","-q",str(canonical_test("cognous-governed-exchange","tests/test_governed_message_transport_integration.py") if candidate else gax/"tests/test_governed_message_transport_integration.py")],ROOT),
-      ("gax_public_runtime_artifacts",[sys.executable,"-m","pytest","-q",str(canonical_test("cognous-governed-exchange","qualification/test_merged_artifacts.py") if candidate else gax/("qualification/test_merged_artifacts.py" if previous_accepted else "tests/test_gax_public_runtime_artifacts.py"))],ROOT),
+      ("governed_transport_integration",[sys.executable,"-m","pytest","-q",str(canonical_test("cognous-governed-exchange","tests/test_governed_message_transport_integration.py") if candidate else relocated("cognous-governed-exchange",gax,"tests/test_governed_message_transport_integration.py"))],ROOT),
+      ("gax_public_runtime_artifacts",[sys.executable,"-m","pytest","-q",str(canonical_test("cognous-governed-exchange","qualification/test_merged_artifacts.py") if candidate else relocated("cognous-governed-exchange",gax,"qualification/test_merged_artifacts.py" if previous_accepted else "tests/test_gax_public_runtime_artifacts.py"))],ROOT),
       ("control_plane",[sys.executable,"-m","pytest","-q",str(cp/"tests/test_bounded_authorization.py")],ROOT),
       ("control_plane_store",[sys.executable,"-m","pytest","-q",str(cp/"tests/test_record_store_concurrency.py")],cp),
-      ("replay",[selected_python,"-m","pytest","-q",str(replay/"tests"), *(["--ignore="+str(replay/"tests/test_refusal_evidence.py")] if candidate else [])],replay),
-      ("evidence_pack",[sys.executable,"-m","pytest","-q",str(agep/"tests"),"--ignore="+str(agep/"tests/test_producer_v2.py"),"--ignore="+str(agep/"tests/test_control_plane_store_compatibility.py")],agep),
-      ("evidence_pack_v2",[sys.executable,"-m","pytest","-q",str(agep/"tests/test_producer_v2.py")],agep),
-      ("evidence_pack_persistence",[sys.executable,"-m","pytest","-q",str(agep/"tests/test_control_plane_store_compatibility.py")],agep),
-      ("odes",[selected_python,"-m","pytest","-q",str(odes/"tests")],odes),
+      ("replay",[selected_python,"-m","pytest","-q",str(replay/"tests"), *replay_relocated, *(["--ignore="+str(replay/"tests/test_refusal_evidence.py")] if candidate else [])],replay_cwd),
+      ("evidence_pack",[sys.executable,"-m","pytest","-q",str(agep/"tests"),*agep_relocated,"--ignore="+str(agep/"tests/test_producer_v2.py"),"--ignore="+str(agep/"tests/test_control_plane_store_compatibility.py")],agep),
+      ("evidence_pack_v2",[sys.executable,"-m","pytest","-q",str(relocated("cognous-governance-evidence-pack",agep,"tests/test_producer_v2.py"))],relocated_dir("cognous-governance-evidence-pack",agep,"tests/test_producer_v2.py")),
+      ("evidence_pack_persistence",[sys.executable,"-m","pytest","-q",str(relocated("cognous-governance-evidence-pack",agep,"tests/test_control_plane_store_compatibility.py"))],relocated_dir("cognous-governance-evidence-pack",agep,"tests/test_control_plane_store_compatibility.py")),
+      ("odes",[selected_python,"-m","pytest","-q",str(odes/"tests"),*odes_relocated],odes_cwd),
       ("bitrep_verification",[sys.executable,"-m","pytest","-q",str(bitrep/"tests/test_verification.py"),str(bitrep/"tests/test_api.py")],bitrep),
-      ("index_bitrep_binding",[sys.executable,"-m","pytest","-q",str(index/"chain/python/test_bitrep.py")],ROOT),
+      ("index_bitrep_binding",[sys.executable,"-m","pytest","-q",str(relocated("cognous-evidence-registry",index,"chain/python/test_bitrep.py"))],ROOT),
       ("research_qualification",[sys.executable,"-m","pytest","-q",str(ROOT/"tests/test_research_qualification.py")],ROOT),
       ("hub_release_gate",[sys.executable,"-m","pytest","-q",str(ROOT/"tests/test_release_gate.py")],ROOT),
     ]
 
     if previous_accepted:
         suites.extend([
-            ("replay_merged",[sys.executable,"-m","pytest","-q",str(replay/"qualification/test_merged_producer.py")],replay),
-            ("evidence_pack_merged",[sys.executable,"-m","pytest","-q",str(agep/"qualification/test_merged_producer.py")],agep),
-            ("odes_merged",[sys.executable,"-m","pytest","-q",str(odes/"qualification/test_merged_producer.py")],odes),
+            ("replay_merged",[sys.executable,"-m","pytest","-q",str(relocated("cognous-replay-bundle",replay,"qualification/test_merged_producer.py"))],relocated_dir("cognous-replay-bundle",replay,"qualification/test_merged_producer.py")),
+            ("evidence_pack_merged",[sys.executable,"-m","pytest","-q",str(relocated("cognous-governance-evidence-pack",agep,"qualification/test_merged_producer.py"))],relocated_dir("cognous-governance-evidence-pack",agep,"qualification/test_merged_producer.py")),
+            ("odes_merged",[sys.executable,"-m","pytest","-q",str(relocated("open-decision-evidence-standard",odes,"qualification/test_merged_producer.py"))],relocated_dir("open-decision-evidence-standard",odes,"qualification/test_merged_producer.py")),
         ])
     if candidate:
         suites.extend([
@@ -516,6 +604,13 @@ def main():
         ])
     if args.batch:
         suites=[entry for entry in suites if entry[0] in required_batches(LOCK)[args.batch]]
+
+    if args.batch in (None,"registry"):
+        # Assemble the relocated chain tests into the (non-strict-source) index checkout only; evidence is retained.
+        overlay=run([sys.executable,str(suite_base/"tools/install_suite.py"),"--suite","cognous-evidence-registry",
+                     "--source-root",str(index),"--evidence",str(out/"registry-overlay-evidence.json")])
+        setup.append({k:v for k,v in overlay.items() if k!="output"})
+        if overlay["returncode"]: raise RuntimeError(overlay["output"])
 
     runs=[]; representative_runs=[]; normalized=[]
 
@@ -567,20 +662,26 @@ def main():
             actual=list(cmd)
             junit=rdir/f"{name}.xml"
             actual.extend(["--junitxml",str(junit)])
-            suite_env=(refusal_env if name.endswith("_refusal") else historical_gax_env if candidate and name=="gax_historical_artifacts" else historical_merged_env if name.endswith("_merged") else agep_historical_env if name=="evidence_pack" else agep_v2_env if name=="evidence_pack_v2" else agep_persistence_env if name=="evidence_pack_persistence" else replay_env if name=="replay" else odes_env if name=="odes" else env)
+            suite_env=(refusal_env if name.endswith("_refusal") else historical_gax_env if name in historical_gax_stages else historical_merged_env if name.endswith("_merged") else agep_historical_env if name=="evidence_pack" else agep_v2_env if name=="evidence_pack_v2" else agep_persistence_env if name=="evidence_pack_persistence" else replay_env if name=="replay" else odes_env if name=="odes" else env)
             suite_env={**suite_env,"BATCH4C_RESULTS_DIR":env["BATCH4C_RESULTS_DIR"],"GAX_QUALIFICATION_RESULTS":env["GAX_QUALIFICATION_RESULTS"],"STORE_CONCURRENCY_EVIDENCE":env["STORE_CONCURRENCY_EVIDENCE"]}
-            if candidate and (name in {"hub_release_gate","research_qualification","gax_observation_repair","gax_reference","gax_public_runtime_artifacts","governed_transport","governed_transport_integration"}):
+            stage_clock=synthetic_clock_for_stage(name,LOCK.get("runtime_profile"))
+            if stage_clock:
+                suite_env={**suite_env,"COGNOUS_SYNTHETIC_SERVICE_TIME":stage_clock}
+            if candidate and (name in {"hub_release_gate","research_qualification","gax_observation_repair","gax_reference","gax_public_runtime_artifacts","governed_transport","governed_transport_integration"}) or stage_clock:
                 actual.extend(["-p","tools.reference_release"])
             rec=run(actual,cwd=cwd,env=suite_env)
             (rdir/f"{name}.log").write_text(rec["output"],encoding="utf-8")
-            rec.update({"suite":name,"repetition":repetition,"log":str((rdir/f"{name}.log").relative_to(out)),"junit":str(junit.relative_to(out))})
+            rec.update({"suite":name,"repetition":repetition,"log":str((rdir/f"{name}.log").relative_to(out)),"junit":str(junit.relative_to(out)),**evidence_labels(name,suite_env)})
             rec.pop("output")
             runs.append(rec)
 
         if args.batch in (None,"registry"):
-            node=run(["npm","test"],cwd=index/"chain",env=env)
+            # The pinned index checkout's ``npm test`` is a deliberate exit-1 stub ("Cross-component tests moved"). The
+            # relocated chain tests are overlaid into the index checkout (above) and run with the supported
+            # invocations of the Qualification chain workflow.
+            node=run_index_local_chain(index/"chain",env)
             (rdir/"index_local_chain.log").write_text(node["output"],encoding="utf-8")
-            node.update({"suite":"index_local_chain","repetition":repetition,"log":str((rdir/"index_local_chain.log").relative_to(out))})
+            node.update({"suite":"index_local_chain","repetition":repetition,"log":str((rdir/"index_local_chain.log").relative_to(out)),**evidence_labels("index_local_chain",env)})
             node.pop("output"); runs.append(node)
 
     representative_repeatable=bool(len(normalized)==2 and normalized[0] is not None and normalized[0]==normalized[1])
@@ -626,9 +727,12 @@ def main():
     openshell_test=acc/"tests/test_openshell_environment.py"
     if not openshell_test.exists():
         openshell_test=ROOT/"_qualification/suites/cognous-execution-runtime/tests/test_openshell_environment.py"
-    openshell=run([sys.executable,"-m","pytest","-q",str(openshell_test),"--junitxml",str(open_xml)],env=open_env)
+    openshell_clock=synthetic_clock_for_stage("openshell_mock",LOCK.get("runtime_profile"))
+    if openshell_clock:
+        open_env["COGNOUS_SYNTHETIC_SERVICE_TIME"]=openshell_clock
+    openshell=run([sys.executable,"-m","pytest","-q",*(["-p","tools.reference_release"] if openshell_clock else []),str(openshell_test),"--junitxml",str(open_xml)],env=open_env)
     (out/"openshell-mock.log").write_text(openshell["output"],encoding="utf-8")
-    openshell.update({"scope":"mocked adapter only","evidence_state":execution_state if openshell["returncode"]==0 else "blocked","log":"openshell-mock.log","junit":"openshell-mock.xml"})
+    openshell.update({**evidence_labels("openshell_mock",open_env),"scope":"mocked adapter only","evidence_state":execution_state if openshell["returncode"]==0 else "blocked","log":"openshell-mock.log","junit":"openshell-mock.xml"})
     openshell.pop("output")
 
     optional={}
@@ -678,6 +782,12 @@ def main():
       },
     }
     summary["release_dependency_lock_sha256"]=sha256(ROOT/"tools/requirements-release.lock")
+    summary["stage_evidence"]={"selected_runtime_profile":LOCK.get("runtime_profile"),
+        "historical_stages":sorted({r["suite"] for r in runs if r.get("generation")=="historical"}),
+        "synthetic_service_clock":{**{r["suite"]:r["synthetic_service_clock"] for r in runs if r.get("synthetic_service_clock")},
+                                   **({"openshell_mock":openshell["synthetic_service_clock"]} if openshell.get("synthetic_service_clock") else {})},
+        "synthetic_service_clock_notice":SYNTHETIC_CLOCK_NOTICE,
+        "historical_result_substitutes_for_current_qualification":False}
     summary["release_gate_passed"]=release_passes(runs, representative_runs, representative_repeatable, matrix_pass, openshell)
     summary["candidate_qualification_passed"]=summary["release_gate_passed"]
     summary["gate_passed_for_selected_lock"]=summary["release_gate_passed"] and LOCK.get("qualification_status") != "candidate"

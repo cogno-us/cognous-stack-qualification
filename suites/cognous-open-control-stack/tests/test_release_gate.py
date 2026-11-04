@@ -106,12 +106,16 @@ import pytest
 def transported_inputs(tmp_path_factory):
     out=tmp_path_factory.mktemp("transported-gate")
     work=Path(os.environ.get("COGNOUS_QUALIFICATION_WORK", ROOT/".reference-work"))
-    subprocess.run([
+    proc=subprocess.run([
         sys.executable,str(ROOT/"tools/transported_reference.py"),
         "--manifest",str(work/"action_manifest/examples/refund_integration_v1_1.manifest.json"),
         "--replay",str(work/"replay_bundle/examples/bounded_success_reconstruction_v0_2.json"),
         "--out",str(out),
-    ],check=True,capture_output=True,text=True,env=os.environ.copy())
+    ],capture_output=True,text=True,env=os.environ.copy())
+    if proc.returncode:
+        # Surface the child's own failure; a bare CalledProcessError hides the cause behind 'exit status 1'.
+        pytest.fail("tools/transported_reference.py exited %d\n--- stderr (tail) ---\n%s\n--- stdout (tail) ---\n%s"
+                    %(proc.returncode,proc.stderr[-8000:],proc.stdout[-4000:]),pytrace=False)
     return json.loads((out/"gate-inputs.json").read_text())
 
 

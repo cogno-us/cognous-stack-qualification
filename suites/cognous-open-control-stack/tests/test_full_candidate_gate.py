@@ -348,3 +348,150 @@ def test_distribution_metadata_must_name_the_pinned_checkout_as_editable_source(
     monkeypatch.setattr(rr, "_probe_identity", probe)
     with pytest.raises(RuntimeError, match="does not name the pinned checkout"):
         rr.provision_isolated_import_environment(tmp_path / "venv", checkouts, pins)
+
+
+# --- Relocated tests, historical vs current evidence, and the synthetic service clock ------------------------
+# Cross-component tests were relocated into the Qualification checkout. The runner must find them there, run the
+# historical producer-generation suites under their historical profile, label every stage as historical or current,
+# and give the deterministic developer-test stages the existing explicit synthetic clock with explicit metadata.
+def _touch(path, text=""):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    return path
+
+
+def test_relocated_path_prefers_the_component_copy_and_falls_back_to_the_canonical_suite(tmp_path):
+    component, base = tmp_path / "component", tmp_path / "qualification"
+    _touch(base / "suites/s/tests/t.py")
+    assert rr.relocated_path("s", component, "tests/t.py", base) == base / "suites/s/tests/t.py"
+    _touch(component / "tests/t.py")
+    assert rr.relocated_path("s", component, "tests/t.py", base) == component / "tests/t.py"
+
+
+def test_relocated_cwd_is_the_suite_directory_only_while_the_component_lacks_the_file(tmp_path):
+    component, base = tmp_path / "component", tmp_path / "qualification"
+    assert rr.relocated_cwd("s", component, "qualification/t.py", base) == base / "suites/s"
+    _touch(component / "qualification/t.py")
+    assert rr.relocated_cwd("s", component, "qualification/t.py", base) == component
+
+
+def test_directory_stages_only_gain_the_files_the_component_no_longer_carries(tmp_path):
+    component, base = tmp_path / "component", tmp_path / "qualification"
+    _touch(component / "tests/kept.py")
+    extras = rr.relocated_extras("s", component, ["tests/kept.py", "tests/moved.py"], base)
+    assert extras == [base / "suites/s/tests/moved.py"]
+
+
+@pytest.mark.parametrize("stage", ["research_qualification", "openshell_mock"])
+def test_synthetic_clock_is_applied_to_the_declared_developer_test_stages_under_security_runtime(stage):
+    assert rr.synthetic_clock_for_stage(stage, "security-runtime-p2-20261018") == rr.SYNTHETIC_CLOCK_STAGES[stage]
+
+
+@pytest.mark.parametrize("stage", ["representative", "hub_release_gate", "replay", "odes", "control_plane", "gax_reference",
+                                   "replay_merged", "gax_public_runtime_artifacts", "evidence_pack"])
+def test_synthetic_clock_is_not_applied_to_any_other_stage(stage):
+    assert rr.synthetic_clock_for_stage(stage, "security-runtime-p2-20261018") is None
+
+
+@pytest.mark.parametrize("profile", ["merged-producers-v1", rr.CANDIDATE_PROFILE, None, ""])
+def test_synthetic_clock_is_not_applied_outside_security_runtime_locks(profile):
+    assert rr.synthetic_clock_for_stage("research_qualification", profile) is None
+    assert rr.synthetic_clock_for_stage("openshell_mock", profile) is None
+
+
+def test_the_synthetic_clock_values_are_the_existing_declared_fixture_times():
+    assert rr.SYNTHETIC_CLOCK_STAGES == {"research_qualification": "2026-08-08T01:00:00Z", "openshell_mock": "2026-10-05T19:00:00Z"}
+
+
+def test_synthetic_clock_evidence_is_labelled_and_never_claims_temporal_enforcement():
+    labels = rr.evidence_labels("research_qualification", {"COGNOUS_SYNTHETIC_SERVICE_TIME": "2026-08-08T01:00:00Z",
+                                                          "GAX_RUNTIME_COMPATIBILITY_PROFILE": "security-runtime-p2-20261018"})
+    assert labels["synthetic_service_clock"] == "2026-08-08T01:00:00Z"
+    assert "not evidence of operational temporal enforcement" in labels["synthetic_service_clock_notice"]
+    assert labels["generation"] == "current" and labels["runtime_profile"] == "security-runtime-p2-20261018"
+    plain = rr.evidence_labels("control_plane", {"GAX_RUNTIME_COMPATIBILITY_PROFILE": "security-runtime-p2-20261018"})
+    assert plain["synthetic_service_clock"] is None and "synthetic_service_clock_notice" not in plain
+
+
+@pytest.mark.parametrize("stage", ["replay_merged", "evidence_pack_merged", "odes_merged", "gax_public_runtime_artifacts", "gax_historical_artifacts"])
+def test_historical_producer_stages_are_labelled_and_cannot_substitute_for_current_qualification(stage):
+    labels = rr.evidence_labels(stage, {"GAX_RUNTIME_COMPATIBILITY_PROFILE": rr.HISTORICAL_GAX_PROFILE})
+    assert labels["generation"] == "historical" and labels["runtime_profile"] == "merged-producers-v1"
+    assert labels["historical_result_substitutes_for_current_qualification"] is False
+
+
+@pytest.mark.parametrize("stage", ["replay", "odes", "evidence_pack", "research_qualification", "hub_release_gate", "index_local_chain"])
+def test_current_stages_carry_no_historical_substitution_flag(stage):
+    labels = rr.evidence_labels(stage, {"GAX_RUNTIME_COMPATIBILITY_PROFILE": "security-runtime-p2-20261018"})
+    assert labels["generation"] == "current" and "historical_result_substitutes_for_current_qualification" not in labels
+
+
+def test_runner_wiring_gives_only_the_declared_stages_the_clock_and_the_plugin():
+    source = inspect.getsource(rr.main)
+    assert 'stage_clock=synthetic_clock_for_stage(name,LOCK.get("runtime_profile"))' in source
+    assert 'suite_env={**suite_env,"COGNOUS_SYNTHETIC_SERVICE_TIME":stage_clock}' in source
+    assert 'or stage_clock:' in source                          # plugin only for the candidate set or a clocked stage
+    assert 'openshell_clock=synthetic_clock_for_stage("openshell_mock",LOCK.get("runtime_profile"))' in source
+    assert 'open_env["COGNOUS_SYNTHETIC_SERVICE_TIME"]=openshell_clock' in source
+    # the global environment still receives the clock only for the typed-refusal candidate
+    assert 'if candidate:\n        env["COGNOUS_SYNTHETIC_SERVICE_TIME"]="2026-08-08T01:00:00Z"' in source
+
+
+def test_runner_wiring_runs_historical_suites_under_the_historical_profile_for_security_runtime_locks():
+    source = inspect.getsource(rr.main)
+    assert 'target["GAX_RUNTIME_COMPATIBILITY_PROFILE"]=HISTORICAL_GAX_PROFILE' in source
+    assert "for target in (historical_merged_env, historical_gax_env)" in source
+    assert 'historical_gax_env if name in historical_gax_stages else historical_merged_env' in source
+    assert '{"gax_public_runtime_artifacts"} if security_runtime' in source
+    assert '"stage_evidence"' in source and "historical_result_substitutes_for_current_qualification" in source
+
+
+def test_runner_paths_use_the_relocated_copies_and_never_the_removed_component_paths():
+    source = inspect.getsource(rr.main)
+    for removed in ('gax/"tests/test_observation_repair.py"', 'gax/"tests/test_gax_imx_reference.py"',
+                    'agep/"tests/test_producer_v2.py"', 'agep/"qualification/test_merged_producer.py"',
+                    'odes/"qualification/test_merged_producer.py"', 'replay/"qualification/test_merged_producer.py"',
+                    'index/"chain/python/test_bitrep.py"', '"npm","test"'):
+        assert removed not in source.replace('"--ignore="+str(agep/"tests/test_producer_v2.py")', "")
+    for expected in ('relocated("cognous-governed-exchange",gax,"tests/test_observation_repair.py")',
+                     'relocated("cognous-evidence-registry",index,"chain/python/test_bitrep.py")',
+                     'relocated("cognous-governance-evidence-pack",agep,"tests/test_producer_v2.py")',
+                     'relocated("cognous-replay-bundle",replay,"qualification/test_merged_producer.py")',
+                     'relocated_dir("open-decision-evidence-standard",odes,"qualification/test_merged_producer.py")'):
+        assert expected in source
+
+
+def test_directory_stages_regain_the_relocated_files_without_touching_the_candidate_flow():
+    source = inspect.getsource(rr.main)
+    # command lines are recorded in the JSON results, so appended paths must be plain strings
+    assert "return [] if candidate else [str(path) for path in relocated_extras(" in source
+    for name in ("test_producer_v2_persistence.py", "test_pinned_integration.py", "test_importer.py", "test_accepted_executor_profile.py",
+                 "test_accepted_replay_profile.py", "test_odes_stack_export.py"):
+        assert name in source
+    assert '*replay_relocated, *(["--ignore="+str(replay/"tests/test_refusal_evidence.py")] if candidate else [])' in source
+    assert '"preflight_specs=[' not in source and '("replay", [selected_python,"-m","pytest","-q",str(replay/"tests")], replay, replay_env)' in source
+
+
+def test_registry_chain_uses_an_install_suite_overlay_and_the_supported_node_and_python_invocations():
+    source = inspect.getsource(rr.main)
+    assert '"--suite","cognous-evidence-registry"' in source and "registry-overlay-evidence.json" in source
+    assert source.index("registry-overlay-evidence.json") < source.index("preflight_specs=[")      # assembled before any suite
+    assert "run_index_local_chain(index/\"chain\",env)" in source
+
+
+@pytest.mark.parametrize("codes,expected", [((0, 0), 0), ((1, 0), 1), ((0, 3), 3), ((2, 3), 2)])
+def test_index_local_chain_fails_if_either_supported_invocation_fails(monkeypatch, tmp_path, codes, expected):
+    calls = []
+    def fake(cmd, *, cwd=None, env=None, check=False):
+        calls.append((cmd, cwd))
+        return {"command": cmd, "cwd": str(cwd), "returncode": codes[len(calls) - 1], "seconds": 1.0, "output": "out%d" % len(calls)}
+    monkeypatch.setattr(rr, "run", fake)
+    record = rr.run_index_local_chain(tmp_path, {})
+    assert [c[0] for c in calls] == [["node", "--test", "test/protocol.test.mjs"], [sys.executable, "python/test_bitrep.py"]]
+    assert all(c[1] == tmp_path for c in calls)
+    assert record["returncode"] == expected and "out1" in record["output"] and "out2" in record["output"]
+
+
+def test_the_frozen_matrix_and_declared_batches_are_unchanged_by_the_relocation_wiring():
+    assert BATCHES["registry"] == {"bitrep_verification", "index_bitrep_binding"}
+    assert "gax_public_runtime_artifacts" in BATCHES["exchange"] and "research_qualification" in BATCHES["exchange"]
