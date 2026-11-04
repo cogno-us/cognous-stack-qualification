@@ -121,6 +121,116 @@ def release_passes(suite_runs, representative_runs, repeatable, matrix_passed, o
                 and all(x["returncode"]==0 for x in representative_runs)
                 and repeatable and matrix_passed and openshell["returncode"]==0)
 
+# Replay and ODES tests spawn isolated (``python -I``) children. ``-I`` ignores PYTHONPATH, so the
+# PYTHONPATH roots this runner uses cannot serve them; their distributions must be importable from
+# site-packages. That install is confined to a dedicated environment (never the shared interpreter) so
+# later suites, historical/previous roots and Evidence Pack distribution-metadata checks are unchanged.
+ISOLATED_IMPORT_PACKAGES = (
+    ("replay_bundle", "agent-replay-bundle", "agent_replay_bundle"),
+    ("odes", "open-decision-evidence-standard", "odes"),
+)
+
+_IDENTITY_PROBE = (
+    "import importlib, importlib.metadata as m, json, sys\n"
+    "out = {}\n"
+    "for dist, module in json.loads(sys.argv[1]):\n"
+    "    rec = {'module_file': None, 'dist_version': None, 'direct_url': None, 'error': None}\n"
+    "    try:\n"
+    "        rec['module_file'] = importlib.import_module(module).__file__\n"
+    "    except Exception as exc:\n"
+    "        rec['error'] = type(exc).__name__ + ': ' + str(exc)\n"
+    "    try:\n"
+    "        d = m.distribution(dist)\n"
+    "        rec['dist_version'] = d.version\n"
+    "        raw = d.read_text('direct_url.json')\n"
+    "        rec['direct_url'] = json.loads(raw) if raw else None\n"
+    "    except m.PackageNotFoundError:\n"
+    "        pass\n"
+    "    out[dist] = rec\n"
+    "print(json.dumps(out))\n"
+)
+
+
+def _provision_step(records, cmd, *, cwd=None, env=None, label):
+    rec = run(cmd, cwd=cwd, env=env)
+    records.append({**{k: v for k, v in rec.items() if k != "output"}, "step": label})
+    if rec["returncode"]:
+        raise RuntimeError("Isolated-import environment: %s failed (no fallback): %s" % (label, rec["output"]))
+    return rec
+
+
+def _probe_identity(python, env, packages, records, label):
+    rec = _provision_step(records, [python, "-I", "-B", "-c", _IDENTITY_PROBE,
+                                    json.dumps([[dist, module] for _c, dist, module in packages])],
+                          env=env, label=label)
+    return json.loads(rec["output"].strip().splitlines()[-1])
+
+
+def provision_isolated_import_environment(venv_dir, checkouts, pins, *, base_python=None, reuse=False):
+    """Create an environment in which the pinned Replay and ODES checkouts import under ``python -I``.
+
+    ``checkouts``/``pins`` map the component names in ISOLATED_IMPORT_PACKAGES to the pristine checkout and
+    to its locked SHA. Returns ``(python, records)``; the shared interpreter is never modified. Every failure
+    raises: there is no fallback to an unpinned, stale or already-installed copy.
+    """
+    base_python = base_python or sys.executable
+    env = qualification_environment()
+    records = []
+    resolved = {}
+    for component, dist, module in ISOLATED_IMPORT_PACKAGES:
+        path = Path(checkouts[component]).resolve()
+        head = run(["git", "rev-parse", "HEAD"], cwd=path, check=True)["output"].strip()
+        if head != pins[component]:
+            raise RuntimeError("%s checkout is %s, not the locked %s" % (component, head, pins[component]))
+        validate_checkout(path, pins[component])
+        resolved[component] = path
+    venv_dir = Path(venv_dir)
+    if venv_dir.exists() and not reuse:
+        raise RuntimeError("Choose a fresh isolated-import environment; an existing one is never reused or deleted")
+    _provision_step(records, [base_python, "-m", "venv", "--system-site-packages"] + (["--clear"] if reuse else []) + [str(venv_dir)],
+                    env=env, label="create isolated-import environment")
+    python = str(venv_dir / "bin" / "python")
+    # --system-site-packages exposes only the *base* installation. When this runner itself runs inside a
+    # virtual environment, expose that environment's packages too (appended, so the pinned editable installs
+    # in the new environment still take precedence).
+    parent = _provision_step(records, [base_python, "-I", "-c", "import sys, sysconfig; print(sys.prefix != sys.base_prefix); print(sysconfig.get_path('purelib'))"],
+                             env=env, label="locate parent site-packages")["output"].strip().splitlines()
+    if parent[-2] == "True":
+        target = _provision_step(records, [python, "-I", "-c", "import sysconfig; print(sysconfig.get_path('purelib'))"],
+                                 env=env, label="locate isolated-import site-packages")["output"].strip().splitlines()[-1]
+        (Path(target) / "zz-parent-environment.pth").write_text(parent[-1] + "\n", encoding="utf-8")
+    # A copy already visible through the system site-packages (stale, foreign or from another revision) would
+    # make the isolated children test something other than the pin: refuse instead of masking.
+    before = _probe_identity(python, env, ISOLATED_IMPORT_PACKAGES, records, "pre-install visibility probe")
+    for _component, dist, module in ISOLATED_IMPORT_PACKAGES:
+        seen = before[dist]
+        if seen["dist_version"] is not None or seen["module_file"] is not None:
+            raise RuntimeError("%s/%s is already importable before installation (%s); refusing to mask it"
+                               % (dist, module, seen["module_file"] or seen["dist_version"]))
+    for component, dist, module in ISOLATED_IMPORT_PACKAGES:
+        _provision_step(records, [python, "-m", "pip", "install", "-q", "--no-deps", "--no-build-isolation", "-e", str(resolved[component])],
+                        env=env, label="install pinned " + component)
+    check = run([python, "-m", "pip", "check"], env=env)
+    records.append({**{k: v for k, v in check.items() if k != "output"}, "step": "pip check"})
+    named = [line for line in check["output"].splitlines() if any(d in line for _c, d, _m in ISOLATED_IMPORT_PACKAGES)]
+    if named:
+        raise RuntimeError("pip check reports problems for the pinned packages: " + "; ".join(named))
+    after = _probe_identity(python, env, ISOLATED_IMPORT_PACKAGES, records, "post-install identity probe")
+    for component, dist, module in ISOLATED_IMPORT_PACKAGES:
+        path = resolved[component]; seen = after[dist]
+        if seen["error"] or not seen["module_file"]:
+            raise RuntimeError("%s is not importable under python -I after installation: %s" % (module, seen["error"]))
+        if not Path(seen["module_file"]).resolve().is_relative_to(path / "src"):
+            raise RuntimeError("%s resolves to %s, outside the pinned checkout %s" % (module, seen["module_file"], path / "src"))
+        direct = seen["direct_url"] or {}
+        if direct.get("url") != path.as_uri() or not (direct.get("dir_info") or {}).get("editable"):
+            raise RuntimeError("%s distribution metadata does not name the pinned checkout as an editable source: %r" % (dist, direct))
+        head = run(["git", "rev-parse", "HEAD"], cwd=path, check=True)["output"].strip()
+        validate_checkout(path, pins[component])  # installation must leave the pinned checkout pristine
+        records.append({"step": "identity", "component": component, "distribution": dist, "version": seen["dist_version"],
+                        "module_file": seen["module_file"], "checkout": str(path), "source_revision": head})
+    return python, records
+
 
 def main():
     ap=argparse.ArgumentParser()
@@ -193,6 +303,17 @@ def main():
         agep_install=run([sys.executable,"-m","pip","install","-q","--no-deps","--no-build-isolation",str(staged)])
     setup.append({k:v for k,v in agep_install.items() if k!="output"})
     if agep_install["returncode"]: raise RuntimeError(agep_install["output"])
+
+    # The focused preflight and the Replay/ODES suites run tests that spawn ``python -I`` children, which only
+    # see site-packages. Bounded --batch runs skip the preflight and keep the shared interpreter.
+    selected_python=sys.executable
+    if not args.batch:
+        selected_python,provisioned=provision_isolated_import_environment(
+            WORK.parent/(WORK.name+"-isolated-import-env"),
+            {name:components[name] for name,_d,_m in ISOLATED_IMPORT_PACKAGES},
+            {name:LOCK["components"][name]["sha"] for name,_d,_m in ISOLATED_IMPORT_PACKAGES},
+            reuse=REUSE_CHECKOUTS)
+        setup.extend(provisioned)
 
     py=[str(ROOT),str(cp/"src"),str(replay/"src"),str(agep/"src"),str(odes/"src"),str(gax),str(molt),str(bitrep),str(index/"chain/python")]
     env=qualification_environment()
@@ -363,11 +484,11 @@ def main():
       ("gax_public_runtime_artifacts",[sys.executable,"-m","pytest","-q",str(canonical_test("cognous-governed-exchange","qualification/test_merged_artifacts.py") if candidate else gax/("qualification/test_merged_artifacts.py" if previous_accepted else "tests/test_gax_public_runtime_artifacts.py"))],ROOT),
       ("control_plane",[sys.executable,"-m","pytest","-q",str(cp/"tests/test_bounded_authorization.py")],ROOT),
       ("control_plane_store",[sys.executable,"-m","pytest","-q",str(cp/"tests/test_record_store_concurrency.py")],cp),
-      ("replay",[sys.executable,"-m","pytest","-q",str(replay/"tests"), *(["--ignore="+str(replay/"tests/test_refusal_evidence.py")] if candidate else [])],replay),
+      ("replay",[selected_python,"-m","pytest","-q",str(replay/"tests"), *(["--ignore="+str(replay/"tests/test_refusal_evidence.py")] if candidate else [])],replay),
       ("evidence_pack",[sys.executable,"-m","pytest","-q",str(agep/"tests"),"--ignore="+str(agep/"tests/test_producer_v2.py"),"--ignore="+str(agep/"tests/test_control_plane_store_compatibility.py")],agep),
       ("evidence_pack_v2",[sys.executable,"-m","pytest","-q",str(agep/"tests/test_producer_v2.py")],agep),
       ("evidence_pack_persistence",[sys.executable,"-m","pytest","-q",str(agep/"tests/test_control_plane_store_compatibility.py")],agep),
-      ("odes",[sys.executable,"-m","pytest","-q",str(odes/"tests")],odes),
+      ("odes",[selected_python,"-m","pytest","-q",str(odes/"tests")],odes),
       ("bitrep_verification",[sys.executable,"-m","pytest","-q",str(bitrep/"tests/test_verification.py"),str(bitrep/"tests/test_api.py")],bitrep),
       ("index_bitrep_binding",[sys.executable,"-m","pytest","-q",str(index/"chain/python/test_bitrep.py")],ROOT),
       ("research_qualification",[sys.executable,"-m","pytest","-q",str(ROOT/"tests/test_research_qualification.py")],ROOT),
@@ -400,8 +521,8 @@ def main():
     preflight_dir=out/"preflight"
     preflight_dir.mkdir()
     preflight_specs=[
-        ("replay", [sys.executable,"-m","pytest","-q",str(replay/"tests")], replay, replay_env),
-        ("odes", [sys.executable,"-m","pytest","-q",str(odes/"tests")], odes, odes_env),
+        ("replay", [selected_python,"-m","pytest","-q",str(replay/"tests")], replay, replay_env),
+        ("odes", [selected_python,"-m","pytest","-q",str(odes/"tests")], odes, odes_env),
     ]
     preflight_runs=[]
     for name,cmd,cwd,suite_env in ([] if args.batch else preflight_specs):
