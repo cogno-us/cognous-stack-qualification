@@ -431,7 +431,7 @@ def test_runner_wiring_gives_only_the_declared_stages_the_clock_and_the_plugin()
     source = inspect.getsource(rr.main)
     assert 'stage_clock=synthetic_clock_for_stage(name,LOCK.get("runtime_profile"))' in source
     assert 'suite_env={**suite_env,"COGNOUS_SYNTHETIC_SERVICE_TIME":stage_clock}' in source
-    assert 'or stage_clock:' in source                          # plugin only for the candidate set or a clocked stage
+    assert 'or stage_clock or supply_authority:' in source      # plugin only for the candidate set, a clocked stage or a supplied-authority stage
     assert 'openshell_clock=synthetic_clock_for_stage("openshell_mock",LOCK.get("runtime_profile"))' in source
     assert 'open_env["COGNOUS_SYNTHETIC_SERVICE_TIME"]=openshell_clock' in source
     # the global environment still receives the clock only for the typed-refusal candidate
@@ -678,3 +678,32 @@ def test_synthetic_runtime_authority_is_a_labelled_deterministic_fixture_that_ad
     assert "Deterministic developer-test fixture" in body and "Never production configuration" in body
     assert "Ed25519PrivateKey.from_private_bytes(hashlib.sha256(" in body        # fixed synthetic key, not random
     assert "allow_synthetic_resolver=True" in body and "approval_commitment(config,context)" in body
+
+
+# --- Test-side wiring for the relocated Exchange tests and the import order of research_qualification --------
+def test_trusted_authority_is_supplied_only_to_the_stages_that_construct_the_adapter_under_security_runtime():
+    assert rr.TRUSTED_AUTHORITY_STAGES == {"gax_observation_repair", "gax_reference", "governed_transport_integration", "research_qualification"}
+    source = inspect.getsource(rr.main)
+    assert "supply_authority = security_runtime and not candidate and name in TRUSTED_AUTHORITY_STAGES" in source
+    assert 'suite_env = {**suite_env, "COGNOUS_SUPPLY_TRUSTED_AUTHORITY": "1"}' in source
+    assert "or stage_clock or supply_authority:" in source
+
+
+def test_plugin_authenticates_sources_first_and_supplies_authority_only_when_asked(monkeypatch):
+    source = inspect.getsource(rr.install_security_runtime_wiring)
+    assert 'startswith("security-runtime-")' in source and "sys.dont_write_bytecode = True" in source
+    assert source.index("runtime.load_executor_runtime()") < source.index('os.environ.get("COGNOUS_SUPPLY_TRUSTED_AUTHORITY")')
+    assert 'if "runtime_authority_profile" in arguments:\n            return arguments' in source   # an explicit profile is never replaced
+    assert "synthetic_runtime_authority(" in source and '"allow_test_time": True' in source
+    assert "def pytest_configure(config):\n    # Activated only by an explicit pytest -p tools.reference_release invocation.\n    install_security_runtime_wiring()" in inspect.getsource(rr)
+
+
+@pytest.mark.parametrize("profile", [None, "", "merged-producers-v1", rr.CANDIDATE_PROFILE, "persistence-v1"])
+def test_plugin_is_a_no_op_outside_security_runtime_profiles(monkeypatch, profile):
+    if profile is None:
+        monkeypatch.delenv("GAX_RUNTIME_COMPATIBILITY_PROFILE", raising=False)
+    else:
+        monkeypatch.setenv("GAX_RUNTIME_COMPATIBILITY_PROFILE", profile)
+    monkeypatch.setattr(sys, "dont_write_bytecode", False)
+    assert rr.install_security_runtime_wiring() is None
+    assert sys.dont_write_bytecode is False        # returned before touching anything

@@ -70,7 +70,14 @@ def synthetic_runtime_authority(proposal, resolver, manifest, now):
     bounded=gax_ref._pinned("agent_control_plane.bounded")
     authority=gax_ref._pinned("agent_control_plane.runtime_authority")
     key=Ed25519PrivateKey.from_private_bytes(hashlib.sha256(b"cognous-synthetic-reference-validator").digest())
-    public=key.public_key().public_bytes(serialization.Encoding.Raw,serialization.PublicFormat.Raw).hex()
+    config=authority.RuntimeAuthorityProfile(
+        catalogue_version="synthetic-catalogue/1",
+        actions={proposal.action_id:authority.ActionClass(class_id="synthetic-irreversible",irreversible=True,
+                                                          max_status_age_seconds=60,on_unreadable="refuse")},
+        producer_keys={SYNTHETIC_VALIDATOR:key.public_key().public_bytes(serialization.Encoding.Raw,serialization.PublicFormat.Raw).hex()},
+        allow_synthetic_resolver=True)
+    if resolver is None:
+        return config      # a run that supplies no resolver fails closed in the Control Plane; only the trusted catalogue is needed
     context=resolver.contexts[proposal.authority_context_ref]
     with tempfile.TemporaryDirectory() as directory:
         baseline=bounded.BoundedAuthorizationWorkflow(
@@ -79,11 +86,6 @@ def synthetic_runtime_authority(proposal, resolver, manifest, now):
             observation_policy=synthetic_observation_policy(),allow_test_time=True).decide(proposal,now=now)
     required=sorted(({"input_type":x.input_type,"input_id":x.input_id} for x in baseline.resolution_inputs),
                     key=lambda x:(x["input_type"],x["input_id"]))
-    config=authority.RuntimeAuthorityProfile(
-        catalogue_version="synthetic-catalogue/1",
-        actions={proposal.action_id:authority.ActionClass(class_id="synthetic-irreversible",irreversible=True,
-                                                          max_status_age_seconds=60,on_unreadable="refuse")},
-        producer_keys={SYNTHETIC_VALIDATOR:public},allow_synthetic_resolver=True)
     subject=bounded.commitment(SYNTHETIC_EVIDENCE_MEMBERS)
     criteria={}
     for obligation in context.get("requirement",{}).get("evidence",[]):

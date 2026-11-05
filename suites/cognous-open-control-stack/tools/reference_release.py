@@ -23,8 +23,47 @@ def synthetic_service_clock():
         yield
 
 
+def install_security_runtime_wiring():
+    """Test-side wiring for security-runtime-* profiles (pytest plugin; no test file or assertion is changed).
+
+    1. Authenticate and load the pinned sources through the Exchange loader before any test imports them (the loader
+       refuses packages imported earlier), writing no bytecode into the pinned checkouts.
+    2. When ``COGNOUS_SUPPLY_TRUSTED_AUTHORITY=1``, give ``run_exchange`` and ``AcceptedGaxRecipientAdapter`` the trusted
+       synthetic ``runtime_authority_profile`` and ``allow_test_time=True`` those profiles require as constructor/call
+       keywords, unless the call already supplies a profile. The helper is the transported reference's own.
+    """
+    if not str(os.environ.get("GAX_RUNTIME_COMPATIBILITY_PROFILE") or "").startswith("security-runtime-"):
+        return
+    sys.dont_write_bytecode = True
+    from experiments.odex_gax_imx_reference import gax_ref_runtime as runtime
+    runtime.load_executor_runtime()
+    if os.environ.get("COGNOUS_SUPPLY_TRUSTED_AUTHORITY") != "1":
+        return
+    from experiments.governed_message_transport import transport
+    from tools import transported_reference as reference
+
+    def supply(arguments, bundle, resolver, evaluation_time):
+        if "runtime_authority_profile" in arguments:
+            return arguments
+        proposal = runtime.runtime_proposal_model(bundle)
+        profile = reference.synthetic_runtime_authority(proposal, resolver, arguments["manifest"], runtime.parse_time(evaluation_time or reference.EVAL))
+        return {**arguments, "runtime_authority_profile": profile, "allow_test_time": True}
+
+    original_run = runtime.run_exchange
+    def run_exchange(message, bundle, registry, destination, **kwargs):
+        kwargs = supply(kwargs, bundle, kwargs.get("resolver"), kwargs.get("evaluation_time"))
+        return original_run(message, bundle, registry, destination, **kwargs)
+    runtime.run_exchange = run_exchange
+    original_init = transport.AcceptedGaxRecipientAdapter.__init__
+    def adapter_init(self, **kwargs):
+        kwargs = supply(kwargs, kwargs["bundle"], kwargs.get("resolver"), kwargs.get("evaluation_time"))
+        return original_init(self, **kwargs)
+    transport.AcceptedGaxRecipientAdapter.__init__ = adapter_init
+
+
 def pytest_configure(config):
     # Activated only by an explicit pytest -p tools.reference_release invocation.
+    install_security_runtime_wiring()
     config._cognous_clock_context=synthetic_service_clock()
     config._cognous_clock_context.__enter__()
 
@@ -95,6 +134,9 @@ REPLAY_PUBLISHED_RESULTS_TEST = "test_published_v2_examples_preserve_profiles_an
 # clock (patched through ``-p tools.reference_release``) under a security-runtime lock.
 SYNTHETIC_CLOCK_STAGES = {"research_qualification": "2026-08-08T01:00:00Z",
                           "openshell_mock": "2026-10-05T19:00:00Z"}
+# Relocated Exchange tests (and the hub research qualification) that call run_exchange / AcceptedGaxRecipientAdapter directly. Under a security-runtime lock those
+# calls need the trusted runtime authority profile the profile requires; the plugin supplies it without editing the tests.
+TRUSTED_AUTHORITY_STAGES = frozenset({"gax_observation_repair", "gax_reference", "governed_transport_integration", "research_qualification"})
 SYNTHETIC_CLOCK_NOTICE = ("Synthetic time gives deterministic developer-test fixtures a fixed clock. It is not evidence "
                           "of operational temporal enforcement and does not qualify freshness, expiry or revocation behaviour.")
 
@@ -838,7 +880,10 @@ def main():
             stage_clock=synthetic_clock_for_stage(name,LOCK.get("runtime_profile"))
             if stage_clock:
                 suite_env={**suite_env,"COGNOUS_SYNTHETIC_SERVICE_TIME":stage_clock}
-            if candidate and (name in {"hub_release_gate","research_qualification","gax_observation_repair","gax_reference","gax_public_runtime_artifacts","governed_transport","governed_transport_integration"}) or stage_clock:
+            supply_authority = security_runtime and not candidate and name in TRUSTED_AUTHORITY_STAGES
+            if supply_authority:
+                suite_env = {**suite_env, "COGNOUS_SUPPLY_TRUSTED_AUTHORITY": "1"}
+            if candidate and (name in {"hub_release_gate","research_qualification","gax_observation_repair","gax_reference","gax_public_runtime_artifacts","governed_transport","governed_transport_integration"}) or stage_clock or supply_authority:
                 actual.extend(["-p","tools.reference_release"])
             rec=run(actual,cwd=cwd,env=suite_env)
             subset=None
