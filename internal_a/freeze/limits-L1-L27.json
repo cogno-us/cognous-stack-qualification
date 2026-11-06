@@ -1,0 +1,113 @@
+{
+ "basis": "verbatim from orchestrator 1504cf4 real_c3.py:71-92 (L1-L19) and real_c4.py:82-94 (L20-L27)",
+ "limits": {
+  "L1": {
+   "source": "real_c3.py:71",
+   "text": "Replay is reconstruction_partial with exactly B004 (a decision-only run); never complete."
+  },
+  "L10": {
+   "source": "real_c3.py:81",
+   "text": "Provenance labels (CP/RB revision, generation, manifest revision) are caller-asserted; input_artifacts[*].trusted_revision is a field name, not a trust finding: its values are Pack constants / the verifier's installed Replay, nothing verifies where the supplied files came from, and the Pack's recorded Replay revision is the verifier's, not the producer's."
+  },
+  "L11": {
+   "source": "real_c3.py:84",
+   "text": "Pack valid=True means internally consistent, not reviewer approval, compliance or audit."
+  },
+  "L12": {
+   "source": "real_c3.py:85",
+   "text": "semantically_valid and valid_bundle_count=1 on a partial pack are not completeness."
+  },
+  "L13": {
+   "source": "real_c3.py:86",
+   "text": "Tenant is verified by Replay only, not by the Pack (the Pack has no tenant field)."
+  },
+  "L14": {
+   "source": "real_c3.py:87",
+   "text": "Replay, redelivery and substitution are not defended."
+  },
+  "L15": {
+   "source": "real_c3.py:88",
+   "text": "Hub #280 digest-basis divergence is OPEN."
+  },
+  "L16": {
+   "source": "real_c3.py:89",
+   "text": "The Pack's Replay pin (its CP-2 row) is a PROVISIONAL DEVELOPMENT PIN, UNQUALIFIED, and not the Pack-selected pair."
+  },
+  "L17": {
+   "source": "real_c3.py:90",
+   "text": "Developer-scope only: not independently qualified, not production, no certification or clearance (HOLD)."
+  },
+  "L18": {
+   "source": "real_c3.py:91",
+   "text": "Engineering Constitution adoption is UNVERIFIED."
+  },
+  "L19": {
+   "source": "real_c3.py:92",
+   "text": "The Pack carries no hash of the raw Control Plane record: retained_sources holds only the manifest and the reconstruction bundle; CP-record to bundle linkage is per-run harness evidence only."
+  },
+  "L2": {
+   "source": "real_c3.py:72",
+   "text": "Authority is synthetic and unauthenticated (test-only public Ed25519 key); authorization: authorized in the pack is a retained historical record, not current permission."
+  },
+  "L20": {
+   "source": "real_c4.py:82",
+   "text": "The Action Manifest component produces no proposal and no output a later component consumes; the proposal is a hand-authored hash-pinned fixture and AM only validates/binds."
+  },
+  "L21": {
+   "source": "real_c4.py:84",
+   "text": "C4's CP decision comes from the profile-enabled configuration, not the C1 configuration; C1 hosted runs relate to C4 at identity level only and are not the C4 decision."
+  },
+  "L22": {
+   "source": "real_c4.py:86",
+   "text": "For a hold, Replay does not bind the supplied proposal, tenant, action or correlation to the record and the Pack's EvidencePack model has no first-class tenant field; refusal continuity is checked natively only for manifest id/version/digest (Pack) and is otherwise orchestrator-extracted."
+  },
+  "L23": {
+   "source": "real_c4.py:89",
+   "text": "effect_id differs by verdict."
+  },
+  "L24": {
+   "source": "real_c4.py:90",
+   "text": "run-1 is a literal, not a run identity; no native per-run end-to-end identity exists."
+  },
+  "L25": {
+   "source": "real_c4.py:91",
+   "text": "NOT_ATTEMPTED, REFUSED and held as orchestration labels are not component statuses and prove no absence of effect beyond decide()-only plus observed {}."
+  },
+  "L26": {
+   "source": "real_c4.py:93",
+   "text": "The hold scenario is a synthetic grant-status input variation on test-only helpers, not a real revocation event."
+  },
+  "L27": {
+   "source": "real_c4.py:94",
+   "text": "The producer configuration id is persisted by no component; deny and effect-time refusal paths are unexercised."
+  },
+  "L3": {
+   "source": "real_c3.py:74",
+   "text": "Journal association is proposal-level only; event_decision_linkage NOT_ESTABLISHED; decision_id is null on all events."
+  },
+  "L4": {
+   "source": "real_c3.py:75",
+   "text": "Zero executor attempts and zero destination effects; no effect is inferred and none is verified."
+  },
+  "L5": {
+   "source": "real_c3.py:76",
+   "text": "The C1 original-record incompatibility with Replay is preserved."
+  },
+  "L6": {
+   "source": "real_c3.py:77",
+   "text": "Lineage to C1/C2 is identity/proposal-level, not decision-exact."
+  },
+  "L7": {
+   "source": "real_c3.py:78",
+   "text": "signed=false; no signature is verified; HMAC/digest is not issuer identity."
+  },
+  "L8": {
+   "source": "real_c3.py:79",
+   "text": "No custody chain; embedded retention is not custody."
+  },
+  "L9": {
+   "source": "real_c3.py:80",
+   "text": "No freshness; generated_at is uncompared."
+  }
+ }
+}
