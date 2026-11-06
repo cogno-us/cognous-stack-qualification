@@ -46,7 +46,16 @@ def _dispatch(a):
         probs = freeze.verify(PKG_BASE, a.freeze_root)
         if probs:
             block = "FREEZE_DRIFT: " + "; ".join(probs)[:800]
-        report = engine.run(Path(a.oracle).read_bytes(), a.bundle, a.expect_oracle_sha256, a.expect_bundle_sha256, extra_block=block)
+        oracle_bytes = Path(a.oracle).read_bytes()
+        if block is None:
+            from .oracle import sha256_bytes, load_json_strict
+            try:
+                bound = load_json_strict((PKG_BASE / freeze.MANIFEST_REL).read_bytes())["meta"]["oracle_sha256"]
+            except (KeyError, TypeError, ValueError, OSError):
+                bound = None
+            if bound != sha256_bytes(oracle_bytes) or bound != a.expect_oracle_sha256:
+                block = "ORACLE_NOT_BOUND_TO_FREEZE: the supplied oracle is not the oracle committed in the freeze manifest meta"
+        report = engine.run(oracle_bytes, a.bundle, a.expect_oracle_sha256, a.expect_bundle_sha256, extra_block=block)
         text = _dump(report)
         if a.out:
             out = Path(a.out)

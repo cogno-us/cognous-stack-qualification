@@ -17,13 +17,13 @@ A small, stdlib-only, read-only **verdict engine** (`ia_eval/`) that judges an *
 | `docs/battery.md` | generated reading of the oracle: case table, source references, exclusions, coverage of the Architect's list |
 | `tests/` | stub-only self-tests (EST-01…12), kill matrix, security regressions; `stubs.py` synthesises bundles from the oracle |
 | `freeze/` | contract-comment snapshots (exact bytes), custody inventory, source/blob hashes, environment identity, L1–L27, roles, `freeze-manifest.json` (root commitment) |
-| `results/selftest/` | raw self-test and kill-matrix output (outside the frozen file scope; hashed in the freeze meta) |
+| `results/selftest/` | raw self-test and kill-matrix output (outside the frozen file scope; its `SHA256SUMS` digest is recorded in the freeze meta). Defect log: `docs/selftest-defects.md` (inside the frozen scope) |
 
 ## Verdicts (docs/execution-contract.md vocabulary, persisted)
 
 `PASS` · `FAIL` · `INCONCLUSIVE` · `NOT RUN` · `NOT APPLICABLE`. There is **no persisted BLOCKED**: a missing precondition is `NOT RUN` + `blocked_reason`; attempted-but-unevaluable is `INCONCLUSIVE` + `reason`. An observed violation stays `FAIL` even if other evidence is missing. Any mandatory `FAIL`, `INCONCLUSIVE` or `NOT RUN` prevents overall `PASS`; an empty or zero-executed run is never `PASS`. Oracle/bundle/freeze drift, unexpected case ids, out-of-scope driver events and evaluator errors all fail closed.
 
-* **PRE / CTL / RI** gate the Q-A claim (`claim_basis`).
+* **PRE / CTL / RI** gate the Q-A claim. `claim_basis` reads PASS only when `overall` is PASS (an OBS deviation, violation or missing case withdraws it); `gated_cases_verdict` is the PRE/CTL/RI verdict alone and is informational.
 * **OBS** (QA-09, QA-11, QA-17, QA-26, QA-OBS-EXACT) pins what the pinned subject *does*, e.g. "Replay accepts a held record whose tenant was swapped". A match is reported as `OBSERVED_AS_FROZEN` with `security_property_validated=false`; a deviation is `FAIL` (frozen-subject drift or oracle error — never re-baselined silently). OBS results are excluded from the claim gate and are never worded as a security PASS.
 * **INFO** (N3-GATE, QA-21) stays `NOT RUN`; **NA** (QA-14) is `NOT APPLICABLE` with a source-backed reason. Neither is mandatory.
 
@@ -52,7 +52,7 @@ Always `-I -B`; `freeze-verify` also fails if any `.pyc` exists.
 3b. Identity captures (QA-S1/S2/S3/QA-E1) should be produced with `python3 -I -B run_ia.py collect-identity` by the evaluator owner on the extracted trees, not by the driver; QA-09 recomputes the raw-dict commitment itself (`commitment_of`), but `am_digest` and every other native output are driver-reported serialisations of native objects.
 4. Oracle `source` annotations are documentation: the engine does not verify them against the repositories; integrity rests on the pinned oracle hash. Observations marked `INFERRED` in `source.confidence` have an expectation not fully traced in source and are the first suspects if a future run deviates.
 5. Hash commitments are self-computed. GitHub comments are mutable and not an independent anchor (Architect D8); the root commitment must additionally be retained **outside the builder's workspace**.
-6. Original C1–C4 evidence is **not in independent custody** (`freeze/custody-inventory.json`): artifacts expire from 2027-02-03.
+6. `freeze/sources.json` enumerates the loaded files from the developer's own hosted `c4.result.json` (data, cross-checked to the pinned git objects), not from an independent static derivation. Original C1–C4 evidence is **not in independent custody** (`freeze/custody-inventory.json`): artifacts expire from 2027-02-03.
 7. Q-B, Q-C, Q-D are out of scope. Hub #280 remains OPEN. L1–L27 (`freeze/limits-L1-L27.json`), the provisional unqualified Pack↔Replay development pin (L16), held-record non-binding (L22) and the original negative findings remain intact.
 
 ## Unsupported claims (must not be inferred from this package or any future PASS of it)
@@ -65,4 +65,4 @@ Retain, hashed and listed in the evidence record: the frozen package and root co
 
 ## Freeze order (not executed here)
 
-1. Reviewed package merged/approved → 2. `freeze-build` (root commitment; meta lists every input hash incl. self-test results) → 3. commitment posted in the tracker **and** retained outside the builder workspace → 4. Architect's separate freeze approval → 5. separate one-shot execution authorization. Any post-commit alteration blocks the candidate pending a separately approved successor freeze; the predecessor is preserved.
+1. Reviewed package approved → 2. `freeze-build` (root commitment; meta lists every input hash incl. self-test results) → 3. commitment posted in the tracker **and** retained outside the builder workspace, and the package files re-hashed by an external `sha256sum` against `freeze-manifest.json` (the in-package verifier is self-referential) → 4. Architect's separate freeze approval → 5. separate one-shot execution authorization. Any post-commit alteration blocks the candidate pending a separately approved successor freeze; the predecessor is preserved.

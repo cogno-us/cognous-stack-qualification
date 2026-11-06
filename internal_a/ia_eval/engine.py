@@ -257,7 +257,9 @@ def _run(oracle_bytes, bundle_dir, expect_oracle_sha256, expect_bundle_sha256, e
     return {
         "evaluator": EVALUATOR_VERSION, "oracle_version": orc["oracle_version"], "oracle_sha256": O.sha256_bytes(oracle_bytes),
         "bundle_sha256": O.sha256_bytes(bdata), "raw_index": bundle["raw_index"],
-        "overall": overall, "claim_basis": gated, "violations": violations,
+        # claim_basis may read PASS only when the whole assessment is PASS (an OBS deviation or any violation withdraws it);
+        # gated_cases_verdict is the verdict over PRE/CTL/RI cases alone and is informational.
+        "overall": overall, "claim_basis": gated if overall == V.PASS else overall, "gated_cases_verdict": gated, "violations": violations,
         "mandatory_cases": len(mand), "executed_mandatory_cases": len(executed_mand),
         "counts": {v: sum(1 for x in cases if x["verdict"] == v) for v in V.VERDICTS},
         "obs_summary": {x["id"]: x.get("observation_result", "NOT_OBSERVED") for x in cases if x["class"] == "OBS"},

@@ -38,11 +38,15 @@ def _no_dup_pairs(pairs):
 MAX_JSON_BYTES = 8 * 1024 * 1024
 
 
+def _reject_constant(name):
+    raise ValueError(f"non-finite JSON constant {name} is not allowed")
+
+
 def load_json_strict(data: bytes):
     if len(data) > MAX_JSON_BYTES:
         raise OracleError("JSON larger than the 8 MiB evaluator cap")
     try:
-        return json.loads(data.decode("utf-8"), object_pairs_hook=_no_dup_pairs)
+        return json.loads(data.decode("utf-8"), object_pairs_hook=_no_dup_pairs, parse_constant=_reject_constant)
     except (UnicodeDecodeError, ValueError, RecursionError) as e:   # JSONDecodeError is a ValueError
         raise OracleError(f"not valid UTF-8 JSON: {type(e).__name__}") from e
 

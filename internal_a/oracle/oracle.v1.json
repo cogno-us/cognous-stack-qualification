@@ -389,12 +389,8 @@
      "op": "eq",
      "pointer": "/manifest_digest",
      "source": {
-      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
-      "component": "AM",
-      "confidence": "SOURCE-READ",
-      "kind": "native_source",
-      "line": 31,
-      "path": "src/agent_action_manifest/binding.py"
+      "kind": "frozen_literal",
+      "text": "raw canonical sha256 of examples/refund_integration_v1_1.manifest.json (file sha256 789ad395...), recomputed from the fixture; canonicalisation as AM binding.py:17-31 / CP bounded.py:84-97; the AM-model digest equals it only for the fully populated fixture (Hub #280)"
      }
     },
     {
@@ -404,12 +400,8 @@
      "op": "eq",
      "pointer": "/proposal_digest",
      "source": {
-      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
-      "component": "AM",
-      "confidence": "SOURCE-READ",
-      "kind": "native_source",
-      "line": 39,
-      "path": "src/agent_action_manifest/binding.py"
+      "kind": "frozen_literal",
+      "text": "raw canonical sha256 of the orchestrator proposal fixture tests/manual_contract/c1/fixtures/proposal.tenant-alpha.json (file sha256 1033c73e...), recomputed from the fixture; AM binding.py:39"
      }
     },
     {
@@ -596,12 +588,8 @@
      "op": "eq",
      "pointer": "/decisions/0/binding/tenant_id",
      "source": {
-      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
-      "component": "CP",
-      "confidence": "SOURCE-READ",
-      "kind": "native_source",
-      "line": 2635,
-      "path": "src/agent_control_plane/bounded.py"
+      "kind": "frozen_literal",
+      "text": "tenant_id of the frozen proposal fixture; copied into the binding at CP bounded.py:2635-2660"
      }
     },
     {
@@ -611,12 +599,8 @@
      "op": "eq",
      "pointer": "/decisions/0/binding/generation",
      "source": {
-      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
-      "component": "CP",
-      "confidence": "SOURCE-READ",
-      "kind": "native_source",
-      "line": 57,
-      "path": "src/agent_control_plane/bounded.py"
+      "kind": "frozen_literal",
+      "text": "CP strict-tenant generation constant (bounded.py:57); the selected generation is a driver-configured profile (L21)"
      }
     },
     {
@@ -1048,6 +1032,40 @@
       "kind": "evaluator_relation",
       "text": "cross-boundary byte/field continuity computed by the evaluator from hash-verified raw files"
      }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": true,
+     "id": "QA-01.45",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "validator rules not exhaustively traced; the unmutated Pack must validate or the paired Pack-tamper cases (QA-16/QA-27) cannot be attributed to their mutation. If it does not, the control FAILs and exposes an oracle error (fail closed)."
+     }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": {
+      "severity": "error"
+     },
+     "id": "QA-01.46",
+     "op": "none_item_matches",
+     "pointer": "/issues",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "as above"
+     }
     }
    ],
    "title": "POS control: authorized synthetic action through AM -> CP -> Replay -> Pack (decision-only)"
@@ -1083,12 +1101,8 @@
      "op": "eq",
      "pointer": "/manifest_digest",
      "source": {
-      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
-      "component": "AM",
-      "confidence": "SOURCE-READ",
-      "kind": "native_source",
-      "line": 31,
-      "path": "src/agent_action_manifest/binding.py"
+      "kind": "frozen_literal",
+      "text": "raw canonical sha256 of examples/refund_integration_v1_1.manifest.json (file sha256 789ad395...), recomputed from the fixture; canonicalisation as AM binding.py:17-31 / CP bounded.py:84-97; the AM-model digest equals it only for the fully populated fixture (Hub #280)"
      }
     },
     {
@@ -1098,12 +1112,8 @@
      "op": "eq",
      "pointer": "/proposal_digest",
      "source": {
-      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
-      "component": "AM",
-      "confidence": "SOURCE-READ",
-      "kind": "native_source",
-      "line": 39,
-      "path": "src/agent_action_manifest/binding.py"
+      "kind": "frozen_literal",
+      "text": "raw canonical sha256 of the orchestrator proposal fixture tests/manual_contract/c1/fixtures/proposal.tenant-alpha.json (file sha256 1033c73e...), recomputed from the fixture; AM binding.py:39"
      }
     },
     {
@@ -1259,7 +1269,8 @@
       "confidence": "SOURCE-READ",
       "kind": "native_source",
       "line": 2432,
-      "path": "src/agent_control_plane/bounded.py"
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "grant_revoked is emitted only when a runtime_authority_profile is configured (bounded.py:2432-2434); without it the reason differs (grant_not_active). C4 uses the profile-enabled configuration (L21); the revoked grant is synthetic (L26)"
      }
     },
     {
@@ -1344,9 +1355,9 @@
       "component": "RB",
       "confidence": "SOURCE-READ",
       "kind": "native_source",
-      "line": 1028,
+      "line": 1030,
       "path": "src/agent_replay_bundle/importers.py",
-      "text": "runtime_decision record retains the CP result"
+      "text": "runtime_decision record retains the CP result (record built at importers.py:1030-1032)"
      }
     },
     {
@@ -1365,7 +1376,7 @@
       "component": "RB",
       "confidence": "SOURCE-READ",
       "kind": "native_source",
-      "line": 1028,
+      "line": 1030,
       "path": "src/agent_replay_bundle/importers.py"
      }
     },
@@ -1732,6 +1743,40 @@
       "kind": "evaluator_relation",
       "text": "cross-boundary byte/field continuity computed by the evaluator from hash-verified raw files"
      }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": true,
+     "id": "QA-02.44",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "validator rules not exhaustively traced; the unmutated Pack must validate or the paired Pack-tamper cases (QA-16/QA-27) cannot be attributed to their mutation. If it does not, the control FAILs and exposes an oracle error (fail closed). Acceptance of HOLD evidence import is NOT acceptance of the refused action."
+     }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": {
+      "severity": "error"
+     },
+     "id": "QA-02.45",
+     "op": "none_item_matches",
+     "pointer": "/issues",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "as above"
+     }
     }
    ],
    "title": "HOLD control: synthetic revoked grant -> native hold retained downstream (never promoted)"
@@ -1759,10 +1804,11 @@
      "source": {
       "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
       "component": "PK",
-      "confidence": "SOURCE-READ",
+      "confidence": "INFERRED",
       "kind": "native_source",
       "line": 1061,
-      "path": "src/agent_governance_evidence_pack/importer.py"
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "raise at importer.py:1059-1061; _run_pinned_replay_validator runs BEFORE _check_commitments (importer.py:1152-1153), so the Replay-rebuild equality check (:1012-1017) could fire first with a different message. That fails closed (false FAIL, never a false PASS). Replay itself does not refuse the flip."
      }
     },
     {
@@ -1773,10 +1819,11 @@
      "source": {
       "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
       "component": "PK",
-      "confidence": "SOURCE-READ",
+      "confidence": "INFERRED",
       "kind": "native_source",
       "line": 1061,
-      "path": "src/agent_governance_evidence_pack/importer.py"
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "raise at importer.py:1059-1061; _run_pinned_replay_validator runs BEFORE _check_commitments (importer.py:1152-1153), so the Replay-rebuild equality check (:1012-1017) could fire first with a different message. That fails closed (false FAIL, never a false PASS). Replay itself does not refuse the flip."
      }
     }
    ],
@@ -1873,7 +1920,7 @@
       "component": "CP",
       "confidence": "SOURCE-READ",
       "kind": "native_source",
-      "line": 2678,
+      "line": 1667,
       "path": "src/agent_control_plane/bounded.py"
      }
     },
@@ -1903,7 +1950,8 @@
       "confidence": "SOURCE-READ",
       "kind": "native_source",
       "line": 2678,
-      "path": "src/agent_control_plane/bounded.py"
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "reason added at bounded.py:2677-2678; membership only"
      }
     }
    ],
@@ -2030,7 +2078,7 @@
       "component": "PK",
       "confidence": "SOURCE-READ",
       "kind": "native_source",
-      "line": 507,
+      "line": 508,
       "path": "src/agent_governance_evidence_pack/validator.py"
      }
     },
@@ -2038,6 +2086,7 @@
      "boundary": "pack_validation",
      "expected": {
       "code": "E_TRACE_SEMANTICS",
+      "message": "Retained Replay semantic validation failed: traceable transformation differs from retained source reconstruction",
       "path": "metadata.traceable_import",
       "severity": "error"
      },
@@ -2049,8 +2098,9 @@
       "component": "PK",
       "confidence": "SOURCE-READ",
       "kind": "native_source",
-      "line": 507,
-      "path": "src/agent_governance_evidence_pack/validator.py"
+      "line": 508,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "validator.py:498 raises ValueError('traceable transformation differs from retained source reconstruction') when the trace differs from the re-derived one; :508 wraps ANY failure of the re-import in the same code/path/severity, so the exact message is what discriminates a counter/effect tamper from an unrelated failure"
      }
     }
    ],
@@ -2088,7 +2138,7 @@
       "component": "PK",
       "confidence": "SOURCE-READ",
       "kind": "native_source",
-      "line": 507,
+      "line": 508,
       "path": "src/agent_governance_evidence_pack/validator.py"
      }
     },
@@ -2096,6 +2146,7 @@
      "boundary": "pack_validation",
      "expected": {
       "code": "E_TRACE_SEMANTICS",
+      "message": "Retained Replay semantic validation failed: traceable transformation differs from retained source reconstruction",
       "path": "metadata.traceable_import",
       "severity": "error"
      },
@@ -2107,8 +2158,9 @@
       "component": "PK",
       "confidence": "SOURCE-READ",
       "kind": "native_source",
-      "line": 507,
-      "path": "src/agent_governance_evidence_pack/validator.py"
+      "line": 508,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "validator.py:498 raises ValueError('traceable transformation differs from retained source reconstruction') when the trace differs from the re-derived one; :508 wraps ANY failure of the re-import in the same code/path/severity, so the exact message is what discriminates a counter/effect tamper from an unrelated failure"
      }
     }
    ],
@@ -2580,7 +2632,7 @@
      "source": {
       "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
       "component": "PK",
-      "confidence": "SOURCE-READ",
+      "confidence": "INFERRED",
       "kind": "native_source",
       "line": 1590,
       "path": "src/agent_governance_evidence_pack/importer.py",
@@ -2664,72 +2716,6 @@
       "line": 1080,
       "path": "src/agent_replay_bundle/importers.py",
       "text": "exact finding set not source-guaranteed"
-     }
-    },
-    {
-     "boundary": "pk_val_pos",
-     "expected": true,
-     "id": "QA-OBS-EXACT.5",
-     "op": "eq",
-     "pointer": "/valid",
-     "source": {
-      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
-      "component": "PK",
-      "confidence": "INFERRED",
-      "kind": "native_source",
-      "line": 58,
-      "path": "src/agent_governance_evidence_pack/validator.py",
-      "text": "validator rules not fully traced"
-     }
-    },
-    {
-     "boundary": "pk_val_pos",
-     "expected": {
-      "severity": "error"
-     },
-     "id": "QA-OBS-EXACT.6",
-     "op": "none_item_matches",
-     "pointer": "/issues",
-     "source": {
-      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
-      "component": "PK",
-      "confidence": "INFERRED",
-      "kind": "native_source",
-      "line": 58,
-      "path": "src/agent_governance_evidence_pack/validator.py"
-     }
-    },
-    {
-     "boundary": "pk_val_hold",
-     "expected": true,
-     "id": "QA-OBS-EXACT.7",
-     "op": "eq",
-     "pointer": "/valid",
-     "source": {
-      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
-      "component": "PK",
-      "confidence": "INFERRED",
-      "kind": "native_source",
-      "line": 58,
-      "path": "src/agent_governance_evidence_pack/validator.py",
-      "text": "absence of a rejecting rule; acceptance of HOLD evidence import is NOT acceptance of the refused action"
-     }
-    },
-    {
-     "boundary": "pk_val_hold",
-     "expected": {
-      "severity": "error"
-     },
-     "id": "QA-OBS-EXACT.8",
-     "op": "none_item_matches",
-     "pointer": "/issues",
-     "source": {
-      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
-      "component": "PK",
-      "confidence": "INFERRED",
-      "kind": "native_source",
-      "line": 58,
-      "path": "src/agent_governance_evidence_pack/validator.py"
      }
     }
    ],
