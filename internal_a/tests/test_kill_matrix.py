@@ -123,7 +123,7 @@ def test_mutant_set_is_broad_enough():
     assert len(ids) == len(set(ids)) >= 62
     required = ["deq_type_loose", "combine_ignores_inconclusive", "combine_empty_is_pass", "missing_pointer_defaults_none",
                 "hash_verification_disabled", "outcome_label_trusted", "paired_control_downgrade_removed", "check_events_empty",
-                "claim_basis_ignores_violations", "executed_flag_not_checked", "blocked_is_missing", "commitment_trusts_driver", "relation_alias_rule_removed"]
+                "claim_basis_ignores", "executed_flag_not_checked", "blocked_is_missing", "commitment_trusts_driver", "relation_alias_rule_removed"]
     for r in required:
         assert any(r in i for i in ids), r
 
@@ -141,5 +141,5 @@ def test_engine_mutant_is_killed(mut):
 
 def test_equivalent_mutants_are_justified_and_unit_tested_elsewhere():
     eq = {m["id"]: m["equivalent"] for m in M.MUTANTS if m["equivalent"]}
-    assert set(eq) == {"M09_zero_executed_rule_removed", "M22_size_cap_removed_in_load", "M37_combine_empty_is_pass", "G7_effect_regex_removed"}
+    assert set(eq) == {"M09_zero_executed_rule_removed", "M37_combine_empty_is_pass", "G7_effect_regex_removed"}
     assert all(len(v) > 40 for v in eq.values())

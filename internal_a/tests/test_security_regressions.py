@@ -94,20 +94,36 @@ def test_empty_expected_object_cannot_make_item_match_vacuous():
     assert P.op_none_item_matches([{"a": 1}], {})[0] is False
 
 
-def test_nan_and_infinity_in_raw_never_satisfy_int_or_eq(R):
+@pytest.mark.parametrize("lit", ["NaN", "Infinity", "-Infinity"])
+def test_non_finite_constants_are_unparsable_everywhere(R, lit):
+    """load_json_strict rejects NaN/Infinity/-Infinity: raw file => INCONCLUSIVE; bundle.json => BUNDLE_UNREADABLE; oracle => ORACLE_UNREADABLE."""
+    with pytest.raises(O.OracleError):
+        O.load_json_strict(f'{{"a": {lit}}}'.encode())
+    with pytest.raises(O.OracleError):
+        O.load_json_strict(f"[{lit}]".encode())
     b = M.G()
     rel = M.rawrel(b, "QA-01", "am_validate")
-    txt = M.ser(b.raw[rel]).decode().replace('"valid": true', '"valid": NaN')
-    assert "NaN" in txt
-    b.raw_bytes[rel] = txt.encode()
+    b.raw_bytes[rel] = M.ser(b.raw[rel]).decode().replace('"valid": true', f'"valid": {lit}').encode()
     r = R.run(b)
-    assert M.obs_of(r, "QA-01", "QA-01.1")["status"] == "violated" and r["overall"] == FAIL
-    for lit in ("Infinity", "-Infinity"):
-        b = M.G()
-        b.raw_bytes[M.rawrel(b, "QA-01", "pack")] = M.ser(b.raw[M.rawrel(b, "QA-01", "pack")]).decode().replace(
-            '"decision_count": 1', f'"decision_count": {lit}').encode()
-        r = R.run(b)
-        assert M.obs_of(r, "QA-01", "QA-01.35")["status"] == "violated"
+    assert M.obs_of(r, "QA-01", "QA-01.1")["status"] == "unevaluable" and M.case_of(r, "QA-01")["verdict"] == INC and r["overall"] == INC
+    b = M.G()
+    good = b.render()[1]
+    b.bundle_bytes = good.replace(b'"orchestrator_status": {}', f'"orchestrator_status": {{"n": {lit}}}'.encode())
+    assert b.bundle_bytes != good
+    r = R.run(b)
+    assert r["overall"] == NR and r["blocked_reason"].startswith("BUNDLE_UNREADABLE")
+    ob = M.ORC_BYTES.replace(b'"schema": "ia-oracle/1"', f'"schema": "ia-oracle/1", "zz": {lit}'.encode())
+    assert ob != M.ORC_BYTES
+    r = R.run(M.G(), oracle_bytes=ob, oracle_sha=M.sha(ob))
+    assert r["overall"] == NR and r["blocked_reason"].startswith("ORACLE_UNREADABLE")
+
+
+def test_oversize_raw_with_wrong_hash_is_inconclusive_not_fail(R):
+    """The raw size cap fires before the hash comparison: an 8 MiB+ file is unparsable evidence (kills mutant M22)."""
+    r = M.ATTACKS["oversize_raw_with_wrong_hash"]["fn"](R)
+    o = M.obs_of(r, "QA-01", "QA-01.11")
+    assert o["status"] == "unevaluable" and "size cap" in o["detail"]
+    assert r["overall"] == INC
 
 
 # ================================================================== paths
@@ -671,8 +687,12 @@ class Cli:
         shutil.copy(M.PKG / "oracle" / "oracle.v1.json", self.pkg / "oracle" / "oracle.v1.json")
         (self.pkg / "freeze").mkdir()
         self.oracle = self.pkg / "oracle" / "oracle.v1.json"
-        self.fr = self.call("freeze-build", "--meta-json", "{}").stdout.strip()
+        self.fr = self.freeze()
         self.runner = M.Runner(root / "bundle")
+
+    def freeze(self, meta=None):
+        meta = {"oracle_sha256": M.sha(self.oracle.read_bytes())} if meta is None else meta
+        return self.call("freeze-build", "--meta-json", json.dumps(meta)).stdout.strip()
 
     def call(self, *args):
         return subprocess.run([sys.executable, "-I", "-B", "-c", CODE, str(self.pkg), *map(str, args)], capture_output=True, text=True, timeout=120, cwd=str(self.root))
@@ -729,7 +749,7 @@ def test_cli_exit_2_for_everything_else(cli, label):
             o = bytearray(cli.oracle.read_bytes())
             o[o.index(b"draft")] ^= 1
             cli.oracle.write_bytes(bytes(o))
-            cli.fr = cli.call("freeze-build", "--meta-json", "{}").stdout.strip()   # keep the package consistent so ONLY the oracle pin fails
+            cli.fr = cli.freeze()   # keep the package consistent so ONLY the oracle pin fails
         elif label == "freeze_wrong_root":
             kw["root"] = "0" * 64
         else:
@@ -845,3 +865,24 @@ def test_cli_collect_identity_refuses_traversal_and_marks_missing(cli, tmp_path)
     assert d["f.txt"]["git_blob"] == __import__("hashlib").sha1(b"blob 2\x00hi").hexdigest() == "32f95c0d1244a78b2be1bab8de17906fabb2c4a8"
     bad = cli.call("collect-identity", "--root", root, "../x")
     assert bad.returncode != 0 and bad.stdout == ""
+
+
+@pytest.mark.parametrize("meta", [{}, {"oracle_sha256": "0" * 64}, {"oracle_sha256": 5}, {"other": 1}])
+def test_cli_oracle_must_be_bound_to_freeze_meta(cli, meta):
+    cli.fr = cli.freeze(meta)
+    r = cli.evaluate()
+    rep = json.loads(r.stdout)
+    assert r.returncode == 2 and rep["overall"] == "NOT RUN" and rep["blocked_reason"].startswith("ORACLE_NOT_BOUND_TO_FREEZE")
+
+
+def test_cli_different_oracle_with_matching_caller_hash_is_blocked(cli):
+    """Caller-supplied --expect-oracle-sha256 cannot bless an oracle the freeze did not commit."""
+    o = bytearray(cli.oracle.read_bytes())
+    alt = cli.pkg.parent / "alt-oracle.json"
+    o[o.index(b"draft")] ^= 1
+    alt.write_bytes(bytes(o))
+    r = cli.evaluate(None, oracle=alt, osha=M.sha(bytes(o)))
+    rep = json.loads(r.stdout)
+    assert r.returncode == 2 and rep["overall"] == "NOT RUN" and rep["blocked_reason"].startswith("ORACLE_NOT_BOUND_TO_FREEZE")
+    r = cli.evaluate()                       # the committed oracle still passes
+    assert r.returncode == 0

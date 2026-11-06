@@ -464,19 +464,33 @@ def test_est11_obs_match_is_observed_as_frozen_not_validated(R, cid):
     assert r["obs_summary"][cid] == "OBSERVED_AS_FROZEN"
 
 
-def test_est11_claim_basis_identical_whether_obs_pass_or_not_run(R):
-    """EST-11: claim_basis does not depend on OBS; overall does (NOT RUN when OBS are skipped)."""
+def test_est11_claim_basis_follows_overall_gated_verdict_is_informational(R):
+    """EST-11: claim_basis is PASS only when overall is PASS; gated_cases_verdict (PRE/CTL/RI only) does not depend on OBS."""
     a = R.run(M.G())
     b = M.G()
     for cid in OBS_CASES:
         b.cases[cid]["executed"] = False
     r = R.run(b)
-    assert a["claim_basis"] == r["claim_basis"] == PASS
-    assert a["overall"] == PASS and r["overall"] == NR
-    assert all(M.case_of(r, c)["verdict"] == NR for c in OBS_CASES)
+    assert a["overall"] == a["claim_basis"] == a["gated_cases_verdict"] == PASS
+    assert r["overall"] == r["claim_basis"] == NR and r["gated_cases_verdict"] == PASS
     assert r["obs_summary"] == {c: "NOT_OBSERVED" for c in OBS_CASES}
+    assert all(M.case_of(r, c)["verdict"] == NR for c in OBS_CASES)
     dev = R.run(_obs_dev("QA-11"))
-    assert dev["claim_basis"] == PASS and dev["overall"] == FAIL    # by design: OBS never validates and never gates the claim
+    assert dev["overall"] == FAIL and dev["claim_basis"] == FAIL and dev["gated_cases_verdict"] == PASS
+
+
+def test_claim_basis_equals_overall_unless_pass(R):
+    """claim_basis never reads PASS unless overall does: violation, zero-executed, OBS deviation, skipped case."""
+    b = M.G(); b.driver_events.append({"kind": "network"})
+    v = R.run(b)
+    assert v["overall"] == FAIL and v["claim_basis"] == FAIL and v["gated_cases_verdict"] == FAIL and v["violations"]
+    z = M.ATTACKS["est06_zero_cases"]["fn"](R)
+    assert z["claim_basis"] == NR and z["overall"] == NR and z["gated_cases_verdict"] == NR
+    for name in ("est11_obs_deviation", "arch_skipped_case", "est07_missing_raw_file", "est02_hold_to_authorized"):
+        r = M.ATTACKS[name]["fn"](R)
+        assert r["claim_basis"] == r["overall"] != PASS, name
+    g = R.run(M.G())
+    assert g["claim_basis"] == PASS == g["gated_cases_verdict"]
 
 
 def test_est11_obs_pass_cannot_rescue_a_gated_failure(R):
@@ -525,3 +539,45 @@ def test_est12_outcome_label_lies(R):
     b = M.G()
     b.cases["QA-03"]["boundaries"]["pack_import"]["outcome"] = "success"
     assert M.case_of(R.run(b), "QA-03")["verdict"] == INC
+
+
+# ------------------------------------------------------------------ unmutated pack_validation / discriminating message
+MSG = "Retained Replay semantic validation failed: traceable transformation differs from retained source reconstruction"
+
+
+@pytest.mark.parametrize("cid", ["QA-16", "QA-27"])
+def test_trace_semantics_issue_with_a_different_message_is_not_the_mutation_detection(R, cid):
+    """(a) E_TRACE_SEMANTICS at the right path/severity but an unrelated message must not satisfy QA-16/QA-27."""
+    issue = M.getv(M.G(), cid, "pack_validation", "/issues")[0]
+    assert issue["message"] == MSG and issue["code"] == "E_TRACE_SEMANTICS" and issue["path"] == "metadata.traceable_import"
+    for bad in ("some unrelated failure", MSG + " ", MSG.lower(), MSG[:-1], "", None):
+        r = M._run(R, lambda b, v=bad: M.setv(b, cid, "pack_validation", "/issues", [{**issue, "message": v}]))
+        assert M.obs_of(r, cid, f"{cid}.2")["status"] == "violated", bad
+        assert M.case_of(r, cid)["verdict"] == FAIL and r["overall"] == FAIL and r["claim_basis"] == FAIL
+    r = M._run(R, lambda b: b.raw[M.rawrel(b, cid, "pack_validation")]["issues"][0].pop("message"))
+    assert M.case_of(r, cid)["verdict"] == FAIL
+    for key, val in (("code", "E_OTHER"), ("path", "metadata"), ("severity", "warning")):
+        r = M._run(R, lambda b, k=key, v=val: M.setv(b, cid, "pack_validation", "/issues", [{**issue, k: v}]))
+        assert M.case_of(r, cid)["verdict"] == FAIL, key
+
+
+@pytest.mark.parametrize("ctrl,dependents", [("QA-01", ["QA-16", "QA-08", "QA-10", "QA-12", "QA-18", "QA-19", "QA-22", "QA-25"]),
+                                             ("QA-02", ["QA-27", "QA-03", "QA-05"])])
+def test_breaking_the_unmutated_pack_validation_fails_the_control_and_downgrades_dependents(R, ctrl, dependents):
+    """(b) valid:false (or an error issue) in the control's own pack_validation => control FAIL, mutation cases INCONCLUSIVE."""
+    for mut in (lambda b: M.setv(b, ctrl, "pack_validation", "/valid", False),
+                lambda b: M.setv(b, ctrl, "pack_validation", "/issues", [{"severity": "error", "code": "E_X"}])):
+        r = M._run(R, mut)
+        v = M.vmap(r)
+        assert v[ctrl] == FAIL and r["overall"] == FAIL
+        for d in dependents:
+            assert v[d] == INC, (ctrl, d, v[d])
+    r = M._run(R, lambda b: M.setv(b, ctrl, "pack_validation", "/valid", False))
+    assert M.obs_of(r, ctrl, "QA-01.45" if ctrl == "QA-01" else f"{ctrl}.{len(M.CASES[ctrl]['observations']) - 1}")["status"] == "violated"
+
+
+def test_pack_validation_observation_counts_and_oracle_shape():
+    assert len(M.CASES["QA-01"]["observations"]) == 46 and len(M.CASES["QA-02"]["observations"]) == 45
+    assert len(M.CASES["QA-OBS-EXACT"]["observations"]) == 4
+    for cid in ("QA-01", "QA-02"):
+        assert {o["boundary"] for o in M.CASES[cid]["observations"]} >= {"pack_validation"}

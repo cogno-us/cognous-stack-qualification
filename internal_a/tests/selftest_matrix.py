@@ -564,9 +564,9 @@ ATTACKS = {}
 
 
 def attack(name, est, expect, claim_may_pass=False):
-    """claim_may_pass: OBS-only deviations FAIL `overall` but, by design, never touch the claim basis (claim_gated False)."""
+    """claim_may_pass is retained for call-site compatibility but ignored: claim_basis == overall unless overall is PASS."""
     def deco(fn):
-        ATTACKS[name] = {"est": est, "expect": tuple(expect), "fn": fn, "claim_may_pass": claim_may_pass}
+        ATTACKS[name] = {"est": est, "expect": tuple(expect), "fn": fn, "claim_may_pass": False}   # claim_basis is PASS only if overall is PASS
         return fn
     return deco
 
@@ -762,6 +762,16 @@ attack("path_backslash_name", "SEC", (INCONC,))(_backslash_name)
 attack("path_absolute_name", "SEC", (INCONC,))(_absolute_name)
 
 
+def _oversize_raw_wrong_hash(R):
+    b = G()
+    b.raw_bytes[_A] = b'{"pad": "' + b"a" * (O.MAX_JSON_BYTES + 1) + b'"}'
+    b.index_over[_A] = "0" * 64
+    return R.run(b)
+
+
+attack("oversize_raw_with_wrong_hash", "SEC", (INCONC,))(_oversize_raw_wrong_hash)
+
+
 def _qa26_alias(b):
     br = b.cases["QA-26"]["boundaries"]
     br["pack_second"]["raw"] = br["pack_first"]["raw"]
@@ -904,8 +914,10 @@ def _mutants():
         E, "_run", "if not isinstance(expect_bundle_sha256, str) or O.sha256_bytes(bdata) != expect_bundle_sha256:", "if False:")])
     m("M05_unknown_case_ids_ignored", "extra case ids not a violation", lambda: [sp(E, "_run", "if unknown:", "if False:")])
     m("M06_violations_ignored", "guard violations not applied", lambda: [sp(E, "_run", "if violations:", "if False:")])
-    m("M07_claim_basis_ignores_violations", "violations only downgrade overall", lambda: [sp(
-        E, "_run", "overall, gated = V.FAIL, V.FAIL", "overall = V.FAIL")])
+    m("M07_claim_basis_ignores_overall", "claim_basis reads the gated verdict even when overall is not PASS", lambda: [sp(
+        E, "_run", 'gated if overall == V.PASS else overall', "gated")])
+    m("M07b_claim_basis_ignores_violations", "violations do not withdraw claim_basis", lambda: [sp(
+        E, "_run", "overall, gated = V.FAIL, V.FAIL", "overall = V.FAIL"), sp(E, "_run", 'gated if overall == V.PASS else overall', "gated")])
     m("M08_paired_control_downgrade_removed", "refusal case may PASS with a broken control", lambda: [sp(
         E, "_run", 'if pc and x["verdict"] == V.PASS and by_id[pc]["verdict"] != V.PASS:', "if False:")])
     m("M09_zero_executed_rule_removed", "zero-executed PASS rescue removed", lambda: [sp(
@@ -934,9 +946,8 @@ def _mutants():
     m("M20_file_symlink_allowed", "symlinked raw files accepted", lambda: [sp(
         Rw, "_load", "if p.is_symlink() or not real.is_file():", "if not real.is_file():")])
     m("M21_backslash_path_allowed", "backslash raw paths accepted", lambda: [sp(Rw, "_load", r'or "\\" in rel or', "or")])
-    m("M22_size_cap_removed_in_load", "raw size cap removed in _Raw only", lambda: [sp(
-        Rw, "_load", "if len(data) > O.MAX_JSON_BYTES:", "if False:")],
-      equivalent="load_json_strict enforces the same 8 MiB cap (defence in depth)")
+    m("M22_size_cap_removed_in_load", "raw size cap removed in _Raw only (oversize + wrong hash: FAIL instead of INCONCLUSIVE)", lambda: [sp(
+        Rw, "_load", "if len(data) > O.MAX_JSON_BYTES:", "if False:")])
     m("M23_tampered_is_unevaluable", "hash lie yields INCONCLUSIVE instead of FAIL", lambda: [sp(
         E, "_eval_obs", 'if kind == "tampered":\n        return "violated", val, None', 'if kind == "tampered":\n        return "unevaluable", val, None')])
     m("M24_outcome_label_trusted", "boundary outcome taken from the bundle label", lambda: [(
@@ -963,7 +974,7 @@ def _mutants():
         E, "_eval_obs", "same = P.deq(val, v2)", 'same = (op == "eq_ref")')])
     m("M36_combine_ignores_inconclusive", "combine drops INCONCLUSIVE", lambda: [("attr", V, "combine", _combine_variant(drop=(INCONC,)))])
     m("M37_combine_empty_is_pass", "empty mandatory set is PASS", lambda: [("attr", V, "combine", _combine_variant(empty=PASS))],
-      equivalent="the engine never calls combine() with an empty list (the oracle always has mandatory cases); verdicts.combine is unit-tested directly")
+      equivalent="equivalent for the pinned oracle only (it always has mandatory cases, so the engine never passes an empty list); the verdicts.combine contract is unit-tested directly")
     m("M38_combine_ignores_not_run", "NOT RUN mandatory cases ignored", lambda: [("attr", V, "combine", _combine_variant(drop=(NOT_RUN,)))])
     m("M39_combine_inconclusive_over_fail", "INCONCLUSIVE outranks FAIL", lambda: [("attr", V, "combine", _combine_variant(order=(INCONC, FAIL, NOT_RUN)))])
     m("M40_deq_type_loose", "True == 1, 1 == 1.0", lambda: [("attr", P, "deq", _deq_type_loose)])
@@ -1001,7 +1012,7 @@ def _mutants():
     m("G6_scratch_traversal_allowed", "scratch/.. accepted", lambda: [(
         "attr", guard, "_in_scratch", lambda p: isinstance(p, str) and p.startswith("scratch/"))])
     m("G7_effect_regex_removed", "effect-name regex never matches", lambda: [("attr", guard, "_EFFECT_NAME", re.compile(r"(?!x)x"))],
-      equivalent="the allow-list already refuses every effect-named callable the current oracle does not list (regex is defence in depth; unit-tested directly)")
+      equivalent="equivalent for the pinned oracle/allow-list only (no allow-listed callable has an effect-like name, and the allow-list already refuses the rest); the guard contract is unit-tested directly")
     return L
 
 

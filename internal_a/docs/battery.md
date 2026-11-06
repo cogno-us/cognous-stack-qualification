@@ -10,8 +10,8 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-S2 | PRE | - | none | evaluator ia_eval.identity.hash_files over the pinned checkouts (driver raw capture 'file_identity') | 2 | - | any listed file is missing, extra, or has a different sha256 or git blob id (module/fixture hash tampering) |
 | QA-S3 | PRE | - | none | evaluator ia_eval.identity.hash_files over internal_a/freeze/snapshots (driver raw capture 'snapshot_identity') | 1 | - | any snapshot file differs from its frozen sha256, or is missing |
 | QA-E1 | PRE | - | none | evaluator hash of the retained ZIPs and their members (driver raw capture 'artifact_identity'); read-only, nothing is re-executed | 2 | - | any ZIP or C4 member hash differs from the frozen value, or the retained bytes are unavailable (unavailable => INCONCLUSIVE, never PASS) |
-| QA-01 | CTL | - | none | AM load_manifest_json/validate_manifest/manifest_digest/proposal_digest/proposal_mismatches; CP BoundedAuthorizationWorkflow.decide; RB import_bounded_workflow; PK import_manifest_reconstruction | 44 | - | any observation differs, is missing, or a native call raised |
-| QA-02 | CTL | - | none | as QA-01 with the subject-owned grant-status input revoked (L26) | 43 | - | any observation differs, is missing, a native call raised, or an 'authorized' decision appears downstream |
+| QA-01 | CTL | - | none | AM load_manifest_json/validate_manifest/manifest_digest/proposal_digest/proposal_mismatches; CP BoundedAuthorizationWorkflow.decide; RB import_bounded_workflow; PK import_manifest_reconstruction | 46 | - | any observation differs, is missing, or a native call raised |
+| QA-02 | CTL | - | none | as QA-01 with the subject-owned grant-status input revoked (L26) | 45 | - | any observation differs, is missing, a native call raised, or an 'authorized' decision appears downstream |
 | QA-03 | RI | QA-03 | /records/<i>/data/result where records[i].record_type=='runtime_decision': replace 'hold' -> 'authorized' | PK import_manifest_reconstruction(manifest: dict, reconstruction_bundle: dict) | 2 | QA-02 | import returns a pack, or raises a different type or message |
 | QA-05 | RI | QA-05 | /records/<i> where record_type=='runtime_decision': remove | PK import_manifest_reconstruction | 2 | QA-02 | import succeeds, or a different type or message |
 | QA-08 | RI | QA-08 | /manifest_digest: change one hex character of the 64-hex tail | AM binding.proposal_mismatches(manifest, proposal); CP BoundedAuthorizationWorkflow.decide(proposal) | 4 | QA-01 | AM list lacks the code or has extras; CP result is not hold, a binding is present, or the code is absent |
@@ -27,7 +27,7 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-11 | OBS | QA-11 | /tenant_id: replace 'tenant-alpha' -> 'tenant-beta'; keep run_id unchanged (a differing run_id raises, importers.py~1005) | RB import_bounded_workflow(hold_record, proposal=<tenant swapped>, control_plane_revision=<CP pin>) | 3 | - | Replay refuses the swapped proposal on a HOLD record (the limitation changed: new oracle version required) |
 | QA-17 | OBS | QA-17 | /bundle_id: replace with the fixed value 00000000-0000-4000-8000-0000000000a1 | PK import_manifest_reconstruction on the bundle with bundle_id replaced; validate_evidence_pack | 4 | - | the Pack refuses the re-identified bundle (the limitation changed: new oracle version required) |
 | QA-26 | OBS | QA-26 | -: deliver twice | PK import_manifest_reconstruction called twice on identical inputs | 3 | - | the second import is refused or yields different stable counts (the limitation changed: new oracle version required) |
-| QA-OBS-EXACT | OBS | O-CP3/O-RB2/O-RB3/O-PK2c/O-PK5 | none | projections of the QA-01/QA-02 native outputs | 8 | - | any exact form differs (record as drift; never re-baseline silently) |
+| QA-OBS-EXACT | OBS | O-CP3/O-RB2/O-RB3/O-PK2c/O-PK5 | none | projections of the QA-01/QA-02 native outputs | 4 | - | any exact form differs (record as drift; never re-baseline silently) |
 
 ## Non-mandatory cases
 
@@ -47,8 +47,8 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-E1.1 | artifact_identity | `/zip_sha256` | eq | frozen literal |
 | QA-E1.2 | artifact_identity | `/c4_members_sha256` | eq | frozen literal |
 | QA-01.1 | am_validate | `/valid` | eq | AM src/agent_action_manifest/validator.py:51 [INFERRED] |
-| QA-01.2 | am_validate | `/manifest_digest` | eq | AM src/agent_action_manifest/binding.py:31 [SOURCE-READ] |
-| QA-01.3 | am_validate | `/proposal_digest` | eq | AM src/agent_action_manifest/binding.py:39 [SOURCE-READ] |
+| QA-01.2 | am_validate | `/manifest_digest` | eq | frozen literal |
+| QA-01.3 | am_validate | `/proposal_digest` | eq | frozen literal |
 | QA-01.4 | am_validate | `/proposal_mismatches` | len_eq | AM src/agent_action_manifest/binding.py:48 [SOURCE-READ] |
 | QA-01.5 | cp_record | `/decisions` | len_eq | CP src/agent_control_plane/bounded.py:1679 [SOURCE-READ] |
 | QA-01.6 | cp_record | `/attempts` | len_eq | CP src/agent_control_plane/bounded.py:1648 [SOURCE-READ] |
@@ -60,8 +60,8 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-01.12 | cp_record | `/decisions/0/reasons` | len_eq | CP src/agent_control_plane/bounded.py:1667 [SOURCE-READ] |
 | QA-01.13 | cp_record | `/decisions/0/binding/proposal_commitment` | eq_ref | CP src/agent_control_plane/bounded.py:2523 [SOURCE-READ] |
 | QA-01.14 | cp_record | `/decisions/0/binding/manifest_digest` | eq_ref | CP src/agent_control_plane/bounded.py:2643 [SOURCE-READ] |
-| QA-01.15 | cp_record | `/decisions/0/binding/tenant_id` | eq | CP src/agent_control_plane/bounded.py:2635 [SOURCE-READ] |
-| QA-01.16 | cp_record | `/decisions/0/binding/generation` | eq | CP src/agent_control_plane/bounded.py:57 [SOURCE-READ] |
+| QA-01.15 | cp_record | `/decisions/0/binding/tenant_id` | eq | frozen literal |
+| QA-01.16 | cp_record | `/decisions/0/binding/generation` | eq | frozen literal |
 | QA-01.17 | replay_bundle | `/status` | eq | RB src/agent_replay_bundle/importers.py:1247 [SOURCE-READ] |
 | QA-01.18 | replay_bundle | `/import_reports/0/findings` | any_item_matches | RB src/agent_replay_bundle/importers.py:1209 [SOURCE-READ] |
 | QA-01.19 | replay_bundle | `/import_reports/0/findings` | none_item_matches | RB src/agent_replay_bundle/importers.py:1008 [SOURCE-READ] |
@@ -90,9 +90,11 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-01.42 | pack | `/replay_bundles/0/signed` | eq | PK src/agent_governance_evidence_pack/importer.py:1594 [SOURCE-READ] |
 | QA-01.43 | pack | `/review_status` | eq | PK src/agent_governance_evidence_pack/importer.py:1594 [SOURCE-READ] |
 | QA-01.44 | pack | `#input:replay_bundle` | eq_ref | evaluator relation |
+| QA-01.45 | pack_validation | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
+| QA-01.46 | pack_validation | `/issues` | none_item_matches | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
 | QA-02.1 | am_validate | `/valid` | eq | AM src/agent_action_manifest/validator.py:51 [INFERRED] |
-| QA-02.2 | am_validate | `/manifest_digest` | eq | AM src/agent_action_manifest/binding.py:31 [SOURCE-READ] |
-| QA-02.3 | am_validate | `/proposal_digest` | eq | AM src/agent_action_manifest/binding.py:39 [SOURCE-READ] |
+| QA-02.2 | am_validate | `/manifest_digest` | eq | frozen literal |
+| QA-02.3 | am_validate | `/proposal_digest` | eq | frozen literal |
 | QA-02.4 | am_validate | `/proposal_mismatches` | len_eq | AM src/agent_action_manifest/binding.py:48 [SOURCE-READ] |
 | QA-02.5 | cp_record | `/decisions` | len_eq | CP src/agent_control_plane/bounded.py:1679 [SOURCE-READ] |
 | QA-02.6 | cp_record | `/attempts` | len_eq | CP src/agent_control_plane/bounded.py:1648 [SOURCE-READ] |
@@ -107,8 +109,8 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-02.15 | replay_bundle | `/import_reports/0/findings` | any_item_matches | RB src/agent_replay_bundle/importers.py:1209 [SOURCE-READ] |
 | QA-02.16 | replay_bundle | `/import_reports/0/findings` | none_item_matches | RB src/agent_replay_bundle/importers.py:1008 [SOURCE-READ] |
 | QA-02.17 | replay_bundle | `/import_reports/0/findings` | any_item_matches | RB src/agent_replay_bundle/importers.py:1080 [SOURCE-READ] |
-| QA-02.18 | replay_bundle | `/records` | any_item_matches | RB src/agent_replay_bundle/importers.py:1028 [SOURCE-READ] |
-| QA-02.19 | replay_bundle | `/records` | none_item_matches | RB src/agent_replay_bundle/importers.py:1028 [SOURCE-READ] |
+| QA-02.18 | replay_bundle | `/records` | any_item_matches | RB src/agent_replay_bundle/importers.py:1030 [SOURCE-READ] |
+| QA-02.19 | replay_bundle | `/records` | none_item_matches | RB src/agent_replay_bundle/importers.py:1030 [SOURCE-READ] |
 | QA-02.20 | replay_bundle | `/semantics/external_effect_execution` | eq | RB src/agent_replay_bundle/importers.py:1253 [SOURCE-READ] |
 | QA-02.21 | replay_bundle | `/semantics/destination_observation` | eq | RB src/agent_replay_bundle/importers.py:1253 [SOURCE-READ] |
 | QA-02.22 | replay_bundle | `/semantics/policy_reevaluation` | eq | RB src/agent_replay_bundle/importers.py:1253 [SOURCE-READ] |
@@ -133,22 +135,24 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-02.41 | pack | `/replay_bundles/0/signed` | eq | PK src/agent_governance_evidence_pack/importer.py:1594 [SOURCE-READ] |
 | QA-02.42 | pack | `/review_status` | eq | PK src/agent_governance_evidence_pack/importer.py:1594 [SOURCE-READ] |
 | QA-02.43 | pack | `#input:replay_bundle` | eq_ref | evaluator relation |
-| QA-03.1 | pack_import | `-` | raised_type | PK src/agent_governance_evidence_pack/importer.py:1061 [SOURCE-READ] |
-| QA-03.2 | pack_import | `-` | raised_message_contains | PK src/agent_governance_evidence_pack/importer.py:1061 [SOURCE-READ] |
+| QA-02.44 | pack_validation | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
+| QA-02.45 | pack_validation | `/issues` | none_item_matches | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
+| QA-03.1 | pack_import | `-` | raised_type | PK src/agent_governance_evidence_pack/importer.py:1061 [INFERRED] |
+| QA-03.2 | pack_import | `-` | raised_message_contains | PK src/agent_governance_evidence_pack/importer.py:1061 [INFERRED] |
 | QA-05.1 | pack_import | `-` | raised_type | PK src/agent_governance_evidence_pack/importer.py:701 [SOURCE-READ] |
 | QA-05.2 | pack_import | `-` | raised_message_equals | PK src/agent_governance_evidence_pack/importer.py:701 [SOURCE-READ] |
 | QA-08.1 | am_bind | `/proposal_mismatches` | seq_eq | AM src/agent_action_manifest/binding.py:62 [SOURCE-READ] |
-| QA-08.2 | cp_record | `/decisions/0/result` | eq | CP src/agent_control_plane/bounded.py:2678 [SOURCE-READ] |
+| QA-08.2 | cp_record | `/decisions/0/result` | eq | CP src/agent_control_plane/bounded.py:1667 [SOURCE-READ] |
 | QA-08.3 | cp_record | `/decisions/0/binding` | is_null | CP src/agent_control_plane/bounded.py:1675 [SOURCE-READ] |
 | QA-08.4 | cp_record | `/decisions/0/reasons` | list_contains | CP src/agent_control_plane/bounded.py:2678 [SOURCE-READ] |
 | QA-10.1 | replay_import | `-` | raised_type | RB src/agent_replay_bundle/importers.py:264 [SOURCE-READ] |
 | QA-10.2 | replay_import | `-` | raised_message_contains | RB src/agent_replay_bundle/importers.py:264 [SOURCE-READ] |
 | QA-12.1 | replay_import | `-` | raised_type | RB src/agent_replay_bundle/importers.py:847 [SOURCE-READ] |
 | QA-12.2 | replay_import | `-` | raised_message_equals | RB src/agent_replay_bundle/importers.py:847 [SOURCE-READ] |
-| QA-16.1 | pack_validation | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:507 [SOURCE-READ] |
-| QA-16.2 | pack_validation | `/issues` | any_item_matches | PK src/agent_governance_evidence_pack/validator.py:507 [SOURCE-READ] |
-| QA-27.1 | pack_validation | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:507 [SOURCE-READ] |
-| QA-27.2 | pack_validation | `/issues` | any_item_matches | PK src/agent_governance_evidence_pack/validator.py:507 [SOURCE-READ] |
+| QA-16.1 | pack_validation | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:508 [SOURCE-READ] |
+| QA-16.2 | pack_validation | `/issues` | any_item_matches | PK src/agent_governance_evidence_pack/validator.py:508 [SOURCE-READ] |
+| QA-27.1 | pack_validation | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:508 [SOURCE-READ] |
+| QA-27.2 | pack_validation | `/issues` | any_item_matches | PK src/agent_governance_evidence_pack/validator.py:508 [SOURCE-READ] |
 | QA-18.1 | pack_import | `-` | raised_type | PK src/agent_governance_evidence_pack/importer.py:1017 [SOURCE-READ] |
 | QA-18.2 | pack_import | `-` | raised_message_contains | PK src/agent_governance_evidence_pack/importer.py:1017 [SOURCE-READ] |
 | QA-19.1 | am_load | `-` | raised_type | AM src/agent_action_manifest/loader.py:46 [SOURCE-READ] |
@@ -172,15 +176,11 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-17.4 | pack_validation | `/issues` | none_item_matches | limit L19 |
 | QA-26.1 | pack_first | `-` | returned | limit L14 |
 | QA-26.2 | pack_second | `-` | returned | limit L14 |
-| QA-26.3 | pack_second | `` | eq_ref | PK src/agent_governance_evidence_pack/importer.py:1590 [SOURCE-READ] |
+| QA-26.3 | pack_second | `` | eq_ref | PK src/agent_governance_evidence_pack/importer.py:1590 [INFERRED] |
 | QA-OBS-EXACT.1 | cp_pos | `/decisions/0/reasons` | seq_eq | CP src/agent_control_plane/bounded.py:1667 [INFERRED] |
 | QA-OBS-EXACT.2 | cp_hold | `/decisions/0/reasons` | seq_eq | CP src/agent_control_plane/bounded.py:2432 [INFERRED] |
 | QA-OBS-EXACT.3 | rb_pos | `/import_reports/0/findings` | len_eq | RB src/agent_replay_bundle/importers.py:1209 [INFERRED] |
 | QA-OBS-EXACT.4 | rb_hold | `/import_reports/0/findings` | len_eq | RB src/agent_replay_bundle/importers.py:1080 [INFERRED] |
-| QA-OBS-EXACT.5 | pk_val_pos | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
-| QA-OBS-EXACT.6 | pk_val_pos | `/issues` | none_item_matches | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
-| QA-OBS-EXACT.7 | pk_val_hold | `/valid` | eq | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
-| QA-OBS-EXACT.8 | pk_val_hold | `/issues` | none_item_matches | PK src/agent_governance_evidence_pack/validator.py:58 [INFERRED] |
 
 ## Exclusions (each documented)
 

@@ -25,13 +25,22 @@
    "counts_as": "internal inspection only",
    "identity": "builder-lineage subagent (Worker F)",
    "independent": false,
-   "role": "security and no-effect review of evaluator core"
+   "reviewed": "evaluator core at branch commit df3cd553; findings B1-B4/S1-S7 fixed (see docs/selftest-defects.md and tests)",
+   "role": "security and no-effect review of the evaluator core"
   },
   {
    "counts_as": "internal inspection only",
    "identity": "builder-lineage subagent (Worker G)",
    "independent": false,
-   "role": "final-head patch review"
+   "reviewed": "PR #272 head a9af02b2abfb932c09f4d6f3e1bea49ed6b69392; verdict NOT READY (1 blocker B1, 6 should-fix) -> all fixed in later commits",
+   "role": "final-head patch review (initial)"
+  },
+  {
+   "counts_as": "internal inspection only",
+   "identity": "builder-lineage subagent (Worker G, resumed)",
+   "independent": false,
+   "reviewed": "the reviewed head sha and verdict are recorded in the PR #272 body (a commit cannot contain its own hash)",
+   "role": "bounded delta review of the review fixes"
   }
  ],
  "oracle_author": {
