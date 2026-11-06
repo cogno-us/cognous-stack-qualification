@@ -37,8 +37,8 @@ A small, stdlib-only, read-only **verdict engine** (`ia_eval/`) that judges an *
 cd internal_a
 PYTHONDONTWRITEBYTECODE=1 python3 -I -B -m pytest -p no:cacheprovider tests          # stub-only self-tests
 python3 -I -B tests/selftest_matrix.py results/selftest                                 # kill matrix + raw results
-python3 -I -B -m ia_eval freeze-verify --freeze-root <root>                             # file-set equals manifest
-python3 -I -B -m ia_eval evaluate --oracle oracle/oracle.v1.json --expect-oracle-sha256 <h> \
+python3 -I -B run_ia.py freeze-verify --freeze-root <root>                             # file-set equals manifest
+python3 -I -B run_ia.py evaluate --oracle oracle/oracle.v1.json --expect-oracle-sha256 <h> \
     --bundle <dir> --expect-bundle-sha256 <h> --freeze-root <root> --out <new-report.json>   # exit 0 only on PASS
 ```
 
@@ -49,6 +49,7 @@ Always `-I -B`; `freeze-verify` also fails if any `.pyc` exists.
 1. **No native-calling driver is included.** The evaluator never imports a component. The future one-shot local runner (D6) must still be demonstrated to be repeatable, to reach the pinned native components rather than developer status fields, and to retain complete raw output. Until then execution is not authorized and the readiness is for the *freeze*, not for running.
 2. The driver is trusted for **call fidelity**, **completeness of `driver_events`** and the `executed` flag; hashes prove only that a bundle is consistent with its own index. The evaluator cannot detect a lying driver.
 3. QA-22 needs a clean git checkout of Replay (a `git archive` extract has no VCS revision, so the Pack refuses even the control). QA-S1/S2 trust the driver's raw `git rev-parse` capture and evaluator hashing of files on disk.
+3b. Identity captures (QA-S1/S2/S3/QA-E1) should be produced with `python3 -I -B run_ia.py collect-identity` by the evaluator owner on the extracted trees, not by the driver; QA-09 recomputes the raw-dict commitment itself (`commitment_of`), but `am_digest` and every other native output are driver-reported serialisations of native objects.
 4. Oracle `source` annotations are documentation: the engine does not verify them against the repositories; integrity rests on the pinned oracle hash. Observations marked `INFERRED` in `source.confidence` have an expectation not fully traced in source and are the first suspects if a future run deviates.
 5. Hash commitments are self-computed. GitHub comments are mutable and not an independent anchor (Architect D8); the root commitment must additionally be retained **outside the builder's workspace**.
 6. Original C1–C4 evidence is **not in independent custody** (`freeze/custody-inventory.json`): artifacts expire from 2027-02-03.

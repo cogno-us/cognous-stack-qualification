@@ -266,7 +266,7 @@
  {
   "as_expected": true,
   "attack": "est08_oracle_one_byte",
-  "blocked_reason": "ORACLE_DRIFT: sha256 0e7d7d1925096cf44823018ecdd3e79a1420cd14cafb9c8afddda5e6981",
+  "blocked_reason": "ORACLE_DRIFT: sha256 3eb73dbec41b605def3280680298d424c6d628aaa2e619b0c5f0098f25a",
   "claim_basis": "NOT RUN",
   "defended": true,
   "est": "EST-08",
@@ -302,7 +302,7 @@
  {
   "as_expected": true,
   "attack": "est08_bundle_hash_mismatch",
-  "blocked_reason": "BUNDLE_DRIFT: bundle.json sha256 6342c797dca114a6628211d170c6d4dd28a7dcae627cd1c",
+  "blocked_reason": "BUNDLE_DRIFT: bundle.json sha256 7a0b1e74241e6094171de426fb972218ea433799e8c364c",
   "claim_basis": "NOT RUN",
   "defended": true,
   "est": "EST-08",
@@ -456,16 +456,16 @@
   "overall": "INCONCLUSIVE"
  },
  {
-  "as_expected": false,
+  "as_expected": true,
   "attack": "arch_binding_null",
   "blocked_reason": "",
-  "claim_basis": "INCONCLUSIVE",
+  "claim_basis": "FAIL",
   "defended": true,
   "est": "ARCH",
   "expected_overall": [
    "FAIL"
   ],
-  "overall": "INCONCLUSIVE"
+  "overall": "FAIL"
  },
  {
   "as_expected": true,
@@ -982,5 +982,53 @@
    "INCONCLUSIVE"
   ],
   "overall": "INCONCLUSIVE"
+ },
+ {
+  "as_expected": true,
+  "attack": "qa26_two_boundaries_alias_one_raw_file",
+  "blocked_reason": "",
+  "claim_basis": "PASS",
+  "defended": true,
+  "est": "ALIAS",
+  "expected_overall": [
+   "INCONCLUSIVE"
+  ],
+  "overall": "INCONCLUSIVE"
+ },
+ {
+  "as_expected": true,
+  "attack": "qa09_driver_lies_about_raw_commitment",
+  "blocked_reason": "",
+  "claim_basis": "PASS",
+  "defended": true,
+  "est": "COMMIT",
+  "expected_overall": [
+   "FAIL"
+  ],
+  "overall": "FAIL"
+ },
+ {
+  "as_expected": true,
+  "attack": "qa09_manifest_changed_commitment_stale",
+  "blocked_reason": "",
+  "claim_basis": "PASS",
+  "defended": true,
+  "est": "COMMIT",
+  "expected_overall": [
+   "FAIL"
+  ],
+  "overall": "FAIL"
+ },
+ {
+  "as_expected": true,
+  "attack": "qa09_manifest_null_blocks_pointer",
+  "blocked_reason": "",
+  "claim_basis": "PASS",
+  "defended": true,
+  "est": "COMMIT",
+  "expected_overall": [
+   "FAIL"
+  ],
+  "overall": "FAIL"
  }
 ]

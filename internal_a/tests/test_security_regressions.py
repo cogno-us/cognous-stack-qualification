@@ -13,7 +13,7 @@ import pytest
 
 import selftest_matrix as M
 from ia_eval import engine, freeze, guard, oracle as O, predicates as P, verdicts as V
-from ia_eval.pointer import MISSING, resolve
+from ia_eval.pointer import BLOCKED, MISSING, is_missing, resolve
 
 PASS, FAIL, INC, NR = V.PASS, V.FAIL, V.INCONCLUSIVE, V.NOT_RUN
 
@@ -78,14 +78,14 @@ def test_set_and_membership_ops_are_type_strict():
     assert P.op_int_eq(True, 1)[0] is False and P.op_int_eq(1.0, 1)[0] is False and P.op_int_eq(1, 1)[0] is True
     assert P.op_any_item_matches([{"a": True}], {"a": 1})[0] is False
     assert P.op_none_item_matches([{"a": True}], {"a": 1})[0] is True
-    assert P.op_len_eq(True, 1)[0] is False and P.op_len_eq([1], True)[0] is False
+    assert P.op_len_eq(True, 1)[0] is False and P.op_len_eq([1], True)[0] is False and P.op_len_eq("a", 1)[0] is False
     assert P.op_sha256_format("sha256:" + "a" * 64)[0]
     assert not P.op_sha256_format("sha256:" + "A" * 64)[0] and not P.op_sha256_format(None)[0] and not P.op_sha256_format("sha256:" + "a" * 63)[0]
 
 
 @pytest.mark.parametrize("suffix", ["\n", "\r\n", " ", "\x00"])
 def test_sha256_format_rejects_trailing_characters(suffix):
-    """DEFECT D5: the pattern ends in `$`, which also matches before a trailing newline, so 'sha256:<64 hex>\n' is accepted."""
+    """D5 (FIXED): the pattern ends in `$`, which also matches before a trailing newline, so 'sha256:<64 hex>\n' is accepted."""
     assert P.op_sha256_format("sha256:" + "a" * 64 + suffix)[0] is False
 
 
@@ -203,15 +203,17 @@ def test_raw_pointing_at_a_directory_or_fifo_like_non_file(R):
                                  "/a/1e0", "/a/0x1", "/a/１", "/b/0", "/a/0/x", "/a/1/0"])
 def test_pointer_quirks_resolve_to_missing(ptr):
     doc = {"a": [10, 20, 30], "b": 5}
-    assert resolve(doc, ptr) is MISSING
+    assert is_missing(resolve(doc, ptr))
+    assert resolve(doc, ptr) is (BLOCKED if ptr in ("/b/0", "/a/0/x", "/a/1/0") else MISSING)
 
 
 def test_pointer_good_cases_and_escapes():
     doc = {"a": [10, 20, 30], "x/y": 1, "t~k": 2, "": 3, "n": None}
     assert resolve(doc, "/a/0") == 10 and resolve(doc, "/a/2") == 30 and resolve(doc, "/x~1y") == 1 and resolve(doc, "/t~0k") == 2
     assert resolve(doc, "/") == 3 and resolve(doc, "") is doc and resolve(doc, "/n") is None
-    assert resolve(doc, "/n/x") is MISSING and resolve(doc, "/a/0/x") is MISSING
-    assert not MISSING and repr(MISSING) == "MISSING"
+    assert resolve(doc, "/n/x") is BLOCKED and resolve(doc, "/a/0/x") is BLOCKED and resolve(doc, "/a/9") is MISSING
+    assert is_missing(MISSING) and is_missing(BLOCKED) and not is_missing(None) and not is_missing(0) and not is_missing("")
+    assert not MISSING and not BLOCKED and repr(MISSING) == "MISSING" and repr(BLOCKED) == "BLOCKED" and BLOCKED is not MISSING
     for bad in ("a", "a/b", None, 5):
         with pytest.raises(ValueError):
             resolve(doc, bad)
@@ -219,14 +221,81 @@ def test_pointer_good_cases_and_escapes():
 
 def test_pointer_to_wrong_container_kind_is_missing_not_error():
     assert resolve({"a": {"0": "d"}}, "/a/0") == "d"          # dict key "0" (documented dict semantics)
-    assert resolve({"a": "str"}, "/a/0") is MISSING and resolve({"a": 5}, "/a/x") is MISSING and resolve([1], "/x") is MISSING
+    assert resolve({"a": "str"}, "/a/0") is BLOCKED and resolve({"a": 5}, "/a/x") is BLOCKED and resolve([1], "/x") is MISSING
 
 
-def test_malformed_oracle_pointer_fails_closed(R):
-    """An oracle pointer without a leading slash cannot raise out of the engine: result is INCONCLUSIVE (never PASS)."""
-    ob, osha = own_oracle(lambda o: obs(o, "QA-01", "QA-01.1").__setitem__("pointer", "valid"))
+@pytest.mark.parametrize("ptr", ["valid", "a/b", "x", " /a", "#raw", "#input", "#/a", "##raw_sha256", "#raw_sha256x", "#input", 5, ["/a"]])
+def test_malformed_oracle_pointer_is_oracle_invalid(R, ptr):
+    """D6 (NEW, '#raw_sha256x' case): oracle.py:121 uses startswith("#raw_sha256"), so a suffixed token is accepted and later raises in resolve.
+    validate() rejects pointers that are not '' / '/...' / '#raw_sha256' / '#input:...'; engine reports ORACLE_INVALID NOT RUN."""
+    ob, osha = own_oracle(lambda o: obs(o, "QA-01", "QA-01.1").__setitem__("pointer", ptr))
+    assert O.validate(json.loads(ob))
     r = R.run(M.G(), oracle_bytes=ob, oracle_sha=osha)
-    assert r["overall"] == INC and r["blocked_reason"].startswith("EVALUATOR_ERROR")
+    assert r["overall"] == NR and r["blocked_reason"].startswith("ORACLE_INVALID")
+
+
+@pytest.mark.parametrize("ptr", ["", "/a", "/a/0", "#raw_sha256", "#input:cp_record"])
+def test_wellformed_pointer_shapes_are_accepted_by_validate(ptr):
+    o = copy.deepcopy(M.ORC)
+    obs(o, "QA-01", "QA-01.1")["pointer"] = ptr
+    assert not [e for e in O.validate(o) if "pointer" in e and "QA-01.1" in e]
+
+
+def test_blocked_pointer_semantics_per_op(R):
+    """BLOCKED (path crosses null/scalar): value ops violated; `absent` ok; `present` violated; plain absent key stays unevaluable."""
+    r = M._run(R, lambda b: M.setv(b, "QA-01", "cp_record", "/decisions/0/binding", None))
+    assert M.obs_of(r, "QA-01", "QA-01.15")["status"] == "violated" and M.case_of(r, "QA-01")["verdict"] == FAIL
+    r = M._run(R, lambda b: M.delv(b, "QA-01", "cp_record", "/decisions/0/binding"))
+    assert M.obs_of(r, "QA-01", "QA-01.15")["status"] == "unevaluable" and M.case_of(r, "QA-01")["verdict"] == INC
+    r = M._run(R, lambda b: M.setv(b, "QA-09", "digest_reduced", "/manifest", None))
+    assert M.obs_of(r, "QA-09", "QA-09.4")["status"] == "ok"            # absent holds on a BLOCKED path
+    r = M._run(R, lambda b: M.setv(b, "QA-09", "digest_full", "/manifest", 5))
+    assert M.obs_of(r, "QA-09", "QA-09.1")["status"] == "violated"      # present fails on a BLOCKED path
+    r = M._run(R, lambda b: M.delv(b, "QA-09", "digest_full", "/manifest/metadata"))
+    assert M.obs_of(r, "QA-09", "QA-09.1")["status"] == "violated"      # plain missing: present violated too
+    r = M._run(R, lambda b: M.setv(b, "QA-09", "digest_reduced", "/manifest/metadata", "x"))
+    assert M.obs_of(r, "QA-09", "QA-09.4")["status"] == "violated"
+
+
+def test_commitment_of_is_recomputed_by_the_evaluator(R):
+    """commitment_of: observed raw_commitment must equal identity.commitment() of the manifest; a lying driver or a changed manifest fails."""
+    from ia_eval.identity import commitment
+    g = M.gold()
+    for bd in ("digest_full", "digest_reduced"):
+        d = g.raw[M.rawrel(g, "QA-09", bd)]
+        assert d["raw_commitment"] == commitment(d["manifest"])
+    for name in ("qa09_driver_lies_about_raw_commitment", "qa09_manifest_changed_commitment_stale", "qa09_manifest_null_blocks_pointer"):
+        r = M.ATTACKS[name]["fn"](R)
+        assert M.case_of(r, "QA-09")["verdict"] == FAIL and r["overall"] == FAIL, name
+    # consistent re-derivation by a hostile driver is accepted for the commitment but is caught by the pinned am_digest relation
+    b = M.G()
+    M.setv(b, "QA-09", "digest_full", "/manifest", {"metadata": "x", "extra": 1})
+    M.setv(b, "QA-09", "digest_full", "/raw_commitment", commitment({"metadata": "x", "extra": 1}))
+    r = R.run(b)
+    assert M.obs_of(r, "QA-09", "QA-09.2")["status"] == "ok" and M.obs_of(r, "QA-09", "QA-09.3")["status"] == "violated"
+
+
+def test_commitment_of_oracle_expected_must_be_a_pointer():
+    for bad in ("manifest", "", 5, None, {"a": 1}):
+        o = copy.deepcopy(M.ORC)
+        obs(o, "QA-09", "QA-09.2")["expected"] = bad
+        assert any("commitment_of" in e for e in O.validate(o)), bad
+
+
+def test_relation_aliasing_two_boundaries_to_one_raw_file_is_inconclusive(R):
+    """QA-26 determinism: both calls recorded in one raw file proves nothing => INCONCLUSIVE, never PASS."""
+    r = M.ATTACKS["qa26_two_boundaries_alias_one_raw_file"]["fn"](R)
+    o = M.obs_of(r, "QA-26", "QA-26.3")
+    assert o["status"] == "unevaluable" and "itself" in o["detail"]
+    assert M.case_of(r, "QA-26")["verdict"] == INC and r["overall"] == INC and M.case_of(r, "QA-26")["observation_result"] == "UNEVALUABLE"
+    # distinct raw files with identical content are still fine
+    assert R.run(M.G())["overall"] == PASS
+
+
+def test_len_eq_is_list_only_and_sha256_fullmatch():
+    assert P.op_len_eq("", 0)[0] is False and P.op_len_eq({}, 0)[0] is False and P.op_len_eq("abc", 3)[0] is False
+    assert P.op_len_eq([], 0)[0] is True and P.op_len_eq([1], 0)[0] is False
+    assert P.op_sha256_format("sha256:" + "a" * 64 + "\n")[0] is False
 
 
 # ================================================================== effect guard
@@ -573,7 +642,7 @@ def test_freeze_results_dir_is_outside_scope_by_design(tree):
 
 
 def test_freeze_symlink_in_scope_is_reported_not_raised(tree):
-    """A planted symlink must come back as a freeze problem. DEFECT D3: freeze.verify() lets hash_scope's ValueError escape."""
+    """A planted symlink must come back as a freeze problem. D3 (FIXED): freeze.verify() lets hash_scope's ValueError escape."""
     base, root = tree
     os.symlink(base / "a.txt", base / "link.txt")
     try:
@@ -745,20 +814,20 @@ def test_cli_out_symlinked_parent_into_package_is_refused(cli, tmp_path):
 
 
 def test_cli_missing_oracle_file_is_exit_2_not_a_traceback(cli):
-    """DEFECT D4: Path(a.oracle).read_bytes() is outside any handler; the traceback exits 1, which is the FAIL code."""
+    """D4 (FIXED): Path(a.oracle).read_bytes() is outside any handler; the traceback exits 1, which is the FAIL code."""
     r = cli.evaluate(None, oracle=cli.pkg / "oracle" / "missing.json")
     assert r.returncode == 2, (r.returncode, r.stderr[-200:])
     assert "Traceback" not in r.stderr
 
 
 def test_cli_out_in_missing_directory_is_exit_2_not_a_traceback(cli, tmp_path):
-    """DEFECT D4b: open(out, 'x') in a non-existent directory raises after evaluation; exit code 1 would read as FAIL."""
+    """D4b (FIXED): open(out, 'x') in a non-existent directory raises after evaluation; exit code 1 would read as FAIL."""
     r = cli.evaluate(None, "--out", tmp_path / "no-such-dir" / "r.json")
     assert r.returncode == 2 and "Traceback" not in r.stderr
 
 
 def test_cli_symlink_planted_in_package_is_a_freeze_block_not_a_crash(cli):
-    """DEFECT D3 (CLI face): freeze.verify raises ValueError on a symlink in scope; the traceback exits 1 (= FAIL)."""
+    """D3 (CLI face, FIXED): freeze.verify raises ValueError on a symlink in scope; the traceback exits 1 (= FAIL)."""
     os.symlink(cli.pkg / "oracle" / "oracle.v1.json", cli.pkg / "ia_eval" / "link.py")
     r = cli.evaluate()
     assert r.returncode == 2 and "Traceback" not in r.stderr

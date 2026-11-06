@@ -34,7 +34,7 @@ def test_every_observation_is_killed_by_its_wrong_value_variants(R, cid):
 
 def test_kill_matrix_covers_every_observation_of_every_mandatory_case():
     total = sum(len(c["observations"]) for c in M.ORC["cases"] if c["mandatory"])
-    assert total == 138
+    assert total == 142
     seen = 0
     for c in M.ORC["cases"]:
         if c["mandatory"]:
@@ -69,7 +69,7 @@ def test_wrong_value_variants_really_differ_from_golden():
 def test_matrix_summary_counts():
     km = M.memo("km", lambda: M.kill_matrix(M.memo_runner().base.parent))
     n = M.matrix_counts(km)
-    assert n["observations_total"] == n["observations_killed"] == 138
+    assert n["observations_total"] == n["observations_killed"] == 142
     assert n["variants_total"] == n["variants_killed"] >= 900
 
 
@@ -120,10 +120,10 @@ def test_patches_are_restored_after_mutants():
 
 def test_mutant_set_is_broad_enough():
     ids = [m["id"] for m in M.MUTANTS]
-    assert len(ids) == len(set(ids)) >= 55
+    assert len(ids) == len(set(ids)) >= 62
     required = ["deq_type_loose", "combine_ignores_inconclusive", "combine_empty_is_pass", "missing_pointer_defaults_none",
                 "hash_verification_disabled", "outcome_label_trusted", "paired_control_downgrade_removed", "check_events_empty",
-                "claim_basis_ignores_violations", "executed_flag_not_checked"]
+                "claim_basis_ignores_violations", "executed_flag_not_checked", "blocked_is_missing", "commitment_trusts_driver", "relation_alias_rule_removed"]
     for r in required:
         assert any(r in i for i in ids), r
 

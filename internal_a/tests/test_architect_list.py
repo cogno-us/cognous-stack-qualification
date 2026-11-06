@@ -31,7 +31,7 @@ def test_missing_native_binding_in_pos_is_inconclusive(R):
 
 def test_native_binding_set_null_in_pos_is_fail(R):
     """POS binding explicitly null (a present, wrong value) must be FAIL, not 'missing evidence'.
-    DEFECT D1: pointer.resolve() descends into None and returns MISSING, so a null parent is reported as unevaluable."""
+    D1 (FIXED): a null parent yields the BLOCKED sentinel => violated."""
     r = M.ATTACKS["arch_binding_null"]["fn"](R)
     assert M.case_of(r, "QA-01")["verdict"] == FAIL, verdicts(r)["QA-01"]
     assert r["overall"] == FAIL

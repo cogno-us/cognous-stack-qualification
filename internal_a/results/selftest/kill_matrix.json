@@ -4616,6 +4616,88 @@
     "QA-09.1": {
      "killed": true,
      "variants": {
+      "raises_instead_of_returning": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "removed": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      }
+     },
+     "verdict": "FAIL"
+    },
+    "QA-09.2": {
+     "killed": true,
+     "variants": {
+      "commitment_changed": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "commitment_non_str": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "commitment_onechar": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "driver_lies_zero_commitment": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "raises_instead_of_returning": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "source_changed": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "source_nulled": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "source_removed": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "unevaluable",
+       "overall": "FAIL",
+       "wanted": "unevaluable"
+      }
+     },
+     "verdict": "FAIL"
+    },
+    "QA-09.3": {
+     "killed": true,
+     "variants": {
       "left_changed": {
        "case_verdict": "FAIL",
        "killed": true,
@@ -4654,7 +4736,89 @@
      },
      "verdict": "FAIL"
     },
-    "QA-09.2": {
+    "QA-09.4": {
+     "killed": true,
+     "variants": {
+      "added": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "raises_instead_of_returning": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      }
+     },
+     "verdict": "FAIL"
+    },
+    "QA-09.5": {
+     "killed": true,
+     "variants": {
+      "commitment_changed": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "commitment_non_str": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "commitment_onechar": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "driver_lies_zero_commitment": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "raises_instead_of_returning": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "source_changed": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "source_nulled": {
+       "case_verdict": "FAIL",
+       "killed": true,
+       "obs_status": "violated",
+       "overall": "FAIL",
+       "wanted": "violated"
+      },
+      "source_removed": {
+       "case_verdict": "INCONCLUSIVE",
+       "killed": true,
+       "obs_status": "unevaluable",
+       "overall": "INCONCLUSIVE",
+       "wanted": "unevaluable"
+      }
+     },
+     "verdict": "FAIL"
+    },
+    "QA-09.6": {
      "killed": true,
      "variants": {
       "left_equalised": {
@@ -8847,7 +9011,7 @@
    "equivalent": null,
    "id": "M32_missing_pointer_defaults_none",
    "killed": true,
-   "killed_by": "arch_binding_removed"
+   "killed_by": "golden"
   },
   {
    "description": "MISSING pointer accepted",
@@ -8939,6 +9103,55 @@
    "id": "M45_len_eq_unchecked_type",
    "killed": true,
    "killed_by": "arch_cp_attempts_nonzero"
+  },
+  {
+   "description": "null/scalar traversal reported as missing (INCONCLUSIVE)",
+   "equivalent": null,
+   "id": "N1_blocked_is_missing",
+   "killed": true,
+   "killed_by": "arch_binding_null"
+  },
+  {
+   "description": "null/scalar traversal satisfies value predicates",
+   "equivalent": null,
+   "id": "N2_blocked_is_ok",
+   "killed": true,
+   "killed_by": "arch_binding_null"
+  },
+  {
+   "description": "`absent` fails / `present` passes on a BLOCKED path",
+   "equivalent": null,
+   "id": "N3_blocked_counts_as_present",
+   "killed": true,
+   "killed_by": "golden"
+  },
+  {
+   "description": "commitment_of always holds",
+   "equivalent": null,
+   "id": "N4_commitment_of_always_ok",
+   "killed": true,
+   "killed_by": "qa09_driver_lies_about_raw_commitment"
+  },
+  {
+   "description": "commitment compared with the observed value itself (not recomputed)",
+   "equivalent": null,
+   "id": "N5_commitment_trusts_driver",
+   "killed": true,
+   "killed_by": "qa09_driver_lies_about_raw_commitment"
+  },
+  {
+   "description": "missing commitment source ignored",
+   "equivalent": null,
+   "id": "N6_commitment_source_missing_ok",
+   "killed": true,
+   "killed_by": "sweep:QA-09.2:source_removed"
+  },
+  {
+   "description": "self-comparison via aliased raw file accepted",
+   "equivalent": null,
+   "id": "N7_relation_alias_rule_removed",
+   "killed": true,
+   "killed_by": "qa26_two_boundaries_alias_one_raw_file"
   },
   {
    "description": "predicate any_item_matches always holds",

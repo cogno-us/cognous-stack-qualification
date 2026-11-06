@@ -118,7 +118,7 @@ def validate(o: dict) -> list:
                     if [s for s in segs2 if s in ORCHESTRATOR_NAMES]:
                         errs.append(f"{cid}/{oid}: relation pointer uses an orchestrator-label segment (L25)")
             ptr = ob.get("pointer")
-            if ptr is not None and not (isinstance(ptr, str) and (ptr == "" or ptr.startswith(("/", "#raw_sha256", "#input:")))):
+            if ptr is not None and not (isinstance(ptr, str) and (ptr == "" or ptr.startswith("/") or ptr == "#raw_sha256" or (ptr.startswith("#input:") and len(ptr) > 7))):
                 errs.append(f"{cid}/{oid}: malformed pointer {ptr!r}")
             if ptr is not None:
                 segs = [s for s in str(ptr).lstrip("#").split("/") if s]

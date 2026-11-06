@@ -23,7 +23,7 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-19 | RI | QA-19 | file: delete | AM load_manifest(path) | 2 | QA-01 | a manifest is returned, or a different type or message |
 | QA-22 | RI | QA-22 | any tracked *.py: change one byte | PK import_manifest_reconstruction with a scratch git checkout of Replay carrying a one-byte change | 2 | QA-01 | import succeeds with the modified Replay file, or a different type or message |
 | QA-25 | RI | QA-25 | /decisions: append a deep copy of /decisions/0 | RB import_bounded_workflow(cp_record, proposal=proposal, control_plane_revision=<CP pin>) | 2 | QA-01 | import returns a bundle, or a different type or message |
-| QA-09 | OBS | QA-09 | /metadata: omit | AM binding.manifest_digest(manifest) vs evaluator canonical sha256 of the raw dict (CP bounded.py:84-97 basis) | 2 | - | full-manifest digests differ, or reduced-manifest digests are equal (the limitation changed: new oracle version required) |
+| QA-09 | OBS | QA-09 | /metadata: omit | AM binding.manifest_digest(manifest) vs evaluator canonical sha256 commitment of the raw dict (CP bounded.py:84-97 basis) | 6 | - | full-manifest digests differ, or reduced-manifest digests are equal (the limitation changed: new oracle version required) |
 | QA-11 | OBS | QA-11 | /tenant_id: replace 'tenant-alpha' -> 'tenant-beta'; keep run_id unchanged (a differing run_id raises, importers.py~1005) | RB import_bounded_workflow(hold_record, proposal=<tenant swapped>, control_plane_revision=<CP pin>) | 3 | - | Replay refuses the swapped proposal on a HOLD record (the limitation changed: new oracle version required) |
 | QA-17 | OBS | QA-17 | /bundle_id: replace with the fixed value 00000000-0000-4000-8000-0000000000a1 | PK import_manifest_reconstruction on the bundle with bundle_id replaced; validate_evidence_pack | 4 | - | the Pack refuses the re-identified bundle (the limitation changed: new oracle version required) |
 | QA-26 | OBS | QA-26 | -: deliver twice | PK import_manifest_reconstruction called twice on identical inputs | 3 | - | the second import is refused or yields different stable counts (the limitation changed: new oracle version required) |
@@ -35,7 +35,7 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 * **QA-I2** (INFO) QA-21 delete runtime_proposal at Pack level — Architect D9: informational; native outcome not derived (Pack importer.py:1039,1075,1084 are proposal-conditioned)
 * **QA-14** (NA) Corrupted persisted bundle bytes (invalid JSON) — No native boundary on the C4 chain parses persisted bundle JSON text: Pack import_manifest_reconstruction takes parsed dicts (importer.py:1579-1581, 332-335) and the C4 harness parses with its own subject-owned parser (real_c4.py:131-149). Off-path native text parsers (Pack admission.loads; Replay ingress.load_json_bounded) are outside the C4 chain and outside Q-A.
 
-## Source references per observation (RI, CTL, PRE, OBS)
+## Source references per observation
 
 | Observation | Boundary | Pointer | Op | Source |
 |---|---|---|---|---|
@@ -157,8 +157,12 @@ Draft for Architect review. **Internal nonproduction Q-A only.** Generated from 
 | QA-22.2 | pack_import | `-` | raised_message_contains | PK src/agent_governance_evidence_pack/importer.py:974 [SOURCE-READ] |
 | QA-25.1 | replay_import | `-` | raised_type | RB src/agent_replay_bundle/importers.py:1078 [SOURCE-READ] |
 | QA-25.2 | replay_import | `-` | raised_message_equals | RB src/agent_replay_bundle/importers.py:1078 [SOURCE-READ] |
-| QA-09.1 | digest_full | `/am_digest` | eq_ref | limit L15 |
-| QA-09.2 | digest_reduced | `/am_digest` | ne_ref | limit L15 |
+| QA-09.1 | digest_full | `/manifest/metadata` | present | limit L15 |
+| QA-09.2 | digest_full | `/raw_commitment` | commitment_of | limit L15 |
+| QA-09.3 | digest_full | `/am_digest` | eq_ref | limit L15 |
+| QA-09.4 | digest_reduced | `/manifest/metadata` | absent | limit L15 |
+| QA-09.5 | digest_reduced | `/raw_commitment` | commitment_of | limit L15 |
+| QA-09.6 | digest_reduced | `/am_digest` | ne_ref | limit L15 |
 | QA-11.1 | replay_import | `-` | returned | limit L22 |
 | QA-11.2 | replay_bundle | `/status` | eq | RB src/agent_replay_bundle/importers.py:1045 [SOURCE-READ] |
 | QA-11.3 | replay_bundle | `/import_reports/0/findings` | any_item_matches | RB src/agent_replay_bundle/importers.py:1080 [SOURCE-READ] |

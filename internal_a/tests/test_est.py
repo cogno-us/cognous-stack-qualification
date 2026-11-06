@@ -431,7 +431,7 @@ def test_est10_weakened_variant_kill_matrix():
     assert [x for x in v if not x["killed"]] == []
     m = M.memo_mutants()
     assert [x["id"] for x in m if not x["killed"] and not x["equivalent"]] == []
-    assert len(m) >= 55 and sum(x["killed"] for x in m) >= 50
+    assert len(m) >= 62 and sum(x["killed"] for x in m) >= 58
 
 
 # ------------------------------------------------------------------ EST-11

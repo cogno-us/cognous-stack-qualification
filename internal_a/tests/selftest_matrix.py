@@ -30,7 +30,7 @@ sys.dont_write_bytecode = True
 
 from stubs import Stub, load_oracle, set_pointer  # noqa: E402
 from ia_eval import engine, guard, oracle as O, predicates as P, verdicts as V  # noqa: E402
-from ia_eval.pointer import MISSING, resolve  # noqa: E402
+from ia_eval.pointer import BLOCKED, MISSING, is_missing, resolve  # noqa: E402
 
 ORC, ORC_BYTES, ORC_SHA = load_oracle()
 PASS, FAIL, INCONC, NOT_RUN, NA = V.PASS, V.FAIL, V.INCONCLUSIVE, V.NOT_RUN, V.NOT_APPLICABLE
@@ -289,6 +289,16 @@ def obs_variants(g: Bundle, case, ob):
     if op == "returned":
         return out
     cur = resolve(g.raw[br["raw"]], ptr) if op not in P.RELATION_OPS or not ptr.startswith("#") else None
+    if op in P.COMMIT_OPS:
+        tv("commitment_changed", wrong(cur))
+        tv("commitment_onechar", flip(cur))
+        tv("driver_lies_zero_commitment", "sha256:" + "0" * 64)
+        tv("commitment_non_str", 5)
+        src = resolve(g.raw[br["raw"]], exp)
+        mk("source_changed", lambda b: setv(b, cid, bd, exp, leaf_mut(src)))
+        mk("source_nulled", lambda b: setv(b, cid, bd, exp, None))
+        mk("source_removed", lambda b: delv(b, cid, bd, exp), "unevaluable")
+        return out
     if op in P.RELATION_OPS:
         if ptr.startswith("#input:"):
             name = ptr[len("#input:"):]
@@ -752,6 +762,20 @@ attack("path_backslash_name", "SEC", (INCONC,))(_backslash_name)
 attack("path_absolute_name", "SEC", (INCONC,))(_absolute_name)
 
 
+def _qa26_alias(b):
+    br = b.cases["QA-26"]["boundaries"]
+    br["pack_second"]["raw"] = br["pack_first"]["raw"]
+
+
+attack("qa26_two_boundaries_alias_one_raw_file", "ALIAS", (INCONC,), True)(lambda R: _run(R, _qa26_alias))
+attack("qa09_driver_lies_about_raw_commitment", "COMMIT", (FAIL,), True)(
+    lambda R: _run(R, lambda b: setv(b, "QA-09", "digest_full", "/raw_commitment", "sha256:" + "0" * 64)))
+attack("qa09_manifest_changed_commitment_stale", "COMMIT", (FAIL,), True)(
+    lambda R: _run(R, lambda b: setv(b, "QA-09", "digest_reduced", "/manifest", {"changed": True})))
+attack("qa09_manifest_null_blocks_pointer", "COMMIT", (FAIL,), True)(
+    lambda R: _run(R, lambda b: setv(b, "QA-09", "digest_full", "/manifest", None)))
+
+
 def scenarios():
     """[(name, fn(R)->report)] used for engine-mutant kill detection: attacks first, then per-op wrong-value sweeps."""
     out = [(n, a["fn"]) for n, a in ATTACKS.items()]
@@ -838,7 +862,7 @@ def _combine_variant(drop=(), empty=NOT_RUN, order=(FAIL, INCONC, NOT_RUN)):
 
 def _resolve_none(doc, ptr):
     r = resolve(doc, ptr)
-    return None if r is MISSING else r
+    return None if is_missing(r) else r
 
 
 def _always_true(*_a, **_k):
@@ -934,7 +958,7 @@ def _mutants():
     m("M33_missing_pointer_ok", "MISSING pointer accepted", lambda: [sp(
         E, "_eval_obs", 'return "unevaluable", f"pointer {ob.get(\'pointer\')} missing (no default is assumed)", None', 'return "ok", "mutant", None')])
     m("M34_relation_target_unavailable_ok", "unavailable relation target ignored", lambda: [sp(
-        E, "_eval_obs", 'if k2 != "ok" or v2 is MISSING:', "if False:")])
+        E, "_eval_obs", 'if k2 != "ok" or is_missing(v2):', "if False:")])
     m("M35_relation_always_holds", "eq_ref/ne_ref always satisfied", lambda: [sp(
         E, "_eval_obs", "same = P.deq(val, v2)", 'same = (op == "eq_ref")')])
     m("M36_combine_ignores_inconclusive", "combine drops INCONCLUSIVE", lambda: [("attr", V, "combine", _combine_variant(drop=(INCONC,)))])
@@ -950,6 +974,19 @@ def _mutants():
         P, "subset", "all(k in obs and subset(v, obs[k]) for k, v in exp.items())", "any(k in obs and subset(v, obs[k]) for k, v in exp.items())")])
     m("M45_len_eq_unchecked_type", "len_eq accepts any container length by truthiness", lambda: [_as_item("len_eq", sp(
         P, "op_len_eq", "return len(obs) == exp,", "return len(obs) >= exp,"))])
+    m("N1_blocked_is_missing", "null/scalar traversal reported as missing (INCONCLUSIVE)", lambda: [sp(E, "_eval_obs", "if val is BLOCKED:", "if False:")])
+    m("N2_blocked_is_ok", "null/scalar traversal satisfies value predicates", lambda: [sp(
+        E, "_eval_obs", 'return "violated", f"pointer {ob.get(\'pointer\')} crosses a null or scalar: observed structure contradicts the expected one", None', 'return "ok", "mutant", None')])
+    m("N3_blocked_counts_as_present", "`absent` fails / `present` passes on a BLOCKED path", lambda: [sp(
+        E, "_eval_obs", "present = not is_missing(val)", "present = val is not MISSING")])
+    m("N4_commitment_of_always_ok", "commitment_of always holds", lambda: [sp(
+        E, "_eval_obs", "ok = isinstance(val, str) and val == commitment(other)", "ok = True")])
+    m("N5_commitment_trusts_driver", "commitment compared with the observed value itself (not recomputed)", lambda: [sp(
+        E, "_eval_obs", "val == commitment(other)", "val == val")])
+    m("N6_commitment_source_missing_ok", "missing commitment source ignored", lambda: [sp(
+        E, "_eval_obs", "if is_missing(other):", "if False:")])
+    m("N7_relation_alias_rule_removed", "self-comparison via aliased raw file accepted", lambda: [sp(
+        E, "_eval_obs", 'if bres.get("raw") == cb.get("raw") and ob.get("pointer") == ref2["pointer"]:', "if False:")])
     for op in used_ops:
         m(f"M46_op_always_true:{op}", f"predicate {op} always holds", (lambda op=op: [("item", P.VALUE_OPS, op, _always_true)]))
     m("G1_check_events_empty", "guard returns no violations", lambda: [("attr", guard, "check_events", lambda e, a: [])])
