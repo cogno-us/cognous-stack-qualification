@@ -70,7 +70,10 @@ def verify(base, expect_root: str, manifest_path=None):
         probs.append("manifest root_commitment does not match its own contents")
     if m.get("root_commitment") != expect_root:
         probs.append(f"root {m.get('root_commitment')} != committed {expect_root}")
-    have = hash_scope(base)
+    try:
+        have = hash_scope(base)
+    except (ValueError, OSError) as e:
+        return probs + [f"freeze scope unreadable: {e}"]
     want = m.get("files") or {}
     for k in sorted(set(have) | set(want)):
         if k not in want:

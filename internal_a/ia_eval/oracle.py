@@ -99,11 +99,13 @@ def validate(o: dict) -> list:
                 errs.append(f"{cid}/{oid}: unknown op {ob.get('op')!r}")
             op_ = ob.get("op")
             exp_ = ob.get("expected")
-            if op_ in P.VALUE_OPS or op_ in P.PRESENCE_OPS or op_ in P.RELATION_OPS:
+            if op_ in P.VALUE_OPS or op_ in P.PRESENCE_OPS or op_ in P.RELATION_OPS or op_ in P.COMMIT_OPS:
                 if not isinstance(ob.get("pointer"), str):
                     errs.append(f"{cid}/{oid}: op {op_} needs a string pointer")
             if op_ in ("contains_substr", "raised_type", "raised_message_contains", "raised_message_equals") and not (isinstance(exp_, str) and exp_):
                 errs.append(f"{cid}/{oid}: op {op_} needs a non-empty string expected")
+            if op_ in P.COMMIT_OPS and not (isinstance(exp_, str) and exp_.startswith("/")):
+                errs.append(f"{cid}/{oid}: commitment_of needs a pointer string as expected")
             if op_ in ("in", "set_eq") and not isinstance(exp_, list):
                 errs.append(f"{cid}/{oid}: op {op_} needs a list expected")
             if op_ in ("any_item_matches", "none_item_matches") and not (isinstance(exp_, dict) and exp_):
@@ -116,6 +118,8 @@ def validate(o: dict) -> list:
                     if [s for s in segs2 if s in ORCHESTRATOR_NAMES]:
                         errs.append(f"{cid}/{oid}: relation pointer uses an orchestrator-label segment (L25)")
             ptr = ob.get("pointer")
+            if ptr is not None and not (isinstance(ptr, str) and (ptr == "" or ptr.startswith(("/", "#raw_sha256", "#input:")))):
+                errs.append(f"{cid}/{oid}: malformed pointer {ptr!r}")
             if ptr is not None:
                 segs = [s for s in str(ptr).lstrip("#").split("/") if s]
                 bad = [s for s in segs if s in ORCHESTRATOR_NAMES]

@@ -33,6 +33,14 @@ def main(argv=None):
     c.add_argument("--root", required=True)
     c.add_argument("paths", nargs="+")
     a = ap.parse_args(argv)
+    try:
+        return _dispatch(a)
+    except (OSError, ValueError) as e:
+        sys.stderr.write(f"ia_eval error ({type(e).__name__}): {e}\n")
+        return 2
+
+
+def _dispatch(a):
     if a.cmd == "evaluate":
         block = None
         probs = freeze.verify(PKG_BASE, a.freeze_root)

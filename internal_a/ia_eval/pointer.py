@@ -10,7 +10,19 @@ class _Missing:
         return False
 
 
+class _Blocked(_Missing):
+    """The path traverses a scalar or null: the observed shape contradicts the expected structure."""
+
+    def __repr__(self):
+        return "BLOCKED"
+
+
 MISSING = _Missing()
+BLOCKED = _Blocked()
+
+
+def is_missing(v):
+    return isinstance(v, _Missing)
 
 
 def resolve(doc, pointer):
@@ -33,5 +45,5 @@ def resolve(doc, pointer):
                 return MISSING
             cur = cur[i]
         else:
-            return MISSING
+            return BLOCKED
     return cur

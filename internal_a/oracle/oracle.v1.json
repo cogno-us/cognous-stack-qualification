@@ -2305,7 +2305,7 @@
   },
   {
    "class": "OBS",
-   "entrypoint": "AM binding.manifest_digest(manifest) vs evaluator canonical sha256 of the raw dict (CP bounded.py:84-97 basis)",
+   "entrypoint": "AM binding.manifest_digest(manifest) vs evaluator canonical sha256 commitment of the raw dict (CP bounded.py:84-97 basis)",
    "failure_condition": "full-manifest digests differ, or reduced-manifest digests are equal (the limitation changed: new oracle version required)",
    "id": "QA-09",
    "mandatory": true,
@@ -2320,11 +2320,34 @@
    "observations": [
     {
      "boundary": "digest_full",
+     "id": "QA-09.1",
+     "op": "present",
+     "pointer": "/manifest/metadata",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L15",
+      "text": "full fixture carries the optional field"
+     }
+    },
+    {
+     "boundary": "digest_full",
+     "expected": "/manifest",
+     "id": "QA-09.2",
+     "op": "commitment_of",
+     "pointer": "/raw_commitment",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L15",
+      "text": "evaluator recomputes the raw-dict commitment; it is not driver-reported"
+     }
+    },
+    {
+     "boundary": "digest_full",
      "expected": {
       "boundary": "digest_full",
       "pointer": "/raw_commitment"
      },
-     "id": "QA-09.1",
+     "id": "QA-09.3",
      "note": "populated fixture: bases agree",
      "op": "eq_ref",
      "pointer": "/am_digest",
@@ -2336,11 +2359,34 @@
     },
     {
      "boundary": "digest_reduced",
+     "id": "QA-09.4",
+     "op": "absent",
+     "pointer": "/manifest/metadata",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L15",
+      "text": "mutation applied: optional field omitted"
+     }
+    },
+    {
+     "boundary": "digest_reduced",
+     "expected": "/manifest",
+     "id": "QA-09.5",
+     "op": "commitment_of",
+     "pointer": "/raw_commitment",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L15",
+      "text": "evaluator recomputes the raw-dict commitment; it is not driver-reported"
+     }
+    },
+    {
+     "boundary": "digest_reduced",
      "expected": {
       "boundary": "digest_reduced",
       "pointer": "/raw_commitment"
      },
-     "id": "QA-09.2",
+     "id": "QA-09.6",
      "note": "reduced manifest: bases diverge",
      "op": "ne_ref",
      "pointer": "/am_digest",

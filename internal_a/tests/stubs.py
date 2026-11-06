@@ -105,9 +105,8 @@ class Stub:
                     self.raw[p] = {}
                     case["boundaries"][b] = {"outcome": "returned", "raw": p, "entrypoint": c["entrypoint"]}
             # direct value synthesis first, relations second
-            for ob in c["observations"]:
-                if ob["op"] in ("eq_ref", "ne_ref", "returned") or ob["op"].startswith("raised_"):
-                    continue
+            direct = [o for o in c["observations"] if o["op"] not in ("eq_ref", "ne_ref", "returned") and not o["op"].startswith("raised_")]
+            for ob in sorted(direct, key=lambda o: o["op"] == "commitment_of"):   # commitments last
                 self._synth(case, ob)
             for ob in c["observations"]:
                 if ob["op"] in ("eq_ref", "ne_ref"):
@@ -157,6 +156,14 @@ class Stub:
             put([x for x in (lst if isinstance(lst, list) else [])] or [{"code": "OTHER"}])
         elif op == "absent":
             pass
+        elif op == "commitment_of":
+            from ia_eval.identity import commitment
+            try:
+                src = _get(d, exp)
+            except (KeyError, IndexError, TypeError):
+                src = {"k": "v"}
+                d = set_pointer(d, exp, src)
+            put(commitment(src))
         else:
             raise ValueError(f"stub cannot synthesise op {op}")
 

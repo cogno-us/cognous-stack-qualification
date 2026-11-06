@@ -13,7 +13,8 @@ from pathlib import Path
 
 from . import EVALUATOR_VERSION, guard, oracle as O, predicates as P, verdicts as V
 from .identity import sha256_hex
-from .pointer import MISSING, resolve
+from .identity import commitment
+from .pointer import BLOCKED, is_missing, resolve
 
 BUNDLE_SCHEMA = "ia-observation-bundle/1"
 CLAIM_LIMIT = ("Internal nonproduction Q-A assessment ceiling only: decision-only, synthetic, source-pinned, fully populated Manifest 1.1 fixture. "
@@ -146,10 +147,21 @@ def _eval_obs(ob, cobs, raw):
     if kind in ("missing", "unparsable", "unevaluable"):
         return "unevaluable", val, None
     if op in P.PRESENCE_OPS:
-        present = val is not MISSING
+        present = not is_missing(val)
         return ("ok" if present == (op == "present") else "violated"), f"pointer {ob.get('pointer')} present={present}", None
-    if val is MISSING:
+    if val is BLOCKED:
+        return "violated", f"pointer {ob.get('pointer')} crosses a null or scalar: observed structure contradicts the expected one", None
+    if is_missing(val):
         return "unevaluable", f"pointer {ob.get('pointer')} missing (no default is assumed)", None
+    if op in P.COMMIT_OPS:
+        st2, pl2 = _ref_value(raw, bres.get("raw"))
+        if st2 != "ok":
+            return ("violated" if st2 == "tampered" else "unevaluable"), pl2, None
+        other = resolve(pl2[0], ob["expected"])
+        if is_missing(other):
+            return "unevaluable", f"commitment source {ob['expected']} missing", None
+        ok = isinstance(val, str) and val == commitment(other)
+        return ("ok" if ok else "violated"), "observed commitment " + ("equals" if ok else "differs from") + " the evaluator-recomputed canonical commitment", repr(val)[:200]
     if op in P.RELATION_OPS:
         ref2 = ob["expected"]
         cb = cobs["boundaries"].get(ref2["boundary"])
@@ -158,8 +170,10 @@ def _eval_obs(ob, cobs, raw):
         k2, v2 = _target(raw, cb, ref2["pointer"])
         if k2 == "tampered":
             return "violated", v2, None
-        if k2 != "ok" or v2 is MISSING:
+        if k2 != "ok" or is_missing(v2):
             return "unevaluable", f"relation target unavailable: {v2}", None
+        if bres.get("raw") == cb.get("raw") and ob.get("pointer") == ref2["pointer"]:
+            return "unevaluable", "relation compares a value with itself (both sides alias the same raw file and pointer)", None
         same = P.deq(val, v2)
         return ("ok" if same == (op == "eq_ref") else "violated"), f"relation {op}: equal={same}", None
     ok, d = P.VALUE_OPS[op](val, ob.get("expected"))

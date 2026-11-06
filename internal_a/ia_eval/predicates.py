@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-_SHA = re.compile(r"^sha256:[0-9a-f]{64}$")
+_SHA = re.compile(r"sha256:[0-9a-f]{64}")
 
 
 def _t(v):
@@ -75,8 +75,8 @@ def op_seq_eq(obs, exp):
 
 
 def op_len_eq(obs, exp):
-    if not isinstance(obs, (list, dict, str)) or type(exp) is not int:
-        return False, "len_eq needs list/dict/str and int"
+    if not isinstance(obs, list) or type(exp) is not int:
+        return False, "len_eq needs a list (strings and objects are not lists) and an int"
     return len(obs) == exp, f"len {len(obs)} expected {exp}"
 
 
@@ -119,7 +119,7 @@ def op_none_item_matches(obs, exp):
 
 
 def op_sha256_format(obs, exp=None):
-    return isinstance(obs, str) and bool(_SHA.match(obs)), f"observed {obs!r} is not sha256:<64 hex>"
+    return isinstance(obs, str) and bool(_SHA.fullmatch(obs)), f"observed {obs!r} is not sha256:<64 hex>"
 
 
 def op_contains_substr(obs, exp):
@@ -138,4 +138,5 @@ VALUE_OPS = {
 PRESENCE_OPS = ("absent", "present")
 EXCEPTION_OPS = ("returned", "raised_type", "raised_message_contains", "raised_message_equals")
 RELATION_OPS = ("eq_ref", "ne_ref")
-ALL_OPS = tuple(VALUE_OPS) + PRESENCE_OPS + EXCEPTION_OPS + RELATION_OPS
+COMMIT_OPS = ("commitment_of",)   # observed == canonical sha256 commitment of another value in the same raw file
+ALL_OPS = tuple(VALUE_OPS) + PRESENCE_OPS + EXCEPTION_OPS + RELATION_OPS + COMMIT_OPS
