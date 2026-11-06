@@ -1,0 +1,531 @@
+{
+ "area": "atomicity",
+ "cases": [
+  {
+   "case": "suites/tier1-v08/atomicity/test_atomicity.py::test_b07_b12_rerun_combined",
+   "expected": "B-07: after kill -9 of the writer at its 2nd uncommitted log insert: store known, all tables identical, head/anchor unchanged, claim still executes once. B-12: restored older DB -> store_unknown HOLD cause anchor_ahead (revocation not resurrected), anchor deleted -> HOLD anchor_absent, re-genesis refused",
+   "mandatory": false,
+   "note": "B-07: HELD B-07 | ; B-12: HELD B-12 | ",
+   "observed": {
+    "part_verdicts": {
+     "B-07": "HELD",
+     "B-12": "HELD"
+    },
+    "parts": {
+     "B-07": {
+      "checks": [
+       {
+        "kind": "exercise",
+        "name": "writer parked at its second uncommitted log insert and was killed by SIGKILL",
+        "ok": true,
+        "rc": -9
+       },
+       {
+        "cause": null,
+        "head0": 3,
+        "kind": "safety",
+        "mid": {
+         "attempt_events": 0,
+         "attempts": 0,
+         "authority_effect_receipts_v1": 0,
+         "budget_used": 0,
+         "claims": {
+          "claim-1": "issued"
+         },
+         "effects": 0,
+         "log_head": 3
+        },
+        "name": "store known and log head unchanged after the torn transition",
+        "ok": true,
+        "state": "known"
+       },
+       {
+        "kind": "safety",
+        "name": "no revoked row, anchor bytes unchanged, selection still active",
+        "ok": true,
+        "revoked_rows": 0
+       },
+       {
+        "differing": [],
+        "kind": "safety",
+        "name": "every table identical to the pre-crash dump (taken right after the kill)",
+        "ok": true
+       },
+       {
+        "kind": "exercise",
+        "name": "claim-1 still executes once in a fresh process with receipt head = pre-crash head",
+        "ok": true,
+        "rx": {
+         "attempt_id": "att-X",
+         "attempted": true,
+         "error": null,
+         "failure_class": null,
+         "label": "X",
+         "newly_executed": true,
+         "observed_state": "applied",
+         "pid": 4913,
+         "receipt_head": 3,
+         "status": "executed",
+         "typed": null
+        }
+       },
+       {
+        "end": {
+         "attempt_events": 2,
+         "attempts": 1,
+         "authority_effect_receipts_v1": 1,
+         "budget_used": 1,
+         "claims": {
+          "claim-1": "consumed"
+         },
+         "effects": 1,
+         "log_head": 3
+        },
+        "kind": "safety",
+        "name": "exactly one effect after the retry",
+        "ok": true
+       }
+      ],
+      "note": "B-07 | ",
+      "observed": {
+       "after_kill": {
+        "attempt_events": 0,
+        "attempts": 0,
+        "authority_effect_receipts_v1": 0,
+        "budget_used": 0,
+        "claims": {
+         "claim-1": "issued"
+        },
+        "effects": 0,
+        "log_head": 3
+       },
+       "after_retry": {
+        "attempt_events": 2,
+        "attempts": 1,
+        "authority_effect_receipts_v1": 1,
+        "budget_used": 1,
+        "claims": {
+         "claim-1": "consumed"
+        },
+        "effects": 1,
+        "log_head": 3
+       },
+       "events": [
+        {
+         "label": "R",
+         "name": "ready",
+         "pid": 4912,
+         "t_ms": 1102553.6
+        },
+        {
+         "label": "R",
+         "name": "go",
+         "pid": 4912,
+         "t_ms": 1102553.7
+        },
+        {
+         "label": "R",
+         "name": "sync_start",
+         "pid": 4912,
+         "t_ms": 1102553.7
+        },
+        {
+         "label": "R",
+         "name": "store:after_log_insert#1",
+         "pid": 4912,
+         "t_ms": 1102563.6
+        },
+        {
+         "label": "R",
+         "name": "store:after_log_insert#2",
+         "pid": 4912,
+         "t_ms": 1102563.9
+        },
+        {
+         "label": "R",
+         "name": "parked",
+         "pid": 4912,
+         "t_ms": 1102563.9
+        },
+        {
+         "label": "X",
+         "name": "ready",
+         "pid": 4913,
+         "t_ms": 1102919.2
+        },
+        {
+         "label": "X",
+         "name": "go",
+         "pid": 4913,
+         "t_ms": 1102919.2
+        },
+        {
+         "label": "X",
+         "name": "stage:before_begin",
+         "pid": 4913,
+         "t_ms": 1102925.6
+        },
+        {
+         "label": "X",
+         "name": "stage:after_begin",
+         "pid": 4913,
+         "t_ms": 1102925.7
+        },
+        {
+         "label": "X",
+         "name": "stage:after_selection_guard",
+         "pid": 4913,
+         "t_ms": 1102931.0
+        },
+        {
+         "label": "X",
+         "name": "stage:after_effect_insert_before_commit",
+         "pid": 4913,
+         "t_ms": 1102931.3
+        },
+        {
+         "label": "X",
+         "name": "stage:after_commit",
+         "pid": 4913,
+         "t_ms": 1102933.1
+        },
+        {
+         "label": "X",
+         "name": "returned",
+         "pid": 4913,
+         "t_ms": 1102933.6
+        }
+       ],
+       "retry": {
+        "attempt_id": "att-X",
+        "attempted": true,
+        "error": null,
+        "failure_class": null,
+        "label": "X",
+        "newly_executed": true,
+        "observed_state": "applied",
+        "pid": 4913,
+        "receipt_head": 3,
+        "status": "executed",
+        "typed": null
+       },
+       "returncode": -9,
+       "writer_pid": 4912
+      },
+      "verdict": "HELD"
+     },
+     "B-12": {
+      "checks": [
+       {
+        "after": {
+         "head_entry_hash": "sha256:6a2782eae7ac0be0ea99b27503bb6a02af6169b48e00fc81fc275501ec87d89a",
+         "head_sequence": 5,
+         "sha256": "3e84101a2b26bff9650d38937d35ebb9e4e5e155e9dda839aa53fa2fa89e3c3f"
+        },
+        "before": {
+         "head_entry_hash": "sha256:703ed95d929132b3fdeadc001e5a87069c4e96eaaddff7ef2dd04c865379d781",
+         "head_sequence": 3,
+         "sha256": "c031af6244aabdcd76c58da4f65ce4c9c47724e0600c616ccf4e8622cf2f1177"
+        },
+        "kind": "exercise",
+        "name": "revocation committed in a separate process and the anchor advanced past the old copy",
+        "ok": true
+       },
+       {
+        "kind": "exercise",
+        "name": "control: before the rollback the revocation was effective (claim-2 selection_revoked)",
+        "ok": true,
+        "rc2": {
+         "attempt_id": "att-CTRL",
+         "attempted": false,
+         "error": "selection_revoked",
+         "failure_class": "authority_hold",
+         "label": "CTRL",
+         "newly_executed": false,
+         "observed_state": "unknown",
+         "pid": 4915,
+         "receipt_head": null,
+         "status": "denied",
+         "typed": {
+          "cause": null,
+          "code": "selection_revoked",
+          "refusal_class": "REFUSE"
+         }
+        }
+       },
+       {
+        "kind": "exercise",
+        "name": "the older database really was restored (log head back to 3, claim-1 issued)",
+        "ok": true,
+        "restored": {
+         "attempt_events": 0,
+         "attempts": 0,
+         "authority_effect_receipts_v1": 0,
+         "budget_used": 0,
+         "claims": {
+          "claim-1": "issued",
+          "claim-2": "issued"
+         },
+         "effects": 0,
+         "log_head": 3
+        }
+       },
+       {
+        "kind": "safety",
+        "name": "restored older store: claim-1 not executed, zero effects",
+        "ok": true,
+        "post": {
+         "attempt_events": 0,
+         "attempts": 0,
+         "authority_effect_receipts_v1": 0,
+         "budget_used": 0,
+         "claims": {
+          "claim-1": "issued",
+          "claim-2": "issued"
+         },
+         "effects": 0,
+         "log_head": 3
+        },
+        "rx": {
+         "attempt_id": "att-X",
+         "attempted": false,
+         "error": "store_unknown [anchor_ahead]",
+         "failure_class": "authority_hold",
+         "label": "X",
+         "newly_executed": false,
+         "observed_state": "unknown",
+         "pid": 4916,
+         "receipt_head": null,
+         "status": "denied",
+         "typed": {
+          "cause": "anchor_ahead",
+          "code": "store_unknown",
+          "refusal_class": "HOLD"
+         }
+        }
+       },
+       {
+        "kind": "exercise",
+        "name": "refused typed store_unknown / HOLD with cause anchor_ahead",
+        "ok": true,
+        "typed": {
+         "cause": "anchor_ahead",
+         "code": "store_unknown",
+         "refusal_class": "HOLD"
+        }
+       },
+       {
+        "kind": "exercise",
+        "name": "control: store known before the anchor was deleted",
+        "ok": true
+       },
+       {
+        "kind": "safety",
+        "name": "anchor missing: claim not executed, zero effects",
+        "ok": true,
+        "post": {
+         "attempt_events": 0,
+         "attempts": 0,
+         "authority_effect_receipts_v1": 0,
+         "budget_used": 0,
+         "claims": {
+          "claim-1": "issued"
+         },
+         "effects": 0,
+         "log_head": 3
+        },
+        "ry": {
+         "attempt_id": "att-Y",
+         "attempted": false,
+         "error": "store_unknown [anchor_absent]",
+         "failure_class": "authority_hold",
+         "label": "Y",
+         "newly_executed": false,
+         "observed_state": "unknown",
+         "pid": 4917,
+         "receipt_head": null,
+         "status": "denied",
+         "typed": {
+          "cause": "anchor_absent",
+          "code": "store_unknown",
+          "refusal_class": "HOLD"
+         }
+        }
+       },
+       {
+        "kind": "exercise",
+        "name": "refused typed store_unknown / HOLD with cause anchor_absent",
+        "ok": true,
+        "typed": {
+         "cause": "anchor_absent",
+         "code": "store_unknown",
+         "refusal_class": "HOLD"
+        }
+       },
+       {
+        "head_after": 3,
+        "head_before": 3,
+        "kind": "safety",
+        "name": "a fresh genesis baseline is refused; no new log row; no anchor re-created",
+        "ok": true,
+        "regen": {
+         "cause": "anchor_absent",
+         "code": "store_unknown",
+         "outcome": "refused",
+         "refusal_class": "HOLD"
+        }
+       }
+      ],
+      "note": "B-12 | ",
+      "observed": {
+       "anchor_deleted": {
+        "pid": 4917,
+        "post": {
+         "attempt_events": 0,
+         "attempts": 0,
+         "authority_effect_receipts_v1": 0,
+         "budget_used": 0,
+         "claims": {
+          "claim-1": "issued"
+         },
+         "effects": 0,
+         "log_head": 3
+        },
+        "probe": {
+         "attempt_id": "att-Y",
+         "attempted": false,
+         "error": "store_unknown [anchor_absent]",
+         "failure_class": "authority_hold",
+         "label": "Y",
+         "newly_executed": false,
+         "observed_state": "unknown",
+         "pid": 4917,
+         "receipt_head": null,
+         "status": "denied",
+         "typed": {
+          "cause": "anchor_absent",
+          "code": "store_unknown",
+          "refusal_class": "HOLD"
+         }
+        },
+        "rebaseline": {
+         "cause": "anchor_absent",
+         "code": "store_unknown",
+         "outcome": "refused",
+         "refusal_class": "HOLD"
+        }
+       },
+       "rollback": {
+        "anchor_after": {
+         "head_entry_hash": "sha256:6a2782eae7ac0be0ea99b27503bb6a02af6169b48e00fc81fc275501ec87d89a",
+         "head_sequence": 5,
+         "sha256": "3e84101a2b26bff9650d38937d35ebb9e4e5e155e9dda839aa53fa2fa89e3c3f"
+        },
+        "anchor_before": {
+         "head_entry_hash": "sha256:703ed95d929132b3fdeadc001e5a87069c4e96eaaddff7ef2dd04c865379d781",
+         "head_sequence": 3,
+         "sha256": "c031af6244aabdcd76c58da4f65ce4c9c47724e0600c616ccf4e8622cf2f1177"
+        },
+        "control": {
+         "attempt_id": "att-CTRL",
+         "attempted": false,
+         "error": "selection_revoked",
+         "failure_class": "authority_hold",
+         "label": "CTRL",
+         "newly_executed": false,
+         "observed_state": "unknown",
+         "pid": 4915,
+         "receipt_head": null,
+         "status": "denied",
+         "typed": {
+          "cause": null,
+          "code": "selection_revoked",
+          "refusal_class": "REFUSE"
+         }
+        },
+        "pids": {
+         "ctrl": 4915,
+         "revoker": 4914,
+         "victim": 4916
+        },
+        "post": {
+         "attempt_events": 0,
+         "attempts": 0,
+         "authority_effect_receipts_v1": 0,
+         "budget_used": 0,
+         "claims": {
+          "claim-1": "issued",
+          "claim-2": "issued"
+         },
+         "effects": 0,
+         "log_head": 3
+        },
+        "probe": {
+         "attempt_id": "att-X",
+         "attempted": false,
+         "error": "store_unknown [anchor_ahead]",
+         "failure_class": "authority_hold",
+         "label": "X",
+         "newly_executed": false,
+         "observed_state": "unknown",
+         "pid": 4916,
+         "receipt_head": null,
+         "status": "denied",
+         "typed": {
+          "cause": "anchor_ahead",
+          "code": "store_unknown",
+          "refusal_class": "HOLD"
+         }
+        },
+        "restored": {
+         "attempt_events": 0,
+         "attempts": 0,
+         "authority_effect_receipts_v1": 0,
+         "budget_used": 0,
+         "claims": {
+          "claim-1": "issued",
+          "claim-2": "issued"
+         },
+         "effects": 0,
+         "log_head": 3
+        }
+       }
+      },
+      "verdict": "HELD"
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "AT-4+AT-6",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Independent TEST DESIGN by an AI qualification worker of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 1,
+  "SKIP": 0,
+  "executed": 1
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "479ce9ee063ccaa46613ba6869bc329ef3488680",
+ "qualification_v07_pin": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+ "run_number": 2,
+ "schema": "v08-tier1-results/1",
+ "verdicts": {
+  "HELD": 1
+ },
+ "worker": "b"
+}

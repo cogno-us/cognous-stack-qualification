@@ -1,0 +1,72 @@
+{
+  "schema": "v08-tier1-manifest/1",
+  "title": "V08 Tier 1 qualification of the integrated Cognous OCS authority-to-effect boundary",
+  "declared_before_execution": true,
+  "pins": {
+    "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+    "control_plane_v02": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+    "runtime_with_f01_remediation": "ac247dafbce3aacde37695575d457cf958b22560",
+    "control_plane_older_fixture": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+    "qualification_v07": "90e0e56e69448eadb43ea3df2017be189e09e3bb"
+  },
+  "independence": {
+    "statement": "Independent test design within the same engineering organization. NOT independent external qualification. It does NOT satisfy Plan v1.5 V08 'independent lead and oracle' or the rule 'no AI-as-independent qualification'. Plan status 'Independent Tier 1: NOT STARTED' is therefore unchanged by this PR.",
+    "lead_builder": {"role": "Lead Builder and Qualification Coordinator", "identity": "AI session (Claude Sonnet 5.5) that wrote the Runtime V05 guard, the V06 harness, the V07 harness and the F-01 patch", "prior_implementation_involvement": "yes, extensive"},
+    "workers": {"identity": "short-lived AI sessions (Claude Sonnet 5.5) started with no conversation history", "prior_implementation_involvement": "none in conversation context; same model family and organization as the lead; they read the same frozen sources",
+                "rule": "design cases and oracles from the frozen contracts and component source first; commit the case inventory; only then read existing tests (for fixture mechanics, never for assertions)"}
+  },
+  "budget": {"global_local_executions": 50, "worker_a_authority": 15, "worker_b_atomicity": 15, "worker_c_trust": 15, "lead_integration_reserve": 5,
+             "counting": "every execution including reruns and each parametrized case; enforced per area by a ledger (V08_BUDGET_ENFORCE=1); GitHub CI is a separate gate",
+             "forbidden": ["full historical batteries locally", "mutation campaigns", "broad scanners", "unbounded stress"]},
+  "ownership": {
+    "worker_a": {"dirs": ["suites/tier1-v08/authority/", "results/v08-tier1/authority/"]},
+    "worker_b": {"dirs": ["suites/tier1-v08/atomicity/", "results/v08-tier1/atomicity/"]},
+    "worker_c": {"dirs": ["suites/tier1-v08/trust/", "results/v08-tier1/trust/"]},
+    "lead": {"files": [".github/workflows/tier1-v08.yml", "suites/tier1-v08/conftest.py", "suites/tier1-v08/gate.py", "results/v08-tier1/README.md", "results/v08-tier1/qualification-manifest.json", "results/v08-tier1/INDEX.md"]},
+    "rules": ["workers never edit another owner's files, shared workflows, component source, or the pins", "no shared SQLite database, anchor file, temp dir or evidence dir between workers", "workers do not merge or push the PR branch; each commits to its own local branch and reports"]
+  },
+  "verdict_vocabulary": {"HELD": "the attack failed / invariant held / legitimate path worked", "BREACH": "the secure oracle was violated (preserve the reproduction, identify the owner, stop that workstream)",
+                         "CHARACTERIZED": "documented, contract-defined limitation observed and recorded", "INCONCLUSIVE": "the case did not exercise what it set out to (never a pass)", "BLOCKED": "a mandatory path could not be exercised (never a pass)"},
+  "mandatory_scenarios": {
+    "authority": [
+      {"id": "AU-1", "scenario": "Control Plane WORKFLOW-ISSUED claim (aligned synthetic tenant, institution, authority domain; actual materialization, not the model commitment function) carried through the Runtime effect guard", "mandatory": true},
+      {"id": "AU-2", "scenario": "valid strictly narrower and equal policy execute; one effect, one receipt"},
+      {"id": "AU-3", "scenario": "five-set F1a widening, each set independently, including claim-supplier collusion (recomputed commitment)"},
+      {"id": "AU-4", "scenario": "stale activation and stale policy generation refuse"},
+      {"id": "AU-5", "scenario": "withdrawal and revocation (selection, epoch pair, issuer key) refuse"},
+      {"id": "AU-6", "scenario": "required-scope legacy / binding-less bypass refuses; permitted ungoverned legacy still works"},
+      {"id": "AU-7", "scenario": "binding / scope-member substitution (tenant, institution, authority domain, operation) refuses"},
+      {"id": "AU-8", "scenario": "Registry selection / record authenticity as seen by the Runtime"}
+    ],
+    "atomicity": [
+      {"id": "AT-1", "scenario": "cross-process revocation race with deterministic ordering (distinct OS processes)", "mandatory": true},
+      {"id": "AT-2", "scenario": "concurrent effect attempts on one claim and on a shared budget (distinct OS processes)", "mandatory": true},
+      {"id": "AT-3", "scenario": "transaction-critical evidence-write failure leaves zero effects", "mandatory": true},
+      {"id": "AT-4", "scenario": "crash at each transaction stage (distinct OS process killed): no partial effect, retry semantics"},
+      {"id": "AT-5", "scenario": "corrupted / missing durable authority fails closed", "mandatory": true},
+      {"id": "AT-6", "scenario": "anchor monotonicity and restart"},
+      {"id": "AT-7", "scenario": "failure-atomic refusal: a refusal leaves no partial rows"}
+    ],
+    "trust": [
+      {"id": "TR-1", "scenario": "trust snapshot validity, expiry and high-water", "mandatory": true},
+      {"id": "TR-2", "scenario": "replay-log / chain tampering", "mandatory": true},
+      {"id": "TR-3", "scenario": "record and selection identity substitution"},
+      {"id": "TR-4", "scenario": "restore and anchor consistency", "mandatory": true},
+      {"id": "TR-5", "scenario": "missing verifier / dependency handling fails closed"},
+      {"id": "TR-6", "scenario": "provenance and evidence integrity (no false provenance claims; evidence matches durable state)"},
+      {"id": "TR-7", "scenario": "re-examine the documented V07 LOW findings (A09 caller-owned amount/prefix, D08 unauthenticated claim_json, D01 consistent rollback, I01 wrapper pin) and residual assumptions"}
+    ]
+  },
+  "acceptance": [
+    "mandatory scenarios execute successfully; a mandatory scenario that cannot run is BLOCKED and is not a pass",
+    "no unauthorized effect, policy widening, authority bypass or revocation bypass (P0)",
+    "no fail-open corruption, no rollback acceptance contrary to the frozen contract, no broken atomicity (P1)",
+    "transaction-critical evidence failure prevents the effect; no false provenance (P2)",
+    "cross-process atomicity demonstrated with distinct OS processes",
+    "Control Plane issuance-to-Runtime path tested, or classified as an unresolved qualification blocker",
+    "worker evidence retained and traceable; each worker's inventory commit precedes its results",
+    "required GitHub CI passes; no critical or high finding unresolved; independence limits disclosed"
+  ],
+  "stop_conditions": ["a mandatory invariant fails: preserve the reproduction, name the owning component, stop that workstream, do not repair, do not change component code", "budget exhausted: stop local execution and report unqualified cases"],
+  "standing_holds": {"V09": "NOT AUTHORIZED", "independent_ed25519": "SECURITY-HELD", "release": "HOLD", "publication": "HOLD", "production": "HOLD", "independent_tier_1_plan_status": "NOT STARTED"}
+}

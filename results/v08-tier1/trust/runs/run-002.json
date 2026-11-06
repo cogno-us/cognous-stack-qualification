@@ -1,0 +1,548 @@
+{
+ "area": "trust",
+ "cases": [
+  {
+   "case": "suites/tier1-v08/trust/test_tr1_snapshot.py::test_c02_older_equal_expired_and_lowered_floor_snapshots_are_refused_and_change_nothing",
+   "expected": "After snapshot v3 is accepted: v2, v1, same-version/different-fingerprint and an already-expired v9 are refused typed (trust_snapshot_version_stale REFUSE_STALE / trust_snapshot_expired) and every table, the anchor and the log head stay byte-identical; identical redelivery of v3 is accepted without a log entry. After an external floor of 4 is set, lowering it is refused (external_floor_lowered) and a claim bound to snapshot v1 is refused at the effect boundary trust_snapshot_version_stale REFUSE_STALE with zero effects, while an untouched twin store (no floor) executes the same kind of claim.",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "already_expired_v9": {
+      "ok": true,
+      "refusal": {
+       "cause": null,
+       "code": "trust_snapshot_expired",
+       "refusal_class": "REFUSE"
+      },
+      "store": "known",
+      "unchanged": true
+     },
+     "external_floor_not_lowerable_and_old_claim_stale_at_effect": {
+      "attempted": false,
+      "breach": false,
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "trust_snapshot_version_stale",
+      "failure_class": "authority_hold",
+      "lowering": {
+       "cause": "external_floor_lowered",
+       "code": "trust_snapshot_invalid",
+       "refusal_class": "REFUSE"
+      },
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "trust_snapshot_version_stale",
+       "refusal_class": "REFUSE_STALE"
+      }
+     },
+     "identical_redelivery_accepted_without_entry": {
+      "entry_hashes": [],
+      "ok": true,
+      "unchanged": true
+     },
+     "older_v1": {
+      "ok": true,
+      "refusal": {
+       "cause": null,
+       "code": "trust_snapshot_version_stale",
+       "refusal_class": "REFUSE_STALE"
+      },
+      "store": "known",
+      "unchanged": true
+     },
+     "older_v2": {
+      "ok": true,
+      "refusal": {
+       "cause": null,
+       "code": "trust_snapshot_version_stale",
+       "refusal_class": "REFUSE_STALE"
+      },
+      "store": "known",
+      "unchanged": true
+     },
+     "same_version_other_fingerprint": {
+      "ok": true,
+      "refusal": {
+       "cause": null,
+       "code": "trust_snapshot_version_stale",
+       "refusal_class": "REFUSE_STALE"
+      },
+      "store": "known",
+      "unchanged": true
+     },
+     "twin_without_floor_executes_v1_claim": {
+      "attempted": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "error": "",
+      "failure_class": null,
+      "informational": false,
+      "ok": true,
+      "status": "executed",
+      "typed": null
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-1",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr1_snapshot.py::test_c03_unrevocation_attempts_are_refused_and_revoked_authority_stays_dead",
+   "expected": "After a snapshot revokes (sel-test-1, epoch 1) the effect is refused selection_revoked; a newer snapshot that omits the revoked pair, the revoked issuer key or lowers/omits a min-epoch floor is refused trust_snapshot_invalid (revocation_omitted / min_epoch_floor_lowered) with all tables and the anchor unchanged; re-activating the revoked pair is refused; the claim bound to the revoked selection never executes (0 effects, claim unconsumed).",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "min_epoch_floor_lowered_or_omitted": {
+      "lowered": {
+       "cause": "min_epoch_floor_lowered",
+       "code": "trust_snapshot_invalid",
+       "refusal_class": "REFUSE"
+      },
+      "ok": true,
+      "omitted": {
+       "cause": "min_epoch_floor_lowered",
+       "code": "trust_snapshot_invalid",
+       "refusal_class": "REFUSE"
+      },
+      "unchanged": true
+     },
+     "newer_snapshot_omitting_revoked_issuer_key": {
+      "ok": true,
+      "refusal": {
+       "cause": "revocation_omitted",
+       "code": "trust_snapshot_invalid",
+       "refusal_class": "REFUSE"
+      },
+      "unchanged": true
+     },
+     "newer_snapshot_omitting_revoked_pair": {
+      "ok": true,
+      "refusal": {
+       "cause": "revocation_omitted",
+       "code": "trust_snapshot_invalid",
+       "refusal_class": "REFUSE"
+      },
+      "unchanged": true
+     },
+     "reactivate_revoked_pair": {
+      "ok": true,
+      "refusal": {
+       "cause": "verification",
+       "class": "REFUSE",
+       "code": "issuer_key_revoked"
+      },
+      "unchanged": true
+     },
+     "revocation_is_live_at_effect_boundary": {
+      "attempted": false,
+      "breach": false,
+      "error": "selection_revoked",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "selection_revoked",
+       "refusal_class": "REFUSE"
+      }
+     },
+     "revoked_claim_still_refused_after_all_attempts": {
+      "attempted": false,
+      "breach": false,
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "issuer_key_revoked",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "issuer_key_revoked",
+       "refusal_class": "REFUSE"
+      }
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-1",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr2_tamper.py::test_c04_log_entry_edits_break_the_chain_and_fail_closed",
+   "expected": "Each log edit (field edit; edit plus per-entry rehash; full re-chain of the suffix with the tables patched to match; non-canonical text; unparseable text) makes the store unknown, and the effect is refused store_unknown / HOLD with zero effects, attempts, receipts, budget use and the claim unconsumed; an untampered twin executes. Causes expected: entry_hash_mismatch, prev_entry_hash_mismatch, anchor_hash_mismatch (full re-chain). Escape of a non-typed exception for the last two is recorded as a finding, not a pass.",
+   "mandatory": true,
+   "note": "fail-closed (no effect, claim unconsumed) but NOT as a typed store_unknown/HOLD refusal in probes ['noncanonical_entry_text', 'unparseable_entry_text']: an exception other than SelectionRefusal escaped the store verifier. ",
+   "observed": {
+    "probes": {
+     "edit_plus_entry_rehash": {
+      "attempted": false,
+      "breach": false,
+      "cause_as_predicted": true,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [log_integrity:prev_entry_hash_mismatch]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "log_integrity:prev_entry_hash_mismatch",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "log_integrity:prev_entry_hash_mismatch",
+      "verify_state": "unknown"
+     },
+     "field_edit_hash_untouched": {
+      "attempted": false,
+      "breach": false,
+      "cause_as_predicted": true,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [log_integrity:entry_hash_mismatch]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "log_integrity:entry_hash_mismatch",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "log_integrity:entry_hash_mismatch",
+      "verify_state": "unknown"
+     },
+     "full_rechain_of_suffix_tables_patched": {
+      "attempted": false,
+      "breach": false,
+      "cause_as_predicted": true,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_hash_mismatch]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_hash_mismatch",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_hash_mismatch",
+      "verify_state": "unknown"
+     },
+     "noncanonical_entry_text": {
+      "attempted": false,
+      "breach": false,
+      "cause_as_predicted": true,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "ReplayError",
+      "failure_class": "dispatch_error",
+      "ok": false,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": null,
+      "typed_hold": false,
+      "untyped_failclosed": true,
+      "verify_cause": "ReplayError: entry_not_canonical",
+      "verify_state": "raised"
+     },
+     "positive_control_untampered_twin_executes": {
+      "attempted": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "error": "",
+      "failure_class": null,
+      "ok": true,
+      "status": "executed",
+      "typed": null
+     },
+     "unparseable_entry_text": {
+      "attempted": false,
+      "breach": false,
+      "cause_as_predicted": true,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "ReplayError",
+      "failure_class": "dispatch_error",
+      "ok": false,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": null,
+      "typed_hold": false,
+      "untyped_failclosed": true,
+      "verify_cause": "ReplayError: entry_unparseable",
+      "verify_state": "raised"
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-2",
+   "verdict": "CHARACTERIZED"
+  },
+  {
+   "case": "suites/tier1-v08/trust/test_tr2_tamper.py::test_c05_deleted_reordered_duplicated_and_truncated_log_fail_closed",
+   "expected": "Deleting a middle entry (with and without renumbering), deleting the head, truncating the log together with every table row derived from it, swapping two sequence numbers, and appending a forged-but-validly-hashed duplicate of the activation all make the store unknown; the effect is refused store_unknown / HOLD, zero effects, claim unconsumed. A byte-exact duplicate row cannot even be inserted (UNIQUE entry_hash).",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "append_forged_valid_hash_duplicate_activation": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [log_integrity:epoch_not_above_high_water]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "log_integrity:epoch_not_above_high_water",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "log_integrity:epoch_not_above_high_water",
+      "verify_state": "unknown"
+     },
+     "byte_exact_duplicate_row_rejected_by_unique_hash": {
+      "integrity_error": "UNIQUE constraint failed: selection_log_v1.entry_hash",
+      "ok": true,
+      "store": "known"
+     },
+     "delete_head_entry": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [table_mismatch:selection_activation_v1]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "table_mismatch:selection_activation_v1",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "table_mismatch:selection_activation_v1",
+      "verify_state": "unknown"
+     },
+     "delete_middle_and_renumber": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [log_integrity:sequence_gap]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "log_integrity:sequence_gap",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "log_integrity:sequence_gap",
+      "verify_state": "unknown"
+     },
+     "delete_middle_entry": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [log_integrity:sequence_gap]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "log_integrity:sequence_gap",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "log_integrity:sequence_gap",
+      "verify_state": "unknown"
+     },
+     "positive_control_untampered_twin_executes": {
+      "attempted": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "error": "",
+      "failure_class": null,
+      "ok": true,
+      "status": "executed",
+      "typed": null
+     },
+     "swap_two_sequence_numbers": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [log_integrity:sequence_gap]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "log_integrity:sequence_gap",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "log_integrity:sequence_gap",
+      "verify_state": "unknown"
+     },
+     "truncate_log_and_all_derived_rows": {
+      "attempted": false,
+      "breach": false,
+      "claim_state": "issued",
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "store_unknown [anchor_ahead]",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "pre_state": "known",
+      "status": "denied",
+      "typed": {
+       "cause": "anchor_ahead",
+       "code": "store_unknown",
+       "refusal_class": "HOLD"
+      },
+      "typed_hold": true,
+      "untyped_failclosed": false,
+      "verify_cause": "anchor_ahead",
+      "verify_state": "unknown"
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-2",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Independent TEST DESIGN by an AI qualification worker of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 4,
+  "SKIP": 0,
+  "executed": 4
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "ace064cf334309b5c1e8c5bae2cc7fd0d25ad3c0",
+ "qualification_v07_pin": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+ "run_number": 2,
+ "schema": "v08-tier1-results/1",
+ "verdicts": {
+  "CHARACTERIZED": 1,
+  "HELD": 3
+ },
+ "worker": "c"
+}

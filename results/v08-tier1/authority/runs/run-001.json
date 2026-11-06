@@ -1,0 +1,746 @@
+{
+ "area": "authority",
+ "cases": [
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au1_workflow_issued_claim_equal_policy_executes",
+   "expected": "successor-profile claim ISSUED BY agent_control_plane provision_local_execution_claim (policy_binding given, aligned tenant/institution/authority_domain with the Runtime governed scope) is provisioned by destination.provision_claim and executes: status executed, 1 effect/1 attempt/1 receipt, claim consumed, budget 1, receipt selection_guard binding_verified with the live activation_ref",
+   "mandatory": true,
+   "note": "actual workflow issuance exercised end to end with aligned synthetic fixtures; no hand-built claim",
+   "observed": {
+    "activation_ref": "sha256:bdd8ab936c8fe43a2096f490369505e878db72587c9e4d910857aa0c925e36d0",
+    "call_chain": [
+     "v02_support.tenant_flow -> BoundedAuthorizationWorkflow.decide (authorized)",
+     "agent_control_plane.local_authority_effect.provision_local_execution_claim(provision=destination.provision_claim, policy_binding=...)",
+     "engine.local_authority_effect.AtomicAuthorityEffectDestination.provision_claim (the provision callback)",
+     "engine.atomic_local_control_plane_executor.AtomicLocalControlPlaneExecutor.execute -> execute_claim_atomic"
+    ],
+    "claim_has_binding": true,
+    "claim_profile": "urn:cognous:profiles:local-authority-effect:0.2.0-proposed",
+    "claim_scope_matches_binding": true,
+    "claim_type": "TenantLocalExecutionClaim",
+    "commitment_function_called_by_test_on_a_claim": false,
+    "counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "claim-au1": "consumed"
+     },
+     "effects": 1,
+     "execution_claims_v1": 1
+    },
+    "decision_id": "3864a2b1-3f48-4b0e-b922-e57da9fbf19e",
+    "error": null,
+    "hand_built_claim": false,
+    "scope": {
+     "authority_domain": "customer-refunds",
+     "institution": "urn:cognous:institution:synthetic-customer-service",
+     "tenant": "tenant-alpha"
+    },
+    "selection_guard": [
+     {
+      "activation_ref": "sha256:bdd8ab936c8fe43a2096f490369505e878db72587c9e4d910857aa0c925e36d0",
+      "applied": true,
+      "checked_at": "2026-10-05T19:00:00.000000Z",
+      "effective_policy_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+      "independent_attestation": false,
+      "log_head_hash": "sha256:bdd8ab936c8fe43a2096f490369505e878db72587c9e4d910857aa0c925e36d0",
+      "log_head_sequence": 3,
+      "participation": "required",
+      "policy_generation": 1,
+      "result": "binding_verified",
+      "scope_required": true,
+      "selection_epoch": 1,
+      "selection_id": "sel-test-1",
+      "trust_snapshot_fingerprint": "sha256:c46ec9d909d062b63e2dbcfa135dcdafe437420e5c1438f6c9a5a63b52572341",
+      "trust_snapshot_version": 1
+     }
+    ],
+    "status": "executed",
+    "verify_local_execution_claim": true,
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-1",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au2_workflow_issued_strictly_narrower_policy_executes",
+   "expected": "record payload strictly wider than the executor policy in ALL five sets; workflow-issued claim whose binding effective_policy_digest is the NARROWER digest executes: 1/1/1; receipt effective_policy_digest == narrower digest != record digest",
+   "failure": "generation_ceiling=0)\nnow = datetime.datetime(2026, 10, 5, 19, 0, tzinfo=datetime.timezone.utc)\nctx = {'known': True}\nreg = namespace(decision=<module 'registry_successor.decision' from '/home/claude/pins/registry-a1169a0/registry_successor/d...stry-a1169a0/registry_successor/common.py'>, verifier_cls=<class 'registry_adapters.ed25519_verifier.Ed25519Verifier'>)\nmode = 'activate'\nrecord_text = '{\"contract_version\": \"r08-v2\", \"evaluator\": {\"binding\": \"registered-code-reference\", \"evaluator_id\": \"engine.safe_exe...on-runtime\", \"sha256\": \"sha256:940e781934542a7acd7bbe2f6833f9d329325d94b49425afd9d2bedcf23c5b68\"}, \"supersedes\": null}'\nselection_text = '{\"contract_version\": \"r08-v2\", \"kind\": \"selection-envelope\", \"signatures\": [{\"alg\": \"ed25519\", \"key_id\": \"key-test-1\"...\", \"supersedes\": null}, \"statement_digest\": \"sha256:9706fe285bc809794b83eb49cb457e4ab42135a2ad8c8be61911d9025d31e2d1\"}'\ncontext = ExpectedContext(consumer_id='runtime-emulator', tenant='tenant-alpha', institution='urn:cognous:institution:synthetic-customer-service', authority_domain='customer-refunds', operation='op-transfer')\ntrust = TrustSnapshot(snapshot_id='snap-test-1', version=1, valid_until='2026-10-27T00:00:00Z', issuers=(IssuerEntry(key_id='k...er-refunds', operation='op-transfer'),)),), revoked_key_ids=frozenset(), revoked_selections=frozenset(), min_epochs=())\nverifier = <registry_adapters.ed25519_verifier.Ed25519Verifier object at 0x7f6ef225e710>\n\n    def _do_select(self, conn, d, now, ctx, reg, mode, record_text, selection_text, context, trust, verifier) -> tuple:\n        if type(selection_text) is not str or (mode == \"activate\" and type(record_text) is not str):\n            raise SelectionRefusal(\"field_invalid\", cause=\"input_not_text\")\n        if type(verifier) is not reg.verifier_cls:\n            raise SelectionRefusal(\"verifier_unavailable\", cause=\"verifier_not_admitted\")\n        sel = reg.sel.parse_selection_envelope_v2(selection_text)\n        if not sel.ok:\n            raise SelectionRefusal(sel.code if sel.code in reg.decision.v2_codes.CODES_V2_REV2 else \"field_invalid\", cause=\"selection_parse\")\n        rec = None\n        if mode == \"activate\":\n            rec = reg.decision.validate_record_text_v2(record_text)\n            if not rec.ok:\n>               raise SelectionRefusal(rec.code, cause=\"record\")\nE               engine.registry_selection_authority.SelectionRefusal: field_invalid [record]\n\n../../comp-rq/runtime/engine/registry_selection_authority.py:1234: SelectionRefusal",
+   "mandatory": true,
+   "note": null,
+   "observed": {},
+   "outcome": "FAILED",
+   "scenario": "AU-2",
+   "verdict": null
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au1_control_plane_refuses_binding_the_approval_did_not_commit_to",
+   "expected": "real provision_local_execution_claim raises PermissionError 'policy binding refused at claim issuance' for a binding whose activation_ref or record identity differs from what the approvals committed; the destination holds 0 claims and 0 effects; the honest binding still issues",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "claim-honest": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "probes": {
+     "activation_ref_not_committed": {
+      "claims_in_destination": 0,
+      "message": "policy binding refused at claim issuance: policy binding is inconsistent with the approval-side policy binding",
+      "raised": "PermissionError"
+     },
+     "honest_control_issues": {
+      "claim_profile": "urn:cognous:profiles:local-authority-effect:0.2.0-proposed",
+      "claims_in_destination": 1
+     },
+     "record_id_changes_binding_digest": {
+      "claims_in_destination": 0,
+      "message": "policy binding refused at claim issuance: policy binding is inconsistent with the approval-side policy binding",
+      "raised": "PermissionError"
+     }
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-1",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au3_five_set_widening_under_claim_supplier_collusion",
+   "expected": "for EACH of the five sets independently: a claim derived from the workflow-issued claim with a widened effective_policy_digest and a RECOMPUTED claim_commitment is provisioned (verifies) but execution with the widened executor policy is denied: code policy_identity_mismatch, class REFUSE, cause policy_not_subset:<that set>; 0 effects/attempts/receipts, budget 0, claim still issued",
+   "mandatory": true,
+   "note": "five sub-probes (one per set), each in a fresh governed store",
+   "observed": {
+    "subprobes": {
+     "allowed_actions": {
+      "commitment_recomputed": true,
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "forged-allowed_actions": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "forged_verifies": true,
+      "honest_claim_workflow_issued": true,
+      "honest_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+      "provisioned": true,
+      "status": "denied",
+      "typed": {
+       "cause": "policy_not_subset:allowed_actions",
+       "code": "policy_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD",
+      "widened_digest": "sha256:cfd3b67ae58eb36473eb67d7156a96512005901ad340abd5b2cec90ffd56f13b"
+     },
+     "allowed_adapters": {
+      "commitment_recomputed": true,
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "forged-allowed_adapters": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "forged_verifies": true,
+      "honest_claim_workflow_issued": true,
+      "honest_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+      "provisioned": true,
+      "status": "denied",
+      "typed": {
+       "cause": "policy_not_subset:allowed_adapters",
+       "code": "policy_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD",
+      "widened_digest": "sha256:780fcd44e16cf11b4a2d6669a455e171461226b30d0039fa1edc21979671f400"
+     },
+     "allowed_authority_domains": {
+      "commitment_recomputed": true,
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "forged-allowed_authority_domains": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "forged_verifies": true,
+      "honest_claim_workflow_issued": true,
+      "honest_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+      "provisioned": true,
+      "status": "denied",
+      "typed": {
+       "cause": "policy_not_subset:allowed_authority_domains",
+       "code": "policy_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD",
+      "widened_digest": "sha256:3a4b0b59e6ba0db483103693b762679a9f98a66203de22990ea24fc20ae2d9cf"
+     },
+     "allowed_institutions": {
+      "commitment_recomputed": true,
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "forged-allowed_institutions": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "forged_verifies": true,
+      "honest_claim_workflow_issued": true,
+      "honest_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+      "provisioned": true,
+      "status": "denied",
+      "typed": {
+       "cause": "policy_not_subset:allowed_institutions",
+       "code": "policy_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD",
+      "widened_digest": "sha256:764cdc68500a432bc90d60f5e1d869dc58227c94240cd168f86668d3bfe21a37"
+     },
+     "allowed_units": {
+      "commitment_recomputed": true,
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "forged-allowed_units": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "forged_verifies": true,
+      "honest_claim_workflow_issued": true,
+      "honest_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+      "provisioned": true,
+      "status": "denied",
+      "typed": {
+       "cause": "policy_not_subset:allowed_units",
+       "code": "policy_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD",
+      "widened_digest": "sha256:f0ba60acf391dcb49ac98000dd16da0461c181adee8ac314186c6801d6d444be"
+     }
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-3",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au4_stale_activation_refuses_and_new_activation_executes",
+   "expected": "claim issued under activation 1, selection re-activated at epoch 2 (new activation_ref, generation 2): the old claim is denied selection_epoch_stale / REFUSE_STALE with cause stale_policy_generation, 0 effects; a claim issued by the workflow against the NEW activation executes 1/1/1",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "activation_ref_1": "sha256:bdd8ab936c8fe43a2096f490369505e878db72587c9e4d910857aa0c925e36d0",
+    "activation_ref_2": "sha256:20f8591cb1a00f50d12154b90159ee72d41df7e6de95816c2fbc7708630b1079",
+    "epoch_2": 2,
+    "generation_1": 1,
+    "generation_2": 2,
+    "new_claim": {
+     "counts": {
+      "attempts": 1,
+      "authority_effect_receipts_v1": 1,
+      "budget_used": 1,
+      "claim_states": {
+       "claim-new": "consumed",
+       "claim-old": "issued"
+      },
+      "effects": 1,
+      "execution_claims_v1": 2
+     },
+     "selection_guard": [
+      {
+       "activation_ref": "sha256:20f8591cb1a00f50d12154b90159ee72d41df7e6de95816c2fbc7708630b1079",
+       "applied": true,
+       "checked_at": "2026-10-05T19:00:00.000000Z",
+       "effective_policy_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+       "independent_attestation": false,
+       "log_head_hash": "sha256:20f8591cb1a00f50d12154b90159ee72d41df7e6de95816c2fbc7708630b1079",
+       "log_head_sequence": 4,
+       "participation": "required",
+       "policy_generation": 2,
+       "result": "binding_verified",
+       "scope_required": true,
+       "selection_epoch": 2,
+       "selection_id": "sel-test-1",
+       "trust_snapshot_fingerprint": "sha256:c46ec9d909d062b63e2dbcfa135dcdafe437420e5c1438f6c9a5a63b52572341",
+       "trust_snapshot_version": 1
+      }
+     ],
+     "status": "executed"
+    },
+    "old_claim": {
+     "counts": {
+      "attempts": 0,
+      "authority_effect_receipts_v1": 0,
+      "budget_used": 0,
+      "claim_states": {
+       "claim-old": "issued"
+      },
+      "effects": 0,
+      "execution_claims_v1": 1
+     },
+     "status": "denied",
+     "typed": {
+      "cause": "stale_policy_generation",
+      "code": "selection_epoch_stale",
+      "refusal_class": "REFUSE_STALE"
+     },
+     "verdict": "HELD"
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-4",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au5_withdrawal_between_issuance_and_effect_refuses",
+   "expected": "workflow-issued claim, then an authenticated withdrawal: denied selection_withdrawn / REFUSE (not HOLD), 0 effects/attempts/receipts, claim issued",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "claim-wd": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "state_after_withdrawal": "withdrawn",
+    "status": "denied",
+    "typed": {
+     "cause": null,
+     "code": "selection_withdrawn",
+     "refusal_class": "REFUSE"
+    },
+    "withdraw_transition": "withdraw",
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-5",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au5_selection_pair_and_issuer_key_revocation_refuse_with_distinct_codes",
+   "expected": "fresh store each: (a) snapshot revokes the (selection_id, epoch) pair -> denied selection_revoked; (b) snapshot revokes the issuer key -> denied issuer_key_revoked (distinct code); both REFUSE; 0 effects; claim issued",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "subprobes": {
+     "issuer_key": {
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "claim-issuer_key": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "state_after": "revoked",
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "issuer_key_revoked",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "pair": {
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "claim-pair": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "state_after": "revoked",
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "selection_revoked",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     }
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-5",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au6_required_scope_binding_less_claim_refused_and_ungoverned_legacy_still_works",
+   "expected": "(a) REQUIRED activation for the claim's scope: a legacy-profile binding-less claim issued by the real workflow is denied selection_missing / REFUSE cause scope_required_without_binding, 0 effects; a legacy-profile claim cannot carry a binding. (b) activation only for a DIFFERENT institution: the same binding-less legacy claim executes 1/1/1 with guard result fallback_caller_policy, applied False, reason never_activated",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "subprobes": {
+     "required_scope_legacy_claim": {
+      "binding_on_legacy_profile": "ValidationError: 1 validation error for TenantLocalExecutionClaim\n  Value error, policy_binding is inconsistent with the claim profile or the claim scope [ty",
+      "claim_profile": "urn:cognous:profiles:local-authority-effect:0.1.0-proposed",
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "legacy-a": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "legacy_claim_carries_no_binding": true,
+      "scope_required": true,
+      "status": "denied",
+      "typed": {
+       "cause": "scope_required_without_binding",
+       "code": "selection_missing",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "ungoverned_legacy_claim": {
+      "counts": {
+       "attempts": 1,
+       "authority_effect_receipts_v1": 1,
+       "budget_used": 1,
+       "claim_states": {
+        "legacy-b": "consumed"
+       },
+       "effects": 1,
+       "execution_claims_v1": 1
+      },
+      "selection_guard": [
+       {
+        "applied": false,
+        "checked_at": "2026-10-05T19:00:00.000000Z",
+        "fallback": "caller_policy",
+        "fallback_reason": "never_activated",
+        "independent_attestation": false,
+        "log_head_hash": "sha256:9b7cfc58fbd2b90ab82422497113414dca95b153a568b8c20b874105f334222e",
+        "log_head_sequence": 3,
+        "registry_code": "not_activated",
+        "result": "fallback_caller_policy"
+       }
+      ],
+      "status": "executed",
+      "verdict": "HELD"
+     }
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-6",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au7_scope_member_substitution_and_issuance_expectations",
+   "expected": "(a) issuance with a host-expected consumer or operation different from the binding's: PermissionError, no claim; (b) tenant / institution / authority_domain substituted in the binding ALONE (commitment recomputed): claim model refuses at provisioning, 0 claims; (c) institution substituted CONSISTENTLY in claim and binding (recomputed): not executed, 0 effects, denied by an operation/scope mismatch",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "final_counts": {
+     "attempts": 0,
+     "authority_effect_receipts_v1": 0,
+     "budget_used": 0,
+     "claim_states": {
+      "forged-consistent": "issued"
+     },
+     "effects": 0,
+     "execution_claims_v1": 1
+    },
+    "subprobes": {
+     "binding_only_authority_domain": {
+      "error": "ValidationError: 1 validation error for TenantLocalExecutionClaim\n  Value error, policy_binding is inconsistent with the claim profile or the claim scope [type=value_error, input_value={'profile': 'urn:cognous:...7a35",
+      "refused_at": "provision_claim (claim model)",
+      "verdict": "HELD"
+     },
+     "binding_only_institution": {
+      "error": "ValidationError: 1 validation error for TenantLocalExecutionClaim\n  Value error, policy_binding is inconsistent with the claim profile or the claim scope [type=value_error, input_value={'profile': 'urn:cognous:...5f93",
+      "refused_at": "provision_claim (claim model)",
+      "verdict": "HELD"
+     },
+     "binding_only_tenant": {
+      "error": "ValidationError: 1 validation error for TenantLocalExecutionClaim\n  Value error, policy_binding is inconsistent with the claim profile or the claim scope [type=value_error, input_value={'profile': 'urn:cognous:...97d7",
+      "refused_at": "provision_claim (claim model)",
+      "verdict": "HELD"
+     },
+     "consistent_institution_substitution": {
+      "counts": {
+       "attempts": 0,
+       "authority_effect_receipts_v1": 0,
+       "budget_used": 0,
+       "claim_states": {
+        "forged-consistent": "issued"
+       },
+       "effects": 0,
+       "execution_claims_v1": 1
+      },
+      "error": "execution claim operation mismatch: institution_id",
+      "forged_verifies": true,
+      "provisioned": true,
+      "status": "denied",
+      "typed": null,
+      "verdict": "HELD"
+     },
+     "expected_consumer_differs": {
+      "message": "policy binding refused at claim issuance: policy binding consumer or operation does not match the host-expected values",
+      "raised": "PermissionError",
+      "verdict": "HELD"
+     },
+     "expected_operation_differs": {
+      "message": "policy binding refused at claim issuance: policy binding consumer or operation does not match the host-expected values",
+      "raised": "PermissionError",
+      "verdict": "HELD"
+     }
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-7",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au7_operation_member_substitution_to_another_activated_operation",
+   "expected": "colluding supplier rewrites binding.operation (and the matching selection/record/activation members) to ANOTHER validly activated operation of the same tenant/institution/domain/consumer. Contract 7.4 does not require an effect-time comparison with the envelope action: if it executes this is CHARACTERIZED (issuance-time expected_operation is the only check); if refused, HELD with the typed reason",
+   "mandatory": true,
+   "note": "A supplier-forged claim naming a different, validly activated operation executed against THAT operation's activation; the envelope has no operation member so the Runtime cannot compare it. Operation binding rests on the issuance-time expected_operation check (case AU-7 test 1(a)) and the approval-side binding.",
+   "observed": {
+    "probe": {
+     "activations": {
+      "op_other": "sha256:b43c6aefac2c46ec5697bfbecb9185789e3a40b766420ca79396b65883b589c5",
+      "op_transfer": "sha256:d08c0eecc593652dd40a191df1fef52108c89f88541a5c15338c85ad860dafe2"
+     },
+     "binding_operation_before": "op-transfer",
+     "binding_operation_forged": "op-other",
+     "counts": {
+      "attempts": 1,
+      "authority_effect_receipts_v1": 1,
+      "budget_used": 1,
+      "claim_states": {
+       "forged-op": "consumed"
+      },
+      "effects": 1,
+      "execution_claims_v1": 1
+     },
+     "forged_verifies": true,
+     "selection_guard": [
+      {
+       "activation_ref": "sha256:b43c6aefac2c46ec5697bfbecb9185789e3a40b766420ca79396b65883b589c5",
+       "applied": true,
+       "checked_at": "2026-10-05T19:00:00.000000Z",
+       "effective_policy_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+       "independent_attestation": false,
+       "log_head_hash": "sha256:b43c6aefac2c46ec5697bfbecb9185789e3a40b766420ca79396b65883b589c5",
+       "log_head_sequence": 4,
+       "participation": "required",
+       "policy_generation": 1,
+       "result": "binding_verified",
+       "scope_required": true,
+       "selection_epoch": 1,
+       "selection_id": "sel-test-op2",
+       "trust_snapshot_fingerprint": "sha256:93230207b79a68cdcdf49fe3b0c5bdf318a7c3c97d1e20cdb40f5f3c956d1b11",
+       "trust_snapshot_version": 1
+      }
+     ],
+     "status": "executed",
+     "typed": null
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-7",
+   "verdict": "CHARACTERIZED"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au8_record_and_selection_identity_substitution",
+   "expected": "each alteration of the binding by a colluding supplier (commitment recomputed) is denied with the typed code of check_effect order, 0 effects: record_id / record_version / record_digest -> record_identity_mismatch; selection_digest -> policy_identity_mismatch[selection_digest]; selection_epoch -> policy_identity_mismatch[selection_epoch]; selection_id -> selection_conflict[lineage_binding]; then the unaltered workflow claim executes 1/1/1",
+   "mandatory": true,
+   "note": null,
+   "observed": {
+    "subprobes": {
+     "record_digest": {
+      "counts_effects_attempts_receipts_budget": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "record_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "record_id": {
+      "counts_effects_attempts_receipts_budget": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "record_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "record_version": {
+      "counts_effects_attempts_receipts_budget": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "record_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "selection_digest": {
+      "counts_effects_attempts_receipts_budget": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "status": "denied",
+      "typed": {
+       "cause": "selection_digest",
+       "code": "policy_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "selection_epoch": {
+      "counts_effects_attempts_receipts_budget": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "status": "denied",
+      "typed": {
+       "cause": "selection_epoch",
+       "code": "policy_identity_mismatch",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "selection_id": {
+      "counts_effects_attempts_receipts_budget": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "status": "denied",
+      "typed": {
+       "cause": "lineage_binding",
+       "code": "selection_conflict",
+       "refusal_class": "REFUSE"
+      },
+      "verdict": "HELD"
+     },
+     "unaltered_control": {
+      "counts": {
+       "attempts": 1,
+       "authority_effect_receipts_v1": 1,
+       "budget_used": 1,
+       "claim_states": {
+        "forged-record_digest": "issued",
+        "forged-record_id": "issued",
+        "forged-record_version": "issued",
+        "forged-selection_digest": "issued",
+        "forged-selection_epoch": "issued",
+        "forged-selection_id": "issued",
+        "honest-au8": "consumed"
+       },
+       "effects": 1,
+       "execution_claims_v1": 7
+      },
+      "status": "executed",
+      "verdict": "HELD"
+     }
+    },
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-8",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Independent TEST DESIGN by an AI qualification worker of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 1,
+  "PASSED": 10,
+  "SKIP": 0,
+  "executed": 11
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "89621468ed268648d49abc1dca280ed073258a42",
+ "qualification_v07_pin": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+ "run_number": 1,
+ "schema": "v08-tier1-results/1",
+ "verdicts": {
+  "CHARACTERIZED": 1,
+  "HELD": 9,
+  "NONE": 1
+ },
+ "worker": "a"
+}

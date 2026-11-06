@@ -1,0 +1,98 @@
+{
+ "area": "trust",
+ "cases": [
+  {
+   "case": "suites/tier1-v08/trust/test_tr1_snapshot.py::test_c01_expired_snapshot_blocks_the_effect_not_just_the_writer",
+   "expected": "Same store, same claim: with the trusted clock at or after the accepted snapshot's valid_until the effect is refused trust_snapshot_expired / HOLD with zero effects and the claim unconsumed; one second before valid_until the SAME claim executes (1 effect, 1 receipt) so the refusal is attributable to the snapshot clock alone.",
+   "mandatory": true,
+   "note": "",
+   "observed": {
+    "probes": {
+     "refused_after_valid_until": {
+      "attempted": false,
+      "breach": false,
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "trust_snapshot_expired",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "trust_snapshot_expired",
+       "refusal_class": "HOLD"
+      }
+     },
+     "refused_at_exact_valid_until": {
+      "attempted": false,
+      "breach": false,
+      "counts": [
+       0,
+       0,
+       0,
+       0
+      ],
+      "error": "trust_snapshot_expired",
+      "failure_class": "authority_hold",
+      "ok": true,
+      "status": "denied",
+      "typed": {
+       "cause": null,
+       "code": "trust_snapshot_expired",
+       "refusal_class": "HOLD"
+      }
+     },
+     "same_claim_executes_one_second_before": {
+      "attempted": true,
+      "counts": [
+       1,
+       1,
+       1,
+       1
+      ],
+      "error": "",
+      "failure_class": null,
+      "ok": true,
+      "status": "executed",
+      "typed": null
+     }
+    }
+   },
+   "outcome": "PASSED",
+   "scenario": "TR-1",
+   "verdict": "HELD"
+  }
+ ],
+ "claim": "Independent TEST DESIGN by an AI qualification worker of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 0,
+  "PASSED": 1,
+  "SKIP": 0,
+  "executed": 1
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "ace064cf334309b5c1e8c5bae2cc7fd0d25ad3c0",
+ "qualification_v07_pin": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+ "run_number": 1,
+ "schema": "v08-tier1-results/1",
+ "verdicts": {
+  "HELD": 1
+ },
+ "worker": "c"
+}

@@ -1,0 +1,9 @@
+# V08 Tier 1 qualification (declared before execution)
+
+**Independence limit, stated first.** All V08 test design here is by AI sessions of one engineering organization: the lead builder (who wrote the V05 guard, the V06/V07 harnesses and the F-01 patch) and three short-lived workers with no conversation history. This is independent test design within the same organization, **not** independent external qualification, and it does **not** satisfy Plan v1.5's V08 requirement of an independent lead and oracle (no AI-as-independent qualification). "Independent Tier 1: NOT STARTED" in the plan is unchanged by this PR.
+
+Scope: the integrated authority-to-effect boundary at the frozen pins (`qualification-manifest.json`): Registry `a1169a05`, Control Plane V02 `1bee3696`, Runtime with the F-01 remediation `ac247daf`, qualification V07 `90e0e56e`. Synthetic SQLite only; no real effects. Ed25519 soundness is not assessed (SECURITY-HELD).
+
+Process: the lead commits this manifest, the mandatory scenario list, the ownership map and the global budget (50 local executions: 15 per worker area, 5 reserve) before dispatch. Each worker designs cases and oracles from the frozen contracts and component source, **commits its case inventory before executing anything**, and only then may read existing tests (for fixture mechanics, not assertions). Workers own exclusive directories, run in separate worktrees with separate databases, anchors and temp directories, and never edit component source. The lead collects worker commits serially, runs the CI gate, and publishes one PR. There is no allowlist: any BREACH, INCONCLUSIVE, BLOCKED, failed or skipped case keeps the gate red.
+
+Layout: `suites/tier1-v08/{authority,atomicity,trust}/` (worker suites), `results/v08-tier1/{authority,atomicity,trust}/` (inventories, `runs/`, `ledger.jsonl`, `results.json`, findings), `INDEX.md` (consolidated results, written by the lead after collection).
