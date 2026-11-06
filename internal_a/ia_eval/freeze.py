@@ -7,7 +7,8 @@ from pathlib import Path
 
 FREEZE_SCHEMA = "ia-freeze-manifest/1"
 MANIFEST_REL = "freeze/freeze-manifest.json"
-_SKIP_DIRS = {"__pycache__", ".pytest_cache", "results"}
+_SKIP_DIRS = {"__pycache__", ".pytest_cache"}
+_SKIP_TOP = {"results"}
 _SKIP_FILES = {MANIFEST_REL}
 
 
@@ -19,13 +20,19 @@ def list_files(base: Path):
     out = []
     for p in sorted(base.rglob("*")):
         rel = p.relative_to(base).as_posix()
-        if any(part in _SKIP_DIRS for part in p.relative_to(base).parts) or rel in _SKIP_FILES:
+        parts = p.relative_to(base).parts
+        if any(part in _SKIP_DIRS for part in parts) or rel in _SKIP_FILES or parts[0] in _SKIP_TOP:
             continue
         if p.is_symlink():
             raise ValueError(f"symlink in freeze scope: {rel}")
         if p.is_file() and not rel.endswith(".pyc"):
             out.append(rel)
     return out
+
+
+def bytecode_files(base: Path):
+    """Stale or planted bytecode could execute unchecked; its presence is a freeze problem."""
+    return sorted(p.relative_to(base).as_posix() for p in Path(base).rglob("*.pyc"))
 
 
 def hash_scope(base: Path):
@@ -49,10 +56,13 @@ def verify(base, expect_root: str, manifest_path=None):
     if not mp.is_file():
         return ["freeze manifest missing"]
     try:
-        m = json.loads(mp.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        return [f"freeze manifest unreadable: {e}"]
-    probs = []
+        from .oracle import load_json_strict
+        m = load_json_strict(mp.read_bytes())
+    except Exception as e:  # unreadable, duplicate keys, oversized, wrong encoding: all fail closed
+        return [f"freeze manifest unreadable: {type(e).__name__}"]
+    if not isinstance(m, dict) or not isinstance(m.get("files"), dict):
+        return ["freeze manifest has the wrong shape"]
+    probs = [f"bytecode present (run with python -I -B): {b}" for b in bytecode_files(base)]
     body = {k: m.get(k) for k in ("schema", "meta", "files")}
     if m.get("schema") != FREEZE_SCHEMA:
         probs.append("bad freeze schema")

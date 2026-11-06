@@ -9,6 +9,13 @@ ALLOWED_KINDS = frozenset({"git_read", "file_read", "native_call", "scratch_writ
 _EFFECT_NAME = re.compile(r"(^|[._])(execute|reconcile|apply|run_effect|send|deliver|submit|commit_effect|charge|refund_issue|post|put|delete)($|[._(])", re.I)
 
 
+def _in_scratch(path):
+    if not isinstance(path, str) or "\0" in path or "\\" in path or path.startswith("/"):
+        return False
+    parts = path.split("/")
+    return len(parts) >= 2 and parts[0] == "scratch" and all(x not in ("", ".", "..") for x in parts)
+
+
 def check_events(events, allowed_native_calls):
     """Return a list of violation strings; empty means clean. Unknown shape is a violation."""
     v = []
@@ -29,6 +36,6 @@ def check_events(events, allowed_native_calls):
                 v.append(f"event[{i}] native_call {name!r} is not in the oracle allow-list")
             elif _EFFECT_NAME.search(name):
                 v.append(f"event[{i}] native_call {name!r} looks like an effect path")
-        if kind == "scratch_write" and not str(e.get("path", "")).startswith("scratch/"):
+        if kind == "scratch_write" and not _in_scratch(e.get("path")):
             v.append(f"event[{i}] write outside scratch: {e.get('path')!r}")
     return v

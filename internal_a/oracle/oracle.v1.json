@@ -1,0 +1,2808 @@
+{
+ "allowed_native_calls": [
+  "agent_action_manifest.loader.load_manifest",
+  "agent_action_manifest.loader.load_manifest_json",
+  "agent_action_manifest.validator.validate_manifest",
+  "agent_action_manifest.binding.manifest_digest",
+  "agent_action_manifest.binding.proposal_digest",
+  "agent_action_manifest.binding.proposal_mismatches",
+  "agent_action_manifest.models.RuntimeActionProposalV12.model_validate",
+  "agent_control_plane.bounded.BoundedAuthorizationWorkflow.decide",
+  "agent_replay_bundle.importers.import_bounded_workflow",
+  "agent_governance_evidence_pack.importer.import_manifest_reconstruction",
+  "agent_governance_evidence_pack.validator.validate_evidence_pack",
+  "agent_governance_evidence_pack.loader.load_evidence_pack",
+  "agent_governance_evidence_pack.loader.dump_evidence_pack"
+ ],
+ "cases": [
+  {
+   "class": "PRE",
+   "entrypoint": "git rev-parse HEAD / HEAD^{tree} per component checkout (driver raw capture 'source_identity')",
+   "failure_condition": "any commit or tree differs from the D4-approved pin, is missing, or the capture is absent",
+   "id": "QA-S1",
+   "mandatory": true,
+   "mutation": null,
+   "observations": [
+    {
+     "boundary": "source_identity",
+     "expected": {
+      "action_manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "control_plane": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "evidence_pack": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "orchestrator": "1504cf409fa352305d3fced589a0ad9e166819ec",
+      "replay_bundle": "93a76e281fcae6a65d2cd1d35376f87442dafb95"
+     },
+     "id": "QA-S1.1",
+     "op": "eq",
+     "pointer": "/commits",
+     "source": {
+      "kind": "frozen_literal",
+      "text": "Architect decision D4, QR#271 comment 6676452107"
+     }
+    },
+    {
+     "boundary": "source_identity",
+     "expected": {
+      "action_manifest": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
+      "control_plane": "c182939882103015f12c5360fccf377c54e2c4f9",
+      "evidence_pack": "fe428a89da2e74346648cdfe014462ddc8624c77",
+      "orchestrator": "4ac4e026648c2adda9836e366ffce9ca3d142da8",
+      "replay_bundle": "aca6e6b8bdd33d51db3b34bc0c75eff93b9ff88f"
+     },
+     "id": "QA-S1.2",
+     "op": "eq",
+     "pointer": "/trees",
+     "source": {
+      "kind": "frozen_literal",
+      "text": "Architect decision D4, QR#271 comment 6676452107"
+     }
+    }
+   ],
+   "title": "Exact source commits and trees (5 components)"
+  },
+  {
+   "class": "PRE",
+   "entrypoint": "evaluator ia_eval.identity.hash_files over the pinned checkouts (driver raw capture 'file_identity')",
+   "failure_condition": "any listed file is missing, extra, or has a different sha256 or git blob id (module/fixture hash tampering)",
+   "id": "QA-S2",
+   "mandatory": true,
+   "mutation": null,
+   "observations": [
+    {
+     "boundary": "file_identity",
+     "expected": {
+      "am:examples/refund_integration_v1_1.manifest.json": "789ad39596b9e1ef84a726a671883e1cb6b83343da3a31db0a1120906d68c074",
+      "am:src/agent_action_manifest/__init__.py": "41902c9313aa5687cee004a1ff712e701f33d616f5b24fdace4777b3aedc374e",
+      "am:src/agent_action_manifest/binding.py": "88e1fbf418319b6030ed76220fd7e8d73c595585da41360ad7b52aa1f30c6379",
+      "am:src/agent_action_manifest/identifiers.py": "8857d36d59ee4184b627d2db36f73843d2c317fac909af873026bf9508048406",
+      "am:src/agent_action_manifest/loader.py": "97a44c3fe0b63f38e752162e501772f05f1e0cbb807cb63e521103211d250cb2",
+      "am:src/agent_action_manifest/models.py": "b59dae61c52c54866420678c9c4e0b413907f311ce36c25554d6dd61ee2c6aba",
+      "am:src/agent_action_manifest/validator.py": "a58f883275a9574d8ad3d1f455b411fb44a192fafe53e8a9ef680131cd76f0a7",
+      "cp:src/agent_control_plane/__init__.py": "86748732b21299f4e06ee7c964154f98ecb72d0560b453d8b774a373656bb513",
+      "cp:src/agent_control_plane/atomic_write.py": "784a9966a3256d315dc513e0fb46abcfd2c5fda9ce829fa1ef9d6b2747c4e854",
+      "cp:src/agent_control_plane/bounded.py": "1b4a5f8fc6d64723da8f60cfe495736f4a92acb593e88787643fb9cba5f376ba",
+      "cp:src/agent_control_plane/canonical_policy_binding.py": "94fa58db2544897b81baee5f602e28d2bf511d13e20a1b2ae3a53922c363b0a4",
+      "cp:src/agent_control_plane/dedupe.py": "e38ef2735b94a1dbf1165da5885492ffa10aff3a12bc154e16d182f2bf4d7d96",
+      "cp:src/agent_control_plane/frame.py": "b28a3bd7e557f0c33450e123c69d922460dc131877d0e38ba42a00893b992c7f",
+      "cp:src/agent_control_plane/freshness.py": "3f146ee11a3424d816c6f35ba07259833612a985901b4a96c0275395f05d51c0",
+      "cp:src/agent_control_plane/holder_inventory.py": "76f5aaa63f49bac182439ea3768798bf42ecbda2c586f20fd450a7053271f7ba",
+      "cp:src/agent_control_plane/local_authority_effect.py": "60dc19ffecbdf60cb5fdcda58a0ddec08437544e3c778012614e9ffb6082b61f",
+      "cp:src/agent_control_plane/manifest_validation.py": "3157e71a8470825f078c0fe050b05c8b6dd7d957c0205ae6fdd7bbaf963fb36e",
+      "cp:src/agent_control_plane/merge.py": "283bb16c3d94fc0c5a81f3acacff2d29ae13e80c7d99b97bdcb5b6159f209890",
+      "cp:src/agent_control_plane/models.py": "95fefa6f0703f6133f99ac429759eaf7d5bbd5a1d0c332d2409d728ee080734d",
+      "cp:src/agent_control_plane/operation_identity.py": "d8e00d830c4a48a5cdf2c927f837ea5b49fbf9743e44bff2dabf1489c4cbc8f1",
+      "cp:src/agent_control_plane/persistence.py": "8f0f4a85779a7acd18feefd6ced2baab1e344c0b1f3e8d87c378577d8670e8c8",
+      "cp:src/agent_control_plane/policy_binding.py": "defdfac5fd60cf5be707a76204a12513f2f289b0620ec56d063b56dac4081a35",
+      "cp:src/agent_control_plane/policy_config.py": "3321a25beef9e52c19e89bf582ef73f0bfda6200166b83a9115c9d7d762d85ea",
+      "cp:src/agent_control_plane/policy_gate.py": "e7993c80b12bdbdeff4a9b3b622d7b0a91e2aa8f715bc0e3162fff15fcca96ca",
+      "cp:src/agent_control_plane/reason_vocabulary.py": "898b4f5a0ae950804ef3da04d610f3012a6a0bde7337bd4460f80359d1de8a13",
+      "cp:src/agent_control_plane/records.py": "6e6b40fd371d21b546269717bef142ecd757443ec086ac7f162b9e28ab7155f2",
+      "cp:src/agent_control_plane/redaction.py": "6b75873020cc6adf415b025dcd99c78cf4246ea24aac9e5890b4b6c2c8e865b8",
+      "cp:src/agent_control_plane/replay.py": "0f81e915c4ca6e7bd1207a2d0bfe9344d06173c452fbca5ff3cbc3f49a4e7e70",
+      "cp:src/agent_control_plane/reversibility.py": "5edbadebb3aa777fba7f652c10c8da3c5e9ee1766b71866ed55dc25b319477d1",
+      "cp:src/agent_control_plane/rule_revision.py": "a3833f49e96db52e0665b9816daee2654f74f7784faad5101252b4c8722415a5",
+      "cp:src/agent_control_plane/runtime_authority.py": "45a27db8695ff9d23516e1937f3bafa2391bbc1587ed0fb09f56ea8f3e01d23f",
+      "cp:src/agent_control_plane/selection_evidence.py": "8f366cebcf7dd245d3c2189de7d7e94fbb44ebcb4ae64a554481fc654882a543",
+      "cp:src/agent_control_plane/signing.py": "e553f27ee83abfd50f6c0c8825c5b0655ca0c996d8adffbc0d06203d1e30ddc7",
+      "cp:src/agent_control_plane/strict_json.py": "45eb084766a9bb3a025c20b05894725596e365c3a6326ee30e75f6e2037740a8",
+      "cp:src/agent_control_plane/time_instant.py": "8505ef3f0ad27a938d3a33b3518ed9d8cd4b880a3d270951facdcd4e6b7afdde",
+      "cp:src/agent_control_plane/tools.py": "225f0d8452982dd547fa3b3fff0d588b8be5d65997ed96cd7864bbed9765552e",
+      "cp:src/agent_control_plane/validation.py": "c52de3c54502eafc491705737f2f059725a581f0e82d6fdddf21ded6cb81935e",
+      "cp:tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cp:tests/test_bounded_authorization.py": "b4b300bf00fb43bb76d5b7738e8f5ee61fb792e80530547525c9067aa3a0ca4b",
+      "cp:tests/test_runtime_authority.py": "8e217f1bbcd9090c3407f91f34c0c4072a53cd1d0a3acfc92c5e98f59886ab9b",
+      "orch:.github/locks/cryptography-pydantic-pytest-513753.in": "e1588efd787ab76cefd6d13802bcc83668b4100bf6876dc9815c31f7af34edee",
+      "orch:.github/locks/cryptography-pydantic-pytest-513753.txt": "33a9e3605c5188a78c816fefd20938a8bf0299fc0fb8eda8e224f126409bde2b",
+      "orch:.github/workflows/manual-contract-edge.yml": "e17b5a1d26c7a019d38d2c5b8aecddc4be3dda3810f8125b5ccee4281f2f1cb3",
+      "orch:tests/manual_contract/c1/fixtures/proposal.tenant-alpha.json": "1033c73e7dbe677cc71520711d3aaacb182952e5c12c8eaa489f24be0014cfe2",
+      "orch:tests/manual_contract/c2_producer.py": "7c4f2595d7939e4a373586faafc0de86469dc03b791d893d7b27fb328a02a895",
+      "orch:tests/manual_contract/c4/c4_hosted_check.py": "d681662f7968a840be7de24451ba238074ccf3d0518fdb725922fe76c96095ef",
+      "orch:tests/manual_contract/c4/c4_hosted_fixtures.py": "df9ec140ccba931240bd14f9e59157caf50b28740f332004b7832ee819f1d876",
+      "orch:tests/manual_contract/c4/test_c4_hosted_check.py": "c00e8e18c82b5ccfa5ef03f41a298462a7610d8c3cb6a47adfac1e7561399847",
+      "orch:tests/manual_contract/c4/test_manual_workflow_c4.py": "a0b6026ee76d74f41ee6d3159c53c7df3449e7bc99153c74412af0d6bd6d81b3",
+      "orch:tests/manual_contract/c4/test_real_c4.py": "34faa8fe3d92742b259b2210e4d7e9b6a33d01dbd8cf0702b5efa7e427679fe9",
+      "orch:tests/manual_contract/c4/test_real_c4_integrity.py": "07cf8cc437ae6d03455178dc5463cc2843b4071359b20a6a842efa7071256f0f",
+      "orch:tests/manual_contract/c4_producer.py": "7d833ab22f887399f47d7ce2410d402180bc05ffccbc1d3735ece26156de2971",
+      "orch:tests/manual_contract/real_c3.py": "c92883af328f5127a395571887a72ceffccdfbe4d6c983d5c62ff9a21d64c31b",
+      "orch:tests/manual_contract/real_c4.py": "3843b6e7a7eed168acfb1de8e823c6bfcf12b218fa0dec526360d785d9b6284d",
+      "orch:tests/manual_contract/runner.py": "1ba359c17968e9ca1707c815b7dac1f9422839e00328597df3134c61979111a7",
+      "pk:src/agent_governance_evidence_pack/__init__.py": "de39073438acfacfc4dccbff2bacd02650a54ef0d7e7522763e7dbc6679eb5f3",
+      "pk:src/agent_governance_evidence_pack/admission.py": "8bfba08b707ce4140ea097c950f4a2bb750cbba3819e19a694dba15bf985622d",
+      "pk:src/agent_governance_evidence_pack/importer.py": "57452fc3a92c40ef64ffd0cc250fbe13e708ae8c0085cbe7056d98080fc0c275",
+      "pk:src/agent_governance_evidence_pack/loader.py": "94b5b77e772dffe62aa97b95234b828153a9e16d7f63d28aa590ba773b982bc0",
+      "pk:src/agent_governance_evidence_pack/models.py": "3322fea535afcf0871241f1b1c9b25d84f3f68340083bbd734def7ea18d669f9",
+      "pk:src/agent_governance_evidence_pack/renderer.py": "8aac868adbcb93ab1ca3c4d88acac05f67bf62290bbbfc51054179adfcf203fc",
+      "pk:src/agent_governance_evidence_pack/summary.py": "05d0e261026d28f782cb58320784100871956d71c3c515489cdf382cf4122922",
+      "pk:src/agent_governance_evidence_pack/trace_renderer.py": "68d0507fef197fb3bb1abb2a794a823cf79a7b0985bc08a700768ff339e14428",
+      "pk:src/agent_governance_evidence_pack/validator.py": "cf8864f528b60cc784620815a01f1cab5ab84eff68ea419811cdf68ccfe36c0b",
+      "rb:src/agent_replay_bundle/__init__.py": "65470f8552fbf25658b6614407669966f6031587dbfd3ddf5418b006de28b116",
+      "rb:src/agent_replay_bundle/effective_configuration.py": "4ee6577d9624a67cd01ea5d3f4b09a430ea83994d011892ae63a9c19b0822371",
+      "rb:src/agent_replay_bundle/importers.py": "d71ffe7ef749170b82ec290ebc357ecf29c4a78b19316defa55c7ac188955abe",
+      "rb:src/agent_replay_bundle/ingress.py": "d45f0066636c76e5759e5e60f9683a1119c8b98d63abe793a645691576b61e75",
+      "rb:src/agent_replay_bundle/instants.py": "cb3a0475b6dbe2c903160d4d84541a22c03443e35125f44b4ea745fe7c91db75",
+      "rb:src/agent_replay_bundle/json_equality.py": "258e90c9a05ec9e01719dacf488b24e33672146c6034a6a0820f06dfadf8e585",
+      "rb:src/agent_replay_bundle/loader.py": "36a5d433221421f9b19fc3542b7976602550590658b57bcf83e18162bd5a0535",
+      "rb:src/agent_replay_bundle/models.py": "790d75eb230c89f69b7ba0d84457f0344d581c060286884efb324904de4f3a6b",
+      "rb:src/agent_replay_bundle/programme2_profiles.py": "a0e953a88d00361caad01187df5fa45c7f5b8dcd2e1e0b7df77188abde0f44b1",
+      "rb:src/agent_replay_bundle/reconstruction.py": "8171a8bb906de0031137d9ea836b236fc019dfdc5e649386cc83e8f4f55ef893",
+      "rb:src/agent_replay_bundle/redaction.py": "28e4e9e3fc5e1be299b43a7f6458d349a0bed1473d6a7c871cff2919815537f2",
+      "rb:src/agent_replay_bundle/registry_evidence.py": "f75fb825f1d619e52c618172b9d9f96ddab9bc298599dbe2db862327994055aa",
+      "rb:src/agent_replay_bundle/signing.py": "e91bc1c5938343f3bf220415b8374a8a762ad099f359f2e3e9e8bb02e106ec45",
+      "rb:src/agent_replay_bundle/validator.py": "db94089fab24e1201249feba7011c825d76819da6f1c8a2c51954671028d54b2"
+     },
+     "id": "QA-S2.1",
+     "op": "eq",
+     "pointer": "/sha256",
+     "source": {
+      "kind": "frozen_literal",
+      "text": "sha256 of the git objects at the pinned commits (workerE sources.json, 77 files); equals the blob list hosted run 42152466722 reported (0 mismatches)"
+     }
+    },
+    {
+     "boundary": "file_identity",
+     "expected": {
+      "am:examples/refund_integration_v1_1.manifest.json": "8f5c0788edf2f6940fa6012365b676ba2b0a32be",
+      "am:src/agent_action_manifest/__init__.py": "1d715ba3abd5118f80235cfd323fad08a9605210",
+      "am:src/agent_action_manifest/binding.py": "4d1bf5e5a58a37f2939cd8a44a8918015a32cdd5",
+      "am:src/agent_action_manifest/identifiers.py": "91edad4310d11dc63a85b096ebfc8babb5c381ae",
+      "am:src/agent_action_manifest/loader.py": "4c577387a860eb379870193ea7db672615ca00dd",
+      "am:src/agent_action_manifest/models.py": "cd0c139b3d7832459929a322a7121bd7f3fedab7",
+      "am:src/agent_action_manifest/validator.py": "d5fa56a0f5daa8d628e3c12a9185090767c8fc93",
+      "cp:src/agent_control_plane/__init__.py": "cd730e1959a56b83bfc38e92b739b33a8c13c712",
+      "cp:src/agent_control_plane/atomic_write.py": "f8f435d62740e3fce7a83a0b6ad54b311464d443",
+      "cp:src/agent_control_plane/bounded.py": "946109410c5cf662e1a97cb0db46c08f3644e08e",
+      "cp:src/agent_control_plane/canonical_policy_binding.py": "d53a5b7e9d6180d1867a7f32061ba67cb0300514",
+      "cp:src/agent_control_plane/dedupe.py": "f8db0d2ca17ec65a6c9c1070babd4cb0fdd126ea",
+      "cp:src/agent_control_plane/frame.py": "20c31a9f97528ce56d8b1ae40792fd1067a35205",
+      "cp:src/agent_control_plane/freshness.py": "0c4647f69ed5bb52d8e1e0e607faf6da061634f2",
+      "cp:src/agent_control_plane/holder_inventory.py": "248e930437cd6dec682a43bb626ceccf83804b68",
+      "cp:src/agent_control_plane/local_authority_effect.py": "436696b7c67a1f00b4a214448be8dfd65277cee8",
+      "cp:src/agent_control_plane/manifest_validation.py": "b5cb18d81c215e735efa7bb6f0c0ac1885ad7547",
+      "cp:src/agent_control_plane/merge.py": "777223f1fcf3de0fd384f12055854afde7327978",
+      "cp:src/agent_control_plane/models.py": "7ba2282db8b6d24cf85f35e6be6ce443e43d4379",
+      "cp:src/agent_control_plane/operation_identity.py": "f723cab331095d2c6ba13a8549121990facb4b0f",
+      "cp:src/agent_control_plane/persistence.py": "a8b38b34c53d12a8896c56ebdfa3589eccb3c131",
+      "cp:src/agent_control_plane/policy_binding.py": "426d47797e92f19690a21b4e8b5dc1c35d1b579c",
+      "cp:src/agent_control_plane/policy_config.py": "0ac2597c0344e4d18761e093ffe0f9108d9c474e",
+      "cp:src/agent_control_plane/policy_gate.py": "efc7fe1c8b93538fc1e95630068fd587ed0760bd",
+      "cp:src/agent_control_plane/reason_vocabulary.py": "1fafad8e261e07aaaf92f4bbe0518ee76e591317",
+      "cp:src/agent_control_plane/records.py": "af42737d18aa4d0e4751f2cc23e1eacd24a6e628",
+      "cp:src/agent_control_plane/redaction.py": "892d5549fc712b889a7816f460b3e5137433f346",
+      "cp:src/agent_control_plane/replay.py": "71ed6f64a4a56facb42ccbb3654d1e66495e75be",
+      "cp:src/agent_control_plane/reversibility.py": "a6be4bfe555d16b7d40289cef113ae156fd8c843",
+      "cp:src/agent_control_plane/rule_revision.py": "9ca71a8db3f790b0dde3127c4f34b563463859cb",
+      "cp:src/agent_control_plane/runtime_authority.py": "03b4efdfd67c2e384c00ac7342ef3bbf18160811",
+      "cp:src/agent_control_plane/selection_evidence.py": "2d3f6ba8e850e7ab876754c8f2a747a08c300be9",
+      "cp:src/agent_control_plane/signing.py": "0b94d74b6d6ca49c06503159f3e21963140ce09f",
+      "cp:src/agent_control_plane/strict_json.py": "2e5fd8e9443215c15c659405c56c1ad82195c860",
+      "cp:src/agent_control_plane/time_instant.py": "fe6c90eefce9d992050cbcce77ea61d06869ff17",
+      "cp:src/agent_control_plane/tools.py": "66322124f202ee2cde07d4af6bb68cbc8c725c40",
+      "cp:src/agent_control_plane/validation.py": "5f56a4d1e176405aa2e5a325aa0ca61e626e95ff",
+      "cp:tests/__init__.py": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "cp:tests/test_bounded_authorization.py": "d9b66c845d66b38b3af67689774ccc92a6bd2d54",
+      "cp:tests/test_runtime_authority.py": "a7dc980e9f86f4e6b86f306c1aff7a5ac36e3293",
+      "orch:.github/locks/cryptography-pydantic-pytest-513753.in": "97c33fd033da9aabf2f8687fbe414abcd81e2bad",
+      "orch:.github/locks/cryptography-pydantic-pytest-513753.txt": "302de0cd2e75c35e1167a04ca6ea06e54babad51",
+      "orch:.github/workflows/manual-contract-edge.yml": "905562b17bc31198992bdfdb91ff55df0fee904f",
+      "orch:tests/manual_contract/c1/fixtures/proposal.tenant-alpha.json": "ce30f9b14d90c282934adf0a63fddfce0ddde11d",
+      "orch:tests/manual_contract/c2_producer.py": "47072467e76cc16fbebaeac1cf5bf9abf984d73f",
+      "orch:tests/manual_contract/c4/c4_hosted_check.py": "5576e00d9fa2cc4032bee9e8ea1b86789cb46929",
+      "orch:tests/manual_contract/c4/c4_hosted_fixtures.py": "73be8d9954ad2d56f5fda1d3239f0574c88892a8",
+      "orch:tests/manual_contract/c4/test_c4_hosted_check.py": "5eabfd1632ec57871f01c9e684af2a5a4ca810c7",
+      "orch:tests/manual_contract/c4/test_manual_workflow_c4.py": "d8378d73f25a929effc84e46c2dd30e4ce04086d",
+      "orch:tests/manual_contract/c4/test_real_c4.py": "55220f3255c8458b509269d3a28e3432826d6eef",
+      "orch:tests/manual_contract/c4/test_real_c4_integrity.py": "619eb92f4baef0d801b01a8d4b2a20f3a613a5bc",
+      "orch:tests/manual_contract/c4_producer.py": "81c5fe92239cb8124a7e1b83ff3682c8a6517401",
+      "orch:tests/manual_contract/real_c3.py": "c9a6a964e430b1667fe5c4eeee1ac486b66bae5b",
+      "orch:tests/manual_contract/real_c4.py": "7269c7a23f87ed7d6ef5cd1bb4bf6bfba9d5f7dc",
+      "orch:tests/manual_contract/runner.py": "36fc24c9abb7f3563df62bfce96e216858a8da2d",
+      "pk:src/agent_governance_evidence_pack/__init__.py": "5677c73f6f8006ddfe91dcd5230b507d0ee0c3b5",
+      "pk:src/agent_governance_evidence_pack/admission.py": "932bd02f456d9e4d4b4f57f763a462c938019a52",
+      "pk:src/agent_governance_evidence_pack/importer.py": "9fcd3fbb67affe5a5697f76a4146270d806ac3c1",
+      "pk:src/agent_governance_evidence_pack/loader.py": "e6149bcfcacea89e999435568933c5f3c5c8ac6d",
+      "pk:src/agent_governance_evidence_pack/models.py": "64bb2b7002faf8eff08f7eff46d463ceb69dccb5",
+      "pk:src/agent_governance_evidence_pack/renderer.py": "c66230902d1e50c0e5d0c397870130eaf3aeeba5",
+      "pk:src/agent_governance_evidence_pack/summary.py": "484877ba9f48d8e79321b985a12ae7701686be13",
+      "pk:src/agent_governance_evidence_pack/trace_renderer.py": "27a3eae01cad866df7070db263cc6c02f937aecb",
+      "pk:src/agent_governance_evidence_pack/validator.py": "b659737996ba0103b607f5c63289462b1bd1b2ec",
+      "rb:src/agent_replay_bundle/__init__.py": "a793c3370a237b6ec1b793bfa7285268970b3966",
+      "rb:src/agent_replay_bundle/effective_configuration.py": "2f2ae1ef0aa81645594cc49f10016a910c9697c2",
+      "rb:src/agent_replay_bundle/importers.py": "f942d62267e725209c6e68e6784b58354015ba69",
+      "rb:src/agent_replay_bundle/ingress.py": "77be693709c323b709d32b43d6dbe02edea08caa",
+      "rb:src/agent_replay_bundle/instants.py": "5deedc0b01a1106207f830fc63472aa89004f02d",
+      "rb:src/agent_replay_bundle/json_equality.py": "ec924b4b86f6893d43a113bf5351fc18dac83592",
+      "rb:src/agent_replay_bundle/loader.py": "e51c7db0147578737d1b8249d7ebe4c691e881db",
+      "rb:src/agent_replay_bundle/models.py": "9ed3781f742e535334da11a7e4ae6baf23292452",
+      "rb:src/agent_replay_bundle/programme2_profiles.py": "ebe8d8b9032ba9e508b26b07057b7e89c6b35bbc",
+      "rb:src/agent_replay_bundle/reconstruction.py": "05f1594c442f43dc7a1a04dd1c46e590ffd352ac",
+      "rb:src/agent_replay_bundle/redaction.py": "5fde25ff166eccad45458d4200703f848d082fc1",
+      "rb:src/agent_replay_bundle/registry_evidence.py": "5a50377685c78f1dd726cb085f822c492aebfae9",
+      "rb:src/agent_replay_bundle/signing.py": "83c1748c0c108968e34f025c3846ab4556d47376",
+      "rb:src/agent_replay_bundle/validator.py": "edf57f5f965d5a7cee668f1d01d9b85b4ab8f906"
+     },
+     "id": "QA-S2.2",
+     "op": "eq",
+     "pointer": "/git_blob",
+     "source": {
+      "kind": "frozen_literal",
+      "text": "git blob ids at the pinned commits"
+     }
+    }
+   ],
+   "title": "Loaded-module, test-helper, fixture, lock and workflow file identity (sha256 and git blob)"
+  },
+  {
+   "class": "PRE",
+   "entrypoint": "evaluator ia_eval.identity.hash_files over internal_a/freeze/snapshots (driver raw capture 'snapshot_identity')",
+   "failure_condition": "any snapshot file differs from its frozen sha256, or is missing",
+   "id": "QA-S3",
+   "mandatory": true,
+   "mutation": null,
+   "observations": [
+    {
+     "boundary": "snapshot_identity",
+     "expected": {
+      "6660913875": "99dd4528a330d6486ee2ee9777c142c143dbe2b8dcdd5ebeff7cf573dd63b62b",
+      "6665625039": "7b08e305b46741e08157488d0d12fdfdd195ac9916f70c0131dbb6aaac2613cf",
+      "6667028276": "c55540ec5ec2928b8f12ddc2a899e22e5bda30b087652fda9073d4999ef012fe",
+      "6671327666": "77c0359aaa2efeb0059fb4627bbeccf49325583a3cedf535eaab58fd026b94d4",
+      "6671384213": "6b6e75f70c758047e34138a2667490f70226272fdb218a161844ae0447a29ed5",
+      "6674059997": "e7bb235d1fdff95e947d1ddbfa616e958e3524ba4a9e9dac4a1d56e01f7a0241",
+      "6674060915": "a0e2d6e5234bcfac8a296e5fd70e61ba77e599f2c8fe97075e995fdf74303688",
+      "6674176671": "2b65dbbfffd89eb0e3bf30982de53cd904140c90a75a78f9f0a85d9a74be5db8",
+      "6675310803": "fb01437d219b7beec4d11c568bdbcd6ef0d6debddb0a2711f429f43e847d845e",
+      "6675383985": "3d65caaa7e645404f594fea15b5ef04bdbd86e8ed9f59aa2861574479dbf45a1",
+      "6675593094": "72580d78bbda4faa9167cd063c2ced618269021f742783afee4ef723cd15341f",
+      "6675593994": "a54a3f207716758cb441717bdcd11ded119584dd177ca0add5afe5baeb3ddf59",
+      "6675995279": "12b605234b6241bb2204a8b1156e0d23c76a81ddb2d45ff0717db2e5aae1dcb8",
+      "6675995564": "def674eb55acb1a8af63387a63f9c3db0c4174296550863d98e807b7c0a61866",
+      "6676452107": "d4a7307e97a4fab57cec2ee957f20458fc371a59867a0e5aad9de051a1fdee07",
+      "issue_open-control-stack_280.json": "eeb5c0701d6bd0184ca26764c96d0ce52302e67f1a4a018d6f66dde36b6288b6",
+      "issue_stack-qualification_271.json": "a7d71a4d5aa70f674d6326bfdbac4cc518fc35ff7c220b95e733812aa128972c"
+     },
+     "id": "QA-S3.1",
+     "op": "eq",
+     "pointer": "/sha256",
+     "source": {
+      "kind": "frozen_literal",
+      "text": "sha256 of the exact UTF-8 API body bytes snapshotted 2026-11-06 (INDEX in freeze/snapshots)"
+     }
+    }
+   ],
+   "title": "Frozen contract-comment snapshot bytes"
+  },
+  {
+   "class": "PRE",
+   "entrypoint": "evaluator hash of the retained ZIPs and their members (driver raw capture 'artifact_identity'); read-only, nothing is re-executed",
+   "failure_condition": "any ZIP or C4 member hash differs from the frozen value, or the retained bytes are unavailable (unavailable => INCONCLUSIVE, never PASS)",
+   "id": "QA-E1",
+   "mandatory": true,
+   "mutation": null,
+   "observations": [
+    {
+     "boundary": "artifact_identity",
+     "expected": {
+      "13433583494": "f32b44c1084578983f9b099632b0409a38bd61ccd9bd72c24119f82071404d2a",
+      "13434638870": "5bd4cabe29ae4516aded02b16d3e44bc5583ef80f8e4a3211be1493cc8738477",
+      "13457050500": "d91b5f8d9c01aee985a8e734e7dcac0ad3020fe0e90e660eaa0c9b4f75d3b8ca",
+      "13466861403": "4d9e1c9fdaa85b3cea5bdaefacb22d0173c26f98255ee74ef50bb6cfa3ceaf75",
+      "13472981580": "81ad900b767df6358f7919278207db3dbee4ad4e6633169f7938b07c07543786"
+     },
+     "id": "QA-E1.1",
+     "op": "eq",
+     "pointer": "/zip_sha256",
+     "source": {
+      "kind": "frozen_literal",
+      "text": "GitHub-reported artifact digests for artifacts 13433583494, 13434638870, 13457050500, 13466861403, 13472981580; custody inventory freeze/custody-inventory.json"
+     }
+    },
+    {
+     "boundary": "artifact_identity",
+     "expected": {
+      "boundary-verdicts.json": "351d407a61895f8e6b9893d36d40ad0a4878d8ff46a1f35d34df723d0020bcab",
+      "c4-crosswalk.json": "845d84e264b04ae2b06c78e8912fe7da5ab4a2416f964becb58b61c5f165ad7a",
+      "c4.inputs.am-manifest.json": "789ad39596b9e1ef84a726a671883e1cb6b83343da3a31db0a1120906d68c074",
+      "c4.inputs.proposal.json": "1033c73e7dbe677cc71520711d3aaacb182952e5c12c8eaa489f24be0014cfe2",
+      "c4.n1.cp-record.json": "8b7f5a24a6a2531199b7057de530e0e88db48320ca115ab56d2bc1bfb5592a02",
+      "c4.n1.destination.json": "6ab0f91d2aa00fccd32fee41c93e4bf747d33f6568f3176f5feac8b95864f795",
+      "c4.n1.evidence-pack.json": "d5746ea2ef28a29e9de309dddaa2e4136b591144340d3d7f069e847def2ab21a",
+      "c4.n1.reconstruction-bundle.json": "eeaa9dd6770a1ad818a2829d2aa4668ec214d143382ffb6898ca6b07e2bdf6a1",
+      "c4.n2.mutated-bundle.json": "53bf8034a7070605cf37ad3ba1c998bd1f4174d8b37a53d1c81f80b5681b9507",
+      "c4.p1.cp-record.json": "a708cdc480800c06622c3f91c5420dd44f733dce9a7474eda57a699a578b27d7",
+      "c4.p1.destination.json": "6ab0f91d2aa00fccd32fee41c93e4bf747d33f6568f3176f5feac8b95864f795",
+      "c4.p1.evidence-pack.json": "636504bad16fe3721bd9206cae7e3bffeb337c4c5f3561d65b315abff2de9764",
+      "c4.p1.reconstruction-bundle.json": "93177f40fce63c496d318651a79efb52b4a93d3e2ce04b9425e592a964eee3af",
+      "c4.result.json": "c36a138ad042147fef66e53db300a16b2f8c23e2ca68828d0fe6f656050970a3",
+      "cases.json": "6a32a0ca980293202b393286884e78fbaecf7fcb3abd7fba571ac19cc4168617",
+      "context.json": "7bb2702fe30e742fd6cf9aba5f2a8f4e5bc3df4f31d5f435d71323a956152e22",
+      "evidence-manifest.json": "73c4fc7cc5282b7ac7310e577f8469226f8e53908c88cfc0951e2471033d539d",
+      "limits-L1-L27.json": "cee457193eaa956afe1f39ff9e827c29fe49afec37e9a9ab587c94670d054e86",
+      "n1-hold.result.json": "ff8bd5f0c903fbf1ca2cd609f623bc1088b005213289ff7d6c19272835b0f5f9",
+      "n1.pack-validation-report.json": "cef4cc67435dbebd5c58f10118f0f7ccffecde4d7eb1a690b841949ec316d130",
+      "n2-flip.result.json": "bcadf8a9fc8ba282c0663fc9dbba7e2164114712735e996f8a10b423721c2d68",
+      "oracle.txt": "875ce2d2855c8163adb9ae91de748bb9c52330750f70c37529c1becababd3a11",
+      "p1.pack-validation-report.json": "cd4175039a2008052201ab15152965c3dc4a395583e39df7eb868a1cdc375638",
+      "p1.result.json": "9194fd94772607e6f424756a120015083fa092412a08fd022f8cb69cbddbeec5",
+      "sources.txt": "72e857dc6fb1b4ab620992799e94bd42d5560480131fb56c4e62b5225fba31ef",
+      "tests.json": "8d3b4e8312629fc6301a6a0d6dbf5f91cf0e036ebf1702cc01502089764db8d7",
+      "tests.log": "7bec12fc4d8a8533e9b94b533cbea6c5023f7a22df426da5177ba0fd4d2b53ec"
+     },
+     "id": "QA-E1.2",
+     "op": "eq",
+     "pointer": "/c4_members_sha256",
+     "source": {
+      "kind": "frozen_literal",
+      "text": "sha256 of the 27 members of C4 artifact 13472981580 recomputed from the retained ZIP"
+     }
+    }
+   ],
+   "title": "Retained original developer-artifact bytes (C1-C4 ZIP digests; all C4 members)"
+  },
+  {
+   "class": "CTL",
+   "entrypoint": "AM load_manifest_json/validate_manifest/manifest_digest/proposal_digest/proposal_mismatches; CP BoundedAuthorizationWorkflow.decide; RB import_bounded_workflow; PK import_manifest_reconstruction",
+   "failure_condition": "any observation differs, is missing, or a native call raised",
+   "id": "QA-01",
+   "mandatory": true,
+   "mutation": null,
+   "observations": [
+    {
+     "boundary": "am_validate",
+     "expected": true,
+     "id": "QA-01.1",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 51,
+      "path": "src/agent_action_manifest/validator.py",
+      "text": "valid==True is INFERRED from fixture; rules not exhaustively traced"
+     }
+    },
+    {
+     "boundary": "am_validate",
+     "expected": "sha256:4d1ad6c96bc242c63998231b4df3ad7c86dc2e5e59cdae63afe7bff86e60f6ac",
+     "id": "QA-01.2",
+     "op": "eq",
+     "pointer": "/manifest_digest",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 31,
+      "path": "src/agent_action_manifest/binding.py"
+     }
+    },
+    {
+     "boundary": "am_validate",
+     "expected": "sha256:becaea3f10b5edf56ea181e0cd62793ebe8262238f948fb72dc5c0389c7f8c53",
+     "id": "QA-01.3",
+     "op": "eq",
+     "pointer": "/proposal_digest",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 39,
+      "path": "src/agent_action_manifest/binding.py"
+     }
+    },
+    {
+     "boundary": "am_validate",
+     "expected": 0,
+     "id": "QA-01.4",
+     "op": "len_eq",
+     "pointer": "/proposal_mismatches",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 48,
+      "path": "src/agent_action_manifest/binding.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 1,
+     "id": "QA-01.5",
+     "op": "len_eq",
+     "pointer": "/decisions",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1679,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() appends exactly one decision"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 0,
+     "id": "QA-01.6",
+     "op": "len_eq",
+     "pointer": "/attempts",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1648,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() calls only append_decision (bounded.py:1648-1680)"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 0,
+     "id": "QA-01.7",
+     "op": "len_eq",
+     "pointer": "/observations",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1648,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() calls only append_decision (bounded.py:1648-1680)"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 0,
+     "id": "QA-01.8",
+     "op": "len_eq",
+     "pointer": "/reconciliations",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1648,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() calls only append_decision (bounded.py:1648-1680)"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "id": "QA-01.9",
+     "op": "sha256_format",
+     "pointer": "/decisions/0/effect_id",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 2031,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": {
+      "boundary": "am_validate",
+      "pointer": "/proposal_digest"
+     },
+     "id": "QA-01.10",
+     "op": "eq_ref",
+     "pointer": "/decisions/0/operation_horizon/proposal_commitment",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1339,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": "authorized",
+     "id": "QA-01.11",
+     "op": "eq",
+     "pointer": "/decisions/0/result",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1667,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 0,
+     "id": "QA-01.12",
+     "op": "len_eq",
+     "pointer": "/decisions/0/reasons",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1667,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": {
+      "boundary": "am_validate",
+      "pointer": "/proposal_digest"
+     },
+     "id": "QA-01.13",
+     "op": "eq_ref",
+     "pointer": "/decisions/0/binding/proposal_commitment",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 2523,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": {
+      "boundary": "am_validate",
+      "pointer": "/manifest_digest"
+     },
+     "id": "QA-01.14",
+     "op": "eq_ref",
+     "pointer": "/decisions/0/binding/manifest_digest",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 2643,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": "tenant-alpha",
+     "id": "QA-01.15",
+     "op": "eq",
+     "pointer": "/decisions/0/binding/tenant_id",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 2635,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": "bounded-authorization-effect/0.3-strict-tenant",
+     "id": "QA-01.16",
+     "op": "eq",
+     "pointer": "/decisions/0/binding/generation",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 57,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": "reconstruction_partial",
+     "id": "QA-01.17",
+     "op": "eq",
+     "pointer": "/status",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1247,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "code": "B004"
+     },
+     "id": "QA-01.18",
+     "op": "any_item_matches",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1209,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "code": "B002"
+     },
+     "id": "QA-01.19",
+     "op": "none_item_matches",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1008,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "code": "B005"
+     },
+     "id": "QA-01.20",
+     "op": "none_item_matches",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1080,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": false,
+     "id": "QA-01.21",
+     "op": "eq",
+     "pointer": "/semantics/external_effect_execution",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1253,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": "not_performed",
+     "id": "QA-01.22",
+     "op": "eq",
+     "pointer": "/semantics/destination_observation",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1253,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": false,
+     "id": "QA-01.23",
+     "op": "eq",
+     "pointer": "/semantics/policy_reevaluation",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1253,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "boundary": "cp_record",
+      "pointer": "#raw_sha256"
+     },
+     "id": "QA-01.24",
+     "op": "eq_ref",
+     "pointer": "#input:cp_record",
+     "source": {
+      "kind": "evaluator_relation",
+      "text": "cross-boundary byte/field continuity computed by the evaluator from hash-verified raw files"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 1,
+     "id": "QA-01.25",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_granted_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1157,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.26",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_held_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1157,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.27",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_denied_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1157,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.28",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/control_plane_attempt_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.29",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/executor_attempt_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.30",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/attempt_transition_record_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.31",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/destination_effect_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.32",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/effect_observation_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-01.33",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/reconciliation_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 1,
+     "id": "QA-01.34",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/distinct_effect_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 1,
+     "id": "QA-01.35",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/decision_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "authorized",
+     "id": "QA-01.36",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/authorization",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1146,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "not_evaluated_from_historical_records",
+     "id": "QA-01.37",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/current_permission",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1274,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "no",
+     "id": "QA-01.38",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/execution_attempted",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1274,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "unavailable",
+     "id": "QA-01.39",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/independent_verification",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1274,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "validated_partial",
+     "id": "QA-01.40",
+     "op": "eq",
+     "pointer": "/replay_bundles/0/status",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1031,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "semantically_valid",
+     "id": "QA-01.41",
+     "op": "eq",
+     "pointer": "/replay_bundles/0/validation_status",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1594,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": false,
+     "id": "QA-01.42",
+     "op": "eq",
+     "pointer": "/replay_bundles/0/signed",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1594,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "draft",
+     "id": "QA-01.43",
+     "op": "eq",
+     "pointer": "/review_status",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1594,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": {
+      "boundary": "replay_bundle",
+      "pointer": "#raw_sha256"
+     },
+     "id": "QA-01.44",
+     "op": "eq_ref",
+     "pointer": "#input:replay_bundle",
+     "source": {
+      "kind": "evaluator_relation",
+      "text": "cross-boundary byte/field continuity computed by the evaluator from hash-verified raw files"
+     }
+    }
+   ],
+   "title": "POS control: authorized synthetic action through AM -> CP -> Replay -> Pack (decision-only)"
+  },
+  {
+   "class": "CTL",
+   "entrypoint": "as QA-01 with the subject-owned grant-status input revoked (L26)",
+   "failure_condition": "any observation differs, is missing, a native call raised, or an 'authorized' decision appears downstream",
+   "id": "QA-02",
+   "mandatory": true,
+   "mutation": null,
+   "observations": [
+    {
+     "boundary": "am_validate",
+     "expected": true,
+     "id": "QA-02.1",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 51,
+      "path": "src/agent_action_manifest/validator.py",
+      "text": "valid==True is INFERRED from fixture; rules not exhaustively traced"
+     }
+    },
+    {
+     "boundary": "am_validate",
+     "expected": "sha256:4d1ad6c96bc242c63998231b4df3ad7c86dc2e5e59cdae63afe7bff86e60f6ac",
+     "id": "QA-02.2",
+     "op": "eq",
+     "pointer": "/manifest_digest",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 31,
+      "path": "src/agent_action_manifest/binding.py"
+     }
+    },
+    {
+     "boundary": "am_validate",
+     "expected": "sha256:becaea3f10b5edf56ea181e0cd62793ebe8262238f948fb72dc5c0389c7f8c53",
+     "id": "QA-02.3",
+     "op": "eq",
+     "pointer": "/proposal_digest",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 39,
+      "path": "src/agent_action_manifest/binding.py"
+     }
+    },
+    {
+     "boundary": "am_validate",
+     "expected": 0,
+     "id": "QA-02.4",
+     "op": "len_eq",
+     "pointer": "/proposal_mismatches",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 48,
+      "path": "src/agent_action_manifest/binding.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 1,
+     "id": "QA-02.5",
+     "op": "len_eq",
+     "pointer": "/decisions",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1679,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() appends exactly one decision"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 0,
+     "id": "QA-02.6",
+     "op": "len_eq",
+     "pointer": "/attempts",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1648,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() calls only append_decision (bounded.py:1648-1680)"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 0,
+     "id": "QA-02.7",
+     "op": "len_eq",
+     "pointer": "/observations",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1648,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() calls only append_decision (bounded.py:1648-1680)"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": 0,
+     "id": "QA-02.8",
+     "op": "len_eq",
+     "pointer": "/reconciliations",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1648,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "decide() calls only append_decision (bounded.py:1648-1680)"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "id": "QA-02.9",
+     "op": "sha256_format",
+     "pointer": "/decisions/0/effect_id",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1659,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": {
+      "boundary": "am_validate",
+      "pointer": "/proposal_digest"
+     },
+     "id": "QA-02.10",
+     "op": "eq_ref",
+     "pointer": "/decisions/0/operation_horizon/proposal_commitment",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1339,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": "hold",
+     "id": "QA-02.11",
+     "op": "eq",
+     "pointer": "/decisions/0/result",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1667,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "id": "QA-02.12",
+     "op": "is_null",
+     "pointer": "/decisions/0/binding",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1675,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": "grant_revoked",
+     "id": "QA-02.13",
+     "note": "synthetic revoked grant (L26)",
+     "op": "list_contains",
+     "pointer": "/decisions/0/reasons",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 2432,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": "reconstruction_partial",
+     "id": "QA-02.14",
+     "op": "eq",
+     "pointer": "/status",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1247,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "code": "B004"
+     },
+     "id": "QA-02.15",
+     "op": "any_item_matches",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1209,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "code": "B002"
+     },
+     "id": "QA-02.16",
+     "op": "none_item_matches",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1008,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "code": "B005"
+     },
+     "id": "QA-02.17",
+     "op": "any_item_matches",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1080,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "data": {
+       "result": "hold"
+      },
+      "record_type": "runtime_decision"
+     },
+     "id": "QA-02.18",
+     "op": "any_item_matches",
+     "pointer": "/records",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1028,
+      "path": "src/agent_replay_bundle/importers.py",
+      "text": "runtime_decision record retains the CP result"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "data": {
+       "result": "authorized"
+      },
+      "record_type": "runtime_decision"
+     },
+     "id": "QA-02.19",
+     "op": "none_item_matches",
+     "pointer": "/records",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1028,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": false,
+     "id": "QA-02.20",
+     "op": "eq",
+     "pointer": "/semantics/external_effect_execution",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1253,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": "not_performed",
+     "id": "QA-02.21",
+     "op": "eq",
+     "pointer": "/semantics/destination_observation",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1253,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": false,
+     "id": "QA-02.22",
+     "op": "eq",
+     "pointer": "/semantics/policy_reevaluation",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1253,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "boundary": "cp_record",
+      "pointer": "#raw_sha256"
+     },
+     "id": "QA-02.23",
+     "op": "eq_ref",
+     "pointer": "#input:cp_record",
+     "source": {
+      "kind": "evaluator_relation",
+      "text": "cross-boundary byte/field continuity computed by the evaluator from hash-verified raw files"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.24",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_granted_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1157,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 1,
+     "id": "QA-02.25",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_held_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1157,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.26",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_denied_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1157,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.27",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/control_plane_attempt_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.28",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/executor_attempt_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.29",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/attempt_transition_record_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.30",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/destination_effect_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.31",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/effect_observation_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 0,
+     "id": "QA-02.32",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/reconciliation_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "formula at importer.py:1237-1273; zero values follow from the decide-only CP record"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 1,
+     "id": "QA-02.33",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/distinct_effect_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": 1,
+     "id": "QA-02.34",
+     "op": "int_eq",
+     "pointer": "/metadata/traceable_import/derived_counts/decision_count",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1237,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "held",
+     "id": "QA-02.35",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/authorization",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1146,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "not_evaluated_from_historical_records",
+     "id": "QA-02.36",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/current_permission",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1274,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "no",
+     "id": "QA-02.37",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/execution_attempted",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1274,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "unavailable",
+     "id": "QA-02.38",
+     "op": "eq",
+     "pointer": "/metadata/traceable_import/lifecycle_summary/independent_verification",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1274,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "validated_partial",
+     "id": "QA-02.39",
+     "op": "eq",
+     "pointer": "/replay_bundles/0/status",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1031,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "semantically_valid",
+     "id": "QA-02.40",
+     "op": "eq",
+     "pointer": "/replay_bundles/0/validation_status",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1594,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": false,
+     "id": "QA-02.41",
+     "op": "eq",
+     "pointer": "/replay_bundles/0/signed",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1594,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "draft",
+     "id": "QA-02.42",
+     "op": "eq",
+     "pointer": "/review_status",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1594,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": {
+      "boundary": "replay_bundle",
+      "pointer": "#raw_sha256"
+     },
+     "id": "QA-02.43",
+     "op": "eq_ref",
+     "pointer": "#input:replay_bundle",
+     "source": {
+      "kind": "evaluator_relation",
+      "text": "cross-boundary byte/field continuity computed by the evaluator from hash-verified raw files"
+     }
+    }
+   ],
+   "title": "HOLD control: synthetic revoked grant -> native hold retained downstream (never promoted)"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "PK import_manifest_reconstruction(manifest: dict, reconstruction_bundle: dict)",
+   "failure_condition": "import returns a pack, or raises a different type or message",
+   "id": "QA-03",
+   "mandatory": true,
+   "maps_to": "QA-03",
+   "mutation": [
+    {
+     "object": "HOLD Replay bundle",
+     "op": "replace 'hold' -> 'authorized'",
+     "pointer": "/records/<i>/data/result where records[i].record_type=='runtime_decision'"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_import",
+     "expected": "agent_governance_evidence_pack.importer.ImportContractError",
+     "id": "QA-03.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1061,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack_import",
+     "expected": "is authorized but has no binding",
+     "id": "QA-03.2",
+     "op": "raised_message_contains",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1061,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    }
+   ],
+   "paired_control": "QA-02",
+   "title": "Held-to-authorized flip in the persisted Replay bundle is refused by the Pack"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "PK import_manifest_reconstruction",
+   "failure_condition": "import succeeds, or a different type or message",
+   "id": "QA-05",
+   "mandatory": true,
+   "maps_to": "QA-05",
+   "mutation": [
+    {
+     "object": "HOLD Replay bundle",
+     "op": "remove",
+     "pointer": "/records/<i> where record_type=='runtime_decision'"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_import",
+     "expected": "agent_governance_evidence_pack.importer.ImportContractError",
+     "id": "QA-05.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 701,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack_import",
+     "expected": "reconstruction bundle must retain at least one runtime_decision",
+     "id": "QA-05.2",
+     "op": "raised_message_equals",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 701,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    }
+   ],
+   "paired_control": "QA-02",
+   "title": "Persisted bundle with no runtime_decision record is refused by the Pack"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "AM binding.proposal_mismatches(manifest, proposal); CP BoundedAuthorizationWorkflow.decide(proposal)",
+   "failure_condition": "AM list lacks the code or has extras; CP result is not hold, a binding is present, or the code is absent",
+   "id": "QA-08",
+   "mandatory": true,
+   "maps_to": "QA-08",
+   "mutation": [
+    {
+     "object": "proposal",
+     "op": "change one hex character of the 64-hex tail",
+     "pointer": "/manifest_digest"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "am_bind",
+     "expected": [
+      "manifest_digest_mismatch"
+     ],
+     "id": "QA-08.1",
+     "op": "seq_eq",
+     "pointer": "/proposal_mismatches",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 62,
+      "path": "src/agent_action_manifest/binding.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": "hold",
+     "id": "QA-08.2",
+     "op": "eq",
+     "pointer": "/decisions/0/result",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 2678,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "id": "QA-08.3",
+     "op": "is_null",
+     "pointer": "/decisions/0/binding",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1675,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    },
+    {
+     "boundary": "cp_record",
+     "expected": "manifest_digest_mismatch",
+     "id": "QA-08.4",
+     "op": "list_contains",
+     "pointer": "/decisions/0/reasons",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 2678,
+      "path": "src/agent_control_plane/bounded.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Proposal manifest_digest mismatch: AM reports it; CP holds with manifest_digest_mismatch"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "RB import_bounded_workflow(cp_record, proposal=<mutated>, control_plane_revision=<CP pin>)",
+   "failure_condition": "import returns a bundle, or a different type or message",
+   "id": "QA-10",
+   "mandatory": true,
+   "maps_to": "QA-10",
+   "mutation": [
+    {
+     "object": "proposal passed to Replay",
+     "op": "replace 'tenant-alpha' -> 'tenant-beta'",
+     "pointer": "/tenant_id"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "replay_import",
+     "expected": "agent_replay_bundle.importers.ImportContractError",
+     "id": "QA-10.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 264,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_import",
+     "expected": "binding.proposal_commitment conflicts with committed operation",
+     "id": "QA-10.2",
+     "op": "raised_message_contains",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 264,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Tenant substitution on an authorized record is refused by Replay"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "RB import_bounded_workflow(..., control_plane_revision=<unknown 40-hex>)",
+   "failure_condition": "import returns a bundle, or a different type or message",
+   "id": "QA-12",
+   "mandatory": true,
+   "maps_to": "QA-12",
+   "mutation": [
+    {
+     "object": "call argument",
+     "op": "replace with an unsupported 40-hex string",
+     "pointer": "control_plane_revision"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "replay_import",
+     "expected": "agent_replay_bundle.importers.ImportContractError",
+     "id": "QA-12.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 847,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_import",
+     "expected": "unsupported Control Plane revision",
+     "id": "QA-12.2",
+     "op": "raised_message_equals",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 847,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Unsupported Control Plane revision label is refused by Replay"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "PK load_evidence_pack(path) then validate_evidence_pack(pack) on the persisted, mutated Pack",
+   "failure_condition": "report.valid is True, or no E_TRACE_SEMANTICS error issue at metadata.traceable_import",
+   "id": "QA-16",
+   "mandatory": true,
+   "maps_to": "QA-16",
+   "mutation": [
+    {
+     "object": "persisted POS Pack",
+     "op": "replace 0 -> 1",
+     "pointer": "/metadata/traceable_import/derived_counts/destination_effect_count"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_validation",
+     "expected": false,
+     "id": "QA-16.1",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 507,
+      "path": "src/agent_governance_evidence_pack/validator.py"
+     }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": {
+      "code": "E_TRACE_SEMANTICS",
+      "path": "metadata.traceable_import",
+      "severity": "error"
+     },
+     "id": "QA-16.2",
+     "op": "any_item_matches",
+     "pointer": "/issues",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 507,
+      "path": "src/agent_governance_evidence_pack/validator.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Falsified zero-effect count in the persisted Pack is detected by the Pack validator"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "PK load_evidence_pack(path) then validate_evidence_pack(pack) on the persisted, mutated Pack",
+   "failure_condition": "report.valid is True, or no E_TRACE_SEMANTICS error issue at metadata.traceable_import",
+   "id": "QA-27",
+   "mandatory": true,
+   "maps_to": "QA-27",
+   "mutation": [
+    {
+     "object": "persisted HOLD Pack",
+     "op": "1 -> 0",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_held_count"
+    },
+    {
+     "object": "persisted HOLD Pack",
+     "op": "0 -> 1",
+     "pointer": "/metadata/traceable_import/derived_counts/authorization_granted_count"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_validation",
+     "expected": false,
+     "id": "QA-27.1",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 507,
+      "path": "src/agent_governance_evidence_pack/validator.py"
+     }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": {
+      "code": "E_TRACE_SEMANTICS",
+      "path": "metadata.traceable_import",
+      "severity": "error"
+     },
+     "id": "QA-27.2",
+     "op": "any_item_matches",
+     "pointer": "/issues",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 507,
+      "path": "src/agent_governance_evidence_pack/validator.py"
+     }
+    }
+   ],
+   "paired_control": "QA-02",
+   "title": "Falsified authorization counters in the persisted HOLD Pack are detected by the Pack validator"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "PK import_manifest_reconstruction",
+   "failure_condition": "import succeeds, or a different type or message",
+   "id": "QA-18",
+   "mandatory": true,
+   "maps_to": "QA-18",
+   "mutation": [
+    {
+     "object": "persisted Replay bundle",
+     "op": "replace 'reconstruction_partial' -> 'reconstruction_complete'",
+     "pointer": "/status"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_import",
+     "expected": "agent_governance_evidence_pack.importer.ImportContractError",
+     "id": "QA-18.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1017,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack_import",
+     "expected": "retained Replay status differs from accepted reconstruction",
+     "id": "QA-18.2",
+     "op": "raised_message_contains",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1017,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Partial reconstruction relabelled complete is refused by the Pack"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "AM load_manifest(path)",
+   "failure_condition": "a manifest is returned, or a different type or message",
+   "id": "QA-19",
+   "mandatory": true,
+   "maps_to": "QA-19",
+   "mutation": [
+    {
+     "object": "manifest fixture path in scratch",
+     "op": "delete",
+     "pointer": "file"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "am_load",
+     "expected": "agent_action_manifest.loader.ManifestLoadError",
+     "id": "QA-19.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 46,
+      "path": "src/agent_action_manifest/loader.py"
+     }
+    },
+    {
+     "boundary": "am_load",
+     "expected": "Manifest file not found:",
+     "id": "QA-19.2",
+     "op": "raised_message_contains",
+     "source": {
+      "commit": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+      "component": "AM",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 46,
+      "path": "src/agent_action_manifest/loader.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Missing manifest file fails closed in the Action Manifest loader"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "PK import_manifest_reconstruction with a scratch git checkout of Replay carrying a one-byte change",
+   "failure_condition": "import succeeds with the modified Replay file, or a different type or message",
+   "id": "QA-22",
+   "mandatory": true,
+   "maps_to": "QA-22",
+   "mutation": [
+    {
+     "object": "scratch Replay checkout",
+     "op": "change one byte",
+     "pointer": "any tracked *.py"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_import",
+     "expected": "agent_governance_evidence_pack.importer.ImportContractError",
+     "id": "QA-22.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 974,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    },
+    {
+     "boundary": "pack_import",
+     "expected": "is not the pinned revision 93a76e281fcae6a65d2cd1d35376f87442dafb95",
+     "id": "QA-22.2",
+     "op": "raised_message_contains",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 974,
+      "path": "src/agent_governance_evidence_pack/importer.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Modified Replay checkout is refused by the Pack's native pin check"
+  },
+  {
+   "class": "RI",
+   "entrypoint": "RB import_bounded_workflow(cp_record, proposal=proposal, control_plane_revision=<CP pin>)",
+   "failure_condition": "import returns a bundle, or a different type or message",
+   "id": "QA-25",
+   "mandatory": true,
+   "maps_to": "QA-25",
+   "mutation": [
+    {
+     "object": "POS CP record",
+     "op": "append a deep copy of /decisions/0",
+     "pointer": "/decisions"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "replay_import",
+     "expected": "agent_replay_bundle.importers.ImportContractError",
+     "id": "QA-25.1",
+     "op": "raised_type",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1078,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    },
+    {
+     "boundary": "replay_import",
+     "expected": "single-proposal importer does not support multiple authorization bindings",
+     "id": "QA-25.2",
+     "op": "raised_message_equals",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1078,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    }
+   ],
+   "paired_control": "QA-01",
+   "title": "Duplicate authorization binding in the CP record is refused by Replay"
+  },
+  {
+   "class": "OBS",
+   "entrypoint": "AM binding.manifest_digest(manifest) vs evaluator canonical sha256 of the raw dict (CP bounded.py:84-97 basis)",
+   "failure_condition": "full-manifest digests differ, or reduced-manifest digests are equal (the limitation changed: new oracle version required)",
+   "id": "QA-09",
+   "mandatory": true,
+   "maps_to": "QA-09",
+   "mutation": [
+    {
+     "object": "manifest fixture",
+     "op": "omit",
+     "pointer": "/metadata"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "digest_full",
+     "expected": {
+      "boundary": "digest_full",
+      "pointer": "/raw_commitment"
+     },
+     "id": "QA-09.1",
+     "note": "populated fixture: bases agree",
+     "op": "eq_ref",
+     "pointer": "/am_digest",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L15",
+      "text": "Hub #280 OPEN"
+     }
+    },
+    {
+     "boundary": "digest_reduced",
+     "expected": {
+      "boundary": "digest_reduced",
+      "pointer": "/raw_commitment"
+     },
+     "id": "QA-09.2",
+     "note": "reduced manifest: bases diverge",
+     "op": "ne_ref",
+     "pointer": "/am_digest",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L15",
+      "text": "Hub #280 OPEN"
+     }
+    }
+   ],
+   "reason": "Hub #280 is OPEN; the divergence is a preserved known limitation, not a required invariant",
+   "title": "OBS Hub#280: AM digest basis differs from the raw-dict basis when an optional manifest field is omitted"
+  },
+  {
+   "class": "OBS",
+   "entrypoint": "RB import_bounded_workflow(hold_record, proposal=<tenant swapped>, control_plane_revision=<CP pin>)",
+   "failure_condition": "Replay refuses the swapped proposal on a HOLD record (the limitation changed: new oracle version required)",
+   "id": "QA-11",
+   "mandatory": true,
+   "maps_to": "QA-11",
+   "mutation": [
+    {
+     "object": "proposal passed to Replay",
+     "op": "replace 'tenant-alpha' -> 'tenant-beta'; keep run_id unchanged (a differing run_id raises, importers.py~1005)",
+     "pointer": "/tenant_id"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "replay_import",
+     "id": "QA-11.1",
+     "op": "returned",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L22",
+      "text": "Replay does not bind a held record to the supplied proposal, tenant, action or correlation"
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": "reconstruction_partial",
+     "id": "QA-11.2",
+     "op": "eq",
+     "pointer": "/status",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1045,
+      "path": "src/agent_replay_bundle/importers.py",
+      "text": "proposal/tenant binding checks run only inside isinstance(binding, dict) (~1045-1054); the horizon check (refusal_evidence.py:192-200,214) compares only to the record's own binding, null for a hold. Residual INFERRED: the hold record must itself pass validate_run (fixture-dependent)."
+     }
+    },
+    {
+     "boundary": "replay_bundle",
+     "expected": {
+      "code": "B005"
+     },
+     "id": "QA-11.3",
+     "op": "any_item_matches",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1080,
+      "path": "src/agent_replay_bundle/importers.py"
+     }
+    }
+   ],
+   "reason": "L22 is a documented known limitation; no refusal is natively specified",
+   "title": "OBS L22: a held record is not bound to the supplied proposal/tenant"
+  },
+  {
+   "class": "OBS",
+   "entrypoint": "PK import_manifest_reconstruction on the bundle with bundle_id replaced; validate_evidence_pack",
+   "failure_condition": "the Pack refuses the re-identified bundle (the limitation changed: new oracle version required)",
+   "id": "QA-17",
+   "mandatory": true,
+   "maps_to": "QA-17",
+   "mutation": [
+    {
+     "object": "persisted Replay bundle",
+     "op": "replace with the fixed value 00000000-0000-4000-8000-0000000000a1",
+     "pointer": "/bundle_id"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_import",
+     "id": "QA-17.1",
+     "op": "returned",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L7",
+      "text": "no signature, custody or origin anchor"
+     }
+    },
+    {
+     "boundary": "pack",
+     "expected": "00000000-0000-4000-8000-0000000000a1",
+     "id": "QA-17.2",
+     "op": "eq",
+     "pointer": "/replay_bundles/0/bundle_id",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1588,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "bundle_id is read once and copied to replay_bundles[0].bundle_id; PK importer.py:1027-1040 compares neither bundle_id nor generated_at"
+     }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": true,
+     "id": "QA-17.3",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L11",
+      "text": "valid=True means internally consistent only"
+     }
+    },
+    {
+     "boundary": "pack_validation",
+     "expected": {
+      "severity": "error"
+     },
+     "id": "QA-17.4",
+     "op": "none_item_matches",
+     "pointer": "/issues",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L19",
+      "text": "no CP-record hash in the Pack"
+     }
+    }
+   ],
+   "reason": "no native refusal exists; preserves that Q-C (authenticated provenance) is not achieved",
+   "title": "OBS L7/L8/L19: a coherent re-identification of a persisted bundle is accepted (no external trust anchor)"
+  },
+  {
+   "class": "OBS",
+   "entrypoint": "PK import_manifest_reconstruction called twice on identical inputs",
+   "failure_condition": "the second import is refused or yields different stable counts (the limitation changed: new oracle version required)",
+   "id": "QA-26",
+   "mandatory": true,
+   "maps_to": "QA-26",
+   "mutation": [
+    {
+     "object": "inputs",
+     "op": "deliver twice",
+     "pointer": "-"
+    }
+   ],
+   "observations": [
+    {
+     "boundary": "pack_first",
+     "id": "QA-26.1",
+     "op": "returned",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L14",
+      "text": "replay/redelivery are not defended"
+     }
+    },
+    {
+     "boundary": "pack_second",
+     "id": "QA-26.2",
+     "op": "returned",
+     "source": {
+      "kind": "frozen_limit",
+      "limit_id": "L14",
+      "text": "replay/redelivery are not defended"
+     }
+    },
+    {
+     "boundary": "pack_second",
+     "expected": {
+      "boundary": "pack_first",
+      "pointer": ""
+     },
+     "id": "QA-26.3",
+     "op": "eq_ref",
+     "pointer": "",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "SOURCE-READ",
+      "kind": "native_source",
+      "line": 1590,
+      "path": "src/agent_governance_evidence_pack/importer.py",
+      "text": "pack_id is a content hash and generated_at is copied from the bundle; no module-level state, cache, nonce or registry exists (A2 survey of importer/validator/admission/freshness), so redelivery yields a fully equal dump"
+     }
+    }
+   ],
+   "reason": "no native replay defence exists; preserved as a known limit",
+   "title": "OBS L14/L24: identical redelivery is accepted twice (no replay defence)"
+  },
+  {
+   "class": "OBS",
+   "entrypoint": "projections of the QA-01/QA-02 native outputs",
+   "failure_condition": "any exact form differs (record as drift; never re-baseline silently)",
+   "id": "QA-OBS-EXACT",
+   "mandatory": true,
+   "maps_to": "O-CP3/O-RB2/O-RB3/O-PK2c/O-PK5",
+   "mutation": null,
+   "observations": [
+    {
+     "boundary": "cp_pos",
+     "expected": [],
+     "id": "QA-OBS-EXACT.1",
+     "op": "seq_eq",
+     "pointer": "/decisions/0/reasons",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1667,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "source guarantees only that authorized => no reasons"
+     }
+    },
+    {
+     "boundary": "cp_hold",
+     "expected": [
+      "grant_revoked"
+     ],
+     "id": "QA-OBS-EXACT.2",
+     "op": "seq_eq",
+     "pointer": "/decisions/0/reasons",
+     "source": {
+      "commit": "484fdbd297235dd24148ddb0703f2055a31eabff",
+      "component": "CP",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 2432,
+      "path": "src/agent_control_plane/bounded.py",
+      "text": "source gives membership only; exact [grant_revoked] is an observation"
+     }
+    },
+    {
+     "boundary": "rb_pos",
+     "expected": 1,
+     "id": "QA-OBS-EXACT.3",
+     "op": "len_eq",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1209,
+      "path": "src/agent_replay_bundle/importers.py",
+      "text": "exact finding set not source-guaranteed"
+     }
+    },
+    {
+     "boundary": "rb_hold",
+     "expected": 2,
+     "id": "QA-OBS-EXACT.4",
+     "op": "len_eq",
+     "pointer": "/import_reports/0/findings",
+     "source": {
+      "commit": "93a76e281fcae6a65d2cd1d35376f87442dafb95",
+      "component": "RB",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 1080,
+      "path": "src/agent_replay_bundle/importers.py",
+      "text": "exact finding set not source-guaranteed"
+     }
+    },
+    {
+     "boundary": "pk_val_pos",
+     "expected": true,
+     "id": "QA-OBS-EXACT.5",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "validator rules not fully traced"
+     }
+    },
+    {
+     "boundary": "pk_val_pos",
+     "expected": {
+      "severity": "error"
+     },
+     "id": "QA-OBS-EXACT.6",
+     "op": "none_item_matches",
+     "pointer": "/issues",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py"
+     }
+    },
+    {
+     "boundary": "pk_val_hold",
+     "expected": true,
+     "id": "QA-OBS-EXACT.7",
+     "op": "eq",
+     "pointer": "/valid",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py",
+      "text": "absence of a rejecting rule; acceptance of HOLD evidence import is NOT acceptance of the refused action"
+     }
+    },
+    {
+     "boundary": "pk_val_hold",
+     "expected": {
+      "severity": "error"
+     },
+     "id": "QA-OBS-EXACT.8",
+     "op": "none_item_matches",
+     "pointer": "/issues",
+     "source": {
+      "commit": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+      "component": "PK",
+      "confidence": "INFERRED",
+      "kind": "native_source",
+      "line": 58,
+      "path": "src/agent_governance_evidence_pack/validator.py"
+     }
+    }
+   ],
+   "reason": "source supports membership/absence of a rule, not these exact forms",
+   "title": "OBS exact-form pins that source does not guarantee (membership only in source)"
+  },
+  {
+   "class": "INFO",
+   "entrypoint": "n/a",
+   "failure_condition": "not executed",
+   "id": "QA-I1",
+   "mandatory": false,
+   "mutation": "",
+   "observations": [],
+   "reason": "Architect D9: informational; mutation byte unspecified; largely covered by QA-08/QA-09",
+   "title": "N3-GATE (contract gate; mutated byte unspecified)"
+  },
+  {
+   "class": "INFO",
+   "entrypoint": "n/a",
+   "failure_condition": "not executed",
+   "id": "QA-I2",
+   "mandatory": false,
+   "mutation": "",
+   "observations": [],
+   "reason": "Architect D9: informational; native outcome not derived (Pack importer.py:1039,1075,1084 are proposal-conditioned)",
+   "title": "QA-21 delete runtime_proposal at Pack level"
+  },
+  {
+   "class": "NA",
+   "entrypoint": "n/a",
+   "failure_condition": "n/a",
+   "id": "QA-14",
+   "mandatory": false,
+   "mutation": "",
+   "observations": [],
+   "reason": "No native boundary on the C4 chain parses persisted bundle JSON text: Pack import_manifest_reconstruction takes parsed dicts (importer.py:1579-1581, 332-335) and the C4 harness parses with its own subject-owned parser (real_c4.py:131-149). Off-path native text parsers (Pack admission.loads; Replay ingress.load_json_bounded) are outside the C4 chain and outside Q-A.",
+   "title": "Corrupted persisted bundle bytes (invalid JSON)"
+  }
+ ],
+ "claim": "Internal nonproduction Q-A: decision-only, synthetic, source-pinned composition for the fully populated frozen Manifest 1.1 fixture. Gated by PRE/CTL/RI cases only. OBS results validate no security property. Not independent qualification; L1-L27 and the provisional Pack-Replay development pin remain.",
+ "exclusions": [
+  {
+   "category": "redundant",
+   "id": "QA-04",
+   "reason": "coordinated flip hits the same Pack retained-field equality (importer.py:1012-1017) as QA-18; that check is a consistency re-derivation, not tamper evidence (RI-WEAK)"
+  },
+  {
+   "category": "redundant",
+   "id": "QA-06",
+   "reason": "edited hold reasons: covered by L22/L25 inventory and QA-11; no native refusal"
+  },
+  {
+   "category": "redundant",
+   "id": "QA-07",
+   "reason": "stripping the binding from an authorized decision is the same Pack predicate (importer.py:1059-1061) as QA-03"
+  },
+  {
+   "category": "deferred",
+   "id": "QA-13",
+   "reason": "caller-asserted revision label (L10); unconfirmed native check"
+  },
+  {
+   "category": "deferred",
+   "id": "QA-15",
+   "reason": "valid-JSON edit of a persisted bundle field: no native digest applied (L19); evaluator hash comparison is covered by QA-S2/QA-E1"
+  },
+  {
+   "category": "deferred",
+   "id": "QA-20",
+   "reason": "Replay import without proposal only warns (B002); outside minimum claim"
+  },
+  {
+   "category": "deferred",
+   "id": "QA-23",
+   "reason": "wrong tenant at decide: tenant integrity at the Replay boundary is covered by QA-10; CP-boundary variant deferred"
+  },
+  {
+   "category": "outside Q-A",
+   "id": "QA-24",
+   "reason": "freshness/custody/authenticated origin are Q-C (L7-L9); no native check"
+  },
+  {
+   "category": "deferred",
+   "id": "effect_id differs by verdict (L23)",
+   "reason": "literal effect_id values are observation-derived; only sha256 format and horizon-commitment continuity are asserted"
+  },
+  {
+   "category": "evaluator property",
+   "id": "false-PASS, zero-case and skipped-case detection",
+   "reason": "tested by self-tests EST-06/EST-08/EST-11 and engine guards, not by a subject case"
+  },
+  {
+   "category": "outside Q-A",
+   "id": "wrong-owner representation",
+   "reason": "no native semantics"
+  }
+ ],
+ "notes": "Oracle expectations derive from native source at the pinned commits (file:line in each observation) and the Architect D4 pins; never from real_c4.py, c4_hosted_check.py, builder verdict summaries or expected-result tables. Allowed-native-call names are reconciled with the runner at the D6 demonstration.",
+ "oracle_version": "internal-a-oracle/1.0.0-draft",
+ "profile": "Q-A-internal-nonproduction",
+ "schema": "ia-oracle/1",
+ "subject": {
+  "commits": {
+   "action_manifest": "fa170815ef96a54c233d0dd9da821b60debabf8b",
+   "control_plane": "484fdbd297235dd24148ddb0703f2055a31eabff",
+   "evidence_pack": "065150852cc2a8abeb748777bb69d72ccd0e03d8",
+   "orchestrator": "1504cf409fa352305d3fced589a0ad9e166819ec",
+   "replay_bundle": "93a76e281fcae6a65d2cd1d35376f87442dafb95"
+  },
+  "constitution_reference": "1c2e920f4e58e07a52e8e2408a506cf7dbc1292b (adoption UNVERIFIED)",
+  "manifest_fixture_sha256": "789ad39596b9e1ef84a726a671883e1cb6b83343da3a31db0a1120906d68c074",
+  "proposal_fixture_sha256": "1033c73e7dbe677cc71520711d3aaacb182952e5c12c8eaa489f24be0014cfe2",
+  "trees": {
+   "action_manifest": "3b0e3772e944aa668c8f4b879588c7cc3e2c32be",
+   "control_plane": "c182939882103015f12c5360fccf377c54e2c4f9",
+   "evidence_pack": "fe428a89da2e74346648cdfe014462ddc8624c77",
+   "orchestrator": "4ac4e026648c2adda9836e366ffce9ca3d142da8",
+   "replay_bundle": "aca6e6b8bdd33d51db3b34bc0c75eff93b9ff88f"
+  }
+ }
+}

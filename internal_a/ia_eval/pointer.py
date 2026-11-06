@@ -26,7 +26,7 @@ def resolve(doc, pointer):
                 return MISSING
             cur = cur[seg]
         elif isinstance(cur, list):
-            if not seg.isdigit() or (len(seg) > 1 and seg[0] == "0"):
+            if not (seg.isascii() and seg.isdigit()) or (len(seg) > 1 and seg[0] == "0"):
                 return MISSING
             i = int(seg)
             if i >= len(cur):
