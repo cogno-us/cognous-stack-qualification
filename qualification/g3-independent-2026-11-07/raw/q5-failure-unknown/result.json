@@ -1,0 +1,568 @@
+{
+  "case": "q5-failure-unknown",
+  "checks": {
+    "adverse_evidence_retained": false,
+    "no_ack_or_execution_claim": true,
+    "no_duplicate_dispatch": true,
+    "no_retry_or_reconcile": true,
+    "one_attempt": true,
+    "one_committed_effect": false,
+    "unknown_result": true
+  },
+  "observations": {
+    "database": {
+      "exists": true,
+      "schema": {
+        "attempt_events": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "event_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "INTEGER"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "attempt_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "status",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "error",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "created_at",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ],
+        "attempts": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "attempt_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "effect_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "decision_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "operation_digest",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "created_at",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ],
+        "effective_grants_v1": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "grant_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "principal",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "digest",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "derivation",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "status",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 5,
+            "dflt_value": null,
+            "name": "permissions_json",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          }
+        ],
+        "effects": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "effect_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "operation_digest",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "grant_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "target",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "amount",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          },
+          {
+            "cid": 5,
+            "dflt_value": null,
+            "name": "unit",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 6,
+            "dflt_value": null,
+            "name": "payload_json",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 7,
+            "dflt_value": null,
+            "name": "state",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          }
+        ],
+        "failure_records_v1": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "failure_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "decision_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "effect_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "attempt_id",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "proposal_commitment",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 5,
+            "dflt_value": null,
+            "name": "manifest_version",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 6,
+            "dflt_value": null,
+            "name": "manifest_digest",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 7,
+            "dflt_value": null,
+            "name": "grant_id",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 8,
+            "dflt_value": null,
+            "name": "grant_revision",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 9,
+            "dflt_value": null,
+            "name": "failure_class",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 10,
+            "dflt_value": null,
+            "name": "reason_code",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 11,
+            "dflt_value": null,
+            "name": "stage",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 12,
+            "dflt_value": null,
+            "name": "detail",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 13,
+            "dflt_value": null,
+            "name": "created_at",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ]
+      },
+      "tables": {
+        "attempt_events": [
+          {
+            "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+            "created_at": 1794084350.2489767,
+            "error": null,
+            "event_id": 1,
+            "status": "attempted"
+          },
+          {
+            "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+            "created_at": 1794084350.2495685,
+            "error": "OSError",
+            "event_id": 2,
+            "status": "denied"
+          },
+          {
+            "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+            "created_at": 1794084350.260815,
+            "error": "OSError",
+            "event_id": 3,
+            "status": "unknown"
+          }
+        ],
+        "attempts": [
+          {
+            "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+            "created_at": 1794084350.24813,
+            "decision_id": "8ebc63d6-89f7-4e13-ae0f-b3f026237575",
+            "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+            "operation_digest": "sha256:9a03812fe8321662c5301deb19062774e745764e629c8449e6b509255629990a"
+          }
+        ],
+        "effective_grants_v1": [
+          {
+            "derivation": "effective-grant/0.1",
+            "digest": "sha256:5c5ae3fa1b16c916bafe51d1f5b8bfab747727577fe3e81a55cf2ef58e6340be",
+            "grant_id": "urn:cognous:authority:g2-synthetic-refund-root-1",
+            "permissions_json": "[\"refund.issue.routine\"]",
+            "principal": "urn:cognous:principal:refund-service",
+            "status": "active"
+          }
+        ],
+        "effects": [],
+        "failure_records_v1": []
+      }
+    },
+    "dispatch_invocations": 1,
+    "fixture_transform": {
+      "delta_seconds": 2782800,
+      "from": "2026-10-05T19:00:00+00:00",
+      "kind": "uniform timestamp shift",
+      "to": "2026-11-07T00:00:00+00:00"
+    },
+    "independent_operation_digest": "sha256:9a03812fe8321662c5301deb19062774e745764e629c8449e6b509255629990a",
+    "injection": {
+      "calls": 3,
+      "error": "injected post-dispatch observation unavailable",
+      "point": "EffectiveGrantDestination.observe_bound after first call"
+    },
+    "reconciliation_invocations_after_result": 0,
+    "runtime_export": {
+      "attempt_events": [
+        {
+          "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+          "created_at": 1794084350.2489767,
+          "error": null,
+          "event_id": 1,
+          "status": "attempted"
+        },
+        {
+          "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+          "created_at": 1794084350.2495685,
+          "error": "OSError",
+          "event_id": 2,
+          "status": "denied"
+        },
+        {
+          "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+          "created_at": 1794084350.260815,
+          "error": "OSError",
+          "event_id": 3,
+          "status": "unknown"
+        }
+      ],
+      "attempt_identity": {
+        "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+        "namespace": "executor",
+        "owner": "cogno-us/moltbot-safe"
+      },
+      "attempts": [
+        {
+          "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+          "created_at": 1794084350.24813,
+          "decision_id": "8ebc63d6-89f7-4e13-ae0f-b3f026237575",
+          "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+          "operation_digest": "sha256:9a03812fe8321662c5301deb19062774e745764e629c8449e6b509255629990a"
+        }
+      ],
+      "control_plane_attempts": [
+        {
+          "acknowledgement": {},
+          "attempt_id": "0d1eba38-7280-4069-a798-b29c49ede3aa",
+          "decision_id": "8ebc63d6-89f7-4e13-ae0f-b3f026237575",
+          "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+          "error": "destination_outcome_unknown:PermissionError",
+          "started_at": "2026-11-07T00:00:00+00:00",
+          "status": "unknown",
+          "time_source": "test_override"
+        }
+      ],
+      "control_plane_evidence": {
+        "attempt": {
+          "acknowledgement": {},
+          "attempt_id": "0d1eba38-7280-4069-a798-b29c49ede3aa",
+          "decision_id": "8ebc63d6-89f7-4e13-ae0f-b3f026237575",
+          "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+          "error": "destination_outcome_unknown:PermissionError",
+          "started_at": "2026-11-07T00:00:00+00:00",
+          "status": "unknown",
+          "time_source": "test_override"
+        },
+        "reconciliation": {
+          "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+          "evaluation_time": "2026-11-07T00:00:00+00:00",
+          "observation": null,
+          "observation_accepted": false,
+          "observation_clock_tolerance_seconds": 5,
+          "observation_max_age_seconds": 300,
+          "reasons": [
+            "observation_unavailable:OSError"
+          ],
+          "reconciled_at": "2026-11-07T00:00:00+00:00",
+          "result": "hold",
+          "retry_eligible": false
+        }
+      },
+      "effects": [],
+      "execution_envelope": {
+        "attempt_id": null,
+        "decision_id": "8ebc63d6-89f7-4e13-ae0f-b3f026237575",
+        "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+        "operation": {
+          "action_id": "urn:cognous:action:refund-issue-routine-v1",
+          "actor": "urn:cognous:identity:refund-agent-1",
+          "adapter_id": "urn:cognous:adapter:synthetic-refund-v1",
+          "amount": 50.0,
+          "authority_context_id": "urn:cognous:alvorada:public-stack-profile:0.1.0",
+          "authority_domain": "customer-refunds",
+          "effective_max_effects": 1,
+          "effects": 1,
+          "grant_id": "urn:cognous:authority:g2-synthetic-refund-root-1",
+          "grant_revision": "r1",
+          "institution_id": "urn:cognous:institution:synthetic-customer-service",
+          "manifest_digest": "sha256:4d1ad6c96bc242c63998231b4df3ad7c86dc2e5e59cdae63afe7bff86e60f6ac",
+          "manifest_id": "refund-integration-pilot-v1",
+          "manifest_version": "1.1",
+          "payload": {
+            "customer_id": "customer-001",
+            "refund_reason": "duplicate"
+          },
+          "payload_commitment": "sha256:6b782ebbcc034edeca4069b31aa4d8cbc9d3eeaf3b2034ab989bb430de962c0e",
+          "principal": "urn:cognous:principal:refund-service",
+          "proposal_commitment": "sha256:ee416377e21629d8991704004132439dfde924a6de70455536dcd677bf5f1a7f",
+          "requested_permissions": [
+            "refund.issue.routine"
+          ],
+          "requirement_id": "urn:cognous:authority-requirement:refund-routine-v1",
+          "target": "urn:cognous:synthetic-account:customer-001",
+          "tenant_id": "tenant-alpha",
+          "unit": "USD"
+        },
+        "version": "0.2.0"
+      },
+      "execution_result": {
+        "acknowledged": false,
+        "attempt_id": "1c4f49bb-a615-469d-bb48-0852ad6052f5",
+        "attempted": true,
+        "control_plane_evidence": {
+          "attempt": {
+            "acknowledgement": {},
+            "attempt_id": "0d1eba38-7280-4069-a798-b29c49ede3aa",
+            "decision_id": "8ebc63d6-89f7-4e13-ae0f-b3f026237575",
+            "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+            "error": "destination_outcome_unknown:PermissionError",
+            "started_at": "2026-11-07T00:00:00+00:00",
+            "status": "unknown",
+            "time_source": "test_override"
+          },
+          "reconciliation": {
+            "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+            "evaluation_time": "2026-11-07T00:00:00+00:00",
+            "observation": null,
+            "observation_accepted": false,
+            "observation_clock_tolerance_seconds": 5,
+            "observation_max_age_seconds": 300,
+            "reasons": [
+              "observation_unavailable:OSError"
+            ],
+            "reconciled_at": "2026-11-07T00:00:00+00:00",
+            "result": "hold",
+            "retry_eligible": false
+          }
+        },
+        "decision_id": "8ebc63d6-89f7-4e13-ae0f-b3f026237575",
+        "effect_id": "sha256:34d2eacdbacac12bdb3fb533b6d3444b480b31d4bf109df3e769258be194048c",
+        "error": "destination_outcome_unknown:PermissionError",
+        "newly_executed": false,
+        "observation": null,
+        "observed_state": "unknown",
+        "status": "unknown"
+      },
+      "observations": [],
+      "producer_profile": {
+        "execution_envelope_version": "0.2.0",
+        "profile_id": "urn:cognous:profiles:moltbot-safe-executor-producer",
+        "profile_version": "2.0.0"
+      },
+      "provenance": {
+        "independently_established": [],
+        "meaning": "source_asserted values are emitted by the producer/caller; this export does not independently establish repository provenance",
+        "source_asserted": {
+          "producer_profile_id": "urn:cognous:profiles:moltbot-safe-executor-producer",
+          "producer_profile_version": "2.0.0",
+          "repository_revision": "f7a55e2a8494801e49193f9f46935f0a971c248d"
+        }
+      },
+      "rejected_observations": [],
+      "repository": {
+        "repository": "cogno-us/moltbot-safe",
+        "revision": "f7a55e2a8494801e49193f9f46935f0a971c248d",
+        "revision_status": "source_asserted"
+      }
+    }
+  },
+  "oracle_satisfied": false,
+  "verdict": "FAIL"
+}

@@ -1,0 +1,305 @@
+{
+  "case": "q1-source-integrity",
+  "checks": {
+    "archive_trees_match": false,
+    "archives_match": true,
+    "module_probes_succeeded": true,
+    "modules_inside_expected_roots": true,
+    "shadow_not_loaded": true
+  },
+  "observations": {
+    "archive_hashes": {
+      "control_plane": "62e0716ce8dfcbac57fe253c33d12db006964a5a368820c4a4aff36369dae8c5",
+      "evidence_attestation": "6ddd9bdb36ef9980ca9e8ec0581552c0d0823a171f1c6f75ca95fad555b8d047",
+      "evidence_pack": "1885edddfd357847f0885a776bcec6a921516d943cd098de32aeeb55c4e2d267",
+      "evidence_registry": "0db7224a464eba42f702cb46b8485d389ca3af27923c69d3bb566bdb51c6fafe",
+      "institutional_governance": "13750832a41cce8f224334452265da4e77b39d32bafc9007566b317fd32ba02d",
+      "manifest": "e7c50cc9459d40e622ae689a1738cebacedf00d80a24affb993af62d49ff51b6",
+      "orchestrator": "f031467b53e6de315528c85d26e928415875f51a42cd73616bf7704efceb2f67",
+      "replay": "77aaae90c1a900512c880ce228dc6703550dd3eabb6557e8afb810379ff99607",
+      "runtime": "1faca1d907a76e01a5e57c460f9a882ae61e7e8cb55d224fe21a86c363028fb9",
+      "verifier": "25cebf6cca2738b87e1be48e37e3a6e67735467d5d0fae2ccbb02fe3e54e644f"
+    },
+    "comparisons": {
+      "control_plane": {
+        "actual_files": 788,
+        "changed": [],
+        "expected_files": 788,
+        "extra": [],
+        "missing": []
+      },
+      "evidence_attestation": {
+        "actual_files": 78,
+        "changed": [],
+        "expected_files": 78,
+        "extra": [],
+        "missing": []
+      },
+      "evidence_pack": {
+        "actual_files": 216,
+        "changed": [],
+        "expected_files": 216,
+        "extra": [],
+        "missing": []
+      },
+      "evidence_registry": {
+        "actual_files": 150,
+        "changed": [],
+        "expected_files": 150,
+        "extra": [],
+        "missing": []
+      },
+      "institutional_governance": {
+        "actual_files": 367,
+        "changed": [],
+        "expected_files": 367,
+        "extra": [],
+        "missing": []
+      },
+      "manifest": {
+        "actual_files": 65,
+        "changed": [],
+        "expected_files": 65,
+        "extra": [],
+        "missing": []
+      },
+      "orchestrator": {
+        "actual_files": 387,
+        "changed": [],
+        "expected_files": 387,
+        "extra": [],
+        "missing": []
+      },
+      "replay": {
+        "actual_files": 360,
+        "changed": [],
+        "expected_files": 360,
+        "extra": [],
+        "missing": []
+      },
+      "runtime": {
+        "actual_files": 268,
+        "changed": [],
+        "expected_files": 267,
+        "extra": [
+          "CLAUDE.md"
+        ],
+        "missing": []
+      },
+      "verifier": {
+        "actual_files": 1066,
+        "changed": [],
+        "expected_files": 1066,
+        "extra": [],
+        "missing": []
+      }
+    },
+    "module_probes": {
+      "control_plane": {
+        "command": [
+          "/tmp/g3qual-venv/bin/python",
+          "-B",
+          "-c",
+          "<probe>",
+          "/tmp/g3qual-sources/src/control_plane/src",
+          "agent_control_plane.bounded"
+        ],
+        "resolved": {
+          "file": "/tmp/g3qual-sources/src/control_plane/src/agent_control_plane/bounded.py",
+          "module": "agent_control_plane.bounded",
+          "sha256": "1b4a5f8fc6d64723da8f60cfe495736f4a92acb593e88787643fb9cba5f376ba",
+          "sys_path": [
+            "/tmp/g3qual-sources/src/control_plane/src",
+            "",
+            "/tmp/g3q-shadow-t69jabom",
+            "/usr/lib/python312.zip",
+            "/usr/lib/python3.12",
+            "/usr/lib/python3.12/lib-dynload",
+            "/tmp/g3qual-venv/lib/python3.12/site-packages"
+          ]
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"module\": \"agent_control_plane.bounded\", \"file\": \"/tmp/g3qual-sources/src/control_plane/src/agent_control_plane/bounded.py\", \"sha256\": \"1b4a5f8fc6d64723da8f60cfe495736f4a92acb593e88787643fb9cba5f376ba\", \"sys_path\": [\"/tmp/g3qual-sources/src/control_plane/src\", \"\", \"/tmp/g3q-shadow-t69jabom\", \"/usr/lib/python312.zip\", \"/usr/lib/python3.12\", \"/usr/lib/python3.12/lib-dynload\", \"/tmp/g3qual-venv/lib/python3.12/site-packages\"]}\n"
+      },
+      "evidence_attestation": {
+        "command": [
+          "/tmp/g3qual-venv/bin/python",
+          "-B",
+          "-c",
+          "<probe>",
+          "/tmp/g3qual-sources/src/evidence_attestation",
+          "profiles.verifier_result"
+        ],
+        "resolved": {
+          "file": "/tmp/g3qual-sources/src/evidence_attestation/profiles/verifier_result.py",
+          "module": "profiles.verifier_result",
+          "sha256": "13ea77031e56d3b603f0ba15f019da0c7d11662a8e35fcb588c4ad183fdb4c47",
+          "sys_path": [
+            "/tmp/g3qual-sources/src/evidence_attestation",
+            "",
+            "/tmp/g3q-shadow-t69jabom",
+            "/usr/lib/python312.zip",
+            "/usr/lib/python3.12",
+            "/usr/lib/python3.12/lib-dynload",
+            "/tmp/g3qual-venv/lib/python3.12/site-packages"
+          ]
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"module\": \"profiles.verifier_result\", \"file\": \"/tmp/g3qual-sources/src/evidence_attestation/profiles/verifier_result.py\", \"sha256\": \"13ea77031e56d3b603f0ba15f019da0c7d11662a8e35fcb588c4ad183fdb4c47\", \"sys_path\": [\"/tmp/g3qual-sources/src/evidence_attestation\", \"\", \"/tmp/g3q-shadow-t69jabom\", \"/usr/lib/python312.zip\", \"/usr/lib/python3.12\", \"/usr/lib/python3.12/lib-dynload\", \"/tmp/g3qual-venv/lib/python3.12/site-packages\"]}\n"
+      },
+      "evidence_pack": {
+        "command": [
+          "/tmp/g3qual-venv/bin/python",
+          "-B",
+          "-c",
+          "<probe>",
+          "/tmp/g3qual-sources/src/evidence_pack/src",
+          "agent_governance_evidence_pack.importer"
+        ],
+        "resolved": {
+          "file": "/tmp/g3qual-sources/src/evidence_pack/src/agent_governance_evidence_pack/importer.py",
+          "module": "agent_governance_evidence_pack.importer",
+          "sha256": "adce92581b39d82dbcaf65f4ef59ecd54125582e3a5752fc088b92de4ed40b1c",
+          "sys_path": [
+            "/tmp/g3qual-sources/src/evidence_pack/src",
+            "",
+            "/tmp/g3q-shadow-t69jabom",
+            "/usr/lib/python312.zip",
+            "/usr/lib/python3.12",
+            "/usr/lib/python3.12/lib-dynload",
+            "/tmp/g3qual-venv/lib/python3.12/site-packages"
+          ]
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"module\": \"agent_governance_evidence_pack.importer\", \"file\": \"/tmp/g3qual-sources/src/evidence_pack/src/agent_governance_evidence_pack/importer.py\", \"sha256\": \"adce92581b39d82dbcaf65f4ef59ecd54125582e3a5752fc088b92de4ed40b1c\", \"sys_path\": [\"/tmp/g3qual-sources/src/evidence_pack/src\", \"\", \"/tmp/g3q-shadow-t69jabom\", \"/usr/lib/python312.zip\", \"/usr/lib/python3.12\", \"/usr/lib/python3.12/lib-dynload\", \"/tmp/g3qual-venv/lib/python3.12/site-packages\"]}\n"
+      },
+      "institutional_governance": {
+        "command": [
+          "/tmp/g3qual-venv/bin/python",
+          "-B",
+          "-c",
+          "<probe>",
+          "/tmp/g3qual-sources/src/institutional_governance/process/implementation/g2-cp-resolver-dev",
+          "ig_root_resolver"
+        ],
+        "resolved": {
+          "file": "/tmp/g3qual-sources/src/institutional_governance/process/implementation/g2-cp-resolver-dev/ig_root_resolver.py",
+          "module": "ig_root_resolver",
+          "sha256": "480ba499300b81e08a6e924ac504774e87debd16c96ad7435cc88a991b127f44",
+          "sys_path": [
+            "/tmp/g3qual-sources/src/institutional_governance/process/implementation/g2-cp-resolver-dev",
+            "",
+            "/tmp/g3q-shadow-t69jabom",
+            "/usr/lib/python312.zip",
+            "/usr/lib/python3.12",
+            "/usr/lib/python3.12/lib-dynload",
+            "/tmp/g3qual-venv/lib/python3.12/site-packages"
+          ]
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"module\": \"ig_root_resolver\", \"file\": \"/tmp/g3qual-sources/src/institutional_governance/process/implementation/g2-cp-resolver-dev/ig_root_resolver.py\", \"sha256\": \"480ba499300b81e08a6e924ac504774e87debd16c96ad7435cc88a991b127f44\", \"sys_path\": [\"/tmp/g3qual-sources/src/institutional_governance/process/implementation/g2-cp-resolver-dev\", \"\", \"/tmp/g3q-shadow-t69jabom\", \"/usr/lib/python312.zip\", \"/usr/lib/python3.12\", \"/usr/lib/python3.12/lib-dynload\", \"/tmp/g3qual-venv/lib/python3.12/site-packages\"]}\n"
+      },
+      "replay": {
+        "command": [
+          "/tmp/g3qual-venv/bin/python",
+          "-B",
+          "-c",
+          "<probe>",
+          "/tmp/g3qual-sources/src/replay/src",
+          "agent_replay_bundle.importers"
+        ],
+        "resolved": {
+          "file": "/tmp/g3qual-sources/src/replay/src/agent_replay_bundle/importers.py",
+          "module": "agent_replay_bundle.importers",
+          "sha256": "a88a6c54c17b8cab0434f93ca8c00d944179d51ed6f5e3d8d240cd18e5073c54",
+          "sys_path": [
+            "/tmp/g3qual-sources/src/replay/src",
+            "",
+            "/tmp/g3q-shadow-t69jabom",
+            "/usr/lib/python312.zip",
+            "/usr/lib/python3.12",
+            "/usr/lib/python3.12/lib-dynload",
+            "/tmp/g3qual-venv/lib/python3.12/site-packages"
+          ]
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"module\": \"agent_replay_bundle.importers\", \"file\": \"/tmp/g3qual-sources/src/replay/src/agent_replay_bundle/importers.py\", \"sha256\": \"a88a6c54c17b8cab0434f93ca8c00d944179d51ed6f5e3d8d240cd18e5073c54\", \"sys_path\": [\"/tmp/g3qual-sources/src/replay/src\", \"\", \"/tmp/g3q-shadow-t69jabom\", \"/usr/lib/python312.zip\", \"/usr/lib/python3.12\", \"/usr/lib/python3.12/lib-dynload\", \"/tmp/g3qual-venv/lib/python3.12/site-packages\"]}\n"
+      },
+      "runtime": {
+        "command": [
+          "/tmp/g3qual-venv/bin/python",
+          "-B",
+          "-c",
+          "<probe>",
+          "/tmp/g3qual-sources/src/runtime",
+          "engine.safe_executor"
+        ],
+        "resolved": {
+          "file": "/tmp/g3qual-sources/src/runtime/engine/safe_executor.py",
+          "module": "engine.safe_executor",
+          "sha256": "940e781934542a7acd7bbe2f6833f9d329325d94b49425afd9d2bedcf23c5b68",
+          "sys_path": [
+            "/tmp/g3qual-sources/src/runtime",
+            "",
+            "/tmp/g3q-shadow-t69jabom",
+            "/usr/lib/python312.zip",
+            "/usr/lib/python3.12",
+            "/usr/lib/python3.12/lib-dynload",
+            "/tmp/g3qual-venv/lib/python3.12/site-packages"
+          ]
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"module\": \"engine.safe_executor\", \"file\": \"/tmp/g3qual-sources/src/runtime/engine/safe_executor.py\", \"sha256\": \"940e781934542a7acd7bbe2f6833f9d329325d94b49425afd9d2bedcf23c5b68\", \"sys_path\": [\"/tmp/g3qual-sources/src/runtime\", \"\", \"/tmp/g3q-shadow-t69jabom\", \"/usr/lib/python312.zip\", \"/usr/lib/python3.12\", \"/usr/lib/python3.12/lib-dynload\", \"/tmp/g3qual-venv/lib/python3.12/site-packages\"]}\n"
+      },
+      "verifier": {
+        "command": [
+          "/tmp/g3qual-venv/bin/python",
+          "-B",
+          "-c",
+          "<probe>",
+          "/tmp/g3qual-sources/src/verifier/src",
+          "cognous_verify.pack_cli"
+        ],
+        "resolved": {
+          "file": "/tmp/g3qual-sources/src/verifier/src/cognous_verify/pack_cli.py",
+          "module": "cognous_verify.pack_cli",
+          "sha256": "17c7b3a998073edb465d51fccbd6b9bff664ba7acf34f65620d9c8bca031a437",
+          "sys_path": [
+            "/tmp/g3qual-sources/src/verifier/src",
+            "",
+            "/tmp/g3q-shadow-t69jabom",
+            "/usr/lib/python312.zip",
+            "/usr/lib/python3.12",
+            "/usr/lib/python3.12/lib-dynload",
+            "/tmp/g3qual-venv/lib/python3.12/site-packages"
+          ]
+        },
+        "returncode": 0,
+        "stderr": "",
+        "stdout": "{\"module\": \"cognous_verify.pack_cli\", \"file\": \"/tmp/g3qual-sources/src/verifier/src/cognous_verify/pack_cli.py\", \"sha256\": \"17c7b3a998073edb465d51fccbd6b9bff664ba7acf34f65620d9c8bca031a437\", \"sys_path\": [\"/tmp/g3qual-sources/src/verifier/src\", \"\", \"/tmp/g3q-shadow-t69jabom\", \"/usr/lib/python312.zip\", \"/usr/lib/python3.12\", \"/usr/lib/python3.12/lib-dynload\", \"/tmp/g3qual-venv/lib/python3.12/site-packages\"]}\n"
+      }
+    },
+    "static_entries": {
+      "evidence_registry": {
+        "path": "/tmp/g3qual-sources/src/evidence_registry/chain/g1b/profile.mjs",
+        "sha256": "c4fa4be20dc940d716585301e8145b5c4e12a47b2bbf4978b17342b9e58f1876"
+      },
+      "manifest": {
+        "path": "/tmp/g3qual-sources/src/manifest/examples/refund_integration_v1_1.manifest.json",
+        "sha256": "789ad39596b9e1ef84a726a671883e1cb6b83343da3a31db0a1120906d68c074"
+      },
+      "orchestrator": {
+        "path": "/tmp/g3qual-sources/src/orchestrator/tests/manual_contract/g3_refund/source_manifest.json",
+        "sha256": "3f20602111b61e506b45297209483cfc027d6c5dfd46f8bd27c1d2af11760f0c"
+      }
+    }
+  },
+  "oracle_satisfied": false,
+  "verdict": "FAIL"
+}
