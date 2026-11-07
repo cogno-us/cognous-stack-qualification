@@ -16,6 +16,7 @@ The Architect directed closure of this development qualification attempt **witho
 | Q5 failure/UNKNOWN | NOT VERIFIED |
 
 ## 3. The six review findings
+Severities are those stated in the Architect's directive relaying the Copilot review (HIGH: F1, F2; MEDIUM: F3-F6); the individual review comments themselves do not state a severity. Review `5815219838` is the submitted `COMMENTED` review on head `27a11afa`.
 | # | Sev. | Where | Finding | Consequence for the retained result |
 |---|---|---|---|---|
 | F1 | HIGH | `harness.py` ~439 (Q2) | The value recorded as `independent_operation_digest` comes from the Runtime's own `snapshot_envelope(...).operation.digest`, so the digest binding tenant/action/adapter to SQLite is **not independently recomputed**; a shared digest defect would pass. | Q2's digest assurance is unmeasured independently. |
@@ -36,7 +37,7 @@ The Architect directed closure of this development qualification attempt **witho
 All five cases evaluated the **original G3 revision** `cogno-us/cognous-stack-orchestrator@0c1fb8a108f24db889ed6d06af1814cb1f9be647` (frozen subject). The later Q4 remediation was merged separately as `67c49e27127d3be259fcb5f6823f107191d56579` (merge of orchestrator PR #154, head `559ce9a904fa766d7bf525290045ff7653c7de1d`; its diff against `0c1fb8a1` is confined to `tests/manual_contract/g3_refund/`: the `g3_capture.py` tail/imports, new `g3_cleanup.py` and `test_g3_cleanup.py`, and developer evidence). **No qualification result in this PR was obtained on `67c49e27`.** The Q4 FAIL describes `0c1fb8a1` only and is not re-adjudicated here; the developer checks that accompany the remediation (7 passed) are developer evidence, not independent qualification. No Q1-Q5 result transfers across revisions.
 
 ## 6. Unresolved assurance requirements for any future qualification
-1. Per-execution source provenance measured inside the case processes themselves, covering every module actually used and detecting `sys.modules` bypass (F3), plus symlink-aware tree comparison and source preparation that accepts safe tracked relative symlinks (F6).
+1. Per-execution source provenance measured inside the case processes themselves, covering every module actually used and detecting `sys.modules` bypass (F3), plus a symlink-symmetric frozen tree-comparison oracle (the original Q1 comparison counted followed symlinks in the extracted tree but only regular archive members in its expected set, which is why `CLAUDE.md -> AGENTS.md` was reported as extra) and source preparation that accepts safe tracked relative symlinks (F6).
 2. An independent recomputation of the operation digest (F1) and a field-by-field comparison of the exported effects, observation and result flags against SQLite (F2), including tenant/action/adapter binding.
 3. Real counting or fail-if-called instrumentation for Runtime, Replay, Pack, Verifier, Attestation and Registry on a HOLD, with the Registry write measured rather than assumed (F4); a decision on the pre-decision `effective_grants_v1` row that produced the Q3 FAIL.
 4. A cleanup probe that executes the product's workspace lifecycle, including an injected removal failure and a disposal measured independently of harness cleanup (F5); a reasoned oracle for repeated deterministic effect identity across isolated databases.
@@ -47,4 +48,4 @@ All five cases evaluated the **original G3 revision** `cogno-us/cognous-stack-or
 ## 7. Closure
 **No further testing is authorized in this development closeout.** This attempt is closed as **incomplete**; the original results, adverse evidence and review findings are retained. Merging this documentation does not confer qualification, certification, adoption or acceptance; those remain reserved to competent authority.
 
-**Final status:** G1-G3 DEVELOPMENT-INTEGRATED · G3 Q4 REMEDIATION MERGED (`67c49e27`) · INDEPENDENT QUALIFICATION INCOMPLETE · VERIFIER ALPHA/HOLD · P1-EXIT BLOCKED/DEFERRED · CONSTITUTION ADOPTION UNVERIFIED.
+**Final status (as directed by the Architect and recorded in the OCS Hub #273 closeouts; this addendum does not itself establish integration):** G1-G3 DEVELOPMENT-INTEGRATED · G3 Q4 REMEDIATION MERGED (`67c49e27`) · INDEPENDENT QUALIFICATION INCOMPLETE · VERIFIER ALPHA/HOLD · P1-EXIT BLOCKED/DEFERRED · CONSTITUTION ADOPTION UNVERIFIED.
