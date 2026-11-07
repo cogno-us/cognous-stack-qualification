@@ -1,5 +1,7 @@
 # G3 bounded independent qualification report
 
+> **Addendum (2026-11-07):** see [`ADDENDUM_ASSESSMENT.md`](ADDENDUM_ASSESSMENT.md). Six review findings (F1-F6) qualify the meaning of these results: **Q2's reported PASS is limited by two high-severity measurement gaps (F1, F2) and is not an unqualified independent assurance**; Q3's non-invocation evidence is insufficiently instrumented (F4); Q4's original cleanup probe did not exercise the product lifecycle (F5). No verdict below was changed, and independent qualification remains incomplete. The text below is the original report, unmodified.
+
 **Qualification issue:** [#273](https://github.com/cogno-us/cognous-stack-qualification/issues/273)  
 **OCS Hub:** [cognous-open-control-stack#273](https://github.com/cogno-us/cognous-open-control-stack/issues/273)  
 **Static plan:** [cognous-open-control-stack#281](https://github.com/cogno-us/cognous-open-control-stack/issues/281)  
