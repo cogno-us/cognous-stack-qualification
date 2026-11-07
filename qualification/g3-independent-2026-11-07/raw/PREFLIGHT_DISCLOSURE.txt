@@ -1,0 +1,24 @@
+PRE-EXECUTION DISCLOSURE
+
+Before the formal five-case run, a temporary setup prototype invoked the valid
+native decision path once with the unshifted upstream fixture at the protocol's
+2026-11-07T00:00:00Z evaluation time. It returned HOLD with:
+
+approval_status_stale_or_future
+conflict_status_stale_or_future
+grant_outside_validity
+grant_status_stale_or_future
+identity_status_stale_or_future
+issuer_mandate_stale_or_future
+policy_status_stale_or_future
+
+The prototype then stopped on a missing decision binding before Runtime
+execution; it created no external effect. Its terminal output was not redirected
+to a file at the time, so original byte-for-byte output is unavailable. This is
+a qualification-process limitation and is disclosed rather than silently
+discarded.
+
+The formal committed harness did not change the frozen evaluation time or
+expected outcomes. It recorded a uniform timestamp shift of local synthetic
+fixture timestamps from 2026-10-05T19:00:00Z to 2026-11-07T00:00:00Z, preserving
+their relative ordering and semantics. Product source remained unchanged.

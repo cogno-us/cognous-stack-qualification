@@ -1,0 +1,371 @@
+{
+  "case": "q3-authority-refusal",
+  "checks": {
+    "all_downstream_not_invoked": true,
+    "native_revoked_hold": true,
+    "no_registry_write": true,
+    "no_sqlite_write": false,
+    "runtime_not_invoked": true
+  },
+  "observations": {
+    "database": {
+      "exists": true,
+      "schema": {
+        "attempt_events": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "event_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "INTEGER"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "attempt_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "status",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "error",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "created_at",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ],
+        "attempts": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "attempt_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "effect_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "decision_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "operation_digest",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "created_at",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ],
+        "effective_grants_v1": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "grant_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "principal",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "digest",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "derivation",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "status",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 5,
+            "dflt_value": null,
+            "name": "permissions_json",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          }
+        ],
+        "effects": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "effect_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "operation_digest",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "grant_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "target",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "amount",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          },
+          {
+            "cid": 5,
+            "dflt_value": null,
+            "name": "unit",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 6,
+            "dflt_value": null,
+            "name": "payload_json",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 7,
+            "dflt_value": null,
+            "name": "state",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          }
+        ],
+        "failure_records_v1": [
+          {
+            "cid": 0,
+            "dflt_value": null,
+            "name": "failure_id",
+            "notnull": 0,
+            "pk": 1,
+            "type": "TEXT"
+          },
+          {
+            "cid": 1,
+            "dflt_value": null,
+            "name": "decision_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 2,
+            "dflt_value": null,
+            "name": "effect_id",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 3,
+            "dflt_value": null,
+            "name": "attempt_id",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 4,
+            "dflt_value": null,
+            "name": "proposal_commitment",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 5,
+            "dflt_value": null,
+            "name": "manifest_version",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 6,
+            "dflt_value": null,
+            "name": "manifest_digest",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 7,
+            "dflt_value": null,
+            "name": "grant_id",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 8,
+            "dflt_value": null,
+            "name": "grant_revision",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 9,
+            "dflt_value": null,
+            "name": "failure_class",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 10,
+            "dflt_value": null,
+            "name": "reason_code",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 11,
+            "dflt_value": null,
+            "name": "stage",
+            "notnull": 1,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 12,
+            "dflt_value": null,
+            "name": "detail",
+            "notnull": 0,
+            "pk": 0,
+            "type": "TEXT"
+          },
+          {
+            "cid": 13,
+            "dflt_value": null,
+            "name": "created_at",
+            "notnull": 1,
+            "pk": 0,
+            "type": "REAL"
+          }
+        ]
+      },
+      "tables": {
+        "attempt_events": [],
+        "attempts": [],
+        "effective_grants_v1": [
+          {
+            "derivation": "effective-grant/0.1",
+            "digest": "sha256:23920e45e9c6f6fe9de406fcd29c6c7f50a1414f24f0508ea8cdc8d2f20b712c",
+            "grant_id": "urn:cognous:authority:g2-synthetic-refund-root-1",
+            "permissions_json": "[\"refund.issue.routine\"]",
+            "principal": "urn:cognous:principal:refund-service",
+            "status": "active"
+          }
+        ],
+        "effects": [],
+        "failure_records_v1": []
+      }
+    },
+    "decision": {
+      "reasons": [
+        "grant_revoked"
+      ],
+      "result": "hold"
+    },
+    "fixture_transform": {
+      "delta_seconds": 2782800,
+      "from": "2026-10-05T19:00:00+00:00",
+      "kind": "uniform timestamp shift",
+      "to": "2026-11-07T00:00:00+00:00"
+    },
+    "guarded_invocations": {
+      "attestation": 0,
+      "pack": 0,
+      "registry": 0,
+      "replay": 0,
+      "runtime": 0,
+      "verifier": 0
+    },
+    "registry_write_spy": 0,
+    "sqlite_total_rows": 1
+  },
+  "oracle_satisfied": false,
+  "verdict": "FAIL"
+}
