@@ -1,0 +1,165 @@
+{
+ "area": "authority",
+ "cases": [
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au1_workflow_issued_claim_equal_policy_executes",
+   "expected": "successor-profile claim ISSUED BY agent_control_plane provision_local_execution_claim (policy_binding given, aligned tenant/institution/authority_domain with the Runtime governed scope) is provisioned by destination.provision_claim and executes: status executed, 1 effect/1 attempt/1 receipt, claim consumed, budget 1, receipt selection_guard binding_verified with the live activation_ref",
+   "mandatory": true,
+   "note": "actual workflow issuance exercised end to end with aligned synthetic fixtures; no hand-built claim",
+   "observed": {
+    "activation_ref": "sha256:bdd8ab936c8fe43a2096f490369505e878db72587c9e4d910857aa0c925e36d0",
+    "call_chain": [
+     "v02_support.tenant_flow -> BoundedAuthorizationWorkflow.decide (authorized)",
+     "agent_control_plane.local_authority_effect.provision_local_execution_claim(provision=destination.provision_claim, policy_binding=...)",
+     "engine.local_authority_effect.AtomicAuthorityEffectDestination.provision_claim (the provision callback)",
+     "engine.atomic_local_control_plane_executor.AtomicLocalControlPlaneExecutor.execute -> execute_claim_atomic"
+    ],
+    "claim_has_binding": true,
+    "claim_profile": "urn:cognous:profiles:local-authority-effect:0.2.0-proposed",
+    "claim_scope_matches_binding": true,
+    "claim_type": "TenantLocalExecutionClaim",
+    "commitment_function_called_by_test_on_a_claim": false,
+    "counts": {
+     "attempts": 1,
+     "authority_effect_receipts_v1": 1,
+     "budget_used": 1,
+     "claim_states": {
+      "claim-au1": "consumed"
+     },
+     "effects": 1,
+     "execution_claims_v1": 1
+    },
+    "decision_id": "7b61249e-b9bc-4ab8-a787-3a1c7433c5b1",
+    "error": null,
+    "hand_built_claim": false,
+    "scope": {
+     "authority_domain": "customer-refunds",
+     "institution": "urn:cognous:institution:synthetic-customer-service",
+     "tenant": "tenant-alpha"
+    },
+    "selection_guard": [
+     {
+      "activation_ref": "sha256:bdd8ab936c8fe43a2096f490369505e878db72587c9e4d910857aa0c925e36d0",
+      "applied": true,
+      "checked_at": "2026-10-05T19:00:00.000000Z",
+      "effective_policy_digest": "sha256:bd5bf817ca0c16e2d68bc2a87ba6b53b27bda6db77c58f36d92032816604c0df",
+      "independent_attestation": false,
+      "log_head_hash": "sha256:bdd8ab936c8fe43a2096f490369505e878db72587c9e4d910857aa0c925e36d0",
+      "log_head_sequence": 3,
+      "participation": "required",
+      "policy_generation": 1,
+      "result": "binding_verified",
+      "scope_required": true,
+      "selection_epoch": 1,
+      "selection_id": "sel-test-1",
+      "trust_snapshot_fingerprint": "sha256:c46ec9d909d062b63e2dbcfa135dcdafe437420e5c1438f6c9a5a63b52572341",
+      "trust_snapshot_version": 1
+     }
+    ],
+    "status": "executed",
+    "verify_local_execution_claim": true,
+    "workflow_issued": true
+   },
+   "outcome": "PASSED",
+   "scenario": "AU-1",
+   "verdict": "HELD"
+  },
+  {
+   "case": "suites/tier1-v08/authority/test_authority_v08.py::test_au7_operation_substitution_bypasses_policy_containment_posthoc",
+   "expected": "control (binding names op-transfer, executor policy wider than op-transfer's record): denied policy_identity_mismatch[policy_not_subset:<set>], 0 effects. probe (binding rewritten to the other activated operation whose record contains the wide policy): secure oracle is a refusal; executing it means a colluding supplier selected which activated record bounds the policy",
+   "failure": "ause\"].startswith(\"policy_not_subset:\")\n        b2 = w.binding_for(env, state2, needed, scope=scope2)\n        changes = {k: b2[k] for k in b2 if k != \"scope\"}\n        changes[\"effective_policy_digest\"] = wdig\n        probe = w.forged_from(honest, claim_id=\"probe-wide-op-other\", binding_changes=changes)\n        env.dest.provision_claim(probe)\n        res_p = w.executor(env.dest, w.policy_from(wide2)).execute(envelope=iss.envelope, claim_id=\"probe-wide-op-other\")\n        c_p, guard = w.counts(env.dest), w.receipt_guard(env.dest)\n        ev[\"observed\"].update(workflow_issued=True, control=dict(status=res_c.status, typed=typed_c, counts=c_c, verdict=v_c),\n                              probe=dict(status=res_p.status, typed=w.refusal_of(res_p), counts=c_p, selection_guard=guard,\n                                         executor_policy_wider_than_op_transfer_record=any(set(wide2[k]) > set(needed[k]) for k in w.FIELDS),\n                                         reproduction=\"forge from workflow claim: binding.operation/selection/record/activation members of op-other + effective_policy_digest of wide sets; recompute claim_commitment\"))\n        if not control_ok:\n            ev[\"verdict\"] = \"INCONCLUSIVE\"\n        elif res_p.status == \"executed\" and c_p[\"effects\"] == 1:\n            ev[\"verdict\"] = \"BREACH\"\n            ev[\"note\"] = (\"Policy containment (F-01) is bypassed by operation substitution: with the control refused for op-transfer, the same wide executor policy committed an effect once the \"\n                          \"binding named another activated operation (op-other) of the same tenant/institution/domain/consumer. Owner: Runtime registry_selection_authority.check_effect \"\n                          \"(no operation comparison; the envelope has no operation member) / r08-v2 contract. The committed effect is the workflow-authorized operation itself.\")\n        elif res_p.status == \"denied\" and not c_p[\"effects\"]:\n            ev[\"verdict\"] = \"HELD\"\n        else:\n            ev[\"verdict\"] = \"INCONCLUSIVE\"\n>       assert ev[\"verdict\"] == \"HELD\", ev[\"observed\"]\nE       AssertionError: {'workflow_issued': True, 'control': {'status': 'denied', 'typed': {'code': 'policy_identity_mismatch', 'refusal_class...0Z', 'effective_policy_digest': 'sha256:70d2e46fcb3923f9cefa3001e3374113d5d71957112818b9e75d3bebfd2fd334', ...}], ...}}\nE       assert 'BREACH' == 'HELD'\nE         \nE         - HELD\nE         + BREACH\n\nsuites/tier1-v08/authority/test_authority_v08.py:515: AssertionError",
+   "mandatory": true,
+   "note": "Policy containment (F-01) is bypassed by operation substitution: with the control refused for op-transfer, the same wide executor policy committed an effect once the binding named another activated operation (op-other) of the same tenant/institution/domain/consumer. Owner: Runtime registry_selection_authority.check_effect (no operation comparison; the envelope has no operation member) / r08-v2 contract. The committed effect is the workflow-authorized operation itself.",
+   "observed": {
+    "control": {
+     "counts": {
+      "attempts": 0,
+      "authority_effect_receipts_v1": 0,
+      "budget_used": 0,
+      "claim_states": {
+       "control-wide-op-transfer": "issued"
+      },
+      "effects": 0,
+      "execution_claims_v1": 1
+     },
+     "status": "denied",
+     "typed": {
+      "cause": "policy_not_subset:allowed_actions",
+      "code": "policy_identity_mismatch",
+      "refusal_class": "REFUSE"
+     },
+     "verdict": "HELD"
+    },
+    "probe": {
+     "counts": {
+      "attempts": 1,
+      "authority_effect_receipts_v1": 1,
+      "budget_used": 1,
+      "claim_states": {
+       "control-wide-op-transfer": "issued",
+       "probe-wide-op-other": "consumed"
+      },
+      "effects": 1,
+      "execution_claims_v1": 2
+     },
+     "executor_policy_wider_than_op_transfer_record": true,
+     "reproduction": "forge from workflow claim: binding.operation/selection/record/activation members of op-other + effective_policy_digest of wide sets; recompute claim_commitment",
+     "selection_guard": [
+      {
+       "activation_ref": "sha256:b43c6aefac2c46ec5697bfbecb9185789e3a40b766420ca79396b65883b589c5",
+       "applied": true,
+       "checked_at": "2026-10-05T19:00:00.000000Z",
+       "effective_policy_digest": "sha256:70d2e46fcb3923f9cefa3001e3374113d5d71957112818b9e75d3bebfd2fd334",
+       "independent_attestation": false,
+       "log_head_hash": "sha256:b43c6aefac2c46ec5697bfbecb9185789e3a40b766420ca79396b65883b589c5",
+       "log_head_sequence": 4,
+       "participation": "required",
+       "policy_generation": 1,
+       "result": "binding_verified",
+       "scope_required": true,
+       "selection_epoch": 1,
+       "selection_id": "sel-test-op2",
+       "trust_snapshot_fingerprint": "sha256:93230207b79a68cdcdf49fe3b0c5bdf318a7c3c97d1e20cdb40f5f3c956d1b11",
+       "trust_snapshot_version": 1
+      }
+     ],
+     "status": "executed",
+     "typed": null
+    },
+    "workflow_issued": true
+   },
+   "outcome": "FAILED",
+   "scenario": "AU-7",
+   "verdict": "BREACH"
+  }
+ ],
+ "claim": "Independent TEST DESIGN by an AI qualification worker of the same engineering organization; not independent external qualification.",
+ "counts": {
+  "BLOCKED": 0,
+  "FAILED": 1,
+  "PASSED": 1,
+  "SKIP": 0,
+  "executed": 2
+ },
+ "environment": {
+  "platform": "Linux-6.18.44-fc-v165-x86_64-with-glibc2.39",
+  "pydantic": "2.14.1",
+  "pytest": "9.1.1",
+  "python": "3.13.17"
+ },
+ "exact_pins": {
+  "control_plane": "1bee3696ee6cd8037d142cdbcdb6020e052b0480",
+  "control_plane_legacy": "e66e5f163c5d5c112ff345a2f332b4c3893ee183",
+  "registry": "a1169a05afb917862f4a0f5865e278f4168ed171",
+  "runtime": "ac247dafbce3aacde37695575d457cf958b22560"
+ },
+ "harness_commit": "d4ad8019aa7ab06e600056df6d83499d073cd52b",
+ "qualification_v07_pin": "90e0e56e69448eadb43ea3df2017be189e09e3bb",
+ "run_number": 1,
+ "schema": "v08-tier1-results/1",
+ "verdicts": {
+  "BREACH": 1,
+  "HELD": 1
+ },
+ "worker": "lead"
+}
